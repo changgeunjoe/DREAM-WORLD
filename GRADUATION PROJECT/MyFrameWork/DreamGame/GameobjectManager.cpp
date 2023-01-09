@@ -24,11 +24,11 @@ T* InsertComponent()
 void GameobjectManager::render()
 {
 	GameObject* pGameObject = new GameObject(SQUARE_ENTITY);
+	pSqureObject
 	ModelRenderComponent* pModelRenderComponent = new ModelRenderComponent();
 	pGameObject->InsertComponent(pModelRenderComponent);
 	for (auto iter = pGameObject->Getcomponents().begin(); iter != pGameObject->Getcomponents().end(); iter++)
 	{
-		
 		pGameObject->Getcomponents().find(component_id::RENDER_COMPONENT);
 	}
 	auto it = .cbegin(); 
@@ -55,11 +55,10 @@ void GameobjectManager::render()
 
 void GameobjectManager::BuildObject()
 {
-	GameObject* pSqureObject = new GameObject(SQUARE_ENTITY);//사각형 오브젝트를 만들겠다
+	pSqureObject = new GameObject(SQUARE_ENTITY);//사각형 오브젝트를 만들겠다
 	pSqureObject->InsertComponent<RenderComponent>();
 	pSqureObject->InsertComponent<CubeMeshComponent>();
 	pSqureObject->InsertComponent<ShaderComponent>();
-
 }
 
 void GameobjectManager::Rotate()

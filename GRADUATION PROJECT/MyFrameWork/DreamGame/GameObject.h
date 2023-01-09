@@ -2,6 +2,7 @@
 #include"stdafx.h"
 #include"RenderComponent.h"
 #include"ShaderComponent.h"
+#include"MeshComponent.h"
 class ComponentBase;
 class GameObject
 {

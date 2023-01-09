@@ -103,15 +103,13 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	ComponentBase* pShaderComponent = GetComponent(component_id::SHADER_COMPONENT);
 	if (pComponent != NULL)
 	{
-		CubeMeshComponent* pShaderComponent = static_cast<CubeMeshComponent*>(pComponent);
-		pShaderComponent->Render(pd3dCommandList);
+		ShaderComponent* pShaderComponent = static_cast<CubeMeshComponent*>(pComponent);
+		pShaderComponent->CreateCbvSrvDescriptorHeaps(pd3dDevice, m_nObjects, 10);
+		pShaderComponent->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+		pShaderComponent->CreateConstantBufferViews(pd3dDevice, m_nObjects, m_pd3dcbGameObjects, ncbElementBytes);
+		pShaderComponent->CreateShaderResourceViews(pd3dDevice, m_pMissileTexture, 0, 11);
 	}
 	//	CreateShader(pd3dDevice,  pd3dCommandList,pd3dGraphicsRootSignature);
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, m_nObjects, 10);
-	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	CreateConstantBufferViews(pd3dDevice, m_nObjects, m_pd3dcbGameObjects, ncbElementBytes);
-	CreateShaderResourceViews(pd3dDevice, m_pMissileTexture, 0, 11);
-
 	int nObjects = 0;
 	for (int i = 0; i < m_nObjects; i++) {
 		pMissleObject = new CMissleObject();
