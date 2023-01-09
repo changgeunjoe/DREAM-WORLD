@@ -51,6 +51,8 @@ using namespace std;
 #include <string>
 #include <iostream>
 #include<random>
+#include <unordered_map>
+
 
 #pragma comment(lib, "ws2_32") // ws2_32.lib 링크
 ///////////////////////////////////////////
@@ -108,6 +110,48 @@ inline bool IsEqual(float fA, float fB) { return(::IsZero(fA - fB)); }
 inline float InverseSqrt(float fValue) { return 1.0f / sqrtf(fValue); }
 inline void Swap(float* pfS, float* pfT) { float fTemp = *pfS; *pfS = *pfT; *pfT = fTemp; }
 
+
+struct MATERIAL
+{
+	XMFLOAT4						m_xmf4Ambient;
+	XMFLOAT4						m_xmf4Diffuse;
+	XMFLOAT4						m_xmf4Specular; //(r,g,b,a=power)
+	XMFLOAT4						m_xmf4Emissive;
+};
+struct SPRITEANIMATIONMATERIAL
+{
+	XMFLOAT4						m_xmf4Ambient;
+	XMFLOAT4						m_xmf4Diffuse;
+	XMFLOAT4						m_xmf4Specular; //(r,g,b,a=power)
+	XMFLOAT4						m_xmf4Emissive;
+};
+struct CB_GAMEOBJECT_INFO
+{
+	XMFLOAT4X4						m_xmf4x4World;
+	MATERIAL						m_material;
+
+	XMFLOAT4X4						m_xmf4x4Texture;
+	XMINT2							m_xmi2TextureTiling;
+	XMFLOAT2						m_xmf2TextureOffset;
+	float							g_fDeltaTime;
+};//어디다 두어야 할지 고민해야함
+enum entity_id
+{
+	SQUARE_ENTITY
+};
+enum component_id 
+{
+	UNDEF_COMPONENT,
+	RENDER_COMPONENT,
+	PHYSICS_COMPONENT,
+	MESH_COMPONENT,
+	SHADER_COMPONENT
+};
+//mean about component_id;
+
+enum Message{
+ITEM_TYPE,
+};
 namespace Vector3
 {
 	inline XMFLOAT3 XMVectorToFloat3(XMVECTOR& xmvVector)

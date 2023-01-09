@@ -27,20 +27,9 @@ void CCamera::ReleaseShaderVariables()
 
 void CCamera::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	XMFLOAT4X4 xmf4x4View;
-	//xmf4x4View = Matrix4x4::Identity();
-	XMStoreFloat4x4(&xmf4x4View, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4View)));
-	::memcpy(&MappedCamera->m_xmf4x4View, &xmf4x4View, sizeof(XMFLOAT4X4));
-
-	XMFLOAT4X4 xmf4x4Projection;
-	XMStoreFloat4x4(&xmf4x4Projection, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4Projection)));
-	::memcpy(&MappedCamera->m_xmf4x4Projection, &xmf4x4Projection, sizeof(XMFLOAT4X4));
-	//XMFLOAT4X4 xmf4x4identityView;
-	//xmf4x4identityView = Matrix4x4::Identity();
-	////XMStoreFloat4x4(&xmf4x4View, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4View)));
-	//::memcpy(&MappedCamera->m_xmf4x4identityView, &xmf4x4identityView, sizeof(XMFLOAT4X4));
-	//::memcpy(&m_pcbMappedCamera->m_xmf3Position, &m_xmf3Position, sizeof(XMFLOAT3));
-
+	XMStoreFloat4x4(&MappedCamera->m_xmf4x4View, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4View)));
+	XMStoreFloat4x4(&MappedCamera->m_xmf4x4Projection, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4Projection)));
+	
 	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = ResourceCamera->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(0, d3dGpuVirtualAddress);
 

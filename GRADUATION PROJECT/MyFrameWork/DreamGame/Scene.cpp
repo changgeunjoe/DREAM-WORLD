@@ -52,8 +52,8 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
     ::ZeroMemory(&RootSignature.RootSignatureDesc, sizeof(D3D12_ROOT_SIGNATURE_DESC));
     RootSignature.RootSignatureDesc.NumParameters = RootSignature.RootParameter.size();
     RootSignature.RootSignatureDesc.pParameters = RootSignature.RootParameter.data();
-    RootSignature.RootSignatureDesc.NumStaticSamplers = RootSignature.Descriptorrange.size();
-   // RootSignature.RootSignatureDesc.pStaticSamplers = RootSignature.Descriptorrange.data();
+    RootSignature.RootSignatureDesc.NumStaticSamplers = RootSignature.TextureSamplerDescs.size();
+    RootSignature.RootSignatureDesc.pStaticSamplers = RootSignature.TextureSamplerDescs.data(); //texture sampler 아직 없음
     RootSignature.RootSignatureDesc.Flags = RootSignature.RootSignatureFlags;
 
     ID3DBlob* pd3dSignatureBlob = NULL;
@@ -276,7 +276,7 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 {
     pCamera->SetViewportsAndScissorRects(pd3dCommandList);
     pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
-    if (pCamera) pCamera->UpdateShaderVariables(pd3dCommandList);
+   // if (pCamera) pCamera->UpdateShaderVariables(pd3dCommandList);
     //씬을 렌더링하는 것은 씬을 구성하는 게임 객체(셰이더를 포함하는 객체)들을 렌더링하는 것이다. 
     for (int j = 0; j < m_nObjects; j++)
     {

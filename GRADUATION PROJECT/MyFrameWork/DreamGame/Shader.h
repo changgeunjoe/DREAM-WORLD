@@ -40,6 +40,9 @@ public:
 protected:
 	ID3D12PipelineState** m_ppd3dPipelineStates = NULL;
 	int m_nPipelineStates = 0;
+
+	ID3D12Resource* m_pd3dcbResourceGameObjects = NULL;
+	CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
 };
 
 class CDiffusedShader : public CShader
