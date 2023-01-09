@@ -11,7 +11,6 @@ public:
 	virtual ~CGameObject();
 private:
 	int m_nReferences = 0;
-
 public:
 	void AddRef() { m_nReferences++; }
 	void Release() { if (--m_nReferences <= 0)delete this; }

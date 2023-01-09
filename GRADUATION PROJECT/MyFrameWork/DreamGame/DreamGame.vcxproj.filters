@@ -87,6 +87,27 @@
     <ClInclude Include="Camera.h">
       <Filter>GameObject</Filter>
     </ClInclude>
+    <ClInclude Include="ComponentBase.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderComponent.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="GameobjectManager.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshComponent.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderComponent.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Vertex.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -121,6 +142,24 @@
     </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentBase.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderComponent.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="GameobjectManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshComponent.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderComponent.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
