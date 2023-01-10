@@ -3,6 +3,7 @@
 #include"RenderComponent.h"
 #include"ShaderComponent.h"
 #include"MeshComponent.h"
+#include"TextureComponent.h"
 class ComponentBase;
 class GameObject
 {
@@ -27,10 +28,24 @@ public:
     void HandleMessage(string message);
 
     void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+    void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+    virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+    virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
+    virtual void ReleaseShaderVariables();
+
     template<typename T>
     T* InsertComponent();
     template<typename T>
-    T* ComponentType(component_id componentID);
+    T* ComponentType(component_id &componentID);
+
+    virtual void OnPrepareRender() { }
+
+    void SetCbvGPUDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE d3dCbvGPUDescriptorHandle) { m_d3dCbvGPUDescriptorHandle = d3dCbvGPUDescriptorHandle; }
+    void SetCbvGPUDescriptorHandlePtr(UINT64 nCbvGPUDescriptorHandlePtr) { m_d3dCbvGPUDescriptorHandle.ptr = nCbvGPUDescriptorHandlePtr; }
+    D3D12_GPU_DESCRIPTOR_HANDLE GetCbvGPUDescriptorHandle() { return(m_d3dCbvGPUDescriptorHandle); }
+public:
+    XMFLOAT4X4						m_xmf4x4Transform;//변환 행렬
+    XMFLOAT4X4						m_xmf4x4World; //월드 행렬
 
 protected:
     entity_id m_entityID;//object id 
@@ -39,6 +54,13 @@ protected:
     //Quaternion m_orientation;
 
     unordered_map<component_id, ComponentBase*> m_components;
+
+    CTexture* m_pMissileTexture{ NULL };
+protected:
+    ID3D12Resource* m_pd3dcbGameObjects = NULL;
+    CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
+
+    D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dCbvGPUDescriptorHandle;
 };
 
 template<typename T>//템플릿을 활용하는 이유-> 
@@ -58,7 +80,7 @@ inline T* GameObject::InsertComponent()//컴포넌트를 게임 오브젝트에 넣는 함수
 }
 
 template<typename T>
-inline T* GameObject::ComponentType(component_id componentID)
+inline T* GameObject::ComponentType(component_id &componentID)
 {
     if (typeid(T).name() == typeid(RenderComponent).name())
     {
@@ -68,9 +90,13 @@ inline T* GameObject::ComponentType(component_id componentID)
     {
         componentID = component_id::MESH_COMPONENT;
     }
-    else if (typeid(T).name() == typeid(PhysicsComponent).name())
+    else if (typeid(T).name() == typeid(CubeMeshComponent).name())
     {
-        componentID = component_id::PHYSICS_COMPONENT;
+        componentID = component_id::CUBEMESH_COMPONENT;
+    }
+    else if (typeid(T).name() == typeid(ShaderComponent).name())
+    {
+        componentID = component_id::SHADER_COMPONENT;
     }
     else
     {

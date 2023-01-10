@@ -3,10 +3,7 @@
 #include "stdafx.h"
 #include "Camera.h"
 
-struct CB_GAMEOBJECT_INFO
-{
-	XMFLOAT4X4 m_xmf4x4World;
-};
+
 //셰이더 소스 코드를 컴파일하고 그래픽스 상태 객체를 생성한다. 
 class CGameObject;
 class CShader

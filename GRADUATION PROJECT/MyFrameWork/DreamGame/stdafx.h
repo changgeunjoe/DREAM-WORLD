@@ -127,14 +127,8 @@ struct SPRITEANIMATIONMATERIAL
 };
 struct CB_GAMEOBJECT_INFO
 {
-	XMFLOAT4X4						m_xmf4x4World;
-	MATERIAL						m_material;
-
-	XMFLOAT4X4						m_xmf4x4Texture;
-	XMINT2							m_xmi2TextureTiling;
-	XMFLOAT2						m_xmf2TextureOffset;
-	float							g_fDeltaTime;
-};//어디다 두어야 할지 고민해야함
+	XMFLOAT4X4 m_xmf4x4World;
+};
 enum entity_id
 {
 	SQUARE_ENTITY
@@ -145,6 +139,7 @@ enum component_id
 	RENDER_COMPONENT,
 	PHYSICS_COMPONENT,
 	MESH_COMPONENT,
+	CUBEMESH_COMPONENT,
 	SHADER_COMPONENT
 };
 //mean about component_id;
@@ -353,3 +348,11 @@ namespace Plane
 		return(xmf4Result);
 	}
 }
+/////////////////////////////
+
+#define RESOURCE_TEXTURE1D			0x01
+#define RESOURCE_TEXTURE2D			0x02
+#define RESOURCE_TEXTURE2D_ARRAY	0x03	//[]
+#define RESOURCE_TEXTURE2DARRAY		0x04
+#define RESOURCE_TEXTURE_CUBE		0x05
+#define RESOURCE_BUFFER				0x06
