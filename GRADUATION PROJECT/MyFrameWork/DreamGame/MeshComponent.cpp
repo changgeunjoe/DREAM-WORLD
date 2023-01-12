@@ -89,6 +89,11 @@ D3D12_INDEX_BUFFER_VIEW MeshComponent::GetIndexBufferView()
 	return m_d3dIndexBufferView;
 }
 
+ID3D12Resource* MeshComponent::GetIndexBufferResource()
+{
+	return m_pd3dIndexBuffer;
+}
+
 UINT MeshComponent::GetSlot()
 {
 	return m_nSlot;
@@ -112,4 +117,9 @@ UINT MeshComponent::GetStride()
 UINT MeshComponent::GetIndices()
 {
 	return m_nIndices;
+}
+
+D3D12_PRIMITIVE_TOPOLOGY MeshComponent::GetPrimitveTopology()
+{
+	return m_d3dPrimitiveTopology;
 }

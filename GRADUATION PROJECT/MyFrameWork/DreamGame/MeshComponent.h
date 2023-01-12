@@ -56,12 +56,13 @@ public:
 
 	virtual D3D12_VERTEX_BUFFER_VIEW	GetVertexBufferView();
 	virtual D3D12_INDEX_BUFFER_VIEW		GetIndexBufferView();
+	virtual ID3D12Resource*				GetIndexBufferResource();
 	virtual UINT						GetSlot();
 	virtual UINT						GetOffset();
 	virtual UINT						GetVertices();
 	virtual UINT						GetStride();
 	virtual UINT						GetIndices();
-
+	virtual D3D12_PRIMITIVE_TOPOLOGY	GetPrimitveTopology();
 	virtual void						BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float fWidth, float fHeight, float fDepth) {};
 	virtual void sec() {};
 protected:

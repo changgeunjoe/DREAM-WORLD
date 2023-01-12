@@ -4,6 +4,7 @@
 GameObject::GameObject(entity_id entityID)
 {
     m_entityID = entityID;
+	m_xmf4x4World = Matrix4x4::Identity();
 }
 
 GameObject::~GameObject()
@@ -93,7 +94,7 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	{
 		CubeMeshComponent* pCubeComponent = static_cast<CubeMeshComponent*>(pMeshComponent);
 		pCubeComponent->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, 10, 10, 10);
-	//	m_pMissileTexturedMesh = new CCubeMeshTextured(pd3dDevice, pd3dCommandList, 10.f, 10.5f, 5.f);
+		//m_pMissileTexturedMesh = new CCubeMeshTextured(pd3dDevice, pd3dCommandList, 10.f, 10.5f, 5.f);
 		//CMesh* pMeshIlluminated = new CSphereMeshIlluminated(pd3dDevice, pd3dCommandList, 100.0f, 20, 20);
 	}
 	//->메테리얼 생성 텍스쳐와 쉐이더를 넣어야되는데 쉐이더이므로 안 넣어도 됨
@@ -113,24 +114,35 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		PShaderComponent->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 		PShaderComponent->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObjects, ncbElementBytes);
 		PShaderComponent->CreateShaderResourceViews(pd3dDevice, m_pMissileTexture, 0, 11);//texture입력
-		SetCbvGPUDescriptorHandlePtr(PShaderComponent->GetCbvGPUDescriptorHandle().ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));
+		//SetCbvGPUDescriptorHandle(PShaderComponent->GetCbvGPUDescriptorHandle());
+		SetCbvGPUDescriptorHandlePtr(PShaderComponent->GetGPUCbvDescriptorStartHandle().ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));
 	}
 
-	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	//CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
 
-	OnPrepareRender();
-	UpdateShaderVariables(pd3dCommandList);
+	//OnPrepareRender();
+	//UpdateShaderVariables(pd3dCommandList);
 
 	ComponentBase* pShaderComponent = GetComponent(component_id::SHADER_COMPONENT);
 	if (pShaderComponent != NULL)
 	{
 		ShaderComponent* PShaderComponent = static_cast<ShaderComponent*>(pShaderComponent);
 		PShaderComponent->Render(pd3dCommandList,0);
-		
+		PShaderComponent->UpdateShaderVariables(pd3dCommandList, &m_xmf4x4World);
+		pd3dCommandList->SetGraphicsRootDescriptorTable(0, m_d3dCbvGPUDescriptorHandle);
 	}
+	ComponentBase* pRenderComponent = GetComponent(component_id::RENDER_COMPONENT);
+	ComponentBase* pMeshComponent = GetComponent(component_id::CUBEMESH_COMPONENT);
+	if (pShaderComponent != NULL)
+	{
+		RenderComponent* pRenderComponents = static_cast<RenderComponent*>(pRenderComponent);
+		CubeMeshComponent* pMeshComponents = static_cast<CubeMeshComponent*>(pMeshComponent);
+		pRenderComponents->Render(pd3dCommandList, pMeshComponents);
+	}
+
 	//if (m_nMaterials > 0)
 	//{
 	//	for (int i = 0; i < m_nMaterials; i++)

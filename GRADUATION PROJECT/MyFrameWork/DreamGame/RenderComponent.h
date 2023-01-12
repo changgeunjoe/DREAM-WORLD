@@ -1,5 +1,6 @@
 #pragma once
 #include "ComponentBase.h"
+#include "MeshComponent.h"
 class RenderComponent :public ComponentBase
 {
 public:
@@ -22,7 +23,7 @@ protected:
 	D3D12_VERTEX_BUFFER_VIEW		m_d3dVertexBufferView;
 	D3D12_INDEX_BUFFER_VIEW			m_d3dIndexBufferView;
 public:
-	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, MeshComponent* meshcomponent);
 	virtual void HandleMessage(Message message);
 };
 

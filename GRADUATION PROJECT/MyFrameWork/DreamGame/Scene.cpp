@@ -31,6 +31,7 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
     RootSignature.Descriptorrange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
     RootSignature.Descriptorrange[1].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
     RootSignature.Descriptorrange[1].NumDescriptors = 1;
+    RootSignature.Descriptorrange[1].NumDescriptors = 1;
     RootSignature.Descriptorrange[1].BaseShaderRegister = 1; //Camera //b1
     RootSignature.Descriptorrange[1].RegisterSpace = 0;
     RootSignature.Descriptorrange[1].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
@@ -274,16 +275,18 @@ void CScene::AnimateObjects(float fTimeElapsed)
 //   pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 //}
 
-void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
+void CScene::Render(ID3D12Device* pd3dDevice,ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
     pCamera->SetViewportsAndScissorRects(pd3dCommandList);
     pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
    // if (pCamera) pCamera->UpdateShaderVariables(pd3dCommandList);
     //씬을 렌더링하는 것은 씬을 구성하는 게임 객체(셰이더를 포함하는 객체)들을 렌더링하는 것이다. 
-    for (int j = 0; j < m_nObjects; j++)
+    
+    m_pObjectManager->Render(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+  /*  for (int j = 0; j < m_nObjects; j++)
     {
         if (m_ppObjects[j]) m_ppObjects[j]->Render(pd3dCommandList, pCamera);
-    }
+    }*/
 }
 
 void CScene::ReleaseUploadBuffers()

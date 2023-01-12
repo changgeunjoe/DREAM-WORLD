@@ -21,9 +21,9 @@ T* InsertComponent()
 	return 0;
 }
 
-void GameobjectManager::render()
+void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	GameObject* pGameObject = new GameObject(SQUARE_ENTITY);
+	//GameObject* pGameObject = new GameObject(SQUARE_ENTITY);
 	//ModelRenderComponent* pModelRenderComponent = new ModelRenderComponent();
 	//pGameObject->InsertComponent(pModelRenderComponent);
 	//for (auto iter = pGameObject->Getcomponents().begin(); iter != pGameObject->Getcomponents().end(); iter++)
@@ -44,12 +44,14 @@ void GameobjectManager::render()
  //   }
  //
 	
-	ComponentBase* pComponent = pGameObject->GetComponent(component_id::RENDER_COMPONENT);
-	if (pComponent != NULL)
-	{
-		RenderComponent* pRenderComponent = static_cast<RenderComponent*>(pComponent);
-	//	pRenderComponent->Render();
-	}
+	//ComponentBase* pComponent = pGameObject->GetComponent(component_id::RENDER_COMPONENT);
+	//if (pComponent != NULL)
+	//{
+	//	RenderComponent* pRenderComponent = static_cast<RenderComponent*>(pComponent);
+	////	pRenderComponent->Render();
+	//}
+
+	pSqureObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
 
 void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)

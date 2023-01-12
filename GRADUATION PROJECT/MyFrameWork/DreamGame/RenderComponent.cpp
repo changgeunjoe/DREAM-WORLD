@@ -9,18 +9,18 @@ RenderComponent::~RenderComponent()
 
 }
 
-void RenderComponent::Render(ID3D12GraphicsCommandList* pd3dCommandList)
+void RenderComponent::Render(ID3D12GraphicsCommandList* pd3dCommandList,MeshComponent* meshcomponent)
 {
-	pd3dCommandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
-	pd3dCommandList->IASetVertexBuffers(m_nSlot, 1, &m_d3dVertexBufferView);
-	if (m_pd3dIndexBuffer)
+	pd3dCommandList->IASetPrimitiveTopology(meshcomponent->GetPrimitveTopology());
+	pd3dCommandList->IASetVertexBuffers(meshcomponent->GetSlot(), 1, &meshcomponent->GetVertexBufferView());
+	if (meshcomponent->GetIndexBufferResource())
 	{
-		pd3dCommandList->IASetIndexBuffer(&m_d3dIndexBufferView);
-		pd3dCommandList->DrawIndexedInstanced(m_nIndices, 1, 0, 0, 0);
+		pd3dCommandList->IASetIndexBuffer(&meshcomponent->GetIndexBufferView());
+		pd3dCommandList->DrawIndexedInstanced(meshcomponent->GetIndices(), 1, 0, 0, 0);
 	}
 	else
 	{
-		pd3dCommandList->DrawInstanced(m_nVertices, 1, m_nOffset, 0);
+		pd3dCommandList->DrawInstanced(meshcomponent->GetVertices(), 1, meshcomponent->GetOffset(), 0);
 	}
 }
 
