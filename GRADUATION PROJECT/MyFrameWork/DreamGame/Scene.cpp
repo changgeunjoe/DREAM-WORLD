@@ -23,18 +23,18 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
     ID3D12RootSignature* pd3dGraphicsRootSignature = NULL;
 #ifdef _WITH_STANDARD_TEXTURE_MULTIPLE_DESCRIPTORS
 
-    RootSignature.Descriptorrange.resize(2);
+    RootSignature.Descriptorrange.resize(1);
     RootSignature.Descriptorrange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
     RootSignature.Descriptorrange[0].NumDescriptors = 1;
     RootSignature.Descriptorrange[0].BaseShaderRegister = 0; //GameObject //b0
     RootSignature.Descriptorrange[0].RegisterSpace = 0;
     RootSignature.Descriptorrange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-    RootSignature.Descriptorrange[1].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
-    RootSignature.Descriptorrange[1].NumDescriptors = 1;
-    RootSignature.Descriptorrange[1].NumDescriptors = 1;
-    RootSignature.Descriptorrange[1].BaseShaderRegister = 1; //Camera //b1
-    RootSignature.Descriptorrange[1].RegisterSpace = 0;
-    RootSignature.Descriptorrange[1].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+    //RootSignature.Descriptorrange[1].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+    //RootSignature.Descriptorrange[1].NumDescriptors = 1;
+    //RootSignature.Descriptorrange[1].NumDescriptors = 1;
+    //RootSignature.Descriptorrange[1].BaseShaderRegister = 1; //Camera //b1
+    //RootSignature.Descriptorrange[1].RegisterSpace = 0;
+    //RootSignature.Descriptorrange[1].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
     
 //-------------------------------rootParameter----------------------------------------------------    
     RootSignature.RootParameter.resize(2);
@@ -44,10 +44,10 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
     RootSignature.RootParameter[0].DescriptorTable.pDescriptorRanges = &(RootSignature.Descriptorrange[0]);
     RootSignature.RootParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
     //Camera(b1) Shaders.hlsl
-    RootSignature.RootParameter[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-    RootSignature.RootParameter[1].DescriptorTable.NumDescriptorRanges = 1;
-    RootSignature.RootParameter[1].DescriptorTable.pDescriptorRanges = &(RootSignature.Descriptorrange[1]);
-    RootSignature.RootParameter[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+    RootSignature.RootParameter[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+    RootSignature.RootParameter[1].Descriptor.ShaderRegister = 1;
+    RootSignature.RootParameter[1].Descriptor.RegisterSpace = 0;
+    RootSignature.RootParameter[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 #endif
     ::ZeroMemory(&RootSignature.RootSignatureDesc, sizeof(D3D12_ROOT_SIGNATURE_DESC));
@@ -279,7 +279,7 @@ void CScene::Render(ID3D12Device* pd3dDevice,ID3D12GraphicsCommandList* pd3dComm
 {
     pCamera->SetViewportsAndScissorRects(pd3dCommandList);
     pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
-   // if (pCamera) pCamera->UpdateShaderVariables(pd3dCommandList);
+    if (pCamera) pCamera->UpdateShaderVariables(pd3dCommandList);
     //씬을 렌더링하는 것은 씬을 구성하는 게임 객체(셰이더를 포함하는 객체)들을 렌더링하는 것이다. 
     
     m_pObjectManager->Render(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);

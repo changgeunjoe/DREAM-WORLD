@@ -50,7 +50,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	//	RenderComponent* pRenderComponent = static_cast<RenderComponent*>(pComponent);
 	////	pRenderComponent->Render();
 	//}
-
+	pSqureObject->SetPosition(XMFLOAT3(0, 0, 50));
 	pSqureObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
 

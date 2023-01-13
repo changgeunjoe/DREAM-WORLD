@@ -211,9 +211,9 @@ void ShaderComponent::CreateGraphicsPipelineState(ID3D12Device* pd3dDevice, ID3D
 	::ZeroMemory(&d3dPipelineStateDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
 	d3dPipelineStateDesc.pRootSignature = pd3dGraphicsRootSignature;
 	d3dPipelineStateDesc.VS = CreateVertexShader(nPipelineState);
-	//d3dPipelineStateDesc.GS = CreateGeometryShader(nPipelineState);
+	d3dPipelineStateDesc.GS = CreateGeometryShader(nPipelineState);
 	d3dPipelineStateDesc.PS = CreatePixelShader(nPipelineState);
-	//d3dPipelineStateDesc.StreamOutput = CreateStreamOuputState(nPipelineState);
+	d3dPipelineStateDesc.StreamOutput = CreateStreamOuputState(nPipelineState);
 	d3dPipelineStateDesc.RasterizerState = CreateRasterizerState(nPipelineState);
 	d3dPipelineStateDesc.BlendState = CreateBlendState(nPipelineState);
 	d3dPipelineStateDesc.DepthStencilState = CreateDepthStencilState(nPipelineState);
@@ -259,9 +259,9 @@ void ShaderComponent::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dComman
 {
 }
 
-void ShaderComponent::Render(ID3D12GraphicsCommandList* pd3dCommandList, int nPipelineState)
+void ShaderComponent::Render(ID3D12GraphicsCommandList* pd3dCommandList, int nPipelineState, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	if (m_pd3dGraphicsRootSignature) pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
+	if (pd3dGraphicsRootSignature) pd3dCommandList->SetGraphicsRootSignature(pd3dGraphicsRootSignature);
 	if (m_ppd3dPipelineStates) pd3dCommandList->SetPipelineState(m_ppd3dPipelineStates[nPipelineState]);
 	if (m_pd3dCbvSrvDescriptorHeap) pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 
