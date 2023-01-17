@@ -14,11 +14,11 @@ private:
 private:
 	SOCKET m_listenSocket;
 	SOCKET m_clientSocket;
+	SOCKADDR_IN server_addr;
 
 	ExpOver* m_acceptOver;
 
 	volatile bool b_isRunning;
-
 private:
 	int		m_currentClientId;
 
@@ -30,10 +30,10 @@ public:
 	~IOCPNetwork();
 
 	void Start();
+	void Destroy();
 
 private:
 	void Initialize();
-	void Destroy();
 	void WorkerThread();
 	int GetUserId();
 

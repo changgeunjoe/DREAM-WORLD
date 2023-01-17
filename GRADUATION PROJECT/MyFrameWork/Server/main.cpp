@@ -7,4 +7,5 @@ Logic		g_logic;
 int main()
 {
 	g_iocpNetwork.Start();
+	g_iocpNetwork.Destroy();
 }
