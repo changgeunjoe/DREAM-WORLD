@@ -21,6 +21,15 @@ T* InsertComponent()
 	return 0;
 }
 
+GameobjectManager::GameobjectManager()
+{
+	pLight = new CLight;
+}
+
+GameobjectManager::~GameobjectManager()
+{
+}
+
 void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
 	//GameObject* pGameObject = new GameObject(SQUARE_ENTITY);
@@ -52,6 +61,8 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	//}
 	pSqureObject->SetPosition(XMFLOAT3(0, 0, 50));
 	pSqureObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pPlaneObject->SetPosition(XMFLOAT3(0, -10, 50));
+	pPlaneObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
 
 void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -61,6 +72,12 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	pSqureObject->InsertComponent<CubeMeshComponent>();
 	pSqureObject->InsertComponent<ShaderComponent>();
 	pSqureObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pPlaneObject=new GameObject(PlANE_ENTITY);
+	pPlaneObject->InsertComponent<RenderComponent>();
+	pPlaneObject->InsertComponent<CubeMeshComponent>();
+	pPlaneObject->InsertComponent<ShaderComponent>();
+	pPlaneObject->SetScale(10.f, 0.2f, 10.f);
+	pPlaneObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
 
 void GameobjectManager::Rotate()

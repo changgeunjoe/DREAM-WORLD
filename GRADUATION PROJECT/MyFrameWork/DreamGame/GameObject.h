@@ -18,6 +18,7 @@ public:
     void SetPosition(const XMFLOAT3& position);
     const XMFLOAT3& GetPosition() const;
 
+    void SetScale(float x, float y, float z);
     unordered_map<component_id, ComponentBase*> Getcomponents();
 
    // void SetOrientation(const Quaternion& orientation);

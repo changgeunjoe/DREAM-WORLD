@@ -36,6 +36,12 @@ const XMFLOAT3& GameObject::GetPosition() const
 	// // O: 여기에 return 문을 삽입합니다.
 }
 
+void GameObject::SetScale(float x, float y, float z)
+{
+	XMMATRIX mtxScale = XMMatrixScaling(x, y, z);
+	m_xmf4x4World = Matrix4x4::Multiply(mtxScale, m_xmf4x4World);
+}
+
 unordered_map<component_id, ComponentBase*> GameObject::Getcomponents()
 {
     return m_components;

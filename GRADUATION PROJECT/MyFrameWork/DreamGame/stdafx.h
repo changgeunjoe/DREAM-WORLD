@@ -65,8 +65,8 @@ using Microsoft::WRL::ComPtr;
 
 //#define _WITH_SWAPCHAIN_FULLSCREEN_STATE
 #define PIXELCOUNT				257
-#define FRAME_BUFFER_WIDTH		640
-#define FRAME_BUFFER_HEIGHT		480
+#define FRAME_BUFFER_WIDTH		800
+#define FRAME_BUFFER_HEIGHT		600
 
 //#define _WITH_CB_GAMEOBJECT_32BIT_CONSTANTS
 //#define _WITH_CB_GAMEOBJECT_ROOT_DESCRIPTOR
@@ -129,9 +129,11 @@ struct CB_GAMEOBJECT_INFO
 {
 	XMFLOAT4X4 m_xmf4x4World;
 };
+
 enum entity_id
 {
-	SQUARE_ENTITY
+	SQUARE_ENTITY,
+	PlANE_ENTITY
 };
 enum component_id 
 {
