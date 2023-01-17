@@ -20,8 +20,10 @@ private:
 	volatile bool b_isRunning;
 
 private:
-	std::array<Session, MAX_USER> m_session;
 	int		m_currentClientId;
+
+public:
+	std::array<Session, MAX_USER> m_session;
 public:
 
 	IOCPNetwork();

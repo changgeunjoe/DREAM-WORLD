@@ -21,9 +21,9 @@ private:
 	int					m_prevPacket;
 	int					m_id;
 	PLAYER_STATE		m_playerState;
-	SESSION_CATEGORY	m_sessionCategory;
 
-private:
+public:
+	SESSION_CATEGORY	m_sessionCategory;
 	SessionObject* m_sessionObject;
 public:
 	Session();
