@@ -76,6 +76,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -90,6 +91,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -119,6 +121,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -129,16 +132,27 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="IOCPNetwork\IOCP\IOCPNetwork.cpp" />
+    <ClCompile Include="Logic\Logic.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PCH\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Session\Session.cpp" />
+    <ClCompile Include="Session\SessionObject\PlayerSessionObject.cpp" />
+    <ClCompile Include="Session\SessionObject\SessionObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IOCPNetwork\IOCP\IOCPNetwork.h" />
     <ClInclude Include="IOCPNetwork\protocol\protocol.h" />
+    <ClInclude Include="Logic\Logic.h" />
     <ClInclude Include="PCH\stdafx.h" />
     <ClInclude Include="Session\ExpOver.h" />
+    <ClInclude Include="Session\Session.h" />
+    <ClInclude Include="Session\SessionObject\PlayerSessionObject.h" />
+    <ClInclude Include="Session\SessionObject\SessionObject.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

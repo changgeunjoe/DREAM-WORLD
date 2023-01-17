@@ -1,6 +1,8 @@
 #pragma once
+#include "../../Session/Session.h"
 
 #define PORT 9000
+#define MAX_USER 100
 
 class ExpOver;
 class IOCPNetwork
@@ -16,6 +18,10 @@ private:
 	ExpOver* m_acceptOver;
 
 	volatile bool b_isRunning;
+
+private:
+	std::array<Session, MAX_USER> m_session;
+	int		m_currentClientId;
 public:
 
 	IOCPNetwork();
@@ -27,4 +33,8 @@ private:
 	void Initialize();
 	void Destroy();
 	void WorkerThread();
+	int GetUserId();
+
+public:
+
 };

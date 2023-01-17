@@ -20,6 +20,12 @@
     <Filter Include="PCH">
       <UniqueIdentifier>{d65f0c35-b6f5-41f7-a1a8-d5c230df8689}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Logic">
+      <UniqueIdentifier>{2b2a4b60-1bff-40aa-b1cc-e8ae5b381fde}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Session\SessionObject">
+      <UniqueIdentifier>{c5b3fc48-5022-4bf5-a823-f44b14378253}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -30,6 +36,18 @@
     </ClCompile>
     <ClCompile Include="PCH\stdafx.cpp">
       <Filter>PCH</Filter>
+    </ClCompile>
+    <ClCompile Include="Logic\Logic.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="Session\Session.cpp">
+      <Filter>Session</Filter>
+    </ClCompile>
+    <ClCompile Include="Session\SessionObject\SessionObject.cpp">
+      <Filter>Session\SessionObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Session\SessionObject\PlayerSessionObject.cpp">
+      <Filter>Session\SessionObject</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -44,6 +62,18 @@
     </ClInclude>
     <ClInclude Include="PCH\stdafx.h">
       <Filter>PCH</Filter>
+    </ClInclude>
+    <ClInclude Include="Logic\Logic.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="Session\Session.h">
+      <Filter>Session</Filter>
+    </ClInclude>
+    <ClInclude Include="Session\SessionObject\SessionObject.h">
+      <Filter>Session\SessionObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Session\SessionObject\PlayerSessionObject.h">
+      <Filter>Session\SessionObject</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
