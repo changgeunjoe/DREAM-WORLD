@@ -46,6 +46,9 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
+    <Filter Include="NetworkHelper">
+      <UniqueIdentifier>{d4f2bb88-0e37-43b9-a303-1947c11eba8a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -111,6 +114,9 @@
     <ClInclude Include="Light.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Network\NetworkHelper.h">
+      <Filter>NetworkHelper</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -169,6 +175,9 @@
     </ClCompile>
     <ClCompile Include="Light.cpp">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\NetworkHelper.cpp">
+      <Filter>NetworkHelper</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

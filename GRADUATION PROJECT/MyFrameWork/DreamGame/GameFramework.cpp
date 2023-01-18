@@ -1,6 +1,6 @@
 #include "GameFramework.h"
 #include"stdafx.h"
-
+#include "Network/NetworkHelper.h"
 
 
 CGameFramework::CGameFramework()
