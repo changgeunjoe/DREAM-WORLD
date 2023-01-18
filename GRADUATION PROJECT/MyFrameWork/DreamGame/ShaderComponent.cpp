@@ -14,7 +14,7 @@ D3D12_INPUT_LAYOUT_DESC ShaderComponent::CreateInputLayout(int nPipelineState)
 	D3D12_INPUT_ELEMENT_DESC* pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
 
 	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-	pd3dInputElementDescs[1] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[1] = { "COLOR", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 
 	D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
 	d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
@@ -100,9 +100,9 @@ D3D12_SHADER_BYTECODE ShaderComponent::CreateVertexShader(int nPipelineState)
 D3D12_SHADER_BYTECODE ShaderComponent::CreatePixelShader(int nPipelineState)
 {
 	if (nPipelineState == 0)
-		return(CompileShaderFromFile(L"Shaders.hlsl", "PSDiffused", "ps_5_1", &m_pd3dVertexShaderBlob));
+		return(CompileShaderFromFile(L"Shaders.hlsl", "PSDiffused", "ps_5_1", &m_pd3dPixelShaderBlob));
 	else
-		return(CompileShaderFromFile(L"Shaders.hlsl", "PSDiffused", "ps_5_1", &m_pd3dVertexShaderBlob));
+		return(CompileShaderFromFile(L"Shaders.hlsl", "PSDiffused", "ps_5_1", &m_pd3dPixelShaderBlob));
 }
 
 D3D12_SHADER_BYTECODE ShaderComponent::CreateGeometryShader(int nPipelineState)
@@ -120,42 +120,99 @@ D3D12_SHADER_BYTECODE ShaderComponent::CreateDomainShader(int nPipelineState)
 	return D3D12_SHADER_BYTECODE();
 }
 
-
-
-
 D3D12_SHADER_BYTECODE ShaderComponent::CompileShaderFromFile(WCHAR* pszFileName, LPCSTR pszShaderName, LPCSTR pszShaderProfile, ID3DBlob** ppd3dShaderBlob)
 {
-	return D3D12_SHADER_BYTECODE();
-}
+	UINT nCompileFlags = 0;
+#if defined(_DEBUG)
+	nCompileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+#endif
 
+	ID3DBlob* pd3dErrorBlob = NULL;
+	HRESULT hResult = ::D3DCompileFromFile(pszFileName, NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, pszShaderName, pszShaderProfile, nCompileFlags, 0, ppd3dShaderBlob, &pd3dErrorBlob);
+	char* pErrorString = NULL;
+	if (pd3dErrorBlob) pErrorString = (char*)pd3dErrorBlob->GetBufferPointer();
+
+	D3D12_SHADER_BYTECODE d3dShaderByteCode;
+	d3dShaderByteCode.BytecodeLength = (*ppd3dShaderBlob)->GetBufferSize();
+	d3dShaderByteCode.pShaderBytecode = (*ppd3dShaderBlob)->GetBufferPointer();
+
+	return(d3dShaderByteCode);
+}
+#define _WITH_WFOPEN
+//#define _WITH_STD_STREAM
+
+#ifdef _WITH_STD_STREAM
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <sstream>
+#endif
 D3D12_SHADER_BYTECODE ShaderComponent::ReadCompiledShaderFromFile(WCHAR* pszFileName, ID3DBlob** ppd3dShaderBlob)
 {
-	return D3D12_SHADER_BYTECODE();
+	UINT nReadBytes = 0;
+#ifdef _WITH_WFOPEN
+	FILE* pFile = NULL;
+	::_wfopen_s(&pFile, pszFileName, L"rb");
+	::fseek(pFile, 0, SEEK_END);
+	int nFileSize = ::ftell(pFile);
+	BYTE* pByteCode = new BYTE[nFileSize];
+	::rewind(pFile);
+	nReadBytes = (UINT)::fread(pByteCode, sizeof(BYTE), nFileSize, pFile);
+	::fclose(pFile);
+#endif
+#ifdef _WITH_STD_STREAM
+	std::ifstream ifsFile;
+	ifsFile.open(pszFileName, std::ios::in | std::ios::ate | std::ios::binary);
+	nReadBytes = (int)ifsFile.tellg();
+	BYTE* pByteCode = new BYTE[*pnReadBytes];
+	ifsFile.seekg(0);
+	ifsFile.read((char*)pByteCode, nReadBytes);
+	ifsFile.close();
+#endif
+
+	D3D12_SHADER_BYTECODE d3dShaderByteCode;
+	if (ppd3dShaderBlob)
+	{
+		*ppd3dShaderBlob = NULL;
+		HRESULT hResult = D3DCreateBlob(nReadBytes, ppd3dShaderBlob);
+		memcpy((*ppd3dShaderBlob)->GetBufferPointer(), pByteCode, nReadBytes);
+		d3dShaderByteCode.BytecodeLength = (*ppd3dShaderBlob)->GetBufferSize();
+		d3dShaderByteCode.pShaderBytecode = (*ppd3dShaderBlob)->GetBufferPointer();
+	}
+	else
+	{
+		d3dShaderByteCode.BytecodeLength = nReadBytes;
+		d3dShaderByteCode.pShaderBytecode = pByteCode;
+	}
+
+	return(d3dShaderByteCode);
 }
 
 void ShaderComponent::CreateShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	m_nPipelineStates = 1;
-	m_ppd3dPipelineStates = new ID3D12PipelineState * [m_nPipelineStates];//파이프라인을 배열로 여기서 만든다.
+	//m_nPipelineStates = 1;
+	//m_ppd3dPipelineStates = new ID3D12PipelineState * [m_nPipelineStates];//파이프라인을 배열로 여기서 만든다.//삭제
 
-	CShader::CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//CShader::CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
-	if (m_pd3dVertexShaderBlob) m_pd3dVertexShaderBlob->Release();
-	if (m_pd3dPixelShaderBlob) m_pd3dPixelShaderBlob->Release();
+	//if (m_pd3dVertexShaderBlob) m_pd3dVertexShaderBlob->Release();
+	//if (m_pd3dPixelShaderBlob) m_pd3dPixelShaderBlob->Release();
 
-	if (m_d3dPipelineStateDesc.InputLayout.pInputElementDescs) delete[] m_d3dPipelineStateDesc.InputLayout.pInputElementDescs;
+	//if (m_d3dPipelineStateDesc.InputLayout.pInputElementDescs) delete[] m_d3dPipelineStateDesc.InputLayout.pInputElementDescs;
 }
 
 void ShaderComponent::CreateGraphicsPipelineState(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dGraphicsRootSignature, int nPipelineState)
 {
-	ID3DBlob* pd3dVertexShaderBlob = NULL, * pd3dPixelShaderBlob = NULL, * pd3dGeometryShaderBlob = NULL;
+
+	m_nPipelineStates = 1;
+	m_ppd3dPipelineStates = new ID3D12PipelineState * [m_nPipelineStates];//파이프라인을 배열로 여기서 만든다.
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC d3dPipelineStateDesc;
 	::ZeroMemory(&d3dPipelineStateDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
 	d3dPipelineStateDesc.pRootSignature = pd3dGraphicsRootSignature;
-	d3dPipelineStateDesc.VS = CreateVertexShader(&pd3dVertexShaderBlob, nPipelineState);
-	d3dPipelineStateDesc.GS = CreateGeometryShader(&pd3dGeometryShaderBlob, nPipelineState);
-	d3dPipelineStateDesc.PS = CreatePixelShader(&pd3dPixelShaderBlob, nPipelineState);
+	d3dPipelineStateDesc.VS = CreateVertexShader(nPipelineState);
+	d3dPipelineStateDesc.GS = CreateGeometryShader(nPipelineState);
+	d3dPipelineStateDesc.PS = CreatePixelShader(nPipelineState);
 	d3dPipelineStateDesc.StreamOutput = CreateStreamOuputState(nPipelineState);
 	d3dPipelineStateDesc.RasterizerState = CreateRasterizerState(nPipelineState);
 	d3dPipelineStateDesc.BlendState = CreateBlendState(nPipelineState);
@@ -170,37 +227,23 @@ void ShaderComponent::CreateGraphicsPipelineState(ID3D12Device* pd3dDevice, ID3D
 	d3dPipelineStateDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
 	HRESULT hResult = pd3dDevice->CreateGraphicsPipelineState(&d3dPipelineStateDesc, __uuidof(ID3D12PipelineState), (void**)&m_ppd3dPipelineStates[nPipelineState]);
 
-	if (pd3dVertexShaderBlob) pd3dVertexShaderBlob->Release();
-	if (pd3dPixelShaderBlob) pd3dVertexShaderBlob->Release();
-	if (pd3dGeometryShaderBlob) pd3dGeometryShaderBlob->Release();
-
+	if (m_pd3dVertexShaderBlob) m_pd3dVertexShaderBlob->Release();
+	if (m_pd3dPixelShaderBlob) m_pd3dPixelShaderBlob->Release();
+	//if (m_pd3dGeometryShaderBlob) pd3dGeometryShaderBlob->Release();
 	if (d3dPipelineStateDesc.InputLayout.pInputElementDescs) delete[] d3dPipelineStateDesc.InputLayout.pInputElementDescs;
 }
 
 void ShaderComponent::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
-	m_pd3dcbGameObjects = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes * m_nObjects, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+	m_pd3dcbGameObjects = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes , D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 
 	m_pd3dcbGameObjects->Map(0, NULL, (void**)&m_pcbMappedGameObjects);
 }
 
-void ShaderComponent::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
+void ShaderComponent::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList,XMFLOAT4X4* pxmf4x4World)
 {
-	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);
-	for (int j = 0; j < m_nObjects; j++)
-	{
-		CB_GAMEOBJECT_INFO* pbMappedcbGameObject = (CB_GAMEOBJECT_INFO*)((UINT8*)m_pcbMappedGameObjects + (j * ncbElementBytes));
-		XMStoreFloat4x4(&pbMappedcbGameObject->m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_ppObjects[j]->m_xmf4x4World)));
-		if (m_ppObjects[j]->m_ppMaterials)
-		{
-			if (m_ppObjects[j]->m_ppMaterials[0] && m_ppObjects[j]->m_ppMaterials[0]->m_pTexture)//오류
-			{
-				XMStoreFloat4x4(&pbMappedcbGameObject->m_xmf4x4Texture, XMMatrixTranspose(XMLoadFloat4x4(&(m_ppObjects[j]->m_ppMaterials[0]->m_pTexture->m_xmf4x4Texture))));
-			}
-		}
-	}
-
+	XMStoreFloat4x4(&m_pcbMappedGameObjects->m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(pxmf4x4World)));//오브젝트의 월드좌표계를 변환시켜준다.
 }
 
 void ShaderComponent::ReleaseShaderVariables()
@@ -214,6 +257,15 @@ void ShaderComponent::ReleaseShaderVariables()
 
 void ShaderComponent::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList, XMFLOAT4X4* pxmf4x4World)
 {
+}
+
+void ShaderComponent::Render(ID3D12GraphicsCommandList* pd3dCommandList, int nPipelineState, ID3D12RootSignature* pd3dGraphicsRootSignature)
+{
+	if (pd3dGraphicsRootSignature) pd3dCommandList->SetGraphicsRootSignature(pd3dGraphicsRootSignature);
+	if (m_ppd3dPipelineStates) pd3dCommandList->SetPipelineState(m_ppd3dPipelineStates[nPipelineState]);
+	if (m_pd3dCbvSrvDescriptorHeap) pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
+
+	//UpdateShaderVariables(pd3dCommandList); //삭제예정
 }
 
 void ShaderComponent::ReleaseUploadBuffers()
@@ -240,7 +292,7 @@ void ShaderComponent::CreateCbvSrvDescriptorHeaps(ID3D12Device* pd3dDevice, int 
 
 void ShaderComponent::CreateConstantBufferViews(ID3D12Device* pd3dDevice, int nConstantBufferViews, ID3D12Resource* pd3dConstantBuffers, UINT nStride)
 {
-	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = pd3dConstantBuffers->GetGPUVirtualAddress();
+	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbGameObjects->GetGPUVirtualAddress();
 	D3D12_CONSTANT_BUFFER_VIEW_DESC d3dCBVDesc;
 	d3dCBVDesc.SizeInBytes = nStride;
 	for (int j = 0; j < nConstantBufferViews; j++)

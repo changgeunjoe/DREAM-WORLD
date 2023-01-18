@@ -9,6 +9,14 @@ cbuffer cbCameraInfo : register(b1)
     matrix gmtxProjection : packoffset(c4);
 };
 
+
+Texture2D shaderTexture : register(t0);
+Texture2D depthMapTexture : register(t1);
+
+SamplerState SampleTypeClamp : register(s0);
+SamplerState SampleTypeWrap : register(s1);
+
+
 struct VS_INPUT
 {
     float3 position : POSITION;

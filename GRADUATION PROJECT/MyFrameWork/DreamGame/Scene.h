@@ -2,7 +2,7 @@
 #include"stdafx.h"
 #include"Timer.h"
 #include"Shader.h"
-
+#include"GameobjectManager.h"
 
 struct RootSignatureDesc
 {
@@ -37,7 +37,7 @@ public:
 	void AnimateObjects(float fTimeElapsed);
 
 	void PrepareRender(ID3D12GraphicsCommandList* pd3dCommandList);
-	void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera);
+	void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera);
 
 	void ReleaseUploadBuffers();
 	//그래픽 루트 시그너쳐를 생성한다.
@@ -49,6 +49,8 @@ protected:
 	CGameObject** m_ppObjects = NULL;
 	int m_nObjects = 0;
 	
+
+	GameobjectManager* m_pObjectManager=NULL;
 	ID3D12RootSignature* m_pd3dGraphicsRootSignature = NULL;
 	RootSignatureDesc RootSignature;
 

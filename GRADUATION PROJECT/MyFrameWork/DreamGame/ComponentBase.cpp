@@ -4,12 +4,12 @@
 
 const component_id& ComponentBase::GetComponentID()
 {
-	return;
+	return m_pComponentID;
 }
 
 const component_id& ComponentBase::GetFamilyID()
 {
-	return;
+	return m_pComponentID;
 }
 
 void ComponentBase::SetOwner(GameObject* pOwner)

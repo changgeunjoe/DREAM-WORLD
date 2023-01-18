@@ -2,8 +2,14 @@
 
 
 
-CubeMeshComponent::CubeMeshComponent(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fWidth, float fHeight, float fDepth)
-	:MeshComponent(pd3dDevice, pd3dCommandList)
+CubeMeshComponent::CubeMeshComponent()
+{
+}
+CubeMeshComponent::~CubeMeshComponent()
+{
+}
+
+void CubeMeshComponent::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,float fWidth, float fHeight, float fDepth)
 {
 	m_nVertices = 36;
 	m_nStride = sizeof(CTexturedVertex);
@@ -72,9 +78,6 @@ CubeMeshComponent::CubeMeshComponent(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 
 	m_xmOOBB = BoundingOrientedBox(XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(fx, fy, fz), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
 }
-CubeMeshComponent::~CubeMeshComponent()
-{
-}
 
 D3D12_VERTEX_BUFFER_VIEW MeshComponent::GetVertexBufferView()
 {
@@ -84,6 +87,11 @@ D3D12_VERTEX_BUFFER_VIEW MeshComponent::GetVertexBufferView()
 D3D12_INDEX_BUFFER_VIEW MeshComponent::GetIndexBufferView()
 {
 	return m_d3dIndexBufferView;
+}
+
+ID3D12Resource* MeshComponent::GetIndexBufferResource()
+{
+	return m_pd3dIndexBuffer;
 }
 
 UINT MeshComponent::GetSlot()
@@ -109,4 +117,9 @@ UINT MeshComponent::GetStride()
 UINT MeshComponent::GetIndices()
 {
 	return m_nIndices;
+}
+
+D3D12_PRIMITIVE_TOPOLOGY MeshComponent::GetPrimitveTopology()
+{
+	return m_d3dPrimitiveTopology;
 }
