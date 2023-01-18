@@ -1,4 +1,5 @@
 #pragma once
+#include <thread>
 #include <WS2tcpip.h>
 #pragma comment(lib, "WS2_32.lib")
 
@@ -9,8 +10,12 @@
 class NetworkHelper {
 private:
 	SOCKET m_clientSocket;
-
+private:
+	char m_buffer[MAX_BUF_SIZE];
+	int m_prevPacketSize = 0;
+private:
 	bool m_bIsRunnung = false;
+	std::thread m_runThread;
 public:
 	NetworkHelper();
 	~NetworkHelper();
@@ -20,5 +25,8 @@ public:
 	void Start();
 	void RunThread();
 	void Send();
-	void Recv();
+private:
+	void ConstructPacket(int ioByte);
+private:
+	void Destroy();
 };

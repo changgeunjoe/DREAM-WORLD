@@ -1,22 +1,58 @@
-constexpr int CHAT_SIZE = 100;
 
-// Packet ID
-constexpr unsigned char CS_TEST_CHAT = 1;
-constexpr unsigned char SC_TEST_CHAT = 2;
+enum DIRECTION : char
+{
+	IDLE,
+	FRONT,
+	RIGHT,
+	LEFT,
+	BACK
+};
 
+enum ROTATE_AXIS :char
+{
+	X, Y, Z
+};
 
 #pragma pack (push, 1)
-struct CS_TEST_CHAT_PACKET {
-	unsigned char size;
-	char	type;
-	char	message[CHAT_SIZE];
-};
+namespace CLIENT_PACKET {
+	constexpr unsigned char MOVE = 1;
+	constexpr unsigned char STOP = 2;
+	constexpr unsigned char ROTATE = 3;
 
-struct SC_TEST_CHAT_PACKET {
-	unsigned char size;
-	char	type;
-	int		id;
-	char	message[CHAT_SIZE];
-};
+	struct MovePacket
+	{
+		char size;
+		char type;
+		DIRECTION direction;
+	};
+
+	struct RotatePacket {
+		char size;
+		char type;
+		ROTATE_AXIS axis;
+		float angle;
+	};
+}
+namespace SERVER_PACKET {
+	constexpr unsigned char MOVE = 65;
+	constexpr unsigned char STOP = 66;
+	constexpr unsigned char ROTATE = 67;
+
+	struct MovePacket
+	{
+		char size;
+		char type;
+		int userId;
+		DIRECTION direction;
+	};
+
+	struct RotatePacket {
+		char size;
+		char type;
+		int userId;
+		ROTATE_AXIS axis;
+		float angle;
+	};
+}
 
 #pragma pack (pop)

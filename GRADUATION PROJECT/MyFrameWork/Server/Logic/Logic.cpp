@@ -24,7 +24,7 @@ void Logic::ProcessPacket(int userId, char* p)
 {
 	switch (p[1])
 	{
-	case CS_TEST_CHAT:
+	/*case CS_TEST_CHAT:
 	{
 		CS_TEST_CHAT_PACKET* recvPacket = reinterpret_cast<CS_TEST_CHAT_PACKET*>(p);
 		SC_TEST_CHAT_PACKET sendPacket;
@@ -34,7 +34,7 @@ void Logic::ProcessPacket(int userId, char* p)
 		memcpy(sendPacket.message, recvPacket->message, CHAT_SIZE);
 		BroadCastPacket(&sendPacket);
 	}
-	break;
+	break;*/
 
 	default:
 		break;

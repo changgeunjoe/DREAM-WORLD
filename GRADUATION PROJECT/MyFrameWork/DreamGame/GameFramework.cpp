@@ -2,6 +2,7 @@
 #include"stdafx.h"
 #include "Network/NetworkHelper.h"
 
+extern NetworkHelper g_NetworkHelper;
 
 CGameFramework::CGameFramework()
 {

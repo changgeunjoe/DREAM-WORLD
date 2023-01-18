@@ -1,6 +1,8 @@
-#include "NetworkHelper.h"
 #include <iostream>
-#pragma comment(linker, "/entry:WinMainCRTStartup /subsystem:console")
+#include "Logic/Logic.h"
+#include "NetworkHelper.h"
+
+extern clientNet::Logic g_Logic;
 
 NetworkHelper::NetworkHelper()
 {
@@ -14,7 +16,10 @@ NetworkHelper::NetworkHelper()
 	if (m_clientSocket == INVALID_SOCKET) {
 		std::cout << "client Socket Invalid" << std::endl;
 	}
+	u_long isNonBlock = 1;
+	ioctlsocket(m_clientSocket, FIONBIO, &isNonBlock);
 	m_bIsRunnung = false;
+	m_prevPacketSize = 0;
 }
 NetworkHelper::~NetworkHelper()
 {
@@ -35,19 +40,53 @@ bool NetworkHelper::TryConnect()
 }
 void NetworkHelper::Start()
 {
+	m_bIsRunnung = true;
+	m_runThread = std::thread([this]() {RunThread(); });
 
 }
 void NetworkHelper::RunThread()
 {
 	while (m_bIsRunnung) {
-
+		int ioByte = recv(m_clientSocket, m_buffer + m_prevPacketSize, MAX_BUF_SIZE, 0);
+		if (ioByte == 0) {
+			//Server Disconnect
+		}
+		else if (ioByte > 0) {
+			ConstructPacket(ioByte);
+		}
+		else {
+			//error
+		}
 	}
 }
 void NetworkHelper::Send()
 {
 
 }
-void NetworkHelper::Recv()
-{
 
+void NetworkHelper::ConstructPacket(int ioByte)
+{
+	int remain_data = ioByte + m_prevPacketSize;
+	char* p = m_buffer;
+	while (remain_data > 0) {
+		int packet_size = p[0];
+		if (packet_size <= remain_data) {
+			g_Logic.ProcessPacket(p);
+			p = p + packet_size;
+			remain_data = remain_data - packet_size;
+		}
+		else break;
+	}
+	m_prevPacketSize = remain_data;
+	if (remain_data > 0) {
+		std::memcpy(m_buffer, p, remain_data);
+		ZeroMemory(m_buffer + remain_data, MAX_BUF_SIZE - remain_data);
+	}
+}
+
+void NetworkHelper::Destroy()
+{
+	m_bIsRunnung = false;
+	if (m_runThread.joinable())
+		m_runThread.join();
 }

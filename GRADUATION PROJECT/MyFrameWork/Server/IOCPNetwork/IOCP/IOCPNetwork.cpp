@@ -26,7 +26,7 @@ void IOCPNetwork::Initialize()
 		std::cout << "wsaStartUp Error" << std::endl;
 		//WSACleanup();
 		//return -1;
-	}	
+	}
 	memset(&server_addr, 0, sizeof(server_addr));
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_port = htons(PORT);
@@ -42,7 +42,7 @@ void IOCPNetwork::Initialize()
 
 void IOCPNetwork::Start()
 {
-	int addr_size = sizeof(SOCKADDR_IN);	
+	int addr_size = sizeof(SOCKADDR_IN);
 	m_clientSocket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
 	m_acceptOver = new ExpOver();
 	ZeroMemory(&m_acceptOver->m_overlap, sizeof(m_acceptOver->m_overlap));
@@ -56,7 +56,7 @@ void IOCPNetwork::Start()
 }
 
 void IOCPNetwork::Destroy()
-{	
+{
 	for (auto& th : m_workerThread)
 		if (th.joinable())
 			th.join();
@@ -82,7 +82,8 @@ void IOCPNetwork::WorkerThread()
 				continue;
 			}
 		}
-		switch (ex_over->m_opCode) {
+		switch (ex_over->m_opCode)
+		{
 		case OP_ACCEPT:
 		{
 			int addr_size = sizeof(SOCKADDR_IN);
@@ -112,8 +113,8 @@ void IOCPNetwork::WorkerThread()
 				delete ex_over;
 		}
 		break;
+		default: break;
 		}
-		break;
 	}
 }
 

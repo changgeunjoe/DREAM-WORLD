@@ -5,9 +5,13 @@
 #include "DreamGame.h"
 #include"GameFramework.h"
 #include "Network/NetworkHelper.h"
+#include "Network/Logic/Logic.h"
 
+//#pragma comment(linker, "/entry:WinMainCRTStartup /subsystem:console")
 CGameFramework gGameFramework;
 NetworkHelper g_NetworkHelper;
+clientNet::Logic g_Logic;
+
 
 #define MAX_LOADSTRING 100
 
@@ -48,7 +52,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	MSG msg;
 	while (!g_NetworkHelper.TryConnect());
-
+	g_NetworkHelper.Start();
 	// 기본 메시지 루프입니다:
 	//다. GetMessage() API 함수가 FALSE를 반환하는 경우는 메시지 큐에서 가져온 메시지가 WM_QUIT 메시지일 때이다.WM_QUIT 메시지는 응용 프로그램을 종료하는 경우에 발생한다.다른 메시지의 경우에는
 	//TRUE를 반환한다.그러므로 다음의 메시지 루프는 WM_QUIT 메시지를 처리할 때까지 계속

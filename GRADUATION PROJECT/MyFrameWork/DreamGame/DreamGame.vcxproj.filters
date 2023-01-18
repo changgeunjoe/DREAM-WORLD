@@ -117,6 +117,9 @@
     <ClInclude Include="Network\NetworkHelper.h">
       <Filter>NetworkHelper</Filter>
     </ClInclude>
+    <ClInclude Include="Network\Logic\Logic.h">
+      <Filter>NetworkHelper</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -177,6 +180,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Network\NetworkHelper.cpp">
+      <Filter>NetworkHelper</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\Logic\Logic.cpp">
       <Filter>NetworkHelper</Filter>
     </ClCompile>
   </ItemGroup>
