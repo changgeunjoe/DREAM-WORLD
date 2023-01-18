@@ -15,6 +15,7 @@ bool CScene::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,
 
 bool CScene::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
+	m_pObjectManager->onProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
 	return false;
 }
 

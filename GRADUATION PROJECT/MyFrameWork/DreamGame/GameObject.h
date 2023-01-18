@@ -19,6 +19,16 @@ public:
     const XMFLOAT3& GetPosition() const;
 
     void SetScale(float x, float y, float z);
+
+
+    void MoveStrafe(float fDistance = 1.0f);
+    void MoveUp(float fDistance = 1.0f);
+    void MoveForward(float fDistance = 1.0f);
+
+    XMFLOAT3 GetLook();
+    XMFLOAT3 GetUp();
+    XMFLOAT3 GetRight();
+
     unordered_map<component_id, ComponentBase*> Getcomponents();
 
    // void SetOrientation(const Quaternion& orientation);

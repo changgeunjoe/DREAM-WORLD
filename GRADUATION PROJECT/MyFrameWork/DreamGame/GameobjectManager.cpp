@@ -59,9 +59,9 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	//	RenderComponent* pRenderComponent = static_cast<RenderComponent*>(pComponent);
 	////	pRenderComponent->Render();
 	//}
-	pSqureObject->SetPosition(XMFLOAT3(0, 0, 50));
+	
 	pSqureObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	pPlaneObject->SetPosition(XMFLOAT3(0, -10, 50));
+
 	pPlaneObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
 
@@ -71,11 +71,13 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	pSqureObject->InsertComponent<RenderComponent>();
 	pSqureObject->InsertComponent<CubeMeshComponent>();
 	pSqureObject->InsertComponent<ShaderComponent>();
+	pSqureObject->SetPosition(XMFLOAT3(0, 0, 50));
 	pSqureObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	pPlaneObject=new GameObject(PlANE_ENTITY);
 	pPlaneObject->InsertComponent<RenderComponent>();
 	pPlaneObject->InsertComponent<CubeMeshComponent>();
 	pPlaneObject->InsertComponent<ShaderComponent>();
+	pPlaneObject->SetPosition(XMFLOAT3(0, -10, 50));
 	pPlaneObject->SetScale(10.f, 0.2f, 10.f);
 	pPlaneObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
@@ -84,8 +86,37 @@ void GameobjectManager::Rotate()
 {
 }
 
-void GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
+bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
+	switch (nMessageID)
+	{
+	case WM_KEYDOWN:
+		switch (wParam)
+		{
+		case 'W': pSqureObject->MoveForward(+1.0f); break;
+		case 'S': pSqureObject->MoveForward(-1.0f); break;
+		case 'A': pSqureObject->MoveStrafe(-1.0f); break;
+		case 'D': pSqureObject->MoveStrafe(+1.0f); break;
+		case 'Q': pSqureObject->MoveUp(+1.0f); break;
+		case 'R': pSqureObject->MoveUp(-1.0f); break;
+		case VK_CONTROL:
+			break;
+		case VK_F1:
+			break;
+		case VK_F2:
+			break;
+		case VK_F3:
+			
+			break;
+		default:
+			break;
+		}
+		break;
+	default:
+		break;
+	}
+	return(false);
+
 }
 
 void GameobjectManager::Move()
