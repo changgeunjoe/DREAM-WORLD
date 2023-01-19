@@ -141,7 +141,7 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		PShaderComponent->CreateCbvSrvDescriptorHeaps(pd3dDevice, 1, 1);
 		PShaderComponent->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 		PShaderComponent->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObjects, ncbElementBytes);
-		//PShaderComponent->CreateShaderResourceViews(pd3dDevice, m_pMissileTexture, 0, 11);//texture입력
+		PShaderComponent->CreateShaderResourceViews(pd3dDevice, m_pMissileTexture, 0, 2);//texture입력
 		//SetCbvGPUDescriptorHandle(PShaderComponent->GetCbvGPUDescriptorHandle());
 		SetCbvGPUDescriptorHandlePtr(PShaderComponent->GetGPUCbvDescriptorStartHandle().ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));
 	}
@@ -150,10 +150,6 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 }
 void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-
-	//OnPrepareRender();
-	//UpdateShaderVariables(pd3dCommandList);
-
 	ComponentBase* pShaderComponent = GetComponent(component_id::SHADER_COMPONENT);
 	if (pShaderComponent != NULL)
 	{
