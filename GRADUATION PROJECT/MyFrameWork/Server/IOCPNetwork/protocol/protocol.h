@@ -32,6 +32,10 @@ namespace CLIENT_PACKET {
 		ROTATE_AXIS axis;
 		float angle;
 	};
+	struct StopPacket {
+		char size;
+		char type;
+	};
 }
 namespace SERVER_PACKET {
 	constexpr unsigned char MOVE = 65;
@@ -52,6 +56,11 @@ namespace SERVER_PACKET {
 		int userId;
 		ROTATE_AXIS axis;
 		float angle;
+	};
+	struct StopPacket {
+		char size;
+		char type;
+		int userId;
 	};
 }
 

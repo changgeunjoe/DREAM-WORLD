@@ -42,7 +42,7 @@ void PlayerSessionObject::ConstructPacket(int ioByte)
 	while (remain_data > 0) {
 		int packet_size = p[0];
 		if (packet_size <= remain_data) {
-			g_logic.ProcessPacket(static_cast<int>(m_session->GetId()), p);			
+			g_logic.ProcessPacket(static_cast<int>(m_session->GetId()), p);
 			p = p + packet_size;
 			remain_data = remain_data - packet_size;
 		}

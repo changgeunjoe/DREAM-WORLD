@@ -23,7 +23,7 @@ NetworkHelper::NetworkHelper()
 }
 NetworkHelper::~NetworkHelper()
 {
-
+	closesocket(m_clientSocket);
 }
 
 bool NetworkHelper::TryConnect()
@@ -59,10 +59,6 @@ void NetworkHelper::RunThread()
 		}
 	}
 }
-void NetworkHelper::Send()
-{
-
-}
 
 void NetworkHelper::ConstructPacket(int ioByte)
 {
@@ -89,4 +85,29 @@ void NetworkHelper::Destroy()
 	m_bIsRunnung = false;
 	if (m_runThread.joinable())
 		m_runThread.join();
+}
+
+void NetworkHelper::SendMovePacket(DIRECTION d)
+{
+	CLIENT_PACKET::MovePacket sendPacket;
+	sendPacket.direction = d;
+	sendPacket.type = CLIENT_PACKET::MOVE;
+	sendPacket.size = sizeof(CLIENT_PACKET::MovePacket);
+	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
+}
+
+void NetworkHelper::SendStopPacket()
+{
+	CLIENT_PACKET::StopPacket sendPacket;
+	sendPacket.type = CLIENT_PACKET::STOP;
+	sendPacket.size = sizeof(CLIENT_PACKET::StopPacket);
+	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
+}
+void NetworkHelper::SendRotatePacket(ROTATE_AXIS axis)
+{
+	CLIENT_PACKET::RotatePacket sendPacket;
+	sendPacket.type = CLIENT_PACKET::ROTATE;
+	sendPacket.size = sizeof(CLIENT_PACKET::RotatePacket);
+	sendPacket.axis = axis;
+	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }

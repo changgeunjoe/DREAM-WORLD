@@ -24,18 +24,24 @@ void Logic::ProcessPacket(int userId, char* p)
 {
 	switch (p[1])
 	{
-	/*case CS_TEST_CHAT:
+	case CLIENT_PACKET::MOVE:
 	{
-		CS_TEST_CHAT_PACKET* recvPacket = reinterpret_cast<CS_TEST_CHAT_PACKET*>(p);
-		SC_TEST_CHAT_PACKET sendPacket;
-		sendPacket.size = sizeof(SC_TEST_CHAT_PACKET);
-		sendPacket.id = userId;
-		sendPacket.type = SC_TEST_CHAT;
-		memcpy(sendPacket.message, recvPacket->message, CHAT_SIZE);
-		BroadCastPacket(&sendPacket);
+		CLIENT_PACKET::MovePacket* recvPacket = reinterpret_cast<CLIENT_PACKET::MovePacket*>(p);
+		
 	}
-	break;*/
+	break;
+	case CLIENT_PACKET::ROTATE:
+	{
+		CLIENT_PACKET::RotatePacket* recvPacket = reinterpret_cast<CLIENT_PACKET::RotatePacket*>(p);
 
+	}
+	break;
+	case CLIENT_PACKET::STOP:
+	{
+		CLIENT_PACKET::StopPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::StopPacket*>(p);
+
+	}
+	break;
 	default:
 		break;
 	}

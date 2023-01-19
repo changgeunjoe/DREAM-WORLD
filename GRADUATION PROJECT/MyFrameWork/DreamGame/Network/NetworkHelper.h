@@ -1,6 +1,7 @@
 #pragma once
 #include <thread>
 #include <WS2tcpip.h>
+#include "../../Server/IOCPNetwork/protocol/protocol.h"
 #pragma comment(lib, "WS2_32.lib")
 
 #define SERVER_PORT 9000
@@ -24,7 +25,10 @@ public:
 	bool TryConnect();
 	void Start();
 	void RunThread();
-	void Send();
+public:
+	void SendMovePacket(DIRECTION d);
+	void SendStopPacket();
+	void SendRotatePacket(ROTATE_AXIS axis);
 private:
 	void ConstructPacket(int ioByte);
 private:
