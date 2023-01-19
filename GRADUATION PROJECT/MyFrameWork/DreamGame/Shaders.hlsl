@@ -15,8 +15,8 @@ cbuffer cbCameraInfo : register(b1)
 Texture2D shaderTexture : register(t0);
 Texture2D depthMapTexture : register(t1);
 
-SamplerState gClampSamplerState : register(s0);
-SamplerState gWrapSamplerState : register(s1);
+SamplerState gWrapSamplerState : register(s0);
+SamplerState gClampSamplerState : register(s1);
 
 
 struct VS_INPUT

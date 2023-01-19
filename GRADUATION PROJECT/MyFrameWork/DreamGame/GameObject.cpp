@@ -141,7 +141,7 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		PShaderComponent->CreateCbvSrvDescriptorHeaps(pd3dDevice, 1, 1);
 		PShaderComponent->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 		PShaderComponent->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObjects, ncbElementBytes);
-		PShaderComponent->CreateShaderResourceViews(pd3dDevice, m_pMissileTexture, 0, 2);//texture입력
+		PShaderComponent->CreateShaderResourceViews(pd3dDevice, m_pMissileTexture, 0, 3);//texture입력
 		//SetCbvGPUDescriptorHandle(PShaderComponent->GetCbvGPUDescriptorHandle());
 		SetCbvGPUDescriptorHandlePtr(PShaderComponent->GetGPUCbvDescriptorStartHandle().ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));
 	}
@@ -158,6 +158,7 @@ void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3
 		PShaderComponent->UpdateShaderVariables(pd3dCommandList, &m_xmf4x4World);
 		pd3dCommandList->SetGraphicsRootDescriptorTable(0, m_d3dCbvGPUDescriptorHandle);
 	}
+	m_pMissileTexture->UpdateShaderVariables(pd3dCommandList);
 	ComponentBase* pRenderComponent = GetComponent(component_id::RENDER_COMPONENT);
 	ComponentBase* pMeshComponent = GetComponent(component_id::CUBEMESH_COMPONENT);
 	if (pRenderComponent != NULL)
