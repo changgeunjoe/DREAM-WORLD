@@ -27,8 +27,7 @@ void Session::RegistPlayer(int id, SOCKET& sock)
 {
 	{
 		std::lock_guard<std::mutex> psLock(m_playerStateLock);
-		//m_playerState = PLAYER_STATE::ALLOC;
-		m_playerState = PLAYER_STATE::IN_GAME;//임시로 인게임 상태로 전환 -> 에코 서버 테스트
+		m_playerState = PLAYER_STATE::ALLOC;
 	}
 	m_sessionCategory = PLAYER;
 	m_id = id;
@@ -36,9 +35,4 @@ void Session::RegistPlayer(int id, SOCKET& sock)
 	m_sessionObject = reinterpret_cast<SessionObject*>(newSessionObjet);
 	std::cout << "std::RegistPlayer" << std::endl;
 	newSessionObjet->Recv();
-}
-
-void Session::Recvpacket()
-{
-	//m_sessionObject->;
 }

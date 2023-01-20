@@ -12,7 +12,7 @@ void clientNet::Logic::ProcessPacket(char* p)
 		recvPacket->size;
 		recvPacket->type;
 		recvPacket->userId;
-		//TODO
+		//TODO - Other Player Move
 	}
 	break;
 	case SERVER_PACKET::ROTATE:
@@ -22,7 +22,7 @@ void clientNet::Logic::ProcessPacket(char* p)
 		recvPacket->size;
 		recvPacket->type;
 		recvPacket->userId;
-		//TODO
+		//TODO - Other player Rotate
 	}
 	break;
 	case SERVER_PACKET::STOP:
@@ -31,7 +31,7 @@ void clientNet::Logic::ProcessPacket(char* p)
 		recvPacket->size;
 		recvPacket->type;
 		recvPacket->userId;
-		//TODO
+		//TODO - Other Player Stop Move
 	}
 	break;
 	default:

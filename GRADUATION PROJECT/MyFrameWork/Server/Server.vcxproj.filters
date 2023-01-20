@@ -26,6 +26,9 @@
     <Filter Include="Session\SessionObject">
       <UniqueIdentifier>{c5b3fc48-5022-4bf5-a823-f44b14378253}</UniqueIdentifier>
     </Filter>
+    <Filter Include="DB">
+      <UniqueIdentifier>{67488753-1084-4e91-a43b-a7d2dc66a6bf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -48,6 +51,9 @@
     </ClCompile>
     <ClCompile Include="Session\SessionObject\PlayerSessionObject.cpp">
       <Filter>Session\SessionObject</Filter>
+    </ClCompile>
+    <ClCompile Include="DBObject.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -75,5 +81,6 @@
     <ClInclude Include="Session\SessionObject\PlayerSessionObject.h">
       <Filter>Session\SessionObject</Filter>
     </ClInclude>
+    <ClInclude Include="DBObject.h" />
   </ItemGroup>
 </Project>

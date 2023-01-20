@@ -34,7 +34,6 @@ private:
 
 public:
 	void RegistPlayer(int id, SOCKET& socket);
-	void Recvpacket();
 
 	const int GetId() { return m_id; }
 };
