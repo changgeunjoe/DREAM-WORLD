@@ -150,6 +150,7 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 }
 void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
+	
 	ComponentBase* pShaderComponent = GetComponent(component_id::SHADER_COMPONENT);
 	if (pShaderComponent != NULL)
 	{
@@ -157,8 +158,9 @@ void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3
 		PShaderComponent->Render(pd3dCommandList,0, pd3dGraphicsRootSignature);
 		PShaderComponent->UpdateShaderVariables(pd3dCommandList, &m_xmf4x4World);
 		pd3dCommandList->SetGraphicsRootDescriptorTable(0, m_d3dCbvGPUDescriptorHandle);
+		m_pMissileTexture->UpdateShaderVariables(pd3dCommandList);
 	}
-	m_pMissileTexture->UpdateShaderVariables(pd3dCommandList);
+	
 	ComponentBase* pRenderComponent = GetComponent(component_id::RENDER_COMPONENT);
 	ComponentBase* pMeshComponent = GetComponent(component_id::CUBEMESH_COMPONENT);
 	if (pRenderComponent != NULL)
