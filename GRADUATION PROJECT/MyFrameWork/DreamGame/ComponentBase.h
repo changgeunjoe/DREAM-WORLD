@@ -1,6 +1,5 @@
 #pragma once
 #include"stdafx.h"
-#include"TextureComponent.h"
 class GameObject;
 class ComponentBase
 {

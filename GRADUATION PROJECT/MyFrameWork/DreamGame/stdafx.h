@@ -52,6 +52,7 @@ using namespace std;
 #include <iostream>
 #include<random>
 #include <unordered_map>
+#include "d3dx12.h"
 
 
 #pragma comment(lib, "ws2_32") // ws2_32.lib ¸µÅ©
@@ -129,7 +130,16 @@ struct CB_GAMEOBJECT_INFO
 {
 	XMFLOAT4X4 m_xmf4x4World;
 };
-
+struct SHADOW_INFO
+{
+	XMFLOAT4X4						m_xmf4x4View;
+	XMFLOAT4X4						m_xmf4x4Projection;
+	XMFLOAT4X4						m_xmf4x4ShadowView;
+	XMFLOAT4X4						m_xmf4x4ShadowProjection;
+	XMFLOAT4X4						m_xmf4x4ShadowTransform;
+	XMFLOAT3						m_xmf3CameraPosition;
+	XMFLOAT3						m_xmf3LightPosition;
+};
 enum entity_id
 {
 	SQUARE_ENTITY,
@@ -142,7 +152,9 @@ enum component_id
 	PHYSICS_COMPONENT,
 	MESH_COMPONENT,
 	CUBEMESH_COMPONENT,
-	SHADER_COMPONENT
+	SHADER_COMPONENT,
+	SHADOWSHADER_COMPONENT,
+	TEXTURE_COMPONENT
 };
 //mean about component_id;
 

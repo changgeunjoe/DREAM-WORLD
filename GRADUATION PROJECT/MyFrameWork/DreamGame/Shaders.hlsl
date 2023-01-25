@@ -7,16 +7,50 @@ cbuffer cbCameraInfo : register(b1)
 {
     matrix gmtxView : packoffset(c0);
     matrix gmtxProjection : packoffset(c4);
-    matrix gmtxInverseView : packoffset(c8);
-    float3 gvCameraPosition : packoffset(c12);
+    matrix gmtxLightView : packoffset(c8);
+    matrix gmtxLightProjection : packoffset(c12);
+    matrix gmtxShadowTransform : packoffset(c16);
+    float3 gvCameraPosition : packoffset(c20);
+    float gfPad1 : packoffset(c20.w);
+    float3 gvLightPosition : packoffset(c21.x);
 };
 
 
 Texture2D shaderTexture : register(t0);
-Texture2D depthMapTexture : register(t1);
+Texture2D ShadowMap : register(t1);
 
 SamplerState gWrapSamplerState : register(s0);
-SamplerState gClampSamplerState : register(s1);
+SamplerComparisonState gClampSamplerState : register(s1);
+
+float CalcShadowFactor(float4 shadowPosH)
+{
+	// Complete projection by doing division by w.
+    shadowPosH.xyz /= shadowPosH.w;
+
+	// Depth in NDC space.
+    float depth = shadowPosH.z;
+
+    uint width, height, numMips;
+    ShadowMap.GetDimensions(0, width, height, numMips);
+
+	// Texel size.
+    float dx = 1.0f / (float) width;
+
+    float percentLit = 0.0f;
+    const float2 offsets[9] =
+    {
+        float2(-dx, -dx), float2(0.0f, -dx), float2(dx, -dx),
+		float2(-dx, 0.0f), float2(0.0f, 0.0f), float2(dx, 0.0f),
+		float2(-dx, +dx), float2(0.0f, +dx), float2(dx, +dx)
+    };
+
+    for (int i = 0; i < 9; ++i)
+    {
+        percentLit += ShadowMap.SampleCmpLevelZero(gClampSamplerState, shadowPosH.xy, depth).r;
+    }
+
+    return percentLit / 9.0f;
+}
 
 
 struct VS_INPUT

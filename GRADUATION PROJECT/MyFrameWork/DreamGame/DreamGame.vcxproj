@@ -143,6 +143,7 @@
     <ClInclude Include="CGameObject.h" />
     <ClInclude Include="ComponentBase.h" />
     <ClInclude Include="Light.h" />
+    <ClInclude Include="ShadowShaderComponent.h" />
     <ClInclude Include="TextureComponent.h" />
     <ClInclude Include="DDSTextureLoader12.h" />
     <ClInclude Include="DreamGame.h" />
@@ -165,6 +166,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ComponentBase.cpp" />
     <ClCompile Include="Light.cpp" />
+    <ClCompile Include="ShadowShaderComponent.cpp" />
     <ClCompile Include="TextureComponent.cpp" />
     <ClCompile Include="DDSTextureLoader12.cpp" />
     <ClCompile Include="DreamGame.cpp" />

@@ -114,7 +114,8 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	//	RenderComponent* pRenderComponent = static_cast<RenderComponent*>(pComponent);
 	//	pRenderComponent->Render(pd3dDevice);
 	//}
-	m_pMissileTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	m_pMissileTexture = new TextureComponent(); //
+	m_pMissileTexture->BuildTexture(1, RESOURCE_TEXTURE2D, 0, 1);
 	m_pMissileTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Image/stones.dds", RESOURCE_TEXTURE2D, 0);// ->텍스쳐 컴포넌트로 분리
 
 	ComponentBase* pMeshComponent = GetComponent(component_id::CUBEMESH_COMPONENT);
@@ -130,6 +131,18 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	//m_pMissileMaterial->SetTexture(m_pMissileTexture);
 	//m_nObjects = 10;
 	//m_ppObjects = new CGameObject * [m_nObjects];
+	
+
+	ComponentBase* pShadowShaderComponent = GetComponent(component_id::SHADOWSHADER_COMPONENT);
+	ID3D12Resource* pShadowMap = NULL;
+	if (pMeshComponent != NULL)
+	{
+		CShadowShaderComponent* pShadowShaderComponent = static_cast<CShadowShaderComponent*>(pShadowShaderComponent);
+		//m_pMissileTexturedMesh = new CCubeMeshTextured(pd3dDevice, pd3dCommandList, 10.f, 10.5f, 5.f);
+		pShadowShaderComponent->BuildShadow(pd3dDevice, pd3dCommandList, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
+		pShadowMap = pShadowShaderComponent->GetShadowMap();
+		//CMesh* pMeshIlluminated = new CSphereMeshIlluminated(pd3dDevice, pd3dCommandList, 100.0f, 20, 20);
+	}
 
 	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);// 삭제 예정(변경)
 	int nObjects = 0;//삭제 예정(변경)
@@ -141,7 +154,7 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		PShaderComponent->CreateCbvSrvDescriptorHeaps(pd3dDevice, 1, 1);
 		PShaderComponent->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 		PShaderComponent->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObjects, ncbElementBytes);
-		PShaderComponent->CreateShaderResourceViews(pd3dDevice, m_pMissileTexture, 0, 3);//texture입력
+		PShaderComponent->CreateShaderResourceViews(pd3dDevice, m_pMissileTexture, 0, 3, pShadowMap);//texture입력
 		//SetCbvGPUDescriptorHandle(PShaderComponent->GetCbvGPUDescriptorHandle());
 		SetCbvGPUDescriptorHandlePtr(PShaderComponent->GetGPUCbvDescriptorStartHandle().ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));
 	}

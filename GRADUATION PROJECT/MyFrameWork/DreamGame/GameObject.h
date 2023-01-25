@@ -4,6 +4,7 @@
 #include"ShaderComponent.h"
 #include"MeshComponent.h"
 #include"TextureComponent.h"
+#include"ShadowShaderComponent.h"
 class ComponentBase;
 class GameObject
 {
@@ -66,7 +67,7 @@ protected:
 
     unordered_map<component_id, ComponentBase*> m_components;
 
-    CTexture* m_pMissileTexture{ NULL };
+    TextureComponent* m_pMissileTexture{ NULL };
 protected:
     ID3D12Resource* m_pd3dcbGameObjects = NULL;
     CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;

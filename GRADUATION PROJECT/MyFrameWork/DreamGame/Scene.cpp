@@ -24,7 +24,7 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	ID3D12RootSignature* pd3dGraphicsRootSignature = NULL;
 #ifdef _WITH_STANDARD_TEXTURE_MULTIPLE_DESCRIPTORS
 
-	RootSignature.Descriptorrange.resize(2);
+	RootSignature.Descriptorrange.resize(3);
 	RootSignature.Descriptorrange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
 	RootSignature.Descriptorrange[0].NumDescriptors = 1;
 	RootSignature.Descriptorrange[0].BaseShaderRegister = 0; //GameObject //b0
@@ -35,9 +35,14 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	RootSignature.Descriptorrange[1].BaseShaderRegister = 0; //gtxtexture
 	RootSignature.Descriptorrange[1].RegisterSpace = 0;
 	RootSignature.Descriptorrange[1].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	RootSignature.Descriptorrange[2].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	RootSignature.Descriptorrange[2].NumDescriptors = 1;
+	RootSignature.Descriptorrange[2].BaseShaderRegister = 1; //shadowMap
+	RootSignature.Descriptorrange[2].RegisterSpace = 0;
+	RootSignature.Descriptorrange[2].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 //-------------------------------rootParameter----------------------------------------------------    
-	RootSignature.RootParameter.resize(4);
+	RootSignature.RootParameter.resize(5);
 	//GameObject(b0)Shaders.hlsl
 	RootSignature.RootParameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	RootSignature.RootParameter[0].DescriptorTable.NumDescriptorRanges = 1;
@@ -53,11 +58,16 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	RootSignature.RootParameter[2].Descriptor.ShaderRegister = 2;
 	RootSignature.RootParameter[2].Descriptor.RegisterSpace = 0;
 	RootSignature.RootParameter[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-	//gtxTexture(b1) Shadows.hlsl
+	//gtxTexture(t0) Shadows.hlsl
 	RootSignature.RootParameter[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	RootSignature.RootParameter[3].DescriptorTable.NumDescriptorRanges = 1;
 	RootSignature.RootParameter[3].DescriptorTable.pDescriptorRanges = &(RootSignature.Descriptorrange[1]);
 	RootSignature.RootParameter[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	//ShadowMap(t1) Shadows.hlsl
+	RootSignature.RootParameter[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	RootSignature.RootParameter[4].DescriptorTable.NumDescriptorRanges = 1;
+	RootSignature.RootParameter[4].DescriptorTable.pDescriptorRanges = &(RootSignature.Descriptorrange[1]);
+	RootSignature.RootParameter[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 	//textureSampler
 	RootSignature.TextureSamplerDescs.resize(3);
 	RootSignature.TextureSamplerDescs[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;

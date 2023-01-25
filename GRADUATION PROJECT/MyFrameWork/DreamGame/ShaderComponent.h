@@ -1,5 +1,6 @@
 #pragma once
 #include "ComponentBase.h"
+#include"TextureComponent.h"
 class ShaderComponent : public ComponentBase
 {
 public:
@@ -33,8 +34,13 @@ protected:
 
 	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dCbvGPUDescriptorHandle;
 
+	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dShadowGPUDescriptorHandle;//그림자 텍스쳐를 넘기기위한 디스크립터의 주소
+	
+	
 	ID3D12Resource* m_pd3dcbGameObjects = NULL;//쉐이더를 만들 때 활용 된다.->Createshadervariables
 	CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
+
+	
 
 public:
 	void AddRef() { m_nReferences++; }
@@ -88,8 +94,9 @@ public:
 
 	void CreateCbvSrvDescriptorHeaps(ID3D12Device* pd3dDevice, int nConstantBufferViews, int nShaderResourceViews);
 	void CreateConstantBufferViews(ID3D12Device* pd3dDevice, int nConstantBufferViews, ID3D12Resource* pd3dConstantBuffers, UINT nStride);
-	void CreateShaderResourceViews(ID3D12Device* pd3dDevice, CTexture* pTexture, UINT nDescriptorHeapIndex, UINT nRootParameterStartIndex);
-	void CreateShaderResourceView(ID3D12Device* pd3dDevice, CTexture* pTexture, int nIndex);
+	void CreateShaderResourceViews(ID3D12Device* pd3dDevice, TextureComponent* pTexture, UINT nDescriptorHeapIndex, UINT nRootParameterStartIndex);
+	void CreateShaderResourceViews(ID3D12Device* pd3dDevice, TextureComponent* pTexture, UINT nDescriptorHeapIndex, UINT nRootParameterStartIndex, ID3D12Resource* pShadowMap);
+	void CreateShaderResourceView(ID3D12Device* pd3dDevice, TextureComponent* pTexture, int nIndex);
 
 	void SetCbvGPUDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE d3dCbvGPUDescriptorHandle) { m_d3dCbvGPUDescriptorHandle = d3dCbvGPUDescriptorHandle; }
 	void SetCbvGPUDescriptorHandlePtr(UINT64 nCbvGPUDescriptorHandlePtr) { m_d3dCbvGPUDescriptorHandle.ptr = nCbvGPUDescriptorHandlePtr; }
