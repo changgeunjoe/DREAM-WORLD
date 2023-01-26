@@ -54,3 +54,43 @@ void PlayerSessionObject::ConstructPacket(int ioByte)
 	}
 	Recv();
 }
+
+bool PlayerSessionObject::AdjustPlayerInfo(DirectX::XMFLOAT3& position, DirectX::XMFLOAT3& rotate)
+{
+	m_rotateAngle = rotate;
+	if (Vector3::Length(Vector3::Subtract(m_position, position)) < 100) { // 일정 값 미만이라면 문제 없음, 이상이라면 스피드 핵?으로 감지하고 위치 서버 위치로 전환
+		m_position = position;
+		return true;
+	}
+	return false;
+}
+
+void PlayerSessionObject::AutoMove()
+{
+	auto currentTime = std::chrono::steady_clock::now();
+	auto durationTime = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_lastMoveTime).count();
+	m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, (double)durationTime / 1000.0f));
+	m_lastMoveTime = currentTime;
+}
+
+void PlayerSessionObject::StartMove()
+{
+	m_isMove = true;
+	m_lastMoveTime = std::chrono::steady_clock::now();
+
+}
+
+void PlayerSessionObject::StopMove()
+{
+	m_isMove = false;
+}
+
+const DirectX::XMFLOAT3 PlayerSessionObject::GetPosition()
+{
+	return m_position;
+}
+
+const DirectX::XMFLOAT3 PlayerSessionObject::GetRotation()
+{
+	return m_rotateAngle;
+}

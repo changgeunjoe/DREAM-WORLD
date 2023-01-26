@@ -1,6 +1,7 @@
 #pragma once
 #include "SessionObject.h"
 #include "../ExpOver.h"
+#include <DirectXMath.h>
 
 #define NAME_SIZE	20
 
@@ -20,8 +21,7 @@ private:
 	SOCKET				m_socket;
 	int					m_prevBufferSize;
 private:
-	int roomNumber;
-
+	int m_roomNumber;
 public:
 	PlayerSessionObject(Session* session, SOCKET& sock);
 	virtual	~PlayerSessionObject();
@@ -30,4 +30,13 @@ public:
 	void Recv();
 	void Send(void* p);
 	void ConstructPacket(int ioByte);
+public:
+	bool AdjustPlayerInfo(DirectX::XMFLOAT3& position, DirectX::XMFLOAT3& rotate);
+public:
+	virtual void AutoMove() override;
+	virtual void StartMove() override;
+	virtual void StopMove() override;
+public:
+	virtual const DirectX::XMFLOAT3 GetPosition() override;
+	virtual const DirectX::XMFLOAT3 GetRotation() override;
 };

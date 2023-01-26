@@ -1,4 +1,3 @@
-
 enum DIRECTION : char
 {
 	IDLE,
@@ -35,6 +34,8 @@ namespace CLIENT_PACKET {
 	struct StopPacket {
 		char size;
 		char type;
+		DirectX::XMFLOAT3 position;
+		DirectX::XMFLOAT3 rotate;
 	};
 }
 namespace SERVER_PACKET {
@@ -61,6 +62,8 @@ namespace SERVER_PACKET {
 		char size;
 		char type;
 		int userId;
+		DirectX::XMFLOAT3 position;
+		DirectX::XMFLOAT3 rotate;
 	};
 }
 

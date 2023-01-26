@@ -9,10 +9,15 @@ extern IOCPNetwork g_iocpNetwork;
 
 Logic::Logic()
 {
+	m_isRunningThread = true;
+	m_PlayerMoveThread = std::thread{ [this]() {AutoMoveServer(); } };
 }
 
 Logic::~Logic()
 {
+	m_isRunningThread = false;
+	if (m_PlayerMoveThread.joinable())
+		m_PlayerMoveThread.join();
 }
 
 void Logic::AcceptPlayer(Session* session, int userId, SOCKET& sock)
@@ -33,6 +38,8 @@ void Logic::ProcessPacket(int userId, char* p)
 		sendPacket.userId = userId;
 		sendPacket.type = SERVER_PACKET::MOVE;
 		sendPacket.size = sizeof(SERVER_PACKET::MovePacket);
+		PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
+		pSessionObj->StartMove(); // 움직임 start
 		MultiCastOtherPlayer(userId, &sendPacket);
 	}
 	break;
@@ -52,12 +59,23 @@ void Logic::ProcessPacket(int userId, char* p)
 	case CLIENT_PACKET::STOP:
 	{
 		CLIENT_PACKET::StopPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::StopPacket*>(p);
+		PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
+		pSessionObj->StopMove();
 
 		SERVER_PACKET::StopPacket sendPacket;
 		sendPacket.userId = userId;
 		sendPacket.type = SERVER_PACKET::ROTATE;
 		sendPacket.size = sizeof(SERVER_PACKET::StopPacket);
-		MultiCastOtherPlayer(userId, &sendPacket);
+		sendPacket.position = recvPacket->position;
+		sendPacket.rotate = recvPacket->rotate;
+
+		bool adjustRes = pSessionObj->AdjustPlayerInfo(recvPacket->position, recvPacket->rotate);
+		if (!adjustRes) {
+			sendPacket.position = pSessionObj->GetPosition();
+			BroadCastPacket(&sendPacket);
+		}
+		else
+			MultiCastOtherPlayer(userId, &sendPacket);
 	}
 	break;
 	default:
@@ -79,6 +97,7 @@ void Logic::MultiCastOtherPlayer(int userId, void* p)
 {
 	for (auto& cli : g_iocpNetwork.m_session) {
 		if (cli.GetId() == userId) continue;//자기 자신을 제외한 플레이어들에게 전송
+		if (cli.GetId() > MAX_USER) break;
 		if (cli.m_sessionCategory == PLAYER) {
 			PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(cli.m_sessionObject);
 			pSessionObj->Send(p);
@@ -86,3 +105,16 @@ void Logic::MultiCastOtherPlayer(int userId, void* p)
 	}
 }
 
+void Logic::AutoMoveServer()
+{
+	while (m_isRunningThread)
+	{
+		for (auto& cli : g_iocpNetwork.m_session) {
+			if (cli.GetId() > MAX_USER) break;
+			PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(cli.m_sessionObject);
+			if (cli.m_sessionObject->m_isMove) {
+				pSessionObj->AutoMove();
+			}
+		}
+	}
+}
