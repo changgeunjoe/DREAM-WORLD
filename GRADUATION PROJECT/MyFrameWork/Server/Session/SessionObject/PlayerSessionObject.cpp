@@ -67,16 +67,17 @@ bool PlayerSessionObject::AdjustPlayerInfo(DirectX::XMFLOAT3& position, DirectX:
 
 void PlayerSessionObject::AutoMove()
 {
-	auto currentTime = std::chrono::steady_clock::now();
-	auto durationTime = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_lastMoveTime).count();
-	m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, (double)durationTime / 1000.0f));
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	auto durationTime = std::chrono::duration<double>(currentTime - m_lastMoveTime);
+	m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, (double)durationTime.count()));
 	m_lastMoveTime = currentTime;
+	std::cout << durationTime.count() << "elapsed" << "current Position" << m_position.x << " " << m_position.y << " " << m_position.z << std::endl;
 }
 
 void PlayerSessionObject::StartMove()
 {
 	m_isMove = true;
-	m_lastMoveTime = std::chrono::steady_clock::now();
+	m_lastMoveTime = std::chrono::high_resolution_clock::now();
 
 }
 

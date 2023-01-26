@@ -235,4 +235,3 @@ void GameObject::MoveForward(float fDistance)
 	GameObject::SetPosition(xmf3Position);
 }
 
-;
