@@ -36,5 +36,6 @@ public:
 	void RegistPlayer(int id, SOCKET& socket);
 
 	const int GetId() { return m_id; }
+	const PLAYER_STATE GetPlayerState() { return m_playerState; };
 };
 

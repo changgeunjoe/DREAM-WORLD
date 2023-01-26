@@ -16,8 +16,8 @@ NetworkHelper::NetworkHelper()
 	if (m_clientSocket == INVALID_SOCKET) {
 		std::cout << "client Socket Invalid" << std::endl;
 	}
-	u_long isNonBlock = 1;
-	ioctlsocket(m_clientSocket, FIONBIO, &isNonBlock);
+	/*u_long isNonBlock = 1;
+	ioctlsocket(m_clientSocket, FIONBIO, &isNonBlock);*/
 	m_bIsRunnung = false;
 	m_prevPacketSize = 0;
 }
@@ -32,7 +32,8 @@ bool NetworkHelper::TryConnect()
 	sockaddrIn.sin_family = AF_INET;
 	sockaddrIn.sin_port = htons(SERVER_PORT);
 	inet_pton(AF_INET, "127.0.0.1", &sockaddrIn.sin_addr.s_addr);
-	if (connect(m_clientSocket, reinterpret_cast<sockaddr*>(&sockaddrIn), sizeof(sockaddrIn))) {
+	int retVal = connect(m_clientSocket, reinterpret_cast<sockaddr*>(&sockaddrIn), sizeof(sockaddrIn));
+	if (retVal) {
 		std::cout << "connect Fail" << std::endl;
 		return false;
 	}

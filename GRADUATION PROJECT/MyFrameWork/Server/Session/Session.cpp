@@ -25,14 +25,14 @@ void Session::Initialize()
 
 void Session::RegistPlayer(int id, SOCKET& sock)
 {
-	{
-		std::lock_guard<std::mutex> psLock(m_playerStateLock);
-		m_playerState = PLAYER_STATE::ALLOC;
-	}
 	m_sessionCategory = PLAYER;
 	m_id = id;
 	PlayerSessionObject* newSessionObjet = new PlayerSessionObject(this, sock);
 	m_sessionObject = reinterpret_cast<SessionObject*>(newSessionObjet);
 	std::cout << "std::RegistPlayer" << std::endl;
+	{
+		std::lock_guard<std::mutex> psLock(m_playerStateLock);
+		m_playerState = PLAYER_STATE::ALLOC;
+	}
 	newSessionObjet->Recv();
 }

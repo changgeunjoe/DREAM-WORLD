@@ -109,8 +109,10 @@ void Logic::AutoMoveServer()
 {
 	while (m_isRunningThread)
 	{
+		if (g_iocpNetwork.GetCurrentId() == 0) continue;
 		for (auto& cli : g_iocpNetwork.m_session) {
 			if (cli.GetId() > MAX_USER) break;
+			if (cli.GetPlayerState() == PLAYER_STATE::FREE) continue;
 			PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(cli.m_sessionObject);
 			if (cli.m_sessionObject->m_isMove) {
 				pSessionObj->AutoMove();

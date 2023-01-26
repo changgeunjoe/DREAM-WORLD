@@ -38,5 +38,5 @@ private:
 	int GetUserId();
 
 public:
-
+	int GetCurrentId() { return m_currentClientId; };
 };

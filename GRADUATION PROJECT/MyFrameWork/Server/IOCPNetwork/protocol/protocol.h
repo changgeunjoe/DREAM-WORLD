@@ -1,3 +1,4 @@
+#include <DirectXMath.h>
 enum DIRECTION : char
 {
 	IDLE,
