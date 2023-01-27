@@ -59,6 +59,11 @@ void GameObject::SetScale(float x, float y, float z)
 	m_xmf4x4World = Matrix4x4::Multiply(mtxScale, m_xmf4x4World);
 }
 
+void GameObject::SetTexture(wchar_t* pszFileName)
+{
+	pszFileNames = pszFileName;
+}
+
 unordered_map<component_id, ComponentBase*> GameObject::Getcomponents()
 {
     return m_components;
@@ -77,24 +82,16 @@ T* InsertComponent()
     pComponent->SetOwner(this);
     return pComponent;
 }
-//void GameObject::SetComponent(const component_id& componentID)
-//{
-//    switch (componentID) 
-//    {
-//        case RENDERCOMPONENT:
-//            break;
-//
-//    }
-//   
-//}
-
-
 
 void GameObject::SetComponent(const component_id& componentID)
 {
 }
 ComponentBase* GameObject::GetComponent(const component_id& componentID) 
 {
+	if (m_components.find(componentID) == m_components.end())
+	{
+		return NULL;//컴포넌트 없으면 그냥 나가게 해주는거 
+	}
 	auto it = m_components.find(componentID);
 	ComponentBase* Component= it->second;
 	return Component;
@@ -108,79 +105,54 @@ void GameObject::HandleMessage(string message)
 void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
 
-	//ComponentBase* pComponent=GetComponent(component_id::RENDER_COMPONENT);
-	//if (pComponent != NULL)
-	//{
-	//	RenderComponent* pRenderComponent = static_cast<RenderComponent*>(pComponent);
-	//	pRenderComponent->Render(pd3dDevice);
-	//}
-	m_pMissileTexture = new TextureComponent(); //
-	m_pMissileTexture->BuildTexture(1, RESOURCE_TEXTURE2D, 0, 1);
-	m_pMissileTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Image/stones.dds", RESOURCE_TEXTURE2D, 0);// ->텍스쳐 컴포넌트로 분리
-
+	ComponentBase* pComponent=GetComponent(component_id::RENDER_COMPONENT);
+	if (pComponent != NULL)
+	{
+		m_pRenderComponent = static_cast<RenderComponent*>(pComponent);
+	}
+	ComponentBase* pTextureComponent = GetComponent(component_id::TEXTURE_COMPONENT);
+	if (pTextureComponent != NULL)
+	{
+		m_pTextureComponent = static_cast<TextureComponent*>(pTextureComponent);
+		m_pTextureComponent->BuildTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+		m_pTextureComponent->LoadTextureFromFile(pd3dDevice, pd3dCommandList, pszFileNames, RESOURCE_TEXTURE2D, 0);
+	}
 	ComponentBase* pMeshComponent = GetComponent(component_id::CUBEMESH_COMPONENT);
 	if (pMeshComponent != NULL)
 	{
-		CubeMeshComponent* pCubeComponent = static_cast<CubeMeshComponent*>(pMeshComponent);
-		pCubeComponent->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, 10, 10, 10);
-		//m_pMissileTexturedMesh = new CCubeMeshTextured(pd3dDevice, pd3dCommandList, 10.f, 10.5f, 5.f);
-		//CMesh* pMeshIlluminated = new CSphereMeshIlluminated(pd3dDevice, pd3dCommandList, 100.0f, 20, 20);
+		m_pCubeComponent = static_cast<CubeMeshComponent*>(pMeshComponent);
+		m_pCubeComponent->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, 10, 10, 10);
 	}
 	//->메테리얼 생성 텍스쳐와 쉐이더를 넣어야되는데 쉐이더이므로 안 넣어도 됨
-	//m_pMissileMaterial = new CMaterial();
-	//m_pMissileMaterial->SetTexture(m_pMissileTexture);
-	//m_nObjects = 10;
-	//m_ppObjects = new CGameObject * [m_nObjects];
-	
-
-	ComponentBase* pShadowShaderComponent = GetComponent(component_id::SHADOWSHADER_COMPONENT);
-	ID3D12Resource* pShadowMap = NULL;
-	if (pMeshComponent != NULL)
-	{
-		CShadowShaderComponent* pShadowShaderComponent = static_cast<CShadowShaderComponent*>(pShadowShaderComponent);
-		//m_pMissileTexturedMesh = new CCubeMeshTextured(pd3dDevice, pd3dCommandList, 10.f, 10.5f, 5.f);
-		pShadowShaderComponent->BuildShadow(pd3dDevice, pd3dCommandList, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
-		pShadowMap = pShadowShaderComponent->GetShadowMap();
-		//CMesh* pMeshIlluminated = new CSphereMeshIlluminated(pd3dDevice, pd3dCommandList, 100.0f, 20, 20);
-	}
-
-	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);// 삭제 예정(변경)
-	int nObjects = 0;//삭제 예정(변경)
 	ComponentBase* pShaderComponent = GetComponent(component_id::SHADER_COMPONENT);	
 	if (pShaderComponent != NULL)
 	{
-		ShaderComponent* PShaderComponent = static_cast<ShaderComponent*>(pShaderComponent);
-		PShaderComponent->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
-		PShaderComponent->CreateCbvSrvDescriptorHeaps(pd3dDevice, 1, 1);
-		PShaderComponent->CreateShaderVariables(pd3dDevice, pd3dCommandList);
-		PShaderComponent->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObjects, ncbElementBytes);
-		PShaderComponent->CreateShaderResourceViews(pd3dDevice, m_pMissileTexture, 0, 3, pShadowMap);//texture입력
+		m_pShaderComponent = static_cast<ShaderComponent*>(pShaderComponent);
+		m_pShaderComponent->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
+		m_pShaderComponent->CreateCbvSrvDescriptorHeaps(pd3dDevice, 1, 1);
+		m_pShaderComponent->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+		m_pShaderComponent->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObjects, ncbElementBytes);
+		m_pShaderComponent->CreateShaderResourceViews(pd3dDevice, m_pTextureComponent, 0, 3, pShadowMap);//texture입력
 		//SetCbvGPUDescriptorHandle(PShaderComponent->GetCbvGPUDescriptorHandle());
-		SetCbvGPUDescriptorHandlePtr(PShaderComponent->GetGPUCbvDescriptorStartHandle().ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));
+		SetCbvGPUDescriptorHandlePtr(m_pShaderComponent->GetGPUCbvDescriptorStartHandle().ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));
 	}
-
-	//CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	//CreateShaderVariables(pd3dDevice, pd3dCommandList);//삭제예정
 }
 void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	
-	ComponentBase* pShaderComponent = GetComponent(component_id::SHADER_COMPONENT);
-	if (pShaderComponent != NULL)
+	if (m_pShaderComponent != NULL)
 	{
-		ShaderComponent* PShaderComponent = static_cast<ShaderComponent*>(pShaderComponent);
-		PShaderComponent->Render(pd3dCommandList,0, pd3dGraphicsRootSignature);
-		PShaderComponent->UpdateShaderVariables(pd3dCommandList, &m_xmf4x4World);
+		m_pShaderComponent->Render(pd3dCommandList,0, pd3dGraphicsRootSignature);
+		m_pShaderComponent->UpdateShaderVariables(pd3dCommandList, &m_xmf4x4World);
 		pd3dCommandList->SetGraphicsRootDescriptorTable(0, m_d3dCbvGPUDescriptorHandle);
-		m_pMissileTexture->UpdateShaderVariables(pd3dCommandList);
+		if (m_pTextureComponent != NULL) 
+		{
+			m_pTextureComponent->UpdateShaderVariables(pd3dCommandList);
+		}
 	}
-	
-	ComponentBase* pRenderComponent = GetComponent(component_id::RENDER_COMPONENT);
-	ComponentBase* pMeshComponent = GetComponent(component_id::CUBEMESH_COMPONENT);
-	if (pRenderComponent != NULL)
-	{
-		RenderComponent* pRenderComponents = static_cast<RenderComponent*>(pRenderComponent);
-		CubeMeshComponent* pMeshComponents = static_cast<CubeMeshComponent*>(pMeshComponent);
-		pRenderComponents->Render(pd3dCommandList, pMeshComponents);
+	if (m_pRenderComponent != NULL&& m_pCubeComponent!=NULL)
+	{;
+		m_pRenderComponent->Render(pd3dCommandList, m_pCubeComponent);//수정필요
 	}
 
 	//if (m_nMaterials > 0)

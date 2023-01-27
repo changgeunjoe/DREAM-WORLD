@@ -21,11 +21,12 @@ public:
 	virtual bool onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 private: //active object 
 	GameObject**	pGameObjects = NULL;
-	GameObject*		pGameObject = NULL;
-	GameObject*		pSqureObject = NULL;
-	GameObject*		pPlaneObject = NULL;
+	GameObject*		m_pGameObject = NULL;
+	GameObject*		m_pSqureObject = NULL;
+	GameObject*     m_pSqure2Object = NULL;
+	GameObject*		m_pPlaneObject = NULL;
 
-	CLight*			pLight = NULL;
+	CLight*			m_pLight = NULL;
 
 };
 

@@ -28,11 +28,12 @@ class TextureComponentdVertex : public CVertex
 {
 public:
 	XMFLOAT2						m_xmf2TexCoord;
+	XMFLOAT3						m_xmf3Normal;
 
 public:
-	TextureComponentdVertex() { m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f); m_xmf2TexCoord = XMFLOAT2(0.0f, 0.0f); }
-	TextureComponentdVertex(float x, float y, float z, XMFLOAT2 xmf2TexCoord) { m_xmf3Position = XMFLOAT3(x, y, z); m_xmf2TexCoord = xmf2TexCoord; }
-	TextureComponentdVertex(XMFLOAT3 xmf3Position, XMFLOAT2 xmf2TexCoord = XMFLOAT2(0.0f, 0.0f)) { m_xmf3Position = xmf3Position; m_xmf2TexCoord = xmf2TexCoord; }
+	TextureComponentdVertex() { m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f); m_xmf2TexCoord = XMFLOAT2(0.0f, 0.0f); m_xmf3Normal= XMFLOAT3(0.0f, 0.0f,0.0f);}
+	TextureComponentdVertex(float x, float y, float z, XMFLOAT2 xmf2TexCoord, XMFLOAT3 xmx3Normal) { m_xmf3Position = XMFLOAT3(x, y, z); m_xmf2TexCoord = xmf2TexCoord; m_xmf3Normal = xmx3Normal; }
+	TextureComponentdVertex(XMFLOAT3 xmf3Position, XMFLOAT2 xmf2TexCoord, XMFLOAT3 xmx3Normal) { m_xmf3Position = xmf3Position; m_xmf2TexCoord = xmf2TexCoord; m_xmf3Normal = xmx3Normal;}
 	~TextureComponentdVertex() { }
 };
 

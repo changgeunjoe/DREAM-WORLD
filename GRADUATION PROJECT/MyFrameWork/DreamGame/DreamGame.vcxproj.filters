@@ -114,6 +114,9 @@
     <ClInclude Include="TextureComponent.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
+    <ClInclude Include="MaterialComponent.h">
+      <Filter>소스 파일\헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -174,6 +177,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="ShadowShaderComponent.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialComponent.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

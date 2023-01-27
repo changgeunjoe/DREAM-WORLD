@@ -22,53 +22,53 @@ void CubeMeshComponent::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	TextureComponentdVertex pVertices[36];
 	int i = 0;
 
-	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(-fx, +fy, -fz), XMFLOAT2(0.0f, 0.0f));
-	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(+fx, +fy, -fz), XMFLOAT2(1.0f, 0.0f));
-	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(+fx, -fy, -fz), XMFLOAT2(1.0f, 1.0f));
+	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(-fx, +fy, -fz), XMFLOAT2(0.0f, 0.0f), XMFLOAT3(1.0f, 1.0f, 1.0f));
+	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(+fx, +fy, -fz), XMFLOAT2(1.0f, 0.0f), XMFLOAT3(1.0f, 1.0f, 1.0f));
+	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(+fx, -fy, -fz), XMFLOAT2(1.0f, 1.0f), XMFLOAT3(1.0f, 1.0f, 1.0f));
 
-	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(-fx, +fy, -fz), XMFLOAT2(0.0f, 0.0f));
-	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(+fx, -fy, -fz), XMFLOAT2(1.0f, 1.0f));
-	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(-fx, -fy, -fz), XMFLOAT2(0.0f, 1.0f));
+	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(-fx, +fy, -fz), XMFLOAT2(0.0f, 0.0f), XMFLOAT3(1.0f, 1.0f, 1.0f));
+	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(+fx, -fy, -fz), XMFLOAT2(1.0f, 1.0f), XMFLOAT3(1.0f, 1.0f, 1.0f));
+	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(-fx, -fy, -fz), XMFLOAT2(0.0f, 1.0f), XMFLOAT3(1.0f, 1.0f, 1.0f));
 
-	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(-fx, +fy, +fz), XMFLOAT2(0.0f, 0.0f));
-	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(+fx, +fy, +fz), XMFLOAT2(1.0f, 0.0f));
-	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(+fx, +fy, -fz), XMFLOAT2(1.0f, 1.0f));
+	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(-fx, +fy, +fz), XMFLOAT2(0.0f, 0.0f), XMFLOAT3(1.0f, 1.0f, 1.0f));
+	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(+fx, +fy, +fz), XMFLOAT2(1.0f, 0.0f), XMFLOAT3(1.0f, 1.0f, 1.0f));
+	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(+fx, +fy, -fz), XMFLOAT2(1.0f, 1.0f), XMFLOAT3(1.0f, 1.0f, 1.0f));
 
-	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(-fx, +fy, +fz), XMFLOAT2(0.0f, 0.0f));
-	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(+fx, +fy, -fz), XMFLOAT2(1.0f, 1.0f));
-	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(-fx, +fy, -fz), XMFLOAT2(0.0f, 1.0f));
+	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(-fx, +fy, +fz), XMFLOAT2(0.0f, 0.0f), XMFLOAT3(1.0f, 1.0f, 1.0f));
+	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(+fx, +fy, -fz), XMFLOAT2(1.0f, 1.0f), XMFLOAT3(1.0f, 1.0f, 1.0f));
+	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(-fx, +fy, -fz), XMFLOAT2(0.0f, 1.0f), XMFLOAT3(1.0f, 1.0f, 1.0f));
 
-	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(-fx, -fy, +fz), XMFLOAT2(0.0f, 0.0f));
-	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(+fx, -fy, +fz), XMFLOAT2(1.0f, 0.0f));
-	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(+fx, +fy, +fz), XMFLOAT2(1.0f, 1.0f));
+	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(-fx, -fy, +fz), XMFLOAT2(0.0f, 0.0f), XMFLOAT3(1.0f, 1.0f, 1.0f));
+	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(+fx, -fy, +fz), XMFLOAT2(1.0f, 0.0f), XMFLOAT3(1.0f, 1.0f, 1.0f));
+	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(+fx, +fy, +fz), XMFLOAT2(1.0f, 1.0f), XMFLOAT3(1.0f, 1.0f, 1.0f));
 
-	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(-fx, -fy, +fz), XMFLOAT2(0.0f, 0.0f));
-	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(+fx, +fy, +fz), XMFLOAT2(1.0f, 1.0f));
-	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(-fx, +fy, +fz), XMFLOAT2(0.0f, 1.0f));
+	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(-fx, -fy, +fz), XMFLOAT2(0.0f, 0.0f), XMFLOAT3(1.0f, 1.0f, 1.0f));
+	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(+fx, +fy, +fz), XMFLOAT2(1.0f, 1.0f), XMFLOAT3(1.0f, 1.0f, 1.0f));
+	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(-fx, +fy, +fz), XMFLOAT2(0.0f, 1.0f), XMFLOAT3(1.0f, 1.0f, 1.0f));
 
-	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(-fx, -fy, -fz), XMFLOAT2(0.0f, 0.0f));
-	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(+fx, -fy, -fz), XMFLOAT2(1.0f, 0.0f));
-	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(+fx, -fy, +fz), XMFLOAT2(1.0f, 1.0f));
+	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(-fx, -fy, -fz), XMFLOAT2(0.0f, 0.0f), XMFLOAT3(1.0f, 1.0f, 1.0f));
+	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(+fx, -fy, -fz), XMFLOAT2(1.0f, 0.0f), XMFLOAT3(1.0f, 1.0f, 1.0f));
+	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(+fx, -fy, +fz), XMFLOAT2(1.0f, 1.0f), XMFLOAT3(1.0f, 1.0f, 1.0f));
 
-	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(-fx, -fy, -fz), XMFLOAT2(0.0f, 0.0f));
-	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(+fx, -fy, +fz), XMFLOAT2(1.0f, 1.0f));
-	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(-fx, -fy, +fz), XMFLOAT2(0.0f, 1.0f));
+	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(-fx, -fy, -fz), XMFLOAT2(0.0f, 0.0f), XMFLOAT3(1.0f, 1.0f, 1.0f));
+	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(+fx, -fy, +fz), XMFLOAT2(1.0f, 1.0f), XMFLOAT3(1.0f, 1.0f, 1.0f));
+	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(-fx, -fy, +fz), XMFLOAT2(0.0f, 1.0f), XMFLOAT3(1.0f, 1.0f, 1.0f));
 
-	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(-fx, +fy, +fz), XMFLOAT2(0.0f, 0.0f));
-	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(-fx, +fy, -fz), XMFLOAT2(1.0f, 0.0f));
-	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(-fx, -fy, -fz), XMFLOAT2(1.0f, 1.0f));
+	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(-fx, +fy, +fz), XMFLOAT2(0.0f, 0.0f), XMFLOAT3(1.0f, 1.0f, 1.0f));
+	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(-fx, +fy, -fz), XMFLOAT2(1.0f, 0.0f), XMFLOAT3(1.0f, 1.0f, 1.0f));
+	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(-fx, -fy, -fz), XMFLOAT2(1.0f, 1.0f), XMFLOAT3(1.0f, 1.0f, 1.0f));
 
-	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(-fx, +fy, +fz), XMFLOAT2(0.0f, 0.0f));
-	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(-fx, -fy, -fz), XMFLOAT2(1.0f, 1.0f));
-	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(-fx, -fy, +fz), XMFLOAT2(0.0f, 1.0f));
+	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(-fx, +fy, +fz), XMFLOAT2(0.0f, 0.0f), XMFLOAT3(1.0f, 1.0f, 1.0f));
+	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(-fx, -fy, -fz), XMFLOAT2(1.0f, 1.0f), XMFLOAT3(1.0f, 1.0f, 1.0f));
+	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(-fx, -fy, +fz), XMFLOAT2(0.0f, 1.0f), XMFLOAT3(1.0f, 1.0f, 1.0f));
 
-	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(+fx, +fy, -fz), XMFLOAT2(0.0f, 0.0f));
-	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(+fx, +fy, +fz), XMFLOAT2(1.0f, 0.0f));
-	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(+fx, -fy, +fz), XMFLOAT2(1.0f, 1.0f));
+	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(+fx, +fy, -fz), XMFLOAT2(0.0f, 0.0f), XMFLOAT3(1.0f, 1.0f, 1.0f));
+	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(+fx, +fy, +fz), XMFLOAT2(1.0f, 0.0f), XMFLOAT3(1.0f, 1.0f, 1.0f));
+	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(+fx, -fy, +fz), XMFLOAT2(1.0f, 1.0f), XMFLOAT3(1.0f, 1.0f, 1.0f));
 
-	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(+fx, +fy, -fz), XMFLOAT2(0.0f, 0.0f));
-	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(+fx, -fy, +fz), XMFLOAT2(1.0f, 1.0f));
-	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(+fx, -fy, -fz), XMFLOAT2(0.0f, 1.0f));
+	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(+fx, +fy, -fz), XMFLOAT2(0.0f, 0.0f), XMFLOAT3(1.0f, 1.0f, 1.0f));
+	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(+fx, -fy, +fz), XMFLOAT2(1.0f, 1.0f), XMFLOAT3(1.0f, 1.0f, 1.0f));
+	pVertices[i++] = TextureComponentdVertex(XMFLOAT3(+fx, -fy, -fz), XMFLOAT2(0.0f, 1.0f), XMFLOAT3(1.0f, 1.0f, 1.0f));
 
 	m_pd3dVertexBuffer = CreateBufferResource(pd3dDevice, pd3dCommandList, pVertices, m_nStride * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dVertexUploadBuffer);
 

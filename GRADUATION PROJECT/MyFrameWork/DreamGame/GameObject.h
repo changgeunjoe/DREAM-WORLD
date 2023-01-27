@@ -20,6 +20,7 @@ public:
     const XMFLOAT3& GetPosition() const;
 
     void SetScale(float x, float y, float z);
+    void SetTexture(wchar_t* pszFileName);
 
 
     void MoveStrafe(float fDistance = 1.0f);
@@ -32,8 +33,8 @@ public:
 
     unordered_map<component_id, ComponentBase*> Getcomponents();
 
-   // void SetOrientation(const Quaternion& orientation);
-    //const Quaternion& GetOrientation() const;
+    // void SetOrientation(const Quaternion& orientation);
+     //const Quaternion& GetOrientation() const;
     void SetComponent(const component_id& componentID);
     ComponentBase* GetComponent(const component_id& componentID);
 
@@ -48,7 +49,7 @@ public:
     template<typename T>
     T* InsertComponent();
     template<typename T>
-    T* ComponentType(component_id &componentID);
+    T* ComponentType(component_id& componentID);
 
     virtual void OnPrepareRender() { }
 
@@ -60,19 +61,28 @@ public:
     XMFLOAT4X4						m_xmf4x4World; //월드 행렬
 
 protected:
-    entity_id m_entityID;//object id 
-
-    XMFLOAT3 m_position;
+    entity_id m_entityID{};//object id 
+    XMFLOAT3 m_position{};
     //Quaternion m_orientation;
 
+    wchar_t* pszFileNames{};
+    
+    //////////////////////Component/////////////////////////////////
     unordered_map<component_id, ComponentBase*> m_components;
-
-    TextureComponent* m_pMissileTexture{ NULL };
+ 
+    TextureComponent* m_pTextureComponent{ NULL };
+    CubeMeshComponent* m_pCubeComponent{ NULL };
+    ShaderComponent* m_pShaderComponent{ NULL };
+    RenderComponent* m_pRenderComponent{ NULL };
 protected:
     ID3D12Resource* m_pd3dcbGameObjects = NULL;
     CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
 
     D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dCbvGPUDescriptorHandle;
+
+    ID3D12Resource* pShadowMap = NULL;
+    UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);// 삭제 예정(변경)
+    int nObjects = 0;//삭제 예정(변경)
 };
 
 template<typename T>//템플릿을 활용하는 이유-> 
@@ -109,6 +119,10 @@ inline T* GameObject::ComponentType(component_id &componentID)
     else if (typeid(T).name() == typeid(ShaderComponent).name())
     {
         componentID = component_id::SHADER_COMPONENT;
+    }
+    else if (typeid(T).name() == typeid(TextureComponent).name())
+    {
+        componentID = component_id::TEXTURE_COMPONENT;
     }
     else
     {

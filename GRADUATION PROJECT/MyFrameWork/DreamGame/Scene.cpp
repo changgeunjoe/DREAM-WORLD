@@ -66,7 +66,7 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	//ShadowMap(t1) Shadows.hlsl
 	RootSignature.RootParameter[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	RootSignature.RootParameter[4].DescriptorTable.NumDescriptorRanges = 1;
-	RootSignature.RootParameter[4].DescriptorTable.pDescriptorRanges = &(RootSignature.Descriptorrange[1]);
+	RootSignature.RootParameter[4].DescriptorTable.pDescriptorRanges = &(RootSignature.Descriptorrange[2]);
 	RootSignature.RootParameter[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 	//textureSampler
 	RootSignature.TextureSamplerDescs.resize(3);
