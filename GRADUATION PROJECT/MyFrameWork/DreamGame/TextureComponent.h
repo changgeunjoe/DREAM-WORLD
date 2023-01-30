@@ -1,11 +1,14 @@
 #pragma once
 #include"stdafx.h"
-class CTexture
+#include"ComponentBase.h"
+class TextureComponent : public ComponentBase
 {
 public:
-	CTexture(int nTextureResources, UINT nResourceType, int nSamplers, int nRootParameters);
-	CTexture(int nTextureResources, UINT nResourceType, int nSamplers, int nRootParameters, int nRows, int nCols);
-	virtual ~CTexture();
+	TextureComponent();
+	//TextureComponent(int nTextureResources, UINT nResourceType, int nSamplers, int nRootParameters, int nRows, int nCols);
+	virtual ~TextureComponent();
+
+	bool BuildTexture(int nTextures, UINT nTextureType, int nSamplers, int nRootParameters);
 private:
 	int								m_nReferences = 0;
 

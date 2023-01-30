@@ -10,11 +10,12 @@ ShaderComponent::~ShaderComponent()
 
 D3D12_INPUT_LAYOUT_DESC ShaderComponent::CreateInputLayout(int nPipelineState)
 {
-	UINT nInputElementDescs = 2;
+	UINT nInputElementDescs = 3;
 	D3D12_INPUT_ELEMENT_DESC* pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
 
 	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-	pd3dInputElementDescs[1] = { "COLOR", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[1] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[2] = { "NORMAL", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 20, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 
 	D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
 	d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
@@ -47,12 +48,12 @@ D3D12_BLEND_DESC ShaderComponent::CreateBlendState(int nPipelineState)
 {
 	D3D12_BLEND_DESC d3dBlendDesc;
 	::ZeroMemory(&d3dBlendDesc, sizeof(D3D12_BLEND_DESC));
-	d3dBlendDesc.AlphaToCoverageEnable = TRUE;
-	d3dBlendDesc.IndependentBlendEnable = TRUE;
-	d3dBlendDesc.RenderTarget[0].BlendEnable = TRUE;
+	d3dBlendDesc.AlphaToCoverageEnable = FALSE;
+	d3dBlendDesc.IndependentBlendEnable = FALSE;
+	d3dBlendDesc.RenderTarget[0].BlendEnable = FALSE;
 	d3dBlendDesc.RenderTarget[0].LogicOpEnable = FALSE;
-	d3dBlendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	d3dBlendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+	d3dBlendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_ONE;
+	d3dBlendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ZERO;
 	d3dBlendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
 	d3dBlendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
 	d3dBlendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
@@ -67,8 +68,8 @@ D3D12_DEPTH_STENCIL_DESC ShaderComponent::CreateDepthStencilState(int nPipelineS
 {
 	D3D12_DEPTH_STENCIL_DESC d3dDepthStencilDesc;
 	::ZeroMemory(&d3dDepthStencilDesc, sizeof(D3D12_DEPTH_STENCIL_DESC));
-	d3dDepthStencilDesc.DepthEnable = FALSE;
-	d3dDepthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+	d3dDepthStencilDesc.DepthEnable = TRUE;
+	d3dDepthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
 	d3dDepthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
 	d3dDepthStencilDesc.StencilEnable = FALSE;
 	d3dDepthStencilDesc.StencilReadMask = 0x00;
@@ -304,7 +305,7 @@ void ShaderComponent::CreateConstantBufferViews(ID3D12Device* pd3dDevice, int nC
 	}
 }
 
-void ShaderComponent::CreateShaderResourceViews(ID3D12Device* pd3dDevice, CTexture* pTexture, UINT nDescriptorHeapIndex, UINT nRootParameterStartIndex)
+void ShaderComponent::CreateShaderResourceViews(ID3D12Device* pd3dDevice, TextureComponent* pTexture, UINT nDescriptorHeapIndex, UINT nRootParameterStartIndex)
 {
 	m_d3dSrvCPUDescriptorNextHandle.ptr += (::gnCbvSrvDescriptorIncrementSize * nDescriptorHeapIndex);
 	m_d3dSrvGPUDescriptorNextHandle.ptr += (::gnCbvSrvDescriptorIncrementSize * nDescriptorHeapIndex);
@@ -323,7 +324,47 @@ void ShaderComponent::CreateShaderResourceViews(ID3D12Device* pd3dDevice, CTextu
 	int nRootParameters = pTexture->GetRootParameters();
 	for (int i = 0; i < nRootParameters; i++) pTexture->SetRootParameterIndex(i, nRootParameterStartIndex + i);
 }
+void ShaderComponent::CreateShaderResourceViews(ID3D12Device* pd3dDevice, TextureComponent* pTexture, UINT nDescriptorHeapIndex, UINT nRootParameterStartIndex,  ID3D12Resource* pShadowMap)
+{
+	m_d3dSrvCPUDescriptorNextHandle.ptr += (::gnCbvSrvDescriptorIncrementSize * nDescriptorHeapIndex);
+	m_d3dSrvGPUDescriptorNextHandle.ptr += (::gnCbvSrvDescriptorIncrementSize * nDescriptorHeapIndex);
 
-void ShaderComponent::CreateShaderResourceView(ID3D12Device* pd3dDevice, CTexture* pTexture, int nIndex)
+	int nTextures = pTexture->GetTextures();
+	UINT nTextureType = pTexture->GetTextureType();
+	int nTotalTextures = nTextures;
+
+	if (pShadowMap != NULL)
+		nTotalTextures = nTextures + 1;
+
+	for (int i = 0; i < nTextures; i++)
+	{
+		ID3D12Resource* pShaderResource = pTexture->GetResource(i);
+		D3D12_SHADER_RESOURCE_VIEW_DESC d3dShaderResourceViewDesc = pTexture->GetShaderResourceViewDesc(i);
+		pd3dDevice->CreateShaderResourceView(pShaderResource, &d3dShaderResourceViewDesc, m_d3dSrvCPUDescriptorNextHandle);
+		m_d3dSrvCPUDescriptorNextHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
+		pTexture->SetGpuDescriptorHandle(i, m_d3dSrvGPUDescriptorNextHandle);
+		m_d3dSrvGPUDescriptorNextHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
+	}
+	int nRootParameters = pTexture->GetRootParameters();
+	for (int i = 0; i < nRootParameters; i++) pTexture->SetRootParameterIndex(i, nRootParameterStartIndex + i);
+
+	if (nTotalTextures > nTextures)
+	{
+		D3D12_SHADER_RESOURCE_VIEW_DESC d3dShaderResourceDsec;
+
+		d3dShaderResourceDsec.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+		d3dShaderResourceDsec.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+		d3dShaderResourceDsec.Texture2D.MipLevels = 1;
+		d3dShaderResourceDsec.Texture2D.PlaneSlice = 0;
+		d3dShaderResourceDsec.Texture2D.MostDetailedMip = 0;
+		d3dShaderResourceDsec.Texture2D.ResourceMinLODClamp = 0;
+		d3dShaderResourceDsec.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+
+		pd3dDevice->CreateShaderResourceView(pShadowMap, &d3dShaderResourceDsec, m_d3dSrvCPUDescriptorNextHandle);
+		m_d3dShadowGPUDescriptorHandle = m_d3dSrvGPUDescriptorNextHandle;
+	}
+}
+
+void ShaderComponent::CreateShaderResourceView(ID3D12Device* pd3dDevice, TextureComponent* pTexture, int nIndex)
 {
 }

@@ -38,6 +38,7 @@ void CGameObject::SetShader(CShader* pShader)
 
 void CGameObject::Animate(float fTimeElapsed)
 {
+	
 }
 
 void CGameObject::OnPrepareRender()

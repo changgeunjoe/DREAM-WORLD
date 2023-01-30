@@ -1,8 +1,7 @@
 #include "GameFramework.h"
 #include"stdafx.h"
-#include "Network/NetworkHelper.h"
 
-extern NetworkHelper g_NetworkHelper;
+
 
 CGameFramework::CGameFramework()
 {
@@ -250,6 +249,9 @@ void CGameFramework::CreateDirect3DDevice()
 		m_pdxgiFactory->EnumWarpAdapter(__uuidof(IDXGIAdapter1), (void**)&pd3dAdapter);
 		D3D12CreateDevice(pd3dAdapter, D3D_FEATURE_LEVEL_11_0, __uuidof(ID3D12Device), (void**)&m_pd3dDevice);
 	}
+	::gnCbvSrvDescriptorIncrementSize = m_pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	::gnRtvDescriptorIncrementSize = m_pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+	::gnDsvDescriptorIncrementSize = m_pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 	//특성 레벨 12.0를 지원하는 하드웨어 디바이스를 생성할 수 없으면 WARP 디바이스를 생성한다.
 
 	D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS d3dMsaaQualityLevels;//msaa 퀄리티 레벨 디바이스
@@ -400,7 +402,7 @@ void CGameFramework::BuildObjects()
 	//카메라 객체를 생성하여 뷰표트,씨저 사각형,투영 변환 행렬,카메라 변환 행렬을 생성하고 설정한다.
 	m_pCamera = new CCamera();
 	m_pCamera->SetViewport(0, 0, m_nWndClientWidth, m_nWndClientHeight, 0.0f, 1.0f);
-	m_pCamera->SetScissorRect(0, 0, m_nWndClientHeight, m_nWndClientHeight);
+	m_pCamera->SetScissorRect(0, 0, m_nWndClientWidth, m_nWndClientHeight);
 	m_pCamera->GenerateProjectionMatrix(1.0f, 500.0f, float(m_nWndClientWidth) /
 		float(m_nWndClientHeight), 90.0f);
 	m_pCamera->GenerateViewMatrix(XMFLOAT3(0.0f, 15.0f, -25.0f), XMFLOAT3(0.0f, 0.0f, 0.0f),

@@ -1,7 +1,4 @@
 #include "GameobjectManager.h"
-#include "Network/NetworkHelper.h"
-
-extern NetworkHelper g_NetworkHelper;
 
 template<typename S>
 S* ComponentType(component_id componentID)
@@ -19,118 +16,120 @@ T* InsertComponent()
 {
 	component_id Component{};
 	ComponentType<RenderComponent>(Component);
-	//std::cout<<typeid(T).name();
-	//std::cout<<typeid(RenderComponent).name();
 	return 0;
 }
 
 GameobjectManager::GameobjectManager()
 {
-	pLight = new CLight;
+	m_pLight = new CLight();
 }
 
 GameobjectManager::~GameobjectManager()
 {
 }
 
+void GameobjectManager::Animate(float fTimeElapsed)
+{
+	CKeyInput* KeyInput = m_pSqureObject->m_KeyInput;
+	if (KeyInput->m_bWKey || KeyInput->m_bAKey || KeyInput->m_bSKey || KeyInput->m_bDKey)
+	{
+		// State 만들어서 움직이는 중이라고 알려줘도 괜찮을듯합니다.
+		if (KeyInput->m_bWKey)
+		{
+			m_pSqureObject->MoveForward(100.0f * fTimeElapsed);
+		}
+		if (KeyInput->m_bAKey)
+		{
+			m_pSqureObject->MoveStrafe(-100.0f * fTimeElapsed);
+		}		
+		if (KeyInput->m_bSKey)
+		{
+			m_pSqureObject->MoveForward(-100.0f * fTimeElapsed);
+		}		
+		if (KeyInput->m_bDKey)
+		{
+			m_pSqureObject->MoveStrafe(100.0f * fTimeElapsed);
+		}
+	}
+}
+
 void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	//GameObject* pGameObject = new GameObject(SQUARE_ENTITY);
-	//ModelRenderComponent* pModelRenderComponent = new ModelRenderComponent();
-	//pGameObject->InsertComponent(pModelRenderComponent);
-	//for (auto iter = pGameObject->Getcomponents().begin(); iter != pGameObject->Getcomponents().end(); iter++)
-	//{
-	//	pGameObject->Getcomponents().find(component_id::RENDER_COMPONENT);
-	//}
-	//auto it = .cbegin(); 
- //   while (it != pGameObject->Getcomponents().cend())
- //   {
- //       if (keys.find(it->first) != keys.cend())
- //       {
- //           // supported in C++11
- //           it = m.erase(it);
- //       }
- //       else {
- //           ++it;
- //       }
- //   }
- //
 
-	//ComponentBase* pComponent = pGameObject->GetComponent(component_id::RENDER_COMPONENT);
-	//if (pComponent != NULL)
-	//{
-	//	RenderComponent* pRenderComponent = static_cast<RenderComponent*>(pComponent);
-	////	pRenderComponent->Render();
-	//}
+	UpdateShaderVariables(pd3dCommandList);
 
-	pSqureObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
-	pPlaneObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pSqureObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pSqure2Object->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pPlaneObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+
 }
 
 void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	pSqureObject = new GameObject(SQUARE_ENTITY);//사각형 오브젝트를 만들겠다
-	pSqureObject->InsertComponent<RenderComponent>();
-	pSqureObject->InsertComponent<CubeMeshComponent>();
-	pSqureObject->InsertComponent<ShaderComponent>();
-	pSqureObject->SetPosition(XMFLOAT3(0, 0, 50));
-	pSqureObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	pPlaneObject = new GameObject(PlANE_ENTITY);
-	pPlaneObject->InsertComponent<RenderComponent>();
-	pPlaneObject->InsertComponent<CubeMeshComponent>();
-	pPlaneObject->InsertComponent<ShaderComponent>();
-	pPlaneObject->SetPosition(XMFLOAT3(0, -10, 50));
-	pPlaneObject->SetScale(10.f, 0.2f, 10.f);
-	pPlaneObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	BuildLight();
+	m_pSqureObject = new GameObject(SQUARE_ENTITY);//사각형 오브젝트를 만들겠다
+	m_pSqureObject->InsertComponent<RenderComponent>();
+	m_pSqureObject->InsertComponent<CubeMeshComponent>();
+	m_pSqureObject->InsertComponent<ShaderComponent>();
+	m_pSqureObject->InsertComponent<TextureComponent>();
+	m_pSqureObject->SetTexture(L"Image/stones.dds");
+	m_pSqureObject->SetPosition(XMFLOAT3(0, 0, 50));
+	m_pSqureObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pSqure2Object = new GameObject(SQUARE_ENTITY);//사각형 오브젝트를 만들겠다
+	m_pSqure2Object->InsertComponent<RenderComponent>();
+	m_pSqure2Object->InsertComponent<CubeMeshComponent>();
+	m_pSqure2Object->InsertComponent<ShaderComponent>();
+	m_pSqure2Object->InsertComponent<TextureComponent>();
+	m_pSqure2Object->SetTexture(L"Image/stones.dds");
+	m_pSqure2Object->SetPosition(XMFLOAT3(100, 0, 50));
+	m_pSqure2Object->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pPlaneObject=new GameObject(PlANE_ENTITY);
+	m_pPlaneObject->InsertComponent<RenderComponent>();
+	m_pPlaneObject->InsertComponent<CubeMeshComponent>();
+	m_pPlaneObject->InsertComponent<ShaderComponent>();
+	m_pPlaneObject->InsertComponent<TextureComponent>();
+	m_pPlaneObject->SetTexture(L"Image/stones.dds");
+	m_pPlaneObject->SetPosition(XMFLOAT3(0, -10, 50));
+	m_pPlaneObject->SetScale(10.f, 0.2f, 10.f);
+	m_pPlaneObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
-
-void GameobjectManager::Rotate()
+void GameobjectManager::BuildLight()
 {
+	m_pLight->BuildLight();
 }
-
+void GameobjectManager::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
+{
+	m_pLight->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+}
+void GameobjectManager::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
+{
+	m_pLight->UpdateShaderVariables(pd3dCommandList);
+}
+void GameobjectManager::ReleaseShaderVariables()
+{
+	m_pLight->ReleaseShaderVariables();
+}
 bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
 	switch (nMessageID)
 	{
 	case WM_KEYDOWN:
-	{
 		switch (wParam)
 		{
-		case 'W':
-		{
-			pSqureObject->MoveForward(+1.0f);
-			g_NetworkHelper.SendMovePacket(DIRECTION::FRONT);
-		}
-		break;
-		case 'S':
-		{
-			pSqureObject->MoveForward(-1.0f);
-			g_NetworkHelper.SendMovePacket(DIRECTION::BACK);
-		}
-		break;
-		case 'A':
-		{
-			pSqureObject->MoveStrafe(-1.0f);
-			g_NetworkHelper.SendMovePacket(DIRECTION::LEFT);
-		}
-		break;
-		case 'D':
-		{
-			pSqureObject->MoveStrafe(+1.0f);
-			g_NetworkHelper.SendMovePacket(DIRECTION::RIGHT);
-		}
-		break;
-		case 'Q':
-		{
-			pSqureObject->MoveUp(+1.0f);
-		}
-		break;
-		case 'R':
-		{
-			pSqureObject->MoveUp(-1.0f);
-		}
-		break;
+		case 'W': m_pSqureObject->m_KeyInput->m_bWKey = true; break;
+		case 'A': m_pSqureObject->m_KeyInput->m_bAKey = true; break;
+		case 'S': m_pSqureObject->m_KeyInput->m_bSKey = true; break;
+		case 'D': m_pSqureObject->m_KeyInput->m_bDKey = true; break;
+		case 'Q': m_pSqureObject->m_KeyInput->m_bQKey = true; break;
+		case 'E': m_pSqureObject->m_KeyInput->m_bEKey = true; break;
+		//case 'W': m_pSqureObject->MoveForward(+1.0f); break;//틱단위로 바꿔줘라
+		//case 'S': m_pSqureObject->MoveForward(-1.0f); break;
+		//case 'A': m_pSqureObject->MoveStrafe(-1.0f); break;
+		//case 'D': m_pSqureObject->MoveStrafe(+1.0f); break;
+		//case 'Q': m_pSqureObject->MoveUp(+1.0f); break;
+		//case 'E': m_pSqureObject->MoveUp(-1.0f); break;
 		case VK_CONTROL:
 			break;
 		case VK_F1:
@@ -138,51 +137,27 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		case VK_F2:
 			break;
 		case VK_F3:
-
+			
 			break;
 		default:
 			break;
 		}
 		break;
-	}
 	case WM_KEYUP:
 	{
 		switch (wParam)
 		{
-		case 'W':
-		case 'S':
-		case 'A':
-		case 'D':
-		{
-			//창근 - 위치랑 로테이트 값 삽입 해주세요
-			g_NetworkHelper.SendStopPacket(XMFLOAT3(0, 0, 0), XMFLOAT3(0, 0, 1));
+		case 'W': m_pSqureObject->m_KeyInput->m_bWKey = false; break;
+		case 'A': m_pSqureObject->m_KeyInput->m_bAKey = false; break;
+		case 'S': m_pSqureObject->m_KeyInput->m_bSKey = false; break;
+		case 'D': m_pSqureObject->m_KeyInput->m_bDKey = false; break;
+		case 'Q': m_pSqureObject->m_KeyInput->m_bQKey = false; break;
+		case 'E': m_pSqureObject->m_KeyInput->m_bEKey = false; break;
 		}
-		break;
-		break;
-		case VK_CONTROL:
-			break;
-		case VK_F1:
-			break;
-		case VK_F2:
-			break;
-		case VK_F3:
-
-			break;
-		default:
-			break;
-		}
-		break;
 	}
-	break;
-
 	default:
 		break;
 	}
 	return(false);
 
 }
-
-void GameobjectManager::Move()
-{
-}
-
