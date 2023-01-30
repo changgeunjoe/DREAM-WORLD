@@ -28,10 +28,36 @@ GameobjectManager::~GameobjectManager()
 {
 }
 
+void GameobjectManager::Animate(float fTimeElapsed)
+{
+	CKeyInput* KeyInput = m_pSqureObject->m_KeyInput;
+	if (KeyInput->m_bWKey || KeyInput->m_bAKey || KeyInput->m_bSKey || KeyInput->m_bDKey)
+	{
+		// State ¸¸µé¾î¼­ ¿òÁ÷ÀÌ´Â ÁßÀÌ¶ó°í ¾Ë·ÁÁàµµ ±¦ÂúÀ»µíÇÕ´Ï´Ù.
+		if (KeyInput->m_bWKey)
+		{
+			m_pSqureObject->MoveForward(100.0f * fTimeElapsed);
+		}
+		if (KeyInput->m_bAKey)
+		{
+			m_pSqureObject->MoveStrafe(-100.0f * fTimeElapsed);
+		}		
+		if (KeyInput->m_bSKey)
+		{
+			m_pSqureObject->MoveForward(-100.0f * fTimeElapsed);
+		}		
+		if (KeyInput->m_bDKey)
+		{
+			m_pSqureObject->MoveStrafe(100.0f * fTimeElapsed);
+		}
+	}
+}
+
 void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
 
 	UpdateShaderVariables(pd3dCommandList);
+
 
 	m_pSqureObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pSqure2Object->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -92,12 +118,18 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 	case WM_KEYDOWN:
 		switch (wParam)
 		{
-		case 'W': m_pSqureObject->MoveForward(+1.0f); break;//Æ½´ÜÀ§·Î ¹Ù²ãÁà¶ó
-		case 'S': m_pSqureObject->MoveForward(-1.0f); break;
-		case 'A': m_pSqureObject->MoveStrafe(-1.0f); break;
-		case 'D': m_pSqureObject->MoveStrafe(+1.0f); break;
-		case 'Q': m_pSqureObject->MoveUp(+1.0f); break;
-		case 'E': m_pSqureObject->MoveUp(-1.0f); break;
+		case 'W': m_pSqureObject->m_KeyInput->m_bWKey = true; break;
+		case 'A': m_pSqureObject->m_KeyInput->m_bAKey = true; break;
+		case 'S': m_pSqureObject->m_KeyInput->m_bSKey = true; break;
+		case 'D': m_pSqureObject->m_KeyInput->m_bDKey = true; break;
+		case 'Q': m_pSqureObject->m_KeyInput->m_bQKey = true; break;
+		case 'E': m_pSqureObject->m_KeyInput->m_bEKey = true; break;
+		//case 'W': m_pSqureObject->MoveForward(+1.0f); break;//Æ½´ÜÀ§·Î ¹Ù²ãÁà¶ó
+		//case 'S': m_pSqureObject->MoveForward(-1.0f); break;
+		//case 'A': m_pSqureObject->MoveStrafe(-1.0f); break;
+		//case 'D': m_pSqureObject->MoveStrafe(+1.0f); break;
+		//case 'Q': m_pSqureObject->MoveUp(+1.0f); break;
+		//case 'E': m_pSqureObject->MoveUp(-1.0f); break;
 		case VK_CONTROL:
 			break;
 		case VK_F1:
@@ -111,6 +143,18 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			break;
 		}
 		break;
+	case WM_KEYUP:
+	{
+		switch (wParam)
+		{
+		case 'W': m_pSqureObject->m_KeyInput->m_bWKey = false; break;
+		case 'A': m_pSqureObject->m_KeyInput->m_bAKey = false; break;
+		case 'S': m_pSqureObject->m_KeyInput->m_bSKey = false; break;
+		case 'D': m_pSqureObject->m_KeyInput->m_bDKey = false; break;
+		case 'Q': m_pSqureObject->m_KeyInput->m_bQKey = false; break;
+		case 'E': m_pSqureObject->m_KeyInput->m_bEKey = false; break;
+		}
+	}
 	default:
 		break;
 	}

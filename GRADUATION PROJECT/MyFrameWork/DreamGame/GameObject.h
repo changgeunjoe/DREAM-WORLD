@@ -6,6 +6,20 @@
 #include"TextureComponent.h"
 #include"ShadowShaderComponent.h"
 class ComponentBase;
+
+class CKeyInput {
+public:
+    CKeyInput() {};
+    ~CKeyInput() {};
+    bool m_bWKey = false;
+    bool m_bAKey = false;
+    bool m_bSKey = false;
+    bool m_bDKey = false;
+    bool m_bEKey = false;
+    bool m_bQKey = false;
+    bool m_bLeftMouse_Button = false;
+};
+
 class GameObject
 {
 public:
@@ -60,6 +74,7 @@ public:
     XMFLOAT4X4						m_xmf4x4Transform;//변환 행렬
     XMFLOAT4X4						m_xmf4x4World; //월드 행렬
 
+    CKeyInput* m_KeyInput = new CKeyInput();;
 protected:
     entity_id m_entityID{};//object id 
     XMFLOAT3 m_position{};

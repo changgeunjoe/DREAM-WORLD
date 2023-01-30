@@ -159,10 +159,11 @@ bool CScene::ProcessInput()
 
 void CScene::AnimateObjects(float fTimeElapsed)
 {
-	for (int j = 0; j < m_nObjects; j++)
-	{
-		m_ppObjects[j]->Animate(fTimeElapsed);
-	}
+	//for (int j = 0; j < m_nObjects; j++)
+	//{
+	//	m_ppObjects[j]->Animate(fTimeElapsed);
+	//}
+	if(m_pObjectManager) m_pObjectManager->Animate(fTimeElapsed);
 }
 void CScene::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
