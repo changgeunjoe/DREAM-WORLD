@@ -110,6 +110,11 @@ inline bool IsEqual(float fA, float fB) { return(::IsZero(fA - fB)); }
 inline float InverseSqrt(float fValue) { return 1.0f / sqrtf(fValue); }
 inline void Swap(float* pfS, float* pfT) { float fTemp = *pfS; *pfS = *pfT; *pfT = fTemp; }
 
+#define ANIMATION_TYPE_ONCE				0
+#define ANIMATION_TYPE_LOOP				1
+#define ANIMATION_TYPE_PINGPONG			2
+
+#define ANIMATION_CALLBACK_EPSILON		0.00165f
 
 struct MATERIAL
 {
@@ -133,7 +138,8 @@ struct CB_GAMEOBJECT_INFO
 enum entity_id
 {
 	SQUARE_ENTITY,
-	PlANE_ENTITY
+	PlANE_ENTITY,
+	PLAYER_ENTITY
 };
 enum component_id 
 {
@@ -142,7 +148,8 @@ enum component_id
 	PHYSICS_COMPONENT,
 	MESH_COMPONENT,
 	CUBEMESH_COMPONENT,
-	SHADER_COMPONENT
+	SHADER_COMPONENT,
+	MATERIAL_COMPONENT
 };
 //mean about component_id;
 

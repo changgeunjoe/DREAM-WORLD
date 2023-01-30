@@ -111,6 +111,12 @@
     <ClInclude Include="Light.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
+    <ClInclude Include="MaterialComponent.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationController.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -168,6 +174,12 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Light.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialComponent.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="AnimationController.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

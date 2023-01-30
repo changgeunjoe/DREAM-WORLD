@@ -97,6 +97,28 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			break;
 		}
 		break;
+	case WM_KEYUP:
+		switch (wParam)
+		{
+		case 'W': pSqureObject->MoveForward(+1.0f); break;
+		case 'S': pSqureObject->MoveForward(-1.0f); break;
+		case 'A': pSqureObject->MoveStrafe(-1.0f); break;
+		case 'D': pSqureObject->MoveStrafe(+1.0f); break;
+		case 'Q': pSqureObject->MoveUp(+1.0f); break;
+		case 'E': pSqureObject->MoveUp(-1.0f); break;
+		case VK_CONTROL:
+			break;
+		case VK_F1:
+			break;
+		case VK_F2:
+			break;
+		case VK_F3:
+
+			break;
+		default:
+			break;
+		}
+		break;
 	default:
 		break;
 	}
