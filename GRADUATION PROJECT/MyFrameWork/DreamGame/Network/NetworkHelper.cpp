@@ -23,7 +23,8 @@ NetworkHelper::NetworkHelper()
 }
 NetworkHelper::~NetworkHelper()
 {
-	closesocket(m_clientSocket);
+	Destroy();
+	closesocket(m_clientSocket);	
 }
 
 bool NetworkHelper::TryConnect()

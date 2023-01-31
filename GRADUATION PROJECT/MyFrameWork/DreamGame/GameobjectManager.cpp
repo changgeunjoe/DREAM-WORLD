@@ -1,4 +1,7 @@
 #include "GameobjectManager.h"
+#include "Network/NetworkHelper.h"
+
+extern NetworkHelper g_NetworkHelper;
 
 template<typename S>
 S* ComponentType(component_id componentID)
@@ -36,20 +39,22 @@ void GameobjectManager::Animate(float fTimeElapsed)
 		// State 만들어서 움직이는 중이라고 알려줘도 괜찮을듯합니다.
 		if (KeyInput->m_bWKey)
 		{
-			m_pSqureObject->MoveForward(100.0f * fTimeElapsed);
+			m_pSqureObject->MoveForward(1.0f * fTimeElapsed);
 		}
 		if (KeyInput->m_bAKey)
 		{
 			m_pSqureObject->MoveStrafe(-100.0f * fTimeElapsed);
-		}		
+		}
 		if (KeyInput->m_bSKey)
 		{
-			m_pSqureObject->MoveForward(-100.0f * fTimeElapsed);
-		}		
+			m_pSqureObject->MoveForward(-1.0f * fTimeElapsed);
+		}
 		if (KeyInput->m_bDKey)
 		{
 			m_pSqureObject->MoveStrafe(100.0f * fTimeElapsed);
 		}
+		auto pos = m_pSqureObject->GetPosition();
+		std::cout << "currentPos: " << pos.x << ", " << pos.y << ", " << pos.z << endl;
 	}
 }
 
@@ -75,7 +80,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pSqureObject->InsertComponent<ShaderComponent>();
 	m_pSqureObject->InsertComponent<TextureComponent>();
 	m_pSqureObject->SetTexture(L"Image/stones.dds");
-	m_pSqureObject->SetPosition(XMFLOAT3(0, 0, 50));
+	m_pSqureObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pSqureObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pSqure2Object = new GameObject(SQUARE_ENTITY);//사각형 오브젝트를 만들겠다
 	m_pSqure2Object->InsertComponent<RenderComponent>();
@@ -85,7 +90,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pSqure2Object->SetTexture(L"Image/stones.dds");
 	m_pSqure2Object->SetPosition(XMFLOAT3(100, 0, 50));
 	m_pSqure2Object->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pPlaneObject=new GameObject(PlANE_ENTITY);
+	m_pPlaneObject = new GameObject(PlANE_ENTITY);
 	m_pPlaneObject->InsertComponent<RenderComponent>();
 	m_pPlaneObject->InsertComponent<CubeMeshComponent>();
 	m_pPlaneObject->InsertComponent<ShaderComponent>();
@@ -118,12 +123,40 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 	case WM_KEYDOWN:
 		switch (wParam)
 		{
-		case 'W': m_pSqureObject->m_KeyInput->m_bWKey = true; break;
-		case 'A': m_pSqureObject->m_KeyInput->m_bAKey = true; break;
-		case 'S': m_pSqureObject->m_KeyInput->m_bSKey = true; break;
-		case 'D': m_pSqureObject->m_KeyInput->m_bDKey = true; break;
-		case 'Q': m_pSqureObject->m_KeyInput->m_bQKey = true; break;
-		case 'E': m_pSqureObject->m_KeyInput->m_bEKey = true; break;
+		case 'W':
+		{
+			m_pSqureObject->m_KeyInput->m_bWKey = true;
+			g_NetworkHelper.SendMovePacket(DIRECTION::FRONT);
+			break;
+		}
+		case 'A':
+		{
+			m_pSqureObject->m_KeyInput->m_bAKey = true;
+			g_NetworkHelper.SendMovePacket(DIRECTION::LEFT);
+			break;
+		}
+		case 'S':
+		{
+			m_pSqureObject->m_KeyInput->m_bSKey = true;
+			g_NetworkHelper.SendMovePacket(DIRECTION::BACK);
+			break;
+		}
+		case 'D':
+		{
+			m_pSqureObject->m_KeyInput->m_bDKey = true;
+			g_NetworkHelper.SendMovePacket(DIRECTION::RIGHT);
+			break;
+		}
+		case 'Q':
+		{
+			m_pSqureObject->m_KeyInput->m_bQKey = true;
+			break;
+		}
+		case 'E':
+		{
+			m_pSqureObject->m_KeyInput->m_bEKey = true;
+			break;
+		}
 		//case 'W': m_pSqureObject->MoveForward(+1.0f); break;//틱단위로 바꿔줘라
 		//case 'S': m_pSqureObject->MoveForward(-1.0f); break;
 		//case 'A': m_pSqureObject->MoveStrafe(-1.0f); break;
@@ -137,7 +170,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		case VK_F2:
 			break;
 		case VK_F3:
-			
+
 			break;
 		default:
 			break;
@@ -147,12 +180,43 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 	{
 		switch (wParam)
 		{
-		case 'W': m_pSqureObject->m_KeyInput->m_bWKey = false; break;
-		case 'A': m_pSqureObject->m_KeyInput->m_bAKey = false; break;
-		case 'S': m_pSqureObject->m_KeyInput->m_bSKey = false; break;
-		case 'D': m_pSqureObject->m_KeyInput->m_bDKey = false; break;
-		case 'Q': m_pSqureObject->m_KeyInput->m_bQKey = false; break;
-		case 'E': m_pSqureObject->m_KeyInput->m_bEKey = false; break;
+		case 'W':
+		{
+			m_pSqureObject->m_KeyInput->m_bWKey = false;
+			g_NetworkHelper.SendStopPacket(XMFLOAT3(0, 0, 0), XMFLOAT3(0, 0, 1)); // XMFLOAT3 postion, XMFOAT3 Rotate
+			break;
+		}
+		case 'A':
+		{
+			m_pSqureObject->m_KeyInput->m_bAKey = false;
+			g_NetworkHelper.SendStopPacket(XMFLOAT3(0, 0, 0), XMFLOAT3(0, 0, 1)); // XMFLOAT3 postion, XMFOAT3 Rotate
+			//g_NetworkHelper.SendStopPacket(); // XMFLOAT3 postion, XMFOAT3 Rotate
+			break;
+		}
+		case 'S':
+		{
+			m_pSqureObject->m_KeyInput->m_bSKey = false;
+			g_NetworkHelper.SendStopPacket(XMFLOAT3(0, 0, 0), XMFLOAT3(0, 0, 1)); // XMFLOAT3 postion, XMFOAT3 Rotate
+			//g_NetworkHelper.SendStopPacket(); // XMFLOAT3 postion, XMFOAT3 Rotate
+			break;
+		}
+		case 'D':
+		{
+			m_pSqureObject->m_KeyInput->m_bDKey = false;
+			g_NetworkHelper.SendStopPacket(XMFLOAT3(0, 0, 0), XMFLOAT3(0, 0, 1)); // XMFLOAT3 postion, XMFOAT3 Rotate
+			//g_NetworkHelper.SendStopPacket(); // XMFLOAT3 postion, XMFOAT3 Rotate
+			break;
+		}
+		case 'Q':
+		{
+			m_pSqureObject->m_KeyInput->m_bQKey = false;
+			break;
+		}
+		case 'E':
+		{
+			m_pSqureObject->m_KeyInput->m_bEKey = false;
+			break;
+		}
 		}
 	}
 	default:
