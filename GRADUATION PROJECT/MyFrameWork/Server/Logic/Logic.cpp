@@ -17,7 +17,8 @@ Logic::~Logic()
 {
 	m_isRunningThread = false;
 	if (m_PlayerMoveThread.joinable())
-		m_PlayerMoveThread.join();}
+		m_PlayerMoveThread.join();
+}
 
 void Logic::AcceptPlayer(Session* session, int userId, SOCKET& sock)
 {
@@ -68,13 +69,13 @@ void Logic::ProcessPacket(int userId, char* p)
 		sendPacket.position = recvPacket->position;
 		sendPacket.rotate = recvPacket->rotate;
 
-		//bool adjustRes = pSessionObj->AdjustPlayerInfo(recvPacket->position, recvPacket->rotate);
-		//if (!adjustRes) {
-		//	sendPacket.position = pSessionObj->GetPosition();
-		//	BroadCastPacket(&sendPacket);
-		//}
-		//else
-		//	MultiCastOtherPlayer(userId, &sendPacket);
+		bool adjustRes = pSessionObj->AdjustPlayerInfo(recvPacket->position, recvPacket->rotate);
+		if (!adjustRes) {
+			sendPacket.position = pSessionObj->GetPosition();
+			BroadCastPacket(&sendPacket);
+		}
+		else
+			MultiCastOtherPlayer(userId, &sendPacket);
 	}
 	break;
 	default:

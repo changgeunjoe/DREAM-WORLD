@@ -5,7 +5,11 @@ enum DIRECTION : char
 	FRONT,
 	RIGHT,
 	LEFT,
-	BACK
+	BACK,
+	FRONT_L,
+	FRONT_R,
+	BACK_L,
+	BACK_R
 };
 
 enum ROTATE_AXIS :char
@@ -15,9 +19,10 @@ enum ROTATE_AXIS :char
 
 #pragma pack (push, 1)
 namespace CLIENT_PACKET {
-	constexpr unsigned char MOVE = 1;
-	constexpr unsigned char STOP = 2;
-	constexpr unsigned char ROTATE = 3;
+	constexpr unsigned char MOVE_DOWN = 1;
+	constexpr unsigned char MOVE_UP = 2;
+	constexpr unsigned char STOP = 3;
+	constexpr unsigned char ROTATE = 4;
 
 	struct MovePacket
 	{
@@ -32,6 +37,7 @@ namespace CLIENT_PACKET {
 		ROTATE_AXIS axis;
 		float angle;
 	};
+
 	struct StopPacket {
 		char size;
 		char type;
@@ -40,7 +46,7 @@ namespace CLIENT_PACKET {
 	};
 }
 namespace SERVER_PACKET {
-	constexpr unsigned char MOVE = 65;
+	constexpr unsigned char MOVE = 65;	
 	constexpr unsigned char STOP = 66;
 	constexpr unsigned char ROTATE = 67;
 

@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include <iostream>
 #include "Logic/Logic.h"
 #include "NetworkHelper.h"
@@ -93,7 +94,7 @@ void NetworkHelper::SendMovePacket(DIRECTION d)
 {
 	CLIENT_PACKET::MovePacket sendPacket;
 	sendPacket.direction = d;
-	sendPacket.type = CLIENT_PACKET::MOVE;
+	sendPacket.type = CLIENT_PACKET::MOVE_UP;
 	sendPacket.size = sizeof(CLIENT_PACKET::MovePacket);
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }

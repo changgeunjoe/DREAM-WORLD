@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Logic.h"
 #include "../../../Server/IOCPNetwork/protocol/protocol.h"
 

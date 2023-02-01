@@ -16,9 +16,9 @@
 #include <shellapi.h>
 #include<list>
 #include <fstream>
+#include <array>
 #include <vector>
 #include<iostream>
-
 using namespace std;
 
 #include <d3d12.h>

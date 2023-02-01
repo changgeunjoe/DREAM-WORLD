@@ -49,6 +49,9 @@
     <Filter Include="NetworkHelper">
       <UniqueIdentifier>{d4f2bb88-0e37-43b9-a303-1947c11eba8a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="NetworkHelper\Session">
+      <UniqueIdentifier>{1875fdf6-96de-453e-8b05-d67ec7cc4375}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -126,6 +129,9 @@
     <ClInclude Include="Network\Logic\Logic.h">
       <Filter>NetworkHelper</Filter>
     </ClInclude>
+    <ClInclude Include="Network\Session\Session.h">
+      <Filter>NetworkHelper\Session</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -196,6 +202,9 @@
     </ClCompile>
     <ClCompile Include="Network\Logic\Logic.cpp">
       <Filter>NetworkHelper</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\Session\Session.cpp">
+      <Filter>NetworkHelper\Session</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
