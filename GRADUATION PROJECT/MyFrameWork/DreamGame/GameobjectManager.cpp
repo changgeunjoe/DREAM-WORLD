@@ -56,6 +56,19 @@ void GameobjectManager::Animate(float fTimeElapsed)
 		auto pos = m_pSqureObject->GetPosition();
 		std::cout << "currentPos: " << pos.x << ", " << pos.y << ", " << pos.z << endl;
 	}
+	if (KeyInput->m_bQKey || KeyInput->m_bEKey)
+	{
+		if (KeyInput->m_bQKey)
+		{
+			m_pSqureObject->Rotate(&m_pSqureObject->GetUp(), -30.0f * fTimeElapsed);
+		}
+		if (KeyInput->m_bEKey)
+		{
+			m_pSqureObject->Rotate(&m_pSqureObject->GetUp(), 30.0f * fTimeElapsed);
+		}
+		auto look = m_pSqureObject->GetLook();
+		std::cout << "currentLook: " << look.x << ", " << look.y << ", " << look.z << endl;
+	}
 }
 
 void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)

@@ -41,6 +41,8 @@ public:
     void MoveUp(float fDistance = 1.0f);
     void MoveForward(float fDistance = 1.0f);
 
+    void Rotate(XMFLOAT3* pxmf3Axis, float fAngle);
+
     XMFLOAT3 GetLook();
     XMFLOAT3 GetUp();
     XMFLOAT3 GetRight();
