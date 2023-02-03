@@ -229,8 +229,8 @@ void GameObject::MoveDiagonal(int fowardDirection, int rightDirection, float dis
 
 	XMFLOAT3 resDirection = Vector3::Add(xmf3Right, xmf3Look);
 	resDirection = Vector3::Normalize(resDirection);
-	cout << "diagonal dir: " << resDirection.x << ", " << resDirection.z << ", distance: " << distance << endl;
-	xmf3Position = Vector3::Add(xmf3Position, resDirection, distance);
+	cout << "diagonal dir: " << resDirection.x << ", " << resDirection.z << ", distance: " << distance << endl;	
+	xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(resDirection, distance));
 	GameObject::SetPosition(xmf3Position);
 }
 

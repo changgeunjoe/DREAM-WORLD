@@ -91,7 +91,7 @@ void PlayerSessionObject::AutoMove()
 	}
 	else if (DIRECTION::BACK == (m_inputDirection & DIRECTION::BACK)) {
 		if (DIRECTION::LEFT == (m_inputDirection & DIRECTION::LEFT)) {
-			DirectX::XMFLOAT3 resDir = Vector3::Normalize(Vector3::Subtract(m_directionVector, m_rightVector));
+			DirectX::XMFLOAT3 resDir = Vector3::Normalize(Vector3::Add(m_directionVector, m_rightVector));
 			m_position = Vector3::Add(m_position, Vector3::ScalarProduct(resDir, ((double)durationTime / 1000.0f) * -50.0f));
 			std::cout << "diagonal dir: " << resDir.x << ", " << resDir.z << std::endl;
 			std::cout << "LB" << std::endl;

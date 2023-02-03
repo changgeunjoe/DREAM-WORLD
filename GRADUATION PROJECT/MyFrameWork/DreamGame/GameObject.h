@@ -51,10 +51,6 @@ public:
 	XMFLOAT3 GetRight();
     void Rotate(XMFLOAT3* pxmf3Axis, float fAngle);
 
-    XMFLOAT3 GetLook();
-    XMFLOAT3 GetUp();
-    XMFLOAT3 GetRight();
-
 	unordered_map<component_id, ComponentBase*> Getcomponents();
 
 	// void SetOrientation(const Quaternion& orientation);

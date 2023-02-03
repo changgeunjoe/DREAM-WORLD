@@ -44,31 +44,33 @@ void GameobjectManager::Animate(float fTimeElapsed)
 			{
 				m_pSqureObject->MoveDiagonal(1, -1, 50.0f * fTimeElapsed);
 			}
-			if (KeyInput->m_bDKey)
+			else if (KeyInput->m_bDKey)
 			{
 				m_pSqureObject->MoveDiagonal(1, 1, 50.0f * fTimeElapsed);
 			}
 			else m_pSqureObject->MoveForward(50.0f * fTimeElapsed);
 		}
-		if (KeyInput->m_bSKey)
+		else if (KeyInput->m_bSKey)
 		{
 			if (KeyInput->m_bAKey)
 			{
 				m_pSqureObject->MoveDiagonal(-1, -1, 50.0f * fTimeElapsed);
 			}
-			if (KeyInput->m_bDKey)
+			else if (KeyInput->m_bDKey)
 			{
 				m_pSqureObject->MoveDiagonal(-1, 1, 50.0f * fTimeElapsed);
 			}
-			m_pSqureObject->MoveForward(-50.0f * fTimeElapsed);
+			else m_pSqureObject->MoveForward(-50.0f * fTimeElapsed);
 		}
-		if (KeyInput->m_bAKey)
-		{
-			m_pSqureObject->MoveStrafe(-50.0f * fTimeElapsed);
-		}
-		if (KeyInput->m_bDKey)
-		{
-			m_pSqureObject->MoveStrafe(50.0f * fTimeElapsed);
+		else {
+			if (KeyInput->m_bAKey)
+			{
+				m_pSqureObject->MoveStrafe(-50.0f * fTimeElapsed);
+			}
+			else if (KeyInput->m_bDKey)
+			{
+				m_pSqureObject->MoveStrafe(50.0f * fTimeElapsed);
+			}
 		}
 		auto pos = m_pSqureObject->GetPosition();
 		std::cout << "currentPos: " << pos.x << ", " << pos.y << ", " << pos.z << endl;
