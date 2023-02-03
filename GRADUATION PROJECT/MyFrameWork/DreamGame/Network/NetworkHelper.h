@@ -29,8 +29,9 @@ public:
 	void RunThread();
 public:
 	void SendMovePacket(DIRECTION d);
-	void SendStopPacket(DirectX::XMFLOAT3& position, DirectX::XMFLOAT3& rotate);
+	void SendStopPacket(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& rotate);
 	void SendRotatePacket(ROTATE_AXIS axis);
+	void SendKeyUpPacket(DIRECTION d);
 private:
 	void ConstructPacket(int ioByte);
 private:

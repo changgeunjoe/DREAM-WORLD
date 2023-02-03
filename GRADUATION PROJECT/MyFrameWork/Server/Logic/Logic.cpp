@@ -3,7 +3,7 @@
 #include "../Session/Session.h"
 #include "../Session/SessionObject/PlayerSessionObject.h"
 #include "../IOCPNetwork/IOCP/IOCPNetwork.h"
-#include "../IOCPNetwork/protocol/protocol.h"
+#include <chrono>
 
 extern IOCPNetwork g_iocpNetwork;
 
@@ -17,7 +17,8 @@ Logic::~Logic()
 {
 	m_isRunningThread = false;
 	if (m_PlayerMoveThread.joinable())
-		m_PlayerMoveThread.join();}
+		m_PlayerMoveThread.join();
+}
 
 void Logic::AcceptPlayer(Session* session, int userId, SOCKET& sock)
 {
@@ -28,17 +29,17 @@ void Logic::ProcessPacket(int userId, char* p)
 {
 	switch (p[1])
 	{
-	case CLIENT_PACKET::MOVE:
+	case CLIENT_PACKET::MOVE_KEY_DOWN:
 	{
 		CLIENT_PACKET::MovePacket* recvPacket = reinterpret_cast<CLIENT_PACKET::MovePacket*>(p);
 
 		SERVER_PACKET::MovePacket sendPacket;
 		sendPacket.direction = recvPacket->direction;
 		sendPacket.userId = userId;
-		sendPacket.type = SERVER_PACKET::MOVE;
+		sendPacket.type = SERVER_PACKET::MOVE_KEY_DOWN;
 		sendPacket.size = sizeof(SERVER_PACKET::MovePacket);
 		PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
-		pSessionObj->StartMove(); // 움직임 start
+		pSessionObj->StartMove(sendPacket.direction); // 움직임 start
 		MultiCastOtherPlayer(userId, &sendPacket);
 	}
 	break;
@@ -55,6 +56,20 @@ void Logic::ProcessPacket(int userId, char* p)
 		MultiCastOtherPlayer(userId, &sendPacket);
 	}
 	break;
+	case CLIENT_PACKET::MOVE_KEY_UP:
+	{
+		CLIENT_PACKET::MovePacket* recvPacket = reinterpret_cast<CLIENT_PACKET::MovePacket*>(p);
+
+		SERVER_PACKET::MovePacket sendPacket;
+		sendPacket.direction = recvPacket->direction;
+		sendPacket.userId = userId;
+		sendPacket.type = SERVER_PACKET::MOVE_KEY_UP;
+		sendPacket.size = sizeof(SERVER_PACKET::MovePacket);
+		PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
+		pSessionObj->ChangeDirection(sendPacket.direction); // 움직임 start
+		MultiCastOtherPlayer(userId, &sendPacket);
+	}
+	break;
 	case CLIENT_PACKET::STOP:
 	{
 		CLIENT_PACKET::StopPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::StopPacket*>(p);
@@ -68,13 +83,13 @@ void Logic::ProcessPacket(int userId, char* p)
 		sendPacket.position = recvPacket->position;
 		sendPacket.rotate = recvPacket->rotate;
 
-		//bool adjustRes = pSessionObj->AdjustPlayerInfo(recvPacket->position, recvPacket->rotate);
-		//if (!adjustRes) {
-		//	sendPacket.position = pSessionObj->GetPosition();
-		//	BroadCastPacket(&sendPacket);
-		//}
-		//else
-		//	MultiCastOtherPlayer(userId, &sendPacket);
+		bool adjustRes = pSessionObj->AdjustPlayerInfo(recvPacket->position, recvPacket->rotate);
+		if (!adjustRes) {
+			sendPacket.position = pSessionObj->GetPosition();
+			BroadCastPacket(&sendPacket);
+		}
+		else
+			MultiCastOtherPlayer(userId, &sendPacket);
 	}
 	break;
 	default:
@@ -106,16 +121,22 @@ void Logic::MultiCastOtherPlayer(int userId, void* p)
 
 void Logic::AutoMoveServer()
 {
+	auto currentTime = std::chrono::high_resolution_clock::now();	
 	while (m_isRunningThread)
 	{
 		if (g_iocpNetwork.GetCurrentId() == 0) continue;
+		currentTime = std::chrono::high_resolution_clock::now();
 		for (auto& cli : g_iocpNetwork.m_session) {
 			if (cli.GetId() > MAX_USER) break;
 			if (cli.GetPlayerState() == PLAYER_STATE::FREE) continue;
-			PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(cli.m_sessionObject);
-			if (cli.m_sessionObject->m_isMove) {
+			if (cli.m_sessionObject->m_inputDirection != DIRECTION::IDLE) {
+				PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(cli.m_sessionObject);
 				pSessionObj->AutoMove();
 			}
+			//else std::cout << (int)cli.m_sessionObject->m_inputDirection << std::endl;
+		}		
+		while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - currentTime).count() < 1000.0f / 60.0f) {
 		}
+		//std::cout << (double)std::chrono::duration_cast<std::chrono::milliseconds > (std::chrono::high_resolution_clock::now() - currentTime).count() << std::endl;
 	}
 }

@@ -93,12 +93,12 @@ void NetworkHelper::SendMovePacket(DIRECTION d)
 {
 	CLIENT_PACKET::MovePacket sendPacket;
 	sendPacket.direction = d;
-	sendPacket.type = CLIENT_PACKET::MOVE;
+	sendPacket.type = CLIENT_PACKET::MOVE_KEY_DOWN;
 	sendPacket.size = sizeof(CLIENT_PACKET::MovePacket);
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
-void NetworkHelper::SendStopPacket(DirectX::XMFLOAT3& position, DirectX::XMFLOAT3& rotate)
+void NetworkHelper::SendStopPacket(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& rotate)
 {
 	CLIENT_PACKET::StopPacket sendPacket;
 	sendPacket.type = CLIENT_PACKET::STOP;
@@ -113,5 +113,14 @@ void NetworkHelper::SendRotatePacket(ROTATE_AXIS axis)
 	sendPacket.type = CLIENT_PACKET::ROTATE;
 	sendPacket.size = sizeof(CLIENT_PACKET::RotatePacket);
 	sendPacket.axis = axis;
+	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
+}
+
+void NetworkHelper::SendKeyUpPacket(DIRECTION d)
+{
+	CLIENT_PACKET::MovePacket sendPacket;
+	sendPacket.direction = d;
+	sendPacket.type = CLIENT_PACKET::MOVE_KEY_UP;
+	sendPacket.size = sizeof(CLIENT_PACKET::MovePacket);
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }

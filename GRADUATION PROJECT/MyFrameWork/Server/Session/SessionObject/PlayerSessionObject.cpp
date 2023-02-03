@@ -58,7 +58,7 @@ void PlayerSessionObject::ConstructPacket(int ioByte)
 bool PlayerSessionObject::AdjustPlayerInfo(DirectX::XMFLOAT3& position, DirectX::XMFLOAT3& rotate)
 {
 	m_rotateAngle = rotate;
-	if (Vector3::Length(Vector3::Subtract(m_position, position)) < 100) { // 일정 값 미만이라면 문제 없음, 이상이라면 스피드 핵?으로 감지하고 위치 서버 위치로 전환
+	if (Vector3::Length(Vector3::Subtract(m_position, position)) < 3) { // 일정 값 미만이라면 문제 없음, 이상이라면 스피드 핵?으로 감지하고 위치 서버 위치로 전환
 		m_position = position;
 		return true;
 	}
@@ -67,23 +67,75 @@ bool PlayerSessionObject::AdjustPlayerInfo(DirectX::XMFLOAT3& position, DirectX:
 
 void PlayerSessionObject::AutoMove()
 {
+	CalcRightVector();
 	auto currentTime = std::chrono::high_resolution_clock::now();
-	auto durationTime = std::chrono::duration<double>(currentTime - m_lastMoveTime);
-	m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, (double)durationTime.count()));
+	double durationTime = std::chrono::duration_cast<std::chrono::microseconds>(currentTime - m_lastMoveTime).count();	
+	durationTime = (double)durationTime / 1000.0f;
+	if (DIRECTION::FRONT == (m_inputDirection & DIRECTION::FRONT)) {
+		if (DIRECTION::LEFT == (m_inputDirection & DIRECTION::LEFT)) {
+			DirectX::XMFLOAT3 resDir = Vector3::Normalize(Vector3::Subtract(m_directionVector, m_rightVector));
+			m_position = Vector3::Add(m_position, Vector3::ScalarProduct(resDir, ((double)durationTime / 1000.0f) * 50.0f));
+			std::cout << "diagonal dir: " << resDir.x << ", " << resDir.z << "distance: " << ((double)durationTime / 1000.0f) * 50.0f << std::endl;
+			std::cout << "LF" << std::endl;
+		}
+		else if (DIRECTION::RIGHT == (m_inputDirection & DIRECTION::RIGHT)) {
+			DirectX::XMFLOAT3 resDir = Vector3::Normalize(Vector3::Add(m_directionVector, m_rightVector));
+			m_position = Vector3::Add(m_position, Vector3::ScalarProduct(resDir, ((double)durationTime / 1000.0f) * 50.0f));
+			std::cout << "diagonal dir: " << resDir.x << ", " << resDir.z << std::endl;
+			std::cout << "RF" << std::endl;
+		}
+		else {
+			m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, ((double)durationTime / 1000.0f) * 50.0f));
+			std::cout << "F" << std::endl;
+		}
+	}
+	else if (DIRECTION::BACK == (m_inputDirection & DIRECTION::BACK)) {
+		if (DIRECTION::LEFT == (m_inputDirection & DIRECTION::LEFT)) {
+			DirectX::XMFLOAT3 resDir = Vector3::Normalize(Vector3::Subtract(m_directionVector, m_rightVector));
+			m_position = Vector3::Add(m_position, Vector3::ScalarProduct(resDir, ((double)durationTime / 1000.0f) * -50.0f));
+			std::cout << "diagonal dir: " << resDir.x << ", " << resDir.z << std::endl;
+			std::cout << "LB" << std::endl;
+		}
+		else if (DIRECTION::RIGHT == (m_inputDirection & DIRECTION::RIGHT)) {
+			DirectX::XMFLOAT3 resDir = Vector3::Normalize(Vector3::Subtract(m_rightVector, m_directionVector));
+			m_position = Vector3::Add(m_position, Vector3::ScalarProduct(resDir, ((double)durationTime / 1000.0f) * 50.0f));
+			std::cout << "diagonal dir: " << resDir.x << ", " << resDir.z << std::endl;
+			std::cout << "RB" << std::endl;
+		}
+		else {
+			m_position = Vector3::Subtract(m_position, Vector3::ScalarProduct(m_directionVector, ((double)durationTime / 1000.0f) * 50.0f));
+			std::cout << "B" << std::endl;
+		}
+	}
+	else {
+		if (DIRECTION::LEFT == (m_inputDirection & DIRECTION::LEFT)) {
+			m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_rightVector, ((double)durationTime / 1000.0f) * -50.0f));
+			std::cout << "L" << std::endl;
+		}
+		else if (DIRECTION::RIGHT == (m_inputDirection & DIRECTION::RIGHT)) {
+			m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_rightVector, ((double)durationTime / 1000.0f) * 50.0f));
+			std::cout << "R" << std::endl;
+		}
+	}
 	m_lastMoveTime = currentTime;
-	std::cout << durationTime.count() << "elapsed" << "current Position" << m_position.x << " " << m_position.y << " " << m_position.z << std::endl;
+	std::cout << "current Position " << m_position.x << " " << m_position.y << " " << m_position.z << std::endl;
 }
 
-void PlayerSessionObject::StartMove()
+void PlayerSessionObject::StartMove(DIRECTION d)
 {
-	m_isMove = true;
-	m_lastMoveTime = std::chrono::high_resolution_clock::now();
-
+	if (m_inputDirection == DIRECTION::IDLE)
+		m_lastMoveTime = std::chrono::high_resolution_clock::now();
+	m_inputDirection = (DIRECTION)(m_inputDirection | d);
 }
 
 void PlayerSessionObject::StopMove()
 {
-	m_isMove = false;
+	m_inputDirection = DIRECTION::IDLE;
+}
+
+void PlayerSessionObject::ChangeDirection(DIRECTION d)
+{
+	m_inputDirection = (DIRECTION)(m_inputDirection ^ d);
 }
 
 const DirectX::XMFLOAT3 PlayerSessionObject::GetPosition()

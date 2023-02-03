@@ -37,21 +37,38 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	if (KeyInput->m_bWKey || KeyInput->m_bAKey || KeyInput->m_bSKey || KeyInput->m_bDKey)
 	{
 		// State 만들어서 움직이는 중이라고 알려줘도 괜찮을듯합니다.
+		cout << "elapsed Time: " << fTimeElapsed << endl;
 		if (KeyInput->m_bWKey)
 		{
-			m_pSqureObject->MoveForward(1.0f * fTimeElapsed);
-		}
-		if (KeyInput->m_bAKey)
-		{
-			m_pSqureObject->MoveStrafe(-100.0f * fTimeElapsed);
+			if (KeyInput->m_bAKey)
+			{
+				m_pSqureObject->MoveDiagonal(1, -1, 50.0f * fTimeElapsed);
+			}
+			if (KeyInput->m_bDKey)
+			{
+				m_pSqureObject->MoveDiagonal(1, 1, 50.0f * fTimeElapsed);
+			}
+			else m_pSqureObject->MoveForward(50.0f * fTimeElapsed);
 		}
 		if (KeyInput->m_bSKey)
 		{
-			m_pSqureObject->MoveForward(-1.0f * fTimeElapsed);
+			if (KeyInput->m_bAKey)
+			{
+				m_pSqureObject->MoveDiagonal(-1, -1, 50.0f * fTimeElapsed);
+			}
+			if (KeyInput->m_bDKey)
+			{
+				m_pSqureObject->MoveDiagonal(-1, 1, 50.0f * fTimeElapsed);
+			}
+			m_pSqureObject->MoveForward(-50.0f * fTimeElapsed);
+		}
+		if (KeyInput->m_bAKey)
+		{
+			m_pSqureObject->MoveStrafe(-50.0f * fTimeElapsed);
 		}
 		if (KeyInput->m_bDKey)
 		{
-			m_pSqureObject->MoveStrafe(100.0f * fTimeElapsed);
+			m_pSqureObject->MoveStrafe(50.0f * fTimeElapsed);
 		}
 		auto pos = m_pSqureObject->GetPosition();
 		std::cout << "currentPos: " << pos.x << ", " << pos.y << ", " << pos.z << endl;
@@ -125,28 +142,36 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		{
 		case 'W':
 		{
-			m_pSqureObject->m_KeyInput->m_bWKey = true;
-			g_NetworkHelper.SendMovePacket(DIRECTION::FRONT);
-			break;
+			if (!m_pSqureObject->m_KeyInput->m_bWKey) {
+				m_pSqureObject->m_KeyInput->m_bWKey = true;
+				g_NetworkHelper.SendMovePacket(DIRECTION::FRONT);
+			}
 		}
+		break;
 		case 'A':
 		{
-			m_pSqureObject->m_KeyInput->m_bAKey = true;
-			g_NetworkHelper.SendMovePacket(DIRECTION::LEFT);
-			break;
+			if (!m_pSqureObject->m_KeyInput->m_bAKey) {
+				m_pSqureObject->m_KeyInput->m_bAKey = true;
+				g_NetworkHelper.SendMovePacket(DIRECTION::LEFT);
+			}
 		}
+		break;
 		case 'S':
 		{
-			m_pSqureObject->m_KeyInput->m_bSKey = true;
-			g_NetworkHelper.SendMovePacket(DIRECTION::BACK);
-			break;
+			if (!m_pSqureObject->m_KeyInput->m_bSKey) {
+				m_pSqureObject->m_KeyInput->m_bSKey = true;
+				g_NetworkHelper.SendMovePacket(DIRECTION::BACK);
+			}
 		}
+		break;
 		case 'D':
 		{
-			m_pSqureObject->m_KeyInput->m_bDKey = true;
-			g_NetworkHelper.SendMovePacket(DIRECTION::RIGHT);
-			break;
+			if (!m_pSqureObject->m_KeyInput->m_bDKey) {
+				m_pSqureObject->m_KeyInput->m_bDKey = true;
+				g_NetworkHelper.SendMovePacket(DIRECTION::RIGHT);
+			}
 		}
+		break;
 		case 'Q':
 		{
 			m_pSqureObject->m_KeyInput->m_bQKey = true;
@@ -157,12 +182,6 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			m_pSqureObject->m_KeyInput->m_bEKey = true;
 			break;
 		}
-		//case 'W': m_pSqureObject->MoveForward(+1.0f); break;//틱단위로 바꿔줘라
-		//case 'S': m_pSqureObject->MoveForward(-1.0f); break;
-		//case 'A': m_pSqureObject->MoveStrafe(-1.0f); break;
-		//case 'D': m_pSqureObject->MoveStrafe(+1.0f); break;
-		//case 'Q': m_pSqureObject->MoveUp(+1.0f); break;
-		//case 'E': m_pSqureObject->MoveUp(-1.0f); break;
 		case VK_CONTROL:
 			break;
 		case VK_F1:
@@ -182,31 +201,53 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		{
 		case 'W':
 		{
-			m_pSqureObject->m_KeyInput->m_bWKey = false;
-			g_NetworkHelper.SendStopPacket(XMFLOAT3(0, 0, 0), XMFLOAT3(0, 0, 1)); // XMFLOAT3 postion, XMFOAT3 Rotate
-			break;
+
+			if (m_pSqureObject->m_KeyInput->m_bWKey) {
+				m_pSqureObject->m_KeyInput->m_bWKey = false;
+				if (m_pSqureObject->m_KeyInput->IsAllMovekeyUp()) {
+					cout << "send Stop Packet" << endl;
+					g_NetworkHelper.SendStopPacket(m_pSqureObject->GetPosition(), m_pSqureObject->GetLook()); // XMFLOAT3 postion, XMFOAT3 Rotate				
+				}
+				else g_NetworkHelper.SendKeyUpPacket(DIRECTION::FRONT);
+			}
 		}
+		break;
 		case 'A':
 		{
-			m_pSqureObject->m_KeyInput->m_bAKey = false;
-			g_NetworkHelper.SendStopPacket(XMFLOAT3(0, 0, 0), XMFLOAT3(0, 0, 1)); // XMFLOAT3 postion, XMFOAT3 Rotate
-			//g_NetworkHelper.SendStopPacket(); // XMFLOAT3 postion, XMFOAT3 Rotate
-			break;
+			if (m_pSqureObject->m_KeyInput->m_bAKey) {
+				m_pSqureObject->m_KeyInput->m_bAKey = false;
+				if (m_pSqureObject->m_KeyInput->IsAllMovekeyUp()) {
+					cout << "send Stop Packet" << endl;
+					g_NetworkHelper.SendStopPacket(m_pSqureObject->GetPosition(), m_pSqureObject->GetLook()); // XMFLOAT3 postion, XMFOAT3 Rotate
+				}
+				else g_NetworkHelper.SendKeyUpPacket(DIRECTION::LEFT);
+			}
 		}
+		break;
 		case 'S':
 		{
-			m_pSqureObject->m_KeyInput->m_bSKey = false;
-			g_NetworkHelper.SendStopPacket(XMFLOAT3(0, 0, 0), XMFLOAT3(0, 0, 1)); // XMFLOAT3 postion, XMFOAT3 Rotate
-			//g_NetworkHelper.SendStopPacket(); // XMFLOAT3 postion, XMFOAT3 Rotate
-			break;
+			if (m_pSqureObject->m_KeyInput->m_bSKey) {
+				m_pSqureObject->m_KeyInput->m_bSKey = false;
+				if (m_pSqureObject->m_KeyInput->IsAllMovekeyUp()) {
+					cout << "send Stop Packet" << endl;
+					g_NetworkHelper.SendStopPacket(m_pSqureObject->GetPosition(), m_pSqureObject->GetLook()); // XMFLOAT3 postion, XMFOAT3 Rotate			
+				}
+				else g_NetworkHelper.SendKeyUpPacket(DIRECTION::BACK);
+			}
 		}
+		break;
 		case 'D':
 		{
-			m_pSqureObject->m_KeyInput->m_bDKey = false;
-			g_NetworkHelper.SendStopPacket(XMFLOAT3(0, 0, 0), XMFLOAT3(0, 0, 1)); // XMFLOAT3 postion, XMFOAT3 Rotate
-			//g_NetworkHelper.SendStopPacket(); // XMFLOAT3 postion, XMFOAT3 Rotate
-			break;
+			if (m_pSqureObject->m_KeyInput->m_bDKey) {
+				m_pSqureObject->m_KeyInput->m_bDKey = false;
+				if (m_pSqureObject->m_KeyInput->IsAllMovekeyUp()) {
+					cout << "send Stop Packet" << endl;
+					g_NetworkHelper.SendStopPacket(m_pSqureObject->GetPosition(), m_pSqureObject->GetLook()); // XMFLOAT3 postion, XMFOAT3 Rotate
+				}
+				else g_NetworkHelper.SendKeyUpPacket(DIRECTION::RIGHT);
+			}
 		}
+		break;
 		case 'Q':
 		{
 			m_pSqureObject->m_KeyInput->m_bQKey = false;

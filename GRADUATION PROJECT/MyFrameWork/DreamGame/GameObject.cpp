@@ -219,3 +219,18 @@ void GameObject::MoveForward(float fDistance)
 	GameObject::SetPosition(xmf3Position);
 }
 
+void GameObject::MoveDiagonal(int fowardDirection, int rightDirection, float distance)
+{
+	XMFLOAT3 xmf3Position = GetPosition();
+	XMFLOAT3 xmf3Look = GetLook();
+	XMFLOAT3 xmf3Right = GetRight();
+	xmf3Look = Vector3::ScalarProduct(xmf3Look, fowardDirection, false);
+	xmf3Right = Vector3::ScalarProduct(xmf3Right, rightDirection, false);
+
+	XMFLOAT3 resDirection = Vector3::Add(xmf3Right, xmf3Look);
+	resDirection = Vector3::Normalize(resDirection);
+	cout << "diagonal dir: " << resDirection.x <<", " << resDirection.z << ", distance: " << distance << endl;
+	xmf3Position = Vector3::Add(xmf3Position, resDirection, distance);
+	GameObject::SetPosition(xmf3Position);
+}
+

@@ -1,7 +1,7 @@
 #pragma once
 #include "SessionObject.h"
 #include "../ExpOver.h"
-#include <DirectXMath.h>
+
 
 #define NAME_SIZE	20
 
@@ -34,8 +34,10 @@ public:
 	bool AdjustPlayerInfo(DirectX::XMFLOAT3& position, DirectX::XMFLOAT3& rotate);
 public:
 	virtual void AutoMove() override;
-	virtual void StartMove() override;
+	virtual void StartMove(DIRECTION d) override;
 	virtual void StopMove() override;
+	virtual void ChangeDirection(DIRECTION d) override;
+
 public:
 	virtual const DirectX::XMFLOAT3 GetPosition() override;
 	virtual const DirectX::XMFLOAT3 GetRotation() override;

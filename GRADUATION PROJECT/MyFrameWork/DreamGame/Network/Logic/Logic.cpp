@@ -5,7 +5,7 @@ void clientNet::Logic::ProcessPacket(char* p)
 {
 	switch (p[1])
 	{
-	case SERVER_PACKET::MOVE:
+	case SERVER_PACKET::MOVE_KEY_DOWN:
 	{
 		SERVER_PACKET::MovePacket* recvPacket = reinterpret_cast<SERVER_PACKET::MovePacket*>(p);
 		recvPacket->direction;
