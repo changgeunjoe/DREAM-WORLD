@@ -47,7 +47,7 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	RootSignature.RootParameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	RootSignature.RootParameter[0].DescriptorTable.NumDescriptorRanges = 1;
 	RootSignature.RootParameter[0].DescriptorTable.pDescriptorRanges = &(RootSignature.Descriptorrange[0]);
-	RootSignature.RootParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	RootSignature.RootParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 	//Camera(b1) Shaders.hlsl
 	RootSignature.RootParameter[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	RootSignature.RootParameter[1].Descriptor.ShaderRegister = 1;

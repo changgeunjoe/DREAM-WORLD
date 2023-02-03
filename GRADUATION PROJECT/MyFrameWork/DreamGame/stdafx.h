@@ -69,6 +69,15 @@ using Microsoft::WRL::ComPtr;
 #define FRAME_BUFFER_WIDTH		800
 #define FRAME_BUFFER_HEIGHT		600
 
+
+#define _PLANE_WIDTH			300
+#define _PLANE_HEIGHT			300
+
+#define RP_DEPTH_BUFFER	15
+#define RP_TO_LIGHT	16
+
+#define _DEPTH_BUFFER_WIDTH		(FRAME_BUFFER_WIDTH * 8)
+#define _DEPTH_BUFFER_HEIGHT	(FRAME_BUFFER_HEIGHT * 8)
 //#define _WITH_CB_GAMEOBJECT_32BIT_CONSTANTS
 //#define _WITH_CB_GAMEOBJECT_ROOT_DESCRIPTOR
 #define _WITH_CB_WORLD_MATRIX_DESCRIPTOR_TABLE
@@ -88,6 +97,8 @@ using Microsoft::WRL::ComPtr;
 
 #pragma comment(lib, "dxguid.lib")
 
+
+
 // TODO: 프로그램에 필요한 추가 헤더는 여기에서 참조합니다.
 
 extern UINT gnCbvSrvDescriptorIncrementSize;
@@ -102,6 +113,10 @@ extern ID3D12Resource* CreateTextureResourceFromDDSFile(ID3D12Device* pd3dDevice
 extern ID3D12Resource* CreateTextureResourceFromWICFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, wchar_t* pszFileName, ID3D12Resource** ppd3dUploadBuffer, D3D12_RESOURCE_STATES d3dResourceStates = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 extern ID3D12Resource* CreateTexture2DResource(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, UINT nWidth, UINT nHeight, UINT nElements, UINT nMipLevels, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS d3dResourceFlags, D3D12_RESOURCE_STATES d3dResourceStates, D3D12_CLEAR_VALUE* pd3dClearValue);
 
+extern BYTE ReadStringFromFile(FILE* pInFile, char* pstrToken);
+extern int ReadIntegerFromFile(FILE* pInFile);
+extern float ReadFloatFromFile(FILE* pInFile);
+extern XMFLOAT3 ReadVectorFromFile(FILE* pInFile, int n);
 #define RANDOM_COLOR			XMFLOAT4(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX))
 
 #define EPSILON					1.0e-10f
@@ -119,19 +134,11 @@ struct MATERIAL
 	XMFLOAT4						m_xmf4Specular; //(r,g,b,a=power)
 	XMFLOAT4						m_xmf4Emissive;
 };
-struct SPRITEANIMATIONMATERIAL
-{
-	XMFLOAT4						m_xmf4Ambient;
-	XMFLOAT4						m_xmf4Diffuse;
-	XMFLOAT4						m_xmf4Specular; //(r,g,b,a=power)
-	XMFLOAT4						m_xmf4Emissive;
-};
+
 struct CB_GAMEOBJECT_INFO
 {
-	XMFLOAT4X4 m_xmf4x4World;
+	XMFLOAT4X4						m_xmf4x4World;
 	MATERIAL						m_material;
-
-	XMFLOAT4X4						m_xmf4x4Texture;
 };
 struct SHADOW_INFO
 {
@@ -146,7 +153,8 @@ struct SHADOW_INFO
 enum entity_id
 {
 	SQUARE_ENTITY,
-	PlANE_ENTITY
+	PlANE_ENTITY,
+	UNDEF_ENTITY
 };
 enum component_id 
 {

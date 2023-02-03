@@ -11,7 +11,6 @@ cbuffer cbGameObjectInfo : register(b0)
 {
     matrix gmtxGameObject : packoffset(c0);
     MATERIAL gMaterial : packoffset(c4);
-    uint gnTexturesMask : packoffset(c8);
 };
 
 //cbuffer cbCameraInfo : register(b1)
@@ -75,10 +74,11 @@ SamplerComparisonState gClampSamplerState : register(s1);
 struct VS_INPUT
 {
     float3 position : POSITION;
-    float2 uv : TEXCOORD;
     float3 normal : NORMAL;
+    float2 uv : TEXCOORD;
+
 };
-#define _WITH_VERTEX_LIGHTING
+//#define _WITH_VERTEX_LIGHTING
 struct VS_OUTPUT
 {
     float4 positionH : SV_POSITION;
@@ -111,15 +111,16 @@ VS_OUTPUT VSDiffused(VS_INPUT input)
 float4 PSDiffused(VS_OUTPUT input) : SV_TARGET
 {
 #ifdef _WITH_VERTEX_LIGHTING
-    /*float3 normalW = normalize(input.normalW);
-    float4 cIllumination = Lighting(input.positionW, normalW);*/
-	return(float4(input.positionW, 1.0f));
-//    return (output.color)
+   
+   
+	    return (cIllumination + float4(input.positionW, 1.0f));
 #else
-    
-    
-    return cIllumination;
-    //return (cIllumination * gcAlbedoColor + gcEmissionColor);
+    float3 normalW = normalize(input.normalW);
+   // float4 cIllumination = Lighting(input.positionW, normalW);
+   // return (cIllumination);
+    //return (gMaterial.m_cAmbient);
+    return (float4(normalW, 1.0f));
+
 #endif
 
 }

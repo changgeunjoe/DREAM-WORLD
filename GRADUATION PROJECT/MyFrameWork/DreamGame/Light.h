@@ -2,7 +2,8 @@
 #include "stdafx.h"
 
 
-#define MAX_LIGHTS			50
+#define MAX_LIGHTS			4
+#define MAX_DEPTH_TEXTURES		MAX_LIGHTS
 
 #define POINT_LIGHT			1
 #define SPOT_LIGHT			2
@@ -32,6 +33,18 @@ struct LIGHTS
 	int						m_nLights;
 };
 
+struct TOOBJECTSPACEINFO
+{
+	XMFLOAT4X4						m_xmf4x4ToTexture;//조명좌표계로 바꾸는 행렬
+	XMFLOAT4						m_xmf4Position;//조명위치
+};
+
+struct TOLIGHTSPACES
+{
+	TOOBJECTSPACEINFO				m_pToLightSpaces[MAX_LIGHTS];
+};
+
+
 struct CB_LIGHT_INFO
 {
 	XMFLOAT4X4 m_xmf4x4LightView;
@@ -42,6 +55,8 @@ struct CB_LIGHT_INFO
 	XMFLOAT3 m_xmf3lightLookat;
 	float m_xmfpadding ;
 };
+
+#define RP_TO_LIGHT	16
 
 class CLight 
 {

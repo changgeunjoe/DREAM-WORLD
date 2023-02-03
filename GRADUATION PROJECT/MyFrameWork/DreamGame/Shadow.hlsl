@@ -1,143 +1,177 @@
-﻿////////////////////////////////////////////////////////////////////////////////
-// Filename: shadow.vs
-////////////////////////////////////////////////////////////////////////////////
-#include<Shaders.hlsl>
+﻿#pragma once
 
-/////////////
-// GLOBALS //
-/////////////
-cbuffer cbLightInfo : register(b2)
+#include "Shaders.hlsl"
+
+struct CB_TOOBJECTSPACE
 {
-    matrix lightViewMatrix : packoffset(c0);
-    matrix lightProjectionMatrix : packoffset(c4);
-    float4 ambientColor : packoffset(c8);
-    float4 diffuseColor : packoffset(c9);
-    float3 lightPosition : packoffset(c10.x);
-    float padding : packoffset(c10.w);
+    matrix mtxToTexture;
+    float4 f4Position;
 };
-//////////////////////
-// CONSTANT BUFFERS //
-//////////////////////
 
-
-//////////////
-// TYPEDEFS //
-//////////////
-struct VertexInputType
+cbuffer cbToLightSpace : register(b3)
 {
-    float4 position : POSITION;
-    float2 tex : TEXCOORD0;
+    CB_TOOBJECTSPACE gcbToLightSpaces[MAX_LIGHTS];
+};
+
+struct VS_LIGHTING_INPUT
+{
+    float3 position : POSITION;
     float3 normal : NORMAL;
+    float2 uv : TEXCOORD;
+    float3 tangent : TANGENT;
+    float3 bitangent : BITANGENT;
 };
 
-struct PixelInputType
+struct VS_LIGHTING_OUTPUT
 {
     float4 position : SV_POSITION;
-    float2 tex : TEXCOORD0;
-    float3 normal : NORMAL;
-    float4 lightViewPosition : TEXCOORD1;
-    float3 lightPos : TEXCOORD2;
+    float3 positionW : POSITION;
+    float3 normalW : NORMAL;
+    float3 tangentW : TANGENT;
+    float3 bitangentW : BITANGENT;
+    float2 uv : TEXCOORD;
+    
 };
 
-
-////////////////////////////////////////////////////////////////////////////////
-// Vertex Shader
-////////////////////////////////////////////////////////////////////////////////
-PixelInputType ShadowVertexShader(VertexInputType input)
+VS_LIGHTING_OUTPUT VSLighting(VS_LIGHTING_INPUT input)
 {
-    PixelInputType output;
-    float4 worldPosition;
+    VS_LIGHTING_OUTPUT output;
+
+    output.normalW = mul(input.normal, (float3x3) gmtxGameObject);
+    output.positionW = (float3) mul(float4(input.position, 1.0f), gmtxGameObject);
+    output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
+    output.uv = input.uv;
+    output.tangentW = mul(input.tangent, (float3x3) gmtxGameObject);
+    output.bitangentW = mul(input.bitangent, (float3x3) gmtxGameObject);
     
-    
-	// 적절한 행렬 계산을 위해 위치 벡터를 4 단위로 변경합니다.
-    input.position.w = 1.0f;
-
-	// 월드, 뷰 및 투영 행렬에 대한 정점의 위치를 ​​계산합니다.
-    output.position = mul(input.position, gmtxWorld);
-    output.position = mul(output.position, gmtxView);
-    output.position = mul(output.position, gmtxProjection);
-    
-	// 광원에 의해 보았을 때 vertice의 위치를 ​​계산합니다.
-    output.lightViewPosition = mul(input.position, gmtxWorld);
-    output.lightViewPosition = mul(output.lightViewPosition, lightViewMatrix);
-    output.lightViewPosition = mul(output.lightViewPosition, lightProjectionMatrix);
-
-	// 픽셀 쉐이더의 텍스처 좌표를 저장한다.
-    output.tex = input.tex;
-    
-	// 월드 행렬에 대해서만 법선 벡터를 계산합니다.
-    output.normal = mul(input.normal, (float3x3) gmtxWorld);
-	
-    // 법선 벡터를 정규화합니다.
-    output.normal = normalize(output.normal);
-
-    // 세계의 정점 위치를 계산합니다.
-    worldPosition = mul(input.position, gmtxWorld);
-
-    // 빛의 위치와 세계의 정점 위치를 기반으로 빛의 위치를 ​​결정합니다.
-    output.lightPos = lightPosition.xyz - worldPosition.xyz;
-
-    // 라이트 위치 벡터를 정규화합니다.
-    output.lightPos = normalize(output.lightPos);
-
-    return output;
+    return (output);
 }
-float4 ShadowPixelShader(PixelInputType input) : SV_TARGET
+
+
+struct PS_DEPTH_OUTPUT
 {
-    float bias;
-    float4 color;
-    float2 projectTexCoord;
-    float depthValue;
-    float lightDepthValue;
-    float lightIntensity;
-    float4 textureColor;
+    float fzPosition : SV_Target;
+    float fDepth : SV_Depth;
+};
 
+//깊이를 저장하는 PS
+PS_DEPTH_OUTPUT PSDepthWriteShader(VS_LIGHTING_OUTPUT input)
+{
+    PS_DEPTH_OUTPUT output;
 
-	// 부동 소수점 정밀도 문제를 해결할 바이어스 값을 설정합니다.
-    bias = 0.001f;
+	//원투 나누기 한 좌표-깊이
+    output.fzPosition = input.position.z;
+    output.fDepth = input.position.z;
 
-	// 모든 픽셀에 대해 기본 출력 색상을 주변 광원 값으로 설정합니다.
-    color = ambientColor;
+    return (output);
+}
 
-	// 투영 된 텍스처 좌표를 계산합니다.
-    projectTexCoord.x = input.lightViewPosition.x / input.lightViewPosition.w / 2.0f + 0.5f;
-    projectTexCoord.y = -input.lightViewPosition.y / input.lightViewPosition.w / 2.0f + 0.5f;
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+struct VS_SHADOW_MAP_OUTPUT
+{
+    float4 position : SV_POSITION;
+    float3 positionW : POSITION;
+    float3 normalW : NORMAL;
 
-	// 투영 된 좌표가 0에서 1 범위에 있는지 결정합니다. 그렇다면이 픽셀은 빛의 관점에 있습니다.
-    if ((saturate(projectTexCoord.x) == projectTexCoord.x) && (saturate(projectTexCoord.y) == projectTexCoord.y))
+    float2 uv : TEXCOORD;
+    float3 tangentW : TANGENT;
+    float3 bitangentW : BITANGENT;
+    float4 uvs[MAX_LIGHTS] : TEXCOORD1;
+    
+};
+
+VS_SHADOW_MAP_OUTPUT VSShadowMapShadow(VS_LIGHTING_INPUT input)
+{
+    VS_SHADOW_MAP_OUTPUT output = (VS_SHADOW_MAP_OUTPUT) 0;
+
+    float4 positionW = mul(float4(input.position, 1.0f), gmtxGameObject);
+    output.positionW = positionW.xyz;
+    output.position = mul(mul(positionW, gmtxView), gmtxProjection);
+    output.normalW = mul(float4(input.normal, 0.0f), gmtxGameObject).xyz;
+    output.uv = input.uv;
+    output.tangentW = mul(input.tangent, (float3x3) gmtxGameObject);
+    output.bitangentW = mul(input.bitangent, (float3x3) gmtxGameObject);
+    
+    for (int i = 0; i < MAX_LIGHTS; i++)
     {
-		// 투영 된 텍스처 좌표 위치에서 샘플러를 사용하여 깊이 텍스처에서 섀도우 맵 깊이 값을 샘플링합니다.
-        depthValue = depthMapTexture.Sample(SampleTypeClamp, projectTexCoord).r;
-
-		// 빛의 깊이를 계산합니다.
-        lightDepthValue = input.lightViewPosition.z / input.lightViewPosition.w;
-
-		// lightDepthValue에서 바이어스를 뺍니다.
-        lightDepthValue = lightDepthValue - bias;
-
-		// 섀도우 맵 값의 깊이와 빛의 깊이를 비교하여이 픽셀을 음영 처리할지 조명할지 결정합니다.
-		// 빛이 객체 앞에 있으면 픽셀을 비추고, 그렇지 않으면 객체 (오클 루더)가 그림자를 드리 우기 때문에이 픽셀을 그림자로 그립니다.
-        if (lightDepthValue < depthValue)
-        {
-		    // 이 픽셀의 빛의 양을 계산합니다.
-            lightIntensity = saturate(dot(input.normal, input.lightPos));
-
-            if (lightIntensity > 0.0f)
-            {
-				// 확산 색과 광 강도의 양에 따라 최종 확산 색을 결정합니다.
-                color += (diffuseColor * lightIntensity);
-
-				// 최종 빛의 색상을 채웁니다.
-                color = saturate(color);
-            }
-        }
+		//0은 조명끔, 조명 좌표계로 바꾸고 텍스쳐 좌표계로 바꿈
+        if (gcbToLightSpaces[i].f4Position.w != 0.0f)
+            output.uvs[i] = mul(positionW, gcbToLightSpaces[i].mtxToTexture);
     }
 
-	// 이 텍스처 좌표 위치에서 샘플러를 사용하여 텍스처에서 픽셀 색상을 샘플링합니다.
-    textureColor = shaderTexture.Sample(SampleTypeWrap, input.tex);
-
-	// 빛과 텍스처 색상을 결합합니다.
-    color = color * textureColor;
-
-    return color;
+    return (output);
 }
+
+float4 PSShadowMapShadow(VS_SHADOW_MAP_OUTPUT input) : SV_TARGET
+{
+    float4 cAlbedoColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    if (gnTexturesMask & MATERIAL_ALBEDO_MAP) 
+        cAlbedoColor = gtxtAlbedoTexture.Sample(gssWrap, /*float2(0.5f, 0.5f) */input.uv);
+    else
+        cAlbedoColor = gMaterial.m_cDiffuse;
+    
+	//그림자면 어둡고 아니면 원래 조명 색
+    float4 cIllumination = Lighting(input.positionW, normalize(input.normalW), true, input.uvs);
+
+    //return (cIllumination);
+    float4 cColor = cAlbedoColor;
+    return (lerp(cColor, cIllumination, 0.4f));
+    
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+struct VS_TEXTURED_OUTPUT
+{
+    float4 position : SV_POSITION;
+    float2 uv : TEXCOORD;
+};
+
+VS_TEXTURED_OUTPUT VSTextureToViewport(uint nVertexID : SV_VertexID)
+{
+    VS_TEXTURED_OUTPUT output = (VS_TEXTURED_OUTPUT) 0;
+
+    if (nVertexID == 0)
+    {
+        output.position = float4(-1.0f, +1.0f, 0.0f, 1.0f);
+        output.uv = float2(0.0f, 0.0f);
+    }
+    if (nVertexID == 1)
+    {
+        output.position = float4(+1.0f, +1.0f, 0.0f, 1.0f);
+        output.uv = float2(1.0f, 0.0f);
+    }
+    if (nVertexID == 2)
+    {
+        output.position = float4(+1.0f, -1.0f, 0.0f, 1.0f);
+        output.uv = float2(1.0f, 1.0f);
+    }
+    if (nVertexID == 3)
+    {
+        output.position = float4(-1.0f, +1.0f, 0.0f, 1.0f);
+        output.uv = float2(0.0f, 0.0f);
+    }
+    if (nVertexID == 4)
+    {
+        output.position = float4(+1.0f, -1.0f, 0.0f, 1.0f);
+        output.uv = float2(1.0f, 1.0f);
+    }
+    if (nVertexID == 5)
+    {
+        output.position = float4(-1.0f, -1.0f, 0.0f, 1.0f);
+        output.uv = float2(0.0f, 1.0f);
+    }
+
+    return (output);
+}
+
+//SamplerState gssBorder : register(s3);
+
+float4 PSTextureToViewport(VS_TEXTURED_OUTPUT input) : SV_Target
+{
+    float fDepthFromLight0 = gtxtDepthTextures[0].SampleLevel(gssWrap /*gssBorder*/, input.uv, 0).r;
+
+    return ((float4) (fDepthFromLight0 * 0.8f));
+}
+

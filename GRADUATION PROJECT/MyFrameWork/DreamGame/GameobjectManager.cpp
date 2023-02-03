@@ -68,6 +68,8 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPlaneObject->SetPosition(XMFLOAT3(0, -10, 50));
 	m_pPlaneObject->SetScale(10.f, 0.2f, 10.f);
 	m_pPlaneObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	ShaderComponent* shader = NULL;
+	//CLoadedModelInfo* pMonsterModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Monster.bin", shader,NULL);
 }
 void GameobjectManager::BuildLight()
 {

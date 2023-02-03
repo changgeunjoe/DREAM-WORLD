@@ -1,6 +1,7 @@
 #pragma once
 #include "ComponentBase.h"
 #include "MeshComponent.h"
+class MeshComponent;
 class RenderComponent :public ComponentBase
 {
 public:

@@ -5,6 +5,7 @@
 #include"ShaderComponent.h"
 #include"MeshComponent.h"
 #include"Light.h"
+#include"CLoadModelinfo.h"
 class GameobjectManager
 {
 public:
@@ -25,6 +26,7 @@ private: //active object
 	GameObject*		m_pSqureObject = NULL;
 	GameObject*     m_pSqure2Object = NULL;
 	GameObject*		m_pPlaneObject = NULL;
+	GameObject* m_pAnimationObject = NULL;
 
 	CLight*			m_pLight = NULL;
 
