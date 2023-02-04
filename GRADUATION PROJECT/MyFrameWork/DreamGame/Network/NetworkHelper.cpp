@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include <iostream>
 #include "Logic/Logic.h"
 #include "NetworkHelper.h"

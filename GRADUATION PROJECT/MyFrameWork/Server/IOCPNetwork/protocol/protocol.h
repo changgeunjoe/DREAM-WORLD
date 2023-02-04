@@ -33,6 +33,7 @@ namespace CLIENT_PACKET {
 		ROTATE_AXIS axis;
 		float angle;
 	};
+
 	struct StopPacket {
 		char size;
 		char type;

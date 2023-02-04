@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "GameobjectManager.h"
 #include "Network/NetworkHelper.h"
 
@@ -114,6 +115,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pSqureObject->SetTexture(L"Image/stones.dds");
 	m_pSqureObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pSqureObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+
 	m_pSqure2Object = new GameObject(SQUARE_ENTITY);//사각형 오브젝트를 만들겠다
 	m_pSqure2Object->InsertComponent<RenderComponent>();
 	m_pSqure2Object->InsertComponent<CubeMeshComponent>();
@@ -122,6 +124,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pSqure2Object->SetTexture(L"Image/stones.dds");
 	m_pSqure2Object->SetPosition(XMFLOAT3(100, 0, 50));
 	m_pSqure2Object->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+
 	m_pPlaneObject = new GameObject(PlANE_ENTITY);
 	m_pPlaneObject->InsertComponent<RenderComponent>();
 	m_pPlaneObject->InsertComponent<CubeMeshComponent>();
