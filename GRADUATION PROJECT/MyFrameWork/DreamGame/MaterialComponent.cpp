@@ -101,7 +101,7 @@ void MaterialComponent::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12Grap
 			(*ppTexture)->LoadTextureFromFile(pd3dDevice, pd3dCommandList, pwstrTextureName, RESOURCE_TEXTURE2D, 0);
 			if (*ppTexture) (*ppTexture)->AddRef();
 			//cout << "CreateTexture" << endl;
-			ShaderComponent::CreateShaderResourceViews(pd3dDevice, *ppTexture, nRootParameter, false);
+		//	ShaderComponent::CreateShaderResourceViews(pd3dDevice, *ppTexture, nRootParameter, false);
 		}
 		else
 		{

@@ -1,14 +1,5 @@
 #include "ShaderComponent.h"
-ID3D12DescriptorHeap* ShaderComponent::m_pd3dCbvSrvDescriptorHeap;
-D3D12_CPU_DESCRIPTOR_HANDLE	ShaderComponent::m_d3dCbvCPUDescriptorStartHandle;
-D3D12_GPU_DESCRIPTOR_HANDLE	ShaderComponent::m_d3dCbvGPUDescriptorStartHandle;
-D3D12_CPU_DESCRIPTOR_HANDLE	ShaderComponent::m_d3dSrvCPUDescriptorStartHandle;
-D3D12_GPU_DESCRIPTOR_HANDLE	ShaderComponent::m_d3dSrvGPUDescriptorStartHandle;
 
-D3D12_CPU_DESCRIPTOR_HANDLE	ShaderComponent::m_d3dSrvCPUDescriptorNextHandle;
-D3D12_GPU_DESCRIPTOR_HANDLE	ShaderComponent::m_d3dSrvGPUDescriptorNextHandle;
-D3D12_GPU_DESCRIPTOR_HANDLE	ShaderComponent::m_d3dCbvGPUDescriptorHandle;
-D3D12_GPU_DESCRIPTOR_HANDLE	ShaderComponent::m_d3dShadowGPUDescriptorHandle;
 
 
 ShaderComponent::ShaderComponent()

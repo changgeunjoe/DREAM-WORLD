@@ -1,21 +1,22 @@
 #pragma once
 #include"stdafx.h"
-
+#include"ComponentBase.h"
 class GameObject;
 class SkinnedMeshComponent;
-class CLoadedModelInfo
+class CLoadedModelInfoCompnent:public ComponentBase
 {
 public:
-	CLoadedModelInfo() { };
-	~CLoadedModelInfo();
+	CLoadedModelInfoCompnent() { };
+	~CLoadedModelInfoCompnent();
 
 	GameObject* m_pModelRootObject = NULL;
 
 	int 							m_nSkinnedMeshes = 0;
-	SkinnedMeshComponent**					m_ppSkinnedMeshes = NULL; //[SkinnedMeshes], Skinned Mesh Cache
+	SkinnedMeshComponent**			m_ppSkinnedMeshes = NULL; //[SkinnedMeshes], Skinned Mesh Cache
 
 	//CAnimationSets* m_pAnimationSets = NULL;
 
 public:
 	void PrepareSkinning();
 };
+

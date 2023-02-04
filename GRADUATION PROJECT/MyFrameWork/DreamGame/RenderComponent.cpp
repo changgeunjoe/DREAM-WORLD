@@ -9,7 +9,7 @@ RenderComponent::~RenderComponent()
 
 }
 
-void RenderComponent::Render(ID3D12GraphicsCommandList* pd3dCommandList,MeshComponent* meshcomponent)
+void RenderComponent::Render(ID3D12GraphicsCommandList* pd3dCommandList,MeshComponent* meshcomponent, int nSubSet)
 {
 	pd3dCommandList->IASetPrimitiveTopology(meshcomponent->GetPrimitveTopology());
 	pd3dCommandList->IASetVertexBuffers(meshcomponent->GetSlot(), 1, &meshcomponent->GetVertexBufferView());
@@ -17,6 +17,11 @@ void RenderComponent::Render(ID3D12GraphicsCommandList* pd3dCommandList,MeshComp
 	{
 		pd3dCommandList->IASetIndexBuffer(&meshcomponent->GetIndexBufferView());
 		pd3dCommandList->DrawIndexedInstanced(meshcomponent->GetIndices(), 1, 0, 0, 0);
+	}
+	else if((meshcomponent->GetSubMeshes() > 0) && (nSubSet < meshcomponent->GetSubMeshes()))
+	{
+		pd3dCommandList->IASetIndexBuffer(&meshcomponent->GetSubsetIndexBufferView(nSubSet));
+		pd3dCommandList->DrawIndexedInstanced(meshcomponent->GetSubsetIndices(nSubSet), 1, 0, 0, 0);
 	}
 	else
 	{

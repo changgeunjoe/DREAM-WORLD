@@ -89,6 +89,11 @@ D3D12_INDEX_BUFFER_VIEW MeshComponent::GetIndexBufferView()
 	return m_d3dIndexBufferView;
 }
 
+D3D12_INDEX_BUFFER_VIEW MeshComponent::GetSubsetIndexBufferView(int nSubSet)
+{
+	return m_pd3dSubSetIndexBufferViews[nSubSet];
+}
+
 ID3D12Resource* MeshComponent::GetIndexBufferResource()
 {
 	return m_pd3dIndexBuffer;
@@ -119,9 +124,19 @@ UINT MeshComponent::GetIndices()
 	return m_nIndices;
 }
 
+UINT MeshComponent::GetSubsetIndices(int nSubSet)
+{
+	return m_pnSubSetIndices[nSubSet];
+}
+
 D3D12_PRIMITIVE_TOPOLOGY MeshComponent::GetPrimitveTopology()
 {
 	return m_d3dPrimitiveTopology;
+}
+
+UINT MeshComponent::GetSubMeshes()
+{
+	return m_nSubMeshes;
 }
 
 void MeshComponent::ReleaseUploadBuffers()

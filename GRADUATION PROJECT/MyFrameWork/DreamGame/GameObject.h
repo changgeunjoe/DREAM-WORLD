@@ -9,7 +9,8 @@
 #include"CLoadModelinfo.h"
 #include "CGameObject.h"
 #include"MaterialComponent.h"
-//class CLoadedModelInfo;
+//include"CLoadModelinfo.h"
+class CLoadedModelInfoCompnent;
 class SkinnedMeshComponent;
 class ComponentBase;
 #define MATERIAL_ALBEDO_MAP				0x01
@@ -35,7 +36,6 @@ public:
     void SetScale(float x, float y, float z);
     void SetTexture(wchar_t* pszFileName);
     void SetMesh(MeshComponent* pMesh);
-    MeshComponent* m_pMesh = NULL;//삭제 예정
 
     void MoveStrafe(float fDistance = 1.0f);
     void MoveUp(float fDistance = 1.0f);
@@ -67,16 +67,16 @@ public:
     void FindAndSetSkinnedMesh(SkinnedMeshComponent** ppSkinnedMeshes, int* pnSkinnedMesh);
     TextureComponent* FindReplicatedTexture(_TCHAR* pstrTextureName);
     
-    UINT GetMeshType() { return((m_pMesh) ? m_pMesh->GetType() : 0x00); };
+    UINT GetMeshType() { return((m_pMeshComponent) ? m_pMeshComponent->GetType() : 0x00); };
     void SetMaterialType(UINT nType) { m_nType |= nType; }
 
 public:
-    static CLoadedModelInfo* LoadGeometryAndAnimationFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, ShaderComponent* pShader, bool isBinary );
+    static CLoadedModelInfoCompnent* LoadGeometryAndAnimationFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, ShaderComponent* pShader, bool isBinary );
 
     void LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, GameObject* pParent, FILE* pInFile, ShaderComponent* pShader);
-    static void LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfo* pLoadedModel);
+    static void LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfoCompnent* pLoadedModel);
     static GameObject* LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, GameObject* pParent, FILE* pInFile, ShaderComponent* pShader, int* pnSkinnedMeshes);
-
+   
 
     template<typename T>
     T* InsertComponent();
@@ -94,7 +94,7 @@ public:
 public:
 
     int								m_nMaterials = 0;
-    MaterialComponent** m_ppMaterials = NULL;
+    
 
     XMFLOAT4X4						m_xmf4x4ToParent;
     XMFLOAT4X4						m_xmf4x4Transform;//변환 행렬
@@ -121,11 +121,13 @@ protected:
     
     //////////////////////Component/////////////////////////////////
     unordered_map<component_id, ComponentBase*> m_components;
- 
+    MeshComponent* m_pMeshComponent{ NULL };
     TextureComponent* m_pTextureComponent{ NULL };
     CubeMeshComponent* m_pCubeComponent{ NULL };
     ShaderComponent* m_pShaderComponent{ NULL };
     RenderComponent* m_pRenderComponent{ NULL };
+    CLoadedModelInfoCompnent* m_pLoadedModelComponent{ NULL };
+    MaterialComponent** m_ppMaterialsComponent{ NULL };
 protected:
     ID3D12Resource* m_pd3dcbGameObjects = NULL;
     CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
@@ -175,6 +177,10 @@ inline T* GameObject::ComponentType(component_id &componentID)
     else if (typeid(T).name() == typeid(TextureComponent).name())
     {
         componentID = component_id::TEXTURE_COMPONENT;
+    }
+    else if (typeid(T).name() == typeid(CLoadedModelInfoCompnent).name())
+    {
+        componentID = component_id::LOADEDMODEL_COMPONET;
     }
     else
     {

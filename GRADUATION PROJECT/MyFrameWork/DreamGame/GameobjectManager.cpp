@@ -33,10 +33,10 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 
 	UpdateShaderVariables(pd3dCommandList);
 
-	m_pSqureObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	/*m_pSqureObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pSqure2Object->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pPlaneObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-
+	m_pPlaneObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);*/
+	m_pMonsterObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
 
 void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -68,8 +68,16 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPlaneObject->SetPosition(XMFLOAT3(0, -10, 50));
 	m_pPlaneObject->SetScale(10.f, 0.2f, 10.f);
 	m_pPlaneObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	ShaderComponent* shader = NULL;
-	//CLoadedModelInfo* pMonsterModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Monster.bin", shader,NULL);
+	m_pMonsterObject = new GameObject(UNDEF_ENTITY);
+	m_pMonsterObject->InsertComponent<ShaderComponent>();
+	m_pMonsterObject->InsertComponent<RenderComponent>();
+	m_pMonsterObject->InsertComponent<TextureComponent>();
+	m_pMonsterObject->SetTexture(L"Image/stones.dds");
+	m_pMonsterObject->InsertComponent<CLoadedModelInfoCompnent>();
+	m_pMonsterObject->SetPosition(XMFLOAT3(0, -10, 50));
+	m_pMonsterObject->SetScale(10.f, 0.2f, 10.f);
+	m_pMonsterObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//CLoadedModelInfoCompnent* pMonsterModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Monster.bin", shader,NULL);
 }
 void GameobjectManager::BuildLight()
 {
