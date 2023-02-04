@@ -8,9 +8,11 @@ protected:
 	Session* m_session;
 protected:
 	DirectX::XMFLOAT3 m_position;
-	DirectX::XMFLOAT3 m_rotateAngle;
+	DirectX::XMFLOAT3 m_rotateAngle = { 0,0,0 };
 	DirectX::XMFLOAT3 m_directionVector = DirectX::XMFLOAT3{ 0,0,1 };
 	DirectX::XMFLOAT3 m_rightVector = DirectX::XMFLOAT3{ 1,0,0 };
+	
+	DirectX::XMFLOAT4X4 m_worldMatrix = Matrix4x4::Identity();
 
 	std::chrono::high_resolution_clock::time_point m_lastMoveTime;
 public:
@@ -28,6 +30,8 @@ public:
 public:
 	virtual const DirectX::XMFLOAT3 GetPosition();
 	virtual const DirectX::XMFLOAT3 GetRotation();
+public:
+	virtual void Rotate(ROTATE_AXIS axis, float angle);
 protected:
 	void CalcRightVector()
 	{

@@ -72,3 +72,7 @@ const DirectX::XMFLOAT3 SessionObject::GetRotation()
 {
 	return m_rotateAngle;
 }
+
+void SessionObject::Rotate(ROTATE_AXIS axis, float angle)
+{
+}

@@ -108,11 +108,12 @@ void NetworkHelper::SendStopPacket(const DirectX::XMFLOAT3& position, const Dire
 	sendPacket.rotate = rotate;
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
-void NetworkHelper::SendRotatePacket(ROTATE_AXIS axis)
+void NetworkHelper::SendRotatePacket(ROTATE_AXIS axis, float angle)
 {
 	CLIENT_PACKET::RotatePacket sendPacket;
 	sendPacket.type = CLIENT_PACKET::ROTATE;
 	sendPacket.size = sizeof(CLIENT_PACKET::RotatePacket);
+	sendPacket.angle = angle;
 	sendPacket.axis = axis;
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }

@@ -80,11 +80,13 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	{
 		if (KeyInput->m_bQKey)
 		{
-			m_pSqureObject->Rotate(&m_pSqureObject->GetUp(), -30.0f * fTimeElapsed);
+			m_pSqureObject->Rotate(&m_pSqureObject->GetUp(), -12.0f * fTimeElapsed);
+			g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::Y, -12.0f * fTimeElapsed);
 		}
 		if (KeyInput->m_bEKey)
 		{
-			m_pSqureObject->Rotate(&m_pSqureObject->GetUp(), 30.0f * fTimeElapsed);
+			m_pSqureObject->Rotate(&m_pSqureObject->GetUp(), 12.0f * fTimeElapsed);
+			g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::Y, 12.0f * fTimeElapsed);
 		}
 		auto look = m_pSqureObject->GetLook();
 		std::cout << "currentLook: " << look.x << ", " << look.y << ", " << look.z << endl;

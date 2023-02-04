@@ -53,6 +53,8 @@ void Logic::ProcessPacket(int userId, char* p)
 		sendPacket.userId = userId;
 		sendPacket.type = SERVER_PACKET::ROTATE;
 		sendPacket.size = sizeof(SERVER_PACKET::RotatePacket);
+		PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
+		pSessionObj->Rotate(recvPacket->axis, recvPacket->angle);
 		MultiCastOtherPlayer(userId, &sendPacket);
 	}
 	break;
@@ -121,7 +123,7 @@ void Logic::MultiCastOtherPlayer(int userId, void* p)
 
 void Logic::AutoMoveServer()
 {
-	auto currentTime = std::chrono::high_resolution_clock::now();	
+	auto currentTime = std::chrono::high_resolution_clock::now();
 	while (m_isRunningThread)
 	{
 		if (g_iocpNetwork.GetCurrentId() == 0) continue;
@@ -133,10 +135,8 @@ void Logic::AutoMoveServer()
 				PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(cli.m_sessionObject);
 				pSessionObj->AutoMove();
 			}
-			//else std::cout << (int)cli.m_sessionObject->m_inputDirection << std::endl;
-		}		
+		}
 		while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - currentTime).count() < 1000.0f / 60.0f) {
 		}
-		//std::cout << (double)std::chrono::duration_cast<std::chrono::milliseconds > (std::chrono::high_resolution_clock::now() - currentTime).count() << std::endl;
 	}
 }
