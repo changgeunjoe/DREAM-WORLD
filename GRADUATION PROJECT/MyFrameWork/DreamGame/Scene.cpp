@@ -144,11 +144,11 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 void CScene::ReleaseObjects()
 {
 	if (m_pd3dGraphicsRootSignature) m_pd3dGraphicsRootSignature->Release();
-	if (m_ppObjects)
-	{
-		for (int j = 0; j < m_nObjects; j++) if (m_ppObjects[j]) delete m_ppObjects[j];
-		delete[] m_ppObjects;
-	}
+	//if (m_ppObjects)
+	//{
+	//	for (int j = 0; j < m_nObjects; j++) if (m_ppObjects[j]) delete m_ppObjects[j];
+	//	delete[] m_ppObjects;
+	//}
 }
 
 
@@ -159,10 +159,10 @@ bool CScene::ProcessInput()
 
 void CScene::AnimateObjects(float fTimeElapsed)
 {
-	for (int j = 0; j < m_nObjects; j++)
-	{
-		m_ppObjects[j]->Animate(fTimeElapsed);
-	}
+	//for (int j = 0; j < m_nObjects; j++)
+	//{
+	//	m_ppObjects[j]->Animate(fTimeElapsed);
+	//}
 }
 void CScene::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
@@ -176,10 +176,10 @@ void CScene::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCom
 
 void CScene::ReleaseUploadBuffers()
 {
-	if (m_ppObjects)
-	{
-		for (int j = 0; j < m_nObjects; j++) if (m_ppObjects[j])
-			m_ppObjects[j]->ReleaseUploadBuffers();
-	}
+	//if (m_ppObjects)
+	//{
+	//	for (int j = 0; j < m_nObjects; j++) if (m_ppObjects[j])
+	//		m_ppObjects[j]->ReleaseUploadBuffers();
+	//}
 }
 

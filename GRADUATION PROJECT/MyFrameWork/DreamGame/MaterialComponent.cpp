@@ -43,12 +43,12 @@ ShaderComponent* MaterialComponent::m_pStandardShader = NULL;
 
 void MaterialComponent::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4AmbientColor, 16);
+	/*pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4AmbientColor, 16);
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4AlbedoColor, 20);
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4SpecularColor, 24);
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4EmissiveColor, 28);
 
-	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &m_nType, 32);
+	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &m_nType, 32);*/
 
 	for (int i = 0; i < m_nTextures; i++)
 	{
@@ -101,7 +101,7 @@ void MaterialComponent::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12Grap
 			(*ppTexture)->LoadTextureFromFile(pd3dDevice, pd3dCommandList, pwstrTextureName, RESOURCE_TEXTURE2D, 0);
 			if (*ppTexture) (*ppTexture)->AddRef();
 			//cout << "CreateTexture" << endl;
-		//	ShaderComponent::CreateShaderResourceViews(pd3dDevice, *ppTexture, nRootParameter, false);
+			//¼öÁ¤ 	(*ppTexture)->CreateShaderResourceViews(pd3dDevice, *ppTexture, nRootParameter, false);
 		}
 		else
 		{

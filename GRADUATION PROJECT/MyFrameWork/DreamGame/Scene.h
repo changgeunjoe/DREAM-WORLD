@@ -1,7 +1,6 @@
 #pragma once
 #include"stdafx.h"
 #include"Timer.h"
-#include"Shader.h"
 #include"GameobjectManager.h"
 
 struct RootSignatureDesc
@@ -45,8 +44,6 @@ public:
 
 protected:
 	//씬은 게임 객체들의 집합이다.게임 객체는 셰이더를 포함한다.
-	CGameObject** m_ppObjects = NULL;
-	int m_nObjects = 0;
 	
 
 	GameobjectManager* m_pObjectManager=NULL;

@@ -7,7 +7,7 @@
 #include"ShadowMapShaderComponent.h"
 #include"SkinnedMeshComponent.h"
 #include"CLoadModelinfo.h"
-#include "CGameObject.h"
+
 #include"MaterialComponent.h"
 //include"CLoadModelinfo.h"
 class CLoadedModelInfoCompnent;

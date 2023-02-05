@@ -140,7 +140,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
-    <ClInclude Include="CGameObject.h" />
+    <ClInclude Include="CAnimationSets.h" />
     <ClInclude Include="CLoadModelinfo.h" />
     <ClInclude Include="ComponentBase.h" />
     <ClInclude Include="Light.h" />
@@ -159,7 +159,6 @@
     <ClInclude Include="RenderComponent.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Scene.h" />
-    <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderComponent.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -168,6 +167,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="CAnimationSets.cpp" />
     <ClCompile Include="CLoadModelinfo.cpp" />
     <ClCompile Include="ComponentBase.cpp" />
     <ClCompile Include="Light.cpp" />
@@ -178,14 +178,12 @@
     <ClCompile Include="TextureComponent.cpp" />
     <ClCompile Include="DDSTextureLoader12.cpp" />
     <ClCompile Include="DreamGame.cpp" />
-    <ClCompile Include="CGameObject.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GameobjectManager.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshComponent.cpp" />
     <ClCompile Include="RenderComponent.cpp" />
     <ClCompile Include="Scene.cpp" />
-    <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderComponent.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
