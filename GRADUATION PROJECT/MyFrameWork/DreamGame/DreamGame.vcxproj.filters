@@ -219,6 +219,9 @@
     <Image Include="DreamGame.ico">
       <Filter>리소스 파일</Filter>
     </Image>
+    <Image Include="LogInImage.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders.hlsl">
