@@ -148,6 +148,7 @@ struct CB_GAMEOBJECT_INFO
 {
 	XMFLOAT4X4						m_xmf4x4World;
 	MATERIAL						m_material;
+	UINT							m_nType;
 };
 struct SHADOW_INFO
 {

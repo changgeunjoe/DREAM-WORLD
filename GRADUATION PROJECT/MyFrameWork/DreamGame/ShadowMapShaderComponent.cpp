@@ -82,7 +82,8 @@ void ShadowMapShaderComponent::Render(ID3D12GraphicsCommandList* pd3dCommandList
 	//깊이버퍼 update
 	UpdateShaderVariables(pd3dCommandList);
 
-	//for (int i = 0; i < m_pObjectsShader->m_nObjects; i++)//중요
+	//for (int i = 0; i < m_pObjectsShader->m_
+	// ; i++)//중요
 	//{
 	//	if (m_pObjectsShader->m_ppObjects[i])
 	//	{

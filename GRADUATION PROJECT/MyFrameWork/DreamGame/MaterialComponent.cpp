@@ -101,7 +101,7 @@ void MaterialComponent::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12Grap
 			(*ppTexture)->LoadTextureFromFile(pd3dDevice, pd3dCommandList, pwstrTextureName, RESOURCE_TEXTURE2D, 0);
 			if (*ppTexture) (*ppTexture)->AddRef();
 			//cout << "CreateTexture" << endl;
-			//수정 	(*ppTexture)->CreateShaderResourceViews(pd3dDevice, *ppTexture, nRootParameter, false);
+			pShader->CreateShaderResourceViews(pd3dDevice, *ppTexture,0, nRootParameter, false);
 		}
 		else
 		{
@@ -120,11 +120,17 @@ void MaterialComponent::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12Grap
 	}
 }
 
-void MaterialComponent::PrepareShaders(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+void MaterialComponent::PrepareShaders(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, ID3D12Resource* m_pd3dcbGameObjects)
 {
+	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);// 삭제 예정(변경)
 	m_pStandardShader = new ShaderComponent();
-	m_pStandardShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pStandardShader->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
+	m_pStandardShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 10, 20);
 	m_pStandardShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	m_pStandardShader->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObjects, ncbElementBytes);
+	//m_pStandardShader->CreateShaderResourceViews(pd3dDevice, *m_ppTextures, 0, 3, pShadowMap);//texture입력
+	//SetCbvGPUDescriptorHandle(PShaderComponent->GetCbvGPUDescriptorHandle());
+	SetCbvGPUDescriptorHandlePtr(m_pShaderComponent->GetGPUCbvDescriptorStartHandle().ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));
 
 	m_pSkinnedAnimationShader = new ShaderComponent();
 	m_pSkinnedAnimationShader->CreateShader(pd3dDevice, pd3dCommandList,pd3dGraphicsRootSignature);

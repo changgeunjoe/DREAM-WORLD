@@ -104,6 +104,7 @@ public:
     GameObject* m_pChild = NULL;
     GameObject* m_pSibling = NULL;
 
+
     UINT							m_nType = 0x00;
     char							m_pstrFrameName[64];
 

@@ -46,6 +46,9 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
+    <Filter Include="소스 파일\ShaderComponent">
+      <UniqueIdentifier>{867c0b48-eda5-4132-9b3e-247bd1f93348}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -96,17 +99,11 @@
     <ClInclude Include="GameObject.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderComponent.h">
-      <Filter>소스 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Light.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
     <ClInclude Include="TextureComponent.h">
       <Filter>소스 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="MaterialComponent.h">
-      <Filter>소스 파일\헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="DepthRenderShaderComponent.h">
       <Filter>소스 파일\헤더 파일</Filter>
@@ -122,6 +119,15 @@
     </ClInclude>
     <ClInclude Include="CAnimationSets.h">
       <Filter>소스 파일\헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderComponent.h">
+      <Filter>소스 파일\ShaderComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="StandardShaderComponent.h">
+      <Filter>소스 파일\ShaderComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialComponent.h">
+      <Filter>소스 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -167,9 +173,6 @@
     <ClCompile Include="GameObject.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="ShaderComponent.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="TextureComponent.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -193,6 +196,12 @@
     </ClCompile>
     <ClCompile Include="CAnimationSets.cpp">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderComponent.cpp">
+      <Filter>소스 파일\ShaderComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="StandardShaderComponent.cpp">
+      <Filter>소스 파일\ShaderComponent</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

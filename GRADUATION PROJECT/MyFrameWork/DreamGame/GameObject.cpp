@@ -211,7 +211,7 @@ void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3
 		{
 			if (m_ppMaterialsComponent[i])
 			{
-				//if (m_ppMaterialsComponent[i]->m_pShader) m_ppMaterialsComponent[i]->m_pShader->Render(pd3dCommandList, pCamera);
+				if (m_ppMaterialsComponent[i]->m_pShader) m_ppMaterialsComponent[i]->m_pShader->Render(pd3dCommandList, 0, pd3dGraphicsRootSignature);
 				m_ppMaterialsComponent[i]->UpdateShaderVariable(pd3dCommandList);
 			}
 			m_pRenderComponent->Render(pd3dCommandList, m_pMeshComponent,i);
@@ -230,7 +230,7 @@ void GameObject::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 void GameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	XMStoreFloat4x4(&m_pcbMappedGameObjects->m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4World)));
-
+	//::memcpy(&m_pcbMappedGameObjects->m_material.m_xmf4Ambient, &(m_ppMaterialsComponent->, sizeof(XMFLOAT3));
 	
 }
 void GameObject::ReleaseShaderVariables()
