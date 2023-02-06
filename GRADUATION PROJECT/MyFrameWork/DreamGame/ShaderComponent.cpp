@@ -1,5 +1,5 @@
 #include "ShaderComponent.h"
-
+#include "MaterialComponent.h"
 
 
 ShaderComponent::ShaderComponent()
@@ -245,15 +245,26 @@ void ShaderComponent::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12Grap
 	m_pd3dcbGameObjects->Map(0, NULL, (void**)&m_pcbMappedGameObjects);
 }
 
-void ShaderComponent::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList, XMFLOAT4X4* pxmf4x4World)
+void ShaderComponent::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList, XMFLOAT4X4* pxmf4x4World, MaterialComponent* ppMaterialsComponent)
 {
 	MATERIAL m_material;
-	m_material.m_xmf4Ambient = XMFLOAT4(1, 1, 1, 1);
-	m_material.m_xmf4Diffuse = XMFLOAT4(1, 1, 1, 1);
-	m_material.m_xmf4Emissive = XMFLOAT4(1, 1, 1, 1);
-	m_material.m_xmf4Specular = XMFLOAT4(1, 1, 1, 1);
+	if (ppMaterialsComponent) 
+	{
+		m_material.m_xmf4Ambient = ppMaterialsComponent->m_xmf4AmbientColor;
+		m_material.m_xmf4Diffuse = ppMaterialsComponent->m_xmf4AlbedoColor;
+		m_material.m_xmf4Emissive = ppMaterialsComponent->m_xmf4EmissiveColor;
+		m_material.m_xmf4Specular = ppMaterialsComponent->m_xmf4SpecularColor;
+	}
+
 	XMStoreFloat4x4(&m_pcbMappedGameObjects->m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(pxmf4x4World)));//오브젝트의 월드좌표계를 변환시켜준다.
-	::memcpy(&m_pcbMappedGameObjects->m_material, &m_material, sizeof(MATERIAL));
+	::memcpy(&m_pcbMappedGameObjects->m_material, &m_material, sizeof(MATERIAL));//메테리얼을 업데이트 해준다.
+	::memcpy(&m_pcbMappedGameObjects->m_nType, &ppMaterialsComponent->m_nType, sizeof(UINT));//타입을 업데이트 해준다.
+
+	for (int i = 0; i < ppMaterialsComponent->m_nTextures; i++)
+	{
+		if (ppMaterialsComponent->m_ppTextures[i])
+			ppMaterialsComponent->m_ppTextures[i]->UpdateShaderVariables(pd3dCommandList);
+	}
 }
 
 void ShaderComponent::ReleaseShaderVariables()

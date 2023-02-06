@@ -48,12 +48,19 @@ public:
 	TextureComponent	**m_ppTextures = NULL; //0:Albedo, 1:Specular, 2:Metallic, 3:Normal, 4:Emission, 5:DetailAlbedo, 6:DetailNormal
 
 	void LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, UINT nType, UINT nRootParameter, _TCHAR* pwstrTextureName, TextureComponent** ppTexture, GameObject* pParent, FILE* pInFile, ShaderComponent* pShader);
-
+	int nObjects=0;
 public:
 	static ShaderComponent* m_pStandardShader;
 	static ShaderComponent* m_pSkinnedAnimationShader;
 
 	static void MaterialComponent::PrepareShaders(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, ID3D12Resource* m_pd3dcbGameObjects);
+	
+	static D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dCbvStandardGPUDescriptorHandle;
+	static D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dCbvSkinnedGPUDescriptorHandle;
+	static void SetCbvGPUStandardDescriptorHandlePtr(UINT64 nCbvGPUDescriptorHandlePtr) { m_d3dCbvStandardGPUDescriptorHandle.ptr = nCbvGPUDescriptorHandlePtr; }
+	void SetCbvGPUSkinnedDescriptorHandlePtr(UINT64 nCbvGPUDescriptorHandlePtr) { m_d3dCbvSkinnedGPUDescriptorHandle.ptr = nCbvGPUDescriptorHandlePtr; }
+	D3D12_GPU_DESCRIPTOR_HANDLE GetCbvGPUDescriptorHandle() { return(m_d3dCbvStandardGPUDescriptorHandle); }
+
 
 	void SetStandardShader() { MaterialComponent::SetShader(m_pStandardShader); }
 	void SetSkinnedAnimationShader() { MaterialComponent::SetShader(m_pSkinnedAnimationShader); }

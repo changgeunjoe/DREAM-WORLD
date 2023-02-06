@@ -69,7 +69,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPlaneObject->SetScale(10.f, 0.2f, 10.f);
 	m_pPlaneObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pMonsterObject = new GameObject(UNDEF_ENTITY);
-	m_pMonsterObject->InsertComponent<ShaderComponent>();
+	//m_pMonsterObject->InsertComponent<ShaderComponent>();
 	m_pMonsterObject->InsertComponent<RenderComponent>();
 	m_pMonsterObject->InsertComponent<TextureComponent>();
 	m_pMonsterObject->SetTexture(L"Image/stones.dds");

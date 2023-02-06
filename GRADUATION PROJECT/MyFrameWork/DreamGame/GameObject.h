@@ -41,6 +41,11 @@ public:
     void MoveUp(float fDistance = 1.0f);
     void MoveForward(float fDistance = 1.0f);
 
+
+    void Rotate(float fPitch = 10.0f, float fYaw = 10.0f, float fRoll = 10.0f);
+    void Rotate(XMFLOAT3* pxmf3Axis, float fAngle);
+    void Rotate(XMFLOAT4* pxmf4Quaternion);
+
     void SetMaterial(int nMaterial, MaterialComponent* pMaterial);
     XMFLOAT3 GetLook();
     XMFLOAT3 GetUp();
@@ -66,6 +71,8 @@ public:
     GameObject* FindFrame(char* pstrFrameName);
     void FindAndSetSkinnedMesh(SkinnedMeshComponent** ppSkinnedMeshes, int* pnSkinnedMesh);
     TextureComponent* FindReplicatedTexture(_TCHAR* pstrTextureName);
+    void UpdateTransform(XMFLOAT4X4* pxmf4x4Parent);
+    
     
     UINT GetMeshType() { return((m_pMeshComponent) ? m_pMeshComponent->GetType() : 0x00); };
     void SetMaterialType(UINT nType) { m_nType |= nType; }
@@ -129,6 +136,8 @@ protected:
     RenderComponent* m_pRenderComponent{ NULL };
     CLoadedModelInfoCompnent* m_pLoadedModelComponent{ NULL };
     MaterialComponent** m_ppMaterialsComponent{ NULL };
+
+
 protected:
     ID3D12Resource* m_pd3dcbGameObjects = NULL;
     CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
