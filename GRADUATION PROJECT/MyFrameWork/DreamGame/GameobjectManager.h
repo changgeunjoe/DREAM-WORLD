@@ -5,6 +5,8 @@
 #include"ShaderComponent.h"
 #include"MeshComponent.h"
 #include"Light.h"
+
+class Session;
 class GameobjectManager
 {
 public:
@@ -23,11 +25,18 @@ public:
 private: //active object 
 	GameObject**	pGameObjects = NULL;
 	GameObject*		m_pGameObject = NULL;
-	GameObject*		m_pSqureObject = NULL;
-	GameObject*     m_pSqure2Object = NULL;
+
+	GameObject*		m_pWarriorObject = NULL;
+	GameObject*		m_pArcherObject = NULL;
+	GameObject*		m_pTankerObject = NULL; // ∂À≈ ≈© √¢±Ÿ¿Ã
+	GameObject*		m_pPriestObject = NULL;
+	
+
 	GameObject*		m_pPlaneObject = NULL;
 
 	CLight*			m_pLight = NULL;
 
+public:
+	void SetPlayCharacter(Session* pSession);
 };
 

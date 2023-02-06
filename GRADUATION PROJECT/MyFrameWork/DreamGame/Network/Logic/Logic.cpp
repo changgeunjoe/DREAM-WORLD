@@ -2,6 +2,11 @@
 #include "Logic.h"
 #include "../../../Server/IOCPNetwork/protocol/protocol.h"
 
+clientNet::Logic::Logic()
+{
+	m_KeyInput = new CKeyInput();
+}
+
 void clientNet::Logic::ProcessPacket(char* p)
 {
 	switch (p[1])
@@ -39,7 +44,21 @@ void clientNet::Logic::ProcessPacket(char* p)
 	{
 		SERVER_PACKET::LoginPacket* recvPacket = reinterpret_cast<SERVER_PACKET::LoginPacket*>(p);
 		wstring wst_name = recvPacket->name;
+		m_inGamePlayerSession[0].m_id = myId = recvPacket->userID;
+		m_inGamePlayerSession[0].SetName(wst_name);
+		//m_inGamePlayerSession[0].m_currentPlayGameObject = 
 		std::wcout << "user Name: " << wst_name << std::endl;
+	}
+	break;
+	case SERVER_PACKET::ADD_PLAYER:
+	{
+		SERVER_PACKET::AddPlayerPacket* recvPacket = reinterpret_cast<SERVER_PACKET::AddPlayerPacket*>(p);
+		for (auto& pSession : m_inGamePlayerSession) {
+			if (-1 == pSession.m_id) {
+				pSession.m_id = recvPacket->userId;
+				pSession.SetName(recvPacket->name);
+			}
+		}
 	}
 	break;
 	default:
