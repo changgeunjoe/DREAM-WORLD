@@ -33,7 +33,7 @@ ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
-
+INT_PTR CALLBACK IPProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE hPrevInstance,
 	_In_ LPWSTR    lpCmdLine,
@@ -44,6 +44,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	// TODO: 여기에 코드를 입력합니다.
 
+	DialogBox(hInstance, MAKEINTRESOURCE(IDD_LogIn), NULL, IPProc);
+	LPCTSTR lpszClass = _T("Dream World");
 	// 전역 문자열을 초기화합니다.
 	LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
 	LoadStringW(hInstance, IDC_DREAMGAME, szWindowClass, MAX_LOADSTRING);
@@ -57,6 +59,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	}
 
 	HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_DREAMGAME));
+
 
 	MSG msg;
 	while (!g_NetworkHelper.TryConnect());
@@ -213,4 +216,38 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	}
 	return (INT_PTR)FALSE;
+}
+
+
+const int g_MaximumIdLength = 16;
+const int g_MaximumPwLength = 16;
+char userID[g_MaximumIdLength];
+char userPW[g_MaximumPwLength];
+
+INT_PTR CALLBACK IPProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	static int i = 0;
+	switch (uMsg) {
+	case WM_INITDIALOG:
+		return TRUE;
+	case WM_COMMAND:
+		switch (LOWORD(wParam)) {
+		case IDOK1: // 로그인 버튼 누르면 입력한 데이터를 가져오는 곳
+		{
+			int getID = GetDlgItemTextA(hDlg, IDC_EDIT1, userID, g_MaximumIdLength);		// 입력받은 길이를 리턴
+			int getPW = GetDlgItemTextA(hDlg, IDC_EDIT2, userPW, g_MaximumPwLength);
+			if (!getID || !getPW || getID > g_MaximumIdLength || getPW > g_MaximumPwLength)	// 아이디 혹은 비밀번호를 입력하지 않았으면 창이 안꺼지게 설정
+			{
+				return TRUE;
+			}
+			cout << "ID : " << userID << endl;
+			cout << "PW : " <<  userPW << endl;
+			EndDialog(hDlg, IDCANCEL);
+		}
+		case IDCANCEL: // X버튼 누르면 끄는 작업.
+			EndDialog(hDlg, IDCANCEL);
+			return TRUE;
+		}
+	}
+	return FALSE;
 }

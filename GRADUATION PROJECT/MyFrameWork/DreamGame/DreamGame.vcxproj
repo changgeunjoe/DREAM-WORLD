@@ -200,6 +200,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="DreamGame.ico" />
+    <Image Include="LogInImage.bmp" />
     <Image Include="small.ico" />
   </ItemGroup>
   <ItemGroup>
