@@ -1,17 +1,4 @@
 #include <DirectXMath.h>
-enum DIRECTION : char
-{
-	IDLE =	0x00,
-	FRONT = 0x01,
-	RIGHT = 0x02,
-	LEFT =	0x04,
-	BACK =	0x08
-};
-
-enum ROTATE_AXIS :char
-{
-	X, Y, Z
-};
 
 constexpr int NAME_SIZE = 20;
 
@@ -58,6 +45,7 @@ namespace SERVER_PACKET {
 	constexpr unsigned char STOP = 67;
 	constexpr unsigned char ROTATE = 68;
 	constexpr unsigned char LOGIN_OK = 69;
+	constexpr unsigned char ADD_PLAYER = 70;
 
 	struct MovePacket
 	{
@@ -88,6 +76,14 @@ namespace SERVER_PACKET {
 		int  userID;
 		wchar_t name[NAME_SIZE];
 	};
+
+	struct AddPlayerPacket {
+		char size;
+		char type;
+		int userId;
+		wchar_t name[NAME_SIZE];
+	};
+
 }
 
 #pragma pack (pop)

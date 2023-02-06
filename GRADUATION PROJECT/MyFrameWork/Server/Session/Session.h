@@ -34,7 +34,12 @@ private:
 
 public:
 	void RegistPlayer(int id, SOCKET& socket);
-
+	void SetInGameState() {
+		{
+			std::lock_guard<std::mutex> psLock(m_playerStateLock);
+			m_playerState = PLAYER_STATE::IN_GAME;
+		}
+	}
 	const int GetId() { return m_id; }
 	const PLAYER_STATE GetPlayerState() { return m_playerState; };
 };

@@ -2,6 +2,7 @@
 #include "DBObject.h"
 #include "../IOCPNetwork/IOCP/IOCPNetwork.h"
 #include "../Session/SessionObject/PlayerSessionObject.h"
+#include <mutex>
 
 extern IOCPNetwork g_iocpNetwork;
 
@@ -22,6 +23,7 @@ void DBObject::RunDBThread()
 				std::wstring wst_nickName;
 				if (GetPlayerInfo(pInfo->PlayerLoginId, pInfo->pw, wst_nickName)) {
 					PlayerSessionObject* pSession = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[currentEvent.userId].m_sessionObject);
+					g_iocpNetwork.m_session[currentEvent.userId].SetInGameState();
 					pSession->SetName(wst_nickName);
 					SERVER_PACKET::LoginPacket sendPacket;
 					sendPacket.type = SERVER_PACKET::LOGIN_OK;
@@ -30,8 +32,10 @@ void DBObject::RunDBThread()
 					memcpy(sendPacket.name, wst_nickName.c_str(), wst_nickName.size() * 2);
 					sendPacket.name[wst_nickName.size()] = 0;
 					pSession->Send(&sendPacket);
+					
 				}
-				delete currentEvent.Data;
+				if (currentEvent.Data != nullptr)
+					delete currentEvent.Data;
 			}
 			break;
 			default:
@@ -109,13 +113,13 @@ bool DBObject::GetPlayerInfo(std::wstring PlayerLoginId, std::wstring pw, std::w
 		{
 			outputPlayerName.append(szName);
 			int fRes = outputPlayerName.find(32, 0);
-			outputPlayerName.erase(fRes);			
+			outputPlayerName.erase(fRes);
 		}
 		if (retcode == SQL_SUCCESS_WITH_INFO) {
 			outputPlayerName.append(szName);
 			print_error(m_henv, m_hdbc, m_hstmt);
 			int fRes = outputPlayerName.find(32, 0);
-			outputPlayerName.erase(fRes);			
+			outputPlayerName.erase(fRes);
 		}
 	}
 	if (retcode == SQL_ERROR) {
