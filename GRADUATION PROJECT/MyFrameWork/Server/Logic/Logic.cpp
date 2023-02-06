@@ -1,12 +1,13 @@
 #include "stdafx.h"
+#include <chrono>
 #include "Logic.h"
 #include "../Session/Session.h"
 #include "../Session/SessionObject/PlayerSessionObject.h"
 #include "../IOCPNetwork/IOCP/IOCPNetwork.h"
-#include <chrono>
+#include "../DB/DBObject.h"
 
-extern IOCPNetwork g_iocpNetwork;
-
+extern IOCPNetwork	g_iocpNetwork;
+extern DBObject		g_DBObj;
 Logic::Logic()
 {
 	m_isRunningThread = true;
@@ -92,6 +93,14 @@ void Logic::ProcessPacket(int userId, char* p)
 		}
 		else
 			MultiCastOtherPlayer(userId, &sendPacket);
+	}
+	break;
+	case CLIENT_PACKET::LOGIN:
+	{
+		CLIENT_PACKET::LoginPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::LoginPacket*>(p);
+		recvPacket->id;
+		recvPacket->pw;
+
 	}
 	break;
 	default:

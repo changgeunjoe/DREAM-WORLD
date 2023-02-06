@@ -52,8 +52,8 @@
     <ClCompile Include="Session\SessionObject\PlayerSessionObject.cpp">
       <Filter>Session\SessionObject</Filter>
     </ClCompile>
-    <ClCompile Include="DBObject.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="DB\DBObject.cpp">
+      <Filter>DB</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -81,6 +81,8 @@
     <ClInclude Include="Session\SessionObject\PlayerSessionObject.h">
       <Filter>Session\SessionObject</Filter>
     </ClInclude>
-    <ClInclude Include="DBObject.h" />
+    <ClInclude Include="DB\DBObject.h">
+      <Filter>DB</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -131,7 +131,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="DBObject.cpp" />
+    <ClCompile Include="DB\DBObject.cpp" />
     <ClCompile Include="IOCPNetwork\IOCP\IOCPNetwork.cpp" />
     <ClCompile Include="Logic\Logic.cpp" />
     <ClCompile Include="main.cpp" />
@@ -146,7 +146,7 @@
     <ClCompile Include="Session\SessionObject\SessionObject.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="DBObject.h" />
+    <ClInclude Include="DB\DBObject.h" />
     <ClInclude Include="IOCPNetwork\IOCP\IOCPNetwork.h" />
     <ClInclude Include="IOCPNetwork\protocol\protocol.h" />
     <ClInclude Include="Logic\Logic.h" />
