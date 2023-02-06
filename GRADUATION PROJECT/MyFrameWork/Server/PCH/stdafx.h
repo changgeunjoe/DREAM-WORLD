@@ -23,6 +23,20 @@
 #include <DirectXMath.h>
 
 
+enum DIRECTION : char
+{
+	IDLE = 0x00,
+	FRONT = 0x01,
+	RIGHT = 0x02,
+	LEFT = 0x04,
+	BACK = 0x08
+};
+
+enum ROTATE_AXIS :char
+{
+	X, Y, Z
+};
+
 using namespace DirectX;
 
 namespace Vector3
