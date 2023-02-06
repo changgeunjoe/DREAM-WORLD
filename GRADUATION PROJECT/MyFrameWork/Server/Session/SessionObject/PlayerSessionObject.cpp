@@ -31,6 +31,7 @@ void PlayerSessionObject::Recv()
 
 void PlayerSessionObject::Send(void* p)
 {
+
 	ExpOver* sendOverlap = new ExpOver(reinterpret_cast<char*>(p));
 	WSASend(m_socket, &sendOverlap->m_wsaBuf, 1, 0, 0, &sendOverlap->m_overlap, 0);
 }

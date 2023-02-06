@@ -2,8 +2,11 @@
 #include "IOCPNetwork.h"
 #include "../../Logic/Logic.h"
 #include "../../Session/SessionObject/PlayerSessionObject.h"
+#include "../../DB/DBObject.h"
 
-extern  Logic g_logic;
+extern  Logic		g_logic;
+extern	DBObject	g_DBObj;
+
 
 IOCPNetwork::IOCPNetwork()
 {

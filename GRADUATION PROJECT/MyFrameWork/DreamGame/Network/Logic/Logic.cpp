@@ -35,6 +35,13 @@ void clientNet::Logic::ProcessPacket(char* p)
 		//TODO - Other Player Stop Move
 	}
 	break;
+	case SERVER_PACKET::LOGIN_OK:
+	{
+		SERVER_PACKET::LoginPacket* recvPacket = reinterpret_cast<SERVER_PACKET::LoginPacket*>(p);
+		wstring wst_name = recvPacket->name;
+		std::wcout << "user Name: " << wst_name << std::endl;
+	}
+	break;
 	default:
 		break;
 	}

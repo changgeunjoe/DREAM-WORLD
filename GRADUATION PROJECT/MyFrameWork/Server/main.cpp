@@ -8,6 +8,7 @@ Logic		g_logic;
 DBObject	g_DBObj;
 int main()
 {
+	std::wcout.imbue(std::locale("KOREAN"));
 	g_iocpNetwork.Start();
 	g_iocpNetwork.Destroy();
 }

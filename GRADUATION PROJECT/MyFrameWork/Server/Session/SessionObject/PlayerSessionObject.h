@@ -9,7 +9,7 @@
 class PlayerSessionObject : public SessionObject
 {
 private:
-	char	m_playerID[NAME_SIZE];
+	std::wstring m_playerName;
 	short	m_level;
 	short	m_exp;
 	short	m_hp;
@@ -26,6 +26,11 @@ public:
 	PlayerSessionObject(Session* session, SOCKET& sock);
 	virtual	~PlayerSessionObject();
 
+public:
+	void SetName(std::wstring& inputWst)
+	{
+		m_playerName = inputWst;
+	}
 public:
 	void Recv();
 	void Send(void* p);

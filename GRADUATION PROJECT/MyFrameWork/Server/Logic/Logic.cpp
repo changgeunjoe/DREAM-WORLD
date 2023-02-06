@@ -98,12 +98,20 @@ void Logic::ProcessPacket(int userId, char* p)
 	case CLIENT_PACKET::LOGIN:
 	{
 		CLIENT_PACKET::LoginPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::LoginPacket*>(p);
-		recvPacket->id;
-		recvPacket->pw;
-
+		DB_STRUCT::PlayerInfo* pInfo = new DB_STRUCT::PlayerInfo;
+		std::string tempId = recvPacket->id;
+		pInfo->PlayerLoginId.assign(tempId.begin(), tempId.end());
+		std::string tempPw = recvPacket->pw;
+		pInfo->pw.assign(tempPw.begin(), tempPw.end());
+		DB_EVENT newEvent;
+		newEvent.op = DB_OP_GET_PLAYER_INFO;
+		newEvent.userId = userId;
+		newEvent.Data = pInfo;
+		g_DBObj.m_workQueue.push(newEvent);
 	}
 	break;
 	default:
+		std::cout << "unknown Packet" << std::endl;
 		break;
 	}
 }

@@ -8,6 +8,7 @@
 #include <MSWSock.h>
 
 #include <Windows.h>
+#include <wchar.h>
 
 #include <chrono>
 

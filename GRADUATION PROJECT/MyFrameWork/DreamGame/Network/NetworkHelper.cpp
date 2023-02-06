@@ -25,7 +25,7 @@ NetworkHelper::NetworkHelper()
 NetworkHelper::~NetworkHelper()
 {
 	Destroy();
-	closesocket(m_clientSocket);	
+	closesocket(m_clientSocket);
 }
 
 bool NetworkHelper::TryConnect()
@@ -124,5 +124,17 @@ void NetworkHelper::SendKeyUpPacket(DIRECTION d)
 	sendPacket.direction = d;
 	sendPacket.type = CLIENT_PACKET::MOVE_KEY_UP;
 	sendPacket.size = sizeof(CLIENT_PACKET::MovePacket);
+	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
+}
+
+void NetworkHelper::SendLoginData(char* loginId, char* pw)
+{
+	CLIENT_PACKET::LoginPacket sendPacket;
+	sendPacket.type = CLIENT_PACKET::LOGIN;
+	sendPacket.size = sizeof(sendPacket);
+	ZeroMemory(sendPacket.id, 0);
+	ZeroMemory(sendPacket.pw, 0);
+	memcpy(sendPacket.id, loginId, strlen(loginId) + 1);
+	memcpy(sendPacket.pw, pw, strlen(pw) + 1);
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }

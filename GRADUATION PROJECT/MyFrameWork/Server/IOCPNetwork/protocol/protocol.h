@@ -51,6 +51,7 @@ namespace CLIENT_PACKET {
 		char pw[NAME_SIZE];
 	};
 }
+
 namespace SERVER_PACKET {
 	constexpr unsigned char MOVE_KEY_DOWN = 65;
 	constexpr unsigned char MOVE_KEY_UP = 66;
@@ -85,7 +86,7 @@ namespace SERVER_PACKET {
 		char size;
 		char type;
 		int  userID;
-		char name[NAME_SIZE];
+		wchar_t name[NAME_SIZE];
 	};
 }
 

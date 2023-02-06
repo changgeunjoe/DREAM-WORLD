@@ -8,6 +8,8 @@ public:
 	~Session() {}
 public:
 	int m_id = -1;
+private:
+	std::wstring name;
 public:
 	GameObject* m_currentPlayGameObject = nullptr;
 public:
@@ -19,5 +21,6 @@ public:
 	{
 		m_currentPlayGameObject = nullptr;
 	}
-
+	void SetName(wstring& n) { name = n; }
+	const wstring getName() { return name; }
 };
