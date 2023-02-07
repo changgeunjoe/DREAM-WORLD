@@ -1,13 +1,19 @@
 #include "stdafx.h"
 #include "Logic.h"
 #include "../../../Server/IOCPNetwork/protocol/protocol.h"
+#include "../../GameFramework.h"
+#include "../../Scene.h"
+#include "../../GameobjectManager.h"
 
-clientNet::Logic::Logic()
+extern CGameFramework gGameFramework;
+
+
+Logic::Logic()
 {
 	m_KeyInput = new CKeyInput();
 }
 
-void clientNet::Logic::ProcessPacket(char* p)
+void Logic::ProcessPacket(char* p)
 {
 	switch (p[1])
 	{
@@ -57,6 +63,14 @@ void clientNet::Logic::ProcessPacket(char* p)
 			if (-1 == pSession.m_id) {
 				pSession.m_id = recvPacket->userId;
 				pSession.SetName(recvPacket->name);
+				gGameFramework.m_pScene->m_pObjectManager->SetPlayCharacter(&pSession);
+				//gGameFramework.m_pScene->m_pObjectManager->SetPlayCharacter(&pSession);
+				//
+				//얘는 전사다. -> 전사 오브젝트 연결
+				// logic 클래스에는 gameObjMan -> 오브젝트 연결이 안됨
+				//오브젝트 연결
+				//오브젝트 메니져 -> 게임 오브젝트를 넣어줘야됨 포인터
+				break;
 			}
 		}
 	}

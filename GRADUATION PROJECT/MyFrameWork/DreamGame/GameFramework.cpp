@@ -1,8 +1,7 @@
 #include "stdafx.h"
 #include "GameFramework.h"
 #include"stdafx.h"
-
-
+#include"Camera.h"
 
 CGameFramework::CGameFramework()
 {

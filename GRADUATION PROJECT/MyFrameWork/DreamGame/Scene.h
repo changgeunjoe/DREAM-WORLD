@@ -2,8 +2,10 @@
 #include"stdafx.h"
 #include"Timer.h"
 #include"Shader.h"
-#include"GameobjectManager.h"
+#include "Network/Logic/Logic.h"
 
+
+class GameobjectManager;
 struct RootSignatureDesc
 {
 	D3D12_ROOT_SIGNATURE_FLAGS RootSignatureFlags =
@@ -57,9 +59,7 @@ protected:
 	// ID3D12PipelineState *m_pd3dPipelineState = NULL;
 	////파이프라인 상태를 나타내는 인터페이스 포인터이다.
 
-
-
-
+	friend class Logic;
 };
 
 

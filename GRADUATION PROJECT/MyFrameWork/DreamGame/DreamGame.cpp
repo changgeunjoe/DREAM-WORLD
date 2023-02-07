@@ -18,7 +18,7 @@
 
 CGameFramework gGameFramework;
 NetworkHelper g_NetworkHelper;
-clientNet::Logic g_Logic;
+Logic g_Logic;
 
 
 #define MAX_LOADSTRING 100

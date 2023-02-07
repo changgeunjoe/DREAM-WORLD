@@ -3,7 +3,7 @@
 #include "Logic/Logic.h"
 #include "NetworkHelper.h"
 
-extern clientNet::Logic g_Logic;
+extern Logic g_Logic;
 
 NetworkHelper::NetworkHelper()
 {

@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "Scene.h"
+#include"GameobjectManager.h"
+
 CScene::CScene()
 {
 
