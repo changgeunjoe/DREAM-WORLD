@@ -119,18 +119,20 @@ void MaterialComponent::PrepareShaders(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);// 삭제 예정(변경)
 	m_pStandardShader = new ShaderComponent();
 	m_pStandardShader->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
-	m_pStandardShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 10, 20);
+	m_pStandardShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 20);
 	m_pStandardShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	m_pStandardShader->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObjects, ncbElementBytes);
 	m_pStandardShader->SetCbvGPUDescriptorHandlePtr(m_pStandardShader->GetGPUCbvDescriptorStartHandle().ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));
-	
+	m_pStandardShader->SetName("Standard");
 	m_pSkinnedAnimationShader = new ShaderComponent();
 	m_pSkinnedAnimationShader->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
 	m_pSkinnedAnimationShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 10, 20);
 	m_pSkinnedAnimationShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	m_pSkinnedAnimationShader->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObjects, ncbElementBytes);
-	m_pSkinnedAnimationShader->SetCbvGPUDescriptorHandlePtr(m_pStandardShader->GetGPUCbvDescriptorStartHandle().ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));
+	m_pSkinnedAnimationShader->SetCbvGPUDescriptorHandlePtr(m_pSkinnedAnimationShader->GetGPUCbvDescriptorStartHandle().ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));
+	m_pSkinnedAnimationShader->SetName("Standard");
 	//m_pStandardShader->CreateShaderResourceViews(pd3dDevice, *m_ppTextures, 0, 3, pShadowMap);//texture입력
 	//SetCbvGPUDescriptorHandle(PShaderComponent->GetCbvGPUDescriptorHandle());
 	//SetCbvGPUStandardDescriptorHandlePtr(m_pStandardShader->GetGPUCbvDescriptorStartHandle().ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));
+	
 }	

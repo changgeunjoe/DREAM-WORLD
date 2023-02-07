@@ -13,6 +13,7 @@ private:
 	int									m_nReferences = 0;
 
 protected:
+	string							ShaderName;
 	bool							m_bActive = true;
 protected:
 	ID3DBlob* m_pd3dVertexShaderBlob = NULL;//¡§¡° Ω¶¿Ã¥ı 
@@ -51,6 +52,7 @@ public:
 
 	void SetActive(bool bActive) { m_bActive = bActive; }
 	bool GetActive() { return m_bActive; };
+	void SetName(string name);
 ;
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout(int nPipelineState);

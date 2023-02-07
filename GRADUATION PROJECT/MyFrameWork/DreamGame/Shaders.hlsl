@@ -82,9 +82,9 @@ SamplerComparisonState gClampSamplerState : register(s1);
 struct VS_INPUT
 {
     float3 position : POSITION;
-    float3 normal : NORMAL;
-    float2 uv : TEXCOORD;
 
+    float2 uv : TEXCOORD;
+    float3 normal : NORMAL;
 };
 //#define _WITH_VERTEX_LIGHTING
 struct VS_OUTPUT
@@ -111,6 +111,7 @@ VS_OUTPUT VSDiffused(VS_INPUT input)
 	output.color = float4(0.5f * normalize(gvCameraPosition - output.positionW) + 0.5f, 1.0f);
 #else
     output.normalW = normalW;
+    output.uv = input.uv;
 #endif
 
     return (output);
@@ -127,7 +128,8 @@ float4 PSDiffused(VS_OUTPUT input) : SV_TARGET
    // float4 cIllumination = Lighting(input.positionW, normalW);
    // return (cIllumination);
     //return (gMaterial.m_cAmbient);
-    return (float4(normalW, 1.0f));
+    float4 cColor = shaderTexture.Sample(gWrapSamplerState, input.uv);
+    return (cColor);
 
 #endif
 

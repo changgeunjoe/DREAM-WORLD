@@ -148,6 +148,7 @@
     <ClInclude Include="DepthRenderShaderComponent.h" />
     <ClInclude Include="ShadowMapShaderComponent.h" />
     <ClInclude Include="SkinnedMeshComponent.h" />
+    <ClInclude Include="SkinnedShaderComponent.h" />
     <ClInclude Include="StandardShaderComponent.h" />
     <ClInclude Include="TextureComponent.h" />
     <ClInclude Include="DDSTextureLoader12.h" />
@@ -176,6 +177,7 @@
     <ClCompile Include="DepthRenderShaderComponent.cpp" />
     <ClCompile Include="ShadowMapShaderComponent.cpp" />
     <ClCompile Include="SkinnedMeshComponent.cpp" />
+    <ClCompile Include="SkinnedShaderComponent.cpp" />
     <ClCompile Include="StandardShaderComponent.cpp" />
     <ClCompile Include="TextureComponent.cpp" />
     <ClCompile Include="DDSTextureLoader12.cpp" />

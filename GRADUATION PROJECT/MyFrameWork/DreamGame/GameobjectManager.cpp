@@ -33,9 +33,9 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 
 	UpdateShaderVariables(pd3dCommandList);
 
-	//m_pSqureObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//m_pSqure2Object->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-//	m_pPlaneObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pSqureObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//player1 //È­¸é¿¡ º¸ÀÌ´Â°Çµ¥
+	m_pSqure2Object->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//player2 
+	//m_pPlaneObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pMonsterObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
 
@@ -58,6 +58,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pSqure2Object->InsertComponent<TextureComponent>();
 	m_pSqure2Object->SetTexture(L"Image/stones.dds");
 	m_pSqure2Object->SetPosition(XMFLOAT3(100, 0, 50));
+	m_pSqure2Object->SetScale(0.5,0.5,1);
 	m_pSqure2Object->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pPlaneObject=new GameObject(PlANE_ENTITY);
 	m_pPlaneObject->InsertComponent<RenderComponent>();
@@ -66,7 +67,8 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPlaneObject->InsertComponent<TextureComponent>();
 	m_pPlaneObject->SetTexture(L"Image/stones.dds");
 	m_pPlaneObject->SetPosition(XMFLOAT3(0, -10, 50));
-	m_pPlaneObject->SetScale(10.f, 0.2f, 10.f);
+	m_pPlaneObject->SetScale(0.1, 0.1, 1);
+	//m_pPlaneObject->SetScale(10.f, 0.2f, 10.f);
 	m_pPlaneObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pMonsterObject = new GameObject(UNDEF_ENTITY);
 	//m_pMonsterObject->InsertComponent<ShaderComponent>();
@@ -74,7 +76,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pMonsterObject->InsertComponent<TextureComponent>();
 	m_pMonsterObject->SetTexture(L"Image/stones.dds");
 	m_pMonsterObject->InsertComponent<CLoadedModelInfoCompnent>();
-	m_pMonsterObject->SetPosition(XMFLOAT3(0, -10, 50));
+	m_pMonsterObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pMonsterObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//CLoadedModelInfoCompnent* pMonsterModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Monster.bin", shader,NULL);
 }
@@ -101,12 +103,12 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 	case WM_KEYDOWN:
 		switch (wParam)
 		{
-		case 'W': m_pSqureObject->MoveForward(+1.0f); break;//Æ½´ÜÀ§·Î ¹Ù²ãÁà¶ó
-		case 'S': m_pSqureObject->MoveForward(-1.0f); break;
-		case 'A': m_pSqureObject->MoveStrafe(-1.0f); break;
-		case 'D': m_pSqureObject->MoveStrafe(+1.0f); break;
-		case 'Q': m_pSqureObject->MoveUp(+1.0f); break;
-		case 'E': m_pSqureObject->MoveUp(-1.0f); break;
+		case 'W': m_pMonsterObject->MoveForward(+1.0f); break;//Æ½´ÜÀ§·Î ¹Ù²ãÁà¶ó
+		case 'S': m_pMonsterObject->MoveForward(-1.0f); break;
+		case 'A': m_pMonsterObject->MoveStrafe(-1.0f); break;
+		case 'D': m_pMonsterObject->MoveStrafe(+1.0f); break;
+		case 'Q': m_pMonsterObject->MoveUp(+1.0f); break;
+		case 'E': m_pMonsterObject->MoveUp(-1.0f); break;
 		case VK_CONTROL:
 			break;
 		case VK_F1:

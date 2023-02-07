@@ -20,6 +20,8 @@ public:
 	virtual void ReleaseShaderVariables();
 
 	virtual bool onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
+
+
 private: //active object 
 	GameObject**	pGameObjects = NULL;
 	GameObject*		m_pGameObject = NULL;

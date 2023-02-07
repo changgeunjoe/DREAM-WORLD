@@ -16,9 +16,8 @@ D3D12_INPUT_LAYOUT_DESC ShaderComponent::CreateInputLayout(int nPipelineState)
 	D3D12_INPUT_ELEMENT_DESC* pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
 
 	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-
-	pd3dInputElementDescs[2] = { "NORMAL", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-	pd3dInputElementDescs[1] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[1] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[2] = { "NORMAL", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 20, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 
 	D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
 	d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
@@ -117,6 +116,11 @@ D3D12_SHADER_BYTECODE ShaderComponent::CreateGeometryShader(int nPipelineState)
 D3D12_SHADER_BYTECODE ShaderComponent::CreateHullShader(int nPipelineState)
 {
 	return D3D12_SHADER_BYTECODE();
+}
+
+void ShaderComponent::SetName(string name)
+{
+	ShaderName = name;
 }
 
 D3D12_SHADER_BYTECODE ShaderComponent::CreateDomainShader(int nPipelineState)
@@ -254,16 +258,19 @@ void ShaderComponent::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dComma
 		m_material.m_xmf4Diffuse = ppMaterialsComponent->m_xmf4AlbedoColor;
 		m_material.m_xmf4Emissive = ppMaterialsComponent->m_xmf4EmissiveColor;
 		m_material.m_xmf4Specular = ppMaterialsComponent->m_xmf4SpecularColor;
+		::memcpy(&m_pcbMappedGameObjects->m_material, &m_material, sizeof(MATERIAL));//메테리얼을 업데이트 해준다.
+		::memcpy(&m_pcbMappedGameObjects->m_nType, &ppMaterialsComponent->m_nType, sizeof(UINT));//타입을 업데이트 해준다.
 	}
 
 	XMStoreFloat4x4(&m_pcbMappedGameObjects->m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(pxmf4x4World)));//오브젝트의 월드좌표계를 변환시켜준다.
-	::memcpy(&m_pcbMappedGameObjects->m_material, &m_material, sizeof(MATERIAL));//메테리얼을 업데이트 해준다.
-	::memcpy(&m_pcbMappedGameObjects->m_nType, &ppMaterialsComponent->m_nType, sizeof(UINT));//타입을 업데이트 해준다.
+	
+	if (ppMaterialsComponent) {
 
-	for (int i = 0; i < ppMaterialsComponent->m_nTextures; i++)
-	{
-		if (ppMaterialsComponent->m_ppTextures[i])
-			ppMaterialsComponent->m_ppTextures[i]->UpdateShaderVariables(pd3dCommandList);
+		for (int i = 0; i < ppMaterialsComponent->m_nTextures; i++)
+		{
+			if (ppMaterialsComponent->m_ppTextures[i])
+				ppMaterialsComponent->m_ppTextures[i]->UpdateShaderVariables(pd3dCommandList);
+		}
 	}
 }
 
@@ -323,7 +330,7 @@ void ShaderComponent::CreateConstantBufferViews(ID3D12Device* pd3dDevice, int nC
 		d3dCbvCPUDescriptorHandle.ptr = m_d3dCbvCPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * j);
 		pd3dDevice->CreateConstantBufferView(&d3dCBVDesc, d3dCbvCPUDescriptorHandle);
 	}
-}
+}	
 
 void ShaderComponent::CreateShaderResourceViews(ID3D12Device* pd3dDevice, TextureComponent* pTexture, UINT nDescriptorHeapIndex, UINT nRootParameterStartIndex)
 {

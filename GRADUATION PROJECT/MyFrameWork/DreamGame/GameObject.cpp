@@ -29,6 +29,7 @@ GameObject::GameObject(entity_id entityID)
 {
     m_entityID = entityID;
 	m_xmf4x4World = Matrix4x4::Identity();
+	m_xmf4x4ToParent = Matrix4x4::Identity();
 }
 
 GameObject::~GameObject()
@@ -172,11 +173,11 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	{
 		m_pShaderComponent = static_cast<ShaderComponent*>(pShaderComponent);
 		m_pShaderComponent->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
-		m_pShaderComponent->CreateCbvSrvDescriptorHeaps(pd3dDevice, 1, 1);
+		m_pShaderComponent->CreateCbvSrvDescriptorHeaps(pd3dDevice, 2, 2);
 		m_pShaderComponent->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 		m_pShaderComponent->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObjects, ncbElementBytes);
 		m_pShaderComponent->CreateShaderResourceViews(pd3dDevice, m_pTextureComponent, 0, 3, pShadowMap);//texture입력
-		SetCbvGPUDescriptorHandlePtr(m_pShaderComponent->GetGPUCbvDescriptorStartHandle().ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));
+		m_pShaderComponent->SetCbvGPUDescriptorHandlePtr(m_pShaderComponent->GetGPUCbvDescriptorStartHandle().ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));
 	}
 	ComponentBase* pLoadedmodelComponent = GetComponent(component_id::LOADEDMODEL_COMPONET);
 	if (pLoadedmodelComponent != NULL)
@@ -192,20 +193,20 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 }
 void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	UpdateTransform(NULL);
+	//UpdateTransform(&m_xmf4x4ToParent);
 	if (m_pShaderComponent != NULL)
 	{
 		m_pShaderComponent->Render(pd3dCommandList,0, pd3dGraphicsRootSignature);
 		m_pShaderComponent->UpdateShaderVariables(pd3dCommandList, &m_xmf4x4World,NULL);
-		pd3dCommandList->SetGraphicsRootDescriptorTable(0, m_d3dCbvGPUDescriptorHandle);
+		pd3dCommandList->SetGraphicsRootDescriptorTable(0, m_pShaderComponent->GetCbvGPUDescriptorHandle());
 		if (m_pTextureComponent != NULL) 
 		{
 			m_pTextureComponent->UpdateShaderVariables(pd3dCommandList);
 		}
 	}
-	if (m_pRenderComponent != NULL&& m_pMeshComponent !=NULL&&m_pLoadedModelComponent==NULL)
+	if (m_pRenderComponent != NULL&& m_pMeshComponent !=NULL&& m_ppMaterialsComponent ==NULL&& m_pLoadedModelComponent==NULL)
 	{
-	//	m_pRenderComponent->Render(pd3dCommandList, m_pMeshComponent, 0);//수정필요
+		m_pRenderComponent->Render(pd3dCommandList, m_pMeshComponent, 0);//수정필요
 	}
 
 	if (m_nMaterials > 0) 
@@ -681,6 +682,7 @@ void GameObject::Rotate(XMFLOAT4* pxmf4Quaternion)
 
 void GameObject::UpdateTransform(XMFLOAT4X4* pxmf4x4Parent)
 {
+	m_xmf4x4World = Matrix4x4::Identity();
 	m_xmf4x4World = (pxmf4x4Parent) ? Matrix4x4::Multiply(m_xmf4x4ToParent, *pxmf4x4Parent) : m_xmf4x4ToParent;
 
 	if (m_pSibling) m_pSibling->UpdateTransform(pxmf4x4Parent);

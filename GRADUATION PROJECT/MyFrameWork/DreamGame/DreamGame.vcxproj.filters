@@ -129,6 +129,9 @@
     <ClInclude Include="MaterialComponent.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
+    <ClInclude Include="SkinnedShaderComponent.h">
+      <Filter>소스 파일\헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -202,6 +205,9 @@
     </ClCompile>
     <ClCompile Include="StandardShaderComponent.cpp">
       <Filter>소스 파일\ShaderComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="SkinnedShaderComponent.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
