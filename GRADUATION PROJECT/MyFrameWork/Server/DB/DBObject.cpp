@@ -44,12 +44,6 @@ void DBObject::RunDBThread()
 		}
 
 	}
-
-	// Process data
-	SQLCancel(m_hstmt);///종료
-	SQLFreeHandle(SQL_HANDLE_STMT, m_hstmt);//리소스 해제
-	//disconnet
-	SQLDisconnect(m_hdbc);
 }
 
 void DBObject::Destroy()
@@ -95,12 +89,12 @@ bool DBObject::GetPlayerInfo(std::wstring PlayerLoginId, std::wstring pw, std::w
 	SQLWCHAR szName[NAME_SIZE + 1] = { 0 };
 	SQLLEN cbName = 0;
 
-	std::wstring oper = L"EXEC GET_PLAYER_INFO ";
-	oper.append(PlayerLoginId);
-	oper.append(L", ");
-	oper.append(pw);
-	oper.append(L"\0");
-	retcode = SQLExecDirect(m_hstmt, (SQLWCHAR*)oper.c_str(), SQL_NTS);
+	std::wstring storeProcedure = L"EXEC GET_PLAYER_INFO ";
+	storeProcedure.append(PlayerLoginId);
+	storeProcedure.append(L", ");
+	storeProcedure.append(pw);
+	storeProcedure.append(L"\0");
+	retcode = SQLExecDirect(m_hstmt, (SQLWCHAR*)storeProcedure.c_str(), SQL_NTS);
 	if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
 		retcode = SQLBindCol(m_hstmt, 1, SQL_C_WCHAR, szName, NAME_SIZE * 2 + 2, &cbName);
 

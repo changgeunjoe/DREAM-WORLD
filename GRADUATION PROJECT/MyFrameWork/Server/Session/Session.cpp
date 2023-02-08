@@ -18,7 +18,6 @@ Session::~Session()
 
 void Session::Initialize()
 {
-	m_prevPacket = 0;
 	m_playerState = PLAYER_STATE::FREE;
 	m_sessionObject = nullptr;
 }

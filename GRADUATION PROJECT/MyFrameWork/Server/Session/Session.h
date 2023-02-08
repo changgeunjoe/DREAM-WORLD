@@ -18,7 +18,6 @@ class Session
 {
 private:
 	std::mutex			m_playerStateLock;
-	int					m_prevPacket;
 	int					m_id;
 	PLAYER_STATE		m_playerState;
 
