@@ -37,6 +37,20 @@ GameobjectManager::~GameobjectManager()
 
 void GameobjectManager::Animate(float fTimeElapsed)
 {
+
+	if (g_Logic.m_KeyInput->m_bQKey)
+	{
+		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetUp(), -12.0f * fTimeElapsed);
+		g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y -= 12.0f * fTimeElapsed;
+		g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::Y, -12.0f * fTimeElapsed);
+	}
+	if (g_Logic.m_KeyInput->m_bEKey)
+	{
+		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetUp(), 12.0f * fTimeElapsed);
+		g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += 12.0f * fTimeElapsed;
+		g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::Y, 12.0f * fTimeElapsed);
+	}
+
 	for (auto& session : g_Logic.m_inGamePlayerSession) {
 		if (-1 != session.m_id && session.m_isVisible) {
 			if (DIRECTION::FRONT == (session.m_currentDirection & DIRECTION::FRONT)) {
@@ -262,7 +276,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 				if (g_Logic.m_KeyInput->IsAllMovekeyUp()) {
 					cout << "send Stop Packet" << endl;
 					g_Logic.m_inGamePlayerSession[0].m_currentDirection = DIRECTION::IDLE;
-					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition(), g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetLook()); // XMFLOAT3 postion, XMFOAT3 Rotate			
+					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition(), g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate			
 				}
 				else g_NetworkHelper.SendKeyUpPacket(DIRECTION::BACK);
 			}
@@ -276,7 +290,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 				if (g_Logic.m_KeyInput->IsAllMovekeyUp()) {
 					cout << "send Stop Packet" << endl;
 					g_Logic.m_inGamePlayerSession[0].m_currentDirection = DIRECTION::IDLE;
-					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition(), g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetLook()); // XMFLOAT3 postion, XMFOAT3 Rotate
+					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition(), g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate
 				}
 				else g_NetworkHelper.SendKeyUpPacket(DIRECTION::RIGHT);
 			}

@@ -1,10 +1,12 @@
 #include "stdafx.h"
+#include <mutex>
 #include "DBObject.h"
 #include "../IOCPNetwork/IOCP/IOCPNetwork.h"
 #include "../Session/SessionObject/PlayerSessionObject.h"
-#include <mutex>
+#include "../Logic/Logic.h"
 
-extern IOCPNetwork g_iocpNetwork;
+extern IOCPNetwork	g_iocpNetwork;
+extern Logic		g_logic;
 
 void DBObject::RunDBThread()
 {
@@ -32,7 +34,30 @@ void DBObject::RunDBThread()
 					memcpy(sendPacket.name, wst_nickName.c_str(), wst_nickName.size() * 2);
 					sendPacket.name[wst_nickName.size()] = 0;
 					pSession->Send(&sendPacket);
-					
+
+					SERVER_PACKET::AddPlayerPacket myInfoPacket;
+					memcpy(myInfoPacket.name, wst_nickName.c_str(), wst_nickName.size() * 2);
+					myInfoPacket.name[wst_nickName.size()] = 0;
+					myInfoPacket.userId = currentEvent.userId;
+					myInfoPacket.position = pSession->GetPosition();
+					myInfoPacket.rotate = pSession->GetRotation();
+					myInfoPacket.type = SERVER_PACKET::ADD_PLAYER;
+					myInfoPacket.size = sizeof(SERVER_PACKET::AddPlayerPacket);
+					std::cout << "AddPlayer ID: " << myInfoPacket.userId << std::endl;
+					std::cout << "Position: " << myInfoPacket.position.x << ", " << myInfoPacket.position.y << ", " << myInfoPacket.position.z << std::endl;
+					std::cout << "Rotate: " << myInfoPacket.rotate.x << ", " << myInfoPacket.rotate.y << ", " << myInfoPacket.rotate.z << std::endl;
+					g_logic.MultiCastOtherPlayer(myInfoPacket.userId, &myInfoPacket);
+
+					for (auto& session : g_iocpNetwork.m_session) {
+						if (currentEvent.userId == session.GetId() || session.GetId() == -1)
+							continue;
+						PlayerSessionObject* otherSession = dynamic_cast<PlayerSessionObject*>(session.m_sessionObject);
+						SERVER_PACKET::AddPlayerPacket* otherPlayerDataPacket = reinterpret_cast<SERVER_PACKET::AddPlayerPacket*>(otherSession->GetPlayerInfo());
+						//char* otherPlayerDataPacket = otherSession->GetPlayerInfo();
+						pSession->Send(otherPlayerDataPacket);
+						delete otherPlayerDataPacket;
+					}
+
 				}
 				if (currentEvent.Data != nullptr)
 					delete currentEvent.Data;

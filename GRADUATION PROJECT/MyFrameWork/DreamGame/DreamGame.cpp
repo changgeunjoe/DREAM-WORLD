@@ -20,6 +20,8 @@ CGameFramework gGameFramework;
 NetworkHelper g_NetworkHelper;
 Logic g_Logic;
 
+HWND g_wnd;
+int g_cmd;
 
 #define MAX_LOADSTRING 100
 
@@ -46,7 +48,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	while (!g_NetworkHelper.TryConnect());
 	g_NetworkHelper.Start();
-	DialogBox(hInstance, MAKEINTRESOURCE(IDD_LogIn), NULL, IPProc);
 	LPCTSTR lpszClass = _T("Dream World");
 	// 전역 문자열을 초기화합니다.
 	LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
@@ -59,12 +60,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	{
 		return FALSE;
 	}
+	DialogBox(hInstance, MAKEINTRESOURCE(IDD_LogIn), NULL, IPProc);
 
 	HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_DREAMGAME));
 
 
 	MSG msg;
-	
+
 	// 기본 메시지 루프입니다:
 	//다. GetMessage() API 함수가 FALSE를 반환하는 경우는 메시지 큐에서 가져온 메시지가 WM_QUIT 메시지일 때이다.WM_QUIT 메시지는 응용 프로그램을 종료하는 경우에 발생한다.다른 메시지의 경우에는
 	//TRUE를 반환한다.그러므로 다음의 메시지 루프는 WM_QUIT 메시지를 처리할 때까지 계속
@@ -155,8 +157,10 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)//주 윈도우를 생성하
 	}
 	gGameFramework.onCreate(hInstance, hMainWnd);
 
-	ShowWindow(hMainWnd, nCmdShow);
-	UpdateWindow(hMainWnd);
+	g_wnd = hMainWnd;
+	g_cmd = nCmdShow;
+	/*ShowWindow(hMainWnd, nCmdShow);
+	UpdateWindow(hMainWnd);*/
 
 #ifdef _WITH_SWAPCHAIN_FULLSCREEN_STATE
 	gGameFramework.ChangeSwapChainState();
@@ -210,7 +214,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 	case WM_COMMAND:
 		if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
-		{
+		{			
 			EndDialog(hDlg, LOWORD(wParam));
 			return (INT_PTR)TRUE;
 		}
@@ -246,6 +250,8 @@ INT_PTR CALLBACK IPProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			g_NetworkHelper.SendLoginData(userID, userPW);
 			cout << "ID : " << userID << endl;
 			cout << "PW : " << userPW << endl;
+			ShowWindow(g_wnd, g_cmd);
+			UpdateWindow(g_wnd);
 			EndDialog(hDlg, IDCANCEL);
 		}
 		case IDCANCEL: // X버튼 누르면 끄는 작업.

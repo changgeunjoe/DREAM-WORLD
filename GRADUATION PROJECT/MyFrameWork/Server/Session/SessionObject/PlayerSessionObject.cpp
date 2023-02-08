@@ -3,6 +3,7 @@
 #include "../Session.h"
 #include "../../Logic/Logic.h"
 
+
 extern  Logic g_logic;
 
 PlayerSessionObject::PlayerSessionObject(Session* session, SOCKET& sock) : SessionObject(session), m_socket(sock)
@@ -120,6 +121,7 @@ void PlayerSessionObject::AutoMove()
 	}
 	m_lastMoveTime = currentTime;
 	std::cout << "current Position " << m_position.x << " " << m_position.y << " " << m_position.z << std::endl;
+	std::cout << "rotate angle" << m_rotateAngle.x << " " << m_rotateAngle.y << " " << m_rotateAngle.z << std::endl;
 }
 
 void PlayerSessionObject::StartMove(DIRECTION d)
@@ -173,6 +175,7 @@ void PlayerSessionObject::Rotate(ROTATE_AXIS axis, float angle)
 		break;
 	}
 	std::cout << "current direction " << m_directionVector.x << " " << m_directionVector.y << " " << m_directionVector.z << std::endl;
+	std::cout << "rotate angle" << m_rotateAngle.x << " " << m_rotateAngle.y << " " << m_rotateAngle.z << std::endl;
 }
 
 const DirectX::XMFLOAT3 PlayerSessionObject::GetPosition()
@@ -183,4 +186,17 @@ const DirectX::XMFLOAT3 PlayerSessionObject::GetPosition()
 const DirectX::XMFLOAT3 PlayerSessionObject::GetRotation()
 {
 	return m_rotateAngle;
+}
+
+char* PlayerSessionObject::GetPlayerInfo()
+{
+	SERVER_PACKET::AddPlayerPacket* playerInfo = new SERVER_PACKET::AddPlayerPacket;
+	playerInfo->userId = m_session->GetId();
+	memcpy(playerInfo->name, m_playerName.c_str(), m_playerName.size() * 2);
+	playerInfo->position = m_position;
+	playerInfo->rotate = m_rotateAngle;
+	playerInfo->name[m_playerName.size()] = 0;
+	playerInfo->type = SERVER_PACKET::ADD_PLAYER;
+	playerInfo->size = sizeof(SERVER_PACKET::AddPlayerPacket);
+	return reinterpret_cast<char*>(playerInfo);
 }

@@ -41,5 +41,6 @@ public:
 	}
 	const int GetId() { return m_id; }
 	const PLAYER_STATE GetPlayerState() { return m_playerState; };
+	friend class SessionObject;
 };
 

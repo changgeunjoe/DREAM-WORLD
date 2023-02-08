@@ -12,6 +12,8 @@ public:
 public:
 	bool m_isVisible = false;
 	DIRECTION m_currentDirection = DIRECTION::IDLE;
+public:
+	XMFLOAT3 m_rotateAngle = XMFLOAT3(0, 0, 0);
 private:
 	std::wstring name;
 public:

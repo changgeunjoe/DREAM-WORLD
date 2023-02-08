@@ -81,7 +81,7 @@ void Logic::ProcessPacket(int userId, char* p)
 
 		SERVER_PACKET::StopPacket sendPacket;
 		sendPacket.userId = userId;
-		sendPacket.type = SERVER_PACKET::ROTATE;
+		sendPacket.type = SERVER_PACKET::STOP;
 		sendPacket.size = sizeof(SERVER_PACKET::StopPacket);
 		sendPacket.position = recvPacket->position;
 		sendPacket.rotate = recvPacket->rotate;
