@@ -18,18 +18,17 @@ public:
 	}
 };
 
-namespace clientNet {
-	class Logic
-	{
-	public:
-		std::array<clientNet::Session, 4> m_inGamePlayerSession;
-		int myId = 0;
-	public:
-		CKeyInput* m_KeyInput;
-	public:
-		Logic();
-		~Logic() {}
-	public:
-		void ProcessPacket(char* p);
-	};
-}
+class Logic
+{
+public:
+	std::array<Session, 4> m_inGamePlayerSession;
+	int myId = 0;
+public:
+	CKeyInput* m_KeyInput;
+public:
+	Logic();
+	~Logic() {}
+public:
+	void ProcessPacket(char* p);
+	friend class CGameFramework;
+};

@@ -4,7 +4,7 @@
 #include "Network/Logic/Logic.h"
 
 extern NetworkHelper g_NetworkHelper;
-extern clientNet::Logic g_Logic;
+extern Logic g_Logic;
 
 
 template<typename S>
@@ -71,8 +71,6 @@ void GameobjectManager::Animate(float fTimeElapsed)
 			}
 		}
 	}
-	cout << "elapsed Time: " << fTimeElapsed << endl;
-
 }
 
 void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -236,7 +234,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 				if (g_Logic.m_KeyInput->IsAllMovekeyUp()) {
 					cout << "send Stop Packet" << endl;
 					g_Logic.m_inGamePlayerSession[0].m_currentDirection = DIRECTION::IDLE;
-					//g_NetworkHelper.SendStopPacket(m_pSqureObject->GetPosition(), m_pSqureObject->GetLook()); // XMFLOAT3 postion, XMFOAT3 Rotate				
+					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition(), g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetLook()); // XMFLOAT3 postion, XMFOAT3 Rotate				
 				}
 				else g_NetworkHelper.SendKeyUpPacket(DIRECTION::FRONT);
 			}
@@ -250,7 +248,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 				if (g_Logic.m_KeyInput->IsAllMovekeyUp()) {
 					cout << "send Stop Packet" << endl;
 					g_Logic.m_inGamePlayerSession[0].m_currentDirection = DIRECTION::IDLE;
-					//g_NetworkHelper.SendStopPacket(m_pSqureObject->GetPosition(), m_pSqureObject->GetLook()); // XMFLOAT3 postion, XMFOAT3 Rotate
+					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition(), g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetLook()); // XMFLOAT3 postion, XMFOAT3 Rotate
 				}
 				else g_NetworkHelper.SendKeyUpPacket(DIRECTION::LEFT);
 			}
@@ -264,7 +262,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 				if (g_Logic.m_KeyInput->IsAllMovekeyUp()) {
 					cout << "send Stop Packet" << endl;
 					g_Logic.m_inGamePlayerSession[0].m_currentDirection = DIRECTION::IDLE;
-					//g_NetworkHelper.SendStopPacket(m_pSqureObject->GetPosition(), m_pSqureObject->GetLook()); // XMFLOAT3 postion, XMFOAT3 Rotate			
+					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition(), g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetLook()); // XMFLOAT3 postion, XMFOAT3 Rotate			
 				}
 				else g_NetworkHelper.SendKeyUpPacket(DIRECTION::BACK);
 			}
@@ -278,7 +276,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 				if (g_Logic.m_KeyInput->IsAllMovekeyUp()) {
 					cout << "send Stop Packet" << endl;
 					g_Logic.m_inGamePlayerSession[0].m_currentDirection = DIRECTION::IDLE;
-					//g_NetworkHelper.SendStopPacket(m_pSqureObject->GetPosition(), m_pSqureObject->GetLook()); // XMFLOAT3 postion, XMFOAT3 Rotate
+					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition(), g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetLook()); // XMFLOAT3 postion, XMFOAT3 Rotate
 				}
 				else g_NetworkHelper.SendKeyUpPacket(DIRECTION::RIGHT);
 			}
@@ -304,7 +302,8 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 
 void GameobjectManager::SetPlayCharacter(Session* pSession) // 임시 함수
 {
-	clientNet::Session* cliSession = reinterpret_cast<clientNet::Session*>(pSession);
+	//4명
+	Session* cliSession = reinterpret_cast<Session*>(pSession);
 	if (0 == cliSession->m_id) {
 		cliSession->SetGameObject(m_pWarriorObject);
 	}
