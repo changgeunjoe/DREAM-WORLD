@@ -156,7 +156,6 @@
     <ClInclude Include="GameFramework.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameobjectManager.h" />
-    <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshComponent.h" />
     <ClInclude Include="RenderComponent.h" />
     <ClInclude Include="Resource.h" />
@@ -184,7 +183,6 @@
     <ClCompile Include="DreamGame.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GameobjectManager.cpp" />
-    <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshComponent.cpp" />
     <ClCompile Include="RenderComponent.cpp" />
     <ClCompile Include="Scene.cpp" />

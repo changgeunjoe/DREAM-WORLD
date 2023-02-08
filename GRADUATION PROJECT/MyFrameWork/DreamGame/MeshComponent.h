@@ -85,7 +85,8 @@ public:
 	virtual D3D12_PRIMITIVE_TOPOLOGY	GetPrimitveTopology();
 	virtual UINT						GetSubMeshes();
 	virtual void						BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float fWidth, float fHeight, float fDepth) {};
-	virtual void ReleaseUploadBuffers();
+	virtual void						ReleaseUploadBuffers();
+	virtual void OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList, void* pContext) ;
 	void AddRef() { m_nReferences++; }
 	void Release() { if (--m_nReferences <= 0) delete this; }
 	UINT GetType() { return(m_nType); }

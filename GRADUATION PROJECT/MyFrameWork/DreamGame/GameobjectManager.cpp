@@ -33,8 +33,8 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 
 	UpdateShaderVariables(pd3dCommandList);
 
-	m_pSqureObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//player1 //화면에 보이는건데
-	m_pSqure2Object->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//player2 
+	//m_pSqureObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//player1 //화면에 보이는건데
+	//m_pSqure2Object->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//player2 
 	//m_pPlaneObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pMonsterObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }

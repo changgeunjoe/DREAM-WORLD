@@ -12,7 +12,7 @@ BYTE ReadStringFromFile(FILE* pInFile, char* pstrToken)
 }
 
 int ReadIntegerFromFile(FILE* pInFile)
-{
+ {
 	int nValue = 0;
 	UINT nReads = (UINT)::fread(&nValue, sizeof(int), 1, pInFile);
 	return(nValue);
@@ -185,7 +185,7 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		MaterialComponent::PrepareShaders(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pd3dcbGameObjects);
 		m_pLoadedModelComponent = static_cast<CLoadedModelInfoCompnent*>(pLoadedmodelComponent);
 		m_pLoadedModelComponent= LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList,
-			pd3dGraphicsRootSignature, "Model/Monster.bin", NULL,true);//NULL ->Shader
+			pd3dGraphicsRootSignature, "Model/Lion.bin", NULL,true);//NULL ->Shader
 		SetChild(m_pLoadedModelComponent->m_pModelRootObject, true);
 		
 		//m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, pMonsterModel);
