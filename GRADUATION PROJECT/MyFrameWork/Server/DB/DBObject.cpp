@@ -43,9 +43,6 @@ void DBObject::RunDBThread()
 					myInfoPacket.rotate = pSession->GetRotation();
 					myInfoPacket.type = SERVER_PACKET::ADD_PLAYER;
 					myInfoPacket.size = sizeof(SERVER_PACKET::AddPlayerPacket);
-					std::cout << "AddPlayer ID: " << myInfoPacket.userId << std::endl;
-					std::cout << "Position: " << myInfoPacket.position.x << ", " << myInfoPacket.position.y << ", " << myInfoPacket.position.z << std::endl;
-					std::cout << "Rotate: " << myInfoPacket.rotate.x << ", " << myInfoPacket.rotate.y << ", " << myInfoPacket.rotate.z << std::endl;
 					g_logic.MultiCastOtherPlayer(myInfoPacket.userId, &myInfoPacket);
 
 					for (auto& session : g_iocpNetwork.m_session) {
@@ -96,12 +93,7 @@ void DBObject::InitializeDBData()
 				// Connect to data source  
 				retcode = SQLConnect(m_hdbc, (SQLWCHAR*)L"Dream_World_DB", SQL_NTS, (SQLWCHAR*)NULL, 0, NULL, 0);
 				if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-					// Allocate statement handle  
-					retcode = SQLAllocHandle(SQL_HANDLE_STMT, m_hdbc, &m_hstmt);
-					if (retcode == SQL_ERROR) {
-						print_error(m_henv, m_hdbc, m_hstmt);
-					}
-					else std::cout << "DB Success" << std::endl;
+					std::cout << "DB Success" << std::endl;
 				}
 			}
 		}
@@ -111,6 +103,13 @@ void DBObject::InitializeDBData()
 bool DBObject::GetPlayerInfo(std::wstring PlayerLoginId, std::wstring pw, std::wstring& outputPlayerName)
 {
 	SQLRETURN retcode;
+
+	// Allocate statement handle  
+	retcode = SQLAllocHandle(SQL_HANDLE_STMT, m_hdbc, &m_hstmt);
+	if (retcode == SQL_ERROR) {
+		print_error(m_henv, m_hdbc, m_hstmt);
+		return false;
+	}
 	SQLWCHAR szName[NAME_SIZE + 1] = { 0 };
 	SQLLEN cbName = 0;
 
@@ -126,6 +125,8 @@ bool DBObject::GetPlayerInfo(std::wstring PlayerLoginId, std::wstring pw, std::w
 		retcode = SQLFetch(m_hstmt);
 		if (retcode == SQL_ERROR) {
 			print_error(m_henv, m_hdbc, m_hstmt);
+			SQLCancel(m_hstmt);///종료
+			SQLFreeHandle(SQL_HANDLE_STMT, m_hstmt);//리소스 해제
 			return false;
 		}
 		else if (retcode == SQL_SUCCESS)
@@ -144,6 +145,10 @@ bool DBObject::GetPlayerInfo(std::wstring PlayerLoginId, std::wstring pw, std::w
 	if (retcode == SQL_ERROR) {
 		print_error(m_henv, m_hdbc, m_hstmt);
 	}
+
+	SQLCancel(m_hstmt);///종료
+	SQLFreeHandle(SQL_HANDLE_STMT, m_hstmt);//리소스 해제
+
 	return true;
 }
 

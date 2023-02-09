@@ -28,6 +28,11 @@ void Logic::ProcessPacket(char* p)
 		if (findRes != m_inGamePlayerSession.end()) {
 			findRes->m_currentDirection = (DIRECTION)(findRes->m_currentDirection | recvPacket->direction);
 		}
+		else cout << "not found array" << endl;
+#ifdef _DEBUG
+		std::cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - MOVE_KEY_DOWN ID: " << recvPacket->userId << std::endl;
+#endif
+
 	}
 	break;
 	case SERVER_PACKET::MOVE_KEY_UP:
@@ -41,6 +46,10 @@ void Logic::ProcessPacket(char* p)
 		if (findRes != m_inGamePlayerSession.end()) {
 			findRes->m_currentDirection = (DIRECTION)(findRes->m_currentDirection ^ recvPacket->direction);
 		}
+		else cout << "not found array" << endl;
+#ifdef _DEBUG
+		std::cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_UP - MOVE_KEY_UP ID: " << recvPacket->userId << std::endl;
+#endif
 	}
 	break;
 	case SERVER_PACKET::ROTATE:
@@ -63,6 +72,11 @@ void Logic::ProcessPacket(char* p)
 			case ROTATE_AXIS::Y:
 			{
 				findRes->m_currentPlayGameObject->Rotate(&upVec, recvPacket->angle);
+				findRes->m_rotateAngle.y += recvPacket->angle;
+#ifdef _DEBUG
+				std::cout << "Logic::ProcessPacket() - SERVER_PACKET::ROTATE - ROTATE ID: " << recvPacket->userId << std::endl;
+				cout << "Rotate axis Y angle: " << recvPacket->angle << endl;
+#endif
 			}
 			break;
 			case ROTATE_AXIS::Z:
@@ -82,7 +96,7 @@ void Logic::ProcessPacket(char* p)
 		XMFLOAT3 upVec = XMFLOAT3(0, 1, 0);
 		XMFLOAT3 rightVec = XMFLOAT3(1, 0, 0);
 		XMFLOAT3 dirVec = XMFLOAT3(0, 0, 1);
-		SERVER_PACKET::StopPacket* recvPacket = reinterpret_cast<SERVER_PACKET::StopPacket*>(p);		
+		SERVER_PACKET::StopPacket* recvPacket = reinterpret_cast<SERVER_PACKET::StopPacket*>(p);
 		auto findRes = find_if(m_inGamePlayerSession.begin(), m_inGamePlayerSession.end(), [&recvPacket](auto& fObj) {
 			if (fObj.m_id == recvPacket->userId)
 				return true;
@@ -90,10 +104,19 @@ void Logic::ProcessPacket(char* p)
 			});
 		if (findRes != m_inGamePlayerSession.end()) {
 			findRes->m_currentDirection = DIRECTION::IDLE;
-			cout << "Position: " << recvPacket->position.x << ", " << recvPacket->position.y << ", " << recvPacket->position.z << endl;
 			findRes->m_currentPlayGameObject->SetPosition(recvPacket->position);
-			findRes->m_currentPlayGameObject->Rotate(&upVec, recvPacket->rotate.y);			
+			if (abs(findRes->m_rotateAngle.y - recvPacket->rotate.y) > FLT_EPSILON) {
+#ifdef _DEBUG
+				cout << "Rotation: current(" << findRes->m_rotateAngle.y << ") - new(" << recvPacket->rotate.y<< ")" << endl;
+#endif
+				findRes->m_currentPlayGameObject->Rotate(&upVec, recvPacket->rotate.y - findRes->m_rotateAngle.y);
+			}
+#ifdef _DEBUG
+			std::cout << "Logic::ProcessPacket() - SERVER_PACKET::STOP - STOP ID: " << recvPacket->userId << std::endl;
+			cout << "Position: " << recvPacket->position.x << ", " << recvPacket->position.y << ", " << recvPacket->position.z << endl;
+			cout << "Rotation: " << recvPacket->rotate.x << ", " << recvPacket->rotate.y << ", " << recvPacket->rotate.z << endl;
 			cout << "STOP ID: " << recvPacket->userId << endl;
+#endif
 		}
 	}
 	break;
@@ -104,7 +127,9 @@ void Logic::ProcessPacket(char* p)
 		m_inGamePlayerSession[0].m_id = myId = recvPacket->userID;
 		m_inGamePlayerSession[0].SetName(wst_name);
 		gGameFramework.m_pScene->m_pObjectManager->SetPlayCharacter(&m_inGamePlayerSession[0]);
-		std::wcout << "user Name: " << wst_name << std::endl;
+#ifdef _DEBUG
+		std::wcout << "Logic::ProcessPacket() - SERVER_PACKET::LOGIN_OK - " << "user Name: " << wst_name << std::endl;
+#endif
 	}
 	break;
 	case SERVER_PACKET::ADD_PLAYER:
@@ -121,9 +146,13 @@ void Logic::ProcessPacket(char* p)
 				gGameFramework.m_pScene->m_pObjectManager->SetPlayCharacter(&pSession);
 				pSession.m_currentPlayGameObject->SetPosition(recvPacket->position);
 				pSession.m_currentPlayGameObject->Rotate(&upVec, recvPacket->rotate.y);
+				pSession.m_rotateAngle.y = recvPacket->rotate.y;
+#ifdef _DEBUG
+				cout << "CLIENT::Logic::" << endl;
 				cout << "AddPlayer ID: " << recvPacket->userId << endl;
-				cout << "Position: " << recvPacket->position.x  << ", " << recvPacket->position.y << ", " << recvPacket->position .z << endl;
-				cout << "Rotate: " << recvPacket->rotate.x  << ", " << recvPacket->rotate.y << ", " << recvPacket->rotate.z << endl;
+				cout << "Position: " << recvPacket->position.x << ", " << recvPacket->position.y << ", " << recvPacket->position.z << endl;
+				cout << "Rotate: " << recvPacket->rotate.x << ", " << recvPacket->rotate.y << ", " << recvPacket->rotate.z << endl;
+#endif
 				break;
 			}
 		}
