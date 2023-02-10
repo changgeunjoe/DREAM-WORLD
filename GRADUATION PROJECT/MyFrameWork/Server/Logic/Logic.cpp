@@ -41,6 +41,9 @@ void Logic::ProcessPacket(int userId, char* p)
 		sendPacket.size = sizeof(SERVER_PACKET::MovePacket);
 		PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
 		pSessionObj->StartMove(sendPacket.direction); // 움직임 start
+#ifdef _DEBUG
+		std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::MOVE_KEY_DOWN - MultiCastOtherPlayer" << std::endl;
+#endif
 		MultiCastOtherPlayer(userId, &sendPacket);
 	}
 	break;
@@ -56,6 +59,9 @@ void Logic::ProcessPacket(int userId, char* p)
 		sendPacket.size = sizeof(SERVER_PACKET::RotatePacket);
 		PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
 		pSessionObj->Rotate(recvPacket->axis, recvPacket->angle);
+#ifdef _DEBUG
+		std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::ROTATE - MultiCastOtherPlayer" << std::endl;
+#endif
 		MultiCastOtherPlayer(userId, &sendPacket);
 	}
 	break;
@@ -70,6 +76,9 @@ void Logic::ProcessPacket(int userId, char* p)
 		sendPacket.size = sizeof(SERVER_PACKET::MovePacket);
 		PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
 		pSessionObj->ChangeDirection(sendPacket.direction); // 움직임 start
+#ifdef _DEBUG
+		std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::MOVE_KEY_UP - MultiCastOtherPlayer" << std::endl;
+#endif
 		MultiCastOtherPlayer(userId, &sendPacket);
 	}
 	break;
@@ -81,18 +90,29 @@ void Logic::ProcessPacket(int userId, char* p)
 
 		SERVER_PACKET::StopPacket sendPacket;
 		sendPacket.userId = userId;
-		sendPacket.type = SERVER_PACKET::ROTATE;
+		sendPacket.type = SERVER_PACKET::STOP;
 		sendPacket.size = sizeof(SERVER_PACKET::StopPacket);
 		sendPacket.position = recvPacket->position;
 		sendPacket.rotate = recvPacket->rotate;
-
+#ifdef _DEBUG
+		std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::STOP - " << std::endl;
+		std::cout << "position: " << sendPacket.position.x << ", " << sendPacket.position.y << ", " << sendPacket.position.z << std::endl;
+		std::cout << "rotation: " << sendPacket.rotate.x << ", " << sendPacket.rotate.y << ", " << sendPacket.rotate.z << std::endl;
+#endif
 		bool adjustRes = pSessionObj->AdjustPlayerInfo(recvPacket->position, recvPacket->rotate);
 		if (!adjustRes) {
 			sendPacket.position = pSessionObj->GetPosition();
 			BroadCastPacket(&sendPacket);
+#ifdef _DEBUG
+			std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::STOP - BroadCastPacket" << std::endl;
+#endif
 		}
-		else
+		else {
 			MultiCastOtherPlayer(userId, &sendPacket);
+#ifdef _DEBUG
+			std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::STOP - MultiCastOtherPlayer" << std::endl;
+#endif
+		}
 	}
 	break;
 	case CLIENT_PACKET::LOGIN:

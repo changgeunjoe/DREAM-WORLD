@@ -1,10 +1,12 @@
 #include "stdafx.h"
+#include <mutex>
 #include "DBObject.h"
 #include "../IOCPNetwork/IOCP/IOCPNetwork.h"
 #include "../Session/SessionObject/PlayerSessionObject.h"
-#include <mutex>
+#include "../Logic/Logic.h"
 
-extern IOCPNetwork g_iocpNetwork;
+extern IOCPNetwork	g_iocpNetwork;
+extern Logic		g_logic;
 
 void DBObject::RunDBThread()
 {
@@ -32,7 +34,27 @@ void DBObject::RunDBThread()
 					memcpy(sendPacket.name, wst_nickName.c_str(), wst_nickName.size() * 2);
 					sendPacket.name[wst_nickName.size()] = 0;
 					pSession->Send(&sendPacket);
-					
+
+					SERVER_PACKET::AddPlayerPacket myInfoPacket;
+					memcpy(myInfoPacket.name, wst_nickName.c_str(), wst_nickName.size() * 2);
+					myInfoPacket.name[wst_nickName.size()] = 0;
+					myInfoPacket.userId = currentEvent.userId;
+					myInfoPacket.position = pSession->GetPosition();
+					myInfoPacket.rotate = pSession->GetRotation();
+					myInfoPacket.type = SERVER_PACKET::ADD_PLAYER;
+					myInfoPacket.size = sizeof(SERVER_PACKET::AddPlayerPacket);
+					g_logic.MultiCastOtherPlayer(myInfoPacket.userId, &myInfoPacket);
+
+					for (auto& session : g_iocpNetwork.m_session) {
+						if (currentEvent.userId == session.GetId() || session.GetId() == -1)
+							continue;
+						PlayerSessionObject* otherSession = dynamic_cast<PlayerSessionObject*>(session.m_sessionObject);
+						SERVER_PACKET::AddPlayerPacket* otherPlayerDataPacket = reinterpret_cast<SERVER_PACKET::AddPlayerPacket*>(otherSession->GetPlayerInfo());
+						//char* otherPlayerDataPacket = otherSession->GetPlayerInfo();
+						pSession->Send(otherPlayerDataPacket);
+						delete otherPlayerDataPacket;
+					}
+
 				}
 				if (currentEvent.Data != nullptr)
 					delete currentEvent.Data;
@@ -44,12 +66,6 @@ void DBObject::RunDBThread()
 		}
 
 	}
-
-	// Process data
-	SQLCancel(m_hstmt);///종료
-	SQLFreeHandle(SQL_HANDLE_STMT, m_hstmt);//리소스 해제
-	//disconnet
-	SQLDisconnect(m_hdbc);
 }
 
 void DBObject::Destroy()
@@ -77,12 +93,7 @@ void DBObject::InitializeDBData()
 				// Connect to data source  
 				retcode = SQLConnect(m_hdbc, (SQLWCHAR*)L"Dream_World_DB", SQL_NTS, (SQLWCHAR*)NULL, 0, NULL, 0);
 				if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-					// Allocate statement handle  
-					retcode = SQLAllocHandle(SQL_HANDLE_STMT, m_hdbc, &m_hstmt);
-					if (retcode == SQL_ERROR) {
-						print_error(m_henv, m_hdbc, m_hstmt);
-					}
-					else std::cout << "DB Success" << std::endl;
+					std::cout << "DB Success" << std::endl;
 				}
 			}
 		}
@@ -92,21 +103,30 @@ void DBObject::InitializeDBData()
 bool DBObject::GetPlayerInfo(std::wstring PlayerLoginId, std::wstring pw, std::wstring& outputPlayerName)
 {
 	SQLRETURN retcode;
+
+	// Allocate statement handle  
+	retcode = SQLAllocHandle(SQL_HANDLE_STMT, m_hdbc, &m_hstmt);
+	if (retcode == SQL_ERROR) {
+		print_error(m_henv, m_hdbc, m_hstmt);
+		return false;
+	}
 	SQLWCHAR szName[NAME_SIZE + 1] = { 0 };
 	SQLLEN cbName = 0;
 
-	std::wstring oper = L"EXEC GET_PLAYER_INFO ";
-	oper.append(PlayerLoginId);
-	oper.append(L", ");
-	oper.append(pw);
-	oper.append(L"\0");
-	retcode = SQLExecDirect(m_hstmt, (SQLWCHAR*)oper.c_str(), SQL_NTS);
+	std::wstring storeProcedure = L"EXEC GET_PLAYER_INFO ";
+	storeProcedure.append(PlayerLoginId);
+	storeProcedure.append(L", ");
+	storeProcedure.append(pw);
+	storeProcedure.append(L"\0");
+	retcode = SQLExecDirect(m_hstmt, (SQLWCHAR*)storeProcedure.c_str(), SQL_NTS);
 	if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
 		retcode = SQLBindCol(m_hstmt, 1, SQL_C_WCHAR, szName, NAME_SIZE * 2 + 2, &cbName);
 
 		retcode = SQLFetch(m_hstmt);
 		if (retcode == SQL_ERROR) {
 			print_error(m_henv, m_hdbc, m_hstmt);
+			SQLCancel(m_hstmt);///종료
+			SQLFreeHandle(SQL_HANDLE_STMT, m_hstmt);//리소스 해제
 			return false;
 		}
 		else if (retcode == SQL_SUCCESS)
@@ -125,6 +145,10 @@ bool DBObject::GetPlayerInfo(std::wstring PlayerLoginId, std::wstring pw, std::w
 	if (retcode == SQL_ERROR) {
 		print_error(m_henv, m_hdbc, m_hstmt);
 	}
+
+	SQLCancel(m_hstmt);///종료
+	SQLFreeHandle(SQL_HANDLE_STMT, m_hstmt);//리소스 해제
+
 	return true;
 }
 

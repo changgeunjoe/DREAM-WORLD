@@ -123,6 +123,6 @@ void IOCPNetwork::WorkerThread()
 
 int IOCPNetwork::GetUserId()
 {
-	if (m_currentClientId < MAX_USER) return ++m_currentClientId;
+	if (m_currentClientId < MAX_USER) return m_currentClientId++;
 	return -1;
 }

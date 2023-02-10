@@ -44,10 +44,6 @@ public:
 	~DBObject()
 	{
 		m_bIsRunning = false;
-		// Process data  
-		SQLCancel(m_hstmt);///종료
-		SQLFreeHandle(SQL_HANDLE_STMT, m_hstmt);//리소스 해제
-
 		Destroy();
 	}
 public:

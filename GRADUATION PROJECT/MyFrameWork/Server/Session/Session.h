@@ -18,7 +18,6 @@ class Session
 {
 private:
 	std::mutex			m_playerStateLock;
-	int					m_prevPacket;
 	int					m_id;
 	PLAYER_STATE		m_playerState;
 
@@ -42,5 +41,6 @@ public:
 	}
 	const int GetId() { return m_id; }
 	const PLAYER_STATE GetPlayerState() { return m_playerState; };
+	friend class SessionObject;
 };
 

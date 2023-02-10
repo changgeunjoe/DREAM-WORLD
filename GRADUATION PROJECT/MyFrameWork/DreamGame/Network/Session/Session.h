@@ -1,6 +1,7 @@
 #pragma once
 
 class GameObject;
+
 class Session
 {
 public:
@@ -8,19 +9,22 @@ public:
 	~Session() {}
 public:
 	int m_id = -1;
+public:
+	bool m_isVisible = false;
+	DIRECTION m_currentDirection = DIRECTION::IDLE;
+public:
+	XMFLOAT3 m_rotateAngle = XMFLOAT3(0, 0, 0);
 private:
 	std::wstring name;
 public:
 	GameObject* m_currentPlayGameObject = nullptr;
 public:
-	void SetGameObject(GameObject* gObj)
-	{
-		m_currentPlayGameObject = gObj;
-	}
+	void SetGameObject(GameObject* gObj);
 	void UnuseGameObject()
 	{
 		m_currentPlayGameObject = nullptr;
 	}
 	void SetName(wstring& n) { name = n; }
+	void SetName(wchar_t* n) { name = n; }
 	const wstring getName() { return name; }
 };

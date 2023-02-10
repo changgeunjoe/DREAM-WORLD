@@ -2,7 +2,9 @@
 #include"stdafx.h"
 #include"Timer.h"
 #include"Scene.h"
-#include"Camera.h"
+
+
+class CCamera;
 class CGameFramework
 {
 
@@ -111,6 +113,5 @@ public:
 	//윈도우의 메시지(키보드, 마우스 입력)를 처리하는 함수이다.
 
 	void MoveToNextFrame();
+	friend class Logic;
 };
-
-

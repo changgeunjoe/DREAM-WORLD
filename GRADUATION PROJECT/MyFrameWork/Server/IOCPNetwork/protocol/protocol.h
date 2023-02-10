@@ -81,6 +81,8 @@ namespace SERVER_PACKET {
 		char size;
 		char type;
 		int userId;
+		DirectX::XMFLOAT3 position;
+		DirectX::XMFLOAT3 rotate;
 		wchar_t name[NAME_SIZE];
 	};
 
