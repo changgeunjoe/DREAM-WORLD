@@ -102,9 +102,6 @@
     <ClInclude Include="DepthRenderShaderComponent.h">
       <Filter>소스 파일\헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="ShadowMapShaderComponent.h">
-      <Filter>소스 파일</Filter>
-    </ClInclude>
     <ClInclude Include="CLoadModelinfo.h">
       <Filter>소스 파일\헤더 파일</Filter>
     </ClInclude>
@@ -124,6 +121,9 @@
       <Filter>소스 파일</Filter>
     </ClInclude>
     <ClInclude Include="SkinnedShaderComponent.h">
+      <Filter>소스 파일\ShaderComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="ShadowMapShaderComponent.h">
       <Filter>소스 파일\ShaderComponent</Filter>
     </ClInclude>
   </ItemGroup>
@@ -176,12 +176,6 @@
     <ClCompile Include="MaterialComponent.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="DepthRenderShaderComponent.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="ShadowMapShaderComponent.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="CLoadModelinfo.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -198,6 +192,12 @@
       <Filter>소스 파일\ShaderComponent</Filter>
     </ClCompile>
     <ClCompile Include="SkinnedShaderComponent.cpp">
+      <Filter>소스 파일\ShaderComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="DepthRenderShaderComponent.cpp">
+      <Filter>소스 파일\ShaderComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadowMapShaderComponent.cpp">
       <Filter>소스 파일\ShaderComponent</Filter>
     </ClCompile>
   </ItemGroup>

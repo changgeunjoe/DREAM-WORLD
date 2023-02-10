@@ -3,7 +3,7 @@
 class ShadowMapShaderComponent:public ShaderComponent
 {
 public:
-	ShadowMapShaderComponent(ShaderComponent* pObjectsShader);
+	ShadowMapShaderComponent();
 	virtual ~ShadowMapShaderComponent();
 
 	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState(int nPipelineState);
@@ -14,7 +14,7 @@ public:
 	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void ReleaseShaderVariables();
-
+	virtual void BuildShadow(ShaderComponent* pObjectsShader);
 	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, void* pContext = NULL);
 	virtual void AnimateObjects(float fTimeElapsed) {}
 	virtual void ReleaseObjects();

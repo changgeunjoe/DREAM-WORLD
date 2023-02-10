@@ -33,6 +33,7 @@ cbuffer cbCameraInfo : register(b1)
 
 
 Texture2D shaderTexture : register(t0);
+TextureCube SkyCubeTexture : register(t2);
 Texture2D ShadowMap : register(t1);
 Texture2D gtxtAlbedoTexture : register(t6);
 Texture2D gtxtSpecularTexture : register(t7);
@@ -43,7 +44,7 @@ Texture2D gtxtDetailAlbedoTexture : register(t11);
 Texture2D gtxtDetailNormalTexture : register(t12);
 
 SamplerState gWrapSamplerState : register(s0);
-SamplerComparisonState gClampSamplerState : register(s1);
+SamplerState gClampSamplerState : register(s1);
 
 //float CalcShadowFactor(float4 shadowPosH)
 //{
@@ -195,7 +196,42 @@ float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
         normalW = normalize(input.normalW);
     }
     float4 cIllumination = Lighting(input.positionW, normalW);
-    return (lerp(cColor, cIllumination, 0.5f));
-//    return (cAlbedoColor);
+//    return (lerp(cColor, cIllumination, 0.5f));
+   return (cColor);
 
+}
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+struct VS_SKYBOX_CUBEMAP_INPUT
+{
+    float3 position : POSITION;
+};
+
+struct VS_SKYBOX_CUBEMAP_OUTPUT
+{
+    float3 positionL : POSITION;
+    float4 position : SV_POSITION;
+};
+
+VS_SKYBOX_CUBEMAP_OUTPUT VSSkyBox(VS_SKYBOX_CUBEMAP_INPUT input)
+{
+    VS_SKYBOX_CUBEMAP_OUTPUT output;
+
+    output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+    output.positionL = input.position;
+
+    return (output);
+}
+
+
+
+float4 PSSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
+{
+    float4 cColor = SkyCubeTexture.Sample(gClampSamplerState, input.positionL);
+
+    return (cColor);
 }

@@ -10,6 +10,7 @@
 
 #include"MaterialComponent.h"
 //include"CLoadModelinfo.h"
+class DepthRenderShaderComponent;
 class CLoadedModelInfoCompnent;
 class SkinnedMeshComponent;
 class ComponentBase;
@@ -34,7 +35,8 @@ public:
     const XMFLOAT3& GetPosition() const;
 
     void SetScale(float x, float y, float z);
-    void SetTexture(wchar_t* pszFileName);
+    void SetTexture(wchar_t* pszFileName, int nSamplers, int nRootParameter);
+    void SetModel(char* pszModelName);
     void SetMesh(MeshComponent* pMesh);
 
     void MoveStrafe(float fDistance = 1.0f);
@@ -115,10 +117,13 @@ public:
     UINT							m_nType = 0x00;
     char							m_pstrFrameName[64];
 
+
 protected:
 
     int								m_nReferences = 0;
     UINT							m_nTextureType;
+    int                             m_nSamplers=1;
+    int                             m_nRootParameter = 1;
 
 
     entity_id m_entityID{};//object id 
@@ -126,17 +131,20 @@ protected:
     //Quaternion m_orientation;
 
     wchar_t* pszFileNames{};
+    char* pszModelNames{};
     
     //////////////////////Component/////////////////////////////////
     unordered_map<component_id, ComponentBase*> m_components;
     MeshComponent* m_pMeshComponent{ NULL };
     TextureComponent* m_pTextureComponent{ NULL };
     CubeMeshComponent* m_pCubeComponent{ NULL };
+    SkyBoxMeshComponent* m_pSkyboxComponent{ NULL };
     ShaderComponent* m_pShaderComponent{ NULL };
     RenderComponent* m_pRenderComponent{ NULL };
     CLoadedModelInfoCompnent* m_pLoadedModelComponent{ NULL };
     MaterialComponent** m_ppMaterialsComponent{ NULL };
-
+    DepthRenderShaderComponent* m_pDepthShaderComponent{ NULL };
+    ShadowMapShaderComponent* m_pShadowMapShaderComponent{NULL};
 
 protected:
     ID3D12Resource* m_pd3dcbGameObjects = NULL;
@@ -162,7 +170,6 @@ inline T* GameObject::InsertComponent()//컴포넌트를 게임 오브젝트에 넣는 함수
     m_components.insert(std::make_pair(ComponentID, pComponent));
     pComponent->SetOwner(this);
     return pComponent;
-    return 0;
 }
 
 template<typename T>
@@ -180,9 +187,17 @@ inline T* GameObject::ComponentType(component_id &componentID)
     {
         componentID = component_id::CUBEMESH_COMPONENT;
     }
+    else if (typeid(T).name() == typeid(SkyBoxMeshComponent).name())
+    {
+        componentID = component_id::SKYBOXMESH_COMPONENT;
+    }
     else if (typeid(T).name() == typeid(ShaderComponent).name())
     {
         componentID = component_id::SHADER_COMPONENT;
+    }
+    else if (typeid(T).name() == typeid(SkyBoxShaderComponent).name())
+    {
+        componentID = component_id::SKYSHADER_COMPONENT;
     }
     else if (typeid(T).name() == typeid(TextureComponent).name())
     {

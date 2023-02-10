@@ -4,7 +4,7 @@
 #include"TextureComponent.h"
 #include "Light.h"
 #include "Camera.h"
-
+class StandardShaderComponent;
 #define MAP_SIZE 2056.0f//삭제 
 #define PLAYER_MAP_RANGE 200.0f//삭제
 #define MINI_MAP_SIZE 0.25f;//삭제
@@ -25,12 +25,12 @@ public:
 	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState(int nPipelineState);
 	virtual D3D12_RASTERIZER_DESC CreateRasterizerState(int nPipelineState);
 
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** ppd3dShaderBlob, int nPipelineState);
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader(int nPipelineState);
 
 	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void ReleaseShaderVariables();
-
+	virtual void BuildDepth(StandardShaderComponent* pObjectsShader, LIGHT* pLights);
 	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, void* pContext = NULL);
 	virtual void ReleaseObjects();
 

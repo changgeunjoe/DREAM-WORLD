@@ -24,7 +24,7 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	ID3D12RootSignature* pd3dGraphicsRootSignature = NULL;
 #ifdef _WITH_STANDARD_TEXTURE_MULTIPLE_DESCRIPTORS
 
-	RootSignature.Descriptorrange.resize(10);
+	RootSignature.Descriptorrange.resize(11);
 	//SetDescriptorRange(RootSignature.Descriptorrange, 0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 6, 0);//GameObject //b0
 	RootSignature.Descriptorrange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
 	RootSignature.Descriptorrange[0].NumDescriptors = 1;
@@ -76,6 +76,12 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	RootSignature.Descriptorrange[9].BaseShaderRegister = 12; //t12: gtxtEmissionTexture
 	RootSignature.Descriptorrange[9].RegisterSpace = 0;
 	RootSignature.Descriptorrange[9].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	RootSignature.Descriptorrange[10].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	RootSignature.Descriptorrange[10].NumDescriptors = 1;
+	RootSignature.Descriptorrange[10].BaseShaderRegister = 2; //t2: SkyboxTexture
+	RootSignature.Descriptorrange[10].RegisterSpace = 0;
+	RootSignature.Descriptorrange[10].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND; \
+
 
 //-------------------------------rootParameter----------------------------------------------------    
 	RootSignature.RootParameter.resize(13);
@@ -139,6 +145,11 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	RootSignature.RootParameter[11].DescriptorTable.NumDescriptorRanges = 1;
 	RootSignature.RootParameter[11].DescriptorTable.pDescriptorRanges = &(RootSignature.Descriptorrange[9]);
 	RootSignature.RootParameter[11].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	//t12: Skyboxtexture
+	RootSignature.RootParameter[12].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	RootSignature.RootParameter[12].DescriptorTable.NumDescriptorRanges = 1;
+	RootSignature.RootParameter[12].DescriptorTable.pDescriptorRanges = &(RootSignature.Descriptorrange[10]);
+	RootSignature.RootParameter[12].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	//textureSampler
 	RootSignature.TextureSamplerDescs.resize(3);
@@ -205,10 +216,11 @@ ID3D12RootSignature* CScene::GetGraphicsRootSignature()
 
 
 
-void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
+void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,CCamera* pCamera)
 {
+	
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
-	m_pObjectManager = new GameobjectManager();
+	m_pObjectManager = new GameobjectManager(pCamera);
 	m_pObjectManager->BuildObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 }
 
@@ -235,6 +247,7 @@ void CScene::AnimateObjects(float fTimeElapsed)
 	//{
 	//	m_ppObjects[j]->Animate(fTimeElapsed);
 	//}
+	m_pObjectManager->AnimateObjects();
 }
 void CScene::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {

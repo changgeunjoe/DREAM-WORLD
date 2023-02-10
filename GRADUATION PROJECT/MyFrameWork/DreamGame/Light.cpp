@@ -40,7 +40,7 @@ void CLight::BuildLight()
 	m_pLights = new LIGHT[m_nLights];
 	::ZeroMemory(m_pLights, sizeof(LIGHT) * m_nLights);
 
-	m_xmf4GlobalAmbient = XMFLOAT4(0.15f, 0.15f, 0.15f, 1.0f);
+	m_xmf4GlobalAmbient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	m_pLights[0].m_bEnable = true;
 	m_pLights[0].m_nType = SPOT_LIGHT;
 	m_pLights[0].m_fRange = 150.0f;

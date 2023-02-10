@@ -1,5 +1,6 @@
 #include "GameObject.h"
 #include"CAnimationSets.h"
+#include"DepthRenderShaderComponent.h"
 BYTE ReadStringFromFile(FILE* pInFile, char* pstrToken)
 {
 	BYTE nStrLength = 0;
@@ -95,9 +96,16 @@ void GameObject::SetScale(float x, float y, float z)
 	UpdateTransform(NULL);
 }
 
-void GameObject::SetTexture(wchar_t* pszFileName)
+void GameObject::SetTexture(wchar_t* pszFileName, int nSamplers,int nRootParameter)
 {
-	pszFileNames = pszFileName;
+	m_nRootParameter = nRootParameter;//텍스쳐가 시작하는 t(n)위치 
+	pszFileNames = pszFileName;//파일이름
+	m_nSamplers = nSamplers;//샘플러 번호
+}
+
+void GameObject::SetModel(char* pszModelName)
+{
+	pszModelNames = pszModelName;
 }
 
 void GameObject::SetMesh(MeshComponent* pMesh)
@@ -148,7 +156,7 @@ void GameObject::HandleMessage(string message)
 void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
 
-	ComponentBase* pComponent=GetComponent(component_id::RENDER_COMPONENT);
+	ComponentBase* pComponent = GetComponent(component_id::RENDER_COMPONENT);
 	if (pComponent != NULL)
 	{
 		m_pRenderComponent = static_cast<RenderComponent*>(pComponent);
@@ -157,8 +165,8 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	if (pTextureComponent != NULL)
 	{
 		m_pTextureComponent = static_cast<TextureComponent*>(pTextureComponent);
-		m_pTextureComponent->BuildTexture(1, RESOURCE_TEXTURE2D, 0, 1);
-		m_pTextureComponent->LoadTextureFromFile(pd3dDevice, pd3dCommandList, pszFileNames, RESOURCE_TEXTURE2D, 0);
+		m_pTextureComponent->BuildTexture(1, m_nSamplers, 0, 1);
+		m_pTextureComponent->LoadTextureFromFile(pd3dDevice, pd3dCommandList, pszFileNames, m_nSamplers, 0);
 	}
 	ComponentBase* pMeshComponent = GetComponent(component_id::CUBEMESH_COMPONENT);
 	if (pMeshComponent != NULL)
@@ -167,16 +175,30 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		m_pCubeComponent->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, 10, 10, 10);
 		m_pMeshComponent = m_pCubeComponent;
 	}
-	//->메테리얼 생성 텍스쳐와 쉐이더를 넣어야되는데 쉐이더이므로 안 넣어도 됨
-	ComponentBase* pShaderComponent = GetComponent(component_id::SHADER_COMPONENT);	
-	if (pShaderComponent != NULL)
+	pMeshComponent = GetComponent(component_id::SKYBOXMESH_COMPONENT);
+	if (pMeshComponent != NULL)
 	{
-		m_pShaderComponent = static_cast<ShaderComponent*>(pShaderComponent);
+		m_pSkyboxComponent = static_cast<SkyBoxMeshComponent*>(pMeshComponent);
+		m_pSkyboxComponent->BuildObject(pd3dDevice, pd3dCommandList, 200.0f, 200.0f, 200.0f);
+		m_pMeshComponent = m_pSkyboxComponent;
+	}
+	//->메테리얼 생성 텍스쳐와 쉐이더를 넣어야되는데 쉐이더이므로 안 넣어도 됨
+	ComponentBase* pShaderComponent = GetComponent(component_id::SHADER_COMPONENT);
+	ComponentBase* pSkyShaderComponent = GetComponent(component_id::SKYSHADER_COMPONENT);
+	if (pShaderComponent != NULL|| pSkyShaderComponent!=NULL)
+	{
+		if (pShaderComponent != NULL) 
+		{
+			m_pShaderComponent = static_cast<ShaderComponent*>(pShaderComponent);
+		}
+		else if (pSkyShaderComponent != NULL) {
+			m_pShaderComponent = static_cast<SkyBoxShaderComponent*>(pSkyShaderComponent);
+		}
 		m_pShaderComponent->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
 		m_pShaderComponent->CreateCbvSrvDescriptorHeaps(pd3dDevice, 2, 2);
 		m_pShaderComponent->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 		m_pShaderComponent->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObjects, ncbElementBytes);
-		m_pShaderComponent->CreateShaderResourceViews(pd3dDevice, m_pTextureComponent, 0, 3, pShadowMap);//texture입력
+		m_pShaderComponent->CreateShaderResourceViews(pd3dDevice, m_pTextureComponent, 0, m_nRootParameter, pShadowMap);//texture입력
 		m_pShaderComponent->SetCbvGPUDescriptorHandlePtr(m_pShaderComponent->GetGPUCbvDescriptorStartHandle().ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));
 	}
 	ComponentBase* pLoadedmodelComponent = GetComponent(component_id::LOADEDMODEL_COMPONET);
@@ -184,13 +206,29 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	{
 		MaterialComponent::PrepareShaders(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pd3dcbGameObjects);
 		m_pLoadedModelComponent = static_cast<CLoadedModelInfoCompnent*>(pLoadedmodelComponent);
-		m_pLoadedModelComponent= LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList,
-			pd3dGraphicsRootSignature, "Model/Lion.bin", NULL,true);//NULL ->Shader
+		m_pLoadedModelComponent = LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList,
+			pd3dGraphicsRootSignature, pszModelNames, NULL, true);//NULL ->Shader
 		SetChild(m_pLoadedModelComponent->m_pModelRootObject, true);
-		
 		//m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, pMonsterModel);
 	}
+	ComponentBase* pDepthShaderComponent = GetComponent(component_id::DEPTHSHADER_COMPONENT);
+	if (pDepthShaderComponent != NULL)
+	{
+		m_pDepthShaderComponent = static_cast<DepthRenderShaderComponent*>(pDepthShaderComponent);
+		m_pDepthShaderComponent->BuildDepth(NULL, NULL);
+		m_pDepthShaderComponent->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
+		m_pDepthShaderComponent->BuildObjects(pd3dDevice, pd3dCommandList, NULL);
+	}
+	ComponentBase* pShadowShaderComponent = GetComponent(component_id::SHADOWSHADER_COMPONENT);
+	if (pShadowShaderComponent != NULL)
+	{
+		m_pShadowMapShaderComponent = static_cast<ShadowMapShaderComponent*>(pShadowShaderComponent);
+		m_pShadowMapShaderComponent->BuildShadow(NULL);
+		m_pShadowMapShaderComponent->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
+		m_pShadowMapShaderComponent->BuildObjects(pd3dDevice, pd3dCommandList, m_pDepthShaderComponent->GetDepthTexture());
+	}
 }
+
 void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
 	//UpdateTransform(&m_xmf4x4ToParent);
@@ -203,6 +241,14 @@ void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3
 		{
 			m_pTextureComponent->UpdateShaderVariables(pd3dCommandList);
 		}
+	}
+	if (m_pDepthShaderComponent != NULL)
+	{
+		m_pDepthShaderComponent->UpdateShaderVariables(pd3dCommandList);
+	}
+	if (m_pShadowMapShaderComponent)
+	{
+	//	m_pShadowMapShaderComponent->Render(pd3dCommandList, pCamera);
 	}
 	if (m_pRenderComponent != NULL&& m_pMeshComponent !=NULL&& m_ppMaterialsComponent ==NULL&& m_pLoadedModelComponent==NULL)
 	{

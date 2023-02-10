@@ -1,8 +1,8 @@
 #include "ShadowMapShaderComponent.h"
 
-ShadowMapShaderComponent::ShadowMapShaderComponent(ShaderComponent* pObjectsShader)
+ShadowMapShaderComponent::ShadowMapShaderComponent()
 {
-    m_pObjectsShader = pObjectsShader;
+    
 }
 
 ShadowMapShaderComponent::~ShadowMapShaderComponent()
@@ -33,12 +33,12 @@ D3D12_DEPTH_STENCIL_DESC ShadowMapShaderComponent::CreateDepthStencilState(int n
 
 D3D12_SHADER_BYTECODE ShadowMapShaderComponent::CreateVertexShader( int nPipelineState)
 {
-	return(ShaderComponent::CompileShaderFromFile(L"Shader_Shadow.hlsl", "VSShadowMapShadow", "vs_5_1", &m_pd3dVertexShaderBlob));
+	return(ShaderComponent::CompileShaderFromFile(L"Shadow.hlsl", "VSShadowMapShadow", "vs_5_1", &m_pd3dVertexShaderBlob));
 }
 
 D3D12_SHADER_BYTECODE ShadowMapShaderComponent::CreatePixelShader(int nPipelineState)
 {
-	return(ShaderComponent::CompileShaderFromFile(L"Shader_Shadow.hlsl", "PSShadowMapShadow", "ps_5_1", &m_pd3dPixelShaderBlob));
+	return(ShaderComponent::CompileShaderFromFile(L"Shadow.hlsl", "PSShadowMapShadow", "ps_5_1", &m_pd3dPixelShaderBlob));
 }
 
 void ShadowMapShaderComponent::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
@@ -52,6 +52,11 @@ void ShadowMapShaderComponent::UpdateShaderVariables(ID3D12GraphicsCommandList* 
 
 void ShadowMapShaderComponent::ReleaseShaderVariables()
 {
+}
+
+void ShadowMapShaderComponent::BuildShadow(ShaderComponent* pObjectsShader)
+{
+	m_pObjectsShader = pObjectsShader;
 }
 
 void ShadowMapShaderComponent::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, void* pContext)

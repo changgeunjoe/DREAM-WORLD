@@ -138,6 +138,15 @@ public:
 	void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float fWidth, float fHeight, float fDepth);
 
 };
+class SkyBoxMeshComponent : public MeshComponent
+{
+public:
+	SkyBoxMeshComponent();
+	virtual ~SkyBoxMeshComponent();
+
+	void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fWidth = 20.0f, float fHeight = 20.0f, float fDepth = 20.0f);
+};
+
 
 class StandardMeshComponent  :public MeshComponent
 

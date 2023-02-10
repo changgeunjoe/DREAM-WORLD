@@ -122,3 +122,15 @@ public:
 	int m_PositionArray[PIXELCOUNT][PIXELCOUNT];
 };
 
+class SkyBoxShaderComponent : public ShaderComponent
+{
+public:
+	SkyBoxShaderComponent();
+	virtual ~SkyBoxShaderComponent();
+
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout(int nPipelineState);
+	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState(int nPipelineState);
+
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader(int nPipelineState);
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader(int nPipelineState);
+};

@@ -50,9 +50,9 @@ D3D12_RASTERIZER_DESC DepthRenderShaderComponent::CreateRasterizerState(int nPip
 
 	return(d3dRasterizerDesc);
 }
-D3D12_SHADER_BYTECODE DepthRenderShaderComponent::CreatePixelShader(ID3DBlob** ppd3dShaderBlob, int nPipelineState)
+D3D12_SHADER_BYTECODE DepthRenderShaderComponent::CreatePixelShader(int nPipelineState)
 {
-	return D3D12_SHADER_BYTECODE();
+	return(ShaderComponent::CompileShaderFromFile(L"Shadow.hlsl", "PSDepthWriteShader", "ps_5_1", &m_pd3dPixelShaderBlob));
 }
 
 void DepthRenderShaderComponent::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
@@ -79,6 +79,10 @@ void DepthRenderShaderComponent::ReleaseShaderVariables()
 		m_pd3dcbToLightSpaces->Unmap(0, NULL);
 		m_pd3dcbToLightSpaces->Release();
 	}
+}
+
+void DepthRenderShaderComponent::BuildDepth(StandardShaderComponent* pObjectsShader, LIGHT* pLights)
+{
 }
 
 void DepthRenderShaderComponent::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, void* pContext)
