@@ -1,12 +1,13 @@
 #pragma once
-#include"stdafx.h"
-#include"GameObject.h"
 
+
+class GameObject;
 struct CALLBACKKEY
 {
 	float  							m_fTime = 0.0f;
 	void* m_pCallbackData = NULL;
 };
+
 class CAnimationCallbackHandler
 {
 public:

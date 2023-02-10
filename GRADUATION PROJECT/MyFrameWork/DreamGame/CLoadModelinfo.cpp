@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "CLoadModelinfo.h"
 #include"GameObject.h"
 

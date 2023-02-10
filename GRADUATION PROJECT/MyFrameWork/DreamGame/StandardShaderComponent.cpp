@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "StandardShaderComponent.h"
 
 StandardShaderComponent::StandardShaderComponent()

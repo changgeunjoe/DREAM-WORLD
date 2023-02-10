@@ -1,5 +1,7 @@
+#include "stdafx.h"
 #include "SkinnedMeshComponent.h"
 #include"GameObject.h"
+
 SkinnedMeshComponent::SkinnedMeshComponent()
 {
 }

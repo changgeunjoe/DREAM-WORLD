@@ -1,4 +1,7 @@
+#include "stdafx.h"
 #include "CAnimationSets.h"
+#include"GameObject.h"
+
 
 CAnimationSets::CAnimationSets(int nAnimationSets)
 {

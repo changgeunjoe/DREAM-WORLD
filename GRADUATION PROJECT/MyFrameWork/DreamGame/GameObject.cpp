@@ -749,10 +749,3 @@ void GameObject::MoveDiagonal(int fowardDirection, int rightDirection, float dis
 	xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(resDirection, distance));
 	GameObject::SetPosition(xmf3Position);
 }
-
-void GameObject::Rotate(XMFLOAT3* pxmf3Axis, float fAngle)
-{
-	XMMATRIX mtxRotate = XMMatrixRotationAxis(XMLoadFloat3(pxmf3Axis), XMConvertToRadians(fAngle));
-	m_xmf4x4World = Matrix4x4::Multiply(mtxRotate, m_xmf4x4World);
-
-}

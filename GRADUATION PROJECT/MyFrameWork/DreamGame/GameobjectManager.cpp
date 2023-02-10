@@ -157,7 +157,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pWarriorObject->InsertComponent<CubeMeshComponent>();
 	m_pWarriorObject->InsertComponent<ShaderComponent>();
 	m_pWarriorObject->InsertComponent<TextureComponent>();
-	m_pWarriorObject->SetTexture(L"Image/stones.dds");
+	m_pWarriorObject->SetTexture(L"Image/stones.dds", RESOURCE_TEXTURE2D, 3);
 	m_pWarriorObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pWarriorObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
@@ -166,7 +166,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pArcherObject->InsertComponent<CubeMeshComponent>();
 	m_pArcherObject->InsertComponent<ShaderComponent>();
 	m_pArcherObject->InsertComponent<TextureComponent>();
-	m_pArcherObject->SetTexture(L"Image/stones.dds");
+	m_pArcherObject->SetTexture(L"Image/stones.dds", RESOURCE_TEXTURE2D, 3);
 	m_pArcherObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pArcherObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
@@ -175,7 +175,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pTankerObject->InsertComponent<CubeMeshComponent>();
 	m_pTankerObject->InsertComponent<ShaderComponent>();
 	m_pTankerObject->InsertComponent<TextureComponent>();
-	m_pTankerObject->SetTexture(L"Image/stones.dds");
+	m_pTankerObject->SetTexture(L"Image/stones.dds", RESOURCE_TEXTURE2D, 3);
 	m_pTankerObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pTankerObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
@@ -184,7 +184,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPriestObject->InsertComponent<CubeMeshComponent>();
 	m_pPriestObject->InsertComponent<ShaderComponent>();
 	m_pPriestObject->InsertComponent<TextureComponent>();
-	m_pPriestObject->SetTexture(L"Image/stones.dds");
+	m_pPriestObject->SetTexture(L"Image/stones.dds", RESOURCE_TEXTURE2D, 3);
 	m_pPriestObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pPriestObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
@@ -194,7 +194,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPlaneObject->InsertComponent<CubeMeshComponent>();
 	m_pPlaneObject->InsertComponent<ShaderComponent>();
 	m_pPlaneObject->InsertComponent<TextureComponent>();
-	m_pPlaneObject->SetTexture(L"Image/Base_Texture.dds", RESOURCE_TEXTURE2D,3);
+	m_pPlaneObject->SetTexture(L"Image/Base_Texture.dds", RESOURCE_TEXTURE2D, 3);
 	m_pPlaneObject->SetPosition(XMFLOAT3(0, -10, 50));
 	m_pPlaneObject->SetScale(100, 0.1, 100);
 	//m_pPlaneObject->SetScale(10.f, 0.2f, 10.f);
@@ -211,7 +211,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pSkyboxObject->InsertComponent<SkyBoxMeshComponent>();
 	m_pSkyboxObject->InsertComponent<SkyBoxShaderComponent>();
 	m_pSkyboxObject->InsertComponent<TextureComponent>();
-	m_pSkyboxObject->SetTexture(L"DreamWorld/DreamWorld.dds", RESOURCE_TEXTURE_CUBE,12);
+	m_pSkyboxObject->SetTexture(L"DreamWorld/DreamWorld.dds", RESOURCE_TEXTURE_CUBE, 12);
 	m_pSkyboxObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pSkyboxObject->SetScale(1, 1, 1);
 	m_pSkyboxObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -246,6 +246,12 @@ void GameobjectManager::ReleaseShaderVariables()
 	m_pLight->ReleaseShaderVariables();
 }
 bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
+{
+	switch (nMessageID)
+	{
+	case WM_KEYDOWN:
+		switch (wParam)
+		{
 		case 'W':
 		{
 			if (!g_Logic.m_KeyInput->m_bWKey) {
@@ -292,12 +298,6 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			g_Logic.m_KeyInput->m_bEKey = true;
 			break;
 		}
-		case 'W': m_pSqureObject->MoveForward(+1.0f); break;//Æ½´ÜÀ§·Î ¹Ù²ãÁà¶ó
-		case 'S': m_pSqureObject->MoveForward(-1.0f); break;
-		case 'A': m_pSqureObject->MoveStrafe(-1.0f); break;
-		case 'D': m_pSqureObject->MoveStrafe(+1.0f); break;
-		case 'Q': m_pSqureObject->MoveUp(+1.0f); break;
-		case 'E': m_pSqureObject->MoveUp(-1.0f); break;
 		case VK_CONTROL:
 			break;
 		case VK_F1:
@@ -389,6 +389,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 	}
 	return(false);
 }
+
 
 void GameobjectManager::SetPlayCharacter(Session* pSession) // ÀÓ½Ã ÇÔ¼ö
 {

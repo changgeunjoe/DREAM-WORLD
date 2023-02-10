@@ -37,8 +37,7 @@ private: //active object
 	
 
 	GameObject*		m_pPlaneObject = NULL;
-	GameObject* m_pSkyboxObject = NULL;
-	GameObject* m_pWarriorObject = NULL;
+	GameObject* m_pSkyboxObject = NULL;	
 	GameObject* m_pAnimationObject = NULL;
 	GameObject* m_pMonsterObject = NULL;
 	CLight*			m_pLight = NULL;

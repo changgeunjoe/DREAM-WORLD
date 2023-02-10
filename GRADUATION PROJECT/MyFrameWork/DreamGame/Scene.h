@@ -1,12 +1,12 @@
 #pragma once
 #include"stdafx.h"
 #include"Timer.h"
-#include"Shader.h"
 #include "Network/Logic/Logic.h"
 
 
 
 class GameobjectManager;
+class CCamera;
 struct RootSignatureDesc
 {
 	D3D12_ROOT_SIGNATURE_FLAGS RootSignatureFlags =

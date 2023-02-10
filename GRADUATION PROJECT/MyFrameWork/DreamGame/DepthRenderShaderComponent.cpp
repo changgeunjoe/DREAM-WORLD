@@ -1,4 +1,6 @@
+#include "stdafx.h"
 #include "DepthRenderShaderComponent.h"
+#include "Camera.h"
 
 DepthRenderShaderComponent::DepthRenderShaderComponent()
 {

@@ -3,7 +3,8 @@
 #include"ShaderComponent.h"
 #include"TextureComponent.h"
 #include "Light.h"
-#include "Camera.h"
+
+class CCamera;
 class StandardShaderComponent;
 #define MAP_SIZE 2056.0f//삭제 
 #define PLAYER_MAP_RANGE 200.0f//삭제

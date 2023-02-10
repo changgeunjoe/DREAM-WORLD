@@ -3,6 +3,7 @@
 #include"ShaderComponent.h"
 #include"SkinnedShaderComponent.h"
 #include"StandardShaderComponent.h"
+#include "GameObject.h"
 #include"Scene.h"
 
 
