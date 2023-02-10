@@ -5,6 +5,7 @@
 #include "Network/Logic/Logic.h"
 
 
+
 class GameobjectManager;
 struct RootSignatureDesc
 {
@@ -31,7 +32,7 @@ public:
 	bool onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,
 		LPARAM lParam);
 
-	void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera);
 	void ReleaseObjects();
 
 	bool ProcessInput();
@@ -45,15 +46,20 @@ public:
 	ID3D12RootSignature* CreateGraphicsRootSignature(ID3D12Device* pd3dDevice);
 	ID3D12RootSignature* GetGraphicsRootSignature();
 
+	void SetDescriptorRange(D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[], int iIndex, D3D12_DESCRIPTOR_RANGE_TYPE RangeType, UINT NumDescriptors, UINT BaseShaderRegister, UINT RegisterSpace);
+	void SetRootParameterCBV(D3D12_ROOT_PARAMETER pd3dRootParameter[], int iIndex, UINT ShaderRegister, UINT RegisterSpace, D3D12_SHADER_VISIBILITY ShaderVisibility);
+	void SetRootParameterDescriptorTable(D3D12_ROOT_PARAMETER pd3dRootParameter[], int iIndex, UINT NumDescriptorRanges, const D3D12_DESCRIPTOR_RANGE* pDescriptorRanges, D3D12_SHADER_VISIBILITY ShaderVisibility);
+	void SetRootParameterConstants(D3D12_ROOT_PARAMETER pd3dRootParameter[], int iIndex, UINT Num32BitValues, UINT ShaderRegister, UINT RegisterSpace, D3D12_SHADER_VISIBILITY ShaderVisibility);
+
 protected:
 	//씬은 게임 객체들의 집합이다.게임 객체는 셰이더를 포함한다.
-	CGameObject** m_ppObjects = NULL;
-	int m_nObjects = 0;
 	
 
 	GameobjectManager* m_pObjectManager=NULL;
 	ID3D12RootSignature* m_pd3dGraphicsRootSignature = NULL;
 	RootSignatureDesc RootSignature;
+
+	CCamera* m_pCamera{ NULL };
 
 	////루트 시그너쳐를 나타내는 인터페이스 포인터이다. 
 	// ID3D12PipelineState *m_pd3dPipelineState = NULL;

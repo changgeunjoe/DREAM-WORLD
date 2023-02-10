@@ -88,6 +88,22 @@ using Microsoft::WRL::ComPtr;
 #define FRAME_BUFFER_WIDTH		800
 #define FRAME_BUFFER_HEIGHT		600
 
+
+#define _PLANE_WIDTH			300
+#define _PLANE_HEIGHT			300
+
+#define RP_DEPTH_BUFFER	15
+#define RP_TO_LIGHT	16
+
+
+#define _DEPTH_BUFFER_WIDTH		(FRAME_BUFFER_WIDTH * 8)
+#define _DEPTH_BUFFER_HEIGHT	(FRAME_BUFFER_HEIGHT * 8)
+
+#define ANIMATION_TYPE_ONCE				0
+#define ANIMATION_TYPE_LOOP				1
+#define ANIMATION_TYPE_PINGPONG			2
+
+#define ANIMATION_CALLBACK_EPSILON		0.0165f
 //#define _WITH_CB_GAMEOBJECT_32BIT_CONSTANTS
 //#define _WITH_CB_GAMEOBJECT_ROOT_DESCRIPTOR
 #define _WITH_CB_WORLD_MATRIX_DESCRIPTOR_TABLE
@@ -107,6 +123,8 @@ using Microsoft::WRL::ComPtr;
 
 #pragma comment(lib, "dxguid.lib")
 
+
+
 // TODO: 프로그램에 필요한 추가 헤더는 여기에서 참조합니다.
 
 extern UINT gnCbvSrvDescriptorIncrementSize;
@@ -121,12 +139,18 @@ extern ID3D12Resource* CreateTextureResourceFromDDSFile(ID3D12Device* pd3dDevice
 extern ID3D12Resource* CreateTextureResourceFromWICFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, wchar_t* pszFileName, ID3D12Resource** ppd3dUploadBuffer, D3D12_RESOURCE_STATES d3dResourceStates = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 extern ID3D12Resource* CreateTexture2DResource(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, UINT nWidth, UINT nHeight, UINT nElements, UINT nMipLevels, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS d3dResourceFlags, D3D12_RESOURCE_STATES d3dResourceStates, D3D12_CLEAR_VALUE* pd3dClearValue);
 
+extern BYTE ReadStringFromFile(FILE* pInFile, char* pstrToken);
+extern int ReadIntegerFromFile(FILE* pInFile);
+extern float ReadFloatFromFile(FILE* pInFile);
+extern XMFLOAT3 ReadVectorFromFile(FILE* pInFile, int n);
 #define RANDOM_COLOR			XMFLOAT4(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX))
 
 #define EPSILON					1.0e-10f
 
 inline bool IsZero(float fValue) { return((fabsf(fValue) < EPSILON)); }
+inline bool IsZero(float fValue, float fEpsilon) { return((fabsf(fValue) < fEpsilon)); }
 inline bool IsEqual(float fA, float fB) { return(::IsZero(fA - fB)); }
+inline bool IsEqual(float fA, float fB, float fEpsilon) { return(::IsZero(fA - fB, fEpsilon)); }
 inline float InverseSqrt(float fValue) { return 1.0f / sqrtf(fValue); }
 inline void Swap(float* pfS, float* pfT) { float fTemp = *pfS; *pfS = *pfT; *pfT = fTemp; }
 
@@ -138,19 +162,12 @@ struct MATERIAL
 	XMFLOAT4						m_xmf4Specular; //(r,g,b,a=power)
 	XMFLOAT4						m_xmf4Emissive;
 };
-struct SPRITEANIMATIONMATERIAL
-{
-	XMFLOAT4						m_xmf4Ambient;
-	XMFLOAT4						m_xmf4Diffuse;
-	XMFLOAT4						m_xmf4Specular; //(r,g,b,a=power)
-	XMFLOAT4						m_xmf4Emissive;
-};
+
 struct CB_GAMEOBJECT_INFO
 {
-	XMFLOAT4X4 m_xmf4x4World;
+	XMFLOAT4X4						m_xmf4x4World;
 	MATERIAL						m_material;
-
-	XMFLOAT4X4						m_xmf4x4Texture;
+	UINT							m_nType;
 };
 struct SHADOW_INFO
 {
@@ -165,7 +182,8 @@ struct SHADOW_INFO
 enum entity_id
 {
 	SQUARE_ENTITY,
-	PlANE_ENTITY
+	PlANE_ENTITY,
+	UNDEF_ENTITY
 };
 enum component_id 
 {
@@ -174,9 +192,13 @@ enum component_id
 	PHYSICS_COMPONENT,
 	MESH_COMPONENT,
 	CUBEMESH_COMPONENT,
+	SKYBOXMESH_COMPONENT,
 	SHADER_COMPONENT,
+	SKYSHADER_COMPONENT,
 	SHADOWSHADER_COMPONENT,
-	TEXTURE_COMPONENT
+	LOADEDMODEL_COMPONET,
+	TEXTURE_COMPONENT,
+	DEPTHSHADER_COMPONENT,
 };
 //mean about component_id;
 
@@ -330,6 +352,19 @@ namespace Matrix4x4
 		XMFLOAT4X4 xmmtx4x4Result;
 		XMStoreFloat4x4(&xmmtx4x4Result, xmmtxMatrix1 * XMLoadFloat4x4(&xmmtx4x4Matrix2));
 		return(xmmtx4x4Result);
+	}
+
+	inline XMFLOAT4X4 Interpolate(XMFLOAT4X4& xmf4x4Matrix1, XMFLOAT4X4& xmf4x4Matrix2, float t)
+	{
+		XMFLOAT4X4 xmf4x4Result;
+		XMVECTOR S0, R0, T0, S1, R1, T1;
+		XMMatrixDecompose(&S0, &R0, &T0, XMLoadFloat4x4(&xmf4x4Matrix1));
+		XMMatrixDecompose(&S1, &R1, &T1, XMLoadFloat4x4(&xmf4x4Matrix2));
+		XMVECTOR S = XMVectorLerp(S0, S1, t);
+		XMVECTOR T = XMVectorLerp(T0, T1, t);
+		XMVECTOR R = XMQuaternionSlerp(R0, R1, t);
+		XMStoreFloat4x4(&xmf4x4Result, XMMatrixAffineTransformation(S, XMVectorZero(), R, T));
+		return(xmf4x4Result);
 	}
 
 	inline XMFLOAT4X4 Inverse(XMFLOAT4X4& xmmtx4x4Matrix)

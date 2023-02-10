@@ -1,6 +1,9 @@
 #pragma once
+
 #include "ComponentBase.h"
 #include"TextureComponent.h"
+#include"ShaderComponent.h"
+class MaterialComponent;
 class ShaderComponent : public ComponentBase
 {
 public:
@@ -11,6 +14,7 @@ private:
 	int									m_nReferences = 0;
 
 protected:
+	string							ShaderName;
 	bool							m_bActive = true;
 protected:
 	ID3DBlob* m_pd3dVertexShaderBlob = NULL;//¡§¡° Ω¶¿Ã¥ı 
@@ -22,8 +26,9 @@ protected:
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC	m_d3dPipelineStateDesc;
 
-	ID3D12DescriptorHeap* m_pd3dCbvSrvDescriptorHeap = NULL;
+	
 	ID3D12RootSignature* m_pd3dGraphicsRootSignature = NULL;
+	ID3D12DescriptorHeap* m_pd3dCbvSrvDescriptorHeap ;
 	D3D12_CPU_DESCRIPTOR_HANDLE			m_d3dCbvCPUDescriptorStartHandle;
 	D3D12_GPU_DESCRIPTOR_HANDLE			m_d3dCbvGPUDescriptorStartHandle;
 	D3D12_CPU_DESCRIPTOR_HANDLE			m_d3dSrvCPUDescriptorStartHandle;
@@ -48,6 +53,7 @@ public:
 
 	void SetActive(bool bActive) { m_bActive = bActive; }
 	bool GetActive() { return m_bActive; };
+	void SetName(string name);
 ;
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout(int nPipelineState);
@@ -76,7 +82,7 @@ public:
 	virtual void CreateGraphicsPipelineState(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dGraphicsRootSignature, int nPipelineState);
 
 	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
-	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList,XMFLOAT4X4 *pxmf4x4World);
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList,XMFLOAT4X4 *pxmf4x4World, MaterialComponent* ppMaterialsComponent);
 	virtual void ReleaseShaderVariables();
 
 	virtual void UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList, XMFLOAT4X4* pxmf4x4World);
@@ -116,3 +122,15 @@ public:
 	int m_PositionArray[PIXELCOUNT][PIXELCOUNT];
 };
 
+class SkyBoxShaderComponent : public ShaderComponent
+{
+public:
+	SkyBoxShaderComponent();
+	virtual ~SkyBoxShaderComponent();
+
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout(int nPipelineState);
+	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState(int nPipelineState);
+
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader(int nPipelineState);
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader(int nPipelineState);
+};

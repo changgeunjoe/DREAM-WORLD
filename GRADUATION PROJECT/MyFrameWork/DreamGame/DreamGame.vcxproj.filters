@@ -33,9 +33,6 @@
     <Filter Include="Timer">
       <UniqueIdentifier>{5c145608-8296-4b3d-b788-4b58e2b7506f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Mesh">
-      <UniqueIdentifier>{17c59961-afa0-4764-a7e7-30c6439b09ea}</UniqueIdentifier>
-    </Filter>
     <Filter Include="GameObject">
       <UniqueIdentifier>{17df3cf6-eb98-427d-8b51-f2470adea1d4}</UniqueIdentifier>
     </Filter>
@@ -51,6 +48,9 @@
     </Filter>
     <Filter Include="NetworkHelper\Session">
       <UniqueIdentifier>{1875fdf6-96de-453e-8b05-d67ec7cc4375}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\ShaderComponent">
+      <UniqueIdentifier>{867c0b48-eda5-4132-9b3e-247bd1f93348}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -78,17 +78,8 @@
     <ClInclude Include="Scene.h">
       <Filter>Scene.cpp</Filter>
     </ClInclude>
-    <ClInclude Include="Shader.h">
-      <Filter>Shader</Filter>
-    </ClInclude>
     <ClInclude Include="Timer.h">
       <Filter>Timer</Filter>
-    </ClInclude>
-    <ClInclude Include="Mesh.h">
-      <Filter>Mesh</Filter>
-    </ClInclude>
-    <ClInclude Include="CGameObject.h">
-      <Filter>GameObject</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
       <Filter>GameObject</Filter>
@@ -108,19 +99,13 @@
     <ClInclude Include="GameObject.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderComponent.h">
-      <Filter>소스 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Light.h">
-      <Filter>소스 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ShadowShaderComponent.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
     <ClInclude Include="TextureComponent.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
-    <ClInclude Include="MaterialComponent.h">
+    <ClInclude Include="DepthRenderShaderComponent.h">
       <Filter>소스 파일\헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Network\NetworkHelper.h">
@@ -131,6 +116,30 @@
     </ClInclude>
     <ClInclude Include="Network\Session\Session.h">
       <Filter>NetworkHelper\Session</Filter>
+    </ClInclude>
+    <ClInclude Include="CLoadModelinfo.h">
+      <Filter>소스 파일\헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="SkinnedMeshComponent.h">
+      <Filter>소스 파일\헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CAnimationSets.h">
+      <Filter>소스 파일\헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderComponent.h">
+      <Filter>소스 파일\ShaderComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="StandardShaderComponent.h">
+      <Filter>소스 파일\ShaderComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialComponent.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="SkinnedShaderComponent.h">
+      <Filter>소스 파일\ShaderComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="ShadowMapShaderComponent.h">
+      <Filter>소스 파일\ShaderComponent</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -152,17 +161,8 @@
     <ClCompile Include="Scene.cpp">
       <Filter>Scene.cpp</Filter>
     </ClCompile>
-    <ClCompile Include="Shader.cpp">
-      <Filter>Shader</Filter>
-    </ClCompile>
     <ClCompile Include="Timer.cpp">
       <Filter>Timer</Filter>
-    </ClCompile>
-    <ClCompile Include="Mesh.cpp">
-      <Filter>Mesh</Filter>
-    </ClCompile>
-    <ClCompile Include="CGameObject.cpp">
-      <Filter>GameObject</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>GameObject</Filter>
@@ -182,16 +182,10 @@
     <ClCompile Include="GameObject.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="ShaderComponent.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="TextureComponent.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Light.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="ShadowShaderComponent.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="MaterialComponent.cpp">
@@ -205,6 +199,30 @@
     </ClCompile>
     <ClCompile Include="Network\Session\Session.cpp">
       <Filter>NetworkHelper\Session</Filter>
+    </ClCompile>
+    <ClCompile Include="CLoadModelinfo.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="SkinnedMeshComponent.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CAnimationSets.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderComponent.cpp">
+      <Filter>소스 파일\ShaderComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="StandardShaderComponent.cpp">
+      <Filter>소스 파일\ShaderComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="SkinnedShaderComponent.cpp">
+      <Filter>소스 파일\ShaderComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="DepthRenderShaderComponent.cpp">
+      <Filter>소스 파일\ShaderComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadowMapShaderComponent.cpp">
+      <Filter>소스 파일\ShaderComponent</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

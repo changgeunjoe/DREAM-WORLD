@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "ShaderComponent.h"
+#include "MaterialComponent.h"
+
 
 ShaderComponent::ShaderComponent()
 {
@@ -115,6 +117,11 @@ D3D12_SHADER_BYTECODE ShaderComponent::CreateGeometryShader(int nPipelineState)
 D3D12_SHADER_BYTECODE ShaderComponent::CreateHullShader(int nPipelineState)
 {
 	return D3D12_SHADER_BYTECODE();
+}
+
+void ShaderComponent::SetName(string name)
+{
+	ShaderName = name;
 }
 
 D3D12_SHADER_BYTECODE ShaderComponent::CreateDomainShader(int nPipelineState)
@@ -238,14 +245,34 @@ void ShaderComponent::CreateGraphicsPipelineState(ID3D12Device* pd3dDevice, ID3D
 void ShaderComponent::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
-	m_pd3dcbGameObjects = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes , D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+	m_pd3dcbGameObjects = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 
 	m_pd3dcbGameObjects->Map(0, NULL, (void**)&m_pcbMappedGameObjects);
 }
 
-void ShaderComponent::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList,XMFLOAT4X4* pxmf4x4World)
+void ShaderComponent::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList, XMFLOAT4X4* pxmf4x4World, MaterialComponent* ppMaterialsComponent)
 {
+	MATERIAL m_material;
+	if (ppMaterialsComponent) 
+	{
+		m_material.m_xmf4Ambient = ppMaterialsComponent->m_xmf4AmbientColor;
+		m_material.m_xmf4Diffuse = ppMaterialsComponent->m_xmf4AlbedoColor;
+		m_material.m_xmf4Emissive = ppMaterialsComponent->m_xmf4EmissiveColor;
+		m_material.m_xmf4Specular = ppMaterialsComponent->m_xmf4SpecularColor;
+		::memcpy(&m_pcbMappedGameObjects->m_material, &m_material, sizeof(MATERIAL));//메테리얼을 업데이트 해준다.
+		::memcpy(&m_pcbMappedGameObjects->m_nType, &ppMaterialsComponent->m_nType, sizeof(UINT));//타입을 업데이트 해준다.
+	}
+
 	XMStoreFloat4x4(&m_pcbMappedGameObjects->m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(pxmf4x4World)));//오브젝트의 월드좌표계를 변환시켜준다.
+	
+	if (ppMaterialsComponent) {
+
+		for (int i = 0; i < ppMaterialsComponent->m_nTextures; i++)
+		{
+			if (ppMaterialsComponent->m_ppTextures[i])
+				ppMaterialsComponent->m_ppTextures[i]->UpdateShaderVariables(pd3dCommandList);
+		}
+	}
 }
 
 void ShaderComponent::ReleaseShaderVariables()
@@ -304,7 +331,7 @@ void ShaderComponent::CreateConstantBufferViews(ID3D12Device* pd3dDevice, int nC
 		d3dCbvCPUDescriptorHandle.ptr = m_d3dCbvCPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * j);
 		pd3dDevice->CreateConstantBufferView(&d3dCBVDesc, d3dCbvCPUDescriptorHandle);
 	}
-}
+}	
 
 void ShaderComponent::CreateShaderResourceViews(ID3D12Device* pd3dDevice, TextureComponent* pTexture, UINT nDescriptorHeapIndex, UINT nRootParameterStartIndex)
 {
@@ -325,7 +352,7 @@ void ShaderComponent::CreateShaderResourceViews(ID3D12Device* pd3dDevice, Textur
 	int nRootParameters = pTexture->GetRootParameters();
 	for (int i = 0; i < nRootParameters; i++) pTexture->SetRootParameterIndex(i, nRootParameterStartIndex + i);
 }
-void ShaderComponent::CreateShaderResourceViews(ID3D12Device* pd3dDevice, TextureComponent* pTexture, UINT nDescriptorHeapIndex, UINT nRootParameterStartIndex,  ID3D12Resource* pShadowMap)
+void ShaderComponent::CreateShaderResourceViews(ID3D12Device* pd3dDevice, TextureComponent* pTexture, UINT nDescriptorHeapIndex, UINT nRootParameterStartIndex, ID3D12Resource* pShadowMap)
 {
 	m_d3dSrvCPUDescriptorNextHandle.ptr += (::gnCbvSrvDescriptorIncrementSize * nDescriptorHeapIndex);
 	m_d3dSrvGPUDescriptorNextHandle.ptr += (::gnCbvSrvDescriptorIncrementSize * nDescriptorHeapIndex);
@@ -368,4 +395,57 @@ void ShaderComponent::CreateShaderResourceViews(ID3D12Device* pd3dDevice, Textur
 
 void ShaderComponent::CreateShaderResourceView(ID3D12Device* pd3dDevice, TextureComponent* pTexture, int nIndex)
 {
+}
+
+SkyBoxShaderComponent::SkyBoxShaderComponent()
+{
+}
+
+SkyBoxShaderComponent::~SkyBoxShaderComponent()
+{
+}
+
+D3D12_INPUT_LAYOUT_DESC SkyBoxShaderComponent::CreateInputLayout(int nPipelineState)
+{
+	UINT nInputElementDescs = 1;
+	D3D12_INPUT_ELEMENT_DESC* pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
+
+	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+
+	D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
+	d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
+	d3dInputLayoutDesc.NumElements = nInputElementDescs;
+
+	return(d3dInputLayoutDesc);
+}
+
+D3D12_DEPTH_STENCIL_DESC SkyBoxShaderComponent::CreateDepthStencilState(int nPipelineState)
+{
+	D3D12_DEPTH_STENCIL_DESC d3dDepthStencilDesc;
+	d3dDepthStencilDesc.DepthEnable = FALSE;
+	d3dDepthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+	d3dDepthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_NEVER;
+	d3dDepthStencilDesc.StencilEnable = FALSE;
+	d3dDepthStencilDesc.StencilReadMask = 0xff;
+	d3dDepthStencilDesc.StencilWriteMask = 0xff;
+	d3dDepthStencilDesc.FrontFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+	d3dDepthStencilDesc.FrontFace.StencilDepthFailOp = D3D12_STENCIL_OP_INCR;
+	d3dDepthStencilDesc.FrontFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+	d3dDepthStencilDesc.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+	d3dDepthStencilDesc.BackFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+	d3dDepthStencilDesc.BackFace.StencilDepthFailOp = D3D12_STENCIL_OP_DECR;
+	d3dDepthStencilDesc.BackFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+	d3dDepthStencilDesc.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+
+	return(d3dDepthStencilDesc);
+}
+
+D3D12_SHADER_BYTECODE SkyBoxShaderComponent::CreateVertexShader(int nPipelineState)
+{
+	return(ShaderComponent::CompileShaderFromFile(L"Shaders.hlsl", "VSSkyBox", "vs_5_1", &m_pd3dVertexShaderBlob));
+}
+
+D3D12_SHADER_BYTECODE SkyBoxShaderComponent::CreatePixelShader(int nPipelineState)
+{
+	return(ShaderComponent::CompileShaderFromFile(L"Shaders.hlsl", "PSSkyBox", "ps_5_1", &m_pd3dPixelShaderBlob));
 }

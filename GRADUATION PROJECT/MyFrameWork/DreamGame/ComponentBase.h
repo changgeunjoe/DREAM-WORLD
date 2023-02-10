@@ -1,5 +1,6 @@
 #pragma once
 #include"stdafx.h"
+#include"Camera.h"
 class GameObject;
 class ComponentBase
 {
