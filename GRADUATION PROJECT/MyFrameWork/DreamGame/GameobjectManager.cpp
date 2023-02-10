@@ -1,8 +1,11 @@
 #include "stdafx.h"
 #include "GameobjectManager.h"
 #include "Network/NetworkHelper.h"
+#include "Network/Logic/Logic.h"
 
 extern NetworkHelper g_NetworkHelper;
+extern Logic g_Logic;
+
 
 template<typename S>
 S* ComponentType(component_id componentID)
@@ -34,73 +37,106 @@ GameobjectManager::~GameobjectManager()
 
 void GameobjectManager::Animate(float fTimeElapsed)
 {
-	CKeyInput* KeyInput = m_pSqureObject->m_KeyInput;
-	if (KeyInput->m_bWKey || KeyInput->m_bAKey || KeyInput->m_bSKey || KeyInput->m_bDKey)
+
+	if (g_Logic.m_KeyInput->m_bQKey)
 	{
-		// State 만들어서 움직이는 중이라고 알려줘도 괜찮을듯합니다.
-		cout << "elapsed Time: " << fTimeElapsed << endl;
-		if (KeyInput->m_bWKey)
-		{
-			if (KeyInput->m_bAKey)
-			{
-				m_pSqureObject->MoveDiagonal(1, -1, 50.0f * fTimeElapsed);
-			}
-			else if (KeyInput->m_bDKey)
-			{
-				m_pSqureObject->MoveDiagonal(1, 1, 50.0f * fTimeElapsed);
-			}
-			else m_pSqureObject->MoveForward(50.0f * fTimeElapsed);
-		}
-		else if (KeyInput->m_bSKey)
-		{
-			if (KeyInput->m_bAKey)
-			{
-				m_pSqureObject->MoveDiagonal(-1, -1, 50.0f * fTimeElapsed);
-			}
-			else if (KeyInput->m_bDKey)
-			{
-				m_pSqureObject->MoveDiagonal(-1, 1, 50.0f * fTimeElapsed);
-			}
-			else m_pSqureObject->MoveForward(-50.0f * fTimeElapsed);
-		}
-		else {
-			if (KeyInput->m_bAKey)
-			{
-				m_pSqureObject->MoveStrafe(-50.0f * fTimeElapsed);
-			}
-			else if (KeyInput->m_bDKey)
-			{
-				m_pSqureObject->MoveStrafe(50.0f * fTimeElapsed);
-			}
-		}
-		auto pos = m_pSqureObject->GetPosition();
-		std::cout << "currentPos: " << pos.x << ", " << pos.y << ", " << pos.z << endl;
+		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetUp(), -12.0f * fTimeElapsed);
+		g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y -= 12.0f * fTimeElapsed;
+		g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::Y, -12.0f * fTimeElapsed);
 	}
-	if (KeyInput->m_bQKey || KeyInput->m_bEKey)
+	if (g_Logic.m_KeyInput->m_bEKey)
 	{
-		if (KeyInput->m_bQKey)
-		{
-			m_pSqureObject->Rotate(&m_pSqureObject->GetUp(), -12.0f * fTimeElapsed);
-			g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::Y, -12.0f * fTimeElapsed);
+		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetUp(), 12.0f * fTimeElapsed);
+		g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += 12.0f * fTimeElapsed;
+		g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::Y, 12.0f * fTimeElapsed);
+	}
+
+	for (auto& session : g_Logic.m_inGamePlayerSession) {
+		if (-1 != session.m_id && session.m_isVisible) {
+			if (DIRECTION::FRONT == (session.m_currentDirection & DIRECTION::FRONT)) {
+				if (DIRECTION::LEFT == (session.m_currentDirection & DIRECTION::LEFT)) {
+					session.m_currentPlayGameObject->MoveDiagonal(1, -1, 50.0f * fTimeElapsed);
+				}
+				else if (DIRECTION::RIGHT == (session.m_currentDirection & DIRECTION::RIGHT)) {
+					session.m_currentPlayGameObject->MoveDiagonal(1, 1, 50.0f * fTimeElapsed);
+				}
+				else {
+					session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
+				}
+#ifdef _DEBUG
+				auto look = session.m_currentPlayGameObject->GetLook();
+				auto up = session.m_currentPlayGameObject->GetUp();
+				auto right = session.m_currentPlayGameObject->GetRight();
+				cout << "GameobjectManager::Animate() SessionId: " << session.m_id << endl;
+				cout << "GameobjectManager::Animate() Look: " << look.x << ", " << look.y << ", " << look.z << endl;
+				cout << "GameobjectManager::Animate() up: " << up.x << ", " << up.y << ", " << up.z << endl;
+				cout << "GameobjectManager::Animate() right: " << right.x << ", " << right.y << ", " << right.z << endl;
+				std::cout << "GameobjectManager::Animate() rotation angle: " << session.m_rotateAngle.x << ", " << session.m_rotateAngle.y << ", " << session.m_rotateAngle.z << std::endl;
+#endif
+			}
+			else if (DIRECTION::BACK == (session.m_currentDirection & DIRECTION::BACK)) {
+				if (DIRECTION::LEFT == (session.m_currentDirection & DIRECTION::LEFT)) {
+					session.m_currentPlayGameObject->MoveDiagonal(-1, -1, 50.0f * fTimeElapsed);
+				}
+				else if (DIRECTION::RIGHT == (session.m_currentDirection & DIRECTION::RIGHT)) {
+					session.m_currentPlayGameObject->MoveDiagonal(-1, 1, 50.0f * fTimeElapsed);
+				}
+				else {
+					session.m_currentPlayGameObject->MoveForward(-50.0f * fTimeElapsed);
+				}
+#ifdef _DEBUG
+				auto look = session.m_currentPlayGameObject->GetLook();
+				auto up = session.m_currentPlayGameObject->GetUp();
+				auto right = session.m_currentPlayGameObject->GetRight();
+				cout << "GameobjectManager::Animate() SessionId: " << session.m_id << endl;
+				cout << "GameobjectManager::Animate() Look: " << look.x << ", " << look.y << ", " << look.z << endl;
+				cout << "GameobjectManager::Animate() up: " << up.x << ", " << up.y << ", " << up.z << endl;
+				cout << "GameobjectManager::Animate() right: " << right.x << ", " << right.y << ", " << right.z << endl;
+				std::cout << "GameobjectManager::Animate() rotation angle: " << session.m_rotateAngle.x << ", " << session.m_rotateAngle.y << ", " << session.m_rotateAngle.z << std::endl;
+#endif
+			}
+			else {
+				if (DIRECTION::LEFT == (session.m_currentDirection & DIRECTION::LEFT)) {
+					session.m_currentPlayGameObject->MoveStrafe(-50.0f * fTimeElapsed);
+#ifdef _DEBUG
+					auto look = session.m_currentPlayGameObject->GetLook();
+					auto up = session.m_currentPlayGameObject->GetUp();
+					auto right = session.m_currentPlayGameObject->GetRight();
+					cout << "GameobjectManager::Animate() SessionId: " << session.m_id << endl;
+					cout << "GameobjectManager::Animate() Look: " << look.x << ", " << look.y << ", " << look.z << endl;
+					cout << "GameobjectManager::Animate() up: " << up.x << ", " << up.y << ", " << up.z << endl;
+					cout << "GameobjectManager::Animate() right: " << right.x << ", " << right.y << ", " << right.z << endl;
+					std::cout << "GameobjectManager::Animate() rotation angle: " << session.m_rotateAngle.x << ", " << session.m_rotateAngle.y << ", " << session.m_rotateAngle.z << std::endl;
+#endif
+				}
+				else if (DIRECTION::RIGHT == (session.m_currentDirection & DIRECTION::RIGHT)) {
+					session.m_currentPlayGameObject->MoveStrafe(50.0f * fTimeElapsed);
+#ifdef _DEBUG
+					auto look = session.m_currentPlayGameObject->GetLook();
+					auto up = session.m_currentPlayGameObject->GetUp();
+					auto right = session.m_currentPlayGameObject->GetRight();
+					cout << "GameobjectManager::Animate() SessionId: " << session.m_id << endl;
+					cout << "GameobjectManager::Animate() Look: " << look.x << ", " << look.y << ", " << look.z << endl;
+					cout << "GameobjectManager::Animate() up: " << up.x << ", " << up.y << ", " << up.z << endl;
+					cout << "GameobjectManager::Animate() right: " << right.x << ", " << right.y << ", " << right.z << endl;
+					std::cout << "GameobjectManager::Animate() rotation angle: " << session.m_rotateAngle.x << ", " << session.m_rotateAngle.y << ", " << session.m_rotateAngle.z << std::endl;
+#endif
+				}
+			}
 		}
-		if (KeyInput->m_bEKey)
-		{
-			m_pSqureObject->Rotate(&m_pSqureObject->GetUp(), 12.0f * fTimeElapsed);
-			g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::Y, 12.0f * fTimeElapsed);
-		}
-		auto look = m_pSqureObject->GetLook();
-		std::cout << "currentLook: " << look.x << ", " << look.y << ", " << look.z << endl;
+
 	}
 }
 
 void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-
 	UpdateShaderVariables(pd3dCommandList);
 
-
-	m_pSqureObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pSqure2Object->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	for (auto& session : g_Logic.m_inGamePlayerSession) {
+		if (-1 != session.m_id && session.m_isVisible) {
+			session.m_currentPlayGameObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		}
+	}
 	m_pPlaneObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 }
@@ -109,23 +145,43 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 {
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	BuildLight();
-	m_pSqureObject = new GameObject(SQUARE_ENTITY);//사각형 오브젝트를 만들겠다
-	m_pSqureObject->InsertComponent<RenderComponent>();
-	m_pSqureObject->InsertComponent<CubeMeshComponent>();
-	m_pSqureObject->InsertComponent<ShaderComponent>();
-	m_pSqureObject->InsertComponent<TextureComponent>();
-	m_pSqureObject->SetTexture(L"Image/stones.dds");
-	m_pSqureObject->SetPosition(XMFLOAT3(0, 0, 0));
-	m_pSqureObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
-	m_pSqure2Object = new GameObject(SQUARE_ENTITY);//사각형 오브젝트를 만들겠다
-	m_pSqure2Object->InsertComponent<RenderComponent>();
-	m_pSqure2Object->InsertComponent<CubeMeshComponent>();
-	m_pSqure2Object->InsertComponent<ShaderComponent>();
-	m_pSqure2Object->InsertComponent<TextureComponent>();
-	m_pSqure2Object->SetTexture(L"Image/stones.dds");
-	m_pSqure2Object->SetPosition(XMFLOAT3(100, 0, 50));
-	m_pSqure2Object->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pWarriorObject = new GameObject(SQUARE_ENTITY);//사각형 오브젝트를 만들겠다
+	m_pWarriorObject->InsertComponent<RenderComponent>();
+	m_pWarriorObject->InsertComponent<CubeMeshComponent>();
+	m_pWarriorObject->InsertComponent<ShaderComponent>();
+	m_pWarriorObject->InsertComponent<TextureComponent>();
+	m_pWarriorObject->SetTexture(L"Image/stones.dds");
+	m_pWarriorObject->SetPosition(XMFLOAT3(0, 0, 0));
+	m_pWarriorObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+
+	m_pArcherObject = new GameObject(SQUARE_ENTITY);//사각형 오브젝트를 만들겠다
+	m_pArcherObject->InsertComponent<RenderComponent>();
+	m_pArcherObject->InsertComponent<CubeMeshComponent>();
+	m_pArcherObject->InsertComponent<ShaderComponent>();
+	m_pArcherObject->InsertComponent<TextureComponent>();
+	m_pArcherObject->SetTexture(L"Image/stones.dds");
+	m_pArcherObject->SetPosition(XMFLOAT3(0, 0, 0));
+	m_pArcherObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+
+	m_pTankerObject = new GameObject(SQUARE_ENTITY);//사각형 오브젝트를 만들겠다
+	m_pTankerObject->InsertComponent<RenderComponent>();
+	m_pTankerObject->InsertComponent<CubeMeshComponent>();
+	m_pTankerObject->InsertComponent<ShaderComponent>();
+	m_pTankerObject->InsertComponent<TextureComponent>();
+	m_pTankerObject->SetTexture(L"Image/stones.dds");
+	m_pTankerObject->SetPosition(XMFLOAT3(0, 0, 0));
+	m_pTankerObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+
+	m_pPriestObject = new GameObject(SQUARE_ENTITY);//사각형 오브젝트를 만들겠다
+	m_pPriestObject->InsertComponent<RenderComponent>();
+	m_pPriestObject->InsertComponent<CubeMeshComponent>();
+	m_pPriestObject->InsertComponent<ShaderComponent>();
+	m_pPriestObject->InsertComponent<TextureComponent>();
+	m_pPriestObject->SetTexture(L"Image/stones.dds");
+	m_pPriestObject->SetPosition(XMFLOAT3(0, 0, 0));
+	m_pPriestObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+
 
 	m_pPlaneObject = new GameObject(PlANE_ENTITY);
 	m_pPlaneObject->InsertComponent<RenderComponent>();
@@ -136,6 +192,13 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPlaneObject->SetPosition(XMFLOAT3(0, -10, 50));
 	m_pPlaneObject->SetScale(10.f, 0.2f, 10.f);
 	m_pPlaneObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+
+#ifdef LOCAL_TASK
+	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject = m_pWarriorObject;
+	g_Logic.m_inGamePlayerSession[0].m_isVisible = true;
+	g_Logic.m_inGamePlayerSession[0].m_id = 0;
+#endif // LOCAL_TASK
+
 }
 void GameobjectManager::BuildLight()
 {
@@ -162,44 +225,48 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		{
 		case 'W':
 		{
-			if (!m_pSqureObject->m_KeyInput->m_bWKey) {
-				m_pSqureObject->m_KeyInput->m_bWKey = true;
+			if (!g_Logic.m_KeyInput->m_bWKey) {
+				g_Logic.m_KeyInput->m_bWKey = true;
+				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection | DIRECTION::FRONT);
 				g_NetworkHelper.SendMovePacket(DIRECTION::FRONT);
 			}
 		}
 		break;
 		case 'A':
 		{
-			if (!m_pSqureObject->m_KeyInput->m_bAKey) {
-				m_pSqureObject->m_KeyInput->m_bAKey = true;
+			if (!g_Logic.m_KeyInput->m_bAKey) {
+				g_Logic.m_KeyInput->m_bAKey = true;
+				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection | DIRECTION::LEFT);
 				g_NetworkHelper.SendMovePacket(DIRECTION::LEFT);
 			}
 		}
 		break;
 		case 'S':
 		{
-			if (!m_pSqureObject->m_KeyInput->m_bSKey) {
-				m_pSqureObject->m_KeyInput->m_bSKey = true;
+			if (!g_Logic.m_KeyInput->m_bSKey) {
+				g_Logic.m_KeyInput->m_bSKey = true;
+				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection | DIRECTION::BACK);
 				g_NetworkHelper.SendMovePacket(DIRECTION::BACK);
 			}
 		}
 		break;
 		case 'D':
 		{
-			if (!m_pSqureObject->m_KeyInput->m_bDKey) {
-				m_pSqureObject->m_KeyInput->m_bDKey = true;
+			if (!g_Logic.m_KeyInput->m_bDKey) {
+				g_Logic.m_KeyInput->m_bDKey = true;
+				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection | DIRECTION::RIGHT);
 				g_NetworkHelper.SendMovePacket(DIRECTION::RIGHT);
 			}
 		}
 		break;
 		case 'Q':
 		{
-			m_pSqureObject->m_KeyInput->m_bQKey = true;
+			g_Logic.m_KeyInput->m_bQKey = true;
 			break;
 		}
 		case 'E':
 		{
-			m_pSqureObject->m_KeyInput->m_bEKey = true;
+			g_Logic.m_KeyInput->m_bEKey = true;
 			break;
 		}
 		case VK_CONTROL:
@@ -222,11 +289,13 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		case 'W':
 		{
 
-			if (m_pSqureObject->m_KeyInput->m_bWKey) {
-				m_pSqureObject->m_KeyInput->m_bWKey = false;
-				if (m_pSqureObject->m_KeyInput->IsAllMovekeyUp()) {
+			if (g_Logic.m_KeyInput->m_bWKey) {
+				g_Logic.m_KeyInput->m_bWKey = false;
+				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection ^ DIRECTION::FRONT);
+				if (g_Logic.m_KeyInput->IsAllMovekeyUp()) {
 					cout << "send Stop Packet" << endl;
-					g_NetworkHelper.SendStopPacket(m_pSqureObject->GetPosition(), m_pSqureObject->GetLook()); // XMFLOAT3 postion, XMFOAT3 Rotate				
+					g_Logic.m_inGamePlayerSession[0].m_currentDirection = DIRECTION::IDLE;
+					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition(), g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate				
 				}
 				else g_NetworkHelper.SendKeyUpPacket(DIRECTION::FRONT);
 			}
@@ -234,11 +303,13 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		break;
 		case 'A':
 		{
-			if (m_pSqureObject->m_KeyInput->m_bAKey) {
-				m_pSqureObject->m_KeyInput->m_bAKey = false;
-				if (m_pSqureObject->m_KeyInput->IsAllMovekeyUp()) {
+			if (g_Logic.m_KeyInput->m_bAKey) {
+				g_Logic.m_KeyInput->m_bAKey = false;
+				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection ^ DIRECTION::LEFT);
+				if (g_Logic.m_KeyInput->IsAllMovekeyUp()) {
 					cout << "send Stop Packet" << endl;
-					g_NetworkHelper.SendStopPacket(m_pSqureObject->GetPosition(), m_pSqureObject->GetLook()); // XMFLOAT3 postion, XMFOAT3 Rotate
+					g_Logic.m_inGamePlayerSession[0].m_currentDirection = DIRECTION::IDLE;
+					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition(), g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate
 				}
 				else g_NetworkHelper.SendKeyUpPacket(DIRECTION::LEFT);
 			}
@@ -246,11 +317,13 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		break;
 		case 'S':
 		{
-			if (m_pSqureObject->m_KeyInput->m_bSKey) {
-				m_pSqureObject->m_KeyInput->m_bSKey = false;
-				if (m_pSqureObject->m_KeyInput->IsAllMovekeyUp()) {
+			if (g_Logic.m_KeyInput->m_bSKey) {
+				g_Logic.m_KeyInput->m_bSKey = false;
+				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection ^ DIRECTION::BACK);
+				if (g_Logic.m_KeyInput->IsAllMovekeyUp()) {
 					cout << "send Stop Packet" << endl;
-					g_NetworkHelper.SendStopPacket(m_pSqureObject->GetPosition(), m_pSqureObject->GetLook()); // XMFLOAT3 postion, XMFOAT3 Rotate			
+					g_Logic.m_inGamePlayerSession[0].m_currentDirection = DIRECTION::IDLE;
+					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition(), g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate			
 				}
 				else g_NetworkHelper.SendKeyUpPacket(DIRECTION::BACK);
 			}
@@ -258,11 +331,13 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		break;
 		case 'D':
 		{
-			if (m_pSqureObject->m_KeyInput->m_bDKey) {
-				m_pSqureObject->m_KeyInput->m_bDKey = false;
-				if (m_pSqureObject->m_KeyInput->IsAllMovekeyUp()) {
+			if (g_Logic.m_KeyInput->m_bDKey) {
+				g_Logic.m_KeyInput->m_bDKey = false;
+				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection ^ DIRECTION::RIGHT);
+				if (g_Logic.m_KeyInput->IsAllMovekeyUp()) {
 					cout << "send Stop Packet" << endl;
-					g_NetworkHelper.SendStopPacket(m_pSqureObject->GetPosition(), m_pSqureObject->GetLook()); // XMFLOAT3 postion, XMFOAT3 Rotate
+					g_Logic.m_inGamePlayerSession[0].m_currentDirection = DIRECTION::IDLE;
+					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition(), g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate
 				}
 				else g_NetworkHelper.SendKeyUpPacket(DIRECTION::RIGHT);
 			}
@@ -270,12 +345,12 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		break;
 		case 'Q':
 		{
-			m_pSqureObject->m_KeyInput->m_bQKey = false;
+			g_Logic.m_KeyInput->m_bQKey = false;
 			break;
 		}
 		case 'E':
 		{
-			m_pSqureObject->m_KeyInput->m_bEKey = false;
+			g_Logic.m_KeyInput->m_bEKey = false;
 			break;
 		}
 		}
@@ -284,5 +359,22 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		break;
 	}
 	return(false);
+}
 
+void GameobjectManager::SetPlayCharacter(Session* pSession) // 임시 함수
+{
+	//4명
+	Session* cliSession = reinterpret_cast<Session*>(pSession);
+	if (0 == cliSession->m_id) {
+		cliSession->SetGameObject(m_pWarriorObject);
+	}
+	else if (1 == cliSession->m_id) {
+		cliSession->SetGameObject(m_pTankerObject);
+	}
+	else if (2 == cliSession->m_id) {
+		cliSession->SetGameObject(m_pArcherObject);
+	}
+	else {
+		cliSession->SetGameObject(m_pPriestObject);
+	}
 }
