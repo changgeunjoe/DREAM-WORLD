@@ -200,9 +200,13 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pMonsterObject = new GameObject(UNDEF_ENTITY);
 	m_pMonsterObject->InsertComponent<RenderComponent>();
 	m_pMonsterObject->InsertComponent<CLoadedModelInfoCompnent>();
-	m_pMonsterObject->SetPosition(XMFLOAT3(0, 0, 0));
-	m_pMonsterObject->SetModel("Model/Boss.bin");
+	m_pMonsterObject->SetPosition(XMFLOAT3(0, 0, 10));
+	m_pMonsterObject->SetModel("Model/Tanker.bin");
 	m_pMonsterObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackEnable(0, true);
+	m_pMonsterObject->m_pSkinnedAnimationController->SetRootMotion(false);
+	m_pMonsterObject->SetScale(30.0f, 30.0f, 30.0f);
 
 	m_pSkyboxObject = new GameObject(SQUARE_ENTITY);
 	m_pSkyboxObject->InsertComponent<RenderComponent>();

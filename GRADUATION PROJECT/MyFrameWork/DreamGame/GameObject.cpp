@@ -177,7 +177,7 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	{
 		m_pCubeComponent = static_cast<CubeMeshComponent*>(pCubeMeshComponent);
 		m_pCubeComponent->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, 10, 10, 10);
-		pCubeMeshComponent = m_pCubeComponent;
+		m_pMeshComponent = m_pCubeComponent;
 	}
 	ComponentBase* pMeshComponent = GetComponent(component_id::SKYBOXMESH_COMPONENT);
 	if (pMeshComponent != NULL)
@@ -214,7 +214,7 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 			pd3dGraphicsRootSignature, pszModelNames, NULL, true);//NULL ->Shader
 		SetChild(m_pLoadedModelComponent->m_pModelRootObject, true);
 
-		m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, 3, m_pLoadedModelComponent);
+		m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, 1, m_pLoadedModelComponent);
 	}
 	ComponentBase* pDepthShaderComponent = GetComponent(component_id::DEPTHSHADER_COMPONENT);
 	if (pDepthShaderComponent != NULL)
@@ -237,8 +237,6 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
 	//UpdateTransform(&m_xmf4x4ToParent);
-	if (!strcmp(m_pstrFrameName, "Tanker"))
-		cout << "tanker";
 	if (m_pSkinnedAnimationController)
 		m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
 

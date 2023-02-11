@@ -128,7 +128,7 @@ void MaterialComponent::PrepareShaders(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 	m_pStandardShader->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObjects, ncbElementBytes);
 	m_pStandardShader->SetCbvGPUDescriptorHandlePtr(m_pStandardShader->GetGPUCbvDescriptorStartHandle().ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));
 	//m_pStandardShader->SetName("Standard");
-	m_pSkinnedAnimationShader = new SkinnedShaderComponent();//¼öÁ¤
+	m_pSkinnedAnimationShader = new SkinnedShaderComponent();
 	m_pSkinnedAnimationShader->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
 	m_pSkinnedAnimationShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 10, 20);
 	m_pSkinnedAnimationShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
