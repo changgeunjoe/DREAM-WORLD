@@ -455,7 +455,7 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 
 void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
-	m_pScene->onProcessingKeyboardMessage( hWnd,  nMessageID,  wParam, lParam);
+	m_pScene->onProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
 	switch (nMessageID)
 	{
 	case WM_KEYUP:
@@ -512,7 +512,7 @@ void CGameFramework::ProcessInput()
 	static UCHAR pKeysBuffer[256];
 	bool bProcessedByScene = false;
 	GetKeyboardState(pKeysBuffer);
-		//if&& m_pScene) bProcessedByScene = m_pScene->ProcessInput(pKeysBuffer);
+	//if&& m_pScene) bProcessedByScene = m_pScene->ProcessInput(pKeysBuffer);
 	if (!bProcessedByScene)
 	{
 		DWORD dwDirection = 0;
@@ -535,7 +535,7 @@ void CGameFramework::ProcessInput()
 			SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
 		}
 
-		if ((dwDirection != 0.0f) ||(cxDelta != 0.0f) || (cyDelta != 0.0f))
+		if ((dwDirection != 0.0f) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
 		{
 			if (cxDelta || cyDelta)
 			{
@@ -544,15 +544,15 @@ void CGameFramework::ProcessInput()
 				else
 					m_pCamera->Rotate(cyDelta, cxDelta, 0.0f);
 			}
-			if (dwDirection ) {
+			if (dwDirection) {
 				m_pCamera->Move(dwDirection, 1.21f, true);
 			}
 		}
-	
-		
+
+
 	}
 	//m_pCamera->Update(m_GameTimer.GetTimeElapsed());
-	
+
 }
 
 void CGameFramework::AnimateObjects()
@@ -627,7 +627,7 @@ void CGameFramework::FrameAdvance()
 	//m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, 
 	//&d3dDsvCPUDescriptorHandle);
 	//렌더 타겟 뷰(서술자)와 깊이-스텐실 뷰(서술자)를 출력-병합 단계(OM)에 연결한다. //렌더링 코드는 여기에 추가될 것이다.
-	if (m_pScene) m_pScene->Render(m_pd3dDevice,m_pd3dCommandList, m_pCamera);
+	if (m_pScene) m_pScene->Render(m_pd3dDevice, m_pd3dCommandList, m_pCamera);
 	//m_pScene->CreateGraphicsPipelineState(m_pd3dDevice);
 	d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;

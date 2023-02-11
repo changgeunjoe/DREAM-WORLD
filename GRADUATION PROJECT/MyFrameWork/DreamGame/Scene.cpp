@@ -32,9 +32,10 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	//SetDescriptorRange(RootSignature.Descriptorrange, 0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 6, 0);//GameObject //b0
 	RootSignature.Descriptorrange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
 	RootSignature.Descriptorrange[0].NumDescriptors = 1;
-	RootSignature.Descriptorrange[0].BaseShaderRegister = 0; 
+	RootSignature.Descriptorrange[0].BaseShaderRegister = 0;
 	RootSignature.Descriptorrange[0].RegisterSpace = 0;
 	RootSignature.Descriptorrange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
 	RootSignature.Descriptorrange[1].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	RootSignature.Descriptorrange[1].NumDescriptors = 1;
 	RootSignature.Descriptorrange[1].BaseShaderRegister = 0; //gtxtexture
@@ -86,9 +87,8 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	RootSignature.Descriptorrange[10].RegisterSpace = 0;
 	RootSignature.Descriptorrange[10].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND; \
 
-
-//-------------------------------rootParameter----------------------------------------------------    
-	RootSignature.RootParameter.resize(13);
+	//-------------------------------rootParameter----------------------------------------------------    
+	RootSignature.RootParameter.resize(15);
 	//GameObject(b0)Shaders.hlsl
 	RootSignature.RootParameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	RootSignature.RootParameter[0].DescriptorTable.NumDescriptorRanges = 1;
@@ -154,6 +154,18 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	RootSignature.RootParameter[12].DescriptorTable.NumDescriptorRanges = 1;
 	RootSignature.RootParameter[12].DescriptorTable.pDescriptorRanges = &(RootSignature.Descriptorrange[10]);
 	RootSignature.RootParameter[12].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
+	//b3: Skinned Bone Offsets
+	RootSignature.RootParameter[12].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	RootSignature.RootParameter[12].Descriptor.ShaderRegister = 4;
+	RootSignature.RootParameter[12].Descriptor.RegisterSpace = 0;
+	RootSignature.RootParameter[12].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+
+	//b4: Skinned Bone Transforms
+	RootSignature.RootParameter[13].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	RootSignature.RootParameter[13].Descriptor.ShaderRegister = 5;
+	RootSignature.RootParameter[13].Descriptor.RegisterSpace = 0;
+	RootSignature.RootParameter[13].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 
 	//textureSampler
 	RootSignature.TextureSamplerDescs.resize(3);
@@ -273,7 +285,7 @@ void CScene::ReleaseUploadBuffers()
 	//}
 }
 
-void CScene::SetDescriptorRange(D3D12_DESCRIPTOR_RANGE *pd3dDescriptorRanges, int iIndex, D3D12_DESCRIPTOR_RANGE_TYPE RangeType, UINT NumDescriptors, UINT BaseShaderRegister, UINT RegisterSpace)
+void CScene::SetDescriptorRange(D3D12_DESCRIPTOR_RANGE* pd3dDescriptorRanges, int iIndex, D3D12_DESCRIPTOR_RANGE_TYPE RangeType, UINT NumDescriptors, UINT BaseShaderRegister, UINT RegisterSpace)
 {
 	pd3dDescriptorRanges[iIndex].RangeType = RangeType;
 	pd3dDescriptorRanges[iIndex].NumDescriptors = NumDescriptors;

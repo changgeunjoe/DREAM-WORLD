@@ -5,7 +5,7 @@
 class CAnimationSets;
 class GameObject;
 class SkinnedMeshComponent;
-class CLoadedModelInfoCompnent:public ComponentBase
+class CLoadedModelInfoCompnent :public ComponentBase
 {
 public:
 	CLoadedModelInfoCompnent() { };
@@ -14,7 +14,7 @@ public:
 	GameObject* m_pModelRootObject = NULL;
 
 	int 							m_nSkinnedMeshes = 0;
-	SkinnedMeshComponent**			m_ppSkinnedMeshes = NULL; //[SkinnedMeshes], Skinned Mesh Cache
+	SkinnedMeshComponent** m_ppSkinnedMeshes = NULL; //[SkinnedMeshes], Skinned Mesh Cache
 
 	CAnimationSets* m_pAnimationSets = NULL;
 

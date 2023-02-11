@@ -1,6 +1,6 @@
 #pragma once
 #include"ShaderComponent.h"
-class StandardShaderComponent:public ShaderComponent
+class StandardShaderComponent :public ShaderComponent
 {
 public:
 	StandardShaderComponent();

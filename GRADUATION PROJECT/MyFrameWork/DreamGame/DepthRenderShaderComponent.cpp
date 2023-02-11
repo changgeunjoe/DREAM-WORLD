@@ -59,7 +59,7 @@ D3D12_SHADER_BYTECODE DepthRenderShaderComponent::CreatePixelShader(int nPipelin
 
 void DepthRenderShaderComponent::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	UINT ncbDepthElementBytes=((sizeof(TOLIGHTSPACES) + 255) & ~255); //256의 배수;
+	UINT ncbDepthElementBytes = ((sizeof(TOLIGHTSPACES) + 255) & ~255); //256의 배수;
 
 	m_pd3dcbToLightSpaces = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbDepthElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 
@@ -100,7 +100,7 @@ void DepthRenderShaderComponent::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 
 	m_pDepthTexture = new TextureComponent();
 	m_pDepthTexture->BuildTexture(MAX_DEPTH_TEXTURES, RESOURCE_TEXTURE2D_ARRAY, 0, 1);
-	
+
 
 	//해줘야함????
 	m_pDepthTexture->AddRef();
@@ -266,7 +266,7 @@ void DepthRenderShaderComponent::PrepareShadowMap(ID3D12GraphicsCommandList* pd3
 	}
 }
 
-void DepthRenderShaderComponent::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, ID3D12RootSignature* pd3dGraphicsRootSignature,int nPipelineState)
+void DepthRenderShaderComponent::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, ID3D12RootSignature* pd3dGraphicsRootSignature, int nPipelineState)
 {
 	ShaderComponent::Render(pd3dCommandList, nPipelineState, pd3dGraphicsRootSignature);
 

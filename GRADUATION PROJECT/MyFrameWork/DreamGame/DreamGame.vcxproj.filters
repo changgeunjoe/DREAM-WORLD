@@ -144,6 +144,9 @@
     <ClInclude Include="ShadowShaderComponent.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Animation.h">
+      <Filter>소스 파일\헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -228,6 +231,8 @@
       <Filter>소스 파일\ShaderComponent</Filter>
     </ClCompile>
     <ClCompile Include="ShadowShaderComponent.cpp">
+    </ClCompile>
+    <ClCompile Include="Animation.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

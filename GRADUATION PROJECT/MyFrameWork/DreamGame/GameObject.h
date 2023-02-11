@@ -7,13 +7,14 @@
 #include"ShadowMapShaderComponent.h"
 #include"SkinnedMeshComponent.h"
 #include"CLoadModelinfo.h"
-
 #include"MaterialComponent.h"
 //include"CLoadModelinfo.h"
 class DepthRenderShaderComponent;
 class CLoadedModelInfoCompnent;
 class SkinnedMeshComponent;
 class ComponentBase;
+class CAnimationController;
+
 #define MATERIAL_ALBEDO_MAP				0x01
 #define MATERIAL_SPECULAR_MAP			0x02
 #define MATERIAL_NORMAL_MAP				0x04
@@ -63,11 +64,12 @@ public:
 
 	void HandleMessage(string message);
 
-	void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
-	void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
-	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
-	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
-	virtual void ReleaseShaderVariables();
+    void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+    void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+    void Animate(float fTimeElapsed);
+    virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+    virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
+    virtual void ReleaseShaderVariables();
 
 
     void SetChild(GameObject* pChild, bool bReferenceUpdate = false);
@@ -75,18 +77,19 @@ public:
     void FindAndSetSkinnedMesh(SkinnedMeshComponent** ppSkinnedMeshes, int* pnSkinnedMesh);
     TextureComponent* FindReplicatedTexture(_TCHAR* pstrTextureName);
     void UpdateTransform(XMFLOAT4X4* pxmf4x4Parent);
-    
-    
+
+    CAnimationController* m_pSkinnedAnimationController = NULL;
+
     UINT GetMeshType() { return((m_pMeshComponent) ? m_pMeshComponent->GetType() : 0x00); };
     void SetMaterialType(UINT nType) { m_nType |= nType; }
 
 public:
-    static CLoadedModelInfoCompnent* LoadGeometryAndAnimationFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, ShaderComponent* pShader, bool isBinary );
+    static CLoadedModelInfoCompnent* LoadGeometryAndAnimationFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, ShaderComponent* pShader, bool isBinary);
 
     void LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, GameObject* pParent, FILE* pInFile, ShaderComponent* pShader);
     static void LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfoCompnent* pLoadedModel);
     static GameObject* LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, GameObject* pParent, FILE* pInFile, ShaderComponent* pShader, int* pnSkinnedMeshes);
-   
+
 
     template<typename T>
     T* InsertComponent();
@@ -104,7 +107,7 @@ public:
 public:
 
     int								m_nMaterials = 0;
-    
+
 
     XMFLOAT4X4						m_xmf4x4ToParent;
     XMFLOAT4X4						m_xmf4x4Transform;//변환 행렬

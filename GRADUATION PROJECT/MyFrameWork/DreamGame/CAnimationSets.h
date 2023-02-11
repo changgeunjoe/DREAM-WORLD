@@ -57,7 +57,7 @@ public:
 public:
 	void SetPosition(float fTrackPosition);
 
-	XMFLOAT4X4 GetSRT(int nBone);
+	XMFLOAT4X4 GetSRT(int nBone, float fPosition);
 
 	void SetCallbackKeys(int nCallbackKeys);
 	void SetCallbackKey(int nKeyIndex, float fTime, void* pData);
