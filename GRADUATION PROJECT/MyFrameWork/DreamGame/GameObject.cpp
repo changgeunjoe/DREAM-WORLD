@@ -179,7 +179,7 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		m_pCubeComponent->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, 10, 10, 10);
 		pCubeMeshComponent = m_pCubeComponent;
 	}
-	pMeshComponent = GetComponent(component_id::SKYBOXMESH_COMPONENT);
+	ComponentBase* pMeshComponent = GetComponent(component_id::SKYBOXMESH_COMPONENT);
 	if (pMeshComponent != NULL)
 	{
 		m_pSkyboxComponent = static_cast<SkyBoxMeshComponent*>(pMeshComponent);

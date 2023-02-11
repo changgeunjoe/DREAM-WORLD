@@ -88,7 +88,7 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	RootSignature.Descriptorrange[10].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND; \
 
 	//-------------------------------rootParameter----------------------------------------------------    
-	RootSignature.RootParameter.resize(15);
+	RootSignature.RootParameter.resize(16);
 	//GameObject(b0)Shaders.hlsl
 	RootSignature.RootParameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	RootSignature.RootParameter[0].DescriptorTable.NumDescriptorRanges = 1;
@@ -156,16 +156,16 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	RootSignature.RootParameter[12].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	//b3: Skinned Bone Offsets
-	RootSignature.RootParameter[12].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	RootSignature.RootParameter[12].Descriptor.ShaderRegister = 4;
-	RootSignature.RootParameter[12].Descriptor.RegisterSpace = 0;
-	RootSignature.RootParameter[12].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
-
-	//b4: Skinned Bone Transforms
 	RootSignature.RootParameter[13].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	RootSignature.RootParameter[13].Descriptor.ShaderRegister = 5;
+	RootSignature.RootParameter[13].Descriptor.ShaderRegister = 4;
 	RootSignature.RootParameter[13].Descriptor.RegisterSpace = 0;
 	RootSignature.RootParameter[13].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+
+	//b4: Skinned Bone Transforms
+	RootSignature.RootParameter[14].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	RootSignature.RootParameter[14].Descriptor.ShaderRegister = 5;
+	RootSignature.RootParameter[14].Descriptor.RegisterSpace = 0;
+	RootSignature.RootParameter[14].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 
 	//textureSampler
 	RootSignature.TextureSamplerDescs.resize(3);
