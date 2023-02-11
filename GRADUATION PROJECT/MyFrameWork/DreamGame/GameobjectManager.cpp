@@ -39,7 +39,12 @@ GameobjectManager::~GameobjectManager()
 
 void GameobjectManager::Animate(float fTimeElapsed)
 {
+	m_pWarriorObject->Animate(fTimeElapsed);
+	m_pArcherObject->Animate(fTimeElapsed);
+	m_pTankerObject->Animate(fTimeElapsed);
+	m_pPriestObject->Animate(fTimeElapsed);
 	m_pMonsterObject->Animate(fTimeElapsed);
+
 	if (g_Logic.m_KeyInput->m_bQKey)
 	{
 		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetUp(), -12.0f * fTimeElapsed);
@@ -142,6 +147,10 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		}
 	}
 	m_pPlaneObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pWarriorObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pArcherObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pTankerObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pPriestObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pMonsterObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
 
@@ -152,40 +161,73 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 
 	m_pWarriorObject = new GameObject(SQUARE_ENTITY);//사각형 오브젝트를 만들겠다
 	m_pWarriorObject->InsertComponent<RenderComponent>();
-	m_pWarriorObject->InsertComponent<CubeMeshComponent>();
-	m_pWarriorObject->InsertComponent<ShaderComponent>();
-	m_pWarriorObject->InsertComponent<TextureComponent>();
-	m_pWarriorObject->SetTexture(L"Image/stones.dds", RESOURCE_TEXTURE2D, 3);
+	m_pWarriorObject->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pWarriorObject->SetPosition(XMFLOAT3(0, 0, 0));
+	m_pWarriorObject->SetModel("Model/Warrior.bin");
+	m_pWarriorObject->SetAnimationSets(3);
 	m_pWarriorObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pWarriorObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+	m_pWarriorObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
+	m_pWarriorObject->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
+	m_pWarriorObject->m_pSkinnedAnimationController->SetTrackEnable(2, true);
+	m_pWarriorObject->m_pSkinnedAnimationController->SetRootMotion(false);
+	m_pWarriorObject->SetScale(30.0f, 30.0f, 30.0f);
 
-	m_pArcherObject = new GameObject(SQUARE_ENTITY);//사각형 오브젝트를 만들겠다
+	m_pArcherObject = new GameObject(UNDEF_ENTITY);
 	m_pArcherObject->InsertComponent<RenderComponent>();
-	m_pArcherObject->InsertComponent<CubeMeshComponent>();
-	m_pArcherObject->InsertComponent<ShaderComponent>();
-	m_pArcherObject->InsertComponent<TextureComponent>();
-	m_pArcherObject->SetTexture(L"Image/stones.dds", RESOURCE_TEXTURE2D, 3);
-	m_pArcherObject->SetPosition(XMFLOAT3(0, 0, 0));
+	m_pArcherObject->InsertComponent<CLoadedModelInfoCompnent>();
+	m_pArcherObject->SetPosition(XMFLOAT3(-20, 0, 0));	
+	m_pArcherObject->SetModel("Model/Archer.bin");
+	m_pArcherObject->SetAnimationSets(3);
 	m_pArcherObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pArcherObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+	m_pArcherObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
+	m_pArcherObject->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
+	m_pArcherObject->m_pSkinnedAnimationController->SetTrackEnable(2, true);
+	m_pArcherObject->m_pSkinnedAnimationController->SetRootMotion(false);
+	m_pArcherObject->SetScale(30.0f, 30.0f, 30.0f);
 
-	m_pTankerObject = new GameObject(SQUARE_ENTITY);//사각형 오브젝트를 만들겠다
+	m_pTankerObject = new GameObject(UNDEF_ENTITY);
 	m_pTankerObject->InsertComponent<RenderComponent>();
-	m_pTankerObject->InsertComponent<CubeMeshComponent>();
-	m_pTankerObject->InsertComponent<ShaderComponent>();
-	m_pTankerObject->InsertComponent<TextureComponent>();
-	m_pTankerObject->SetTexture(L"Image/stones.dds", RESOURCE_TEXTURE2D, 3);
-	m_pTankerObject->SetPosition(XMFLOAT3(0, 0, 0));
+	m_pTankerObject->InsertComponent<CLoadedModelInfoCompnent>();
+	m_pTankerObject->SetPosition(XMFLOAT3(20, 0, 0));
+	m_pTankerObject->SetModel("Model/Tanker.bin");
+	m_pTankerObject->SetAnimationSets(3);
 	m_pTankerObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pTankerObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+	m_pTankerObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
+	m_pTankerObject->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
+	m_pTankerObject->m_pSkinnedAnimationController->SetTrackEnable(2, true);
+	m_pTankerObject->m_pSkinnedAnimationController->SetRootMotion(false);
+	m_pTankerObject->SetScale(30.0f, 30.0f, 30.0f);
 
-	m_pPriestObject = new GameObject(SQUARE_ENTITY);//사각형 오브젝트를 만들겠다
+	m_pPriestObject = new GameObject(UNDEF_ENTITY);
 	m_pPriestObject->InsertComponent<RenderComponent>();
-	m_pPriestObject->InsertComponent<CubeMeshComponent>();
-	m_pPriestObject->InsertComponent<ShaderComponent>();
-	m_pPriestObject->InsertComponent<TextureComponent>();
-	m_pPriestObject->SetTexture(L"Image/stones.dds", RESOURCE_TEXTURE2D, 3);
-	m_pPriestObject->SetPosition(XMFLOAT3(0, 0, 0));
+	m_pPriestObject->InsertComponent<CLoadedModelInfoCompnent>();
+	m_pPriestObject->SetPosition(XMFLOAT3(40, 0, 0));
+	m_pPriestObject->SetModel("Model/Priests.bin");
+	m_pPriestObject->SetAnimationSets(3);
 	m_pPriestObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pPriestObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+	m_pPriestObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
+	m_pPriestObject->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
+	m_pPriestObject->m_pSkinnedAnimationController->SetTrackEnable(2, true);
+	m_pPriestObject->m_pSkinnedAnimationController->SetRootMotion(false);
+	m_pPriestObject->SetScale(30.0f, 30.0f, 30.0f);
 
+	m_pMonsterObject = new GameObject(UNDEF_ENTITY);
+	m_pMonsterObject->InsertComponent<RenderComponent>();
+	m_pMonsterObject->InsertComponent<CLoadedModelInfoCompnent>();
+	m_pMonsterObject->SetPosition(XMFLOAT3(0, 0, 100));
+	m_pMonsterObject->SetModel("Model/Boss.bin");
+	m_pMonsterObject->SetAnimationSets(3);
+	m_pMonsterObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
+	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
+	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackEnable(2, true);
+	m_pMonsterObject->m_pSkinnedAnimationController->SetRootMotion(false);
+	m_pMonsterObject->SetScale(10.0f, 10.0f, 10.0f);
 
 	m_pPlaneObject = new GameObject(PlANE_ENTITY);
 	m_pPlaneObject->InsertComponent<RenderComponent>();
@@ -195,18 +237,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPlaneObject->SetTexture(L"Image/Base_Texture.dds", RESOURCE_TEXTURE2D, 3);
 	m_pPlaneObject->SetPosition(XMFLOAT3(0, -10, 50));
 	m_pPlaneObject->SetScale(100, 0.1, 100);
-	//m_pPlaneObject->SetScale(10.f, 0.2f, 10.f);
 	m_pPlaneObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pMonsterObject = new GameObject(UNDEF_ENTITY);
-	m_pMonsterObject->InsertComponent<RenderComponent>();
-	m_pMonsterObject->InsertComponent<CLoadedModelInfoCompnent>();
-	m_pMonsterObject->SetPosition(XMFLOAT3(0, 0, 10));
-	m_pMonsterObject->SetModel("Model/Tanker.bin");
-	m_pMonsterObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackEnable(0, true);
-	m_pMonsterObject->m_pSkinnedAnimationController->SetRootMotion(false);
-	m_pMonsterObject->SetScale(30.0f, 30.0f, 30.0f);
 
 	m_pSkyboxObject = new GameObject(SQUARE_ENTITY);
 	m_pSkyboxObject->InsertComponent<RenderComponent>();

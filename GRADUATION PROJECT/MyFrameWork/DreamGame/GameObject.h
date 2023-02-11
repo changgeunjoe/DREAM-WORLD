@@ -38,6 +38,7 @@ public:
     void SetScale(float x, float y, float z);
     void SetTexture(wchar_t* pszFileName, int nSamplers, int nRootParameter);
     void SetModel(char* pszModelName);
+    void SetAnimationSets(int nAnimationSets);
     void SetMesh(MeshComponent* pMesh);
 
 	void MoveStrafe(float fDistance = 1.0f);
@@ -107,7 +108,7 @@ public:
 public:
 
     int								m_nMaterials = 0;
-
+    int                             m_nAnimationSets = 0;
 
     XMFLOAT4X4						m_xmf4x4ToParent;
     XMFLOAT4X4						m_xmf4x4Transform;//변환 행렬

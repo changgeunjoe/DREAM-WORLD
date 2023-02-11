@@ -112,6 +112,11 @@ void GameObject::SetModel(char* pszModelName)
 	pszModelNames = pszModelName;
 }
 
+void GameObject::SetAnimationSets(int nAnimationSets)
+{
+	m_nAnimationSets = nAnimationSets;
+}
+
 void GameObject::SetMesh(MeshComponent* pMesh)
 {
 	if (m_pMeshComponent) m_pMeshComponent->Release();
@@ -214,7 +219,7 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 			pd3dGraphicsRootSignature, pszModelNames, NULL, true);//NULL ->Shader
 		SetChild(m_pLoadedModelComponent->m_pModelRootObject, true);
 
-		m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, 1, m_pLoadedModelComponent);
+		m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, m_nAnimationSets, m_pLoadedModelComponent);
 	}
 	ComponentBase* pDepthShaderComponent = GetComponent(component_id::DEPTHSHADER_COMPONENT);
 	if (pDepthShaderComponent != NULL)
