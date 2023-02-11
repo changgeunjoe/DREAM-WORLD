@@ -12,6 +12,7 @@ public:
 	GameobjectManager();
 	~GameobjectManager();
 	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void Animate(float fTimeElapsed);
 	virtual void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void BuildLight();
 
@@ -23,14 +24,15 @@ public:
 
 
 private: //active object 
-	GameObject**	pGameObjects = NULL;
-	GameObject*		m_pGameObject = NULL;
-	GameObject*		m_pSqureObject = NULL;
-	GameObject*     m_pSqure2Object = NULL;
-	GameObject*		m_pPlaneObject = NULL;
+	GameObject** pGameObjects = NULL;
+	GameObject* m_pGameObject = NULL;
+	GameObject* m_pSqureObject = NULL;
+	GameObject* m_pSqure2Object = NULL;
+	GameObject* m_pPlaneObject = NULL;
 	GameObject* m_pAnimationObject = NULL;
 	GameObject* m_pMonsterObject = NULL;
-	CLight*			m_pLight = NULL;
+	GameObject* m_pMonsterObject2 = NULL;
+	CLight* m_pLight = NULL;
 
 };
 

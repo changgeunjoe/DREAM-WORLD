@@ -48,9 +48,9 @@ public:
 	XMFLOAT3						m_xmf3Normal;
 
 public:
-	TextureComponentdVertex() { m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f); m_xmf2TexCoord = XMFLOAT2(0.0f, 0.0f); m_xmf3Normal= XMFLOAT3(0.0f, 0.0f,0.0f);}
+	TextureComponentdVertex() { m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f); m_xmf2TexCoord = XMFLOAT2(0.0f, 0.0f); m_xmf3Normal = XMFLOAT3(0.0f, 0.0f, 0.0f); }
 	TextureComponentdVertex(float x, float y, float z, XMFLOAT2 xmf2TexCoord, XMFLOAT3 xmx3Normal) { m_xmf3Position = XMFLOAT3(x, y, z); m_xmf2TexCoord = xmf2TexCoord; m_xmf3Normal = xmx3Normal; }
-	TextureComponentdVertex(XMFLOAT3 xmf3Position, XMFLOAT2 xmf2TexCoord, XMFLOAT3 xmx3Normal) { m_xmf3Position = xmf3Position; m_xmf2TexCoord = xmf2TexCoord; m_xmf3Normal = xmx3Normal;}
+	TextureComponentdVertex(XMFLOAT3 xmf3Position, XMFLOAT2 xmf2TexCoord, XMFLOAT3 xmx3Normal) { m_xmf3Position = xmf3Position; m_xmf2TexCoord = xmf2TexCoord; m_xmf3Normal = xmx3Normal; }
 	~TextureComponentdVertex() { }
 };
 
@@ -68,14 +68,14 @@ public:
 
 class MeshComponent : public ComponentBase
 {
-public: 
+public:
 	MeshComponent() {};
 	~MeshComponent() {};
 
 	virtual D3D12_VERTEX_BUFFER_VIEW	GetVertexBufferView();
 	virtual D3D12_INDEX_BUFFER_VIEW		GetIndexBufferView();
 	virtual D3D12_INDEX_BUFFER_VIEW		GetSubsetIndexBufferView(int nSubSet);
-	virtual ID3D12Resource*				GetIndexBufferResource();
+	virtual ID3D12Resource* GetIndexBufferResource();
 	virtual UINT						GetSlot();
 	virtual UINT						GetOffset();
 	virtual UINT						GetVertices();
@@ -86,7 +86,8 @@ public:
 	virtual UINT						GetSubMeshes();
 	virtual void						BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float fWidth, float fHeight, float fDepth) {};
 	virtual void						ReleaseUploadBuffers();
-	virtual void OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList, void* pContext) ;
+	virtual void						UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList) {};
+	virtual void OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList, void* pContext);
 	void AddRef() { m_nReferences++; }
 	void Release() { if (--m_nReferences <= 0) delete this; }
 	UINT GetType() { return(m_nType); }
@@ -127,10 +128,10 @@ protected:
 	UINT** m_ppnSubSetIndices = NULL;
 
 
-	
-	
+
+
 };
-class CubeMeshComponent :public MeshComponent 
+class CubeMeshComponent :public MeshComponent
 {
 public:
 	CubeMeshComponent();
@@ -139,7 +140,7 @@ public:
 
 };
 
-class StandardMeshComponent  :public MeshComponent
+class StandardMeshComponent :public MeshComponent
 
 {
 public:

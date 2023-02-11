@@ -31,6 +31,7 @@ D3D12_RASTERIZER_DESC ShaderComponent::CreateRasterizerState(int nPipelineState)
 	D3D12_RASTERIZER_DESC d3dRasterizerDesc;
 	::ZeroMemory(&d3dRasterizerDesc, sizeof(D3D12_RASTERIZER_DESC));
 	d3dRasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
+	// d3dRasterizerDesc.FillMode = D3D12_FILL_MODE_WIREFRAME;
 	//d3dRasterizerDesc.CullMode = D3D12_CULL_MODE_NONE;
 	d3dRasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;
 	d3dRasterizerDesc.FrontCounterClockwise = FALSE;
@@ -252,7 +253,7 @@ void ShaderComponent::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12Grap
 void ShaderComponent::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList, XMFLOAT4X4* pxmf4x4World, MaterialComponent* ppMaterialsComponent)
 {
 	MATERIAL m_material;
-	if (ppMaterialsComponent) 
+	if (ppMaterialsComponent)
 	{
 		m_material.m_xmf4Ambient = ppMaterialsComponent->m_xmf4AmbientColor;
 		m_material.m_xmf4Diffuse = ppMaterialsComponent->m_xmf4AlbedoColor;
@@ -263,7 +264,7 @@ void ShaderComponent::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dComma
 	}
 
 	XMStoreFloat4x4(&m_pcbMappedGameObjects->m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(pxmf4x4World)));//오브젝트의 월드좌표계를 변환시켜준다.
-	
+
 	if (ppMaterialsComponent) {
 
 		for (int i = 0; i < ppMaterialsComponent->m_nTextures; i++)
@@ -316,6 +317,8 @@ void ShaderComponent::CreateCbvSrvDescriptorHeaps(ID3D12Device* pd3dDevice, int 
 
 	m_d3dSrvCPUDescriptorNextHandle = m_d3dSrvCPUDescriptorStartHandle;
 	m_d3dSrvGPUDescriptorNextHandle = m_d3dSrvGPUDescriptorStartHandle;
+	m_d3dSrvCPUDescriptorNextHandle.ptr = m_d3dSrvCPUDescriptorStartHandle.ptr;
+	m_d3dSrvGPUDescriptorNextHandle.ptr = m_d3dSrvGPUDescriptorStartHandle.ptr;
 }
 
 void ShaderComponent::CreateConstantBufferViews(ID3D12Device* pd3dDevice, int nConstantBufferViews, ID3D12Resource* pd3dConstantBuffers, UINT nStride)
@@ -330,7 +333,7 @@ void ShaderComponent::CreateConstantBufferViews(ID3D12Device* pd3dDevice, int nC
 		d3dCbvCPUDescriptorHandle.ptr = m_d3dCbvCPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * j);
 		pd3dDevice->CreateConstantBufferView(&d3dCBVDesc, d3dCbvCPUDescriptorHandle);
 	}
-}	
+}
 
 void ShaderComponent::CreateShaderResourceViews(ID3D12Device* pd3dDevice, TextureComponent* pTexture, UINT nDescriptorHeapIndex, UINT nRootParameterStartIndex)
 {

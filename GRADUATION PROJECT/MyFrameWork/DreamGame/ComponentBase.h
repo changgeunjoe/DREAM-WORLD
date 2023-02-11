@@ -6,7 +6,7 @@ class ComponentBase
 {
 public:
     ComponentBase() : m_pOwner(NULL) {}
-    virtual ~ComponentBase(){}
+    virtual ~ComponentBase() {}
 
     virtual const component_id& GetComponentID();
     virtual const component_id& GetFamilyID();

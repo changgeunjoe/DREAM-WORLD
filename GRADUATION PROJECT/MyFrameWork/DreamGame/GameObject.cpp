@@ -1,10 +1,12 @@
 #include "GameObject.h"
 #include"CAnimationSets.h"
+#include "Animation.h"
+
 BYTE ReadStringFromFile(FILE* pInFile, char* pstrToken)
 {
 	BYTE nStrLength = 0;
 	UINT nReads = 0;
-	
+
 	nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
 	nReads = (UINT)::fread(pstrToken, sizeof(char), nStrLength, pInFile);
 	pstrToken[nStrLength] = '\0';
@@ -12,7 +14,7 @@ BYTE ReadStringFromFile(FILE* pInFile, char* pstrToken)
 }
 
 int ReadIntegerFromFile(FILE* pInFile)
- {
+{
 	int nValue = 0;
 	UINT nReads = (UINT)::fread(&nValue, sizeof(int), 1, pInFile);
 	return(nValue);
@@ -27,7 +29,7 @@ float ReadFloatFromFile(FILE* pInFile)
 
 GameObject::GameObject(entity_id entityID)
 {
-    m_entityID = entityID;
+	m_entityID = entityID;
 	m_xmf4x4World = Matrix4x4::Identity();
 	m_xmf4x4ToParent = Matrix4x4::Identity();
 }
@@ -109,34 +111,34 @@ void GameObject::SetMesh(MeshComponent* pMesh)
 
 unordered_map<component_id, ComponentBase*> GameObject::Getcomponents()
 {
-    return m_components;
+	return m_components;
 }
 
 template<typename T>
 T* InsertComponent()
 {
-    unsigned int componentID = RTTI::GetTypeID<T>();
-    if (m_components.find(componentID) != m_components.end())
-    {
-        return NULL;
-    }
-    T* pComponent = new T();
-    m_components.insert(std::make_pair(componentID, pComponent));
-    pComponent->SetOwner(this);
-    return pComponent;
+	unsigned int componentID = RTTI::GetTypeID<T>();
+	if (m_components.find(componentID) != m_components.end())
+	{
+		return NULL;
+	}
+	T* pComponent = new T();
+	m_components.insert(std::make_pair(componentID, pComponent));
+	pComponent->SetOwner(this);
+	return pComponent;
 }
 
 void GameObject::SetComponent(const component_id& componentID)
 {
 }
-ComponentBase* GameObject::GetComponent(const component_id& componentID) 
+ComponentBase* GameObject::GetComponent(const component_id& componentID)
 {
 	if (m_components.find(componentID) == m_components.end())
 	{
 		return NULL;//컴포넌트 없으면 그냥 나가게 해주는거 
 	}
 	auto it = m_components.find(componentID);
-	ComponentBase* Component= it->second;
+	ComponentBase* Component = it->second;
 	return Component;
 }
 
@@ -148,7 +150,7 @@ void GameObject::HandleMessage(string message)
 void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
 
-	ComponentBase* pComponent=GetComponent(component_id::RENDER_COMPONENT);
+	ComponentBase* pComponent = GetComponent(component_id::RENDER_COMPONENT);
 	if (pComponent != NULL)
 	{
 		m_pRenderComponent = static_cast<RenderComponent*>(pComponent);
@@ -160,15 +162,15 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		m_pTextureComponent->BuildTexture(1, RESOURCE_TEXTURE2D, 0, 1);
 		m_pTextureComponent->LoadTextureFromFile(pd3dDevice, pd3dCommandList, pszFileNames, RESOURCE_TEXTURE2D, 0);
 	}
-	ComponentBase* pMeshComponent = GetComponent(component_id::CUBEMESH_COMPONENT);
-	if (pMeshComponent != NULL)
+	ComponentBase* pCubeMeshComponent = GetComponent(component_id::CUBEMESH_COMPONENT);
+	if (pCubeMeshComponent != NULL)
 	{
-		m_pCubeComponent = static_cast<CubeMeshComponent*>(pMeshComponent);
+		m_pCubeComponent = static_cast<CubeMeshComponent*>(pCubeMeshComponent);
 		m_pCubeComponent->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, 10, 10, 10);
-		m_pMeshComponent = m_pCubeComponent;
+		pCubeMeshComponent = m_pCubeComponent;
 	}
 	//->메테리얼 생성 텍스쳐와 쉐이더를 넣어야되는데 쉐이더이므로 안 넣어도 됨
-	ComponentBase* pShaderComponent = GetComponent(component_id::SHADER_COMPONENT);	
+	ComponentBase* pShaderComponent = GetComponent(component_id::SHADER_COMPONENT);
 	if (pShaderComponent != NULL)
 	{
 		m_pShaderComponent = static_cast<ShaderComponent*>(pShaderComponent);
@@ -184,38 +186,43 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	{
 		MaterialComponent::PrepareShaders(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pd3dcbGameObjects);
 		m_pLoadedModelComponent = static_cast<CLoadedModelInfoCompnent*>(pLoadedmodelComponent);
-		m_pLoadedModelComponent= LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList,
-			pd3dGraphicsRootSignature, "Model/Lion.bin", NULL,true);//NULL ->Shader
+		m_pLoadedModelComponent = LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList,
+			pd3dGraphicsRootSignature, "Model/Tanker.bin", NULL, true);//NULL ->Shader
 		SetChild(m_pLoadedModelComponent->m_pModelRootObject, true);
-		
-		//m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, pMonsterModel);
+
+		m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, 3, m_pLoadedModelComponent);
 	}
 }
 void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
 	//UpdateTransform(&m_xmf4x4ToParent);
+	if (!strcmp(m_pstrFrameName, "Tanker"))
+		cout << "tanker";
+	if (m_pSkinnedAnimationController)
+		m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
+
 	if (m_pShaderComponent != NULL)
 	{
-		m_pShaderComponent->Render(pd3dCommandList,0, pd3dGraphicsRootSignature);
-		m_pShaderComponent->UpdateShaderVariables(pd3dCommandList, &m_xmf4x4World,NULL);
+		m_pShaderComponent->Render(pd3dCommandList, 0, pd3dGraphicsRootSignature);
+		m_pShaderComponent->UpdateShaderVariables(pd3dCommandList, &m_xmf4x4World, NULL);
 		pd3dCommandList->SetGraphicsRootDescriptorTable(0, m_pShaderComponent->GetCbvGPUDescriptorHandle());
-		if (m_pTextureComponent != NULL) 
+		if (m_pTextureComponent != NULL)
 		{
 			m_pTextureComponent->UpdateShaderVariables(pd3dCommandList);
 		}
 	}
-	if (m_pRenderComponent != NULL&& m_pMeshComponent !=NULL&& m_ppMaterialsComponent ==NULL&& m_pLoadedModelComponent==NULL)
+	if (m_pRenderComponent != NULL && m_pMeshComponent != NULL && m_ppMaterialsComponent == NULL && m_pLoadedModelComponent == NULL)
 	{
 		m_pRenderComponent->Render(pd3dCommandList, m_pMeshComponent, 0);//수정필요
 	}
 
-	if (m_nMaterials > 0) 
+	if (m_nMaterials > 0)
 	{
 		for (int i = 0; i < m_nMaterials; i++)
 		{
 			if (m_ppMaterialsComponent[i])
 			{
-				if (m_ppMaterialsComponent[i]->m_pShader) 
+				if (m_ppMaterialsComponent[i]->m_pShader)
 				{
 					m_ppMaterialsComponent[i]->m_pShader->Render(pd3dCommandList, 0, pd3dGraphicsRootSignature);
 					pd3dCommandList->SetGraphicsRootDescriptorTable(0, m_ppMaterialsComponent[i]->m_pShader->GetCbvGPUDescriptorHandle());
@@ -223,15 +230,24 @@ void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3
 					//m_ppMaterialsComponent[i]->UpdateShaderVariable(pd3dCommandList);
 
 				}
-				
+
 
 			}
-			m_pRenderComponent->Render(pd3dCommandList, m_pMeshComponent,i);
+			m_pRenderComponent->Render(pd3dCommandList, m_pMeshComponent, i);
 		}
 	}
-	if (m_pSibling) m_pSibling->Render(pd3dDevice,pd3dCommandList, pd3dGraphicsRootSignature);
-	if (m_pChild) m_pChild->Render(pd3dDevice,pd3dCommandList, pd3dGraphicsRootSignature);
+	if (m_pSibling) m_pSibling->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	if (m_pChild) m_pChild->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
+
+void GameObject::Animate(float fTimeElapsed)
+{
+	if (m_pSkinnedAnimationController) m_pSkinnedAnimationController->AdvanceTime(fTimeElapsed, this);
+
+	if (m_pSibling) m_pSibling->Animate(fTimeElapsed);
+	if (m_pChild) m_pChild->Animate(fTimeElapsed);
+}
+
 void GameObject::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
@@ -243,7 +259,7 @@ void GameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandLis
 {
 	XMStoreFloat4x4(&m_pcbMappedGameObjects->m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4World)));
 	//::memcpy(&m_pcbMappedGameObjects->m_material.m_xmf4Ambient, &(m_ppMaterialsComponent->, sizeof(XMFLOAT3));
-	
+
 }
 void GameObject::ReleaseShaderVariables()
 {
@@ -315,7 +331,7 @@ TextureComponent* GameObject::FindReplicatedTexture(_TCHAR* pstrTextureName)
 
 CLoadedModelInfoCompnent* GameObject::LoadGeometryAndAnimationFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, ShaderComponent* pShader, bool isBinary)
 {
-	 FILE * pInFile = NULL;
+	FILE* pInFile = NULL;
 	::fopen_s(&pInFile, pstrFileName, "rb");
 	::rewind(pInFile);
 
@@ -325,7 +341,7 @@ CLoadedModelInfoCompnent* GameObject::LoadGeometryAndAnimationFromFile(ID3D12Dev
 
 	for (; ; )
 	{
-		
+
 		if (::ReadStringFromFile(pInFile, pstrToken))
 		{
 			if (!strcmp(pstrToken, "<Hierarchy>:"))
@@ -337,7 +353,7 @@ CLoadedModelInfoCompnent* GameObject::LoadGeometryAndAnimationFromFile(ID3D12Dev
 			{
 				GameObject::LoadAnimationFromFile(pInFile, pLoadedModel);
 				pLoadedModel->PrepareSkinning();
-			
+
 			}
 			else if (!strcmp(pstrToken, "</Animation>:"))
 			{
@@ -348,7 +364,7 @@ CLoadedModelInfoCompnent* GameObject::LoadGeometryAndAnimationFromFile(ID3D12Dev
 		{
 			break;
 		}
-		
+
 	}
 
 #ifdef _WITH_DEBUG_FRAME_HIERARCHY
@@ -521,7 +537,7 @@ void GameObject::LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfoCompnent* 
 
 			for (int i = 0; i < nKeyFrames; i++)
 			{
-				::ReadStringFromFile(pInFile, pstrToken);	
+				::ReadStringFromFile(pInFile, pstrToken);
 				if (!strcmp(pstrToken, "<Transforms>:"))
 				{
 					CAnimationSet* pAnimationSet = pLoadedModel->m_pAnimationSets->m_pAnimationSets[nAnimationSet];

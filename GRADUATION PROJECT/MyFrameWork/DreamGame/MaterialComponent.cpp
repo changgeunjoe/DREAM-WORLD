@@ -93,10 +93,10 @@ void MaterialComponent::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12Grap
 		if (!bDuplicated)
 		{
 			*ppTexture = new TextureComponent();
-			(*ppTexture)->BuildTexture(1, RESOURCE_TEXTURE2D, 0,1);
+			(*ppTexture)->BuildTexture(1, RESOURCE_TEXTURE2D, 0, 1);
 			(*ppTexture)->LoadTextureFromFile(pd3dDevice, pd3dCommandList, pwstrTextureName, RESOURCE_TEXTURE2D, 0);
 			if (*ppTexture) (*ppTexture)->AddRef();
-			pShader->CreateShaderResourceViews(pd3dDevice, *ppTexture,0, nRootParameter, false);
+			pShader->CreateShaderResourceViews(pd3dDevice, *ppTexture, 0, nRootParameter, false);
 		}
 		else
 		{
@@ -119,18 +119,17 @@ void MaterialComponent::PrepareShaders(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 {
 	int nObjects = 0;
 	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);// 삭제 예정(변경)
-	m_pStandardShader = new  StandardShaderComponent;
+	m_pStandardShader = new  StandardShaderComponent();
 	m_pStandardShader->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
-	m_pStandardShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 20);
+	m_pStandardShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 10, 20);
 	m_pStandardShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	m_pStandardShader->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObjects, ncbElementBytes);
 	m_pStandardShader->SetCbvGPUDescriptorHandlePtr(m_pStandardShader->GetGPUCbvDescriptorStartHandle().ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));
 	//m_pStandardShader->SetName("Standard");
-	m_pSkinnedAnimationShader = new StandardShaderComponent();//수정
+	m_pSkinnedAnimationShader = new SkinnedShaderComponent();//수정
 	m_pSkinnedAnimationShader->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
 	m_pSkinnedAnimationShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 10, 20);
 	m_pSkinnedAnimationShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	m_pSkinnedAnimationShader->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObjects, ncbElementBytes);
 	m_pSkinnedAnimationShader->SetCbvGPUDescriptorHandlePtr(m_pSkinnedAnimationShader->GetGPUCbvDescriptorStartHandle().ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));
-
-}	
+}
