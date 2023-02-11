@@ -39,23 +39,19 @@ GameobjectManager::~GameobjectManager()
 
 void GameobjectManager::Animate(float fTimeElapsed)
 {
-	m_pWarriorObject->Animate(fTimeElapsed);
-	m_pArcherObject->Animate(fTimeElapsed);
-	m_pTankerObject->Animate(fTimeElapsed);
-	m_pPriestObject->Animate(fTimeElapsed);
 	m_pMonsterObject->Animate(fTimeElapsed);
 
 	if (g_Logic.m_KeyInput->m_bQKey)
 	{
-		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetUp(), -12.0f * fTimeElapsed);
-		g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y -= 12.0f * fTimeElapsed;
-		g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::Y, -12.0f * fTimeElapsed);
+		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetUp(), -30.0f * fTimeElapsed);
+		g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y -= 30.0f * fTimeElapsed;
+		g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::Y, -30.0f * fTimeElapsed);
 	}
 	if (g_Logic.m_KeyInput->m_bEKey)
 	{
-		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetUp(), 12.0f * fTimeElapsed);
-		g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += 12.0f * fTimeElapsed;
-		g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::Y, 12.0f * fTimeElapsed);
+		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetUp(), 30.0f * fTimeElapsed);
+		g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += 30.0f * fTimeElapsed;
+		g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::Y, 30.0f * fTimeElapsed);
 	}
 
 	for (auto& session : g_Logic.m_inGamePlayerSession) {
@@ -130,8 +126,8 @@ void GameobjectManager::Animate(float fTimeElapsed)
 #endif
 				}
 			}
+			session.m_currentPlayGameObject->Animate(fTimeElapsed);
 		}
-
 	}
 }
 
@@ -147,10 +143,6 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		}
 	}
 	m_pPlaneObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pWarriorObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pArcherObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pTankerObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pPriestObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pMonsterObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
 
@@ -176,7 +168,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pArcherObject = new GameObject(UNDEF_ENTITY);
 	m_pArcherObject->InsertComponent<RenderComponent>();
 	m_pArcherObject->InsertComponent<CLoadedModelInfoCompnent>();
-	m_pArcherObject->SetPosition(XMFLOAT3(-20, 0, 0));	
+	m_pArcherObject->SetPosition(XMFLOAT3(-20, 0, 0));
 	m_pArcherObject->SetModel("Model/Archer.bin");
 	m_pArcherObject->SetAnimationSets(3);
 	m_pArcherObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
