@@ -39,7 +39,7 @@ GameobjectManager::~GameobjectManager()
 
 void GameobjectManager::Animate(float fTimeElapsed)
 {
-
+	m_pMonsterObject->Animate(fTimeElapsed);
 	if (g_Logic.m_KeyInput->m_bQKey)
 	{
 		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetUp(), -12.0f * fTimeElapsed);
@@ -143,12 +143,6 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	}
 	m_pPlaneObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pMonsterObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-}
-
-void GameobjectManager::Animate(float fTimeElapsed)
-{
-	m_pMonsterObject->Animate(fTimeElapsed);
-	m_pMonsterObject2->Animate(fTimeElapsed);
 }
 
 void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)

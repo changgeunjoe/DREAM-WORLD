@@ -1,6 +1,9 @@
 #pragma once
 #include "CAnimationSets.h"
 
+class SkinnedMeshComponent;
+class GameObject;
+class CLoadedModelInfoCompnent;
 class CAnimationTrack
 {
 public:

@@ -1,4 +1,7 @@
+#include "stdafx.h"
 #include "Animation.h"
+#include "CLoadModelinfo.h"
+#include "GameObject.h"
 
 #pragma region CAnimationTrack
 CAnimationTrack::~CAnimationTrack()
