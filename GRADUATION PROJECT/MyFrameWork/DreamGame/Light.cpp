@@ -35,6 +35,11 @@ void CLight::ReleaseShaderVariables()
 	}
 }
 
+LIGHT* CLight::GetLight()
+{
+	return m_pLights;
+}
+
 void CLight::BuildLight()
 {
 	m_nLights = 1;

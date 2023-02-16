@@ -230,8 +230,11 @@ void ShaderComponent::CreateGraphicsPipelineState(ID3D12Device* pd3dDevice, ID3D
 	d3dPipelineStateDesc.InputLayout = CreateInputLayout(nPipelineState);
 	d3dPipelineStateDesc.SampleMask = UINT_MAX;
 	d3dPipelineStateDesc.PrimitiveTopologyType = GetPrimitiveTopologyType(nPipelineState);
+
 	d3dPipelineStateDesc.NumRenderTargets = GetNumRenderTargets(nPipelineState);
-	d3dPipelineStateDesc.RTVFormats[0] = GetRTVFormat(nPipelineState, 0);
+	//d3dPipelineStateDesc.RTVFormats[0] = GetRTVFormat(nPipelineState, 0);
+	for (UINT i = 0; i < GetNumRenderTargets(nPipelineState); i++)
+		d3dPipelineStateDesc.RTVFormats[i] = GetRTVFormat(nPipelineState, nPipelineState); 
 	d3dPipelineStateDesc.DSVFormat = GetDSVFormat(nPipelineState);
 	d3dPipelineStateDesc.SampleDesc.Count = 1;
 	d3dPipelineStateDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;

@@ -3,7 +3,7 @@
 #include "Animation.h"
 #include "Network/NetworkHelper.h"
 #include "Network/Logic/Logic.h"
-
+#include"DepthRenderShaderComponent.h"
 extern NetworkHelper g_NetworkHelper;
 extern Logic g_Logic;
 
@@ -40,7 +40,7 @@ GameobjectManager::~GameobjectManager()
 void GameobjectManager::Animate(float fTimeElapsed)
 {
 	m_pMonsterObject->Animate(fTimeElapsed);
-
+	AnimateObjects();
 	if (g_Logic.m_KeyInput->m_bQKey)
 	{
 		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetUp(), -30.0f * fTimeElapsed);
@@ -131,8 +131,17 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	}
 }
 
+void GameobjectManager::OnPreRender( ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList ,ID3D12RootSignature* pd3dGraphicsRootSignature)
+{
+	m_pDepthShaderComponent->PrepareShadowMap(pd3dDevice,pd3dCommandList);
+	//Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+}
+
+
 void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
+	
+
 	UpdateShaderVariables(pd3dCommandList);
 	m_pSkyboxObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
@@ -150,6 +159,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 {
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	BuildLight();
+	
 
 	m_pWarriorObject = new GameObject(SQUARE_ENTITY);//사각형 오브젝트를 만들겠다
 	m_pWarriorObject->InsertComponent<RenderComponent>();
@@ -164,6 +174,8 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pWarriorObject->m_pSkinnedAnimationController->SetTrackEnable(2, true);
 	m_pWarriorObject->m_pSkinnedAnimationController->SetRootMotion(false);
 	m_pWarriorObject->SetScale(30.0f, 30.0f, 30.0f);
+	m_ppGameObjects.emplace_back( m_pWarriorObject);
+	//m_ppGameObjects[m_nObjects++]= m_pWarriorObject;
 
 	m_pArcherObject = new GameObject(UNDEF_ENTITY);
 	m_pArcherObject->InsertComponent<RenderComponent>();
@@ -178,6 +190,8 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pArcherObject->m_pSkinnedAnimationController->SetTrackEnable(2, true);
 	m_pArcherObject->m_pSkinnedAnimationController->SetRootMotion(false);
 	m_pArcherObject->SetScale(30.0f, 30.0f, 30.0f);
+	m_ppGameObjects.emplace_back(m_pArcherObject);
+	//m_ppGameObjects[m_nObjects++] = m_pArcherObject;
 
 	m_pTankerObject = new GameObject(UNDEF_ENTITY);
 	m_pTankerObject->InsertComponent<RenderComponent>();
@@ -192,6 +206,8 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pTankerObject->m_pSkinnedAnimationController->SetTrackEnable(2, true);
 	m_pTankerObject->m_pSkinnedAnimationController->SetRootMotion(false);
 	m_pTankerObject->SetScale(30.0f, 30.0f, 30.0f);
+	m_ppGameObjects.emplace_back(m_pTankerObject);
+	//m_ppGameObjects[m_nObjects++] = m_pTankerObject;
 
 	m_pPriestObject = new GameObject(UNDEF_ENTITY);
 	m_pPriestObject->InsertComponent<RenderComponent>();
@@ -206,6 +222,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPriestObject->m_pSkinnedAnimationController->SetTrackEnable(2, true);
 	m_pPriestObject->m_pSkinnedAnimationController->SetRootMotion(false);
 	m_pPriestObject->SetScale(30.0f, 30.0f, 30.0f);
+	m_ppGameObjects.emplace_back(m_pPriestObject);
 
 	m_pMonsterObject = new GameObject(UNDEF_ENTITY);
 	m_pMonsterObject->InsertComponent<RenderComponent>();
@@ -220,6 +237,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackEnable(2, true);
 	m_pMonsterObject->m_pSkinnedAnimationController->SetRootMotion(false);
 	m_pMonsterObject->SetScale(10.0f, 10.0f, 10.0f);
+	m_ppGameObjects.emplace_back(m_pMonsterObject);
 
 	m_pPlaneObject = new GameObject(PlANE_ENTITY);
 	m_pPlaneObject->InsertComponent<RenderComponent>();
@@ -230,6 +248,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPlaneObject->SetPosition(XMFLOAT3(0, -10, 50));
 	m_pPlaneObject->SetScale(100, 0.1, 100);
 	m_pPlaneObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppGameObjects.emplace_back(m_pPlaneObject);
 
 	m_pSkyboxObject = new GameObject(SQUARE_ENTITY);
 	m_pSkyboxObject->InsertComponent<RenderComponent>();
@@ -240,6 +259,10 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pSkyboxObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pSkyboxObject->SetScale(1, 1, 1);
 	m_pSkyboxObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppGameObjects.emplace_back(m_pSkyboxObject);
+
+
+
 
 #ifdef LOCAL_TASK
 	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject = m_pWarriorObject;
@@ -248,11 +271,23 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 #endif // LOCAL_TASK
 
 
-
+	BuildShadow(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//무조건 마지막에 해줘야된다.
 }
 void GameobjectManager::BuildLight()
 {
 	m_pLight->BuildLight();
+}
+void GameobjectManager::BuildShadow(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+{
+	m_pDepthShaderComponent = new DepthRenderShaderComponent();
+	m_pDepthShaderComponent->BuildDepth(m_ppGameObjects, m_pLight->GetLight());
+	m_pDepthShaderComponent->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
+	m_pDepthShaderComponent->CreateCbvSrvDescriptorHeaps(pd3dDevice, 2, 2);
+	//m_pDepthShaderComponent->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObjects, ncbElementBytes);
+	//m_pDepthShaderComponent->CreateShaderResourceViews(pd3dDevice, m_pTextureComponent, 0, m_nRootParameter, pShadowMap);//texture입력
+	//m_pDepthShaderComponent->SetCbvGPUDescriptorHandlePtr(m_pShaderComponent->GetGPUCbvDescriptorStartHandle().ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));
+	m_pDepthShaderComponent->BuildObjects(pd3dDevice, pd3dCommandList, NULL);
+
 }
 void GameobjectManager::AnimateObjects()
 {

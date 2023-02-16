@@ -276,6 +276,13 @@ void CScene::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCom
 	m_pObjectManager->Render(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 }
 
+void CScene::OnPreRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,CCamera* pCamera)
+{
+	pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
+	m_pObjectManager->OnPreRender(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+
+}
+
 void CScene::ReleaseUploadBuffers()
 {
 	//if (m_ppObjects)

@@ -36,9 +36,6 @@
     <Filter Include="GameObject">
       <UniqueIdentifier>{17df3cf6-eb98-427d-8b51-f2470adea1d4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Shader\HLSL">
-      <UniqueIdentifier>{84b60826-d8e8-441b-b00f-4fbaeb3e977c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="소스 파일\헤더 파일">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
@@ -51,6 +48,9 @@
     </Filter>
     <Filter Include="소스 파일\ShaderComponent">
       <UniqueIdentifier>{867c0b48-eda5-4132-9b3e-247bd1f93348}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\ShaderComponent\HLSL">
+      <UniqueIdentifier>{84b60826-d8e8-441b-b00f-4fbaeb3e977c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -141,11 +141,11 @@
     <ClInclude Include="ShadowMapShaderComponent.h">
       <Filter>소스 파일\ShaderComponent</Filter>
     </ClInclude>
-    <ClInclude Include="ShadowShaderComponent.h">
-      <Filter>소스 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Animation.h">
       <Filter>소스 파일\헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="define.h">
+      <Filter>소스 파일\ShaderComponent\HLSL</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -230,8 +230,6 @@
     <ClCompile Include="ShadowMapShaderComponent.cpp">
       <Filter>소스 파일\ShaderComponent</Filter>
     </ClCompile>
-    <ClCompile Include="ShadowShaderComponent.cpp">
-    </ClCompile>
     <ClCompile Include="Animation.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -254,13 +252,13 @@
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders.hlsl">
-      <Filter>Shader\HLSL</Filter>
+      <Filter>소스 파일\ShaderComponent\HLSL</Filter>
     </FxCompile>
     <FxCompile Include="Shadow.hlsl">
-      <Filter>Shader\HLSL</Filter>
+      <Filter>소스 파일\ShaderComponent\HLSL</Filter>
     </FxCompile>
     <FxCompile Include="Light.hlsl">
-      <Filter>Shader\HLSL</Filter>
+      <Filter>소스 파일\ShaderComponent\HLSL</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

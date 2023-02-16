@@ -2,7 +2,9 @@
 #include"stdafx.h"
 #include"ShaderComponent.h"
 #include"TextureComponent.h"
+
 #include "Light.h"
+
 
 class CCamera;
 class StandardShaderComponent;
@@ -26,18 +28,20 @@ public:
 	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState(int nPipelineState);
 	virtual D3D12_RASTERIZER_DESC CreateRasterizerState(int nPipelineState);
 
+	D3D12_SHADER_BYTECODE CreateVertexShader(int nPipelineState);
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader(int nPipelineState);
 
 	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout(int nPipelineState);
 	virtual void ReleaseShaderVariables();
-	virtual void BuildDepth(StandardShaderComponent* pObjectsShader, LIGHT* pLights);
+	virtual void BuildDepth(vector<GameObject*> &pObjects, LIGHT* pLights);
 	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, void* pContext = NULL);
 	virtual void ReleaseObjects();
 
-	void PrepareShadowMap(ID3D12GraphicsCommandList* pd3dCommandList);
+	void PrepareShadowMap(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 
-	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, ID3D12RootSignature* pd3dGraphicsRootSignature, int nPipelineState = 0);
+	virtual void Render(ID3D12Device* pd3dDevice,ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, ID3D12RootSignature* pd3dGraphicsRootSignature, int nPipelineState = 0);
 
 protected:
 	//깊이 저장 텍스쳐
@@ -65,6 +69,7 @@ public:
 	//CPlayer* m_pPlayer = NULL;
 
 protected:
+	vector<GameObject*> m_ppObjects;
 	LIGHT* m_pLights = NULL;
 
 	TOLIGHTSPACES* m_pToLightSpaces;

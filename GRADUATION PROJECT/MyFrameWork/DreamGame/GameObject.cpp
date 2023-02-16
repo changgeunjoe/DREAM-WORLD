@@ -221,14 +221,7 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 
 		m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, m_nAnimationSets, m_pLoadedModelComponent);
 	}
-	ComponentBase* pDepthShaderComponent = GetComponent(component_id::DEPTHSHADER_COMPONENT);
-	if (pDepthShaderComponent != NULL)
-	{
-		m_pDepthShaderComponent = static_cast<DepthRenderShaderComponent*>(pDepthShaderComponent);
-		m_pDepthShaderComponent->BuildDepth(NULL, NULL);
-		m_pDepthShaderComponent->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
-		m_pDepthShaderComponent->BuildObjects(pd3dDevice, pd3dCommandList, NULL);
-	}
+
 	ComponentBase* pShadowShaderComponent = GetComponent(component_id::SHADOWSHADER_COMPONENT);
 	if (pShadowShaderComponent != NULL)
 	{

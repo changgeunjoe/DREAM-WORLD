@@ -3,7 +3,7 @@
 
 
 #define MAX_LIGHTS			4
-#define MAX_DEPTH_TEXTURES		MAX_LIGHTS
+#define MAX_DEPTH_TEXTURES	MAX_LIGHTS
 
 #define POINT_LIGHT			1
 #define SPOT_LIGHT			2
@@ -67,7 +67,7 @@ public:
 	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void ReleaseShaderVariables();
-
+	virtual LIGHT* GetLight();
 	virtual void BuildLight();
 private:// Light object
 	ID3D12Resource* m_pd3dcbLights = NULL;
