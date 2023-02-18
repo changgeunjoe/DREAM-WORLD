@@ -232,7 +232,7 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	}
 }
 
-void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender)
 {
 	//UpdateTransform(&m_xmf4x4ToParent);
 	if (m_pSkinnedAnimationController)
@@ -240,7 +240,7 @@ void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3
 
 	if (m_pShaderComponent != NULL)
 	{
-		m_pShaderComponent->Render(pd3dCommandList, 0, pd3dGraphicsRootSignature);
+		m_pShaderComponent->Render(pd3dCommandList, 0, pd3dGraphicsRootSignature, bPrerender);
 		m_pShaderComponent->UpdateShaderVariables(pd3dCommandList, &m_xmf4x4World, NULL);
 		pd3dCommandList->SetGraphicsRootDescriptorTable(0, m_pShaderComponent->GetCbvGPUDescriptorHandle());
 		if (m_pTextureComponent != NULL)
@@ -250,7 +250,7 @@ void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3
 	}
 	if (m_pDepthShaderComponent != NULL)
 	{
-		m_pDepthShaderComponent->UpdateShaderVariables(pd3dCommandList);
+	//	m_pDepthShaderComponent->UpdateShaderVariables(pd3dCommandList);
 	}
 	if (m_pShadowMapShaderComponent)
 	{
@@ -269,7 +269,7 @@ void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3
 			{
 				if (m_ppMaterialsComponent[i]->m_pShader)
 				{
-					m_ppMaterialsComponent[i]->m_pShader->Render(pd3dCommandList, 0, pd3dGraphicsRootSignature);
+					m_ppMaterialsComponent[i]->m_pShader->Render(pd3dCommandList, 0, pd3dGraphicsRootSignature, bPrerender);
 					pd3dCommandList->SetGraphicsRootDescriptorTable(0, m_ppMaterialsComponent[i]->m_pShader->GetCbvGPUDescriptorHandle());
 					m_ppMaterialsComponent[i]->m_pShader->UpdateShaderVariables(pd3dCommandList, &m_xmf4x4World, m_ppMaterialsComponent[i]);
 					//m_ppMaterialsComponent[i]->UpdateShaderVariable(pd3dCommandList);
@@ -281,8 +281,8 @@ void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3
 			m_pRenderComponent->Render(pd3dCommandList, m_pMeshComponent, i);
 		}
 	}
-	if (m_pSibling) m_pSibling->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	if (m_pChild) m_pChild->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	if (m_pSibling) m_pSibling->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
+	if (m_pChild) m_pChild->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
 }
 
 void GameObject::Animate(float fTimeElapsed)

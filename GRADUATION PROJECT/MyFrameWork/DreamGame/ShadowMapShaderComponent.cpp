@@ -83,7 +83,7 @@ void ShadowMapShaderComponent::ReleaseUploadBuffers()
 
 void ShadowMapShaderComponent::Render(ID3D12GraphicsCommandList* pd3dCommandList, int nPipelineState, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	ShaderComponent::Render(pd3dCommandList,nPipelineState, pd3dGraphicsRootSignature);
+	ShaderComponent::Render(pd3dCommandList,nPipelineState, pd3dGraphicsRootSignature,false);
 
 	//±Ì¿Ãπˆ∆€ update
 	UpdateShaderVariables(pd3dCommandList);

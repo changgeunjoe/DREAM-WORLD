@@ -307,15 +307,16 @@ void DepthRenderShaderComponent::PrepareShadowMap(ID3D12Device* pd3dDevice, ID3D
 void DepthRenderShaderComponent::Render(ID3D12Device* pd3dDevice,ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, ID3D12RootSignature* pd3dGraphicsRootSignature, int nPipelineState)
 {
 	//if (m_pd3dCbvSrvDescriptorHeap) pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
-
-	ShaderComponent::Render(pd3dCommandList, nPipelineState, pd3dGraphicsRootSignature);
+	ShaderComponent::Render(pd3dCommandList, nPipelineState, pd3dGraphicsRootSignature, false);
+	
 
 	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
 	pCamera->UpdateShaderVariables(pd3dCommandList);
 
 	//조명의 위치에서 오브젝트 깊이값 저장, 렌더타겟에 저장
 	for (int i = 0; i < m_ppObjects.size();i++) {
-		m_ppObjects[i]->Render(pd3dDevice,pd3dCommandList, pd3dGraphicsRootSignature);
+		
+		m_ppObjects[i]->Render(pd3dDevice,pd3dCommandList, pd3dGraphicsRootSignature,true);
 	}
 
 
