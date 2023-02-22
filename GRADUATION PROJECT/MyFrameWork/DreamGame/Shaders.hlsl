@@ -210,9 +210,10 @@ float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
     {
         normalW = normalize(input.normalW);
     }
-    //float4 cIllumination = Lighting(input.positionW, normalW, false, input.uvs);
-    // return(lerp(cColor, cIllumination, 0.5f));
-    return(cColor);
+    float4 uvs[MAX_LIGHTS];
+    float4 cIllumination = Lighting(input.positionW, normalW, false, uvs);
+     return(lerp(cColor, cIllumination, 0.5f));
+    //return (cIllumination);
 }
 
 
@@ -391,11 +392,20 @@ float4 PSShadowMapShadow(VS_SHADOW_MAP_OUTPUT input) : SV_TARGET
 	//그림자면 어둡고 아니면 원래 조명 색
     float4 cIllumination = Lighting(input.positionW, normalize(input.normalW), true, input.uvs);
 
-    //return (cIllumination);
-    float4 cColor = cAlbedoColor;
-    return (lerp(cColor, cIllumination, 0.4f));
+    return (cIllumination);
+    //float4 cColor = cAlbedoColor;
+    //return (lerp(cColor, cIllumination, 0.4f));
     
 }
+
+
+
+
+
+
+
+
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //

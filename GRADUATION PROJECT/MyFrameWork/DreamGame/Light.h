@@ -49,16 +49,16 @@ struct CB_LIGHT_INFO
 {
 	XMFLOAT4X4 m_xmf4x4LightView;
 	XMFLOAT4X4 m_xmf4x4LightProjection;
-	XMFLOAT4 m_xmf4ambientColor ;
-	XMFLOAT4 m_xmf4diffuseColor ;
+	XMFLOAT4 m_xmf4ambientColor;
+	XMFLOAT4 m_xmf4diffuseColor;
 	XMFLOAT3 m_xmf3lightPosition;
 	XMFLOAT3 m_xmf3lightLookat;
-	float m_xmfpadding ;
+	float m_xmfpadding;
 };
 
-#define RP_TO_LIGHT	16
 
-class CLight 
+
+class CLight
 {
 public:
 	CLight();
@@ -72,7 +72,9 @@ public:
 private:// Light object
 	ID3D12Resource* m_pd3dcbLights = NULL;
 	LIGHTS* m_pcbMappedLights = NULL;
-	LIGHT* m_pLights = NULL;
+
 	int				m_nLights = 0;
 	XMFLOAT4		m_xmf4GlobalAmbient;
+public:
+	LIGHT* m_pLights = NULL;
 };

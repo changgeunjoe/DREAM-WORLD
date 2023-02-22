@@ -219,16 +219,10 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 			pd3dGraphicsRootSignature, pszModelNames, NULL, true);//NULL ->Shader
 		SetChild(m_pLoadedModelComponent->m_pModelRootObject, true);
 
-		m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, m_nAnimationSets, m_pLoadedModelComponent);
-	}
-
-	ComponentBase* pShadowShaderComponent = GetComponent(component_id::SHADOWSHADER_COMPONENT);
-	if (pShadowShaderComponent != NULL)
-	{
-		m_pShadowMapShaderComponent = static_cast<ShadowMapShaderComponent*>(pShadowShaderComponent);
-		m_pShadowMapShaderComponent->BuildShadow(NULL);
-		m_pShadowMapShaderComponent->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
-		m_pShadowMapShaderComponent->BuildObjects(pd3dDevice, pd3dCommandList, m_pDepthShaderComponent->GetDepthTexture());
+		if (m_nAnimationSets != 0)
+		{
+			m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, m_nAnimationSets, m_pLoadedModelComponent);
+		}
 	}
 }
 

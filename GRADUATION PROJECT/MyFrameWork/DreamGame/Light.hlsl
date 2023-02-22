@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------
-#define MAX_LIGHTS			16 
+#define MAX_LIGHTS			4
 #define MAX_MATERIALS		16 
 
 #define POINT_LIGHT			1
@@ -46,7 +46,7 @@ struct LIGHT
     float padding;
 };
 
-cbuffer cbLights : register(b4)
+cbuffer cbLights : register(b2)
 {
     LIGHT gLights[MAX_LIGHTS];
     float4 gcGlobalAmbientLight;
@@ -219,6 +219,35 @@ float4 Lighting(float3 vPosition, float3 vNormal, bool bShadow, float4 uvs[MAX_L
             else if (gLights[i].m_nType == SPOT_LIGHT)
             {
                 cColor += SpotLight(i, vPosition, vNormal, vToCamera) * fShadowFactor;
+            }
+        }
+    }
+    cColor += (gcGlobalAmbientLight * gMaterial.m_cAmbient);
+    cColor.a = gMaterial.m_cDiffuse.a;
+
+    return (cColor);
+}
+float4 Lightings(float3 vPosition, float3 vNormal)
+{
+    float3 vCameraPosition = float3(gvCameraPosition.x, gvCameraPosition.y, gvCameraPosition.z);
+    float3 vToCamera = normalize(vCameraPosition - vPosition);
+
+    float4 cColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
+    for (int i = 0; i < MAX_LIGHTS; i++)
+    {
+        if (gLights[i].m_bEnable)
+        {
+            if (gLights[i].m_nType == DIRECTIONAL_LIGHT)
+            {
+                cColor += DirectionalLight(i, vNormal, vToCamera);
+            }
+            else if (gLights[i].m_nType == POINT_LIGHT)
+            {
+                cColor += PointLight(i, vPosition, vNormal, vToCamera);
+            }
+            else if (gLights[i].m_nType == SPOT_LIGHT)
+            {
+                cColor += SpotLight(i, vPosition, vNormal, vToCamera);
             }
         }
     }

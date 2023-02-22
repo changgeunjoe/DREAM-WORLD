@@ -28,7 +28,7 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	ID3D12RootSignature* pd3dGraphicsRootSignature = NULL;
 #ifdef _WITH_STANDARD_TEXTURE_MULTIPLE_DESCRIPTORS
 
-	RootSignature.Descriptorrange.resize(11);
+	RootSignature.Descriptorrange.resize(12);
 	//SetDescriptorRange(RootSignature.Descriptorrange, 0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 6, 0);//GameObject //b0
 	RootSignature.Descriptorrange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
 	RootSignature.Descriptorrange[0].NumDescriptors = 1;
@@ -85,10 +85,15 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	RootSignature.Descriptorrange[10].NumDescriptors = 1;
 	RootSignature.Descriptorrange[10].BaseShaderRegister = 2; //t2: SkyboxTexture
 	RootSignature.Descriptorrange[10].RegisterSpace = 0;
-	RootSignature.Descriptorrange[10].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND; \
+	RootSignature.Descriptorrange[10].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND; 
+	RootSignature.Descriptorrange[11].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	RootSignature.Descriptorrange[11].NumDescriptors = MAX_LIGHTS;
+	RootSignature.Descriptorrange[11].BaseShaderRegister = 14; //t14: gtxtDepthTextures
+	RootSignature.Descriptorrange[11].RegisterSpace = 0;
+	RootSignature.Descriptorrange[11].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	//-------------------------------rootParameter----------------------------------------------------    
-	RootSignature.RootParameter.resize(16);
+	RootSignature.RootParameter.resize(17);
 	//GameObject(b0)Shaders.hlsl
 	RootSignature.RootParameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	RootSignature.RootParameter[0].DescriptorTable.NumDescriptorRanges = 1;
@@ -155,17 +160,27 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	RootSignature.RootParameter[12].DescriptorTable.pDescriptorRanges = &(RootSignature.Descriptorrange[10]);
 	RootSignature.RootParameter[12].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
-	//b3: Skinned Bone Offsets
+	//b4: Skinned Bone Offsets
 	RootSignature.RootParameter[13].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	RootSignature.RootParameter[13].Descriptor.ShaderRegister = 4;
 	RootSignature.RootParameter[13].Descriptor.RegisterSpace = 0;
-	RootSignature.RootParameter[13].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	RootSignature.RootParameter[13].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
-	//b4: Skinned Bone Transforms
+	//b5: Skinned Bone Transforms
 	RootSignature.RootParameter[14].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	RootSignature.RootParameter[14].Descriptor.ShaderRegister = 5;
 	RootSignature.RootParameter[14].Descriptor.RegisterSpace = 0;
-	RootSignature.RootParameter[14].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	RootSignature.RootParameter[14].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	//(b3) Shaders.hlsl
+	RootSignature.RootParameter[15].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	RootSignature.RootParameter[15].Descriptor.ShaderRegister = 3;
+	RootSignature.RootParameter[15].Descriptor.RegisterSpace = 0;
+	RootSignature.RootParameter[15].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	//t14: gtxtDepthTextures
+	RootSignature.RootParameter[16].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	RootSignature.RootParameter[16].DescriptorTable.NumDescriptorRanges = 1;
+	RootSignature.RootParameter[16].DescriptorTable.pDescriptorRanges = &(RootSignature.Descriptorrange[11]);
+	RootSignature.RootParameter[16].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	//textureSampler
 	RootSignature.TextureSamplerDescs.resize(3);
@@ -195,13 +210,15 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	RootSignature.TextureSamplerDescs[1].RegisterSpace = 0;
 	RootSignature.TextureSamplerDescs[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
-	RootSignature.TextureSamplerDescs[2].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
-	RootSignature.TextureSamplerDescs[2].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	RootSignature.TextureSamplerDescs[2].AddressV = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
-	RootSignature.TextureSamplerDescs[2].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	RootSignature.TextureSamplerDescs[2].Filter = D3D12_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+	RootSignature.TextureSamplerDescs[2].AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	RootSignature.TextureSamplerDescs[2].AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	RootSignature.TextureSamplerDescs[2].AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
 	RootSignature.TextureSamplerDescs[2].MipLODBias = 0;
 	RootSignature.TextureSamplerDescs[2].MaxAnisotropy = 1;
-	RootSignature.TextureSamplerDescs[2].ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+	//텍스처 읽은색과 현재 깊이와 비교 - 깊이보다 더 작으면 성공 ->그림자가 아님
+	RootSignature.TextureSamplerDescs[2].ComparisonFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+	RootSignature.TextureSamplerDescs[2].BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
 	RootSignature.TextureSamplerDescs[2].MinLOD = 0;
 	RootSignature.TextureSamplerDescs[2].MaxLOD = D3D12_FLOAT32_MAX;
 	RootSignature.TextureSamplerDescs[2].ShaderRegister = 2;

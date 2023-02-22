@@ -7,6 +7,7 @@
 #include"Light.h"
 
 class Session;
+class ShadowMapShaderComponent;
 class DepthRenderShaderComponent;
 #include"CLoadModelinfo.h"
 class GameobjectManager
@@ -39,7 +40,7 @@ private: //active object
 	GameObject* m_pTankerObject{ NULL }; // ∂À≈ ≈© √¢±Ÿ¿Ã
 	GameObject* m_pPriestObject{ NULL };
 	DepthRenderShaderComponent* m_pDepthShaderComponent{ NULL };
-
+	ShadowMapShaderComponent* m_pShadowmapShaderComponent{NULL};
 	GameObject* m_pPlaneObject{ NULL };
 	GameObject* m_pSkyboxObject{ NULL };
 	GameObject* m_pAnimationObject{ NULL };

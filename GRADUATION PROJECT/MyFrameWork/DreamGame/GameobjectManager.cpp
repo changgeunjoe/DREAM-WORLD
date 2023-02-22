@@ -143,16 +143,22 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	
 
 	UpdateShaderVariables(pd3dCommandList);
-	m_pSkyboxObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-
+//	m_pSkyboxObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pDepthShaderComponent->UpdateShaderVariables(pd3dCommandList);
 
 	for (auto& session : g_Logic.m_inGamePlayerSession) {
 		if (-1 != session.m_id && session.m_isVisible) {
 			session.m_currentPlayGameObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		}
 	}
-	m_pPlaneObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pMonsterObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//m_pPlaneObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//m_pMonsterObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+
+	if (m_pShadowmapShaderComponent)
+	{
+		m_pShadowmapShaderComponent->Render(pd3dDevice,pd3dCommandList, 0,pd3dGraphicsRootSignature);
+	}
+
 }
 
 void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -239,16 +245,31 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pMonsterObject->SetScale(10.0f, 10.0f, 10.0f);
 	m_ppGameObjects.emplace_back(m_pMonsterObject);
 
-	m_pPlaneObject = new GameObject(PlANE_ENTITY);
+	m_pPlaneObject = new GameObject(UNDEF_ENTITY);
 	m_pPlaneObject->InsertComponent<RenderComponent>();
-	m_pPlaneObject->InsertComponent<CubeMeshComponent>();
-	m_pPlaneObject->InsertComponent<ShaderComponent>();
-	m_pPlaneObject->InsertComponent<TextureComponent>();
-	m_pPlaneObject->SetTexture(L"Image/Base_Texture.dds", RESOURCE_TEXTURE2D, 3);
-	m_pPlaneObject->SetPosition(XMFLOAT3(0, -10, 50));
-	m_pPlaneObject->SetScale(100, 0.1, 100);
+	m_pPlaneObject->InsertComponent<CLoadedModelInfoCompnent>();
+	m_pPlaneObject->SetPosition(XMFLOAT3(0, 0, 0));
+	m_pPlaneObject->SetModel("Model/Floor.bin");
+	//m_pPlaneObject->SetAnimationSets(3);
 	m_pPlaneObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//m_pPlaneObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+	//m_pPlaneObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
+	//m_pPlaneObject->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
+	//m_pPlaneObject->m_pSkinnedAnimationController->SetTrackEnable(2, true);
+	//m_pPlaneObject->m_pSkinnedAnimationController->SetRootMotion(false);
+	m_pPlaneObject->SetScale(10.0f, 1.0f, 10.0f);
 	m_ppGameObjects.emplace_back(m_pPlaneObject);
+
+	//m_pPlaneObject = new GameObject(SQUARE_ENTITY);
+	//m_pPlaneObject->InsertComponent<RenderComponent>();
+	//m_pPlaneObject->InsertComponent<SkyBoxMeshComponent>();
+	//m_pPlaneObject->InsertComponent<SkyBoxShaderComponent>();
+	//m_pPlaneObject->InsertComponent<TextureComponent>();
+	//m_pPlaneObject->SetTexture(L"DreamWorld/DreamWorld.dds", RESOURCE_TEXTURE_CUBE, 12);
+	//m_pPlaneObject->SetPosition(XMFLOAT3(0, 0, 0));
+	//m_pPlaneObject->SetScale(1, 1, 1);
+	//m_pPlaneObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//m_ppGameObjects.emplace_back(m_pPlaneObject);
 
 	m_pSkyboxObject = new GameObject(SQUARE_ENTITY);
 	m_pSkyboxObject->InsertComponent<RenderComponent>();
@@ -259,7 +280,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pSkyboxObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pSkyboxObject->SetScale(1, 1, 1);
 	m_pSkyboxObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppGameObjects.emplace_back(m_pSkyboxObject);
+//	m_ppGameObjects.emplace_back(m_pSkyboxObject);
 
 
 
@@ -287,11 +308,19 @@ void GameobjectManager::BuildShadow(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	//m_pDepthShaderComponent->CreateShaderResourceViews(pd3dDevice, m_pTextureComponent, 0, m_nRootParameter, pShadowMap);//textureÀÔ·Â
 	//m_pDepthShaderComponent->SetCbvGPUDescriptorHandlePtr(m_pShaderComponent->GetGPUCbvDescriptorStartHandle().ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));
 	m_pDepthShaderComponent->BuildObjects(pd3dDevice, pd3dCommandList, NULL);
+	m_pShadowmapShaderComponent = new ShadowMapShaderComponent();
+	m_pShadowmapShaderComponent->BuildShadow(m_ppGameObjects);
+	m_pShadowmapShaderComponent->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
+	m_pShadowmapShaderComponent->BuildObjects(pd3dDevice, pd3dCommandList, m_pDepthShaderComponent->GetDepthTexture());
+
+
 
 }
 void GameobjectManager::AnimateObjects()
 {
 	m_pSkyboxObject->SetPosition(m_pCamera->GetPosition());
+	m_pLight->m_pLights[1].m_xmf3Position = m_pCamera->GetPosition();
+	m_pLight->m_pLights[1].m_xmf3Direction = m_pCamera->GetLookVector();
 }
 void GameobjectManager::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {

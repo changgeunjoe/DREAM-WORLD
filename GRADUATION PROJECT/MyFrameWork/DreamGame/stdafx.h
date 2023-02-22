@@ -92,8 +92,8 @@ using Microsoft::WRL::ComPtr;
 #define _PLANE_WIDTH			300
 #define _PLANE_HEIGHT			300
 
-#define RP_DEPTH_BUFFER	15
-#define RP_TO_LIGHT	16
+#define RP_DEPTH_BUFFER	16
+#define RP_TO_LIGHT	15
 
 
 #define _DEPTH_BUFFER_WIDTH		(FRAME_BUFFER_WIDTH * 8)
