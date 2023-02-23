@@ -392,9 +392,9 @@ float4 PSShadowMapShadow(VS_SHADOW_MAP_OUTPUT input) : SV_TARGET
 	//그림자면 어둡고 아니면 원래 조명 색
     float4 cIllumination = Lighting(input.positionW, normalize(input.normalW), true, input.uvs);
 
-    return (cIllumination);
-    //float4 cColor = cAlbedoColor;
-    //return (lerp(cColor, cIllumination, 0.4f));
+    //return (cIllumination);
+    float4 cColor = cAlbedoColor;
+    return (lerp(cColor, cIllumination, 0.4f));
     
 }
 
@@ -453,14 +453,14 @@ VS_TEXTURED_OUTPUT VSTextureToViewport(uint nVertexID : SV_VertexID)
     return (output);
 }
 
-SamplerState gssBorder : register(s3);
+//SamplerState gssBorder : register(s3);
 
-//float4 PSTextureToViewport(VS_TEXTURED_OUTPUT input) : SV_Target
-//{
-//    float fDepthFromLight0 = gtxtDepthTextures[0].SampleLevel(gWrapSamplerState /*gssBorder*/, input.uv, 0).r;
+float4 PSTextureToViewport(VS_TEXTURED_OUTPUT input) : SV_Target
+{
+    float fDepthFromLight0 = gtxtDepthTextures[0].SampleLevel(gWrapSamplerState /*gssBorder*/, input.uv, 0).r;
 
-//    return ((float4) (fDepthFromLight0 * 0.8f));
-//}
+    return ((float4) (fDepthFromLight0 * 0.8f));
+}
 
 
 

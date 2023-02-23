@@ -147,6 +147,9 @@
     <ClInclude Include="define.h">
       <Filter>소스 파일\ShaderComponent\HLSL</Filter>
     </ClInclude>
+    <ClInclude Include="TextureToViewportComponent.h">
+      <Filter>소스 파일\헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -231,6 +234,9 @@
       <Filter>소스 파일\ShaderComponent</Filter>
     </ClCompile>
     <ClCompile Include="Animation.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureToViewportComponent.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

@@ -4,6 +4,7 @@
 #include "Network/NetworkHelper.h"
 #include "Network/Logic/Logic.h"
 #include"DepthRenderShaderComponent.h"
+#include"TextureToViewportComponent.h"
 extern NetworkHelper g_NetworkHelper;
 extern Logic g_Logic;
 
@@ -159,6 +160,10 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pShadowmapShaderComponent->Render(pd3dDevice,pd3dCommandList, 0,pd3dGraphicsRootSignature);
 	}
 
+	if (m_pTextureToViewportComponent)
+	{
+		m_pTextureToViewportComponent->Render(pd3dCommandList, m_pCamera, 0, pd3dGraphicsRootSignature);
+	}
 }
 
 void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -291,8 +296,9 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	g_Logic.m_inGamePlayerSession[0].m_id = 0;
 #endif // LOCAL_TASK
 
-
+	
 	BuildShadow(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//무조건 마지막에 해줘야된다.
+	Build2DUI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
 void GameobjectManager::BuildLight()
 {
@@ -314,6 +320,13 @@ void GameobjectManager::BuildShadow(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pShadowmapShaderComponent->BuildObjects(pd3dDevice, pd3dCommandList, m_pDepthShaderComponent->GetDepthTexture());
 
 
+
+}
+void GameobjectManager::Build2DUI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+{
+	m_pTextureToViewportComponent = new TextureToViewportComponent();
+	m_pTextureToViewportComponent->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
+	m_pTextureToViewportComponent->BuildObjects(pd3dDevice, pd3dCommandList, m_pDepthShaderComponent->GetDepthTexture());
 
 }
 void GameobjectManager::AnimateObjects()

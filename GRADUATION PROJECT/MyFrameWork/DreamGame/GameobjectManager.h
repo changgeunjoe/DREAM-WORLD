@@ -9,6 +9,7 @@
 class Session;
 class ShadowMapShaderComponent;
 class DepthRenderShaderComponent;
+class TextureToViewportComponent;
 #include"CLoadModelinfo.h"
 class GameobjectManager
 {
@@ -21,6 +22,7 @@ public:
 	virtual void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void BuildLight();
 	virtual void BuildShadow(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void Build2DUI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void AnimateObjects();
 
 	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
@@ -41,6 +43,7 @@ private: //active object
 	GameObject* m_pPriestObject{ NULL };
 	DepthRenderShaderComponent* m_pDepthShaderComponent{ NULL };
 	ShadowMapShaderComponent* m_pShadowmapShaderComponent{NULL};
+	TextureToViewportComponent* m_pTextureToViewportComponent{ NULL };
 	GameObject* m_pPlaneObject{ NULL };
 	GameObject* m_pSkyboxObject{ NULL };
 	GameObject* m_pAnimationObject{ NULL };
