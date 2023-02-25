@@ -545,7 +545,7 @@ void CGameFramework::ProcessInput()
 				if (pKeysBuffer[VK_RBUTTON] & 0xF0)
 					m_pCamera->Rotate(cyDelta, 0.0f, -cxDelta);
 				else
-					m_pCamera->Rotate(0.0f, cxDelta, 0.0f);
+					m_pCamera->Rotate(cyDelta, cxDelta, 0.0f);
 			}
 			if (dwDirection) {
 				m_pCamera->Move(dwDirection, 1.21f, true);
