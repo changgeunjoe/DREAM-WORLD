@@ -39,6 +39,7 @@ GameobjectManager::~GameobjectManager()
 
 void GameobjectManager::Animate(float fTimeElapsed)
 {
+	m_pSkyboxObject->SetPosition(m_pCamera->GetPosition());
 	m_pMonsterObject->Animate(fTimeElapsed);
 
 	if (g_Logic.m_KeyInput->m_bQKey)
@@ -54,14 +55,18 @@ void GameobjectManager::Animate(float fTimeElapsed)
 		g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::Y, 30.0f * fTimeElapsed);
 	}
 
+	if(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_iLookDirectoin)	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetLookAt();
 	for (auto& session : g_Logic.m_inGamePlayerSession) {
 		if (-1 != session.m_id && session.m_isVisible) {
+			session.m_currentPlayGameObject->SetLookAt();
 			if (DIRECTION::FRONT == (session.m_currentDirection & DIRECTION::FRONT)) {
 				if (DIRECTION::LEFT == (session.m_currentDirection & DIRECTION::LEFT)) {
-					session.m_currentPlayGameObject->MoveDiagonal(1, -1, 50.0f * fTimeElapsed);
+					//session.m_currentPlayGameObject->MoveDiagonal(1, -1, 50.0f * fTimeElapsed);
+					session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
 				}
 				else if (DIRECTION::RIGHT == (session.m_currentDirection & DIRECTION::RIGHT)) {
-					session.m_currentPlayGameObject->MoveDiagonal(1, 1, 50.0f * fTimeElapsed);
+					session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
+					//session.m_currentPlayGameObject->MoveDiagonal(1, 1, 50.0f * fTimeElapsed);
 				}
 				else {
 					session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
@@ -79,13 +84,16 @@ void GameobjectManager::Animate(float fTimeElapsed)
 			}
 			else if (DIRECTION::BACK == (session.m_currentDirection & DIRECTION::BACK)) {
 				if (DIRECTION::LEFT == (session.m_currentDirection & DIRECTION::LEFT)) {
-					session.m_currentPlayGameObject->MoveDiagonal(-1, -1, 50.0f * fTimeElapsed);
+					//session.m_currentPlayGameObject->MoveDiagonal(-1, -1, 50.0f * fTimeElapsed);
+					session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
 				}
 				else if (DIRECTION::RIGHT == (session.m_currentDirection & DIRECTION::RIGHT)) {
-					session.m_currentPlayGameObject->MoveDiagonal(-1, 1, 50.0f * fTimeElapsed);
+					//session.m_currentPlayGameObject->MoveDiagonal(-1, 1, 50.0f * fTimeElapsed);
+					session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
 				}
 				else {
-					session.m_currentPlayGameObject->MoveForward(-50.0f * fTimeElapsed);
+					session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
+					//session.m_currentPlayGameObject->MoveForward(-50.0f * fTimeElapsed);
 				}
 #ifdef _DEBUG
 				auto look = session.m_currentPlayGameObject->GetLook();
@@ -100,7 +108,8 @@ void GameobjectManager::Animate(float fTimeElapsed)
 			}
 			else {
 				if (DIRECTION::LEFT == (session.m_currentDirection & DIRECTION::LEFT)) {
-					session.m_currentPlayGameObject->MoveStrafe(-50.0f * fTimeElapsed);
+					session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
+					//session.m_currentPlayGameObject->MoveStrafe(-50.0f * fTimeElapsed);
 #ifdef _DEBUG
 					auto look = session.m_currentPlayGameObject->GetLook();
 					auto up = session.m_currentPlayGameObject->GetUp();
@@ -113,7 +122,8 @@ void GameobjectManager::Animate(float fTimeElapsed)
 #endif
 				}
 				else if (DIRECTION::RIGHT == (session.m_currentDirection & DIRECTION::RIGHT)) {
-					session.m_currentPlayGameObject->MoveStrafe(50.0f * fTimeElapsed);
+					session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
+					//session.m_currentPlayGameObject->MoveStrafe(50.0f * fTimeElapsed);
 #ifdef _DEBUG
 					auto look = session.m_currentPlayGameObject->GetLook();
 					auto up = session.m_currentPlayGameObject->GetUp();
@@ -158,12 +168,9 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pWarriorObject->SetModel("Model/Warrior.bin");
 	m_pWarriorObject->SetAnimationSets(3);
 	m_pWarriorObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pWarriorObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	m_pWarriorObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-	m_pWarriorObject->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
-	m_pWarriorObject->m_pSkinnedAnimationController->SetTrackEnable(2, true);
-	m_pWarriorObject->m_pSkinnedAnimationController->SetRootMotion(false);
-	m_pWarriorObject->SetScale(30.0f, 30.0f, 30.0f);
+	m_pWarriorObject->m_pSkinnedAnimationController->SetTrackAnimationSet(3);
+	m_pWarriorObject->m_pSkinnedAnimationController->SetTrackEnable(0, true);
+	m_pWarriorObject->SetScale(30.0f);
 
 	m_pArcherObject = new GameObject(UNDEF_ENTITY);
 	m_pArcherObject->InsertComponent<RenderComponent>();
@@ -172,12 +179,9 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pArcherObject->SetModel("Model/Archer.bin");
 	m_pArcherObject->SetAnimationSets(3);
 	m_pArcherObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pArcherObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	m_pArcherObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-	m_pArcherObject->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
-	m_pArcherObject->m_pSkinnedAnimationController->SetTrackEnable(2, true);
-	m_pArcherObject->m_pSkinnedAnimationController->SetRootMotion(false);
-	m_pArcherObject->SetScale(30.0f, 30.0f, 30.0f);
+	m_pArcherObject->m_pSkinnedAnimationController->SetTrackAnimationSet(3);
+	m_pArcherObject->m_pSkinnedAnimationController->SetTrackEnable(0, true);
+	m_pArcherObject->SetScale(30.0f);
 
 	m_pTankerObject = new GameObject(UNDEF_ENTITY);
 	m_pTankerObject->InsertComponent<RenderComponent>();
@@ -186,12 +190,9 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pTankerObject->SetModel("Model/Tanker.bin");
 	m_pTankerObject->SetAnimationSets(3);
 	m_pTankerObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pTankerObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	m_pTankerObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-	m_pTankerObject->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
-	m_pTankerObject->m_pSkinnedAnimationController->SetTrackEnable(2, true);
-	m_pTankerObject->m_pSkinnedAnimationController->SetRootMotion(false);
-	m_pTankerObject->SetScale(30.0f, 30.0f, 30.0f);
+	m_pTankerObject->m_pSkinnedAnimationController->SetTrackAnimationSet(3);
+	m_pTankerObject->m_pSkinnedAnimationController->SetTrackEnable(0, true);
+	m_pTankerObject->SetScale(30.0f);
 
 	m_pPriestObject = new GameObject(UNDEF_ENTITY);
 	m_pPriestObject->InsertComponent<RenderComponent>();
@@ -200,12 +201,9 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPriestObject->SetModel("Model/Priests.bin");
 	m_pPriestObject->SetAnimationSets(3);
 	m_pPriestObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pPriestObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	m_pPriestObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-	m_pPriestObject->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
-	m_pPriestObject->m_pSkinnedAnimationController->SetTrackEnable(2, true);
-	m_pPriestObject->m_pSkinnedAnimationController->SetRootMotion(false);
-	m_pPriestObject->SetScale(30.0f, 30.0f, 30.0f);
+	m_pPriestObject->m_pSkinnedAnimationController->SetTrackAnimationSet(3);
+	m_pPriestObject->m_pSkinnedAnimationController->SetTrackEnable(0, true);
+	m_pPriestObject->SetScale(30.0f);
 
 	m_pMonsterObject = new GameObject(UNDEF_ENTITY);
 	m_pMonsterObject->InsertComponent<RenderComponent>();
@@ -214,12 +212,9 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pMonsterObject->SetModel("Model/Boss.bin");
 	m_pMonsterObject->SetAnimationSets(3);
 	m_pMonsterObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
-	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackEnable(2, true);
-	m_pMonsterObject->m_pSkinnedAnimationController->SetRootMotion(false);
-	m_pMonsterObject->SetScale(10.0f, 10.0f, 10.0f);
+	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackAnimationSet(3);
+	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackEnable(0, true);
+	m_pMonsterObject->SetScale(30.0f);
 
 	m_pPlaneObject = new GameObject(PlANE_ENTITY);
 	m_pPlaneObject->InsertComponent<RenderComponent>();
@@ -241,8 +236,14 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pSkyboxObject->SetScale(1, 1, 1);
 	m_pSkyboxObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
+	// 플레이어가 캐릭터 선택하는 부분에 유사하게 넣을 예정
+	m_pPlayerObject = new GameObject(UNDEF_ENTITY);
+	memcpy(m_pPlayerObject, m_pWarriorObject, sizeof(GameObject));
+	m_pPlayerObject->SetCamera(m_pCamera);
+	delete m_pWarriorObject;
+
 #ifdef LOCAL_TASK
-	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject = m_pWarriorObject;
+	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject = m_pPlayerObject;
 	g_Logic.m_inGamePlayerSession[0].m_isVisible = true;
 	g_Logic.m_inGamePlayerSession[0].m_id = 0;
 #endif // LOCAL_TASK
@@ -253,10 +254,6 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 void GameobjectManager::BuildLight()
 {
 	m_pLight->BuildLight();
-}
-void GameobjectManager::AnimateObjects()
-{
-	m_pSkyboxObject->SetPosition(m_pCamera->GetPosition());
 }
 void GameobjectManager::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
@@ -282,6 +279,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			if (!g_Logic.m_KeyInput->m_bWKey) {
 				g_Logic.m_KeyInput->m_bWKey = true;
 				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection | DIRECTION::FRONT);
+				g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_iLookDirectoin |= DIRECTION::FRONT;
 				g_NetworkHelper.SendMovePacket(DIRECTION::FRONT);
 			}
 		}
@@ -291,6 +289,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			if (!g_Logic.m_KeyInput->m_bAKey) {
 				g_Logic.m_KeyInput->m_bAKey = true;
 				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection | DIRECTION::LEFT);
+				g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_iLookDirectoin |= DIRECTION::LEFT;
 				g_NetworkHelper.SendMovePacket(DIRECTION::LEFT);
 			}
 		}
@@ -300,6 +299,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			if (!g_Logic.m_KeyInput->m_bSKey) {
 				g_Logic.m_KeyInput->m_bSKey = true;
 				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection | DIRECTION::BACK);
+				g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_iLookDirectoin |= DIRECTION::BACK;
 				g_NetworkHelper.SendMovePacket(DIRECTION::BACK);
 			}
 		}
@@ -309,6 +309,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			if (!g_Logic.m_KeyInput->m_bDKey) {
 				g_Logic.m_KeyInput->m_bDKey = true;
 				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection | DIRECTION::RIGHT);
+				g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_iLookDirectoin |= DIRECTION::RIGHT;
 				g_NetworkHelper.SendMovePacket(DIRECTION::RIGHT);
 			}
 		}
@@ -321,6 +322,12 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		case 'E':
 		{
 			g_Logic.m_KeyInput->m_bEKey = true;
+			break;
+		}
+		case 'O':
+		{
+			m_pPlayerObject->m_pCamera->ReInitCamrea();
+			m_pPlayerObject->SetCamera(m_pCamera);
 			break;
 		}
 		case VK_CONTROL:
@@ -346,9 +353,11 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			if (g_Logic.m_KeyInput->m_bWKey) {
 				g_Logic.m_KeyInput->m_bWKey = false;
 				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection ^ DIRECTION::FRONT);
+				g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_iLookDirectoin ^= DIRECTION::FRONT;
 				if (g_Logic.m_KeyInput->IsAllMovekeyUp()) {
 					cout << "send Stop Packet" << endl;
 					g_Logic.m_inGamePlayerSession[0].m_currentDirection = DIRECTION::IDLE;
+					g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_iLookDirectoin = DIRECTION::IDLE;
 					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition(), g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate				
 				}
 				else g_NetworkHelper.SendKeyUpPacket(DIRECTION::FRONT);
@@ -360,9 +369,11 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			if (g_Logic.m_KeyInput->m_bAKey) {
 				g_Logic.m_KeyInput->m_bAKey = false;
 				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection ^ DIRECTION::LEFT);
+				g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_iLookDirectoin ^= DIRECTION::LEFT;
 				if (g_Logic.m_KeyInput->IsAllMovekeyUp()) {
 					cout << "send Stop Packet" << endl;
 					g_Logic.m_inGamePlayerSession[0].m_currentDirection = DIRECTION::IDLE;
+					g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_iLookDirectoin = DIRECTION::IDLE;
 					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition(), g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate
 				}
 				else g_NetworkHelper.SendKeyUpPacket(DIRECTION::LEFT);
@@ -374,9 +385,11 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			if (g_Logic.m_KeyInput->m_bSKey) {
 				g_Logic.m_KeyInput->m_bSKey = false;
 				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection ^ DIRECTION::BACK);
+				g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_iLookDirectoin ^= DIRECTION::BACK;
 				if (g_Logic.m_KeyInput->IsAllMovekeyUp()) {
 					cout << "send Stop Packet" << endl;
 					g_Logic.m_inGamePlayerSession[0].m_currentDirection = DIRECTION::IDLE;
+					g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_iLookDirectoin = DIRECTION::IDLE;
 					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition(), g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate			
 				}
 				else g_NetworkHelper.SendKeyUpPacket(DIRECTION::BACK);
@@ -388,9 +401,11 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			if (g_Logic.m_KeyInput->m_bDKey) {
 				g_Logic.m_KeyInput->m_bDKey = false;
 				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection ^ DIRECTION::RIGHT);
+				g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_iLookDirectoin ^= DIRECTION::RIGHT;
 				if (g_Logic.m_KeyInput->IsAllMovekeyUp()) {
 					cout << "send Stop Packet" << endl;
 					g_Logic.m_inGamePlayerSession[0].m_currentDirection = DIRECTION::IDLE;
+					g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_iLookDirectoin = DIRECTION::IDLE;
 					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition(), g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate
 				}
 				else g_NetworkHelper.SendKeyUpPacket(DIRECTION::RIGHT);
@@ -415,6 +430,19 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 	return(false);
 }
 
+void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
+{
+	switch (nMessageID)
+	{
+	case WM_LBUTTONDOWN:
+		break;
+	case WM_LBUTTONUP:
+		break;
+	default:
+		break;
+	}
+
+}
 
 void GameobjectManager::SetPlayCharacter(Session* pSession) // 임시 함수
 {

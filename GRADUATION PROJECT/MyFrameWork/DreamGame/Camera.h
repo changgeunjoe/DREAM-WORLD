@@ -74,7 +74,8 @@ public:
 	void SetMode(DWORD nMode) { m_nMode = nMode; }
 	DWORD GetMode() { return(m_nMode); }
 
-	void SetPosition(XMFLOAT3 xmf3Position) { m_xmf3Position = xmf3Position; }
+	void SetPosition(XMFLOAT3 xmf3Position);
+
 	XMFLOAT3& GetPosition() { return(m_xmf3Position); }
 
 	void SetLookAtPosition(XMFLOAT3 xmf3LookAtWorld) { m_xmf3LookAtWorld = xmf3LookAtWorld; }
@@ -102,9 +103,10 @@ public:
 	virtual void Move(const XMFLOAT3& xmf3Shift) { m_xmf3Position.x += xmf3Shift.x; m_xmf3Position.y += xmf3Shift.y; m_xmf3Position.z += xmf3Shift.z; }
 	virtual void Rotate(float x = 0.0f, float y = 0.0f, float z = 0.0f);
 	virtual void Update(XMFLOAT3& xmf3LookAt, float fTimeElapsed) { }
-	virtual void SetLookAt(XMFLOAT3& xmf3LookAt) { }
+	void SetLookAt(const XMFLOAT3& xmf3LookAt);
 
 	virtual void Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity);
 
+	void ReInitCamrea();
 };
 

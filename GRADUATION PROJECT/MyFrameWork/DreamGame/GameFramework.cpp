@@ -435,18 +435,21 @@ void CGameFramework::ReleaseObjects()
 
 void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
+	m_pScene->onProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
 	switch (nMessageID)
 	{
 	case WM_LBUTTONDOWN:
 	case WM_RBUTTONDOWN:
-		::SetCapture(hWnd);
-		::GetCursorPos(&m_ptOldCursorPos);
 		break;
 	case WM_LBUTTONUP:
 	case WM_RBUTTONUP:
 		::ReleaseCapture();
 		break;
 	case WM_MOUSEMOVE:
+		::SetCapture(hWnd);
+		::GetCursorPos(&m_ptOldCursorPos);
+		//::SetCapture(hWnd);
+		//::GetCursorPos(&m_ptOldCursorPos);
 		break;
 	default:
 		break;
@@ -542,7 +545,7 @@ void CGameFramework::ProcessInput()
 				if (pKeysBuffer[VK_RBUTTON] & 0xF0)
 					m_pCamera->Rotate(cyDelta, 0.0f, -cxDelta);
 				else
-					m_pCamera->Rotate(cyDelta, cxDelta, 0.0f);
+					m_pCamera->Rotate(0.0f, cxDelta, 0.0f);
 			}
 			if (dwDirection) {
 				m_pCamera->Move(dwDirection, 1.21f, true);

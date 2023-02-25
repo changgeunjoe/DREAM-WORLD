@@ -71,7 +71,7 @@ public:
 public:
 	void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 
-	void SetTrackAnimationSet(int nAnimationTrack, int nAnimationSet);
+	void SetTrackAnimationSet(int nAnimationSet);
 
 	void SetAllTrackdisable();
 	void SetTrackEnable(int nAnimationTrack, bool bEnable);
@@ -87,13 +87,13 @@ public:
 
 	void SetTrackBlending(int nUpperBodyAnimation, int nLowerBodyAnimation);
 public:
-	bool							m_bRootMotion = false;
+	// bool							m_bRootMotion = false;
 	GameObject* m_pModelRootObject = NULL;
 
-	GameObject* m_pRootMotionObject = NULL;
-	XMFLOAT3						m_xmf3FirstRootMotionPosition = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	// GameObject* m_pRootMotionObject = NULL;
+	// XMFLOAT3						m_xmf3FirstRootMotionPosition = XMFLOAT3(0.0f, 0.0f, 0.0f);
 
-	void SetRootMotion(bool bRootMotion) { m_bRootMotion = bRootMotion; }
+	// void SetRootMotion(bool bRootMotion) { m_bRootMotion = bRootMotion; }
 
-	virtual void OnRootMotion(GameObject* pRootGameObject) { }
+	// virtual void OnRootMotion(GameObject* pRootGameObject) { }
 };

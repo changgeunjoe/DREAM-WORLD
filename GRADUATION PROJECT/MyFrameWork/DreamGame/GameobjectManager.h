@@ -17,14 +17,13 @@ public:
 	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void BuildLight();
-	virtual void AnimateObjects();
 
 	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void ReleaseShaderVariables();
 
 	virtual bool onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
-
+	virtual void onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
 private: //active object 
 	GameObject**	pGameObjects = NULL;
@@ -35,6 +34,7 @@ private: //active object
 	GameObject*		m_pTankerObject = NULL; // ∂À≈ ≈© √¢±Ÿ¿Ã
 	GameObject*		m_pPriestObject = NULL;
 	
+	GameObject*		m_pPlayerObject = NULL;
 
 	GameObject*		m_pPlaneObject = NULL;
 	GameObject* m_pSkyboxObject = NULL;	
@@ -43,6 +43,7 @@ private: //active object
 	CLight*			m_pLight = NULL;
 	CCamera* m_pCamera = NULL;
 
+	POINT						m_ptOldCursorPos;
 public:
 	void SetPlayCharacter(Session* pSession);
 };

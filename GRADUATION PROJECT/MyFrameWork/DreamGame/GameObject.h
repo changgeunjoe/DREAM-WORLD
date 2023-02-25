@@ -22,6 +22,7 @@ class CAnimationController;
 #define MATERIAL_EMISSION_MAP			0x10
 #define MATERIAL_DETAIL_ALBEDO_MAP		0x20
 #define MATERIAL_DETAIL_NORMAL_MAP		0x40
+
 class GameObject
 {
 public:
@@ -36,10 +37,13 @@ public:
 	const XMFLOAT3& GetPosition() const;
 
     void SetScale(float x, float y, float z);
+    void SetScale(float fScale);
     void SetTexture(wchar_t* pszFileName, int nSamplers, int nRootParameter);
     void SetModel(char* pszModelName);
     void SetAnimationSets(int nAnimationSets);
     void SetMesh(MeshComponent* pMesh);
+    void SetCamera(CCamera* pCamera);
+    void SetLookAt();
 
 	void MoveStrafe(float fDistance = 1.0f);
 	void MoveUp(float fDistance = 1.0f);
@@ -53,6 +57,7 @@ public:
 
     void SetMaterial(int nMaterial, MaterialComponent* pMaterial);
     XMFLOAT3 GetLook();
+    void SetLook(const XMFLOAT3& xmfLook);
     XMFLOAT3 GetUp();
     XMFLOAT3 GetRight();
 
@@ -122,18 +127,20 @@ public:
     UINT							m_nType = 0x00;
     char							m_pstrFrameName[64];
 
+    int                             m_iLookDirectoin = 0x0000;
 
+    CCamera* m_pCamera = NULL;
 protected:
 
     int								m_nReferences = 0;
     UINT							m_nTextureType;
     int                             m_nSamplers=1;
     int                             m_nRootParameter = 1;
-
-
+    float                           m_fScale = 0.0f;
     entity_id m_entityID{};//object id 
     XMFLOAT3 m_position{};
     //Quaternion m_orientation;
+    float                           m_nRotateAngle = 0.0f;
 
     wchar_t* pszFileNames{};
     char* pszModelNames{};

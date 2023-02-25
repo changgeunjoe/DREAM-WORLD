@@ -81,6 +81,24 @@ XMFLOAT3 GameObject::GetLook()
 	return(Vector3::Normalize(XMFLOAT3(m_xmf4x4World._31, m_xmf4x4World._32, m_xmf4x4World._33)));
 }
 
+void GameObject::SetLook(const XMFLOAT3& xmfLook)
+{
+	XMFLOAT3 xmftLook = Vector3::Normalize(xmfLook);
+	XMFLOAT3 xmftUp = GetUp();
+	XMFLOAT3 xmftRight = GetRight();
+
+	xmftRight = Vector3::CrossProduct(xmftUp, xmftLook, true);
+	xmftUp = Vector3::CrossProduct(xmftLook, xmftRight, true);
+	
+	xmftLook = Vector3::ScalarProduct(xmftLook, m_fScale, false);
+	xmftRight = Vector3::ScalarProduct(xmftRight, m_fScale, false);
+	xmftUp = Vector3::ScalarProduct(xmftUp, m_fScale, false);
+
+	m_xmf4x4ToParent._11 = xmftRight.x;	m_xmf4x4ToParent._12 = xmftRight.y;	m_xmf4x4ToParent._13 = xmftRight.z;
+	m_xmf4x4ToParent._21 = xmftUp.x;	m_xmf4x4ToParent._22 = xmftUp.y;	m_xmf4x4ToParent._23 = xmftUp.z;
+	m_xmf4x4ToParent._31 = xmftLook.x;	m_xmf4x4ToParent._32 = xmftLook.y;	m_xmf4x4ToParent._33 = xmftLook.z;
+}
+
 XMFLOAT3 GameObject::GetUp()
 {
 	return(Vector3::Normalize(XMFLOAT3(m_xmf4x4World._21, m_xmf4x4World._22, m_xmf4x4World._23)));
@@ -95,6 +113,15 @@ XMFLOAT3 GameObject::GetRight()
 void GameObject::SetScale(float x, float y, float z)
 {
 	XMMATRIX mtxScale = XMMatrixScaling(x, y, z);
+	m_xmf4x4ToParent = Matrix4x4::Multiply(mtxScale, m_xmf4x4ToParent);
+
+	UpdateTransform(NULL);
+}
+
+void GameObject::SetScale(float fScale)
+{
+	m_fScale = fScale;
+	XMMATRIX mtxScale = XMMatrixScaling(fScale, fScale, fScale);
 	m_xmf4x4ToParent = Matrix4x4::Multiply(mtxScale, m_xmf4x4ToParent);
 
 	UpdateTransform(NULL);
@@ -705,6 +732,7 @@ void GameObject::MoveStrafe(float fDistance)
 	XMFLOAT3 xmf3Right = GetRight();
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Right, fDistance);
 	GameObject::SetPosition(xmf3Position);
+	if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(xmf3Position, m_pCamera->GetOffset()));
 }
 
 void GameObject::MoveUp(float fDistance)
@@ -713,6 +741,7 @@ void GameObject::MoveUp(float fDistance)
 	XMFLOAT3 xmf3Up = GetUp();
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Up, fDistance);
 	GameObject::SetPosition(xmf3Position);
+	if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(xmf3Position, m_pCamera->GetOffset()));
 }
 
 void GameObject::MoveForward(float fDistance)
@@ -721,6 +750,7 @@ void GameObject::MoveForward(float fDistance)
 	XMFLOAT3 xmf3Look = GetLook();
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, fDistance);
 	GameObject::SetPosition(xmf3Position);
+	if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(xmf3Position, m_pCamera->GetOffset()));
 }
 
 void GameObject::Rotate(float fPitch, float fYaw, float fRoll)
@@ -750,7 +780,7 @@ void GameObject::Rotate(XMFLOAT4* pxmf4Quaternion)
 
 void GameObject::UpdateTransform(XMFLOAT4X4* pxmf4x4Parent)
 {
-	m_xmf4x4World = Matrix4x4::Identity();
+	//m_xmf4x4World = Matrix4x4::Identity();
 	m_xmf4x4World = (pxmf4x4Parent) ? Matrix4x4::Multiply(m_xmf4x4ToParent, *pxmf4x4Parent) : m_xmf4x4ToParent;
 
 	if (m_pSibling) m_pSibling->UpdateTransform(pxmf4x4Parent);
@@ -769,4 +799,42 @@ void GameObject::MoveDiagonal(int fowardDirection, int rightDirection, float dis
 	resDirection = Vector3::Normalize(resDirection);
 	xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(resDirection, distance));
 	GameObject::SetPosition(xmf3Position);
+	if(m_pCamera) m_pCamera->SetPosition(Vector3::Add(xmf3Position, m_pCamera->GetOffset()));
+}
+
+void GameObject::SetCamera(CCamera* pCamera)
+{
+	m_pCamera = pCamera;
+	m_pCamera->SetTimeLag(0.25f);
+	m_pCamera->SetOffset(XMFLOAT3(0.0f, 25.0f, -50.0f));
+	m_pCamera->GenerateProjectionMatrix(1.01f, 5000.0f, ASPECT_RATIO, 60.0f);
+	m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
+	m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
+	m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
+}
+
+void GameObject::SetLookAt()
+{
+	int nCount = 0;
+	XMFLOAT3 xmfLook = XMFLOAT3(0.f, 0.f, 0.f);
+
+	if (m_iLookDirectoin == DIRECTION::IDLE)
+	{
+		m_pSkinnedAnimationController->SetAllTrackdisable();
+		m_pSkinnedAnimationController->SetTrackEnable(0, true);
+	}
+	else
+	{
+		if (m_iLookDirectoin & DIRECTION::FRONT) { xmfLook = Vector3::Add(xmfLook, XMFLOAT3(0.f, 0.f, 1.f)); nCount++; }
+		if (m_iLookDirectoin & DIRECTION::RIGHT) { xmfLook = Vector3::Add(xmfLook, XMFLOAT3(1.f, 0.f, 0.f)); nCount++; }
+		if (m_iLookDirectoin & DIRECTION::BACK) { xmfLook = Vector3::Add(xmfLook, XMFLOAT3(0.f, 0.f, -1.f)); nCount++; }
+		if (m_iLookDirectoin & DIRECTION::LEFT) { xmfLook = Vector3::Add(xmfLook, XMFLOAT3(-1.f, 0.f, 0.f)); nCount++; }
+	}
+
+	if (xmfLook.x || xmfLook.y || xmfLook.z)
+	{
+		SetLook(xmfLook);
+		m_pSkinnedAnimationController->SetAllTrackdisable();
+		m_pSkinnedAnimationController->SetTrackEnable(1, true);
+	}
 }

@@ -14,6 +14,7 @@ CScene::~CScene()
 
 bool CScene::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
+	m_pObjectManager->onProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
 	return false;
 }
 

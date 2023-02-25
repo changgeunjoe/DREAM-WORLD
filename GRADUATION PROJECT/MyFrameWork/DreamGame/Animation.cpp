@@ -126,12 +126,15 @@ void CAnimationController::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3d
 	}
 }
 
-void CAnimationController::SetTrackAnimationSet(int nAnimationTrack, int nAnimationSet)
+void CAnimationController::SetTrackAnimationSet(int nAnimationSet)
 {
 	if (m_pAnimationTracks)
 	{
-		m_pAnimationTracks[nAnimationTrack].m_nAnimationSet = nAnimationSet;
-		m_pAnimationTracks[nAnimationTrack].SetEnable(false);
+		for (int i = 0; i < nAnimationSet; i++)
+		{
+			m_pAnimationTracks[i].m_nAnimationSet = i;
+			m_pAnimationTracks[i].SetEnable(false);
+		}
 	}
 }
 
@@ -236,7 +239,6 @@ void CAnimationController::AdvanceTime(float fElapsedTime, GameObject* pRootGame
 			m_pAnimationTracks[m_nLowerBodyAnimation].HandleCallback();
 		}
 
-		OnRootMotion(pRootGameObject);
 		//pRootGameObject->m_SPBB = BoundingSphere(pRootGameObject->GetPosition(), 7.5f);
 		pRootGameObject->UpdateTransform(NULL);
 	}
