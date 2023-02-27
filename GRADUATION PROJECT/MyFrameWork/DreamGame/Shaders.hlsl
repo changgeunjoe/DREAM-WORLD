@@ -294,10 +294,11 @@ cbuffer cbToLightSpace : register(b3)
 struct VS_LIGHTING_INPUT
 {
     float3 position : POSITION;
-    float3 normal : NORMAL;
     float2 uv : TEXCOORD;
+    float3 normal : NORMAL;
     float3 tangent : TANGENT;
     float3 bitangent : BITANGENT;
+    
 };
 
 struct VS_LIGHTING_OUTPUT
@@ -397,16 +398,6 @@ float4 PSShadowMapShadow(VS_SHADOW_MAP_OUTPUT input) : SV_TARGET
     return (lerp(cColor, cIllumination, 0.4f));
     
 }
-
-
-
-
-
-
-
-
-
-
 ///////////////////////////////////////////////////////////////////////////////
 //
 struct VS_TEXTURED_OUTPUT
@@ -449,7 +440,6 @@ VS_TEXTURED_OUTPUT VSTextureToViewport(uint nVertexID : SV_VertexID)
         output.position = float4(-1.0f, -1.0f, 0.0f, 1.0f);
         output.uv = float2(0.0f, 1.0f);
     }
-
     return (output);
 }
 

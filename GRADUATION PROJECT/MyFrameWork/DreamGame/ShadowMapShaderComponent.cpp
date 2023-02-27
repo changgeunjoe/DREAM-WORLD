@@ -100,6 +100,14 @@ void ShadowMapShaderComponent::ReleaseUploadBuffers()
 {
 }
 
+void ShadowMapShaderComponent::Animate(float fTimeElapsed)
+{
+	for (int i = 0; i < m_ppObjects.size(); i++) {
+		m_ppObjects[i]->Animate(fTimeElapsed);
+	}
+
+}
+
 void ShadowMapShaderComponent::Render(ID3D12Device* pd3dDevice,ID3D12GraphicsCommandList* pd3dCommandList, int nPipelineState, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
 	ShaderComponent::Render(pd3dCommandList,nPipelineState, pd3dGraphicsRootSignature,false);

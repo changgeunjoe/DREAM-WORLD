@@ -41,6 +41,8 @@ GameobjectManager::~GameobjectManager()
 void GameobjectManager::Animate(float fTimeElapsed)
 {
 	m_pMonsterObject->Animate(fTimeElapsed);
+	m_pShadowmapShaderComponent->Animate(fTimeElapsed);
+	
 	AnimateObjects();
 	if (g_Logic.m_KeyInput->m_bQKey)
 	{

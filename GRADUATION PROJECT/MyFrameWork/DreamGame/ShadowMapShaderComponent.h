@@ -20,6 +20,7 @@ public:
 	virtual void ReleaseObjects();
 	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout(int nPipelineState);
 	virtual void ReleaseUploadBuffers();
+	virtual void Animate(float fTimeElapsed);
 
 	virtual void Render(ID3D12Device* pd3dDevice,ID3D12GraphicsCommandList* pd3dCommandList, int nPipelineState, ID3D12RootSignature* pd3dGraphicsRootSignature);
 
