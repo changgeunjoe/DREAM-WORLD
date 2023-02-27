@@ -34,6 +34,7 @@ public:
 	entity_id GetEntityID() const;
 
 	void SetPosition(const XMFLOAT3& position);
+	void UpdateCameraPosition();
 	const XMFLOAT3& GetPosition() const;
 
     void SetScale(float x, float y, float z);
@@ -50,6 +51,7 @@ public:
 	void MoveForward(float fDistance = 1.0f);
 	void MoveDiagonal(int fowardDirection, int rightDirection, float distance = 1.0f);
 
+    bool CheckIntersect(const GameObject* GameObject);	//수정필요
 
     void Rotate(float fPitch = 10.0f, float fYaw = 10.0f, float fRoll = 10.0f);
     void Rotate(XMFLOAT3* pxmf3Axis, float fAngle);
@@ -119,9 +121,9 @@ public:
     XMFLOAT4X4						m_xmf4x4Transform;//변환 행렬
     XMFLOAT4X4						m_xmf4x4World; //월드 행렬
 
-    GameObject* m_pParent = NULL;
-    GameObject* m_pChild = NULL;
-    GameObject* m_pSibling = NULL;
+    GameObject                      *m_pParent = NULL;
+    GameObject                      *m_pChild = NULL;
+    GameObject                      *m_pSibling = NULL;
 
 
     UINT							m_nType = 0x00;
@@ -129,7 +131,9 @@ public:
 
     int                             m_iLookDirectoin = 0x0000;
 
-    CCamera* m_pCamera = NULL;
+    CCamera                         *m_pCamera = NULL;
+    BoundingSphere					m_SPBB = BoundingSphere(XMFLOAT3(0.0f, 0.0f, 0.0f), 7.5f);
+
 protected:
 
     int								m_nReferences = 0;

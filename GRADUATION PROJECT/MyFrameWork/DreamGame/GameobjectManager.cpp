@@ -55,10 +55,10 @@ void GameobjectManager::Animate(float fTimeElapsed)
 		g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::Y, 30.0f * fTimeElapsed);
 	}
 
-	if(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_iLookDirectoin)	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetLookAt();
 	for (auto& session : g_Logic.m_inGamePlayerSession) {
 		if (-1 != session.m_id && session.m_isVisible) {
 			session.m_currentPlayGameObject->SetLookAt();
+			session.m_currentPlayGameObject->UpdateCameraPosition();
 			if (DIRECTION::FRONT == (session.m_currentDirection & DIRECTION::FRONT)) {
 				if (DIRECTION::LEFT == (session.m_currentDirection & DIRECTION::LEFT)) {
 					//session.m_currentPlayGameObject->MoveDiagonal(1, -1, 50.0f * fTimeElapsed);
@@ -147,9 +147,11 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	m_pSkyboxObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 
+	m_pWarriorObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	for (auto& session : g_Logic.m_inGamePlayerSession) {
 		if (-1 != session.m_id && session.m_isVisible) {
 			session.m_currentPlayGameObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+			session.m_currentPlayGameObject->CheckIntersect(m_pWarriorObject);	//수정필요
 		}
 	}
 	m_pPlaneObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -164,7 +166,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pWarriorObject = new GameObject(SQUARE_ENTITY);//사각형 오브젝트를 만들겠다
 	m_pWarriorObject->InsertComponent<RenderComponent>();
 	m_pWarriorObject->InsertComponent<CLoadedModelInfoCompnent>();
-	m_pWarriorObject->SetPosition(XMFLOAT3(0, 0, 0));
+	m_pWarriorObject->SetPosition(XMFLOAT3(30.f, 0, 30.f));
 	m_pWarriorObject->SetModel("Model/Warrior.bin");
 	m_pWarriorObject->SetAnimationSets(3);
 	m_pWarriorObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -237,10 +239,10 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pSkyboxObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 	// 플레이어가 캐릭터 선택하는 부분에 유사하게 넣을 예정
-	m_pPlayerObject = new GameObject(UNDEF_ENTITY);
-	memcpy(m_pPlayerObject, m_pWarriorObject, sizeof(GameObject));
+	m_pPlayerObject = new GameObject(UNDEF_ENTITY);	//수정필요
+	memcpy(m_pPlayerObject, m_pArcherObject, sizeof(GameObject));
 	m_pPlayerObject->SetCamera(m_pCamera);
-	delete m_pWarriorObject;
+	delete m_pArcherObject;
 
 #ifdef LOCAL_TASK
 	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject = m_pPlayerObject;

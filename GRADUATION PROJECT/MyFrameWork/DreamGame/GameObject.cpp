@@ -58,7 +58,16 @@ void GameObject::SetPosition(const XMFLOAT3& position)
 	m_xmf4x4ToParent._42 = position.y;
 	m_xmf4x4ToParent._43 = position.z;
 
+	m_SPBB = BoundingSphere(XMFLOAT3(position.x, position.y, position.z), 7.5f);
+	//if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(position, m_pCamera->GetOffset()));
+
 	UpdateTransform(NULL);
+}
+
+void GameObject::UpdateCameraPosition()
+{
+	if (m_pCamera) 
+		m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
 }
 
 const XMFLOAT3& GameObject::GetPosition() const
@@ -492,7 +501,10 @@ void GameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 					}
 					else
 					{
-						pMaterial->SetStandardShader();
+						if(!strncmp(m_pstrFrameName, "Bounding", 8))
+							pMaterial->SetBoundingBoxShader();
+						else
+							pMaterial->SetStandardShader();
 					}
 				}
 			}
@@ -732,7 +744,6 @@ void GameObject::MoveStrafe(float fDistance)
 	XMFLOAT3 xmf3Right = GetRight();
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Right, fDistance);
 	GameObject::SetPosition(xmf3Position);
-	if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(xmf3Position, m_pCamera->GetOffset()));
 }
 
 void GameObject::MoveUp(float fDistance)
@@ -741,7 +752,6 @@ void GameObject::MoveUp(float fDistance)
 	XMFLOAT3 xmf3Up = GetUp();
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Up, fDistance);
 	GameObject::SetPosition(xmf3Position);
-	if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(xmf3Position, m_pCamera->GetOffset()));
 }
 
 void GameObject::MoveForward(float fDistance)
@@ -750,7 +760,6 @@ void GameObject::MoveForward(float fDistance)
 	XMFLOAT3 xmf3Look = GetLook();
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, fDistance);
 	GameObject::SetPosition(xmf3Position);
-	if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(xmf3Position, m_pCamera->GetOffset()));
 }
 
 void GameObject::Rotate(float fPitch, float fYaw, float fRoll)
@@ -802,6 +811,18 @@ void GameObject::MoveDiagonal(int fowardDirection, int rightDirection, float dis
 	if(m_pCamera) m_pCamera->SetPosition(Vector3::Add(xmf3Position, m_pCamera->GetOffset()));
 }
 
+bool GameObject::CheckIntersect(const GameObject* GameObject)	//수정필요
+{
+	if (m_SPBB.Intersects(GameObject->m_SPBB))
+	{
+#ifdef _DEBUG
+		cout << m_pChild->m_pstrFrameName << "와 " << GameObject->m_pChild->m_pstrFrameName << "가 충돌했습니다." << endl;
+#endif
+		return true;
+	}
+	return false;
+}
+
 void GameObject::SetCamera(CCamera* pCamera)
 {
 	m_pCamera = pCamera;
@@ -813,10 +834,14 @@ void GameObject::SetCamera(CCamera* pCamera)
 	m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
 }
 
+#define PI 3.14159265359
+
 void GameObject::SetLookAt()
 {
 	int nCount = 0;
-	XMFLOAT3 xmfLook = XMFLOAT3(0.f, 0.f, 0.f);
+	XMFLOAT3 xmfLook = XMFLOAT3(m_pCamera->GetLookVector().x, 0.0f, m_pCamera->GetLookVector().z);
+	XMFLOAT3 xmfRev = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	float fRotateAngle = -1.0f;
 
 	if (m_iLookDirectoin == DIRECTION::IDLE)
 	{
@@ -825,15 +850,27 @@ void GameObject::SetLookAt()
 	}
 	else
 	{
-		if (m_iLookDirectoin & DIRECTION::FRONT) { xmfLook = Vector3::Add(xmfLook, XMFLOAT3(0.f, 0.f, 1.f)); nCount++; }
-		if (m_iLookDirectoin & DIRECTION::RIGHT) { xmfLook = Vector3::Add(xmfLook, XMFLOAT3(1.f, 0.f, 0.f)); nCount++; }
-		if (m_iLookDirectoin & DIRECTION::BACK) { xmfLook = Vector3::Add(xmfLook, XMFLOAT3(0.f, 0.f, -1.f)); nCount++; }
-		if (m_iLookDirectoin & DIRECTION::LEFT) { xmfLook = Vector3::Add(xmfLook, XMFLOAT3(-1.f, 0.f, 0.f)); nCount++; }
-	}
+		switch (m_iLookDirectoin)
+		{
+		case DIRECTION::FRONT:						fRotateAngle = 0.0f;	break;
+		case DIRECTION::LEFT + DIRECTION::FRONT:	fRotateAngle = 45.0f;	break;
+		case DIRECTION::LEFT:						fRotateAngle = 90.0f;	break;
+		case DIRECTION::BACK + DIRECTION::LEFT:		fRotateAngle = 135.0f;	break;
+		case DIRECTION::BACK:						fRotateAngle = 180.0f;	break;
+		case DIRECTION::RIGHT + DIRECTION::BACK:	fRotateAngle = 225.0f;	break;
+		case DIRECTION::RIGHT:						fRotateAngle = 270.0f;	break;
+		case DIRECTION::FRONT + DIRECTION::RIGHT:	fRotateAngle = 315.0f;	break;
+		}
 
-	if (xmfLook.x || xmfLook.y || xmfLook.z)
+		fRotateAngle = fRotateAngle * (PI / 180.0f);
+		xmfRev.x = xmfLook.x * cos(fRotateAngle) - xmfLook.z * sin(fRotateAngle);
+		xmfRev.z = xmfLook.x * sin(fRotateAngle) + xmfLook.z * cos(fRotateAngle);
+		xmfRev = Vector3::Normalize(xmfRev);
+	}
+	
+	if ((xmfRev.x || xmfRev.y || xmfRev.z))
 	{
-		SetLook(xmfLook);
+		SetLook(xmfRev);
 		m_pSkinnedAnimationController->SetAllTrackdisable();
 		m_pSkinnedAnimationController->SetTrackEnable(1, true);
 	}

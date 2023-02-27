@@ -12,3 +12,12 @@ public:
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader(int nPipelineState);
 };
 
+class BoundingBoxShaderComponent : public StandardShaderComponent
+{
+	bool m_bEnable = true;
+public:
+	BoundingBoxShaderComponent() {};
+	virtual ~BoundingBoxShaderComponent() {};
+
+	virtual D3D12_RASTERIZER_DESC CreateRasterizerState(int nPipelineState);
+};

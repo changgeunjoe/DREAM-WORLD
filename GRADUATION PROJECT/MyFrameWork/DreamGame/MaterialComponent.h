@@ -52,6 +52,7 @@ public:
 public:
 	static ShaderComponent* m_pStandardShader;
 	static ShaderComponent* m_pSkinnedAnimationShader;
+	static ShaderComponent* m_pBoundingBoxShader;
 
 	static void MaterialComponent::PrepareShaders(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, ID3D12Resource* m_pd3dcbGameObjects);
 
@@ -64,4 +65,5 @@ public:
 
 	void SetStandardShader() { MaterialComponent::SetShader(m_pStandardShader); }
 	void SetSkinnedAnimationShader() { MaterialComponent::SetShader(m_pSkinnedAnimationShader); }
+	void SetBoundingBoxShader() { MaterialComponent::SetShader(m_pBoundingBoxShader); }
 };
