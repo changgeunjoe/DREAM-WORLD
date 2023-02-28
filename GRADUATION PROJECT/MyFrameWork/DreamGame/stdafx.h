@@ -202,6 +202,14 @@ enum component_id
 };
 //mean about component_id;
 
+enum CharacterAnimation
+{
+	CA_IDLE = 0,
+	CA_MOVE,
+	CA_ATTACK,
+	CA_DASH
+};
+
 enum Message {
 	ITEM_TYPE,
 };

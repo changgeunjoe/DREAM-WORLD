@@ -255,7 +255,8 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 			pd3dGraphicsRootSignature, pszModelNames, NULL, true);//NULL ->Shader
 		SetChild(m_pLoadedModelComponent->m_pModelRootObject, true);
 
-		m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, m_nAnimationSets, m_pLoadedModelComponent);
+		if(m_nAnimationSets != 0)
+			m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, m_nAnimationSets, m_pLoadedModelComponent);
 	}
 	ComponentBase* pDepthShaderComponent = GetComponent(component_id::DEPTHSHADER_COMPONENT);
 	if (pDepthShaderComponent != NULL)
@@ -759,7 +760,7 @@ void GameObject::MoveForward(float fDistance)
 	XMFLOAT3 xmf3Position = GetPosition();
 	XMFLOAT3 xmf3Look = GetLook();
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, fDistance);
-	GameObject::SetPosition(xmf3Position);
+	if(Vector3::Length(xmf3Position) < 440.0f)	GameObject::SetPosition(xmf3Position);
 }
 
 void GameObject::Rotate(float fPitch, float fYaw, float fRoll)
@@ -845,8 +846,16 @@ void GameObject::SetLookAt()
 
 	if (m_iLookDirectoin == DIRECTION::IDLE)
 	{
-		m_pSkinnedAnimationController->SetAllTrackdisable();
-		m_pSkinnedAnimationController->SetTrackEnable(0, true);
+		if (!m_pSkinnedAnimationController->GetAttackAnimation())
+		{
+			m_pSkinnedAnimationController->SetAllTrackdisable();
+			m_pSkinnedAnimationController->SetTrackEnable(CharacterAnimation::CA_IDLE, true);
+		}
+		else
+		{
+			m_pSkinnedAnimationController->SetAllTrackdisable();
+			m_pSkinnedAnimationController->SetTrackEnable(CharacterAnimation::CA_ATTACK, true);
+		}
 	}
 	else
 	{
@@ -871,7 +880,15 @@ void GameObject::SetLookAt()
 	if ((xmfRev.x || xmfRev.y || xmfRev.z))
 	{
 		SetLook(xmfRev);
-		m_pSkinnedAnimationController->SetAllTrackdisable();
-		m_pSkinnedAnimationController->SetTrackEnable(1, true);
+		if (!m_pSkinnedAnimationController->GetAttackAnimation())
+		{
+			m_pSkinnedAnimationController->SetAllTrackdisable();
+			m_pSkinnedAnimationController->SetTrackEnable(CharacterAnimation::CA_MOVE, true);
+		}
+		else
+		{
+			m_pSkinnedAnimationController->SetAnimationBlending(true);
+			m_pSkinnedAnimationController->SetTrackBlending(CharacterAnimation::CA_ATTACK, CharacterAnimation::CA_MOVE);
+		}
 	}
 }

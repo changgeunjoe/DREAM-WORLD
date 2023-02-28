@@ -67,7 +67,6 @@ public:
 	ID3D12Resource** m_ppd3dcbSkinningBoneTransforms = NULL; //[SkinnedMeshes]
 	XMFLOAT4X4** m_ppcbxmf4x4MappedSkinningBoneTransforms = NULL; //[SkinnedMeshes]
 
-	bool							m_bAnimationBlending = false;
 public:
 	void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 
@@ -86,6 +85,14 @@ public:
 	void AdvanceTime(float fElapsedTime, GameObject* pRootGameObject);
 
 	void SetTrackBlending(int nUpperBodyAnimation, int nLowerBodyAnimation);
+
+
+	void SetAttackAnimation(bool bOnAttack) { m_bOnAttack = bOnAttack; }
+	bool GetAttackAnimation() { return m_bOnAttack; }
+
+	void SetAnimationBlending(bool bAnimationBlending) { m_bAnimationBlending = bAnimationBlending; }
+	bool GetAnimationBlending() { return m_bAnimationBlending; }
+
 public:
 	// bool							m_bRootMotion = false;
 	GameObject* m_pModelRootObject = NULL;
@@ -96,4 +103,7 @@ public:
 	// void SetRootMotion(bool bRootMotion) { m_bRootMotion = bRootMotion; }
 
 	// virtual void OnRootMotion(GameObject* pRootGameObject) { }
+private:
+	bool							m_bAnimationBlending = false;
+	bool							m_bOnAttack = false;
 };

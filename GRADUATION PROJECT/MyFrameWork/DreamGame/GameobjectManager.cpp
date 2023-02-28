@@ -151,7 +151,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	for (auto& session : g_Logic.m_inGamePlayerSession) {
 		if (-1 != session.m_id && session.m_isVisible) {
 			session.m_currentPlayGameObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-			session.m_currentPlayGameObject->CheckIntersect(m_pWarriorObject);	//수정필요
+			session.m_currentPlayGameObject->CheckIntersect(m_pMonsterObject);	//수정필요
 		}
 	}
 	m_pPlaneObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -171,7 +171,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pWarriorObject->SetAnimationSets(3);
 	m_pWarriorObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pWarriorObject->m_pSkinnedAnimationController->SetTrackAnimationSet(3);
-	m_pWarriorObject->m_pSkinnedAnimationController->SetTrackEnable(0, true);
+	m_pWarriorObject->m_pSkinnedAnimationController->SetTrackEnable(CharacterAnimation::CA_IDLE, true);
 	m_pWarriorObject->SetScale(30.0f);
 
 	m_pArcherObject = new GameObject(UNDEF_ENTITY);
@@ -182,7 +182,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pArcherObject->SetAnimationSets(3);
 	m_pArcherObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pArcherObject->m_pSkinnedAnimationController->SetTrackAnimationSet(3);
-	m_pArcherObject->m_pSkinnedAnimationController->SetTrackEnable(0, true);
+	m_pArcherObject->m_pSkinnedAnimationController->SetTrackEnable(CharacterAnimation::CA_IDLE, true);
 	m_pArcherObject->SetScale(30.0f);
 
 	m_pTankerObject = new GameObject(UNDEF_ENTITY);
@@ -193,7 +193,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pTankerObject->SetAnimationSets(3);
 	m_pTankerObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pTankerObject->m_pSkinnedAnimationController->SetTrackAnimationSet(3);
-	m_pTankerObject->m_pSkinnedAnimationController->SetTrackEnable(0, true);
+	m_pTankerObject->m_pSkinnedAnimationController->SetTrackEnable(CharacterAnimation::CA_IDLE, true);
 	m_pTankerObject->SetScale(30.0f);
 
 	m_pPriestObject = new GameObject(UNDEF_ENTITY);
@@ -204,7 +204,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPriestObject->SetAnimationSets(3);
 	m_pPriestObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pPriestObject->m_pSkinnedAnimationController->SetTrackAnimationSet(3);
-	m_pPriestObject->m_pSkinnedAnimationController->SetTrackEnable(0, true);
+	m_pPriestObject->m_pSkinnedAnimationController->SetTrackEnable(CharacterAnimation::CA_IDLE, true);
 	m_pPriestObject->SetScale(30.0f);
 
 	m_pMonsterObject = new GameObject(UNDEF_ENTITY);
@@ -215,18 +215,22 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pMonsterObject->SetAnimationSets(3);
 	m_pMonsterObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackAnimationSet(3);
-	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackEnable(0, true);
+	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackEnable(CharacterAnimation::CA_IDLE, true);
 	m_pMonsterObject->SetScale(30.0f);
 
-	m_pPlaneObject = new GameObject(PlANE_ENTITY);
+	m_pPlaneObject = new GameObject(UNDEF_ENTITY);
 	m_pPlaneObject->InsertComponent<RenderComponent>();
-	m_pPlaneObject->InsertComponent<CubeMeshComponent>();
-	m_pPlaneObject->InsertComponent<ShaderComponent>();
-	m_pPlaneObject->InsertComponent<TextureComponent>();
-	m_pPlaneObject->SetTexture(L"Image/Base_Texture.dds", RESOURCE_TEXTURE2D, 3);
-	m_pPlaneObject->SetPosition(XMFLOAT3(0, -10, 50));
-	m_pPlaneObject->SetScale(100, 0.1, 100);
+	m_pPlaneObject->InsertComponent<CLoadedModelInfoCompnent>();
+	m_pPlaneObject->SetPosition(XMFLOAT3(0, 0, 0));
+	m_pPlaneObject->SetModel("Model/Floor.bin");
+	//m_pPlaneObject->SetAnimationSets(3);
 	m_pPlaneObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//m_pPlaneObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+	//m_pPlaneObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
+	//m_pPlaneObject->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
+	//m_pPlaneObject->m_pSkinnedAnimationController->SetTrackEnable(2, true);
+	//m_pPlaneObject->m_pSkinnedAnimationController->SetRootMotion(false);
+	m_pPlaneObject->SetScale(30.0f, 30.0f, 30.0f);
 
 	m_pSkyboxObject = new GameObject(SQUARE_ENTITY);
 	m_pSkyboxObject->InsertComponent<RenderComponent>();
@@ -437,9 +441,16 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 	switch (nMessageID)
 	{
 	case WM_LBUTTONDOWN:
+	{
+		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetAttackAnimation(true);
 		break;
+	}
 	case WM_LBUTTONUP:
+	{
+		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetAnimationBlending(false);
+		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetAttackAnimation(false);
 		break;
+	}
 	default:
 		break;
 	}
