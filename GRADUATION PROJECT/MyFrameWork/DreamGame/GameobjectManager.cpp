@@ -55,10 +55,10 @@ void GameobjectManager::Animate(float fTimeElapsed)
 		g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::Y, 30.0f * fTimeElapsed);
 	}
 
+	m_pPlayerObject->SetLookAt();
+	m_pPlayerObject->UpdateCameraPosition();
 	for (auto& session : g_Logic.m_inGamePlayerSession) {
 		if (-1 != session.m_id && session.m_isVisible) {
-			session.m_currentPlayGameObject->SetLookAt();
-			session.m_currentPlayGameObject->UpdateCameraPosition();
 			if (DIRECTION::FRONT == (session.m_currentDirection & DIRECTION::FRONT)) {
 				if (DIRECTION::LEFT == (session.m_currentDirection & DIRECTION::LEFT)) {
 					//session.m_currentPlayGameObject->MoveDiagonal(1, -1, 50.0f * fTimeElapsed);
@@ -462,10 +462,10 @@ void GameobjectManager::SetPlayCharacter(Session* pSession) // 임시 함수
 	//4명
 	Session* cliSession = reinterpret_cast<Session*>(pSession);
 	if (0 == cliSession->m_id) {
-		cliSession->SetGameObject(m_pWarriorObject);
+		cliSession->SetGameObject(m_pPlayerObject);
 	}
 	else if (1 == cliSession->m_id) {
-		cliSession->SetGameObject(m_pTankerObject);
+		cliSession->SetGameObject(m_pWarriorObject);
 	}
 	else if (2 == cliSession->m_id) {
 		cliSession->SetGameObject(m_pArcherObject);
