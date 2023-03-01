@@ -66,7 +66,7 @@ void GameObject::SetPosition(const XMFLOAT3& position)
 
 void GameObject::UpdateCameraPosition()
 {
-	if (m_pCamera) 
+	if (m_pCamera)
 		m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
 }
 
@@ -98,7 +98,7 @@ void GameObject::SetLook(const XMFLOAT3& xmfLook)
 
 	xmftRight = Vector3::CrossProduct(xmftUp, xmftLook, true);
 	xmftUp = Vector3::CrossProduct(xmftLook, xmftRight, true);
-	
+
 	xmftLook = Vector3::ScalarProduct(xmftLook, m_fScale, false);
 	xmftRight = Vector3::ScalarProduct(xmftRight, m_fScale, false);
 	xmftUp = Vector3::ScalarProduct(xmftUp, m_fScale, false);
@@ -136,7 +136,7 @@ void GameObject::SetScale(float fScale)
 	UpdateTransform(NULL);
 }
 
-void GameObject::SetTexture(wchar_t* pszFileName, int nSamplers,int nRootParameter)
+void GameObject::SetTexture(wchar_t* pszFileName, int nSamplers, int nRootParameter)
 {
 	m_nRootParameter = nRootParameter;//텍스쳐가 시작하는 t(n)위치 
 	pszFileNames = pszFileName;//파일이름
@@ -230,9 +230,9 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	//->메테리얼 생성 텍스쳐와 쉐이더를 넣어야되는데 쉐이더이므로 안 넣어도 됨
 	ComponentBase* pShaderComponent = GetComponent(component_id::SHADER_COMPONENT);
 	ComponentBase* pSkyShaderComponent = GetComponent(component_id::SKYSHADER_COMPONENT);
-	if (pShaderComponent != NULL|| pSkyShaderComponent!=NULL)
+	if (pShaderComponent != NULL || pSkyShaderComponent != NULL)
 	{
-		if (pShaderComponent != NULL) 
+		if (pShaderComponent != NULL)
 		{
 			m_pShaderComponent = static_cast<ShaderComponent*>(pShaderComponent);
 		}
@@ -255,7 +255,7 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 			pd3dGraphicsRootSignature, pszModelNames, NULL, true);//NULL ->Shader
 		SetChild(m_pLoadedModelComponent->m_pModelRootObject, true);
 
-		if(m_nAnimationSets != 0)
+		if (m_nAnimationSets != 0)
 			m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, m_nAnimationSets, m_pLoadedModelComponent);
 	}
 	ComponentBase* pDepthShaderComponent = GetComponent(component_id::DEPTHSHADER_COMPONENT);
@@ -298,7 +298,7 @@ void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3
 	}
 	if (m_pShadowMapShaderComponent)
 	{
-	//	m_pShadowMapShaderComponent->Render(pd3dCommandList, pCamera);
+		//	m_pShadowMapShaderComponent->Render(pd3dCommandList, pCamera);
 	}
 	if (m_pRenderComponent != NULL && m_pMeshComponent != NULL && m_ppMaterialsComponent == NULL && m_pLoadedModelComponent == NULL)
 	{
@@ -502,7 +502,7 @@ void GameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 					}
 					else
 					{
-						if(!strncmp(m_pstrFrameName, "Bounding", 8))
+						if (!strncmp(m_pstrFrameName, "Bounding", 8))
 							pMaterial->SetBoundingBoxShader();
 						else
 							pMaterial->SetStandardShader();
@@ -760,7 +760,7 @@ void GameObject::MoveForward(float fDistance)
 	XMFLOAT3 xmf3Position = GetPosition();
 	XMFLOAT3 xmf3Look = GetLook();
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, fDistance);
-	if(Vector3::Length(xmf3Position) < 440.0f)	GameObject::SetPosition(xmf3Position);
+	if (Vector3::Length(xmf3Position) < 440.0f)	GameObject::SetPosition(xmf3Position);
 }
 
 void GameObject::Rotate(float fPitch, float fYaw, float fRoll)
@@ -809,7 +809,7 @@ void GameObject::MoveDiagonal(int fowardDirection, int rightDirection, float dis
 	resDirection = Vector3::Normalize(resDirection);
 	xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(resDirection, distance));
 	GameObject::SetPosition(xmf3Position);
-	if(m_pCamera) m_pCamera->SetPosition(Vector3::Add(xmf3Position, m_pCamera->GetOffset()));
+	if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(xmf3Position, m_pCamera->GetOffset()));
 }
 
 bool GameObject::CheckIntersect(const GameObject* GameObject)	//수정필요
@@ -862,13 +862,13 @@ void GameObject::SetLookAt()
 		switch (m_iLookDirectoin)
 		{
 		case DIRECTION::FRONT:						fRotateAngle = 0.0f;	break;
-		case DIRECTION::LEFT + DIRECTION::FRONT:	fRotateAngle = 45.0f;	break;
+		case DIRECTION::LEFT | DIRECTION::FRONT:	fRotateAngle = 45.0f;	break;
 		case DIRECTION::LEFT:						fRotateAngle = 90.0f;	break;
-		case DIRECTION::BACK + DIRECTION::LEFT:		fRotateAngle = 135.0f;	break;
+		case DIRECTION::BACK | DIRECTION::LEFT:		fRotateAngle = 135.0f;	break;
 		case DIRECTION::BACK:						fRotateAngle = 180.0f;	break;
-		case DIRECTION::RIGHT + DIRECTION::BACK:	fRotateAngle = 225.0f;	break;
+		case DIRECTION::RIGHT | DIRECTION::BACK:	fRotateAngle = 225.0f;	break;
 		case DIRECTION::RIGHT:						fRotateAngle = 270.0f;	break;
-		case DIRECTION::FRONT + DIRECTION::RIGHT:	fRotateAngle = 315.0f;	break;
+		case DIRECTION::FRONT | DIRECTION::RIGHT:	fRotateAngle = 315.0f;	break;
 		}
 
 		fRotateAngle = fRotateAngle * (PI / 180.0f);
@@ -876,7 +876,7 @@ void GameObject::SetLookAt()
 		xmfRev.z = xmfLook.x * sin(fRotateAngle) + xmfLook.z * cos(fRotateAngle);
 		xmfRev = Vector3::Normalize(xmfRev);
 	}
-	
+
 	if ((xmfRev.x || xmfRev.y || xmfRev.z))
 	{
 		SetLook(xmfRev);

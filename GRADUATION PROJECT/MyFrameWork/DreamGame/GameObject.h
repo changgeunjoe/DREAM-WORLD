@@ -129,7 +129,7 @@ public:
     UINT							m_nType = 0x00;
     char							m_pstrFrameName[64];
 
-    int                             m_iLookDirectoin = 0x0000;
+    char                             m_iLookDirectoin = DIRECTION::IDLE;
 
     CCamera                         *m_pCamera = NULL;
     BoundingSphere					m_SPBB = BoundingSphere(XMFLOAT3(0.0f, 0.0f, 0.0f), 7.5f);
