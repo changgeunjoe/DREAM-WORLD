@@ -129,7 +129,8 @@ void CGameFramework::ChangeSwapChainState()
 	dxgiSwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	dxgiSwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	dxgiSwapChainDesc.OutputWindow = m_hwnd;
-	dxgiSwapChainDesc.SampleDesc.Count = (m_bMsaa4xEnable) ? 4 : 1;
+	dxgiSwapChainDesc.SampleDesc.Count = (
+		Msaa4xEnable) ? 4 : 1;
 	dxgiSwapChainDesc.SampleDesc.Quality = (m_bMsaa4xEnable) ? (m_nMsaa4xQualityLevels -
 		1) : 0;
 	dxgiSwapChainDesc.Windowed = TRUE;
