@@ -55,7 +55,10 @@ D3D12_RASTERIZER_DESC DepthRenderShaderComponent::CreateRasterizerState(int nPip
 }
 D3D12_SHADER_BYTECODE DepthRenderShaderComponent::CreateVertexShader(int nPipelineState)
 {
-	return (ShaderComponent::CompileShaderFromFile(L"Shaders.hlsl", "VSLighting", "vs_5_1", &m_pd3dVertexShaderBlob));
+	if (nPipelineState == 0)
+		return (ShaderComponent::CompileShaderFromFile(L"Shaders.hlsl", "VSStandard", "vs_5_1", &m_pd3dVertexShaderBlob));
+	else if (nPipelineState == 1)
+		return (ShaderComponent::CompileShaderFromFile(L"Shaders.hlsl", "VSSkinnedAnimationStandard", "vs_5_1", &m_pd3dVertexShaderBlob));
 }
 D3D12_SHADER_BYTECODE DepthRenderShaderComponent::CreatePixelShader(int nPipelineState)
 {

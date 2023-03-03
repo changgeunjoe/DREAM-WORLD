@@ -149,11 +149,11 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 //	m_pSkyboxObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pDepthShaderComponent->UpdateShaderVariables(pd3dCommandList);
 
-	for (auto& session : g_Logic.m_inGamePlayerSession) {
-		if (-1 != session.m_id && session.m_isVisible) {
-			session.m_currentPlayGameObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-		}
-	}
+	//for (auto& session : g_Logic.m_inGamePlayerSession) {
+	//	if (-1 != session.m_id && session.m_isVisible) {
+	//		session.m_currentPlayGameObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//	}
+	//}
 	//m_pPlaneObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//m_pMonsterObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
@@ -162,10 +162,10 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pShadowmapShaderComponent->Render(pd3dDevice,pd3dCommandList, 0,pd3dGraphicsRootSignature);
 	}
 
-	if (m_pTextureToViewportComponent)
-	{
-		m_pTextureToViewportComponent->Render(pd3dCommandList, m_pCamera, 0, pd3dGraphicsRootSignature);
-	}
+	//if (m_pTextureToViewportComponent)
+	//{
+	//	m_pTextureToViewportComponent->Render(pd3dCommandList, m_pCamera, 0, pd3dGraphicsRootSignature);
+	//}
 }
 
 void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -173,6 +173,14 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	BuildLight();
 	
+	m_pPlaneObject = new GameObject(UNDEF_ENTITY);
+	m_pPlaneObject->InsertComponent<RenderComponent>();
+	m_pPlaneObject->InsertComponent<CLoadedModelInfoCompnent>();
+	m_pPlaneObject->SetPosition(XMFLOAT3(0, 0, 0));
+	m_pPlaneObject->SetModel("Model/Floor.bin");
+	m_pPlaneObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pPlaneObject->SetScale(10.0f, 1.0f, 10.0f);
+	m_ppGameObjects.emplace_back(m_pPlaneObject);
 
 	m_pWarriorObject = new GameObject(SQUARE_ENTITY);//사각형 오브젝트를 만들겠다
 	m_pWarriorObject->InsertComponent<RenderComponent>();
@@ -251,21 +259,6 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pMonsterObject->m_pSkinnedAnimationController->SetRootMotion(false);
 	m_pMonsterObject->SetScale(10.0f, 10.0f, 10.0f);
 	m_ppGameObjects.emplace_back(m_pMonsterObject);
-
-	m_pPlaneObject = new GameObject(UNDEF_ENTITY);
-	m_pPlaneObject->InsertComponent<RenderComponent>();
-	m_pPlaneObject->InsertComponent<CLoadedModelInfoCompnent>();
-	m_pPlaneObject->SetPosition(XMFLOAT3(0, 0, 0));
-	m_pPlaneObject->SetModel("Model/Floor.bin");
-	//m_pPlaneObject->SetAnimationSets(3);
-	m_pPlaneObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//m_pPlaneObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	//m_pPlaneObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-	//m_pPlaneObject->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
-	//m_pPlaneObject->m_pSkinnedAnimationController->SetTrackEnable(2, true);
-	//m_pPlaneObject->m_pSkinnedAnimationController->SetRootMotion(false);
-	m_pPlaneObject->SetScale(10.0f, 1.0f, 10.0f);
-	m_ppGameObjects.emplace_back(m_pPlaneObject);
 
 	//m_pPlaneObject = new GameObject(SQUARE_ENTITY);
 	//m_pPlaneObject->InsertComponent<RenderComponent>();
