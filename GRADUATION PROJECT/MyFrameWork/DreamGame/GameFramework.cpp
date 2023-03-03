@@ -2,6 +2,12 @@
 #include "GameFramework.h"
 #include"stdafx.h"
 #include"Camera.h"
+#include "GameObject.h"
+#include "Network/Logic/Logic.h"
+#include "Network/NetworkHelper.h"
+
+extern Logic g_Logic;
+extern NetworkHelper g_NetworkHelper;
 
 CGameFramework::CGameFramework()
 {
@@ -410,7 +416,7 @@ void CGameFramework::BuildObjects()
 	m_pCamera->CreateShaderVariables(m_pd3dDevice, m_pd3dCommandList);
 	//씬 객체를 생성하고 씬에 포함될 게임 객체들을 생성한다.
 	m_pScene = new CScene();
-	m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList,m_pCamera);
+	m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList, m_pCamera);
 	//씬 객체를 생성하기 위하여 필요한 그래픽 명령 리스트들을 명령 큐에 추가한다.
 	m_pd3dCommandList->Close();
 	ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
@@ -516,7 +522,7 @@ void CGameFramework::ProcessInput()
 	bool bProcessedByScene = false;
 	GetKeyboardState(pKeysBuffer);
 	//if&& m_pScene) bProcessedByScene = m_pScene->ProcessInput(pKeysBuffer);
-	if (!bProcessedByScene)
+	if (!bProcessedByScene && !pKeysBuffer[VK_F1])
 	{
 		DWORD dwDirection = 0;
 		if (pKeysBuffer[VK_UP] & 0xF0) dwDirection |= DIR_FORWARD;
@@ -538,21 +544,29 @@ void CGameFramework::ProcessInput()
 			SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
 		}
 
-		if ((dwDirection != 0.0f) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
+		if ((dwDirection != DIRECTION::IDLE) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
 		{
 			if (cxDelta || cyDelta)
 			{
 				if (pKeysBuffer[VK_RBUTTON] & 0xF0)
 					m_pCamera->Rotate(cyDelta, 0.0f, -cxDelta);
-				else
+				else {
+					//g_Logic.
+
+					/*g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetUp(), -30.0f * fTimeElapsed);
+					g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y -= 30.0f * fTimeElapsed;
+					g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::Y, -30.0f * fTimeElapsed);*/
+					g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetUp(), cxDelta);
+					g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += cxDelta;
+					g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::Y, cxDelta);
+
 					m_pCamera->Rotate(cyDelta, cxDelta, 0.0f);
+				}
 			}
-			if (dwDirection) {
+			if (dwDirection != DIRECTION::IDLE) {
 				m_pCamera->Move(dwDirection, 1.21f, true);
 			}
 		}
-
-
 	}
 	//m_pCamera->Update(m_GameTimer.GetTimeElapsed());
 

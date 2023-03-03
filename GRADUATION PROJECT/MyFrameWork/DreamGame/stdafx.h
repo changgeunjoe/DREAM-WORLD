@@ -36,10 +36,9 @@ using namespace std;
 #include <dxgidebug.h>
 #endif
 
-#ifndef LOCAL_TASK
-#define LOCAL_TASK 1
-#endif // !LOCAL_TASK
-
+//#ifndef LOCAL_TASK
+//#define LOCAL_TASK 1
+//#endif // !LOCAL_TASK
 
 ///////////////////////////////////////
 /*** 여기서부터 이 책의 모든 예제에서 공통으로 포함하여 사용하는 코드이다. ***/

@@ -41,20 +41,6 @@ void GameobjectManager::Animate(float fTimeElapsed)
 {
 	m_pSkyboxObject->SetPosition(m_pCamera->GetPosition());
 	m_pMonsterObject->Animate(fTimeElapsed);
-
-	if (g_Logic.m_KeyInput->m_bQKey)
-	{
-		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetUp(), -30.0f * fTimeElapsed);
-		g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y -= 30.0f * fTimeElapsed;
-		g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::Y, -30.0f * fTimeElapsed);
-	}
-	if (g_Logic.m_KeyInput->m_bEKey)
-	{
-		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetUp(), 30.0f * fTimeElapsed);
-		g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += 30.0f * fTimeElapsed;
-		g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::Y, 30.0f * fTimeElapsed);
-	}
-
 	m_pPlayerObject->SetLookAt();
 	m_pPlayerObject->UpdateCameraPosition();
 	for (auto& session : g_Logic.m_inGamePlayerSession) {
@@ -242,13 +228,13 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pSkyboxObject->SetScale(1, 1, 1);
 	m_pSkyboxObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
+#if LOCAL_TASK
 	// 플레이어가 캐릭터 선택하는 부분에 유사하게 넣을 예정
 	m_pPlayerObject = new GameObject(UNDEF_ENTITY);	//수정필요
 	memcpy(m_pPlayerObject, m_pArcherObject, sizeof(GameObject));
 	m_pPlayerObject->SetCamera(m_pCamera);
 	delete m_pArcherObject;
 
-#ifdef LOCAL_TASK
 	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject = m_pPlayerObject;
 	g_Logic.m_inGamePlayerSession[0].m_isVisible = true;
 	g_Logic.m_inGamePlayerSession[0].m_id = 0;
@@ -462,7 +448,7 @@ void GameobjectManager::SetPlayCharacter(Session* pSession) // 임시 함수
 	//4명
 	Session* cliSession = reinterpret_cast<Session*>(pSession);
 	if (0 == cliSession->m_id) {
-		cliSession->SetGameObject(m_pPlayerObject);
+		cliSession->SetGameObject(m_pTankerObject);
 	}
 	else if (1 == cliSession->m_id) {
 		cliSession->SetGameObject(m_pWarriorObject);
@@ -473,4 +459,6 @@ void GameobjectManager::SetPlayCharacter(Session* pSession) // 임시 함수
 	else {
 		cliSession->SetGameObject(m_pPriestObject);
 	}
+	if (g_Logic.myId == cliSession->m_id)
+		cliSession->m_currentPlayGameObject->SetCamera(m_pCamera);
 }
