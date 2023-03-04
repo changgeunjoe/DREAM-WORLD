@@ -268,7 +268,7 @@ void ShaderComponent::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dComma
 	}
 
 	XMStoreFloat4x4(&m_pcbMappedGameObjects->m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(pxmf4x4World)));//오브젝트의 월드좌표계를 변환시켜준다.
-
+	::memcpy(&m_pcbMappedGameObjects->m_bAnimateshader, &ppMaterialsComponent->m_isAnimationShader, sizeof(bool));//에니메이션 상태를 업데이트 해준다.
 	if (ppMaterialsComponent) {
 
 		for (int i = 0; i < ppMaterialsComponent->m_nTextures; i++)

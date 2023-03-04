@@ -23,6 +23,7 @@ cbuffer cbGameObjectInfo : register(b0)
     matrix gmtxGameObject : packoffset(c0);
     MATERIAL gMaterial : packoffset(c4);
     uint gnTexturesMask : packoffset(c8);
+    bool bAnimationShader : packoffset(c8.y);
 };
 
 cbuffer cbCameraInfo : register(b1)
@@ -286,6 +287,8 @@ struct VS_LIGHTING_INPUT
     float3 normal : NORMAL;
     float3 tangent : TANGENT;
     float3 bitangent : BITANGENT;
+    int4 indices : BONEINDEX;
+    float4 weights : BONEWEIGHT;
     
 };
 
@@ -303,13 +306,31 @@ struct VS_LIGHTING_OUTPUT
 VS_LIGHTING_OUTPUT VSLighting(VS_LIGHTING_INPUT input)
 {
     VS_LIGHTING_OUTPUT output;
-
-    output.normalW = mul(input.normal, (float3x3) gmtxGameObject);
-    output.positionW = (float3) mul(float4(input.position, 1.0f), gmtxGameObject);
-    output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
-    output.uv = input.uv;
-    output.tangentW = mul(input.tangent, (float3x3) gmtxGameObject);
-    output.bitangentW = mul(input.bitangent, (float3x3) gmtxGameObject);
+    if (!bAnimationShader)
+    {
+        output.normalW = mul(input.normal, (float3x3) gmtxGameObject);
+        output.positionW = (float3) mul(float4(input.position, 1.0f), gmtxGameObject);
+        output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
+        output.uv = input.uv;
+        output.tangentW = mul(input.tangent, (float3x3) gmtxGameObject);
+        output.bitangentW = mul(input.bitangent, (float3x3) gmtxGameObject);
+    }
+    else if (bAnimationShader)
+    {
+        float4x4 mtxVertexToBoneWorld = (float4x4) 0.0f;
+        for (int i = 0; i < MAX_VERTEX_INFLUENCES; i++)
+        {
+            mtxVertexToBoneWorld += input.weights[i] * mul(gpmtxBoneOffsets[input.indices[i]], gpmtxBoneTransforms[input.indices[i]]);
+        }
+        float4 positionW = mul(float4(input.position, 1.0f), mtxVertexToBoneWorld);
+        output.positionW = positionW.xyz;
+        output.normalW = mul(input.normal, (float3x3) mtxVertexToBoneWorld).xyz;
+        output.tangentW = mul(input.tangent, (float3x3) mtxVertexToBoneWorld).xyz;
+        output.bitangentW = mul(input.bitangent, (float3x3) mtxVertexToBoneWorld).xyz;
+        output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
+        output.uv = input.uv;
+    }
+    
     
     return (output);
 }
@@ -352,15 +373,32 @@ struct VS_SHADOW_MAP_OUTPUT
 VS_SHADOW_MAP_OUTPUT VSShadowMapShadow(VS_LIGHTING_INPUT input)
 {
     VS_SHADOW_MAP_OUTPUT output = (VS_SHADOW_MAP_OUTPUT) 0;
-
-    float4 positionW = mul(float4(input.position, 1.0f), gmtxGameObject);
-    output.positionW = positionW.xyz;
-    output.position = mul(mul(positionW, gmtxView), gmtxProjection);
-    output.normalW = mul(float4(input.normal, 0.0f), gmtxGameObject).xyz;
-    output.uv = input.uv;
-    output.tangentW = mul(input.tangent, (float3x3) gmtxGameObject);
-    output.bitangentW = mul(input.bitangent, (float3x3) gmtxGameObject);
-    
+    float4 positionW = (float4) 0.0f;
+    if (!bAnimationShader)
+    {
+        positionW = mul(float4(input.position, 1.0f), gmtxGameObject);
+        output.positionW = positionW.xyz;
+        output.position = mul(mul(positionW, gmtxView), gmtxProjection);
+        output.normalW = mul(float4(input.normal, 0.0f), gmtxGameObject).xyz;
+        output.uv = input.uv;
+        output.tangentW = mul(input.tangent, (float3x3) gmtxGameObject);
+        output.bitangentW = mul(input.bitangent, (float3x3) gmtxGameObject);
+    }
+    else if (bAnimationShader)
+    {
+        float4x4 mtxVertexToBoneWorld = (float4x4) 0.0f;
+        for (int i = 0; i < MAX_VERTEX_INFLUENCES; i++)
+        {
+            mtxVertexToBoneWorld += input.weights[i] * mul(gpmtxBoneOffsets[input.indices[i]], gpmtxBoneTransforms[input.indices[i]]);
+        }
+        positionW = mul(float4(input.position, 1.0f), mtxVertexToBoneWorld);
+        output.positionW = positionW.xyz;
+        output.normalW = mul(input.normal, (float3x3) mtxVertexToBoneWorld).xyz;
+        output.tangentW = mul(input.tangent, (float3x3) mtxVertexToBoneWorld).xyz;
+        output.bitangentW = mul(input.bitangent, (float3x3) mtxVertexToBoneWorld).xyz;
+        output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
+        output.uv = input.uv;
+    }  
     for (int i = 0; i < MAX_LIGHTS; i++)
     {
 		//0은 조명끔, 조명 좌표계로 바꾸고 텍스쳐 좌표계로 바꿈

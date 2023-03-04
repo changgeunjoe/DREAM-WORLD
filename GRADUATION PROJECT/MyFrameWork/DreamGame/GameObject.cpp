@@ -279,30 +279,30 @@ void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3
 void GameObject::ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent)
 {
 	
-	if (m_pSkinnedAnimationController)
-		m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
+	//if (m_pSkinnedAnimationController)
+	//	m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
 
 
-	if (m_nMaterials > 0)
-	{
-		for (int i = 0; i < m_nMaterials; i++)
-		{
-			if (m_ppMaterialsComponent[i])
-			{
-				if (m_ppMaterialsComponent[i]->m_pShader)
-				{
-					if(m_ppMaterialsComponent[i]->m_isAnimationShader)
-					m_ppMaterialsComponent[i]->m_pShader->Render(pd3dCommandList, 0, pd3dGraphicsRootSignature, bPrerender);
-					pd3dCommandList->SetGraphicsRootDescriptorTable(0, m_ppMaterialsComponent[i]->m_pShader->GetCbvGPUDescriptorHandle());
-					m_ppMaterialsComponent[i]->m_pShader->UpdateShaderVariables(pd3dCommandList, &m_xmf4x4World, m_ppMaterialsComponent[i]);
-					//m_ppMaterialsComponent[i]->UpdateShaderVariable(pd3dCommandList);
-				}
-			}
-			m_pRenderComponent->Render(pd3dCommandList, m_pMeshComponent, i);
-		}
-	}
-	if (m_pSibling) m_pSibling->ShadowRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
-	if (m_pChild) m_pChild->ShadowRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
+	//if (m_nMaterials > 0)
+	//{
+	//	for (int i = 0; i < m_nMaterials; i++)
+	//	{
+	//		if (m_ppMaterialsComponent[i])
+	//		{
+	//			if (m_ppMaterialsComponent[i]->m_pShader)
+	//			{
+	//				if(m_ppMaterialsComponent[i]->m_isAnimationShader)
+	//				m_ppMaterialsComponent[i]->m_pShader->Render(pd3dCommandList, 0, pd3dGraphicsRootSignature, bPrerender);
+	//				pd3dCommandList->SetGraphicsRootDescriptorTable(0, m_ppMaterialsComponent[i]->m_pShader->GetCbvGPUDescriptorHandle());
+	//				m_ppMaterialsComponent[i]->m_pShader->UpdateShaderVariables(pd3dCommandList, &m_xmf4x4World, m_ppMaterialsComponent[i]);
+	//				//m_ppMaterialsComponent[i]->UpdateShaderVariable(pd3dCommandList);
+	//			}
+	//		}
+	//		m_pRenderComponent->Render(pd3dCommandList, m_pMeshComponent, i);
+	//	}
+	//}
+	//if (m_pSibling) m_pSibling->ShadowRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
+	//if (m_pChild) m_pChild->ShadowRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
 
 }
 

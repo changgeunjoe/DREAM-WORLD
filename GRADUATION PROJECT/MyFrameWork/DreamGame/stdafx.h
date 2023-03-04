@@ -168,6 +168,7 @@ struct CB_GAMEOBJECT_INFO
 	XMFLOAT4X4						m_xmf4x4World;
 	MATERIAL						m_material;
 	UINT							m_nType;
+	bool							m_bAnimateshader;
 };
 struct SHADOW_INFO
 {
