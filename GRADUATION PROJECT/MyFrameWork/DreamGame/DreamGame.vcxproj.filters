@@ -97,6 +97,9 @@
     <Filter Include="06.stdafx">
       <UniqueIdentifier>{4d824cef-315b-4e90-b27d-9fbe90a5abed}</UniqueIdentifier>
     </Filter>
+    <Filter Include="07.Character">
+      <UniqueIdentifier>{bc6d394e-adff-4b29-be46-842ac711a195}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -189,6 +192,9 @@
     <ClInclude Include="StandardShaderComponent.h">
       <Filter>04.Component\ShaderComponent\StandardShaderComponent</Filter>
     </ClInclude>
+    <ClInclude Include="Character.h">
+      <Filter>07.Character</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -274,6 +280,9 @@
     </ClCompile>
     <ClCompile Include="StandardShaderComponent.cpp">
       <Filter>04.Component\ShaderComponent\SkinnedShaderComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="Character.cpp">
+      <Filter>07.Character</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

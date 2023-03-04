@@ -797,6 +797,10 @@ void GameObject::UpdateTransform(XMFLOAT4X4* pxmf4x4Parent)
 	if (m_pChild) m_pChild->UpdateTransform(&m_xmf4x4World);
 }
 
+void GameObject::Move(DIRECTION direction, float fDistance)
+{
+}
+
 void GameObject::MoveDiagonal(int fowardDirection, int rightDirection, float distance)
 {
 	XMFLOAT3 xmf3Position = GetPosition();

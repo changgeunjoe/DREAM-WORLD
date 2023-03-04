@@ -3,6 +3,7 @@
 #include "Animation.h"
 #include "Network/NetworkHelper.h"
 #include "Network/Logic/Logic.h"
+#include "Character.h"
 
 extern NetworkHelper g_NetworkHelper;
 extern Logic g_Logic;
@@ -57,85 +58,96 @@ void GameobjectManager::Animate(float fTimeElapsed)
 
 	for (auto& session : g_Logic.m_inGamePlayerSession) {
 		if (-1 != session.m_id && session.m_isVisible) {
-			session.m_currentPlayGameObject->SetLookAt();
+//			if (DIRECTION::FRONT == (session.m_currentDirection & DIRECTION::FRONT)) {
+//				if (DIRECTION::LEFT == (session.m_currentDirection & DIRECTION::LEFT)) {
+//					//session.m_currentPlayGameObject->MoveDiagonal(1, -1, 50.0f * fTimeElapsed);
+//					//session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
+//					session.m_currentPlayGameObject->Move(session.m_currentDirection, 50.0f * fTimeElapsed);
+//				}
+//				else if (DIRECTION::RIGHT == (session.m_currentDirection & DIRECTION::RIGHT)) {
+//					session.m_currentPlayGameObject->Move(session.m_currentDirection, 50.0f * fTimeElapsed);
+//					//session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
+//					//session.m_currentPlayGameObject->MoveDiagonal(1, 1, 50.0f * fTimeElapsed);
+//				}
+//				else {
+//					session.m_currentPlayGameObject->Move(session.m_currentDirection, 50.0f * fTimeElapsed);
+//					//session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
+//				}
+//#ifdef _DEBUG
+//				auto look = session.m_currentPlayGameObject->GetLook();
+//				auto up = session.m_currentPlayGameObject->GetUp();
+//				auto right = session.m_currentPlayGameObject->GetRight();
+//				cout << "GameobjectManager::Animate() SessionId: " << session.m_id << endl;
+//				cout << "GameobjectManager::Animate() Look: " << look.x << ", " << look.y << ", " << look.z << endl;
+//				cout << "GameobjectManager::Animate() up: " << up.x << ", " << up.y << ", " << up.z << endl;
+//				cout << "GameobjectManager::Animate() right: " << right.x << ", " << right.y << ", " << right.z << endl;
+//				std::cout << "GameobjectManager::Animate() rotation angle: " << session.m_rotateAngle.x << ", " << session.m_rotateAngle.y << ", " << session.m_rotateAngle.z << std::endl;
+//#endif
+//			}
+//			else if (DIRECTION::BACK == (session.m_currentDirection & DIRECTION::BACK)) {
+//				if (DIRECTION::LEFT == (session.m_currentDirection & DIRECTION::LEFT)) {
+//					//session.m_currentPlayGameObject->MoveDiagonal(-1, -1, 50.0f * fTimeElapsed);
+//					//session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
+//					session.m_currentPlayGameObject->Move(session.m_currentDirection, 50.0f * fTimeElapsed);
+//				}
+//				else if (DIRECTION::RIGHT == (session.m_currentDirection & DIRECTION::RIGHT)) {
+//					//session.m_currentPlayGameObject->MoveDiagonal(-1, 1, 50.0f * fTimeElapsed);
+//					//session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
+//					session.m_currentPlayGameObject->Move(session.m_currentDirection, 50.0f * fTimeElapsed);
+//				}
+//				else {
+//					//session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
+//					session.m_currentPlayGameObject->Move(session.m_currentDirection, 50.0f * fTimeElapsed);
+//					//session.m_currentPlayGameObject->MoveForward(-50.0f * fTimeElapsed);
+//				}
+//#ifdef _DEBUG
+//				auto look = session.m_currentPlayGameObject->GetLook();
+//				auto up = session.m_currentPlayGameObject->GetUp();
+//				auto right = session.m_currentPlayGameObject->GetRight();
+//				cout << "GameobjectManager::Animate() SessionId: " << session.m_id << endl;
+//				cout << "GameobjectManager::Animate() Look: " << look.x << ", " << look.y << ", " << look.z << endl;
+//				cout << "GameobjectManager::Animate() up: " << up.x << ", " << up.y << ", " << up.z << endl;
+//				cout << "GameobjectManager::Animate() right: " << right.x << ", " << right.y << ", " << right.z << endl;
+//				std::cout << "GameobjectManager::Animate() rotation angle: " << session.m_rotateAngle.x << ", " << session.m_rotateAngle.y << ", " << session.m_rotateAngle.z << std::endl;
+//#endif
+//			}
+//			else {
+//				if (DIRECTION::LEFT == (session.m_currentDirection & DIRECTION::LEFT)) {
+//					//session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
+//					session.m_currentPlayGameObject->Move(session.m_currentDirection, 50.0f * fTimeElapsed);
+//					//session.m_currentPlayGameObject->MoveStrafe(-50.0f * fTimeElapsed);
+//#ifdef _DEBUG
+//					auto look = session.m_currentPlayGameObject->GetLook();
+//					auto up = session.m_currentPlayGameObject->GetUp();
+//					auto right = session.m_currentPlayGameObject->GetRight();
+//					cout << "GameobjectManager::Animate() SessionId: " << session.m_id << endl;
+//					cout << "GameobjectManager::Animate() Look: " << look.x << ", " << look.y << ", " << look.z << endl;
+//					cout << "GameobjectManager::Animate() up: " << up.x << ", " << up.y << ", " << up.z << endl;
+//					cout << "GameobjectManager::Animate() right: " << right.x << ", " << right.y << ", " << right.z << endl;
+//					std::cout << "GameobjectManager::Animate() rotation angle: " << session.m_rotateAngle.x << ", " << session.m_rotateAngle.y << ", " << session.m_rotateAngle.z << std::endl;
+//#endif
+//				}
+//				else if (DIRECTION::RIGHT == (session.m_currentDirection & DIRECTION::RIGHT)) {
+//					//session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
+//					session.m_currentPlayGameObject->Move(session.m_currentDirection, 50.0f * fTimeElapsed);
+//					//session.m_currentPlayGameObject->MoveStrafe(50.0f * fTimeElapsed);
+//#ifdef _DEBUG
+//					auto look = session.m_currentPlayGameObject->GetLook();
+//					auto up = session.m_currentPlayGameObject->GetUp();
+//					auto right = session.m_currentPlayGameObject->GetRight();
+//					cout << "GameobjectManager::Animate() SessionId: " << session.m_id << endl;
+//					cout << "GameobjectManager::Animate() Look: " << look.x << ", " << look.y << ", " << look.z << endl;
+//					cout << "GameobjectManager::Animate() up: " << up.x << ", " << up.y << ", " << up.z << endl;
+//					cout << "GameobjectManager::Animate() right: " << right.x << ", " << right.y << ", " << right.z << endl;
+//					std::cout << "GameobjectManager::Animate() rotation angle: " << session.m_rotateAngle.x << ", " << session.m_rotateAngle.y << ", " << session.m_rotateAngle.z << std::endl;
+//#endif
+//				}
+//			}
+			if (!session.m_currentPlayGameObject->GetRButtonClicked())
+				session.m_currentPlayGameObject->SetLookAt();
 			session.m_currentPlayGameObject->UpdateCameraPosition();
-			if (DIRECTION::FRONT == (session.m_currentDirection & DIRECTION::FRONT)) {
-				if (DIRECTION::LEFT == (session.m_currentDirection & DIRECTION::LEFT)) {
-					//session.m_currentPlayGameObject->MoveDiagonal(1, -1, 50.0f * fTimeElapsed);
-					session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
-				}
-				else if (DIRECTION::RIGHT == (session.m_currentDirection & DIRECTION::RIGHT)) {
-					session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
-					//session.m_currentPlayGameObject->MoveDiagonal(1, 1, 50.0f * fTimeElapsed);
-				}
-				else {
-					session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
-				}
-#ifdef _DEBUG
-				auto look = session.m_currentPlayGameObject->GetLook();
-				auto up = session.m_currentPlayGameObject->GetUp();
-				auto right = session.m_currentPlayGameObject->GetRight();
-				cout << "GameobjectManager::Animate() SessionId: " << session.m_id << endl;
-				cout << "GameobjectManager::Animate() Look: " << look.x << ", " << look.y << ", " << look.z << endl;
-				cout << "GameobjectManager::Animate() up: " << up.x << ", " << up.y << ", " << up.z << endl;
-				cout << "GameobjectManager::Animate() right: " << right.x << ", " << right.y << ", " << right.z << endl;
-				std::cout << "GameobjectManager::Animate() rotation angle: " << session.m_rotateAngle.x << ", " << session.m_rotateAngle.y << ", " << session.m_rotateAngle.z << std::endl;
-#endif
-			}
-			else if (DIRECTION::BACK == (session.m_currentDirection & DIRECTION::BACK)) {
-				if (DIRECTION::LEFT == (session.m_currentDirection & DIRECTION::LEFT)) {
-					//session.m_currentPlayGameObject->MoveDiagonal(-1, -1, 50.0f * fTimeElapsed);
-					session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
-				}
-				else if (DIRECTION::RIGHT == (session.m_currentDirection & DIRECTION::RIGHT)) {
-					//session.m_currentPlayGameObject->MoveDiagonal(-1, 1, 50.0f * fTimeElapsed);
-					session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
-				}
-				else {
-					session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
-					//session.m_currentPlayGameObject->MoveForward(-50.0f * fTimeElapsed);
-				}
-#ifdef _DEBUG
-				auto look = session.m_currentPlayGameObject->GetLook();
-				auto up = session.m_currentPlayGameObject->GetUp();
-				auto right = session.m_currentPlayGameObject->GetRight();
-				cout << "GameobjectManager::Animate() SessionId: " << session.m_id << endl;
-				cout << "GameobjectManager::Animate() Look: " << look.x << ", " << look.y << ", " << look.z << endl;
-				cout << "GameobjectManager::Animate() up: " << up.x << ", " << up.y << ", " << up.z << endl;
-				cout << "GameobjectManager::Animate() right: " << right.x << ", " << right.y << ", " << right.z << endl;
-				std::cout << "GameobjectManager::Animate() rotation angle: " << session.m_rotateAngle.x << ", " << session.m_rotateAngle.y << ", " << session.m_rotateAngle.z << std::endl;
-#endif
-			}
-			else {
-				if (DIRECTION::LEFT == (session.m_currentDirection & DIRECTION::LEFT)) {
-					session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
-					//session.m_currentPlayGameObject->MoveStrafe(-50.0f * fTimeElapsed);
-#ifdef _DEBUG
-					auto look = session.m_currentPlayGameObject->GetLook();
-					auto up = session.m_currentPlayGameObject->GetUp();
-					auto right = session.m_currentPlayGameObject->GetRight();
-					cout << "GameobjectManager::Animate() SessionId: " << session.m_id << endl;
-					cout << "GameobjectManager::Animate() Look: " << look.x << ", " << look.y << ", " << look.z << endl;
-					cout << "GameobjectManager::Animate() up: " << up.x << ", " << up.y << ", " << up.z << endl;
-					cout << "GameobjectManager::Animate() right: " << right.x << ", " << right.y << ", " << right.z << endl;
-					std::cout << "GameobjectManager::Animate() rotation angle: " << session.m_rotateAngle.x << ", " << session.m_rotateAngle.y << ", " << session.m_rotateAngle.z << std::endl;
-#endif
-				}
-				else if (DIRECTION::RIGHT == (session.m_currentDirection & DIRECTION::RIGHT)) {
-					session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
-					//session.m_currentPlayGameObject->MoveStrafe(50.0f * fTimeElapsed);
-#ifdef _DEBUG
-					auto look = session.m_currentPlayGameObject->GetLook();
-					auto up = session.m_currentPlayGameObject->GetUp();
-					auto right = session.m_currentPlayGameObject->GetRight();
-					cout << "GameobjectManager::Animate() SessionId: " << session.m_id << endl;
-					cout << "GameobjectManager::Animate() Look: " << look.x << ", " << look.y << ", " << look.z << endl;
-					cout << "GameobjectManager::Animate() up: " << up.x << ", " << up.y << ", " << up.z << endl;
-					cout << "GameobjectManager::Animate() right: " << right.x << ", " << right.y << ", " << right.z << endl;
-					std::cout << "GameobjectManager::Animate() rotation angle: " << session.m_rotateAngle.x << ", " << session.m_rotateAngle.y << ", " << session.m_rotateAngle.z << std::endl;
-#endif
-				}
-			}
+			if(session.m_currentDirection != DIRECTION::IDLE)
+				session.m_currentPlayGameObject->Move(session.m_currentDirection, fTimeElapsed);
 			session.m_currentPlayGameObject->Animate(fTimeElapsed);
 		}
 	}
@@ -174,7 +186,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pWarriorObject->m_pSkinnedAnimationController->SetTrackEnable(CharacterAnimation::CA_IDLE, true);
 	m_pWarriorObject->SetScale(30.0f);
 
-	m_pArcherObject = new GameObject(UNDEF_ENTITY);
+	m_pArcherObject = new Archer();
 	m_pArcherObject->InsertComponent<RenderComponent>();
 	m_pArcherObject->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pArcherObject->SetPosition(XMFLOAT3(-20, 0, 0));
@@ -243,8 +255,8 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pSkyboxObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 	// 플레이어가 캐릭터 선택하는 부분에 유사하게 넣을 예정
-	m_pPlayerObject = new GameObject(UNDEF_ENTITY);	//수정필요
-	memcpy(m_pPlayerObject, m_pArcherObject, sizeof(GameObject));
+	m_pPlayerObject = new Archer();	//수정필요
+	memcpy(m_pPlayerObject, m_pArcherObject, sizeof(Archer));
 	m_pPlayerObject->SetCamera(m_pCamera);
 	delete m_pArcherObject;
 
@@ -449,6 +461,19 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 	{
 		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetAnimationBlending(false);
 		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetAttackAnimation(false);
+		break;
+	}
+	case WM_RBUTTONDOWN:
+	{
+		m_pPlayerObject->SetRButtonClicked(true);
+		m_pPlayerObject->m_pCamera->SetOffset(XMFLOAT3(15.0f, 15.0f, -20.0f));
+		break;
+	}
+	case WM_RBUTTONUP:
+	{
+		m_pPlayerObject->SetRButtonClicked(false);
+		m_pPlayerObject->m_pCamera->ReInitCamrea();
+		m_pPlayerObject->SetCamera(m_pCamera);
 		break;
 	}
 	default:
