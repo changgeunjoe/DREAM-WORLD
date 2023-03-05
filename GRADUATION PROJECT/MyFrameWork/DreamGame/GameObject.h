@@ -66,7 +66,8 @@ public:
 
     void SetRButtonClicked(bool bRButtonClicked) { m_bRButtonClicked = bRButtonClicked; }
     bool GetRButtonClicked() { return m_bRButtonClicked; }
-
+    virtual void RbuttonClicked(float fTimeElapsed) {};
+    virtual void RbuttonUp() {};
 	unordered_map<component_id, ComponentBase*> Getcomponents();
 
 	// void SetOrientation(const Quaternion& orientation);
@@ -138,6 +139,7 @@ public:
     CCamera                         *m_pCamera = NULL;
     BoundingSphere					m_SPBB = BoundingSphere(XMFLOAT3(0.0f, 0.0f, 0.0f), 7.5f);
 
+    int                             m_iRButtionCount = 0;
 
 protected:
 

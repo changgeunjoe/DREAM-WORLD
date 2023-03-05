@@ -848,17 +848,18 @@ void GameObject::SetLookAt()
 	XMFLOAT3 xmfRev = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	float fRotateAngle = -1.0f;
 
+	if (m_bRButtonClicked)
+	{
+		SetLook(xmfLook);
+		return;
+	}
+
 	if (m_iLookDirectoin == DIRECTION::IDLE)
 	{
-		if (!m_pSkinnedAnimationController->GetAttackAnimation())
+		if (!m_pSkinnedAnimationController->GetAction())
 		{
 			m_pSkinnedAnimationController->SetAllTrackdisable();
 			m_pSkinnedAnimationController->SetTrackEnable(CharacterAnimation::CA_IDLE, true);
-		}
-		else
-		{
-			m_pSkinnedAnimationController->SetAllTrackdisable();
-			m_pSkinnedAnimationController->SetTrackEnable(CharacterAnimation::CA_ATTACK, true);
 		}
 	}
 	else
@@ -884,7 +885,7 @@ void GameObject::SetLookAt()
 	if ((xmfRev.x || xmfRev.y || xmfRev.z))
 	{
 		SetLook(xmfRev);
-		if (!m_pSkinnedAnimationController->GetAttackAnimation())
+		if (!m_pSkinnedAnimationController->GetAction())
 		{
 			m_pSkinnedAnimationController->SetAllTrackdisable();
 			m_pSkinnedAnimationController->SetTrackEnable(CharacterAnimation::CA_MOVE, true);
@@ -892,7 +893,7 @@ void GameObject::SetLookAt()
 		else
 		{
 			m_pSkinnedAnimationController->SetAnimationBlending(true);
-			m_pSkinnedAnimationController->SetTrackBlending(CharacterAnimation::CA_ATTACK, CharacterAnimation::CA_MOVE);
+			m_pSkinnedAnimationController->m_nLowerBodyAnimation = CharacterAnimation::CA_MOVE;
 		}
 	}
 }

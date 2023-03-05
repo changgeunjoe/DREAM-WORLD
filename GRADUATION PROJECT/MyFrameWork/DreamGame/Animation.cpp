@@ -3,7 +3,6 @@
 #include "CLoadModelinfo.h"
 #include "GameObject.h"
 
-#pragma region CAnimationTrack
 CAnimationTrack::~CAnimationTrack()
 {
 	if (m_pCallbackKeys) delete[] m_pCallbackKeys;
@@ -72,9 +71,7 @@ void CAnimationTrack::HandleCallback()
 		}
 	}
 }
-#pragma endregion
 
-#pragma region CAnimationController
 CAnimationController::CAnimationController(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, int nAnimationTracks, CLoadedModelInfoCompnent* pModel)
 {
 	m_nAnimationTracks = nAnimationTracks;
@@ -249,4 +246,3 @@ void CAnimationController::SetTrackBlending(int nUpperBodyAnimation, int nLowerB
 	SetTrackEnable(m_nUpperBodyAnimation, true);
 	SetTrackEnable(m_nLowerBodyAnimation, true);
 }
-#pragma endregion

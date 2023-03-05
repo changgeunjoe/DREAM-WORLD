@@ -87,8 +87,11 @@ public:
 	void SetTrackBlending(int nUpperBodyAnimation, int nLowerBodyAnimation);
 
 
-	void SetAttackAnimation(bool bOnAttack) { m_bOnAttack = bOnAttack; }
-	bool GetAttackAnimation() { return m_bOnAttack; }
+	void SetAction(bool bOnAttack) { m_bAction = bOnAttack; }
+	bool GetAction() { return m_bAction; }
+
+	void SetMove(bool bMove) { m_bMove = bMove; }
+	bool GetMove() { return m_bMove; }
 
 	void SetAnimationBlending(bool bAnimationBlending) { m_bAnimationBlending = bAnimationBlending; }
 	bool GetAnimationBlending() { return m_bAnimationBlending; }
@@ -105,5 +108,6 @@ public:
 	// virtual void OnRootMotion(GameObject* pRootGameObject) { }
 private:
 	bool							m_bAnimationBlending = false;
-	bool							m_bOnAttack = false;
+	bool							m_bAction = false;
+	bool							m_bMove = false;
 };
