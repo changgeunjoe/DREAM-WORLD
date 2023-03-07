@@ -42,6 +42,8 @@ public:
 	float							m_fMetallic = 0.0f;
 	float							m_fGlossyReflection = 0.0f;
 
+	bool m_isAnimationShader = false;
+
 public:
 	int 							m_nTextures = 0;
 	_TCHAR(*m_ppstrTextureNames)[64] = NULL;
@@ -64,6 +66,13 @@ public:
 
 
 	void SetStandardShader() { MaterialComponent::SetShader(m_pStandardShader); }
+<<<<<<< HEAD
 	void SetSkinnedAnimationShader() { MaterialComponent::SetShader(m_pSkinnedAnimationShader); }
 	void SetBoundingBoxShader() { MaterialComponent::SetShader(m_pBoundingBoxShader); }
+=======
+	void SetSkinnedAnimationShader() { 
+		MaterialComponent::SetShader(m_pSkinnedAnimationShader);
+		m_isAnimationShader = true;
+	}
+>>>>>>> origin/dev/client/framework
 };

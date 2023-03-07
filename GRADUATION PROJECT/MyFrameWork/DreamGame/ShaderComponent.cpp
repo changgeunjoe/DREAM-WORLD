@@ -230,8 +230,11 @@ void ShaderComponent::CreateGraphicsPipelineState(ID3D12Device* pd3dDevice, ID3D
 	d3dPipelineStateDesc.InputLayout = CreateInputLayout(nPipelineState);
 	d3dPipelineStateDesc.SampleMask = UINT_MAX;
 	d3dPipelineStateDesc.PrimitiveTopologyType = GetPrimitiveTopologyType(nPipelineState);
+
 	d3dPipelineStateDesc.NumRenderTargets = GetNumRenderTargets(nPipelineState);
-	d3dPipelineStateDesc.RTVFormats[0] = GetRTVFormat(nPipelineState, 0);
+	//d3dPipelineStateDesc.RTVFormats[0] = GetRTVFormat(nPipelineState, 0);
+	for (UINT i = 0; i < GetNumRenderTargets(nPipelineState); i++)
+		d3dPipelineStateDesc.RTVFormats[i] = GetRTVFormat(nPipelineState, nPipelineState); 
 	d3dPipelineStateDesc.DSVFormat = GetDSVFormat(nPipelineState);
 	d3dPipelineStateDesc.SampleDesc.Count = 1;
 	d3dPipelineStateDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
@@ -262,10 +265,11 @@ void ShaderComponent::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dComma
 		m_material.m_xmf4Specular = ppMaterialsComponent->m_xmf4SpecularColor;
 		::memcpy(&m_pcbMappedGameObjects->m_material, &m_material, sizeof(MATERIAL));//메테리얼을 업데이트 해준다.
 		::memcpy(&m_pcbMappedGameObjects->m_nType, &ppMaterialsComponent->m_nType, sizeof(UINT));//타입을 업데이트 해준다.
+		::memcpy(&m_pcbMappedGameObjects->m_bAnimateshader, &ppMaterialsComponent->m_isAnimationShader, sizeof(bool));//에니메이션 상태를 업데이트 해준다.
 	}
 
 	XMStoreFloat4x4(&m_pcbMappedGameObjects->m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(pxmf4x4World)));//오브젝트의 월드좌표계를 변환시켜준다.
-
+	
 	if (ppMaterialsComponent) {
 
 		for (int i = 0; i < ppMaterialsComponent->m_nTextures; i++)
@@ -289,10 +293,10 @@ void ShaderComponent::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dComman
 {
 }
 
-void ShaderComponent::Render(ID3D12GraphicsCommandList* pd3dCommandList, int nPipelineState, ID3D12RootSignature* pd3dGraphicsRootSignature)
+void ShaderComponent::Render(ID3D12GraphicsCommandList* pd3dCommandList, int nPipelineState, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender)
 {
 	if (pd3dGraphicsRootSignature) pd3dCommandList->SetGraphicsRootSignature(pd3dGraphicsRootSignature);
-	if (m_ppd3dPipelineStates) pd3dCommandList->SetPipelineState(m_ppd3dPipelineStates[nPipelineState]);
+	if (m_ppd3dPipelineStates && !bPrerender) pd3dCommandList->SetPipelineState(m_ppd3dPipelineStates[nPipelineState]);
 	if (m_pd3dCbvSrvDescriptorHeap) pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 
 	//UpdateShaderVariables(pd3dCommandList); //삭제예정

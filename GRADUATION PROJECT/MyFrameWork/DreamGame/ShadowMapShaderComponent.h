@@ -14,17 +14,18 @@ public:
 	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void ReleaseShaderVariables();
-	virtual void BuildShadow(ShaderComponent* pObjectsShader);
+	virtual void BuildShadow(vector<GameObject*>& pObjects);
 	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, void* pContext = NULL);
 	virtual void AnimateObjects(float fTimeElapsed) {}
 	virtual void ReleaseObjects();
-
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout(int nPipelineState);
 	virtual void ReleaseUploadBuffers();
+	virtual void Animate(float fTimeElapsed);
 
-	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, int nPipelineState, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void Render(ID3D12Device* pd3dDevice,ID3D12GraphicsCommandList* pd3dCommandList, int nPipelineState, ID3D12RootSignature* pd3dGraphicsRootSignature);
 
 public:
-	ShaderComponent* m_pObjectsShader = NULL;
+	vector<GameObject*> m_ppObjects;
 	//CPlayer* m_pPlayer = NULL;
 	
 	//DepthRenderShader¿¡ ÀÖ´Â

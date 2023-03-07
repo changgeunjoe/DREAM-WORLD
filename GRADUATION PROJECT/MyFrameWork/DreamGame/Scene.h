@@ -40,7 +40,7 @@ public:
 
 	void PrepareRender(ID3D12GraphicsCommandList* pd3dCommandList);
 	void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera);
-
+	void OnPreRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera);
 	void ReleaseUploadBuffers();
 	//그래픽 루트 시그너쳐를 생성한다.
 	ID3D12RootSignature* CreateGraphicsRootSignature(ID3D12Device* pd3dDevice);

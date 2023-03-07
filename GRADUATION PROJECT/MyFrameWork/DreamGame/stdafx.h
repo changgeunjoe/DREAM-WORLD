@@ -92,8 +92,8 @@ using Microsoft::WRL::ComPtr;
 #define _PLANE_WIDTH			300
 #define _PLANE_HEIGHT			300
 
-#define RP_DEPTH_BUFFER	15
-#define RP_TO_LIGHT	16
+#define RP_DEPTH_BUFFER	16
+#define RP_TO_LIGHT	15
 
 
 #define _DEPTH_BUFFER_WIDTH		(FRAME_BUFFER_WIDTH * 8)
@@ -168,6 +168,7 @@ struct CB_GAMEOBJECT_INFO
 	XMFLOAT4X4						m_xmf4x4World;
 	MATERIAL						m_material;
 	UINT							m_nType;
+	bool							m_bAnimateshader;
 };
 struct SHADOW_INFO
 {
@@ -183,7 +184,8 @@ enum entity_id
 {
 	SQUARE_ENTITY,
 	PlANE_ENTITY,
-	UNDEF_ENTITY
+	UNDEF_ENTITY,
+	UI_ENTITY
 };
 enum component_id
 {
@@ -193,12 +195,14 @@ enum component_id
 	MESH_COMPONENT,
 	CUBEMESH_COMPONENT,
 	SKYBOXMESH_COMPONENT,
+	UIMESH_COMPONENT,
 	SHADER_COMPONENT,
 	SKYSHADER_COMPONENT,
 	SHADOWSHADER_COMPONENT,
 	LOADEDMODEL_COMPONET,
 	TEXTURE_COMPONENT,
 	DEPTHSHADER_COMPONENT,
+	UISHADER_COMPONENT
 };
 //mean about component_id;
 
