@@ -56,6 +56,19 @@ public:
 	~TextureComponentdVertex() { }
 };
 
+class Textured2DUIVertex : public CVertex
+{
+public:
+	XMFLOAT2						m_xmf2TexCoord;
+
+public:
+	Textured2DUIVertex() { m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f); m_xmf2TexCoord = XMFLOAT2(0.0f, 0.0f); }
+	Textured2DUIVertex(float x, float y, float z, XMFLOAT2 xmf2TexCoord) { m_xmf3Position = XMFLOAT3(x, y, z); m_xmf2TexCoord = xmf2TexCoord; }
+	Textured2DUIVertex(XMFLOAT3 xmf3Position, XMFLOAT2 xmf2TexCoord = XMFLOAT2(0.0f, 0.0f)) { m_xmf3Position = xmf3Position; m_xmf2TexCoord = xmf2TexCoord; }
+	~Textured2DUIVertex() { }
+};
+
+
 class CDiffusedTexturedVertex : public CDiffusedVertex
 {
 public:
@@ -150,6 +163,14 @@ public:
 	void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fWidth = 20.0f, float fHeight = 20.0f, float fDepth = 20.0f);
 };
 
+class UIMeshComponent : public MeshComponent
+{
+public:
+	UIMeshComponent();
+	virtual ~UIMeshComponent();
+
+	void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fWidth, float fHeight, float fxPosition, float fyPosition);
+};
 
 class StandardMeshComponent :public MeshComponent
 

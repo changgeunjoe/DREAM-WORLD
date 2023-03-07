@@ -3,8 +3,10 @@
 #include "Animation.h"
 #include "Network/NetworkHelper.h"
 #include "Network/Logic/Logic.h"
-#include"DepthRenderShaderComponent.h"
-#include"TextureToViewportComponent.h"
+#include "DepthRenderShaderComponent.h"
+#include "TextureToViewportComponent.h"
+#include "UiShaderComponent.h"
+
 extern NetworkHelper g_NetworkHelper;
 extern Logic g_Logic;
 
@@ -40,7 +42,7 @@ GameobjectManager::~GameobjectManager()
 
 void GameobjectManager::Animate(float fTimeElapsed)
 {
-	m_pMonsterObject->Animate(fTimeElapsed);
+	//m_pMonsterObject->Animate(fTimeElapsed);
 	AnimateObjects();
 	if (g_Logic.m_KeyInput->m_bQKey)
 	{
@@ -154,6 +156,8 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	//}
 	//m_pPlaneObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//m_pMonsterObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+
+	m_pUIGameSearchObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 	if (m_pShadowmapShaderComponent)
 	{
@@ -279,6 +283,16 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pSkyboxObject->SetScale(1, 1, 1);
 	m_pSkyboxObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 //	m_ppGameObjects.emplace_back(m_pSkyboxObject);
+
+	m_pUIGameSearchObject = new GameObject(UI_ENTITY);
+	m_pUIGameSearchObject->InsertComponent<RenderComponent>();
+	m_pUIGameSearchObject->InsertComponent<UIMeshComponent>();
+	m_pUIGameSearchObject->InsertComponent<UiShaderComponent>();
+	m_pUIGameSearchObject->InsertComponent<TextureComponent>();
+	m_pUIGameSearchObject->SetTexture(L"Image/GameSearching.dds", RESOURCE_TEXTURE2D, 3);
+	m_pUIGameSearchObject->SetPosition(XMFLOAT3(0.2, 0.8, 1));
+	m_pUIGameSearchObject->SetScale(0.1, 0.03, 1);
+	m_pUIGameSearchObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 
 

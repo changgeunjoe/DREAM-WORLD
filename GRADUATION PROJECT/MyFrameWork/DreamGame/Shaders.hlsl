@@ -128,6 +128,39 @@ float4 PSDiffused(VS_OUTPUT input) : SV_TARGET
 
 }
 
+struct VS_TEXTURED_INPUT
+{
+    float3 position : POSITION;
+    float2 uv : TEXCOORD;
+};
+
+struct VS_TEXTURED_OUTPUT
+{
+    float4 position : SV_POSITION;
+    float2 uv : TEXCOORD;
+};
+
+VS_TEXTURED_OUTPUT VSUITextured(VS_TEXTURED_INPUT input)
+{
+    VS_TEXTURED_OUTPUT output;
+
+    output.position = mul(mul(float4(input.position, 1.0f), gmtxGameObject),gmtxProjection);
+    output.uv = input.uv;
+    return (output);
+}
+
+float4 PSUITextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
+{
+    float4 cColor = shaderTexture.Sample(gWrapSamplerState, input.uv);
+   // if (cColor.x > 0.99)
+   // {
+		 //cColor.a = 0;
+   // }
+    //cColor.a = Alpha;
+	
+    return (cColor);
+}
+
 struct VS_STANDARD_INPUT
 {
     float3 position : POSITION;
@@ -426,11 +459,6 @@ float4 PSShadowMapShadow(VS_SHADOW_MAP_OUTPUT input) : SV_TARGET
 }
 ///////////////////////////////////////////////////////////////////////////////
 //
-struct VS_TEXTURED_OUTPUT
-{
-    float4 position : SV_POSITION;
-    float2 uv : TEXCOORD;
-};
 
 VS_TEXTURED_OUTPUT VSTextureToViewport(uint nVertexID : SV_VertexID)
 {

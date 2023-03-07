@@ -8,6 +8,7 @@
 #include"SkinnedMeshComponent.h"
 #include"CLoadModelinfo.h"
 #include"MaterialComponent.h"
+#include"UiShaderComponent.h"
 //include"CLoadModelinfo.h"
 class DepthRenderShaderComponent;
 class CLoadedModelInfoCompnent;
@@ -106,6 +107,9 @@ public:
 
     void AddRef() { m_nReferences++; }
     void Release() { if (--m_nReferences <= 0) delete this; }
+
+    void GenerateRayForPicking(XMFLOAT3& xmf3PickPosition, XMFLOAT4X4* pxmf4x4World, XMFLOAT4X4& xmf4x4View, XMFLOAT3* pxmf3PickRayOrigin, XMFLOAT3* pxmf3PickRayDirection);
+    int PickObjectByRayIntersection(XMFLOAT3& xmf3PickPosition, XMFLOAT4X4& xmf4x4View, float* pfHitDistance);
 public:
 
     int								m_nMaterials = 0;
@@ -145,6 +149,7 @@ protected:
     TextureComponent* m_pTextureComponent{ NULL };
     CubeMeshComponent* m_pCubeComponent{ NULL };
     SkyBoxMeshComponent* m_pSkyboxComponent{ NULL };
+    UIMeshComponent* m_pUiComponent{ NULL };
     ShaderComponent* m_pShaderComponent{ NULL };
     RenderComponent* m_pRenderComponent{ NULL };
     CLoadedModelInfoCompnent* m_pLoadedModelComponent{ NULL };
@@ -197,13 +202,21 @@ inline T* GameObject::ComponentType(component_id& componentID)
     {
         componentID = component_id::SKYBOXMESH_COMPONENT;
     }
+    else if (typeid(T).name() == typeid(UIMeshComponent).name())
+    {
+        componentID = component_id::UIMESH_COMPONENT;
+    }
     else if (typeid(T).name() == typeid(ShaderComponent).name())
     {
         componentID = component_id::SHADER_COMPONENT;
     }
     else if (typeid(T).name() == typeid(SkyBoxShaderComponent).name())
     {
-        componentID = component_id::SKYSHADER_COMPONENT;
+        componentID = component_id::UISHADER_COMPONENT;
+    }
+    else if (typeid(T).name() == typeid(UiShaderComponent).name())
+    {
+        componentID = component_id::SHADER_COMPONENT;
     }
     else if (typeid(T).name() == typeid(TextureComponent).name())
     {
@@ -213,6 +226,7 @@ inline T* GameObject::ComponentType(component_id& componentID)
     {
         componentID = component_id::LOADEDMODEL_COMPONET;
     }
+
     else
     {
         componentID = component_id::UNDEF_COMPONENT;

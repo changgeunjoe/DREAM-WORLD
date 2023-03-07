@@ -51,6 +51,8 @@ private: //active object
 	CLight* m_pLight{ NULL };
 	CCamera* m_pCamera{ NULL };
 
+	GameObject* m_pUIGameSearchObject{ NULL };
+
 public:
 	void SetPlayCharacter(Session* pSession);
 };
