@@ -3,13 +3,10 @@
 #include "Animation.h"
 #include "Network/NetworkHelper.h"
 #include "Network/Logic/Logic.h"
-<<<<<<< HEAD
-#include "Character.h"
-=======
 #include "DepthRenderShaderComponent.h"
 #include "TextureToViewportComponent.h"
 #include "UiShaderComponent.h"
->>>>>>> origin/dev/client/framework
+#include "Character.h"
 
 extern NetworkHelper g_NetworkHelper;
 extern Logic g_Logic;
@@ -44,29 +41,11 @@ GameobjectManager::~GameobjectManager()
 
 void GameobjectManager::Animate(float fTimeElapsed)
 {
-<<<<<<< HEAD
 	m_pSkyboxObject->SetPosition(m_pCamera->GetPosition());
 	m_pMonsterObject->Animate(fTimeElapsed);
 	if (!g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject) return;
 	//g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetLookAt();
 	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->UpdateCameraPosition();
-=======
-	//m_pMonsterObject->Animate(fTimeElapsed);
-	AnimateObjects();
-	if (g_Logic.m_KeyInput->m_bQKey)
-	{
-		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetUp(), -30.0f * fTimeElapsed);
-		g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y -= 30.0f * fTimeElapsed;
-		g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::Y, -30.0f * fTimeElapsed);
-	}
-	if (g_Logic.m_KeyInput->m_bEKey)
-	{
-		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetUp(), 30.0f * fTimeElapsed);
-		g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += 30.0f * fTimeElapsed;
-		g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::Y, 30.0f * fTimeElapsed);
-	}
-
->>>>>>> origin/dev/client/framework
 	for (auto& session : g_Logic.m_inGamePlayerSession) {
 		if (-1 != session.m_id && session.m_isVisible) {
 			if (session.m_currentDirection != DIRECTION::IDLE) {
@@ -114,20 +93,11 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	//m_pPlaneObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//m_pMonsterObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
-<<<<<<< HEAD
-	//m_pWarriorObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	for (auto& session : g_Logic.m_inGamePlayerSession) {
-		if (-1 != session.m_id && session.m_isVisible) {
-			session.m_currentPlayGameObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-			session.m_currentPlayGameObject->CheckIntersect(m_pMonsterObject);	//수정필요
-		}
-=======
 	m_pUIGameSearchObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 	if (m_pShadowmapShaderComponent)
 	{
 		m_pShadowmapShaderComponent->Render(pd3dDevice,pd3dCommandList, 0,pd3dGraphicsRootSignature);
->>>>>>> origin/dev/client/framework
 	}
 
 	//if (m_pTextureToViewportComponent)
@@ -157,20 +127,10 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pWarriorObject->SetModel("Model/Warrior.bin");
 	m_pWarriorObject->SetAnimationSets(6);
 	m_pWarriorObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-<<<<<<< HEAD
 	m_pWarriorObject->m_pSkinnedAnimationController->SetTrackAnimationSet(6);
 	m_pWarriorObject->m_pSkinnedAnimationController->SetTrackEnable(CharacterAnimation::CA_ATTACK, true);
 	m_pWarriorObject->SetScale(30.0f);
-=======
-	m_pWarriorObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	m_pWarriorObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-	m_pWarriorObject->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
-	m_pWarriorObject->m_pSkinnedAnimationController->SetTrackEnable(2, true);
-	m_pWarriorObject->m_pSkinnedAnimationController->SetRootMotion(false);
-	m_pWarriorObject->SetScale(30.0f, 30.0f, 30.0f);
-	m_ppGameObjects.emplace_back( m_pWarriorObject);
-	//m_ppGameObjects[m_nObjects++]= m_pWarriorObject;
->>>>>>> origin/dev/client/framework
+	m_ppGameObjects.emplace_back(m_pWarriorObject);
 
 	m_pArcherObject = new Archer();
 	m_pArcherObject->InsertComponent<RenderComponent>();
@@ -179,20 +139,10 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pArcherObject->SetModel("Model/Archer.bin");
 	m_pArcherObject->SetAnimationSets(6);
 	m_pArcherObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-<<<<<<< HEAD
 	m_pArcherObject->m_pSkinnedAnimationController->SetTrackAnimationSet(6);
 	m_pArcherObject->m_pSkinnedAnimationController->SetTrackEnable(CharacterAnimation::CA_IDLE, true);
 	m_pArcherObject->SetScale(30.0f);
-=======
-	m_pArcherObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	m_pArcherObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-	m_pArcherObject->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
-	m_pArcherObject->m_pSkinnedAnimationController->SetTrackEnable(2, true);
-	m_pArcherObject->m_pSkinnedAnimationController->SetRootMotion(false);
-	m_pArcherObject->SetScale(30.0f, 30.0f, 30.0f);
 	m_ppGameObjects.emplace_back(m_pArcherObject);
-	//m_ppGameObjects[m_nObjects++] = m_pArcherObject;
->>>>>>> origin/dev/client/framework
 
 	m_pTankerObject = new Tanker();
 	m_pTankerObject->InsertComponent<RenderComponent>();
@@ -201,20 +151,10 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pTankerObject->SetModel("Model/Tanker.bin");
 	m_pTankerObject->SetAnimationSets(7);
 	m_pTankerObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-<<<<<<< HEAD
 	m_pTankerObject->m_pSkinnedAnimationController->SetTrackAnimationSet(7);
 	m_pTankerObject->m_pSkinnedAnimationController->SetTrackEnable(6, true);
 	m_pTankerObject->SetScale(30.0f);
-=======
-	m_pTankerObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	m_pTankerObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-	m_pTankerObject->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
-	m_pTankerObject->m_pSkinnedAnimationController->SetTrackEnable(2, true);
-	m_pTankerObject->m_pSkinnedAnimationController->SetRootMotion(false);
-	m_pTankerObject->SetScale(30.0f, 30.0f, 30.0f);
 	m_ppGameObjects.emplace_back(m_pTankerObject);
-	//m_ppGameObjects[m_nObjects++] = m_pTankerObject;
->>>>>>> origin/dev/client/framework
 
 	m_pPriestObject = new GameObject(UNDEF_ENTITY);
 	m_pPriestObject->InsertComponent<RenderComponent>();
@@ -223,19 +163,10 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPriestObject->SetModel("Model/Priests.bin");
 	m_pPriestObject->SetAnimationSets(4);
 	m_pPriestObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-<<<<<<< HEAD
 	m_pPriestObject->m_pSkinnedAnimationController->SetTrackAnimationSet(4);
 	m_pPriestObject->m_pSkinnedAnimationController->SetTrackEnable(CharacterAnimation::CA_IDLE, true);
 	m_pPriestObject->SetScale(30.0f);
-=======
-	m_pPriestObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	m_pPriestObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-	m_pPriestObject->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
-	m_pPriestObject->m_pSkinnedAnimationController->SetTrackEnable(2, true);
-	m_pPriestObject->m_pSkinnedAnimationController->SetRootMotion(false);
-	m_pPriestObject->SetScale(30.0f, 30.0f, 30.0f);
 	m_ppGameObjects.emplace_back(m_pPriestObject);
->>>>>>> origin/dev/client/framework
 
 	m_pMonsterObject = new GameObject(UNDEF_ENTITY);
 	m_pMonsterObject->InsertComponent<RenderComponent>();
@@ -244,44 +175,20 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pMonsterObject->SetModel("Model/Boss.bin");
 	m_pMonsterObject->SetAnimationSets(3);
 	m_pMonsterObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-<<<<<<< HEAD
 	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackAnimationSet(3);
 	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackEnable(CharacterAnimation::CA_IDLE, true);
 	m_pMonsterObject->SetScale(30.0f);
-
-	m_pPlaneObject = new GameObject(UNDEF_ENTITY);
-	m_pPlaneObject->InsertComponent<RenderComponent>();
-	m_pPlaneObject->InsertComponent<CLoadedModelInfoCompnent>();
-	m_pPlaneObject->SetPosition(XMFLOAT3(0, 0, 0));
-	m_pPlaneObject->SetModel("Model/Floor.bin");
-	//m_pPlaneObject->SetAnimationSets(3);
-	m_pPlaneObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//m_pPlaneObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	//m_pPlaneObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-	//m_pPlaneObject->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
-	//m_pPlaneObject->m_pSkinnedAnimationController->SetTrackEnable(2, true);
-	//m_pPlaneObject->m_pSkinnedAnimationController->SetRootMotion(false);
-	m_pPlaneObject->SetScale(30.0f, 30.0f, 30.0f);
-=======
-	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
-	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackEnable(2, true);
-	m_pMonsterObject->m_pSkinnedAnimationController->SetRootMotion(false);
-	m_pMonsterObject->SetScale(10.0f, 10.0f, 10.0f);
 	m_ppGameObjects.emplace_back(m_pMonsterObject);
 
-	//m_pPlaneObject = new GameObject(SQUARE_ENTITY);
-	//m_pPlaneObject->InsertComponent<RenderComponent>();
-	//m_pPlaneObject->InsertComponent<SkyBoxMeshComponent>();
-	//m_pPlaneObject->InsertComponent<SkyBoxShaderComponent>();
-	//m_pPlaneObject->InsertComponent<TextureComponent>();
-	//m_pPlaneObject->SetTexture(L"DreamWorld/DreamWorld.dds", RESOURCE_TEXTURE_CUBE, 12);
-	//m_pPlaneObject->SetPosition(XMFLOAT3(0, 0, 0));
-	//m_pPlaneObject->SetScale(1, 1, 1);
-	//m_pPlaneObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//m_ppGameObjects.emplace_back(m_pPlaneObject);
->>>>>>> origin/dev/client/framework
+	m_pPlaneObject = new GameObject(PlANE_ENTITY);
+	m_pPlaneObject->InsertComponent<RenderComponent>();
+	m_pPlaneObject->InsertComponent<CubeMeshComponent>();
+	m_pPlaneObject->InsertComponent<ShaderComponent>();
+	m_pPlaneObject->InsertComponent<TextureComponent>();
+	m_pPlaneObject->SetTexture(L"Image/Base_Texture.dds", RESOURCE_TEXTURE2D, 3);
+	m_pPlaneObject->SetPosition(XMFLOAT3(0, -10, 50));
+	m_pPlaneObject->SetScale(100, 0.1, 100);
+	m_pPlaneObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 	m_pSkyboxObject = new GameObject(SQUARE_ENTITY);
 	m_pSkyboxObject->InsertComponent<RenderComponent>();
@@ -327,8 +234,6 @@ void GameobjectManager::BuildLight()
 {
 	m_pLight->BuildLight();
 }
-<<<<<<< HEAD
-=======
 void GameobjectManager::BuildShadow(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
 	m_pDepthShaderComponent = new DepthRenderShaderComponent();
@@ -360,7 +265,6 @@ void GameobjectManager::AnimateObjects()
 	m_pLight->m_pLights[1].m_xmf3Position = m_pCamera->GetPosition();
 	m_pLight->m_pLights[1].m_xmf3Direction = m_pCamera->GetLookVector();
 }
->>>>>>> origin/dev/client/framework
 void GameobjectManager::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	m_pLight->CreateShaderVariables(pd3dDevice, pd3dCommandList);
