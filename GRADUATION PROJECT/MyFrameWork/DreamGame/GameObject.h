@@ -185,6 +185,12 @@ protected:
 	ID3D12Resource* pShadowMap = NULL;
 	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);// 삭제 예정(변경)
 	int nObjects = 0;//삭제 예정(변경)
+
+
+protected:
+    float m_fHp;
+    float m_fSpeed;
+    float m_fDamage;
 };
 
 template<typename T>//템플릿을 활용하는 이유-> 

@@ -548,9 +548,9 @@ void CGameFramework::ProcessInput()
 		{
 			if (cxDelta || cyDelta)
 			{
-				if (pKeysBuffer[VK_RBUTTON] & 0xF0)
-					m_pCamera->Rotate(cyDelta, 0.0f, -cxDelta);
-				else {
+				//if (pKeysBuffer[VK_RBUTTON] & 0xF0)
+				//	m_pCamera->Rotate(cyDelta, 0.0f, -cxDelta);
+				//else {
 					//g_Logic.
 
 					/*g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetUp(), -30.0f * fTimeElapsed);
@@ -561,7 +561,7 @@ void CGameFramework::ProcessInput()
 					g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::Y, cxDelta);
 
 					m_pCamera->Rotate(cyDelta, cxDelta, 0.0f);
-				}
+				//}
 			}
 			if (dwDirection != DIRECTION::IDLE) {
 				m_pCamera->Move(dwDirection, 1.21f, true);

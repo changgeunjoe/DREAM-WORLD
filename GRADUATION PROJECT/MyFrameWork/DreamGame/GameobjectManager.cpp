@@ -44,12 +44,15 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	m_pSkyboxObject->SetPosition(m_pCamera->GetPosition());
 	m_pMonsterObject->Animate(fTimeElapsed);
 	if (!g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject) return;
-	//g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetLookAt();
+	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetLookAt();
 	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->UpdateCameraPosition();
 	for (auto& session : g_Logic.m_inGamePlayerSession) {
 		if (-1 != session.m_id && session.m_isVisible) {
 			if (session.m_currentDirection != DIRECTION::IDLE) {
-				session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
+				//session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
+				session.m_currentPlayGameObject->Move(session.m_currentDirection, fTimeElapsed);
+				if (session.m_currentPlayGameObject->GetRButtonClicked())
+					session.m_currentPlayGameObject->RbuttonClicked(fTimeElapsed);
 #ifdef _DEBUG
 				auto look = session.m_currentPlayGameObject->GetLook();
 				auto up = session.m_currentPlayGameObject->GetUp();
@@ -82,14 +85,14 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	
 
 	UpdateShaderVariables(pd3dCommandList);
-//	m_pSkyboxObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pSkyboxObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pDepthShaderComponent->UpdateShaderVariables(pd3dCommandList);
 
-	//for (auto& session : g_Logic.m_inGamePlayerSession) {
-	//	if (-1 != session.m_id && session.m_isVisible) {
-	//		session.m_currentPlayGameObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//	}
-	//}
+	for (auto& session : g_Logic.m_inGamePlayerSession) {
+		if (-1 != session.m_id && session.m_isVisible) {
+			session.m_currentPlayGameObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		}
+	}
 	//m_pPlaneObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//m_pMonsterObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
@@ -117,7 +120,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPlaneObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pPlaneObject->SetModel("Model/Floor.bin");
 	m_pPlaneObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pPlaneObject->SetScale(10.0f, 1.0f, 10.0f);
+	m_pPlaneObject->SetScale(100.0f, 1.0f, 100.0f);
 	m_ppGameObjects.emplace_back(m_pPlaneObject);
 
 	m_pWarriorObject = new GameObject(SQUARE_ENTITY);//사각형 오브젝트를 만들겠다
@@ -156,7 +159,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pTankerObject->SetScale(30.0f);
 	m_ppGameObjects.emplace_back(m_pTankerObject);
 
-	m_pPriestObject = new GameObject(UNDEF_ENTITY);
+	m_pPriestObject = new Priest();
 	m_pPriestObject->InsertComponent<RenderComponent>();
 	m_pPriestObject->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pPriestObject->SetPosition(XMFLOAT3(40, 0, 0));
@@ -179,16 +182,6 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackEnable(CharacterAnimation::CA_IDLE, true);
 	m_pMonsterObject->SetScale(30.0f);
 	m_ppGameObjects.emplace_back(m_pMonsterObject);
-
-	m_pPlaneObject = new GameObject(PlANE_ENTITY);
-	m_pPlaneObject->InsertComponent<RenderComponent>();
-	m_pPlaneObject->InsertComponent<CubeMeshComponent>();
-	m_pPlaneObject->InsertComponent<ShaderComponent>();
-	m_pPlaneObject->InsertComponent<TextureComponent>();
-	m_pPlaneObject->SetTexture(L"Image/Base_Texture.dds", RESOURCE_TEXTURE2D, 3);
-	m_pPlaneObject->SetPosition(XMFLOAT3(0, -10, 50));
-	m_pPlaneObject->SetScale(100, 0.1, 100);
-	m_pPlaneObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 	m_pSkyboxObject = new GameObject(SQUARE_ENTITY);
 	m_pSkyboxObject->InsertComponent<RenderComponent>();
@@ -217,9 +210,9 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 #if LOCAL_TASK
 	// 플레이어가 캐릭터 선택하는 부분에 유사하게 넣을 예정
 	m_pPlayerObject = new GameObject(UNDEF_ENTITY);	//수정필요
-	memcpy(m_pPlayerObject, m_pArcherObject, sizeof(GameObject));
+	memcpy(m_pPlayerObject, m_pTankerObject, sizeof(GameObject));
 	m_pPlayerObject->SetCamera(m_pCamera);
-	delete m_pArcherObject;
+	delete m_pTankerObject;
 
 	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject = m_pPlayerObject;
 	g_Logic.m_inGamePlayerSession[0].m_isVisible = true;

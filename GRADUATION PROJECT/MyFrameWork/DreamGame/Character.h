@@ -9,12 +9,6 @@ public:
 	virtual void RbuttonClicked(float fTimeElapsed);
 	virtual void RbuttonUp();
 	//virtual void Move(DIRECTION direction, float fDistance);
-
-protected:
-	float m_fHp;
-	float m_fSpeed;
-	float m_fDamage;
-
 };
 
 class Warrior : public Character

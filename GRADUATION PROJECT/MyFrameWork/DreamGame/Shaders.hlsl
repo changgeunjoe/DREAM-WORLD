@@ -443,7 +443,7 @@ VS_SHADOW_MAP_OUTPUT VSShadowMapShadow(VS_LIGHTING_INPUT input)
 
 float4 PSShadowMapShadow(VS_SHADOW_MAP_OUTPUT input) : SV_TARGET
 {
-    float4 cAlbedoColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    float4 cAlbedoColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
     if (gnTexturesMask & MATERIAL_ALBEDO_MAP) 
         cAlbedoColor = gtxtAlbedoTexture.Sample(gWrapSamplerState, /*float2(0.5f, 0.5f) */input.uv);
     else
@@ -454,7 +454,10 @@ float4 PSShadowMapShadow(VS_SHADOW_MAP_OUTPUT input) : SV_TARGET
 
     //return (cIllumination);
     float4 cColor = cAlbedoColor;
-    return (lerp(cColor, cIllumination, 0.4f));
+    if (cColor.w < 0.1f)
+        return cColor;
+    else
+        return (lerp(cColor, cIllumination, 0.4f));
     
 }
 ///////////////////////////////////////////////////////////////////////////////
