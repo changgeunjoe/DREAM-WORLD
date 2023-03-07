@@ -8,6 +8,7 @@ public:
 	virtual ~Character();
 	virtual void RbuttonClicked(float fTimeElapsed);
 	virtual void RbuttonUp();
+	//virtual void Move(DIRECTION direction, float fDistance);
 
 protected:
 	float m_fHp;

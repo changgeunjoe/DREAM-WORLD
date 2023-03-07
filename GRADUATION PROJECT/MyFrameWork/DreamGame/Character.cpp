@@ -126,13 +126,13 @@ void Tanker::RbuttonClicked(float fTimeElapsed)
 		{
 			m_pSkinnedAnimationController->SetAnimationBlending(true);
 			m_pSkinnedAnimationController->SetAction(true);
-			m_pSkinnedAnimationController->m_nUpperBodyAnimation = CharacterAnimation::CA_ATTACK;
+			m_pSkinnedAnimationController->m_nUpperBodyAnimation = 6;
 		}
 		else
 		{
 			m_pSkinnedAnimationController->SetAction(true);
 			m_pSkinnedAnimationController->SetAllTrackdisable();
-			m_pSkinnedAnimationController->SetTrackEnable(CharacterAnimation::CA_ATTACK, true);	//Defence로 수정 필요 & Defence 애니메이션 정지 상태로 고정 시켜놔야한다.
+			m_pSkinnedAnimationController->SetTrackEnable(6, true);	//Defence로 수정 필요 & Defence 애니메이션 정지 상태로 고정 시켜놔야한다.
 		}
 		m_pCamera->GenerateProjectionMatrix(1.01f, 5000.0f, ASPECT_RATIO, 90.0f);
 		m_iRButtionCount++;

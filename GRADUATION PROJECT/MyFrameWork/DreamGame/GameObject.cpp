@@ -627,6 +627,8 @@ void GameObject::LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfoCompnent* 
 
 			pLoadedModel->m_pAnimationSets->m_pAnimationSets[nAnimationSet] = new CAnimationSet(fLength, nFramesPerSecond, nKeyFrames, pLoadedModel->m_pAnimationSets->m_nAnimatedBoneFrames, pstrToken);
 
+			if (!strncmp(pstrToken, "Block", 5)) pLoadedModel->m_pAnimationSets->m_pAnimationSets[nAnimationSet]->m_nType = ANIMATION_TYPE_ONCE;
+
 			for (int i = 0; i < nKeyFrames; i++)
 			{
 				::ReadStringFromFile(pInFile, pstrToken);

@@ -42,7 +42,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 {
 	m_pSkyboxObject->SetPosition(m_pCamera->GetPosition());
 	m_pMonsterObject->Animate(fTimeElapsed);
-
+	m_pWarriorObject->Animate(fTimeElapsed);
 	if (g_Logic.m_KeyInput->m_bQKey)
 	{
 		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetUp(), -30.0f * fTimeElapsed);
@@ -182,10 +182,10 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pWarriorObject->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pWarriorObject->SetPosition(XMFLOAT3(30.f, 0, 30.f));
 	m_pWarriorObject->SetModel("Model/Warrior.bin");
-	m_pWarriorObject->SetAnimationSets(3);
+	m_pWarriorObject->SetAnimationSets(6);
 	m_pWarriorObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pWarriorObject->m_pSkinnedAnimationController->SetTrackAnimationSet(3);
-	m_pWarriorObject->m_pSkinnedAnimationController->SetTrackEnable(CharacterAnimation::CA_IDLE, true);
+	m_pWarriorObject->m_pSkinnedAnimationController->SetTrackAnimationSet(6);
+	m_pWarriorObject->m_pSkinnedAnimationController->SetTrackEnable(CharacterAnimation::CA_ATTACK, true);
 	m_pWarriorObject->SetScale(30.0f);
 
 	m_pArcherObject = new Archer();
@@ -193,9 +193,9 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pArcherObject->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pArcherObject->SetPosition(XMFLOAT3(-20, 0, 0));
 	m_pArcherObject->SetModel("Model/Archer.bin");
-	m_pArcherObject->SetAnimationSets(3);
+	m_pArcherObject->SetAnimationSets(6);
 	m_pArcherObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pArcherObject->m_pSkinnedAnimationController->SetTrackAnimationSet(3);
+	m_pArcherObject->m_pSkinnedAnimationController->SetTrackAnimationSet(6);
 	m_pArcherObject->m_pSkinnedAnimationController->SetTrackEnable(CharacterAnimation::CA_IDLE, true);
 	m_pArcherObject->SetScale(30.0f);
 
@@ -204,10 +204,10 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pTankerObject->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pTankerObject->SetPosition(XMFLOAT3(20, 0, 0));
 	m_pTankerObject->SetModel("Model/Tanker.bin");
-	m_pTankerObject->SetAnimationSets(3);
+	m_pTankerObject->SetAnimationSets(7);
 	m_pTankerObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pTankerObject->m_pSkinnedAnimationController->SetTrackAnimationSet(3);
-	m_pTankerObject->m_pSkinnedAnimationController->SetTrackEnable(CharacterAnimation::CA_IDLE, true);
+	m_pTankerObject->m_pSkinnedAnimationController->SetTrackAnimationSet(7);
+	m_pTankerObject->m_pSkinnedAnimationController->SetTrackEnable(6, true);
 	m_pTankerObject->SetScale(30.0f);
 
 	m_pPriestObject = new GameObject(UNDEF_ENTITY);
@@ -215,9 +215,9 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPriestObject->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pPriestObject->SetPosition(XMFLOAT3(40, 0, 0));
 	m_pPriestObject->SetModel("Model/Priests.bin");
-	m_pPriestObject->SetAnimationSets(3);
+	m_pPriestObject->SetAnimationSets(4);
 	m_pPriestObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pPriestObject->m_pSkinnedAnimationController->SetTrackAnimationSet(3);
+	m_pPriestObject->m_pSkinnedAnimationController->SetTrackAnimationSet(4);
 	m_pPriestObject->m_pSkinnedAnimationController->SetTrackEnable(CharacterAnimation::CA_IDLE, true);
 	m_pPriestObject->SetScale(30.0f);
 
@@ -256,11 +256,12 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pSkyboxObject->SetScale(1, 1, 1);
 	m_pSkyboxObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
+	//m_pArcherObject
 	// 플레이어가 캐릭터 선택하는 부분에 유사하게 넣을 예정
 	m_pPlayerObject = new Character();	//수정필요
-	memcpy(m_pPlayerObject, m_pArcherObject, sizeof(Archer));
+	memcpy(m_pPlayerObject, m_pTankerObject, sizeof(Character));
 	m_pPlayerObject->SetCamera(m_pCamera);
-	delete m_pArcherObject;
+	delete m_pTankerObject;
 
 #ifdef LOCAL_TASK
 	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject = m_pPlayerObject;
