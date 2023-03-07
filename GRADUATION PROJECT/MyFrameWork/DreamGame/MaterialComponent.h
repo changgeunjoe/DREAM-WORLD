@@ -66,13 +66,9 @@ public:
 
 
 	void SetStandardShader() { MaterialComponent::SetShader(m_pStandardShader); }
-<<<<<<< HEAD
-	void SetSkinnedAnimationShader() { MaterialComponent::SetShader(m_pSkinnedAnimationShader); }
 	void SetBoundingBoxShader() { MaterialComponent::SetShader(m_pBoundingBoxShader); }
-=======
 	void SetSkinnedAnimationShader() { 
 		MaterialComponent::SetShader(m_pSkinnedAnimationShader);
 		m_isAnimationShader = true;
 	}
->>>>>>> origin/dev/client/framework
 };
