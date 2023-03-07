@@ -17,6 +17,8 @@ protected:
 	std::chrono::high_resolution_clock::time_point m_lastMoveTime;
 public:
 	DIRECTION m_inputDirection = DIRECTION::IDLE;
+	DIRECTION m_prevDirection = DIRECTION::IDLE;
+
 
 public:
 public:

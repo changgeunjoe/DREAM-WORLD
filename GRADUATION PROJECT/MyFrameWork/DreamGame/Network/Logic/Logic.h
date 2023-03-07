@@ -27,7 +27,7 @@ public:
 	CKeyInput* m_KeyInput;
 public:
 	Logic();
-	~Logic() {}
+	~Logic();
 public:
 	void ProcessPacket(char* p);
 	friend class CGameFramework;

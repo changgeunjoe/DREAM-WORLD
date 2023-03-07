@@ -265,3 +265,11 @@ ID3D12Resource* CreateTexture2DResource(ID3D12Device* pd3dDevice, ID3D12Graphics
 	return(pd3dTexture);
 }
 
+#pragma warning (disable:4996)
+
+void PrintCurrentTime()
+{
+	auto currentTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+	
+	std::cout << std::ctime(&currentTime);
+}

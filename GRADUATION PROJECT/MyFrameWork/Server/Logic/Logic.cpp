@@ -42,6 +42,7 @@ void Logic::ProcessPacket(int userId, char* p)
 		PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
 		pSessionObj->StartMove(sendPacket.direction); // 움직임 start
 #ifdef _DEBUG
+		PrintCurrentTime();
 		std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::MOVE_KEY_DOWN - MultiCastOtherPlayer" << std::endl;
 #endif
 		MultiCastOtherPlayer(userId, &sendPacket);
@@ -60,7 +61,7 @@ void Logic::ProcessPacket(int userId, char* p)
 		PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
 		pSessionObj->Rotate(recvPacket->axis, recvPacket->angle);
 #ifdef _DEBUG
-		std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::ROTATE - MultiCastOtherPlayer" << std::endl;
+		//std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::ROTATE - MultiCastOtherPlayer" << std::endl;
 #endif
 		MultiCastOtherPlayer(userId, &sendPacket);
 	}
@@ -77,6 +78,7 @@ void Logic::ProcessPacket(int userId, char* p)
 		PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
 		pSessionObj->ChangeDirection(sendPacket.direction); // 움직임 start
 #ifdef _DEBUG
+		PrintCurrentTime();
 		std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::MOVE_KEY_UP - MultiCastOtherPlayer" << std::endl;
 #endif
 		MultiCastOtherPlayer(userId, &sendPacket);
@@ -95,6 +97,7 @@ void Logic::ProcessPacket(int userId, char* p)
 		sendPacket.position = recvPacket->position;
 		sendPacket.rotate = recvPacket->rotate;
 #ifdef _DEBUG
+		PrintCurrentTime();
 		std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::STOP - " << std::endl;
 		std::cout << "position: " << sendPacket.position.x << ", " << sendPacket.position.y << ", " << sendPacket.position.z << std::endl;
 		std::cout << "rotation: " << sendPacket.rotate.x << ", " << sendPacket.rotate.y << ", " << sendPacket.rotate.z << std::endl;
@@ -104,12 +107,14 @@ void Logic::ProcessPacket(int userId, char* p)
 			sendPacket.position = pSessionObj->GetPosition();
 			BroadCastPacket(&sendPacket);
 #ifdef _DEBUG
+			PrintCurrentTime();
 			std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::STOP - BroadCastPacket" << std::endl;
 #endif
 		}
 		else {
 			MultiCastOtherPlayer(userId, &sendPacket);
 #ifdef _DEBUG
+			PrintCurrentTime();
 			std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::STOP - MultiCastOtherPlayer" << std::endl;
 #endif
 		}
@@ -131,6 +136,7 @@ void Logic::ProcessPacket(int userId, char* p)
 	}
 	break;
 	default:
+		PrintCurrentTime();
 		std::cout << "unknown Packet" << std::endl;
 		break;
 	}

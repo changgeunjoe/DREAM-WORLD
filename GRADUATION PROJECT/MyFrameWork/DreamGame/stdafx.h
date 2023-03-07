@@ -19,6 +19,7 @@
 #include <array>
 #include <vector>
 #include<iostream>
+#include <chrono>
 using namespace std;
 
 #include <d3d12.h>
@@ -455,3 +456,5 @@ namespace Plane
 #define RESOURCE_TEXTURE2DARRAY		0x04
 #define RESOURCE_TEXTURE_CUBE		0x05
 #define RESOURCE_BUFFER				0x06
+
+void PrintCurrentTime();

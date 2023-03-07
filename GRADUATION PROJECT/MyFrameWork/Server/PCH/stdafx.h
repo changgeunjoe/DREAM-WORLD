@@ -227,3 +227,5 @@ namespace Matrix4x4
 		return(xmmtx4x4Result);
 	}
 }
+
+void PrintCurrentTime();
