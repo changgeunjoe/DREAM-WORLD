@@ -3,17 +3,17 @@
 #include "CLoadModelinfo.h"
 #include "GameObject.h"
 
-#pragma region CAnimationTrack
 CAnimationTrack::~CAnimationTrack()
 {
 	if (m_pCallbackKeys) delete[] m_pCallbackKeys;
 	if (m_pAnimationCallbackHandler) delete m_pAnimationCallbackHandler;
 }
 
-float CAnimationTrack::UpdatePosition(float fTrackPosition, float fTrackElapsedTime, float fAnimationLength)
+float CAnimationTrack::UpdatePosition(float fTrackPosition, float fTrackElapsedTime, const CAnimationSet* CAnimation)
 {
+	float fAnimationLength = CAnimation->m_fLength;
 	float TrackElapsedTime = fTrackElapsedTime * m_fSpeed;
-	switch (m_nType)
+	switch (CAnimation->m_nType)
 	{
 	case ANIMATION_TYPE_LOOP:
 	{
@@ -72,9 +72,7 @@ void CAnimationTrack::HandleCallback()
 		}
 	}
 }
-#pragma endregion
 
-#pragma region CAnimationController
 CAnimationController::CAnimationController(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, int nAnimationTracks, CLoadedModelInfoCompnent* pModel)
 {
 	m_nAnimationTracks = nAnimationTracks;
@@ -202,7 +200,7 @@ void CAnimationController::AdvanceTime(float fElapsedTime, GameObject* pRootGame
 				if (m_pAnimationTracks[k].m_bEnable)
 				{
 					CAnimationSet* pAnimationSet = m_pAnimationSets->m_pAnimationSets[m_pAnimationTracks[k].m_nAnimationSet];
-					float fPosition = m_pAnimationTracks[k].UpdatePosition(m_pAnimationTracks[k].m_fPosition, fElapsedTime, pAnimationSet->m_fLength);
+					float fPosition = m_pAnimationTracks[k].UpdatePosition(m_pAnimationTracks[k].m_fPosition, fElapsedTime, pAnimationSet);
 					for (int j = 0; j < m_pAnimationSets->m_nAnimatedBoneFrames; j++)
 					{
 						XMFLOAT4X4 xmf4x4Transform = m_pAnimationSets->m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent;
@@ -217,7 +215,7 @@ void CAnimationController::AdvanceTime(float fElapsedTime, GameObject* pRootGame
 		else
 		{
 			CAnimationSet* pUAnimationSet = m_pAnimationSets->m_pAnimationSets[m_pAnimationTracks[m_nLowerBodyAnimation].m_nAnimationSet];
-			float fUPosition = m_pAnimationTracks[m_nLowerBodyAnimation].UpdatePosition(m_pAnimationTracks[m_nLowerBodyAnimation].m_fPosition, fElapsedTime, pUAnimationSet->m_fLength);
+			float fUPosition = m_pAnimationTracks[m_nLowerBodyAnimation].UpdatePosition(m_pAnimationTracks[m_nLowerBodyAnimation].m_fPosition, fElapsedTime, pUAnimationSet);
 			for (int j = 0; j < temp; j++)
 			{
 				XMFLOAT4X4 xmf4x4Transform = m_pAnimationSets->m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent;
@@ -228,7 +226,7 @@ void CAnimationController::AdvanceTime(float fElapsedTime, GameObject* pRootGame
 			m_pAnimationTracks[m_nLowerBodyAnimation].HandleCallback();
 
 			CAnimationSet* pLAnimationSet = m_pAnimationSets->m_pAnimationSets[m_pAnimationTracks[m_nUpperBodyAnimation].m_nAnimationSet];
-			float fLPosition = m_pAnimationTracks[m_nUpperBodyAnimation].UpdatePosition(m_pAnimationTracks[m_nUpperBodyAnimation].m_fPosition, fElapsedTime, pLAnimationSet->m_fLength);
+			float fLPosition = m_pAnimationTracks[m_nUpperBodyAnimation].UpdatePosition(m_pAnimationTracks[m_nUpperBodyAnimation].m_fPosition, fElapsedTime, pLAnimationSet);
 			for (int j = temp; j < m_pAnimationSets->m_nAnimatedBoneFrames; j++)
 			{
 				XMFLOAT4X4 xmf4x4Transform = m_pAnimationSets->m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent;
@@ -249,4 +247,3 @@ void CAnimationController::SetTrackBlending(int nUpperBodyAnimation, int nLowerB
 	SetTrackEnable(m_nUpperBodyAnimation, true);
 	SetTrackEnable(m_nLowerBodyAnimation, true);
 }
-#pragma endregion

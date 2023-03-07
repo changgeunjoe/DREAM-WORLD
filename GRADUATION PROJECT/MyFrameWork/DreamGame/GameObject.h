@@ -45,11 +45,12 @@ public:
     void SetMesh(MeshComponent* pMesh);
     void SetCamera(CCamera* pCamera);
     void SetLookAt();
-
+    
 	void MoveStrafe(float fDistance = 1.0f);
 	void MoveUp(float fDistance = 1.0f);
-	void MoveForward(float fDistance = 1.0f);
-	void MoveDiagonal(int fowardDirection, int rightDirection, float distance = 1.0f);
+    void MoveForward(float fDistance = 1.0f);
+    void MoveDiagonal(int fowardDirection, int rightDirection, float distance = 1.0f);
+    virtual void Move(DIRECTION direction = DIRECTION::FRONT, float fDistance = 1.0f);
 
     bool CheckIntersect(const GameObject* GameObject);	//수정필요
 
@@ -63,6 +64,10 @@ public:
     XMFLOAT3 GetUp();
     XMFLOAT3 GetRight();
 
+    void SetRButtonClicked(bool bRButtonClicked) { m_bRButtonClicked = bRButtonClicked; }
+    bool GetRButtonClicked() { return m_bRButtonClicked; }
+    virtual void RbuttonClicked(float fTimeElapsed) {};
+    virtual void RbuttonUp() {};
 	unordered_map<component_id, ComponentBase*> Getcomponents();
 
 	// void SetOrientation(const Quaternion& orientation);
@@ -134,6 +139,8 @@ public:
     CCamera                         *m_pCamera = NULL;
     BoundingSphere					m_SPBB = BoundingSphere(XMFLOAT3(0.0f, 0.0f, 0.0f), 7.5f);
 
+    int                             m_iRButtionCount = 0;
+
 protected:
 
     int								m_nReferences = 0;
@@ -145,6 +152,7 @@ protected:
     XMFLOAT3 m_position{};
     //Quaternion m_orientation;
     float                           m_nRotateAngle = 0.0f;
+    bool                            m_bRButtonClicked = false;
 
     wchar_t* pszFileNames{};
     char* pszModelNames{};

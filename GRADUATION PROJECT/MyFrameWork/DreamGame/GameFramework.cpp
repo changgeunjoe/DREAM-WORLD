@@ -548,6 +548,7 @@ void CGameFramework::ProcessInput()
 		{
 			if (cxDelta || cyDelta)
 			{
+<<<<<<< HEAD
 				if (pKeysBuffer[VK_RBUTTON] & 0xF0)
 					m_pCamera->Rotate(cyDelta, 0.0f, -cxDelta);
 				else {
@@ -560,6 +561,11 @@ void CGameFramework::ProcessInput()
 					g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += cxDelta;
 					g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::Y, cxDelta);
 
+=======
+				//if (pKeysBuffer[VK_RBUTTON] & 0xF0)
+					//m_pCamera->Rotate(cyDelta, 0.0f, -cxDelta);
+				//else
+>>>>>>> origin/dev/client/animation
 					m_pCamera->Rotate(cyDelta, cxDelta, 0.0f);
 				}
 			}

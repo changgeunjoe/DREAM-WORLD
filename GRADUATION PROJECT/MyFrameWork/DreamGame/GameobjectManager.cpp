@@ -3,6 +3,7 @@
 #include "Animation.h"
 #include "Network/NetworkHelper.h"
 #include "Network/Logic/Logic.h"
+#include "Character.h"
 
 extern NetworkHelper g_NetworkHelper;
 extern Logic g_Logic;
@@ -39,6 +40,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 {
 	m_pSkyboxObject->SetPosition(m_pCamera->GetPosition());
 	m_pMonsterObject->Animate(fTimeElapsed);
+<<<<<<< HEAD
 	if (!g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject) return;
 	//g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetLookAt();
 	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->UpdateCameraPosition();
@@ -61,6 +63,116 @@ void GameobjectManager::Animate(float fTimeElapsed)
 #endif
 
 			}		
+=======
+	m_pWarriorObject->Animate(fTimeElapsed);
+	if (g_Logic.m_KeyInput->m_bQKey)
+	{
+		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetUp(), -30.0f * fTimeElapsed);
+		g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y -= 30.0f * fTimeElapsed;
+		g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::Y, -30.0f * fTimeElapsed);
+	}
+	if (g_Logic.m_KeyInput->m_bEKey)
+	{
+		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetUp(), 30.0f * fTimeElapsed);
+		g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += 30.0f * fTimeElapsed;
+		g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::Y, 30.0f * fTimeElapsed);
+	}
+
+	for (auto& session : g_Logic.m_inGamePlayerSession) {
+		if (-1 != session.m_id && session.m_isVisible) {
+//			if (DIRECTION::FRONT == (session.m_currentDirection & DIRECTION::FRONT)) {
+//				if (DIRECTION::LEFT == (session.m_currentDirection & DIRECTION::LEFT)) {
+//					//session.m_currentPlayGameObject->MoveDiagonal(1, -1, 50.0f * fTimeElapsed);
+//					//session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
+//					session.m_currentPlayGameObject->Move(session.m_currentDirection, 50.0f * fTimeElapsed);
+//				}
+//				else if (DIRECTION::RIGHT == (session.m_currentDirection & DIRECTION::RIGHT)) {
+//					session.m_currentPlayGameObject->Move(session.m_currentDirection, 50.0f * fTimeElapsed);
+//					//session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
+//					//session.m_currentPlayGameObject->MoveDiagonal(1, 1, 50.0f * fTimeElapsed);
+//				}
+//				else {
+//					session.m_currentPlayGameObject->Move(session.m_currentDirection, 50.0f * fTimeElapsed);
+//					//session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
+//				}
+//#ifdef _DEBUG
+//				auto look = session.m_currentPlayGameObject->GetLook();
+//				auto up = session.m_currentPlayGameObject->GetUp();
+//				auto right = session.m_currentPlayGameObject->GetRight();
+//				cout << "GameobjectManager::Animate() SessionId: " << session.m_id << endl;
+//				cout << "GameobjectManager::Animate() Look: " << look.x << ", " << look.y << ", " << look.z << endl;
+//				cout << "GameobjectManager::Animate() up: " << up.x << ", " << up.y << ", " << up.z << endl;
+//				cout << "GameobjectManager::Animate() right: " << right.x << ", " << right.y << ", " << right.z << endl;
+//				std::cout << "GameobjectManager::Animate() rotation angle: " << session.m_rotateAngle.x << ", " << session.m_rotateAngle.y << ", " << session.m_rotateAngle.z << std::endl;
+//#endif
+//			}
+//			else if (DIRECTION::BACK == (session.m_currentDirection & DIRECTION::BACK)) {
+//				if (DIRECTION::LEFT == (session.m_currentDirection & DIRECTION::LEFT)) {
+//					//session.m_currentPlayGameObject->MoveDiagonal(-1, -1, 50.0f * fTimeElapsed);
+//					//session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
+//					session.m_currentPlayGameObject->Move(session.m_currentDirection, 50.0f * fTimeElapsed);
+//				}
+//				else if (DIRECTION::RIGHT == (session.m_currentDirection & DIRECTION::RIGHT)) {
+//					//session.m_currentPlayGameObject->MoveDiagonal(-1, 1, 50.0f * fTimeElapsed);
+//					//session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
+//					session.m_currentPlayGameObject->Move(session.m_currentDirection, 50.0f * fTimeElapsed);
+//				}
+//				else {
+//					//session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
+//					session.m_currentPlayGameObject->Move(session.m_currentDirection, 50.0f * fTimeElapsed);
+//					//session.m_currentPlayGameObject->MoveForward(-50.0f * fTimeElapsed);
+//				}
+//#ifdef _DEBUG
+//				auto look = session.m_currentPlayGameObject->GetLook();
+//				auto up = session.m_currentPlayGameObject->GetUp();
+//				auto right = session.m_currentPlayGameObject->GetRight();
+//				cout << "GameobjectManager::Animate() SessionId: " << session.m_id << endl;
+//				cout << "GameobjectManager::Animate() Look: " << look.x << ", " << look.y << ", " << look.z << endl;
+//				cout << "GameobjectManager::Animate() up: " << up.x << ", " << up.y << ", " << up.z << endl;
+//				cout << "GameobjectManager::Animate() right: " << right.x << ", " << right.y << ", " << right.z << endl;
+//				std::cout << "GameobjectManager::Animate() rotation angle: " << session.m_rotateAngle.x << ", " << session.m_rotateAngle.y << ", " << session.m_rotateAngle.z << std::endl;
+//#endif
+//			}
+//			else {
+//				if (DIRECTION::LEFT == (session.m_currentDirection & DIRECTION::LEFT)) {
+//					//session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
+//					session.m_currentPlayGameObject->Move(session.m_currentDirection, 50.0f * fTimeElapsed);
+//					//session.m_currentPlayGameObject->MoveStrafe(-50.0f * fTimeElapsed);
+//#ifdef _DEBUG
+//					auto look = session.m_currentPlayGameObject->GetLook();
+//					auto up = session.m_currentPlayGameObject->GetUp();
+//					auto right = session.m_currentPlayGameObject->GetRight();
+//					cout << "GameobjectManager::Animate() SessionId: " << session.m_id << endl;
+//					cout << "GameobjectManager::Animate() Look: " << look.x << ", " << look.y << ", " << look.z << endl;
+//					cout << "GameobjectManager::Animate() up: " << up.x << ", " << up.y << ", " << up.z << endl;
+//					cout << "GameobjectManager::Animate() right: " << right.x << ", " << right.y << ", " << right.z << endl;
+//					std::cout << "GameobjectManager::Animate() rotation angle: " << session.m_rotateAngle.x << ", " << session.m_rotateAngle.y << ", " << session.m_rotateAngle.z << std::endl;
+//#endif
+//				}
+//				else if (DIRECTION::RIGHT == (session.m_currentDirection & DIRECTION::RIGHT)) {
+//					//session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
+//					session.m_currentPlayGameObject->Move(session.m_currentDirection, 50.0f * fTimeElapsed);
+//					//session.m_currentPlayGameObject->MoveStrafe(50.0f * fTimeElapsed);
+//#ifdef _DEBUG
+//					auto look = session.m_currentPlayGameObject->GetLook();
+//					auto up = session.m_currentPlayGameObject->GetUp();
+//					auto right = session.m_currentPlayGameObject->GetRight();
+//					cout << "GameobjectManager::Animate() SessionId: " << session.m_id << endl;
+//					cout << "GameobjectManager::Animate() Look: " << look.x << ", " << look.y << ", " << look.z << endl;
+//					cout << "GameobjectManager::Animate() up: " << up.x << ", " << up.y << ", " << up.z << endl;
+//					cout << "GameobjectManager::Animate() right: " << right.x << ", " << right.y << ", " << right.z << endl;
+//					std::cout << "GameobjectManager::Animate() rotation angle: " << session.m_rotateAngle.x << ", " << session.m_rotateAngle.y << ", " << session.m_rotateAngle.z << std::endl;
+//#endif
+//				}
+//			}
+			//if (!session.m_currentPlayGameObject->GetRButtonClicked())
+			session.m_currentPlayGameObject->SetLookAt();
+			if (session.m_currentPlayGameObject->GetRButtonClicked())
+				session.m_currentPlayGameObject->RbuttonClicked(fTimeElapsed);
+			session.m_currentPlayGameObject->UpdateCameraPosition();
+			if(session.m_currentDirection != DIRECTION::IDLE)
+				session.m_currentPlayGameObject->Move(session.m_currentDirection, fTimeElapsed);
+>>>>>>> origin/dev/client/animation
 			session.m_currentPlayGameObject->Animate(fTimeElapsed);
 		}
 	}
@@ -93,32 +205,32 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pWarriorObject->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pWarriorObject->SetPosition(XMFLOAT3(30.f, 0, 30.f));
 	m_pWarriorObject->SetModel("Model/Warrior.bin");
-	m_pWarriorObject->SetAnimationSets(3);
+	m_pWarriorObject->SetAnimationSets(6);
 	m_pWarriorObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pWarriorObject->m_pSkinnedAnimationController->SetTrackAnimationSet(3);
-	m_pWarriorObject->m_pSkinnedAnimationController->SetTrackEnable(CharacterAnimation::CA_IDLE, true);
+	m_pWarriorObject->m_pSkinnedAnimationController->SetTrackAnimationSet(6);
+	m_pWarriorObject->m_pSkinnedAnimationController->SetTrackEnable(CharacterAnimation::CA_ATTACK, true);
 	m_pWarriorObject->SetScale(30.0f);
 
-	m_pArcherObject = new GameObject(UNDEF_ENTITY);
+	m_pArcherObject = new Archer();
 	m_pArcherObject->InsertComponent<RenderComponent>();
 	m_pArcherObject->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pArcherObject->SetPosition(XMFLOAT3(-20, 0, 0));
 	m_pArcherObject->SetModel("Model/Archer.bin");
-	m_pArcherObject->SetAnimationSets(3);
+	m_pArcherObject->SetAnimationSets(6);
 	m_pArcherObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pArcherObject->m_pSkinnedAnimationController->SetTrackAnimationSet(3);
+	m_pArcherObject->m_pSkinnedAnimationController->SetTrackAnimationSet(6);
 	m_pArcherObject->m_pSkinnedAnimationController->SetTrackEnable(CharacterAnimation::CA_IDLE, true);
 	m_pArcherObject->SetScale(30.0f);
 
-	m_pTankerObject = new GameObject(UNDEF_ENTITY);
+	m_pTankerObject = new Tanker();
 	m_pTankerObject->InsertComponent<RenderComponent>();
 	m_pTankerObject->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pTankerObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pTankerObject->SetModel("Model/Tanker.bin");
-	m_pTankerObject->SetAnimationSets(3);
+	m_pTankerObject->SetAnimationSets(7);
 	m_pTankerObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pTankerObject->m_pSkinnedAnimationController->SetTrackAnimationSet(3);
-	m_pTankerObject->m_pSkinnedAnimationController->SetTrackEnable(CharacterAnimation::CA_IDLE, true);
+	m_pTankerObject->m_pSkinnedAnimationController->SetTrackAnimationSet(7);
+	m_pTankerObject->m_pSkinnedAnimationController->SetTrackEnable(6, true);
 	m_pTankerObject->SetScale(30.0f);
 
 	m_pPriestObject = new GameObject(UNDEF_ENTITY);
@@ -126,9 +238,9 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPriestObject->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pPriestObject->SetPosition(XMFLOAT3(40, 0, 0));
 	m_pPriestObject->SetModel("Model/Priests.bin");
-	m_pPriestObject->SetAnimationSets(3);
+	m_pPriestObject->SetAnimationSets(4);
 	m_pPriestObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pPriestObject->m_pSkinnedAnimationController->SetTrackAnimationSet(3);
+	m_pPriestObject->m_pSkinnedAnimationController->SetTrackAnimationSet(4);
 	m_pPriestObject->m_pSkinnedAnimationController->SetTrackEnable(CharacterAnimation::CA_IDLE, true);
 	m_pPriestObject->SetScale(30.0f);
 
@@ -167,12 +279,16 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pSkyboxObject->SetScale(1, 1, 1);
 	m_pSkyboxObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
+<<<<<<< HEAD
 #if LOCAL_TASK
+=======
+	//m_pArcherObject
+>>>>>>> origin/dev/client/animation
 	// 플레이어가 캐릭터 선택하는 부분에 유사하게 넣을 예정
-	m_pPlayerObject = new GameObject(UNDEF_ENTITY);	//수정필요
-	memcpy(m_pPlayerObject, m_pArcherObject, sizeof(GameObject));
+	m_pPlayerObject = new Character();	//수정필요
+	memcpy(m_pPlayerObject, m_pTankerObject, sizeof(Character));
 	m_pPlayerObject->SetCamera(m_pCamera);
-	delete m_pArcherObject;
+	delete m_pTankerObject;
 
 	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject = m_pPlayerObject;
 	g_Logic.m_inGamePlayerSession[0].m_isVisible = true;
@@ -268,6 +384,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 				}
 				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection | DIRECTION::FRONT);
 				g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_iLookDirectoin |= DIRECTION::FRONT;
+				g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetMove(true);
 				g_NetworkHelper.SendMovePacket(DIRECTION::FRONT);
 			}
 		}
@@ -320,6 +437,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 				}
 				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection | DIRECTION::LEFT);
 				g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_iLookDirectoin |= DIRECTION::LEFT;
+				g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetMove(true);
 				g_NetworkHelper.SendMovePacket(DIRECTION::LEFT);
 			}
 		}
@@ -372,6 +490,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 				}
 				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection | DIRECTION::BACK);
 				g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_iLookDirectoin |= DIRECTION::BACK;
+				g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetMove(true);
 				g_NetworkHelper.SendMovePacket(DIRECTION::BACK);
 			}
 		}
@@ -425,6 +544,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 				}
 				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection | DIRECTION::RIGHT);
 				g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_iLookDirectoin |= DIRECTION::RIGHT;
+				g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetMove(true);
 				g_NetworkHelper.SendMovePacket(DIRECTION::RIGHT);
 			}
 		}
@@ -477,6 +597,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 					g_Logic.m_inGamePlayerSession[0].m_prevDirection = DIRECTION::FRONT;
 					g_Logic.m_inGamePlayerSession[0].m_currentDirection = DIRECTION::IDLE;
 					g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_iLookDirectoin = DIRECTION::IDLE;
+<<<<<<< HEAD
 					std::cout << "GameobjectManager::onProcessingKeyboardMessage() - stop move m_prevDirection: ";
 					std::cout << (int)g_Logic.m_inGamePlayerSession[0].m_prevDirection << " ";
 					if (!g_Logic.m_inGamePlayerSession[0].m_prevDirection & DIRECTION::IDLE)
@@ -491,6 +612,10 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 						std::cout << "BACK ";
 					std::cout << std::endl;
 					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition(), g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate				
+=======
+					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition(), g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate	
+					g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetMove(false);
+>>>>>>> origin/dev/client/animation
 				}
 				else {
 					switch (g_Logic.m_inGamePlayerSession[0].m_currentDirection)
@@ -541,6 +666,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 						std::cout << "BACK ";
 					std::cout << std::endl;
 					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition(), g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate
+					g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetMove(false);
 				}
 				else {
 					switch (g_Logic.m_inGamePlayerSession[0].m_currentDirection)
@@ -577,6 +703,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 					g_Logic.m_inGamePlayerSession[0].m_prevDirection = DIRECTION::BACK;
 					//g_Logic.m_inGamePlayerSession[0].m_currentDirection = DIRECTION::IDLE;
 					g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_iLookDirectoin = DIRECTION::IDLE;
+<<<<<<< HEAD
 					std::cout << "GameobjectManager::onProcessingKeyboardMessage() - stop move m_prevDirection: ";
 					std::cout << (int)g_Logic.m_inGamePlayerSession[0].m_prevDirection << " ";
 					if (!g_Logic.m_inGamePlayerSession[0].m_prevDirection & DIRECTION::IDLE)
@@ -591,6 +718,10 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 						std::cout << "BACK ";
 					std::cout << std::endl;
 					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition(), g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate			
+=======
+					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition(), g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate		
+					g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetMove(false);
+>>>>>>> origin/dev/client/animation
 				}
 				else {
 					switch (g_Logic.m_inGamePlayerSession[0].m_currentDirection)
@@ -641,6 +772,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 						std::cout << "BACK ";
 					std::cout << std::endl;
 					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition(), g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate
+					g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetMove(false);
 				}
 				else {
 					switch (g_Logic.m_inGamePlayerSession[0].m_currentDirection)
@@ -700,13 +832,36 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 	{
 	case WM_LBUTTONDOWN:
 	{
-		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetAttackAnimation(true);
+		if (g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->GetMove())
+		{
+			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetAnimationBlending(true);
+			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetAction(true);
+			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->m_nUpperBodyAnimation = CharacterAnimation::CA_ATTACK;
+		}
+		else
+		{
+			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetAction(true);
+			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetAllTrackdisable();
+			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetTrackEnable(CharacterAnimation::CA_ATTACK, true);
+		}
 		break;
 	}
 	case WM_LBUTTONUP:
 	{
 		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetAnimationBlending(false);
-		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetAttackAnimation(false);
+		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetAction(false);
+		break;
+	}
+	case WM_RBUTTONDOWN:
+	{
+		//m_pPlayerObject->SetRButtonClicked(true);
+		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetRButtonClicked(true);
+		break;
+	}
+	case WM_RBUTTONUP:
+	{
+		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetRButtonClicked(false);
+		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->RbuttonUp();
 		break;
 	}
 	default:
@@ -720,7 +875,11 @@ void GameobjectManager::SetPlayCharacter(Session* pSession) // 임시 함수
 	//4명
 	Session* cliSession = reinterpret_cast<Session*>(pSession);
 	if (0 == cliSession->m_id) {
+<<<<<<< HEAD
 		cliSession->SetGameObject(m_pTankerObject);
+=======
+		cliSession->SetGameObject(m_pPlayerObject);
+>>>>>>> origin/dev/client/animation
 	}
 	else if (1 == cliSession->m_id) {
 		cliSession->SetGameObject(m_pWarriorObject);

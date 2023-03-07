@@ -207,7 +207,9 @@ enum CharacterAnimation
 	CA_IDLE = 0,
 	CA_MOVE,
 	CA_ATTACK,
-	CA_DASH
+	CA_DEFENCE,
+	CA_MOVEL,
+	CA_MOVER,
 };
 
 enum Message {
