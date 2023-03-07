@@ -220,17 +220,30 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		m_pCubeComponent->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, 10, 10, 10);
 		m_pMeshComponent = m_pCubeComponent;
 	}
-	ComponentBase* pMeshComponent = GetComponent(component_id::SKYBOXMESH_COMPONENT);
-	if (pMeshComponent != NULL)
+	ComponentBase* pSkyMeshComponent = GetComponent(component_id::SKYBOXMESH_COMPONENT);
+	if (pSkyMeshComponent != NULL)
 	{
-		m_pSkyboxComponent = static_cast<SkyBoxMeshComponent*>(pMeshComponent);
+		m_pSkyboxComponent = static_cast<SkyBoxMeshComponent*>(pSkyMeshComponent);
 		m_pSkyboxComponent->BuildObject(pd3dDevice, pd3dCommandList, 200.0f, 200.0f, 200.0f);
 		m_pMeshComponent = m_pSkyboxComponent;
 	}
+	ComponentBase* pUIMeshComponent = GetComponent(component_id::UIMESH_COMPONENT);
+	if (pUIMeshComponent != NULL)
+	{
+		m_pUiComponent = static_cast<UIMeshComponent*>(pUIMeshComponent);
+		m_pUiComponent->BuildObject(pd3dDevice, pd3dCommandList, 1.0f, 1.0f, 2.0f, 2.0f);
+		m_pMeshComponent = m_pUiComponent;
+	}
+
 	//->메테리얼 생성 텍스쳐와 쉐이더를 넣어야되는데 쉐이더이므로 안 넣어도 됨
 	ComponentBase* pShaderComponent = GetComponent(component_id::SHADER_COMPONENT);
 	ComponentBase* pSkyShaderComponent = GetComponent(component_id::SKYSHADER_COMPONENT);
+<<<<<<< HEAD
 	if (pShaderComponent != NULL || pSkyShaderComponent != NULL)
+=======
+	ComponentBase* pUiShaderComponent = GetComponent(component_id::UISHADER_COMPONENT);
+	if (pShaderComponent != NULL|| pSkyShaderComponent!=NULL|| pUiShaderComponent!=NULL)
+>>>>>>> origin/dev/client/framework
 	{
 		if (pShaderComponent != NULL)
 		{
@@ -238,6 +251,10 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		}
 		else if (pSkyShaderComponent != NULL) {
 			m_pShaderComponent = static_cast<SkyBoxShaderComponent*>(pSkyShaderComponent);
+		}
+		else if (pUiShaderComponent != NULL) {
+			m_pShaderComponent = static_cast<UiShaderComponent*>(pUiShaderComponent);
+
 		}
 		m_pShaderComponent->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
 		m_pShaderComponent->CreateCbvSrvDescriptorHeaps(pd3dDevice, 2, 2);
@@ -256,6 +273,7 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		SetChild(m_pLoadedModelComponent->m_pModelRootObject, true);
 
 		if (m_nAnimationSets != 0)
+<<<<<<< HEAD
 			m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, m_nAnimationSets, m_pLoadedModelComponent);
 	}
 	ComponentBase* pDepthShaderComponent = GetComponent(component_id::DEPTHSHADER_COMPONENT);
@@ -273,10 +291,15 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		m_pShadowMapShaderComponent->BuildShadow(NULL);
 		m_pShadowMapShaderComponent->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
 		m_pShadowMapShaderComponent->BuildObjects(pd3dDevice, pd3dCommandList, m_pDepthShaderComponent->GetDepthTexture());
+=======
+		{
+			m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, m_nAnimationSets, m_pLoadedModelComponent);
+		}
+>>>>>>> origin/dev/client/framework
 	}
 }
 
-void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender)
 {
 	//UpdateTransform(&m_xmf4x4ToParent);
 	if (m_pSkinnedAnimationController)
@@ -284,7 +307,7 @@ void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3
 
 	if (m_pShaderComponent != NULL)
 	{
-		m_pShaderComponent->Render(pd3dCommandList, 0, pd3dGraphicsRootSignature);
+		m_pShaderComponent->Render(pd3dCommandList, 0, pd3dGraphicsRootSignature, bPrerender);
 		m_pShaderComponent->UpdateShaderVariables(pd3dCommandList, &m_xmf4x4World, NULL);
 		pd3dCommandList->SetGraphicsRootDescriptorTable(0, m_pShaderComponent->GetCbvGPUDescriptorHandle());
 		if (m_pTextureComponent != NULL)
@@ -294,7 +317,7 @@ void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3
 	}
 	if (m_pDepthShaderComponent != NULL)
 	{
-		m_pDepthShaderComponent->UpdateShaderVariables(pd3dCommandList);
+	//	m_pDepthShaderComponent->UpdateShaderVariables(pd3dCommandList);
 	}
 	if (m_pShadowMapShaderComponent)
 	{
@@ -313,20 +336,47 @@ void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3
 			{
 				if (m_ppMaterialsComponent[i]->m_pShader)
 				{
-					m_ppMaterialsComponent[i]->m_pShader->Render(pd3dCommandList, 0, pd3dGraphicsRootSignature);
+					m_ppMaterialsComponent[i]->m_pShader->Render(pd3dCommandList, 0, pd3dGraphicsRootSignature, bPrerender);
 					pd3dCommandList->SetGraphicsRootDescriptorTable(0, m_ppMaterialsComponent[i]->m_pShader->GetCbvGPUDescriptorHandle());
 					m_ppMaterialsComponent[i]->m_pShader->UpdateShaderVariables(pd3dCommandList, &m_xmf4x4World, m_ppMaterialsComponent[i]);
 					//m_ppMaterialsComponent[i]->UpdateShaderVariable(pd3dCommandList);
-
 				}
-
-
 			}
 			m_pRenderComponent->Render(pd3dCommandList, m_pMeshComponent, i);
 		}
 	}
-	if (m_pSibling) m_pSibling->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	if (m_pChild) m_pChild->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	if (m_pSibling) m_pSibling->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
+	if (m_pChild) m_pChild->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
+}
+
+void GameObject::ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent)
+{
+	
+	//if (m_pSkinnedAnimationController)
+	//	m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
+
+
+	//if (m_nMaterials > 0)
+	//{
+	//	for (int i = 0; i < m_nMaterials; i++)
+	//	{
+	//		if (m_ppMaterialsComponent[i])
+	//		{
+	//			if (m_ppMaterialsComponent[i]->m_pShader)
+	//			{
+	//				if(m_ppMaterialsComponent[i]->m_isAnimationShader)
+	//				m_ppMaterialsComponent[i]->m_pShader->Render(pd3dCommandList, 0, pd3dGraphicsRootSignature, bPrerender);
+	//				pd3dCommandList->SetGraphicsRootDescriptorTable(0, m_ppMaterialsComponent[i]->m_pShader->GetCbvGPUDescriptorHandle());
+	//				m_ppMaterialsComponent[i]->m_pShader->UpdateShaderVariables(pd3dCommandList, &m_xmf4x4World, m_ppMaterialsComponent[i]);
+	//				//m_ppMaterialsComponent[i]->UpdateShaderVariable(pd3dCommandList);
+	//			}
+	//		}
+	//		m_pRenderComponent->Render(pd3dCommandList, m_pMeshComponent, i);
+	//	}
+	//}
+	//if (m_pSibling) m_pSibling->ShadowRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
+	//if (m_pChild) m_pChild->ShadowRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
+
 }
 
 void GameObject::Animate(float fTimeElapsed)
@@ -738,6 +788,41 @@ GameObject* GameObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice, ID3
 		}
 	}
 	return(pGameObject);
+}
+
+void GameObject::GenerateRayForPicking(XMFLOAT3& xmf3PickPosition, XMFLOAT4X4* pxmf4x4World, XMFLOAT4X4& xmf4x4View, XMFLOAT3* pxmf3PickRayOrigin, XMFLOAT3* pxmf3PickRayDirection)
+{
+	XMFLOAT4X4 xmf4x4WorldView = (pxmf4x4World) ? Matrix4x4::Multiply(*pxmf4x4World, xmf4x4View) : xmf4x4View;
+	XMFLOAT4X4 xmf4x4Inverse = Matrix4x4::Inverse(xmf4x4WorldView);
+
+#ifdef _WITH_RAY_BY_TRANSFORM
+	XMFLOAT3 xmf3CameraOrigin(0.0f, 0.0f, 0.0f);
+	*pxmf3PickRayOrigin = Vector3::TransformCoord(xmf3CameraOrigin, xmf4x4Inverse);
+	*pxmf3PickRayDirection = Vector3::TransformCoord(xmf3PickPosition, xmf4x4Inverse);
+	*pxmf3PickRayDirection = Vector3::Normalize(Vector3::Subtract(*pxmf3PickRayDirection, *pxmf3PickRayOrigin));
+#else
+	pxmf3PickRayDirection->x = xmf3PickPosition.x * xmf4x4Inverse._11 + xmf3PickPosition.y * xmf4x4Inverse._21 + xmf3PickPosition.z * xmf4x4Inverse._31;
+	pxmf3PickRayDirection->y = xmf3PickPosition.x * xmf4x4Inverse._12 + xmf3PickPosition.y * xmf4x4Inverse._22 + xmf3PickPosition.z * xmf4x4Inverse._32;
+	pxmf3PickRayDirection->z = xmf3PickPosition.x * xmf4x4Inverse._13 + xmf3PickPosition.y * xmf4x4Inverse._23 + xmf3PickPosition.z * xmf4x4Inverse._33;
+	pxmf3PickRayOrigin->x = xmf4x4Inverse._41;
+	pxmf3PickRayOrigin->y = xmf4x4Inverse._42;
+	pxmf3PickRayOrigin->z = xmf4x4Inverse._43;
+	*pxmf3PickRayDirection = Vector3::Normalize(*pxmf3PickRayDirection);
+#endif
+
+}
+
+int GameObject::PickObjectByRayIntersection(XMFLOAT3& xmf3PickPosition, XMFLOAT4X4& xmf4x4View, float* pfHitDistance)
+{
+	int nIntersected = 0;
+	if (m_pMeshComponent)
+	{
+		XMFLOAT3 xmf3PickRayOrigin, xmf3PickRayDirection;
+		GenerateRayForPicking(xmf3PickPosition, &m_xmf4x4World, xmf4x4View, &xmf3PickRayOrigin, &xmf3PickRayDirection);
+
+		/*nIntersected = m_pMeshComponent->CheckRayIntersection(xmf3PickRayOrigin, xmf3PickRayDirection, pfHitDistance);*/
+	}
+	return(nIntersected);
 }
 
 

@@ -23,6 +23,7 @@ cbuffer cbGameObjectInfo : register(b0)
     matrix gmtxGameObject : packoffset(c0);
     MATERIAL gMaterial : packoffset(c4);
     uint gnTexturesMask : packoffset(c8);
+    bool bAnimationShader : packoffset(c8.y);
 };
 
 cbuffer cbCameraInfo : register(b1)
@@ -57,36 +58,18 @@ Texture2D gtxtDetailNormalTexture : register(t12);
 SamplerState gWrapSamplerState : register(s0);
 SamplerState gClampSamplerState : register(s1);
 
-//float CalcShadowFactor(float4 shadowPosH)
-//{
-//	// Complete projection by doing division by w.
-//    shadowPosH.xyz /= shadowPosH.w;
+#include"Light.hlsl"
 
-//	// Depth in NDC space.
-//    float depth = shadowPosH.z;
+struct CB_TOOBJECTSPACE
+{
+    matrix mtxToTexture;
+    float4 f4Position;
+};
 
-//    uint width, height, numMips;
-//    ShadowMap.GetDimensions(0, width, height, numMips);
-
-//	// Texel size.
-//    float dx = 1.0f / (float) width;
-
-//    float percentLit = 0.0f;
-//    const float2 offsets[9] =
-//    {
-//        float2(-dx, -dx), float2(0.0f, -dx), float2(dx, -dx),
-//		float2(-dx, 0.0f), float2(0.0f, 0.0f), float2(dx, 0.0f),
-//		float2(-dx, +dx), float2(0.0f, +dx), float2(dx, +dx)
-//    };
-
-//    for (int i = 0; i < 9; ++i)
-//    {
-//        percentLit += ShadowMap.SampleCmpLevelZero(gClampSamplerState, shadowPosH.xy, depth).r;
-//    }
-
-//    return percentLit / 9.0f;
-//}
-
+cbuffer cbToLightSpace : register(b3)
+{
+    CB_TOOBJECTSPACE gcbToLightSpaces[MAX_LIGHTS];
+};
 
 struct VS_INPUT
 {
@@ -106,7 +89,7 @@ struct VS_OUTPUT
 #endif
 
 };
-#include"Light.hlsl"
+
 VS_OUTPUT VSDiffused(VS_INPUT input)
 {
     VS_OUTPUT output;
@@ -124,6 +107,8 @@ VS_OUTPUT VSDiffused(VS_INPUT input)
 
     return (output);
 }
+
+
 
 float4 PSDiffused(VS_OUTPUT input) : SV_TARGET
 {
@@ -143,6 +128,39 @@ float4 PSDiffused(VS_OUTPUT input) : SV_TARGET
 
 }
 
+struct VS_TEXTURED_INPUT
+{
+    float3 position : POSITION;
+    float2 uv : TEXCOORD;
+};
+
+struct VS_TEXTURED_OUTPUT
+{
+    float4 position : SV_POSITION;
+    float2 uv : TEXCOORD;
+};
+
+VS_TEXTURED_OUTPUT VSUITextured(VS_TEXTURED_INPUT input)
+{
+    VS_TEXTURED_OUTPUT output;
+
+    output.position = mul(mul(float4(input.position, 1.0f), gmtxGameObject),gmtxProjection);
+    output.uv = input.uv;
+    return (output);
+}
+
+float4 PSUITextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
+{
+    float4 cColor = shaderTexture.Sample(gWrapSamplerState, input.uv);
+   // if (cColor.x > 0.99)
+   // {
+		 //cColor.a = 0;
+   // }
+    //cColor.a = Alpha;
+	
+    return (cColor);
+}
+
 struct VS_STANDARD_INPUT
 {
     float3 position : POSITION;
@@ -160,19 +178,29 @@ struct VS_STANDARD_OUTPUT
     float3 tangentW : TANGENT;
     float3 bitangentW : BITANGENT;
     float2 uv : TEXCOORD;
+	
+    float4 uvs[MAX_LIGHTS] : TEXCOORD1;
 };
 
 VS_STANDARD_OUTPUT VSStandard(VS_STANDARD_INPUT input)
 {
     VS_STANDARD_OUTPUT output;
 
-    output.positionW = mul(float4(input.position, 1.0f), gmtxGameObject).xyz;
+    float4 positionW = mul(float4(input.position, 1.0f), gmtxGameObject);
+    output.positionW = positionW.xyz;
     output.normalW = mul(input.normal, (float3x3) gmtxGameObject);
     output.tangentW = mul(input.tangent, (float3x3) gmtxGameObject);
     output.bitangentW = mul(input.bitangent, (float3x3) gmtxGameObject);
     output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
     output.uv = input.uv;
 
+    for (int i = 0; i < MAX_LIGHTS; i++)
+    {
+		//0Àº Á¶¸í²û, Á¶¸í ÁÂÇ¥°è·Î ¹Ù²Ù°í ÅØ½ºÃÄ ÁÂÇ¥°è·Î ¹Ù²Þ
+        if (gcbToLightSpaces[i].f4Position.w != 0.0f)
+            output.uvs[i] = mul(positionW, gcbToLightSpaces[i].mtxToTexture);
+    }
+	
     return (output);
 }
 
@@ -207,9 +235,10 @@ float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
     {
         normalW = normalize(input.normalW);
     }
-    float4 cIllumination = Lighting(input.positionW, normalW);
-    // return(lerp(cColor, cIllumination, 0.5f));
-    return(cColor);
+    float4 uvs[MAX_LIGHTS];
+    float4 cIllumination = Lighting(input.positionW, normalW, false, uvs);
+     return(lerp(cColor, cIllumination, 0.5f));
+    //return (cIllumination);
 }
 
 
@@ -228,20 +257,27 @@ VS_STANDARD_OUTPUT VSSkinnedAnimationStandard(VS_SKINNED_STANDARD_INPUT input)
 {
     VS_STANDARD_OUTPUT output;
 
-    float4x4 mtxVertexToBoneWorld = (float4x4)0.0f;
+    float4x4 mtxVertexToBoneWorld = (float4x4) 0.0f;
     for (int i = 0; i < MAX_VERTEX_INFLUENCES; i++)
     {
         mtxVertexToBoneWorld += input.weights[i] * mul(gpmtxBoneOffsets[input.indices[i]], gpmtxBoneTransforms[input.indices[i]]);
     }
-    output.positionW = mul(float4(input.position, 1.0f), mtxVertexToBoneWorld).xyz;
-    output.normalW = mul(input.normal, (float3x3)mtxVertexToBoneWorld).xyz;
-    output.tangentW = mul(input.tangent, (float3x3)mtxVertexToBoneWorld).xyz;
-    output.bitangentW = mul(input.bitangent, (float3x3)mtxVertexToBoneWorld).xyz;
-
+    float4 positionW = mul(float4(input.position, 1.0f), mtxVertexToBoneWorld);
+    output.positionW = positionW.xyz;
+    output.normalW = mul(input.normal, (float3x3) mtxVertexToBoneWorld).xyz;
+    output.tangentW = mul(input.tangent, (float3x3) mtxVertexToBoneWorld).xyz;
+    output.bitangentW = mul(input.bitangent, (float3x3) mtxVertexToBoneWorld).xyz;
     output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
     output.uv = input.uv;
 
-    return(output);
+    for (int j = 0; j < MAX_LIGHTS; j++)
+    {
+		//0Àº Á¶¸í²û, Á¶¸í ÁÂÇ¥°è·Î ¹Ù²Ù°í ÅØ½ºÃÄ ÁÂÇ¥°è·Î ¹Ù²Þ
+        if (gcbToLightSpaces[j].f4Position.w != 0.0f)
+            output.uvs[j] = mul(positionW, gcbToLightSpaces[j].mtxToTexture);
+    }
+	
+    return (output);
 }
 
 struct VS_SKYBOX_CUBEMAP_INPUT
@@ -273,3 +309,202 @@ float4 PSSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
 
     return (cColor);
 }
+//////////////////////////////////////////////////////////////////////////shadow
+
+
+
+struct VS_LIGHTING_INPUT
+{
+    float3 position : POSITION;
+    float2 uv : TEXCOORD;
+    float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+    float3 bitangent : BITANGENT;
+    int4 indices : BONEINDEX;
+    float4 weights : BONEWEIGHT;
+    
+};
+
+struct VS_LIGHTING_OUTPUT
+{
+    float4 position : SV_POSITION;
+    float3 positionW : POSITION;
+    float3 normalW : NORMAL;
+    float3 tangentW : TANGENT;
+    float3 bitangentW : BITANGENT;
+    float2 uv : TEXCOORD;
+    
+};
+
+VS_LIGHTING_OUTPUT VSLighting(VS_LIGHTING_INPUT input)
+{
+    VS_LIGHTING_OUTPUT output;
+    if (!bAnimationShader)
+    {
+        output.normalW = mul(input.normal, (float3x3) gmtxGameObject);
+        output.positionW = (float3) mul(float4(input.position, 1.0f), gmtxGameObject);
+        output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
+        output.uv = input.uv;
+        output.tangentW = mul(input.tangent, (float3x3) gmtxGameObject);
+        output.bitangentW = mul(input.bitangent, (float3x3) gmtxGameObject);
+    }
+    else if (bAnimationShader)
+    {
+        float4x4 mtxVertexToBoneWorld = (float4x4) 0.0f;
+        for (int i = 0; i < MAX_VERTEX_INFLUENCES; i++)
+        {
+            mtxVertexToBoneWorld += input.weights[i] * mul(gpmtxBoneOffsets[input.indices[i]], gpmtxBoneTransforms[input.indices[i]]);
+        }
+        float4 positionW = mul(float4(input.position, 1.0f), mtxVertexToBoneWorld);
+        output.positionW = positionW.xyz;
+        output.normalW = mul(input.normal, (float3x3) mtxVertexToBoneWorld).xyz;
+        output.tangentW = mul(input.tangent, (float3x3) mtxVertexToBoneWorld).xyz;
+        output.bitangentW = mul(input.bitangent, (float3x3) mtxVertexToBoneWorld).xyz;
+        output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
+        output.uv = input.uv;
+    }
+    
+    
+    return (output);
+}
+
+
+
+struct PS_DEPTH_OUTPUT
+{
+    float fzPosition : SV_Target;
+    float fDepth : SV_Depth;
+};
+
+//±íÀÌ¸¦ ÀúÀåÇÏ´Â PS
+PS_DEPTH_OUTPUT PSDepthWriteShader(VS_LIGHTING_OUTPUT input)
+{
+    PS_DEPTH_OUTPUT output;
+
+	//¿øÅõ ³ª´©±â ÇÑ ÁÂÇ¥-±íÀÌ
+    output.fzPosition = input.position.z;
+    output.fDepth = input.position.z;
+
+    return (output);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+struct VS_SHADOW_MAP_OUTPUT
+{
+    float4 position : SV_POSITION;
+    float3 positionW : POSITION;
+    float3 normalW : NORMAL;
+
+    float2 uv : TEXCOORD;
+    float3 tangentW : TANGENT;
+    float3 bitangentW : BITANGENT;
+    float4 uvs[MAX_LIGHTS] : TEXCOORD1;
+    
+};
+
+VS_SHADOW_MAP_OUTPUT VSShadowMapShadow(VS_LIGHTING_INPUT input)
+{
+    VS_SHADOW_MAP_OUTPUT output = (VS_SHADOW_MAP_OUTPUT) 0;
+    float4 positionW = (float4) 0.0f;
+    if (!bAnimationShader)
+    {
+        positionW = mul(float4(input.position, 1.0f), gmtxGameObject);
+        output.positionW = positionW.xyz;
+        output.position = mul(mul(positionW, gmtxView), gmtxProjection);
+        output.normalW = mul(float4(input.normal, 0.0f), gmtxGameObject).xyz;
+        output.uv = input.uv;
+        output.tangentW = mul(input.tangent, (float3x3) gmtxGameObject);
+        output.bitangentW = mul(input.bitangent, (float3x3) gmtxGameObject);
+    }
+    else if (bAnimationShader)
+    {
+        float4x4 mtxVertexToBoneWorld = (float4x4) 0.0f;
+        for (int i = 0; i < MAX_VERTEX_INFLUENCES; i++)
+        {
+            mtxVertexToBoneWorld += input.weights[i] * mul(gpmtxBoneOffsets[input.indices[i]], gpmtxBoneTransforms[input.indices[i]]);
+        }
+        positionW = mul(float4(input.position, 1.0f), mtxVertexToBoneWorld);
+        output.positionW = positionW.xyz;
+        output.normalW = mul(input.normal, (float3x3) mtxVertexToBoneWorld).xyz;
+        output.tangentW = mul(input.tangent, (float3x3) mtxVertexToBoneWorld).xyz;
+        output.bitangentW = mul(input.bitangent, (float3x3) mtxVertexToBoneWorld).xyz;
+        output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
+        output.uv = input.uv;
+    }  
+    for (int i = 0; i < MAX_LIGHTS; i++)
+    {
+		//0Àº Á¶¸í²û, Á¶¸í ÁÂÇ¥°è·Î ¹Ù²Ù°í ÅØ½ºÃÄ ÁÂÇ¥°è·Î ¹Ù²Þ
+        if (gcbToLightSpaces[i].f4Position.w != 0.0f)
+            output.uvs[i] = mul(positionW, gcbToLightSpaces[i].mtxToTexture);
+    }
+    return (output);
+}
+
+float4 PSShadowMapShadow(VS_SHADOW_MAP_OUTPUT input) : SV_TARGET
+{
+    float4 cAlbedoColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    if (gnTexturesMask & MATERIAL_ALBEDO_MAP) 
+        cAlbedoColor = gtxtAlbedoTexture.Sample(gWrapSamplerState, /*float2(0.5f, 0.5f) */input.uv);
+    else
+        cAlbedoColor = gMaterial.m_cDiffuse;
+    
+	//±×¸²ÀÚ¸é ¾îµÓ°í ¾Æ´Ï¸é ¿ø·¡ Á¶¸í »ö
+    float4 cIllumination = Lighting(input.positionW, normalize(input.normalW), true, input.uvs);
+
+    //return (cIllumination);
+    float4 cColor = cAlbedoColor;
+    return (lerp(cColor, cIllumination, 0.4f));
+    
+}
+///////////////////////////////////////////////////////////////////////////////
+//
+
+VS_TEXTURED_OUTPUT VSTextureToViewport(uint nVertexID : SV_VertexID)
+{
+    VS_TEXTURED_OUTPUT output = (VS_TEXTURED_OUTPUT) 0;
+
+    if (nVertexID == 0)
+    {
+        output.position = float4(-1.0f, +1.0f, 0.0f, 1.0f);
+        output.uv = float2(0.0f, 0.0f);
+    }
+    if (nVertexID == 1)
+    {
+        output.position = float4(+1.0f, +1.0f, 0.0f, 1.0f);
+        output.uv = float2(1.0f, 0.0f);
+    }
+    if (nVertexID == 2)
+    {
+        output.position = float4(+1.0f, -1.0f, 0.0f, 1.0f);
+        output.uv = float2(1.0f, 1.0f);
+    }
+    if (nVertexID == 3)
+    {
+        output.position = float4(-1.0f, +1.0f, 0.0f, 1.0f);
+        output.uv = float2(0.0f, 0.0f);
+    }
+    if (nVertexID == 4)
+    {
+        output.position = float4(+1.0f, -1.0f, 0.0f, 1.0f);
+        output.uv = float2(1.0f, 1.0f);
+    }
+    if (nVertexID == 5)
+    {
+        output.position = float4(-1.0f, -1.0f, 0.0f, 1.0f);
+        output.uv = float2(0.0f, 1.0f);
+    }
+    return (output);
+}
+
+//SamplerState gssBorder : register(s3);
+
+float4 PSTextureToViewport(VS_TEXTURED_OUTPUT input) : SV_Target
+{
+    float fDepthFromLight0 = gtxtDepthTextures[0].SampleLevel(gWrapSamplerState /*gssBorder*/, input.uv, 0).r;
+
+    return ((float4) (fDepthFromLight0 * 0.8f));
+}
+
+
+

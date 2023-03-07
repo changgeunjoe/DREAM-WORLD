@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "DepthRenderShaderComponent.h"
 #include "Camera.h"
+#include"GameObject.h"
 
 DepthRenderShaderComponent::DepthRenderShaderComponent()
 {
@@ -52,9 +53,14 @@ D3D12_RASTERIZER_DESC DepthRenderShaderComponent::CreateRasterizerState(int nPip
 
 	return(d3dRasterizerDesc);
 }
+D3D12_SHADER_BYTECODE DepthRenderShaderComponent::CreateVertexShader(int nPipelineState)
+{
+	if (nPipelineState == 0)
+		return (ShaderComponent::CompileShaderFromFile(L"Shaders.hlsl", "VSLighting", "vs_5_1", &m_pd3dVertexShaderBlob));
+}
 D3D12_SHADER_BYTECODE DepthRenderShaderComponent::CreatePixelShader(int nPipelineState)
 {
-	return(ShaderComponent::CompileShaderFromFile(L"Shadow.hlsl", "PSDepthWriteShader", "ps_5_1", &m_pd3dPixelShaderBlob));
+	return(ShaderComponent::CompileShaderFromFile(L"Shaders.hlsl", "PSDepthWriteShader", "ps_5_1", &m_pd3dPixelShaderBlob));
 }
 
 void DepthRenderShaderComponent::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
@@ -74,6 +80,26 @@ void DepthRenderShaderComponent::UpdateShaderVariables(ID3D12GraphicsCommandList
 	pd3dCommandList->SetGraphicsRootConstantBufferView(RP_TO_LIGHT, d3dcbToLightGpuVirtualAddress); //ToLight
 }
 
+D3D12_INPUT_LAYOUT_DESC DepthRenderShaderComponent::CreateInputLayout(int nPipelineState)
+{
+	UINT nInputElementDescs = 7;
+	D3D12_INPUT_ELEMENT_DESC* pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
+
+	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[1] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 1, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[2] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 2, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[3] = { "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 3, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[4] = { "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 4, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[5] = { "BONEINDEX", 0, DXGI_FORMAT_R32G32B32A32_SINT, 5, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[6] = { "BONEWEIGHT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 6, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+
+	D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
+	d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
+	d3dInputLayoutDesc.NumElements = nInputElementDescs;
+
+	return(d3dInputLayoutDesc);
+}
+
 void DepthRenderShaderComponent::ReleaseShaderVariables()
 {
 	if (m_pd3dcbToLightSpaces)
@@ -83,8 +109,16 @@ void DepthRenderShaderComponent::ReleaseShaderVariables()
 	}
 }
 
-void DepthRenderShaderComponent::BuildDepth(StandardShaderComponent* pObjectsShader, LIGHT* pLights)
+void DepthRenderShaderComponent::BuildDepth(vector<GameObject*> &pObjects, LIGHT* pLights)
 {
+
+	m_ppObjects = pObjects;
+
+	m_pLights = pLights;
+	m_pToLightSpaces = new TOLIGHTSPACES;
+
+	XMFLOAT4X4 xmf4x4ToTexture = { 0.5f, 0.0f, 0.0f, 0.0f, 0.0f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.5f, 0.5f, 0.0f, 1.0f };
+	m_xmProjectionToTexture = XMLoadFloat4x4(&xmf4x4ToTexture);
 }
 
 void DepthRenderShaderComponent::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, void* pContext)
@@ -110,8 +144,10 @@ void DepthRenderShaderComponent::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 	//깊이값만 써서 r32,
 	D3D12_CLEAR_VALUE d3dClearValue = { DXGI_FORMAT_R32_FLOAT, { 1.0f, 1.0f, 1.0f, 1.0f } };
 	//화면 해상도와 같이
-	for (UINT i = 0; i < MAX_DEPTH_TEXTURES; i++) m_pDepthTexture->CreateTexture(pd3dDevice, pd3dCommandList, _DEPTH_BUFFER_WIDTH, _DEPTH_BUFFER_HEIGHT, DXGI_FORMAT_R32_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON, &d3dClearValue, RESOURCE_TEXTURE2D, i);
-
+	for (UINT i = 0; i < MAX_DEPTH_TEXTURES; i++) {
+		m_pDepthTexture->CreateTexture(pd3dDevice, pd3dCommandList, _DEPTH_BUFFER_WIDTH, _DEPTH_BUFFER_HEIGHT, 
+DXGI_FORMAT_R32_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON, &d3dClearValue, RESOURCE_TEXTURE2D, i);
+	}
 	D3D12_RENDER_TARGET_VIEW_DESC d3dRenderTargetViewDesc;
 	d3dRenderTargetViewDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 	d3dRenderTargetViewDesc.Texture2D.MipSlice = 0;
@@ -200,7 +236,7 @@ void DepthRenderShaderComponent::ReleaseObjects()
 	if (m_pd3dDsvDescriptorHeap) m_pd3dDsvDescriptorHeap->Release();
 }
 
-void DepthRenderShaderComponent::PrepareShadowMap(ID3D12GraphicsCommandList* pd3dCommandList)
+void DepthRenderShaderComponent::PrepareShadowMap(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	//각 조명에서 쉐도우맵 만드는 역할, 조명의 위치가 바뀌면 계속 해줘야함
 	for (int j = 0; j < MAX_LIGHTS; j++)
@@ -255,7 +291,7 @@ void DepthRenderShaderComponent::PrepareShadowMap(ID3D12GraphicsCommandList* pd3
 			pd3dCommandList->OMSetRenderTargets(1, &m_pd3dRtvCPUDescriptorHandles[j], TRUE, &m_d3dDsvDescriptorCPUHandle);
 
 			//조명의 위치에서 씬을 렌더
-			Render(pd3dCommandList, m_ppDepthRenderCameras[j], /*nPipelineState*/0);
+			Render( pd3dDevice, pd3dCommandList, m_ppDepthRenderCameras[j], /*nPipelineState*/0);
 
 			::SynchronizeResourceTransition(pd3dCommandList, m_pDepthTexture->GetTexture(j), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
 		}
@@ -266,22 +302,21 @@ void DepthRenderShaderComponent::PrepareShadowMap(ID3D12GraphicsCommandList* pd3
 	}
 }
 
-void DepthRenderShaderComponent::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, ID3D12RootSignature* pd3dGraphicsRootSignature, int nPipelineState)
+void DepthRenderShaderComponent::Render(ID3D12Device* pd3dDevice,ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, ID3D12RootSignature* pd3dGraphicsRootSignature, int nPipelineState)
 {
-	ShaderComponent::Render(pd3dCommandList, nPipelineState, pd3dGraphicsRootSignature);
+	//if (m_pd3dCbvSrvDescriptorHeap) pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
+	ShaderComponent::Render(pd3dCommandList, nPipelineState, pd3dGraphicsRootSignature, false);
+	
 
 	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
 	pCamera->UpdateShaderVariables(pd3dCommandList);
 
 	//조명의 위치에서 오브젝트 깊이값 저장, 렌더타겟에 저장
-	//for (int i = 0; i < m_pObjectsShader->m_nObjects; i++)//중요
-	//{
-	//	if (m_pObjectsShader->m_ppObjects[i])
-	//	{
-	//		m_pObjectsShader->m_ppObjects[i]->UpdateShaderVariables(pd3dCommandList);
-	//		m_pObjectsShader->m_ppObjects[i]->Render(pd3dCommandList, pCamera);
-	//	}
-	//}
+	for (int i = 0; i < m_ppObjects.size();i++) {
+		
+		m_ppObjects[i]->Render(pd3dDevice,pd3dCommandList, pd3dGraphicsRootSignature,true);
+	}
+
 
 	//m_pPlayer->UpdateShaderVariable(pd3dCommandList, &m_pPlayer->m_xmf4x4World);
 	//m_pPlayer->Render(pd3dCommandList, pCamera);

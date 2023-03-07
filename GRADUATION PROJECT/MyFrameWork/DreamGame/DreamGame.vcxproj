@@ -149,6 +149,7 @@
     <ClInclude Include="Character.h" />
     <ClInclude Include="CLoadModelinfo.h" />
     <ClInclude Include="ComponentBase.h" />
+    <ClInclude Include="define.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Network\Logic\Logic.h" />
     <ClInclude Include="Network\NetworkHelper.h" />
@@ -172,7 +173,9 @@
     <ClInclude Include="ShaderComponent.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="TextureToViewportComponent.h" />
     <ClInclude Include="Timer.h" />
+    <ClInclude Include="UiShaderComponent.h" />
     <ClInclude Include="WICTextureLoader12.h" />
   </ItemGroup>
   <ItemGroup>
@@ -204,7 +207,9 @@
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="TextureToViewportComponent.cpp" />
     <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="UiShaderComponent.cpp" />
     <ClCompile Include="WICTextureLoader12.cpp" />
     <ClCompile Include="GameFramework.cpp" />
   </ItemGroup>
@@ -226,13 +231,16 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.1</ShaderModel>
     </FxCompile>
     <FxCompile Include="Shadow.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.1</ShaderModel>
     </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
