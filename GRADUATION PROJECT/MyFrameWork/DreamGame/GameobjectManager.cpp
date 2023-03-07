@@ -180,16 +180,6 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pMonsterObject->SetScale(30.0f);
 	m_ppGameObjects.emplace_back(m_pMonsterObject);
 
-	m_pPlaneObject = new GameObject(PlANE_ENTITY);
-	m_pPlaneObject->InsertComponent<RenderComponent>();
-	m_pPlaneObject->InsertComponent<CubeMeshComponent>();
-	m_pPlaneObject->InsertComponent<ShaderComponent>();
-	m_pPlaneObject->InsertComponent<TextureComponent>();
-	m_pPlaneObject->SetTexture(L"Image/Base_Texture.dds", RESOURCE_TEXTURE2D, 3);
-	m_pPlaneObject->SetPosition(XMFLOAT3(0, -10, 50));
-	m_pPlaneObject->SetScale(100, 0.1, 100);
-	m_pPlaneObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-
 	m_pSkyboxObject = new GameObject(SQUARE_ENTITY);
 	m_pSkyboxObject->InsertComponent<RenderComponent>();
 	m_pSkyboxObject->InsertComponent<SkyBoxMeshComponent>();
@@ -199,7 +189,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pSkyboxObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pSkyboxObject->SetScale(1, 1, 1);
 	m_pSkyboxObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-//	m_ppGameObjects.emplace_back(m_pSkyboxObject);
+
 
 	m_pUIGameSearchObject = new GameObject(UI_ENTITY);
 	m_pUIGameSearchObject->InsertComponent<RenderComponent>();

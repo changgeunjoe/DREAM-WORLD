@@ -302,6 +302,11 @@ void ShaderComponent::Render(ID3D12GraphicsCommandList* pd3dCommandList, int nPi
 	//UpdateShaderVariables(pd3dCommandList); //삭제예정
 }
 
+void ShaderComponent::SetPipelineState(ID3D12GraphicsCommandList* pd3dCommandList, int nPipelineState)
+{
+	if (m_ppd3dPipelineStates ) pd3dCommandList->SetPipelineState(m_ppd3dPipelineStates[nPipelineState]);
+}
+
 void ShaderComponent::ReleaseUploadBuffers()
 {
 }
