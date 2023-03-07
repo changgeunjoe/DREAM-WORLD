@@ -238,12 +238,8 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	//->메테리얼 생성 텍스쳐와 쉐이더를 넣어야되는데 쉐이더이므로 안 넣어도 됨
 	ComponentBase* pShaderComponent = GetComponent(component_id::SHADER_COMPONENT);
 	ComponentBase* pSkyShaderComponent = GetComponent(component_id::SKYSHADER_COMPONENT);
-<<<<<<< HEAD
-	if (pShaderComponent != NULL || pSkyShaderComponent != NULL)
-=======
 	ComponentBase* pUiShaderComponent = GetComponent(component_id::UISHADER_COMPONENT);
 	if (pShaderComponent != NULL|| pSkyShaderComponent!=NULL|| pUiShaderComponent!=NULL)
->>>>>>> origin/dev/client/framework
 	{
 		if (pShaderComponent != NULL)
 		{
@@ -273,29 +269,9 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		SetChild(m_pLoadedModelComponent->m_pModelRootObject, true);
 
 		if (m_nAnimationSets != 0)
-<<<<<<< HEAD
-			m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, m_nAnimationSets, m_pLoadedModelComponent);
-	}
-	ComponentBase* pDepthShaderComponent = GetComponent(component_id::DEPTHSHADER_COMPONENT);
-	if (pDepthShaderComponent != NULL)
-	{
-		m_pDepthShaderComponent = static_cast<DepthRenderShaderComponent*>(pDepthShaderComponent);
-		m_pDepthShaderComponent->BuildDepth(NULL, NULL);
-		m_pDepthShaderComponent->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
-		m_pDepthShaderComponent->BuildObjects(pd3dDevice, pd3dCommandList, NULL);
-	}
-	ComponentBase* pShadowShaderComponent = GetComponent(component_id::SHADOWSHADER_COMPONENT);
-	if (pShadowShaderComponent != NULL)
-	{
-		m_pShadowMapShaderComponent = static_cast<ShadowMapShaderComponent*>(pShadowShaderComponent);
-		m_pShadowMapShaderComponent->BuildShadow(NULL);
-		m_pShadowMapShaderComponent->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
-		m_pShadowMapShaderComponent->BuildObjects(pd3dDevice, pd3dCommandList, m_pDepthShaderComponent->GetDepthTexture());
-=======
 		{
 			m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, m_nAnimationSets, m_pLoadedModelComponent);
 		}
->>>>>>> origin/dev/client/framework
 	}
 }
 

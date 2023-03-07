@@ -21,7 +21,6 @@ public:
 	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void BuildLight();
-
 	virtual void BuildShadow(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void Build2DUI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void AnimateObjects();
@@ -38,8 +37,6 @@ private: //active object
 	int				m_nObjects{};
 	GameObject* m_pGameObject{ NULL };
 
-	GameObject*		m_pPlayerObject = NULL;
-
 	GameObject* m_pWarriorObject{ NULL };
 	GameObject* m_pArcherObject{ NULL };
 	GameObject* m_pTankerObject{ NULL }; // ∂À≈ ≈© √¢±Ÿ¿Ã
@@ -53,6 +50,8 @@ private: //active object
 	GameObject* m_pMonsterObject{ NULL };
 	CLight* m_pLight{ NULL };
 	CCamera* m_pCamera{ NULL };
+
+	GameObject* m_pPlayerObject = NULL;
 
 	GameObject* m_pUIGameSearchObject{ NULL };
 

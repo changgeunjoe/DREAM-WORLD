@@ -66,9 +66,10 @@ public:
 
 
 	void SetStandardShader() { MaterialComponent::SetShader(m_pStandardShader); }
-	void SetBoundingBoxShader() { MaterialComponent::SetShader(m_pBoundingBoxShader); }
-	void SetSkinnedAnimationShader() { 
+	void SetSkinnedAnimationShader()
+	{
 		MaterialComponent::SetShader(m_pSkinnedAnimationShader);
 		m_isAnimationShader = true;
 	}
+	void SetBoundingBoxShader() { MaterialComponent::SetShader(m_pBoundingBoxShader); }
 };
