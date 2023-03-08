@@ -83,14 +83,14 @@ void Archer::RbuttonUp()
 
 void Archer::Move(DIRECTION direction, float fDistance)
 {
-	fDistance *= m_fSpeed;
+	//fDistance *= m_fSpeed;
 	if (!m_bRButtonClicked)
 	{
 		MoveForward(fDistance);
 	}
 	else
 	{
-		fDistance /= 3;
+		//fDistance /= 3;
 		switch (direction)
 		{
 		case DIRECTION::IDLE: break;
@@ -152,14 +152,14 @@ void Tanker::RbuttonUp()
 
 void Tanker::Move(DIRECTION direction, float fDistance)
 {
-	fDistance *= m_fSpeed;
+	//fDistance *= m_fSpeed;
 	if (!m_bRButtonClicked)
 	{
 		MoveForward(fDistance);
 	}
 	else
 	{
-		fDistance /= 3;
+		//fDistance /= 3;
 		switch (direction)
 		{
 		case DIRECTION::IDLE: break;

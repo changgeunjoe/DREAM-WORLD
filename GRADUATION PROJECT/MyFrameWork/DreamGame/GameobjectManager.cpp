@@ -50,7 +50,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 		if (-1 != session.m_id && session.m_isVisible) {
 			if (session.m_currentDirection != DIRECTION::IDLE) {
 				//session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
-				session.m_currentPlayGameObject->Move(session.m_currentDirection, fTimeElapsed);
+				session.m_currentPlayGameObject->Move(session.m_currentDirection, 50 * fTimeElapsed);
 				if (session.m_currentPlayGameObject->GetRButtonClicked())
 					session.m_currentPlayGameObject->RbuttonClicked(fTimeElapsed);
 #ifdef _DEBUG
@@ -119,7 +119,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPlaneObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pPlaneObject->SetModel("Model/Floor.bin");
 	m_pPlaneObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pPlaneObject->SetScale(100.0f, 1.0f, 100.0f);
+	m_pPlaneObject->SetScale(30.0f, 1.0f, 30.0f);
 	m_ppGameObjects.emplace_back(m_pPlaneObject);
 
 	m_pWarriorObject = new GameObject(SQUARE_ENTITY);//사각형 오브젝트를 만들겠다
@@ -199,7 +199,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pUIGameSearchObject->InsertComponent<UiShaderComponent>();
 	m_pUIGameSearchObject->InsertComponent<TextureComponent>();
 	m_pUIGameSearchObject->SetTexture(L"Image/GameSearching.dds", RESOURCE_TEXTURE2D, 3);
-	m_pUIGameSearchObject->SetPosition(XMFLOAT3(0, 0, 1));
+	m_pUIGameSearchObject->SetPosition(XMFLOAT3(0, 0, 1.02f));
 	m_pUIGameSearchObject->SetScale(0.1, 0.03, 1);
 	m_pUIGameSearchObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
@@ -210,7 +210,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	// 플레이어가 캐릭터 선택하는 부분에 유사하게 넣을 예정
 	m_pPlayerObject = new GameObject(UNDEF_ENTITY);	//수정필요
 	memcpy(m_pPlayerObject, m_pArcherObject, sizeof(GameObject));
-	//m_pPlayerObject->SetCamera(m_pCamera); -> 이거 카메라 변경때매 ui계산 문제 생김
+	m_pPlayerObject->SetCamera(m_pCamera);
 	//delete m_pArcherObject;->delete하면서 뎊스렌더 문제 발생
 
 	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject = m_pPlayerObject;
