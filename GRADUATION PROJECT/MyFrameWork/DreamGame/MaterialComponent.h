@@ -43,6 +43,7 @@ public:
 	float							m_fGlossyReflection = 0.0f;
 
 	bool m_isAnimationShader = false;
+	bool m_isBoundingBoxShader = false;
 
 public:
 	int 							m_nTextures = 0;
@@ -71,5 +72,9 @@ public:
 		MaterialComponent::SetShader(m_pSkinnedAnimationShader);
 		m_isAnimationShader = true;
 	}
-	void SetBoundingBoxShader() { MaterialComponent::SetShader(m_pBoundingBoxShader); }
+	void SetBoundingBoxShader()
+	{ 
+		MaterialComponent::SetShader(m_pBoundingBoxShader); 
+		m_isBoundingBoxShader = true;
+	}
 };

@@ -87,7 +87,7 @@ public:
 
 	virtual void UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList, XMFLOAT4X4* pxmf4x4World);
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, int nPipelineState, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender);
-
+	virtual void SetPipelineState(ID3D12GraphicsCommandList* pd3dCommandList, int nPipelineState);
 	//virtual void OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, int nPipelineState = 0);->render에서 하는것으로 한다.
 	//virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState = 0);
 
