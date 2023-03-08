@@ -78,8 +78,7 @@ void GameobjectManager::OnPreRender( ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 
 
 void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
-{
-	
+{//렌더
 
 	UpdateShaderVariables(pd3dCommandList);
 //	m_pSkyboxObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -107,7 +106,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 }
 
 void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
-{
+{//빌드
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	BuildLight();
 	
@@ -197,7 +196,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pUIGameSearchObject->InsertComponent<UiShaderComponent>();
 	m_pUIGameSearchObject->InsertComponent<TextureComponent>();
 	m_pUIGameSearchObject->SetTexture(L"Image/GameSearching.dds", RESOURCE_TEXTURE2D, 3);
-	m_pUIGameSearchObject->SetPosition(XMFLOAT3(0.2, 0.8, 1));
+	m_pUIGameSearchObject->SetPosition(XMFLOAT3(0, 0, 1));
 	m_pUIGameSearchObject->SetScale(0.1, 0.03, 1);
 	m_pUIGameSearchObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
@@ -208,8 +207,8 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	// 플레이어가 캐릭터 선택하는 부분에 유사하게 넣을 예정
 	m_pPlayerObject = new GameObject(UNDEF_ENTITY);	//수정필요
 	memcpy(m_pPlayerObject, m_pArcherObject, sizeof(GameObject));
-	m_pPlayerObject->SetCamera(m_pCamera);
-	delete m_pArcherObject;
+	//m_pPlayerObject->SetCamera(m_pCamera); -> 이거 카메라 변경때매 ui계산 문제 생김
+	//delete m_pArcherObject;->delete하면서 뎊스렌더 문제 발생
 
 	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject = m_pPlayerObject;
 	g_Logic.m_inGamePlayerSession[0].m_isVisible = true;
