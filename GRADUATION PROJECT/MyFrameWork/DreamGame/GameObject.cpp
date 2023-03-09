@@ -914,7 +914,7 @@ void GameObject::SetCamera(CCamera* pCamera)
 
 void GameObject::SetLookAt()
 {
-	int nCount = 0;
+	/*int nCount = 0;
 	XMFLOAT3 xmfLook = XMFLOAT3(m_pCamera->GetLookVector().x, 0.0f, m_pCamera->GetLookVector().z);
 	XMFLOAT3 xmfRev = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	float fRotateAngle = -1.0f;
@@ -966,5 +966,5 @@ void GameObject::SetLookAt()
 			m_pSkinnedAnimationController->SetAnimationBlending(true);
 			m_pSkinnedAnimationController->m_nLowerBodyAnimation = CharacterAnimation::CA_MOVE;
 		}
-	}
+	}*/
 }

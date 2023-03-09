@@ -33,43 +33,6 @@ void Logic::ProcessPacket(char* p)
 			});
 		if (findRes != m_inGamePlayerSession.end()) {
 			DIRECTION currentDir = findRes->m_currentDirection;
-#if _DEBUG
-			std::cout << "current Direction: ";
-			if (currentDir == DIRECTION::IDLE)
-				std::cout << "IDLE" << std::endl;
-			else if (currentDir == DIRECTION::LEFT)
-				std::cout << "LEFT" << std::endl;
-			else if (currentDir == DIRECTION::RIGHT)
-				std::cout << "RIGHT" << std::endl;
-			else if (currentDir == DIRECTION::FRONT)
-				std::cout << "FRONT" << std::endl;
-			else if (currentDir == DIRECTION::BACK)
-				std::cout << "BACK" << std::endl;
-
-			std::cout << "prev Direction: ";
-			if (findRes->m_prevDirection == DIRECTION::IDLE)
-				std::cout << "IDLE" << std::endl;
-			else if (findRes->m_prevDirection == DIRECTION::LEFT)
-				std::cout << "LEFT" << std::endl;
-			else if (findRes->m_prevDirection == DIRECTION::RIGHT)
-				std::cout << "RIGHT" << std::endl;
-			else if (findRes->m_prevDirection == DIRECTION::FRONT)
-				std::cout << "FRONT" << std::endl;
-			else if (findRes->m_prevDirection == DIRECTION::BACK)
-				std::cout << "BACK" << std::endl;
-
-			std::cout << "input Direction: ";
-			if (recvPacket->direction == DIRECTION::IDLE)
-				std::cout << "IDLE" << std::endl;
-			else if (recvPacket->direction == DIRECTION::LEFT)
-				std::cout << "LEFT" << std::endl;
-			else if (recvPacket->direction == DIRECTION::RIGHT)
-				std::cout << "RIGHT" << std::endl;
-			else if (recvPacket->direction == DIRECTION::FRONT)
-				std::cout << "FRONT" << std::endl;
-			else if (recvPacket->direction == DIRECTION::BACK)
-				std::cout << "BACK" << std::endl;
-#endif
 			findRes->m_currentDirection = (DIRECTION)(findRes->m_currentDirection | recvPacket->direction);
 			if (currentDir == DIRECTION::IDLE) {
 				switch (recvPacket->direction)
@@ -406,10 +369,8 @@ void Logic::ProcessPacket(char* p)
 			findRes->m_currentDirection = DIRECTION::IDLE;
 			findRes->m_currentPlayGameObject->SetPosition(recvPacket->position);
 			if (abs(findRes->m_rotateAngle.y - recvPacket->rotate.y) > FLT_EPSILON) {
-#ifdef _DEBUG
 				PrintCurrentTime();
 				cout << "Logic::ProcessPacket() - SERVER_PACKET::STOP - Rotation: current(" << findRes->m_rotateAngle.y << ") - new(" << recvPacket->rotate.y << ")" << endl;
-#endif
 				findRes->m_currentPlayGameObject->Rotate(&upVec, recvPacket->rotate.y - findRes->m_rotateAngle.y);
 			}
 #ifdef _DEBUG

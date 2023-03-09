@@ -67,15 +67,15 @@ void GameobjectManager::Animate(float fTimeElapsed)
 				std::cout << "GameobjectManager::Animate() rotation angle: " << session.m_rotateAngle.x << ", " << session.m_rotateAngle.y << ", " << session.m_rotateAngle.z << std::endl;
 #endif
 
-			}		
+			}
 			session.m_currentPlayGameObject->Animate(fTimeElapsed);
 		}
 	}
 }
 
-void GameobjectManager::OnPreRender( ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList ,ID3D12RootSignature* pd3dGraphicsRootSignature)
+void GameobjectManager::OnPreRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	m_pDepthShaderComponent->PrepareShadowMap(pd3dDevice,pd3dCommandList);
+	m_pDepthShaderComponent->PrepareShadowMap(pd3dDevice, pd3dCommandList);
 	//Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
 
@@ -99,7 +99,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 
 	if (m_pShadowmapShaderComponent)
 	{
-		m_pShadowmapShaderComponent->Render(pd3dDevice,pd3dCommandList, 0,pd3dGraphicsRootSignature);
+		m_pShadowmapShaderComponent->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature);
 	}
 
 	//if (m_pTextureToViewportComponent)
@@ -112,7 +112,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 {//빌드
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	BuildLight();
-	
+
 	m_pPlaneObject = new GameObject(UNDEF_ENTITY);
 	m_pPlaneObject->InsertComponent<RenderComponent>();
 	m_pPlaneObject->InsertComponent<CLoadedModelInfoCompnent>();
@@ -122,7 +122,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPlaneObject->SetScale(30.0f, 1.0f, 30.0f);
 	m_ppGameObjects.emplace_back(m_pPlaneObject);
 
-	m_pWarriorObject = new GameObject(SQUARE_ENTITY);//사각형 오브젝트를 만들겠다
+	m_pWarriorObject = new Warrior();//사각형 오브젝트를 만들겠다
 	m_pWarriorObject->InsertComponent<RenderComponent>();
 	m_pWarriorObject->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pWarriorObject->SetPosition(XMFLOAT3(30.f, 0, 30.f));
@@ -218,7 +218,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	g_Logic.m_inGamePlayerSession[0].m_id = 0;
 #endif // LOCAL_TASK
 
-	
+
 	BuildShadow(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//무조건 마지막에 해줘야된다.
 	Build2DUI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
@@ -288,12 +288,12 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 	switch (nMessageID)
 	{
 	case WM_KEYDOWN:
-		std::cout << "GameobjectManager::onProcessingKeyboardMessage() -key down: ";
 		switch (wParam)
 		{
 		case 'W':
 		{
-			if (!g_Logic.m_KeyInput->m_bWKey) {
+			if (!g_Logic.m_KeyInput->m_bWKey && !g_Logic.m_KeyInput->m_bSKey) {
+				std::cout << "GameobjectManager::onProcessingKeyboardMessage() -key down: " << wParam << endl;
 				g_Logic.m_KeyInput->m_bWKey = true;
 				if (g_Logic.m_inGamePlayerSession[0].m_currentDirection == DIRECTION::IDLE) {
 					switch (g_Logic.m_inGamePlayerSession[0].m_prevDirection)
@@ -338,7 +338,6 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 					}
 				}
 				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection | DIRECTION::FRONT);
-				g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_iLookDirectoin |= DIRECTION::FRONT;
 				g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetMove(true);
 				g_NetworkHelper.SendMovePacket(DIRECTION::FRONT);
 			}
@@ -346,7 +345,8 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		break;
 		case 'A':
 		{
-			if (!g_Logic.m_KeyInput->m_bAKey) {
+			if (!g_Logic.m_KeyInput->m_bAKey && !g_Logic.m_KeyInput->m_bDKey) {
+				std::cout << "GameobjectManager::onProcessingKeyboardMessage() -key down: " << wParam << endl;
 				g_Logic.m_KeyInput->m_bAKey = true;
 				if (g_Logic.m_inGamePlayerSession[0].m_currentDirection == DIRECTION::IDLE) {
 					switch (g_Logic.m_inGamePlayerSession[0].m_prevDirection)
@@ -391,7 +391,6 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 					}
 				}
 				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection | DIRECTION::LEFT);
-				g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_iLookDirectoin |= DIRECTION::LEFT;
 				g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetMove(true);
 				g_NetworkHelper.SendMovePacket(DIRECTION::LEFT);
 			}
@@ -399,7 +398,8 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		break;
 		case 'S':
 		{
-			if (!g_Logic.m_KeyInput->m_bSKey) {
+			if (!g_Logic.m_KeyInput->m_bWKey && !g_Logic.m_KeyInput->m_bSKey) {
+				std::cout << "GameobjectManager::onProcessingKeyboardMessage() -key down: " << wParam << endl;
 				g_Logic.m_KeyInput->m_bSKey = true;
 				if (g_Logic.m_inGamePlayerSession[0].m_currentDirection == DIRECTION::IDLE) {
 					switch (g_Logic.m_inGamePlayerSession[0].m_prevDirection)
@@ -444,7 +444,6 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 					}
 				}
 				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection | DIRECTION::BACK);
-				g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_iLookDirectoin |= DIRECTION::BACK;
 				g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetMove(true);
 				g_NetworkHelper.SendMovePacket(DIRECTION::BACK);
 			}
@@ -452,7 +451,8 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		break;
 		case 'D':
 		{
-			if (!g_Logic.m_KeyInput->m_bDKey) {
+			if (!g_Logic.m_KeyInput->m_bAKey && !g_Logic.m_KeyInput->m_bDKey) {
+				std::cout << "GameobjectManager::onProcessingKeyboardMessage() -key down: " << wParam << endl;
 				g_Logic.m_KeyInput->m_bDKey = true;
 				if (g_Logic.m_inGamePlayerSession[0].m_currentDirection == DIRECTION::IDLE) {
 					switch (g_Logic.m_inGamePlayerSession[0].m_prevDirection)
@@ -498,7 +498,6 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 					}
 				}
 				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection | DIRECTION::RIGHT);
-				g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_iLookDirectoin |= DIRECTION::RIGHT;
 				g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetMove(true);
 				g_NetworkHelper.SendMovePacket(DIRECTION::RIGHT);
 			}
@@ -539,19 +538,16 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		{
 		case 'W':
 		{
-			std::cout << "GameobjectManager::onProcessingKeyboardMessage() -key down: ";
 			if (g_Logic.m_KeyInput->m_bWKey) {
 				g_Logic.m_KeyInput->m_bWKey = false;
 				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection ^ DIRECTION::FRONT);
-				g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_iLookDirectoin ^= DIRECTION::FRONT;
 				if (g_Logic.m_KeyInput->IsAllMovekeyUp()) {
 					PrintCurrentTime();
 					cout << "send Stop Packet" << endl;
-					auto look = g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetLook();
-					cout << "GameobjectManager::onProcessingKeyboardMessage() - Look Dir: " << look.x << ", " << look.y << ", " << look.z << endl;
+					//auto look = g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetLook();
+					//cout << "GameobjectManager::onProcessingKeyboardMessage() - Look Dir: " << look.x << ", " << look.y << ", " << look.z << endl;
 					g_Logic.m_inGamePlayerSession[0].m_prevDirection = DIRECTION::FRONT;
 					g_Logic.m_inGamePlayerSession[0].m_currentDirection = DIRECTION::IDLE;
-					g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_iLookDirectoin = DIRECTION::IDLE;
 					std::cout << "GameobjectManager::onProcessingKeyboardMessage() - stop move m_prevDirection: ";
 					std::cout << (int)g_Logic.m_inGamePlayerSession[0].m_prevDirection << " ";
 					if (!g_Logic.m_inGamePlayerSession[0].m_prevDirection & DIRECTION::IDLE)
@@ -593,7 +589,6 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			if (g_Logic.m_KeyInput->m_bAKey) {
 				g_Logic.m_KeyInput->m_bAKey = false;
 				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection ^ DIRECTION::LEFT);
-				g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_iLookDirectoin ^= DIRECTION::LEFT;
 				if (g_Logic.m_KeyInput->IsAllMovekeyUp()) {
 					PrintCurrentTime();
 					cout << "send Stop Packet" << endl;
@@ -601,7 +596,6 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 					cout << "GameobjectManager::onProcessingKeyboardMessage() - Look Dir: " << look.x << ", " << look.y << ", " << look.z << endl;
 					g_Logic.m_inGamePlayerSession[0].m_prevDirection = DIRECTION::LEFT;
 					//g_Logic.m_inGamePlayerSession[0].m_currentDirection = DIRECTION::IDLE;
-					g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_iLookDirectoin = DIRECTION::IDLE;
 					std::cout << "GameobjectManager::onProcessingKeyboardMessage() - stop move m_prevDirection: ";
 					std::cout << (int)g_Logic.m_inGamePlayerSession[0].m_prevDirection << " ";
 					if (!g_Logic.m_inGamePlayerSession[0].m_prevDirection & DIRECTION::IDLE)
@@ -644,7 +638,6 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			if (g_Logic.m_KeyInput->m_bSKey) {
 				g_Logic.m_KeyInput->m_bSKey = false;
 				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection ^ DIRECTION::BACK);
-				g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_iLookDirectoin ^= DIRECTION::BACK;
 				if (g_Logic.m_KeyInput->IsAllMovekeyUp()) {
 					PrintCurrentTime();
 					cout << "send Stop Packet" << endl;
@@ -652,7 +645,6 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 					cout << "GameobjectManager::onProcessingKeyboardMessage() - Look Dir: " << look.x << ", " << look.y << ", " << look.z << endl;
 					g_Logic.m_inGamePlayerSession[0].m_prevDirection = DIRECTION::BACK;
 					//g_Logic.m_inGamePlayerSession[0].m_currentDirection = DIRECTION::IDLE;
-					g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_iLookDirectoin = DIRECTION::IDLE;
 					std::cout << "GameobjectManager::onProcessingKeyboardMessage() - stop move m_prevDirection: ";
 					std::cout << (int)g_Logic.m_inGamePlayerSession[0].m_prevDirection << " ";
 					if (!g_Logic.m_inGamePlayerSession[0].m_prevDirection & DIRECTION::IDLE)
@@ -694,7 +686,6 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			if (g_Logic.m_KeyInput->m_bDKey) {
 				g_Logic.m_KeyInput->m_bDKey = false;
 				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection ^ DIRECTION::RIGHT);
-				g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_iLookDirectoin ^= DIRECTION::RIGHT;
 				if (g_Logic.m_KeyInput->IsAllMovekeyUp()) {
 					PrintCurrentTime();
 					cout << "send Stop Packet" << endl;
