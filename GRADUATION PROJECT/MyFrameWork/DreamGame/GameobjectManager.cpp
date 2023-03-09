@@ -358,11 +358,11 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 						break;
 					case DIRECTION::BACK:
 						g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&upVec, 90.0f);
-						g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += 180.0f;
+						g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += 90.0f;
 						break;
 					case DIRECTION::RIGHT:
 						g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&upVec, 180.0f);
-						g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += -90.0f;
+						g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += 180.0f;
 						break;
 					case DIRECTION::LEFT:
 						break;
@@ -380,7 +380,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 						break;
 					case DIRECTION::BACK:
 						g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&upVec, 45.0f);
-						g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += -45.0f;
+						g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += 45.0f;
 						break;
 					case DIRECTION::RIGHT:
 						break;

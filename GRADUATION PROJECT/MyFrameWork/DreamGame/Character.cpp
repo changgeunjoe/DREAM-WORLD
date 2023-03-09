@@ -43,6 +43,7 @@ void Warrior::SetLookAt()
 
 void Warrior::Move(DIRECTION direction, float fDistance)
 {
+	cout << "Warror dis: " << fDistance << endl;
 	MoveForward(fDistance);
 }
 
@@ -84,6 +85,8 @@ void Archer::RbuttonUp()
 void Archer::Move(DIRECTION direction, float fDistance)
 {
 	//fDistance *= m_fSpeed;
+	cout << "Archer dis: " << fDistance << endl;
+
 	if (!m_bRButtonClicked)
 	{
 		MoveForward(fDistance);
@@ -152,6 +155,7 @@ void Tanker::RbuttonUp()
 
 void Tanker::Move(DIRECTION direction, float fDistance)
 {
+	cout << "Tanker dis: " << fDistance << endl;
 	//fDistance *= m_fSpeed;
 	if (!m_bRButtonClicked)
 	{
@@ -197,5 +201,7 @@ void Priest::SetLookAt()
 
 void Priest::Move(DIRECTION direction, float fDistance)
 {
+	cout << "Priest dis: " << fDistance << endl;
+
 	MoveForward(fDistance);
 }

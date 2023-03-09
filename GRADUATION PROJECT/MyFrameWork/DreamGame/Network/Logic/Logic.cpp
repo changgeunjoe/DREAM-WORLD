@@ -37,21 +37,25 @@ void Logic::ProcessPacket(char* p)
 			if (currentDir == DIRECTION::IDLE) {
 				switch (recvPacket->direction)
 				{
-				case DIRECTION::FRONT:
+				case DIRECTION::FRONT:					
+					std::cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - F" << std::endl;
 					switch (findRes->m_prevDirection)
 					{
 					case DIRECTION::IDLE:
 					case DIRECTION::FRONT:
 						break;
 					case DIRECTION::BACK:
+						cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - prev: B" << std::endl;
 						findRes->m_currentPlayGameObject->Rotate(&upVec, 180.0f);
 						findRes->m_rotateAngle.y += 180.0f;
 						break;
 					case DIRECTION::RIGHT:
+						cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - prev: R" << std::endl;
 						findRes->m_currentPlayGameObject->Rotate(&upVec, -90.0f);
 						findRes->m_rotateAngle.y += -90.0f;
 						break;
 					case DIRECTION::LEFT:
+						cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - prev: L" << std::endl;
 						findRes->m_currentPlayGameObject->Rotate(&upVec, 90.0f);
 						findRes->m_rotateAngle.y += 90.0f;
 						break;
@@ -60,18 +64,22 @@ void Logic::ProcessPacket(char* p)
 					}
 					break;
 				case DIRECTION::LEFT:
+					std::cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - L" << std::endl;
 					switch (findRes->m_prevDirection)
 					{
 					case DIRECTION::IDLE:
 					case DIRECTION::FRONT:
+						cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - prev: F" << std::endl;
 						findRes->m_currentPlayGameObject->Rotate(&upVec, -90.0f);
 						findRes->m_rotateAngle.y += -90.0f;
 						break;
 					case DIRECTION::BACK:
+						cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - prev: B" << std::endl;
 						findRes->m_currentPlayGameObject->Rotate(&upVec, 90.0f);
 						findRes->m_rotateAngle.y += 90.0f;
 						break;
 					case DIRECTION::RIGHT:
+						cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - prev: R" << std:: endl;
 						findRes->m_currentPlayGameObject->Rotate(&upVec, 180.0f);
 						findRes->m_rotateAngle.y += 180.0f;
 						break;
@@ -82,20 +90,24 @@ void Logic::ProcessPacket(char* p)
 					}
 					break;
 				case DIRECTION::BACK:
+					std::cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - B" << std::endl;
 					switch (findRes->m_prevDirection)
 					{
 					case DIRECTION::IDLE:
 					case DIRECTION::FRONT:
+						cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - prev: F" << std::endl;
 						findRes->m_currentPlayGameObject->Rotate(&upVec, 180.0f);
 						findRes->m_rotateAngle.y += 180.0f;
 						break;
 					case DIRECTION::BACK:
 						break;
 					case DIRECTION::RIGHT:
+						cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - prev: R" << std::endl;
 						findRes->m_currentPlayGameObject->Rotate(&upVec, 90.0f);
 						findRes->m_rotateAngle.y += 90.0f;
 						break;
 					case DIRECTION::LEFT:
+						cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - prev: L" << std::endl;
 						findRes->m_currentPlayGameObject->Rotate(&upVec, -90.0f);
 						findRes->m_rotateAngle.y += -90.0f;
 						break;
@@ -104,20 +116,24 @@ void Logic::ProcessPacket(char* p)
 					}
 					break;
 				case DIRECTION::RIGHT:
+					std::cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - R" << std::endl;
 					switch (findRes->m_prevDirection)
 					{
 					case DIRECTION::IDLE:
 					case DIRECTION::FRONT:
+						cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - prev: F" << std::endl;
 						findRes->m_currentPlayGameObject->Rotate(&upVec, 90.0f);
 						findRes->m_rotateAngle.y += 90.0f;
 						break;
 					case DIRECTION::BACK:
+						cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - prev: B" << std::endl;
 						findRes->m_currentPlayGameObject->Rotate(&upVec, -90.0f);
 						findRes->m_rotateAngle.y += -90.0f;
 						break;
 					case DIRECTION::RIGHT:
 						break;
 					case DIRECTION::LEFT:
+						cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - prev: L" << std::endl;
 						findRes->m_currentPlayGameObject->Rotate(&upVec, 180.0f);
 						findRes->m_rotateAngle.y += 180.0f;
 						break;
@@ -132,6 +148,7 @@ void Logic::ProcessPacket(char* p)
 				{
 				case DIRECTION::FRONT:
 				{
+					std::cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - F" << std::endl;
 					switch (recvPacket->direction)
 					{
 					case DIRECTION::FRONT:
@@ -151,6 +168,7 @@ void Logic::ProcessPacket(char* p)
 				break;
 				case DIRECTION::LEFT:
 				{
+					std::cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - L" << std::endl;
 					switch (recvPacket->direction)
 					{
 					case DIRECTION::FRONT:
@@ -170,6 +188,7 @@ void Logic::ProcessPacket(char* p)
 				break;
 				case DIRECTION::BACK:
 				{
+					std::cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - B" << std::endl;
 					switch (recvPacket->direction)
 					{
 					case DIRECTION::FRONT:
@@ -189,6 +208,7 @@ void Logic::ProcessPacket(char* p)
 				break;
 				case DIRECTION::RIGHT:
 				{
+					std::cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - R" << std::endl;
 					switch (recvPacket->direction)
 					{
 					case DIRECTION::FRONT:
@@ -212,7 +232,7 @@ void Logic::ProcessPacket(char* p)
 		else cout << "not found array" << endl;
 #ifdef _DEBUG
 		PrintCurrentTime();
-		std::cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - MOVE_KEY_DOWN ID: " << recvPacket->userId << std::endl;
+		std::cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - ID: " << recvPacket->userId << std::endl;
 #endif
 
 	}
@@ -233,9 +253,9 @@ void Logic::ProcessPacket(char* p)
 			{
 				switch (findRes->m_currentDirection)
 				{
-				case DIRECTION::FRONT:
+				case DIRECTION::FRONT:					
 					break;
-				case DIRECTION::LEFT:
+				case DIRECTION::LEFT:					
 					findRes->m_currentPlayGameObject->Rotate(&upVec, -45.0f);
 					findRes->m_rotateAngle.y += -45.0f;
 					break;
@@ -372,6 +392,7 @@ void Logic::ProcessPacket(char* p)
 				PrintCurrentTime();
 				cout << "Logic::ProcessPacket() - SERVER_PACKET::STOP - Rotation: current(" << findRes->m_rotateAngle.y << ") - new(" << recvPacket->rotate.y << ")" << endl;
 				findRes->m_currentPlayGameObject->Rotate(&upVec, recvPacket->rotate.y - findRes->m_rotateAngle.y);
+				findRes->m_rotateAngle.y += recvPacket->rotate.y - findRes->m_rotateAngle.y;
 			}
 #ifdef _DEBUG
 			PrintCurrentTime();
