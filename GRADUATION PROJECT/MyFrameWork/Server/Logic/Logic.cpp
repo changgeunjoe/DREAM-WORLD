@@ -135,6 +135,25 @@ void Logic::ProcessPacket(int userId, char* p)
 		g_DBObj.m_workQueue.push(newEvent);
 	}
 	break;
+	case CLIENT_PACKET::MATCH:
+	{
+		CLIENT_PACKET::MatchPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::MatchPacket*>(p);
+
+
+	}
+	break;
+	case CLIENT_PACKET::CREATE_ROOM:
+	{
+		CLIENT_PACKET::CreateRoomPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::CreateRoomPacket*>(p);
+
+	}
+	break;
+	case CLIENT_PACKET::REQUEST_ROOM_LIST:
+	{
+		CLIENT_PACKET::RequestRoomListPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::RequestRoomListPacket*>(p);
+
+	}
+	break;
 	default:
 		PrintCurrentTime();
 		std::cout << "unknown Packet" << std::endl;

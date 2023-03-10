@@ -9,6 +9,9 @@ namespace CLIENT_PACKET {
 	constexpr unsigned char STOP = 3;
 	constexpr unsigned char ROTATE = 4;
 	constexpr unsigned char LOGIN = 5;
+	constexpr unsigned char MATCH = 6;
+	constexpr unsigned char CREATE_ROOM = 7;
+	constexpr unsigned char REQUEST_ROOM_LIST = 8;
 
 	struct MovePacket
 	{
@@ -37,6 +40,25 @@ namespace CLIENT_PACKET {
 		char id[NAME_SIZE];
 		char pw[NAME_SIZE];
 	};
+
+	struct MatchPacket {
+		char size;
+		char type;
+		char Role;
+	};
+
+	struct CreateRoomPacket {
+		char size;
+		char type;
+		char Role;
+		char roomName[30];
+	};
+
+	struct RequestRoomListPacket {
+		char size;
+		char type;
+	};
+
 }
 
 namespace SERVER_PACKET {
@@ -86,6 +108,13 @@ namespace SERVER_PACKET {
 		wchar_t name[NAME_SIZE];
 	};
 
+	struct RoomInfoPacket {
+		char size;
+		char type;
+		char roomName[30];
+		char playerName[4][10];//방장은 0번 인덱스임
+		char role[4];
+	};
 }
 
 #pragma pack (pop)

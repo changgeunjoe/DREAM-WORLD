@@ -29,6 +29,9 @@
     <Filter Include="DB">
       <UniqueIdentifier>{67488753-1084-4e91-a43b-a7d2dc66a6bf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Room">
+      <UniqueIdentifier>{a13be899-e830-47cb-8b85-8dfe2f61fd3b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -54,6 +57,9 @@
     </ClCompile>
     <ClCompile Include="DB\DBObject.cpp">
       <Filter>DB</Filter>
+    </ClCompile>
+    <ClCompile Include="Room\Room.cpp">
+      <Filter>Room</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -83,6 +89,9 @@
     </ClInclude>
     <ClInclude Include="DB\DBObject.h">
       <Filter>DB</Filter>
+    </ClInclude>
+    <ClInclude Include="Room\Room.h">
+      <Filter>Room</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
