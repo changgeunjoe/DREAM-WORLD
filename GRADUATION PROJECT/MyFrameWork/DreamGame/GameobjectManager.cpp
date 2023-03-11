@@ -44,13 +44,14 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	m_pSkyboxObject->SetPosition(m_pCamera->GetPosition());
 	m_pMonsterObject->Animate(fTimeElapsed);
 	if (!g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject) return;
-	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetLookAt();
 	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->UpdateCameraPosition();
 	for (auto& session : g_Logic.m_inGamePlayerSession) {
 		if (-1 != session.m_id && session.m_isVisible) {
 			if (session.m_currentDirection != DIRECTION::IDLE) {
 				//session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
+				session.m_currentPlayGameObject->MoveObject(session.m_currentDirection, session.m_ownerRotateAngle);
 				session.m_currentPlayGameObject->Move(session.m_currentDirection, 50 * fTimeElapsed);
+
 				if (session.m_currentPlayGameObject->GetRButtonClicked())
 					session.m_currentPlayGameObject->RbuttonClicked(fTimeElapsed);
 #ifdef _DEBUG
@@ -60,11 +61,11 @@ void GameobjectManager::Animate(float fTimeElapsed)
 				auto pos = session.m_currentPlayGameObject->GetPosition();
 
 				//cout << "GameobjectManager::Animate() SessionId: " << session.m_id << endl;
-				cout << "GameobjectManager::Animate() Position: " << pos.x << ", 0, " << pos.z << endl;
+				// cout << "GameobjectManager::Animate() Position: " << pos.x << ", 0, " << pos.z << endl;
 				//cout << "GameobjectManager::Animate() Look: " << look.x << ", " << look.y << ", " << look.z << endl;
 				//cout << "GameobjectManager::Animate() up: " << up.x << ", " << up.y << ", " << up.z << endl;
 				//cout << "GameobjectManager::Animate() right: " << right.x << ", " << right.y << ", " << right.z << endl;
-				std::cout << "GameobjectManager::Animate() rotation angle: " << session.m_rotateAngle.x << ", " << session.m_rotateAngle.y << ", " << session.m_rotateAngle.z << std::endl;
+				// std::cout << "GameobjectManager::Animate() rotation angle: " << session.m_rotateAngle.x << ", " << session.m_rotateAngle.y << ", " << session.m_rotateAngle.z << std::endl;
 #endif
 
 			}
@@ -272,19 +273,6 @@ void GameobjectManager::ReleaseShaderVariables()
 bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
 	static XMFLOAT3 upVec = XMFLOAT3(0, 1, 0);
-	std::cout << "GameobjectManager::onProcessingKeyboardMessage() - before move current Direction: ";
-	std::cout << (int)g_Logic.m_inGamePlayerSession[0].m_currentDirection << " ";
-	if (!g_Logic.m_inGamePlayerSession[0].m_currentDirection & DIRECTION::IDLE)
-		std::cout << "IDLE ";
-	if (g_Logic.m_inGamePlayerSession[0].m_currentDirection & DIRECTION::LEFT)
-		std::cout << "LEFT ";
-	if (g_Logic.m_inGamePlayerSession[0].m_currentDirection & DIRECTION::RIGHT)
-		std::cout << "RIGHT ";
-	if (g_Logic.m_inGamePlayerSession[0].m_currentDirection & DIRECTION::FRONT)
-		std::cout << "FRONT ";
-	if (g_Logic.m_inGamePlayerSession[0].m_currentDirection & DIRECTION::BACK)
-		std::cout << "BACK ";
-	std::cout << std::endl;
 	switch (nMessageID)
 	{
 	case WM_KEYDOWN:
@@ -292,215 +280,30 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		{
 		case 'W':
 		{
-			if (!g_Logic.m_KeyInput->m_bWKey && !g_Logic.m_KeyInput->m_bSKey) {
-				std::cout << "GameobjectManager::onProcessingKeyboardMessage() -key down: " << wParam << endl;
-				g_Logic.m_KeyInput->m_bWKey = true;
-				if (g_Logic.m_inGamePlayerSession[0].m_currentDirection == DIRECTION::IDLE) {
-					switch (g_Logic.m_inGamePlayerSession[0].m_prevDirection)
-					{
-					case DIRECTION::IDLE:
-					case DIRECTION::FRONT:
-						break;
-					case DIRECTION::BACK:
-						g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&upVec, 180.0f);
-						g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += 180.0f;
-						break;
-					case DIRECTION::RIGHT:
-						g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&upVec, -90.0f);
-						g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += -90.0f;
-						break;
-					case DIRECTION::LEFT:
-						g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&upVec, 90.0f);
-						g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += 90.0f;
-						break;
-					default:
-						break;
-					}
-				}
-				else {
-					switch (g_Logic.m_inGamePlayerSession[0].m_currentDirection)
-					{
-					case DIRECTION::IDLE:
-					case DIRECTION::FRONT:
-						break;
-					case DIRECTION::BACK:
-						break;
-					case DIRECTION::RIGHT:
-						g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&upVec, -45.0f);
-						g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += -45.0f;
-						break;
-					case DIRECTION::LEFT:
-						g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&upVec, 45.0f);
-						g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += 45.0f;
-						break;
-					default:
-						break;
-					}
-				}
-				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection | DIRECTION::FRONT);
-				g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetMove(true);
-				g_NetworkHelper.SendMovePacket(DIRECTION::FRONT);
-			}
+			g_Logic.m_KeyInput->m_bWKey = true;
+			g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection | DIRECTION::FRONT);
+			g_NetworkHelper.SendMovePacket(DIRECTION::FRONT);
 		}
 		break;
 		case 'A':
 		{
-			if (!g_Logic.m_KeyInput->m_bAKey && !g_Logic.m_KeyInput->m_bDKey) {
-				std::cout << "GameobjectManager::onProcessingKeyboardMessage() -key down: " << wParam << endl;
-				g_Logic.m_KeyInput->m_bAKey = true;
-				if (g_Logic.m_inGamePlayerSession[0].m_currentDirection == DIRECTION::IDLE) {
-					switch (g_Logic.m_inGamePlayerSession[0].m_prevDirection)
-					{
-					case DIRECTION::IDLE:
-					case DIRECTION::FRONT:
-						g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&upVec, -90.0f);
-						g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += -90.0f;
-						break;
-					case DIRECTION::BACK:
-						g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&upVec, 90.0f);
-						g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += 90.0f;
-						break;
-					case DIRECTION::RIGHT:
-						g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&upVec, 180.0f);
-						g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += 180.0f;
-						break;
-					case DIRECTION::LEFT:
-						break;
-					default:
-						break;
-					}
-				}
-				else {
-					switch (g_Logic.m_inGamePlayerSession[0].m_currentDirection)
-					{
-					case DIRECTION::IDLE:
-					case DIRECTION::FRONT:
-						g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&upVec, -45.0f);
-						g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += -45.0f;
-						break;
-					case DIRECTION::BACK:
-						g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&upVec, 45.0f);
-						g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += 45.0f;
-						break;
-					case DIRECTION::RIGHT:
-						break;
-					case DIRECTION::LEFT:
-						break;
-					default:
-						break;
-					}
-				}
-				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection | DIRECTION::LEFT);
-				g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetMove(true);
-				g_NetworkHelper.SendMovePacket(DIRECTION::LEFT);
-			}
+			g_Logic.m_KeyInput->m_bAKey = true;
+			g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection | DIRECTION::LEFT);
+			g_NetworkHelper.SendMovePacket(DIRECTION::LEFT);
 		}
 		break;
 		case 'S':
 		{
-			if (!g_Logic.m_KeyInput->m_bWKey && !g_Logic.m_KeyInput->m_bSKey) {
-				std::cout << "GameobjectManager::onProcessingKeyboardMessage() -key down: " << wParam << endl;
-				g_Logic.m_KeyInput->m_bSKey = true;
-				if (g_Logic.m_inGamePlayerSession[0].m_currentDirection == DIRECTION::IDLE) {
-					switch (g_Logic.m_inGamePlayerSession[0].m_prevDirection)
-					{
-					case DIRECTION::IDLE:
-					case DIRECTION::FRONT:
-						g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&upVec, 180.0f);
-						g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += 180.0f;
-						break;
-					case DIRECTION::BACK:
-						break;
-					case DIRECTION::RIGHT:
-						g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&upVec, 90.0f);
-						g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += 90.0f;
-						break;
-					case DIRECTION::LEFT:
-						g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&upVec, -90.0f);
-						g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += -90.0f;
-						break;
-					default:
-						break;
-					}
-				}
-				else {
-					switch (g_Logic.m_inGamePlayerSession[0].m_currentDirection)
-					{
-					case DIRECTION::IDLE:
-					case DIRECTION::FRONT:
-						break;
-					case DIRECTION::BACK:
-						break;
-					case DIRECTION::RIGHT:
-						g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&upVec, 45.0f);
-						g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += 45.0f;
-						break;
-					case DIRECTION::LEFT:
-						g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&upVec, -45.0f);
-						g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += -45.0f;
-						break;
-					default:
-						break;
-					}
-				}
-				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection | DIRECTION::BACK);
-				g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetMove(true);
-				g_NetworkHelper.SendMovePacket(DIRECTION::BACK);
-			}
+			g_Logic.m_KeyInput->m_bSKey = true;
+			g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection | DIRECTION::BACK);
+			g_NetworkHelper.SendMovePacket(DIRECTION::BACK);
 		}
 		break;
 		case 'D':
 		{
-			if (!g_Logic.m_KeyInput->m_bAKey && !g_Logic.m_KeyInput->m_bDKey) {
-				std::cout << "GameobjectManager::onProcessingKeyboardMessage() -key down: " << wParam << endl;
-				g_Logic.m_KeyInput->m_bDKey = true;
-				if (g_Logic.m_inGamePlayerSession[0].m_currentDirection == DIRECTION::IDLE) {
-					switch (g_Logic.m_inGamePlayerSession[0].m_prevDirection)
-					{
-					case DIRECTION::IDLE:
-					case DIRECTION::FRONT:
-						g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&upVec, 90.0f);
-						g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += 90.0f;
-						break;
-					case DIRECTION::BACK:
-						g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&upVec, -90.0f);
-						g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += -90.0f;
-						break;
-					case DIRECTION::RIGHT:
-						break;
-					case DIRECTION::LEFT:
-						g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&upVec, 180.0f);
-						g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += 180.0f;
-						break;
-					default:
-						break;
-					}
-				}
-				else {
-					switch (g_Logic.m_inGamePlayerSession[0].m_currentDirection)
-					{
-					case DIRECTION::IDLE:
-					case DIRECTION::FRONT:
-						g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&upVec, 45.0f);
-						g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += 45.0f;
-						break;
-					case DIRECTION::BACK:
-						g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&upVec, -45.0f);
-						g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += -45.0f;
-						break;
-					case DIRECTION::RIGHT:
-						break;
-					case DIRECTION::LEFT:
-
-						break;
-					default:
-						break;
-					}
-				}
-				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection | DIRECTION::RIGHT);
-				g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetMove(true);
-				g_NetworkHelper.SendMovePacket(DIRECTION::RIGHT);
-			}
+			g_Logic.m_KeyInput->m_bDKey = true;
+			g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection | DIRECTION::RIGHT);
+			g_NetworkHelper.SendMovePacket(DIRECTION::RIGHT);
 		}
 		break;
 		case 'Q':
@@ -538,204 +341,67 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		{
 		case 'W':
 		{
-			if (g_Logic.m_KeyInput->m_bWKey) {
+			if (g_Logic.m_KeyInput->m_bWKey) 
+			{
 				g_Logic.m_KeyInput->m_bWKey = false;
 				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection ^ DIRECTION::FRONT);
-				if (g_Logic.m_KeyInput->IsAllMovekeyUp()) {
-					PrintCurrentTime();
-					cout << "send Stop Packet" << endl;
-					//auto look = g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetLook();
-					//cout << "GameobjectManager::onProcessingKeyboardMessage() - Look Dir: " << look.x << ", " << look.y << ", " << look.z << endl;
-					g_Logic.m_inGamePlayerSession[0].m_prevDirection = DIRECTION::FRONT;
+				if (g_Logic.m_KeyInput->IsAllMovekeyUp()) 
+				{
 					g_Logic.m_inGamePlayerSession[0].m_currentDirection = DIRECTION::IDLE;
-					std::cout << "GameobjectManager::onProcessingKeyboardMessage() - stop move m_prevDirection: ";
-					std::cout << (int)g_Logic.m_inGamePlayerSession[0].m_prevDirection << " ";
-					if (!g_Logic.m_inGamePlayerSession[0].m_prevDirection & DIRECTION::IDLE)
-						std::cout << "IDLE ";
-					if (g_Logic.m_inGamePlayerSession[0].m_prevDirection & DIRECTION::LEFT)
-						std::cout << "LEFT ";
-					if (g_Logic.m_inGamePlayerSession[0].m_prevDirection & DIRECTION::RIGHT)
-						std::cout << "RIGHT ";
-					if (g_Logic.m_inGamePlayerSession[0].m_prevDirection & DIRECTION::FRONT)
-						std::cout << "FRONT ";
-					if (g_Logic.m_inGamePlayerSession[0].m_prevDirection & DIRECTION::BACK)
-						std::cout << "BACK ";
-					std::cout << std::endl;
-					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition(), g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate				
+					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition()); //, g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate				
 				}
-				else {
-					switch (g_Logic.m_inGamePlayerSession[0].m_currentDirection)
-					{
-					case DIRECTION::FRONT:
-						break;
-					case DIRECTION::LEFT:
-						g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&upVec, -45.0f);
-						g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += -45.0f;
-						break;
-					case DIRECTION::BACK:
-						g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&upVec, 180.0f);
-						g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += 180.0f;
-						break;
-					case DIRECTION::RIGHT:
-						g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&upVec, 45.0f);
-						g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += 45.0f;
-						break;
-					}
+				else 
 					g_NetworkHelper.SendKeyUpPacket(DIRECTION::FRONT);
-				}
 			}
 		}
 		break;
 		case 'A':
 		{
-			if (g_Logic.m_KeyInput->m_bAKey) {
+			if (g_Logic.m_KeyInput->m_bAKey) 
+			{
 				g_Logic.m_KeyInput->m_bAKey = false;
 				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection ^ DIRECTION::LEFT);
-				if (g_Logic.m_KeyInput->IsAllMovekeyUp()) {
-					PrintCurrentTime();
-					cout << "send Stop Packet" << endl;
-					auto look = g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetLook();
-					cout << "GameobjectManager::onProcessingKeyboardMessage() - Look Dir: " << look.x << ", " << look.y << ", " << look.z << endl;
-					g_Logic.m_inGamePlayerSession[0].m_prevDirection = DIRECTION::LEFT;
-					//g_Logic.m_inGamePlayerSession[0].m_currentDirection = DIRECTION::IDLE;
-					std::cout << "GameobjectManager::onProcessingKeyboardMessage() - stop move m_prevDirection: ";
-					std::cout << (int)g_Logic.m_inGamePlayerSession[0].m_prevDirection << " ";
-					if (!g_Logic.m_inGamePlayerSession[0].m_prevDirection & DIRECTION::IDLE)
-						std::cout << "IDLE ";
-					if (g_Logic.m_inGamePlayerSession[0].m_prevDirection & DIRECTION::LEFT)
-						std::cout << "LEFT ";
-					if (g_Logic.m_inGamePlayerSession[0].m_prevDirection & DIRECTION::RIGHT)
-						std::cout << "RIGHT ";
-					if (g_Logic.m_inGamePlayerSession[0].m_prevDirection & DIRECTION::FRONT)
-						std::cout << "FRONT ";
-					if (g_Logic.m_inGamePlayerSession[0].m_prevDirection & DIRECTION::BACK)
-						std::cout << "BACK ";
-					std::cout << std::endl;
-					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition(), g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate
-					g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetMove(false);
+				if (g_Logic.m_KeyInput->IsAllMovekeyUp()) 
+				{
+					g_Logic.m_inGamePlayerSession[0].m_currentDirection = DIRECTION::IDLE;
+					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition()); //, g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate
+					//g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetMove(false);
 				}
-				else {
-					switch (g_Logic.m_inGamePlayerSession[0].m_currentDirection)
-					{
-					case DIRECTION::FRONT:
-						g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&upVec, 45.0f);
-						g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += 45.0f;
-						break;
-					case DIRECTION::LEFT:
-						break;
-					case DIRECTION::BACK:
-						g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&upVec, -45.0f);
-						g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += -45.0f;
-						break;
-					case DIRECTION::RIGHT:
-						g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&upVec, 180.0f);
-						g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += 180.0f;
-						break;
-					}
+				else 
 					g_NetworkHelper.SendKeyUpPacket(DIRECTION::LEFT);
-				}
 			}
 		}
 		break;
 		case 'S':
 		{
-			if (g_Logic.m_KeyInput->m_bSKey) {
+			if (g_Logic.m_KeyInput->m_bSKey) 
+			{
 				g_Logic.m_KeyInput->m_bSKey = false;
 				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection ^ DIRECTION::BACK);
-				if (g_Logic.m_KeyInput->IsAllMovekeyUp()) {
-					PrintCurrentTime();
-					cout << "send Stop Packet" << endl;
-					auto look = g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetLook();
-					cout << "GameobjectManager::onProcessingKeyboardMessage() - Look Dir: " << look.x << ", " << look.y << ", " << look.z << endl;
-					g_Logic.m_inGamePlayerSession[0].m_prevDirection = DIRECTION::BACK;
-					//g_Logic.m_inGamePlayerSession[0].m_currentDirection = DIRECTION::IDLE;
-					std::cout << "GameobjectManager::onProcessingKeyboardMessage() - stop move m_prevDirection: ";
-					std::cout << (int)g_Logic.m_inGamePlayerSession[0].m_prevDirection << " ";
-					if (!g_Logic.m_inGamePlayerSession[0].m_prevDirection & DIRECTION::IDLE)
-						std::cout << "IDLE ";
-					if (g_Logic.m_inGamePlayerSession[0].m_prevDirection & DIRECTION::LEFT)
-						std::cout << "LEFT ";
-					if (g_Logic.m_inGamePlayerSession[0].m_prevDirection & DIRECTION::RIGHT)
-						std::cout << "RIGHT ";
-					if (g_Logic.m_inGamePlayerSession[0].m_prevDirection & DIRECTION::FRONT)
-						std::cout << "FRONT ";
-					if (g_Logic.m_inGamePlayerSession[0].m_prevDirection & DIRECTION::BACK)
-						std::cout << "BACK ";
-					std::cout << std::endl;
-					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition(), g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate			
+				if (g_Logic.m_KeyInput->IsAllMovekeyUp())
+				{
+					g_Logic.m_inGamePlayerSession[0].m_currentDirection = DIRECTION::IDLE;
+					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition()); // , g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate
+					//g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetMove(false);
 				}
-				else {
-					switch (g_Logic.m_inGamePlayerSession[0].m_currentDirection)
-					{
-					case DIRECTION::FRONT:
-						g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&upVec, 180.0f);
-						g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += 180.0f;
-						break;
-					case DIRECTION::LEFT:
-						g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&upVec, 45.0f);
-						g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += 45.0f;
-						break;
-					case DIRECTION::BACK:
-						break;
-					case DIRECTION::RIGHT:
-						g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&upVec, -45.0f);
-						g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += -45.0f;
-						break;
-					}
+				else
 					g_NetworkHelper.SendKeyUpPacket(DIRECTION::BACK);
-				}
 			}
 		}
 		break;
 		case 'D':
 		{
-			if (g_Logic.m_KeyInput->m_bDKey) {
+			if (g_Logic.m_KeyInput->m_bDKey) 
+			{
 				g_Logic.m_KeyInput->m_bDKey = false;
 				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection ^ DIRECTION::RIGHT);
 				if (g_Logic.m_KeyInput->IsAllMovekeyUp()) {
-					PrintCurrentTime();
-					cout << "send Stop Packet" << endl;
-					auto look = g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetLook();
-					//cout << "GameobjectManager::onProcessingKeyboardMessage() - Look Dir: " << look.x << ", " << look.y << ", " << look.z << endl;
-					g_Logic.m_inGamePlayerSession[0].m_prevDirection = DIRECTION::RIGHT;
 					g_Logic.m_inGamePlayerSession[0].m_currentDirection = DIRECTION::IDLE;
-					//g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_iLookDirectoin = DIRECTION::IDLE;
-					//std::cout << "GameobjectManager::onProcessingKeyboardMessage() - stop move m_prevDirection: ";
-					//std::cout << (int)g_Logic.m_inGamePlayerSession[0].m_prevDirection << " ";
-					//if (!g_Logic.m_inGamePlayerSession[0].m_prevDirection & DIRECTION::IDLE)
-					//	std::cout << "IDLE ";
-					//if (g_Logic.m_inGamePlayerSession[0].m_prevDirection & DIRECTION::LEFT)
-					//	std::cout << "LEFT ";
-					//if (g_Logic.m_inGamePlayerSession[0].m_prevDirection & DIRECTION::RIGHT)
-					//	std::cout << "RIGHT ";
-					//if (g_Logic.m_inGamePlayerSession[0].m_prevDirection & DIRECTION::FRONT)
-					//	std::cout << "FRONT ";
-					//if (g_Logic.m_inGamePlayerSession[0].m_prevDirection & DIRECTION::BACK)
-					//	std::cout << "BACK ";
-					//std::cout << std::endl;
-					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition(), g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate
-					g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetMove(false);
+					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition()); //, g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate
+					//g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetMove(false);
 				}
-				else {
-					switch (g_Logic.m_inGamePlayerSession[0].m_currentDirection)
-					{
-					case DIRECTION::FRONT:
-						g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&upVec, -45.0f);
-						g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += -45.0f;
-						break;
-					case DIRECTION::LEFT:
-						g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&upVec, 180.0f);
-						g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += 180.0f;
-						break;
-					case DIRECTION::BACK:
-						g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&upVec, 45.0f);
-						g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += 45.0f;
-						break;
-					case DIRECTION::RIGHT:
-						break;
-					}
+				else 
 					g_NetworkHelper.SendKeyUpPacket(DIRECTION::RIGHT);
-				}
 			}
 		}
 		break;
@@ -754,19 +420,6 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 	default:
 		break;
 	}
-	std::cout << "GameobjectManager::onProcessingKeyboardMessage() - after move current Direction: ";
-	std::cout << (int)g_Logic.m_inGamePlayerSession[0].m_currentDirection << " ";
-	if (!g_Logic.m_inGamePlayerSession[0].m_currentDirection & DIRECTION::IDLE)
-		std::cout << "IDLE ";
-	if (g_Logic.m_inGamePlayerSession[0].m_currentDirection & DIRECTION::LEFT)
-		std::cout << "LEFT ";
-	if (g_Logic.m_inGamePlayerSession[0].m_currentDirection & DIRECTION::RIGHT)
-		std::cout << "RIGHT ";
-	if (g_Logic.m_inGamePlayerSession[0].m_currentDirection & DIRECTION::FRONT)
-		std::cout << "FRONT ";
-	if (g_Logic.m_inGamePlayerSession[0].m_currentDirection & DIRECTION::BACK)
-		std::cout << "BACK ";
-	std::cout << std::endl;
 	return(false);
 }
 

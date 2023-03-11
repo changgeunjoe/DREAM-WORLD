@@ -36,12 +36,14 @@ public:
 	void Send(void* p);
 	void ConstructPacket(int ioByte);
 public:
-	bool AdjustPlayerInfo(DirectX::XMFLOAT3& position, DirectX::XMFLOAT3& rotate);
+	bool AdjustPlayerInfo(DirectX::XMFLOAT3& position); // , DirectX::XMFLOAT3& rotate
 public:
 	virtual void AutoMove() override;
 	virtual void StartMove(DIRECTION d) override;
 	virtual void StopMove() override;
 	virtual void ChangeDirection(DIRECTION d) override;
+	void Move(float fDistance);
+	void SetDirection(DIRECTION d);
 public:
 	virtual void Rotate(ROTATE_AXIS axis, float angle) override;
 public:

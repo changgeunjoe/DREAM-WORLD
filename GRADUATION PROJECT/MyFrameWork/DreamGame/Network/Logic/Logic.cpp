@@ -353,7 +353,7 @@ void Logic::ProcessPacket(char* p)
 			case ROTATE_AXIS::Y:
 			{
 				findRes->m_currentPlayGameObject->Rotate(&upVec, recvPacket->angle);
-				findRes->m_rotateAngle.y += recvPacket->angle;
+				findRes->m_ownerRotateAngle.y += recvPacket->angle;
 #ifdef _DEBUG
 				PrintCurrentTime();
 				std::cout << "Logic::ProcessPacket() - SERVER_PACKET::ROTATE - ROTATE ID: " << recvPacket->userId << std::endl;
@@ -388,17 +388,17 @@ void Logic::ProcessPacket(char* p)
 				findRes->m_prevDirection = findRes->m_currentDirection;
 			findRes->m_currentDirection = DIRECTION::IDLE;
 			findRes->m_currentPlayGameObject->SetPosition(recvPacket->position);
-			if (abs(findRes->m_rotateAngle.y - recvPacket->rotate.y) > FLT_EPSILON) {
-				PrintCurrentTime();
-				cout << "Logic::ProcessPacket() - SERVER_PACKET::STOP - Rotation: current(" << findRes->m_rotateAngle.y << ") - new(" << recvPacket->rotate.y << ")" << endl;
-				findRes->m_currentPlayGameObject->Rotate(&upVec, recvPacket->rotate.y - findRes->m_rotateAngle.y);
-				findRes->m_rotateAngle.y += recvPacket->rotate.y - findRes->m_rotateAngle.y;
-			}
+			// if (abs(findRes->m_rotateAngle.y - recvPacket->rotate.y) > FLT_EPSILON) {
+				// PrintCurrentTime();
+				// cout << "Logic::ProcessPacket() - SERVER_PACKET::STOP - Rotation: current(" << findRes->m_rotateAngle.y << ") - new(" << recvPacket->rotate.y << ")" << endl;
+				// findRes->m_currentPlayGameObject->Rotate(&upVec, recvPacket->rotate.y - findRes->m_rotateAngle.y);
+				// findRes->m_rotateAngle.y += recvPacket->rotate.y - findRes->m_rotateAngle.y;
+			// }
 #ifdef _DEBUG
 			PrintCurrentTime();
 			std::cout << "Logic::ProcessPacket() - SERVER_PACKET::STOP - STOP ID: " << recvPacket->userId << std::endl;
 			cout << "Position: " << recvPacket->position.x << ", " << recvPacket->position.y << ", " << recvPacket->position.z << endl;
-			cout << "Rotation: " << recvPacket->rotate.x << ", " << recvPacket->rotate.y << ", " << recvPacket->rotate.z << endl;
+			// cout << "Rotation: " << recvPacket->rotate.x << ", " << recvPacket->rotate.y << ", " << recvPacket->rotate.z << endl;
 			cout << "STOP ID: " << recvPacket->userId << endl;
 #endif
 		}

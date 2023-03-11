@@ -99,13 +99,13 @@ void NetworkHelper::SendMovePacket(DIRECTION d)
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
-void NetworkHelper::SendStopPacket(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& rotate)
+void NetworkHelper::SendStopPacket(const DirectX::XMFLOAT3& position) // , const DirectX::XMFLOAT3& rotate
 {
 	CLIENT_PACKET::StopPacket sendPacket;
 	sendPacket.type = CLIENT_PACKET::STOP;
 	sendPacket.size = sizeof(CLIENT_PACKET::StopPacket);
 	sendPacket.position = position;
-	sendPacket.rotate = rotate;
+	// sendPacket.rotate = rotate;
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 void NetworkHelper::SendRotatePacket(ROTATE_AXIS axis, float angle)

@@ -89,7 +89,7 @@ namespace SERVER_PACKET {
 		char type;
 		int userId;
 		DirectX::XMFLOAT3 position;
-		DirectX::XMFLOAT3 rotate;
+		//DirectX::XMFLOAT3 rotate;
 	};
 
 	struct LoginPacket {

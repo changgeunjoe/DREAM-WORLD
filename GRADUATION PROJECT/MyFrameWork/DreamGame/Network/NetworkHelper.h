@@ -29,7 +29,7 @@ public:
 	void RunThread();
 public:
 	void SendMovePacket(DIRECTION d);
-	void SendStopPacket(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& rotate);
+	void SendStopPacket(const DirectX::XMFLOAT3& position); // , const DirectX::XMFLOAT3& rotate
 	void SendRotatePacket(ROTATE_AXIS axis, float angle);
 	void SendKeyUpPacket(DIRECTION d);
 	void SendLoginData(char* loginId, char* pw);

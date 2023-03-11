@@ -43,8 +43,23 @@ void Warrior::SetLookAt()
 
 void Warrior::Move(DIRECTION direction, float fDistance)
 {
-	cout << "Warror dis: " << fDistance << endl;
-	MoveForward(fDistance);
+	//fDistance *= m_fSpeed;
+	if (!m_bRButtonClicked)
+	{
+		switch (direction)
+		{
+		case DIRECTION::FRONT:
+		case DIRECTION::FRONT | DIRECTION::RIGHT:
+		case DIRECTION::RIGHT:
+		case DIRECTION::BACK | DIRECTION::RIGHT:
+		case DIRECTION::BACK:
+		case DIRECTION::BACK | DIRECTION::LEFT:
+		case DIRECTION::LEFT:
+		case DIRECTION::FRONT | DIRECTION::LEFT:
+			MoveForward(fDistance);
+		default: break;
+		}
+	}
 }
 
 Archer::Archer() : Character()
@@ -85,11 +100,21 @@ void Archer::RbuttonUp()
 void Archer::Move(DIRECTION direction, float fDistance)
 {
 	//fDistance *= m_fSpeed;
-	cout << "Archer dis: " << fDistance << endl;
-
 	if (!m_bRButtonClicked)
 	{
-		MoveForward(fDistance);
+		switch (direction)
+		{
+		case DIRECTION::FRONT:
+		case DIRECTION::FRONT | DIRECTION::RIGHT:
+		case DIRECTION::RIGHT:
+		case DIRECTION::BACK | DIRECTION::RIGHT:
+		case DIRECTION::BACK:
+		case DIRECTION::BACK | DIRECTION::LEFT:
+		case DIRECTION::LEFT:
+		case DIRECTION::FRONT | DIRECTION::LEFT:
+			MoveForward(fDistance);
+		default: break;
+		}
 	}
 	else
 	{
@@ -105,6 +130,7 @@ void Archer::Move(DIRECTION direction, float fDistance)
 		case DIRECTION::BACK | DIRECTION::LEFT: MoveDiagonal(-1, -1, fDistance); break;
 		case DIRECTION::LEFT: MoveStrafe(-fDistance); break;
 		case DIRECTION::FRONT | DIRECTION::LEFT: MoveDiagonal(1, -1, fDistance); break;
+		default: break;
 		}
 	}
 }
@@ -155,11 +181,22 @@ void Tanker::RbuttonUp()
 
 void Tanker::Move(DIRECTION direction, float fDistance)
 {
-	cout << "Tanker dis: " << fDistance << endl;
 	//fDistance *= m_fSpeed;
 	if (!m_bRButtonClicked)
 	{
-		MoveForward(fDistance);
+		switch (direction)
+		{
+		case DIRECTION::FRONT:
+		case DIRECTION::FRONT | DIRECTION::RIGHT:
+		case DIRECTION::RIGHT:
+		case DIRECTION::BACK | DIRECTION::RIGHT:
+		case DIRECTION::BACK:
+		case DIRECTION::BACK | DIRECTION::LEFT:
+		case DIRECTION::LEFT:
+		case DIRECTION::FRONT | DIRECTION::LEFT:
+			MoveForward(fDistance);
+		default: break;
+		}
 	}
 	else
 	{
@@ -175,6 +212,7 @@ void Tanker::Move(DIRECTION direction, float fDistance)
 		case DIRECTION::BACK | DIRECTION::LEFT: MoveDiagonal(-1, -1, fDistance); break;
 		case DIRECTION::LEFT: MoveStrafe(-fDistance); break;
 		case DIRECTION::FRONT | DIRECTION::LEFT: MoveDiagonal(1, -1, fDistance); break;
+		default: break;
 		}
 	}
 }

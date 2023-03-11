@@ -57,9 +57,9 @@ void PlayerSessionObject::ConstructPacket(int ioByte)
 	Recv();
 }
 
-bool PlayerSessionObject::AdjustPlayerInfo(DirectX::XMFLOAT3& position, DirectX::XMFLOAT3& rotate)
+bool PlayerSessionObject::AdjustPlayerInfo(DirectX::XMFLOAT3& position) // , DirectX::XMFLOAT3& rotate
 {
-	m_rotateAngle = rotate;
+	//m_rotateAngle = rotate;
 	if (Vector3::Length(Vector3::Subtract(m_position, position)) < 0.3f) { // 일정 값 미만이라면 문제 없음, 이상이라면 스피드 핵?으로 감지하고 위치 서버 위치로 전환
 		m_position = position;
 		return true;
@@ -119,278 +119,355 @@ void PlayerSessionObject::AutoMove()
 	//		std::cout << "R" << std::endl;
 	//	}
 	//}
-	m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, ((double)durationTime / 1000.0f) * 50.0f));
+	// m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, ((double)durationTime / 1000.0f) * 50.0f));
+	Move(((double)durationTime / 1000.0f) * 50.0f);
 	m_lastMoveTime = currentTime;
 	std::cout << "current Position " << m_position.x << " " << m_position.y << " " << m_position.z << std::endl;
-	std::cout << "rotate angle" << m_rotateAngle.x << " " << m_rotateAngle.y << " " << m_rotateAngle.z << std::endl;
+	//std::cout << "rotate angle" << m_rotateAngle.x << " " << m_rotateAngle.y << " " << m_rotateAngle.z << std::endl;
+	std::cout << "rotate angle" << m_directionVector.x << " " << m_directionVector.y << " " << m_directionVector.z << std::endl;
+}
+
+//void PlayerSessionObject::StartMove(DIRECTION d)
+//{
+//	if (m_inputDirection == DIRECTION::IDLE) {
+//		m_lastMoveTime = std::chrono::high_resolution_clock::now();
+//		m_inputDirection = d;
+//
+//		std::cout << "prev Direction: ";
+//		if (m_prevDirection == DIRECTION::IDLE)
+//			std::cout << "IDLE" << std::endl;
+//		else if (m_prevDirection == DIRECTION::LEFT)
+//			std::cout << "LEFT" << std::endl;
+//		else if (m_prevDirection == DIRECTION::RIGHT)
+//			std::cout << "RIGHT" << std::endl;
+//		else if (m_prevDirection == DIRECTION::FRONT)
+//			std::cout << "FRONT" << std::endl;
+//		else if (m_prevDirection == DIRECTION::BACK)
+//			std::cout << "BACK" << std::endl;
+//
+//		std::cout << "input Direction: ";
+//		if (d == DIRECTION::IDLE)
+//			std::cout << "IDLE" << std::endl;
+//		else if (d == DIRECTION::LEFT)
+//			std::cout << "LEFT" << std::endl;
+//		else if (d == DIRECTION::RIGHT)
+//			std::cout << "RIGHT" << std::endl;
+//		else if (d == DIRECTION::FRONT)
+//			std::cout << "FRONT" << std::endl;
+//		else if (d == DIRECTION::BACK)
+//			std::cout << "BACK" << std::endl;
+//
+//		switch (d)
+//		{
+//		case DIRECTION::FRONT:
+//			switch (m_prevDirection)
+//			{
+//			case DIRECTION::IDLE:
+//			case DIRECTION::FRONT:
+//				break;
+//			case DIRECTION::BACK:
+//				Rotate(ROTATE_AXIS::Y, 180.0f);
+//				break;
+//			case DIRECTION::RIGHT:
+//				Rotate(ROTATE_AXIS::Y, -90.0f);
+//				break;
+//			case DIRECTION::LEFT:
+//				Rotate(ROTATE_AXIS::Y, 90.0f);
+//				break;
+//			default:
+//				break;
+//			}
+//			break;
+//		case DIRECTION::LEFT:
+//			switch (m_prevDirection)
+//			{
+//			case DIRECTION::IDLE:
+//			case DIRECTION::FRONT:
+//				Rotate(ROTATE_AXIS::Y, -90.0f);
+//				break;
+//			case DIRECTION::BACK:
+//				Rotate(ROTATE_AXIS::Y, 90.0f);
+//				break;
+//			case DIRECTION::RIGHT:
+//				Rotate(ROTATE_AXIS::Y, 180.0f);
+//				break;
+//			case DIRECTION::LEFT:
+//				break;
+//			default:
+//				break;
+//			}
+//			break;
+//		case DIRECTION::BACK:
+//			switch (m_prevDirection)
+//			{
+//			case DIRECTION::IDLE:
+//			case DIRECTION::FRONT:
+//				Rotate(ROTATE_AXIS::Y, 180.0f);
+//				break;
+//			case DIRECTION::BACK:
+//				break;
+//			case DIRECTION::RIGHT:
+//				Rotate(ROTATE_AXIS::Y, 90.0f);
+//				break;
+//			case DIRECTION::LEFT:
+//				Rotate(ROTATE_AXIS::Y, -90.0f);
+//				break;
+//			default:
+//				break;
+//			}
+//			break;
+//		case DIRECTION::RIGHT:
+//			switch (m_prevDirection)
+//			{
+//			case DIRECTION::IDLE:
+//			case DIRECTION::FRONT:
+//				Rotate(ROTATE_AXIS::Y, 90.0f);
+//				break;
+//			case DIRECTION::BACK:
+//				Rotate(ROTATE_AXIS::Y, -90.0f);
+//				break;
+//			case DIRECTION::RIGHT:
+//				break;
+//			case DIRECTION::LEFT:
+//				Rotate(ROTATE_AXIS::Y, 180.0f);
+//				break;
+//			default:
+//				break;
+//			}
+//			break;
+//		}
+//		return;
+//	}	
+//	m_inputDirection = (DIRECTION)(m_inputDirection | d);
+//	switch ((DIRECTION)(m_inputDirection ^ d))
+//	{
+//	case DIRECTION::FRONT:
+//	{
+//		switch (d)
+//		{
+//		case DIRECTION::FRONT:
+//			break;
+//		case DIRECTION::LEFT:
+//			Rotate(ROTATE_AXIS::Y, -45.0f);
+//			break;
+//		case DIRECTION::BACK:
+//			break;
+//		case DIRECTION::RIGHT:
+//			Rotate(ROTATE_AXIS::Y, 45.0f);
+//			break;
+//		}
+//	}
+//	break;
+//	case DIRECTION::LEFT:
+//	{
+//		switch (d)
+//		{
+//		case DIRECTION::FRONT:
+//			Rotate(ROTATE_AXIS::Y, 45.0f);
+//			break;
+//		case DIRECTION::LEFT:
+//			break;
+//		case DIRECTION::BACK:
+//			Rotate(ROTATE_AXIS::Y, -45.0f);
+//			break;
+//		case DIRECTION::RIGHT:
+//			break;
+//		}
+//	}
+//	break;
+//	case DIRECTION::BACK:
+//	{
+//		switch (d)
+//		{
+//		case DIRECTION::FRONT:
+//			break;
+//		case DIRECTION::LEFT:
+//			Rotate(ROTATE_AXIS::Y, 45.0f);
+//			break;
+//		case DIRECTION::BACK:
+//			break;
+//		case DIRECTION::RIGHT:
+//			Rotate(ROTATE_AXIS::Y, -45.0f);
+//			break;
+//		}
+//	}
+//	break;
+//	case DIRECTION::RIGHT:
+//	{
+//		switch (d)
+//		{
+//		case DIRECTION::FRONT:
+//			Rotate(ROTATE_AXIS::Y, -45.0f);
+//			break;
+//		case DIRECTION::LEFT:
+//			break;
+//		case DIRECTION::BACK:
+//			Rotate(ROTATE_AXIS::Y, 45.0f);
+//			break;
+//		case DIRECTION::RIGHT:
+//			break;
+//		}
+//	}
+//	break;
+//	}
+//}
+
+void PlayerSessionObject::SetDirection(DIRECTION d)
+{
+	DirectX::XMFLOAT3 xmf3Up = DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f);
+	DirectX::XMMATRIX xmmtxRotate = DirectX::XMMatrixRotationAxis(DirectX::XMLoadFloat3(&xmf3Up), DirectX::XMConvertToRadians(m_rotateAngle.y));
+	DirectX::XMFLOAT3 xmf3Look = DirectX::XMFLOAT3(0.0f, 0.0f, 1.0f);
+	xmf3Look = Vector3::TransformNormal(xmf3Look, xmmtxRotate);
+
+	DirectX::XMFLOAT3 xmf3Rev = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	float fRotateAngle = -1.0f;
+
+	if (d != DIRECTION::IDLE)
+	{
+		if (((d & DIRECTION::LEFT) == DIRECTION::LEFT) &&
+			((d & DIRECTION::RIGHT) == DIRECTION::RIGHT))
+		{
+			d = (DIRECTION)(d ^ DIRECTION::LEFT);
+			d = (DIRECTION)(d ^ DIRECTION::RIGHT);
+		}
+		if (((d & DIRECTION::FRONT) == DIRECTION::FRONT) &&
+			((d & DIRECTION::BACK) == DIRECTION::BACK))
+		{
+			d = (DIRECTION)(d ^ DIRECTION::FRONT);
+			d = (DIRECTION)(d ^ DIRECTION::BACK);
+		}
+		switch (d)
+		{
+		case DIRECTION::FRONT:						fRotateAngle = 0.0f;	break;
+		case DIRECTION::LEFT | DIRECTION::FRONT:	fRotateAngle = 45.0f;	break;
+		case DIRECTION::LEFT:						fRotateAngle = 90.0f;	break;
+		case DIRECTION::BACK | DIRECTION::LEFT:		fRotateAngle = 135.0f;	break;
+		case DIRECTION::BACK:						fRotateAngle = 180.0f;	break;
+		case DIRECTION::RIGHT | DIRECTION::BACK:	fRotateAngle = 225.0f;	break;
+		case DIRECTION::RIGHT:						fRotateAngle = 270.0f;	break;
+		case DIRECTION::FRONT | DIRECTION::RIGHT:	fRotateAngle = 315.0f;	break;
+		}
+
+		fRotateAngle = fRotateAngle * (3.14159265359 / 180.0f);
+		xmf3Rev.x = xmf3Look.x * cos(fRotateAngle) - xmf3Look.z * sin(fRotateAngle);
+		xmf3Rev.z = xmf3Look.x * sin(fRotateAngle) + xmf3Look.z * cos(fRotateAngle);
+		xmf3Rev = Vector3::Normalize(xmf3Rev);
+
+		m_directionVector = xmf3Rev;
+	}
 }
 
 void PlayerSessionObject::StartMove(DIRECTION d)
 {
-	if (m_inputDirection == DIRECTION::IDLE) {
+	if (m_inputDirection == DIRECTION::IDLE)
 		m_lastMoveTime = std::chrono::high_resolution_clock::now();
-		m_inputDirection = d;
 
-		std::cout << "prev Direction: ";
-		if (m_prevDirection == DIRECTION::IDLE)
-			std::cout << "IDLE" << std::endl;
-		else if (m_prevDirection == DIRECTION::LEFT)
-			std::cout << "LEFT" << std::endl;
-		else if (m_prevDirection == DIRECTION::RIGHT)
-			std::cout << "RIGHT" << std::endl;
-		else if (m_prevDirection == DIRECTION::FRONT)
-			std::cout << "FRONT" << std::endl;
-		else if (m_prevDirection == DIRECTION::BACK)
-			std::cout << "BACK" << std::endl;
-
-		std::cout << "input Direction: ";
-		if (d == DIRECTION::IDLE)
-			std::cout << "IDLE" << std::endl;
-		else if (d == DIRECTION::LEFT)
-			std::cout << "LEFT" << std::endl;
-		else if (d == DIRECTION::RIGHT)
-			std::cout << "RIGHT" << std::endl;
-		else if (d == DIRECTION::FRONT)
-			std::cout << "FRONT" << std::endl;
-		else if (d == DIRECTION::BACK)
-			std::cout << "BACK" << std::endl;
-
-		switch (d)
-		{
-		case DIRECTION::FRONT:
-			switch (m_prevDirection)
-			{
-			case DIRECTION::IDLE:
-			case DIRECTION::FRONT:
-				break;
-			case DIRECTION::BACK:
-				Rotate(ROTATE_AXIS::Y, 180.0f);
-				break;
-			case DIRECTION::RIGHT:
-				Rotate(ROTATE_AXIS::Y, -90.0f);
-				break;
-			case DIRECTION::LEFT:
-				Rotate(ROTATE_AXIS::Y, 90.0f);
-				break;
-			default:
-				break;
-			}
-			break;
-		case DIRECTION::LEFT:
-			switch (m_prevDirection)
-			{
-			case DIRECTION::IDLE:
-			case DIRECTION::FRONT:
-				Rotate(ROTATE_AXIS::Y, -90.0f);
-				break;
-			case DIRECTION::BACK:
-				Rotate(ROTATE_AXIS::Y, 90.0f);
-				break;
-			case DIRECTION::RIGHT:
-				Rotate(ROTATE_AXIS::Y, 180.0f);
-				break;
-			case DIRECTION::LEFT:
-				break;
-			default:
-				break;
-			}
-			break;
-		case DIRECTION::BACK:
-			switch (m_prevDirection)
-			{
-			case DIRECTION::IDLE:
-			case DIRECTION::FRONT:
-				Rotate(ROTATE_AXIS::Y, 180.0f);
-				break;
-			case DIRECTION::BACK:
-				break;
-			case DIRECTION::RIGHT:
-				Rotate(ROTATE_AXIS::Y, 90.0f);
-				break;
-			case DIRECTION::LEFT:
-				Rotate(ROTATE_AXIS::Y, -90.0f);
-				break;
-			default:
-				break;
-			}
-			break;
-		case DIRECTION::RIGHT:
-			switch (m_prevDirection)
-			{
-			case DIRECTION::IDLE:
-			case DIRECTION::FRONT:
-				Rotate(ROTATE_AXIS::Y, 90.0f);
-				break;
-			case DIRECTION::BACK:
-				Rotate(ROTATE_AXIS::Y, -90.0f);
-				break;
-			case DIRECTION::RIGHT:
-				break;
-			case DIRECTION::LEFT:
-				Rotate(ROTATE_AXIS::Y, 180.0f);
-				break;
-			default:
-				break;
-			}
-			break;
-		}
-		return;
-	}	
 	m_inputDirection = (DIRECTION)(m_inputDirection | d);
-	switch ((DIRECTION)(m_inputDirection ^ d))
-	{
-	case DIRECTION::FRONT:
-	{
-		switch (d)
-		{
-		case DIRECTION::FRONT:
-			break;
-		case DIRECTION::LEFT:
-			Rotate(ROTATE_AXIS::Y, -45.0f);
-			break;
-		case DIRECTION::BACK:
-			break;
-		case DIRECTION::RIGHT:
-			Rotate(ROTATE_AXIS::Y, 45.0f);
-			break;
-		}
-	}
-	break;
-	case DIRECTION::LEFT:
-	{
-		switch (d)
-		{
-		case DIRECTION::FRONT:
-			Rotate(ROTATE_AXIS::Y, 45.0f);
-			break;
-		case DIRECTION::LEFT:
-			break;
-		case DIRECTION::BACK:
-			Rotate(ROTATE_AXIS::Y, -45.0f);
-			break;
-		case DIRECTION::RIGHT:
-			break;
-		}
-	}
-	break;
-	case DIRECTION::BACK:
-	{
-		switch (d)
-		{
-		case DIRECTION::FRONT:
-			break;
-		case DIRECTION::LEFT:
-			Rotate(ROTATE_AXIS::Y, 45.0f);
-			break;
-		case DIRECTION::BACK:
-			break;
-		case DIRECTION::RIGHT:
-			Rotate(ROTATE_AXIS::Y, -45.0f);
-			break;
-		}
-	}
-	break;
-	case DIRECTION::RIGHT:
-	{
-		switch (d)
-		{
-		case DIRECTION::FRONT:
-			Rotate(ROTATE_AXIS::Y, -45.0f);
-			break;
-		case DIRECTION::LEFT:
-			break;
-		case DIRECTION::BACK:
-			Rotate(ROTATE_AXIS::Y, 45.0f);
-			break;
-		case DIRECTION::RIGHT:
-			break;
-		}
-	}
-	break;
-	}
+	SetDirection(m_inputDirection);
 }
 
 void PlayerSessionObject::StopMove()
 {	
 	PrintCurrentTime();
 	std::cout << "PlayerSessionObject::StopMove() - Look Dir: " << m_directionVector.x << ", " << m_directionVector.y << ", " << m_directionVector.z << std::endl;
-	m_prevDirection = m_inputDirection;
+	// m_prevDirection = m_inputDirection;
 	m_inputDirection = DIRECTION::IDLE;
 }
 
 void PlayerSessionObject::ChangeDirection(DIRECTION d)
 {	
 	m_inputDirection = (DIRECTION)(m_inputDirection ^ d);
-	switch (d)
-	{
-	case DIRECTION::FRONT:
+	SetDirection(m_inputDirection);
+	//switch (d)
+	//{
+	//case DIRECTION::FRONT:
+	//{
+	//	switch (m_inputDirection)
+	//	{
+	//	case DIRECTION::FRONT:
+	//		break;
+	//	case DIRECTION::LEFT:
+	//		Rotate(ROTATE_AXIS::Y, -45.0f);
+	//		break;
+	//	case DIRECTION::BACK:
+	//		break;
+	//	case DIRECTION::RIGHT:
+	//		Rotate(ROTATE_AXIS::Y, 45.0f);
+	//		break;
+	//	}
+	//}
+	//break;
+	//case DIRECTION::LEFT:
+	//{
+	//	switch (m_inputDirection)
+	//	{
+	//	case DIRECTION::FRONT:
+	//		Rotate(ROTATE_AXIS::Y, 45.0f);
+	//		break;
+	//	case DIRECTION::LEFT:
+	//		break;
+	//	case DIRECTION::BACK:
+	//		Rotate(ROTATE_AXIS::Y, -45.0f);
+	//		break;
+	//	case DIRECTION::RIGHT:
+	//		break;
+	//	}
+	//}
+	//break;
+	//case DIRECTION::BACK:
+	//{
+	//	switch (m_inputDirection)
+	//	{
+	//	case DIRECTION::FRONT:
+	//		break;
+	//	case DIRECTION::LEFT:
+	//		Rotate(ROTATE_AXIS::Y, 45.0f);
+	//		break;
+	//	case DIRECTION::BACK:
+	//		break;
+	//	case DIRECTION::RIGHT:
+	//		Rotate(ROTATE_AXIS::Y, -45.0f);
+	//		break;
+	//	}
+	//}
+	//break;
+	//case DIRECTION::RIGHT:
+	//{
+	//	switch (m_inputDirection)
+	//	{
+	//	case DIRECTION::FRONT:
+	//		Rotate(ROTATE_AXIS::Y, -45.0f);
+	//		break;
+	//	case DIRECTION::LEFT:
+	//		break;
+	//	case DIRECTION::BACK:
+	//		Rotate(ROTATE_AXIS::Y, 45.0f);
+	//		break;
+	//	case DIRECTION::RIGHT:
+	//		break;
+	//	}
+	//}
+	//break;
+	//}
+}
+
+void PlayerSessionObject::Move(float fDistance)
+{
+	if (m_inputDirection != DIRECTION::IDLE)
 	{
 		switch (m_inputDirection)
 		{
 		case DIRECTION::FRONT:
-			break;
-		case DIRECTION::LEFT:
-			Rotate(ROTATE_AXIS::Y, -45.0f);
-			break;
-		case DIRECTION::BACK:
-			break;
+		case DIRECTION::FRONT | DIRECTION::RIGHT:
 		case DIRECTION::RIGHT:
-			Rotate(ROTATE_AXIS::Y, 45.0f);
-			break;
-		}
-	}
-	break;
-	case DIRECTION::LEFT:
-	{
-		switch (m_inputDirection)
-		{
-		case DIRECTION::FRONT:
-			Rotate(ROTATE_AXIS::Y, 45.0f);
-			break;
-		case DIRECTION::LEFT:
-			break;
+		case DIRECTION::BACK | DIRECTION::RIGHT:
 		case DIRECTION::BACK:
-			Rotate(ROTATE_AXIS::Y, -45.0f);
-			break;
-		case DIRECTION::RIGHT:
-			break;
-		}
-	}
-	break;
-	case DIRECTION::BACK:
-	{
-		switch (m_inputDirection)
-		{
-		case DIRECTION::FRONT:
-			break;
+		case DIRECTION::BACK | DIRECTION::LEFT:
 		case DIRECTION::LEFT:
-			Rotate(ROTATE_AXIS::Y, 45.0f);
-			break;
-		case DIRECTION::BACK:
-			break;
-		case DIRECTION::RIGHT:
-			Rotate(ROTATE_AXIS::Y, -45.0f);
-			break;
+		case DIRECTION::FRONT | DIRECTION::LEFT:
+			m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, fDistance));
+		default: break;
 		}
-	}
-	break;
-	case DIRECTION::RIGHT:
-	{
-		switch (m_inputDirection)
-		{
-		case DIRECTION::FRONT:
-			Rotate(ROTATE_AXIS::Y, -45.0f);
-			break;
-		case DIRECTION::LEFT:
-			break;
-		case DIRECTION::BACK:
-			Rotate(ROTATE_AXIS::Y, 45.0f);
-			break;
-		case DIRECTION::RIGHT:
-			break;
-		}
-	}
-	break;
 	}
 }
 
@@ -417,6 +494,7 @@ void PlayerSessionObject::Rotate(ROTATE_AXIS axis, float angle)
 		m_directionVector = Vector3::Normalize(XMFLOAT3(m_worldMatrix._31, m_worldMatrix._32, m_worldMatrix._33));
 
 		m_rotateAngle.y += angle;
+		SetDirection(m_inputDirection);
 	}
 	break;
 	case Z:

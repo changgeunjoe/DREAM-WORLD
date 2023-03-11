@@ -45,13 +45,13 @@ public:
     void SetAnimationSets(int nAnimationSets);
     void SetMesh(MeshComponent* pMesh);
     void SetCamera(CCamera* pCamera);
-    void SetLookAt();
+    void MoveObject(DIRECTION& currentDirection, const XMFLOAT3& CameraAxis);
     
 	void MoveStrafe(float fDistance = 1.0f);
 	void MoveUp(float fDistance = 1.0f);
     void MoveForward(float fDistance = 1.0f);
     void MoveDiagonal(int fowardDirection, int rightDirection, float distance = 1.0f);
-    virtual void Move(DIRECTION direction = DIRECTION::FRONT, float fDistance = 1.0f);
+    virtual void Move(DIRECTION direction, float fDistance = 1.0f);
 
     bool CheckIntersect(const GameObject* GameObject);	//수정필요
 
@@ -145,6 +145,7 @@ public:
 
     int                             m_iRButtionCount = 0;
 
+    DIRECTION                       m_prevDirection = DIRECTION::IDLE;
 protected:
 
     int								m_nReferences = 0;
