@@ -4,6 +4,7 @@
 #include"Scene.h"
 
 
+
 class CCamera;
 class CGameFramework
 {
@@ -68,6 +69,11 @@ private:
 	_TCHAR m_pszFrameRate[50];
 
 
+	//2d ui리소스를 띄우는 
+	ID2D1Factory* pD2DFactory = nullptr;
+	IDWriteFactory* pDWriteFactory = nullptr;
+
+
 	POINT						m_ptOldCursorPos;
 public:
 	CGameFramework();
@@ -88,6 +94,7 @@ public:
 
 	void CreateRenderTargetViews();//랜더 타겟 뷰를 생성하는 함수
 	void CreateDepthStencilView();// 깊이 - 스텐실 뷰를 생성하는 함수이다.
+	void CreateDirect2D();
 	//랜더 타겟 뷰와 깊이-스텐실 뷰를 생성하는 함수이다.
 
 	void BuildObjects();
@@ -98,7 +105,8 @@ public:
 	void ProcessInput();
 	void AnimateObjects();
 	void FrameAdvance();
-
+	void Render2DFont();
+	
 	void WaitForGpuComplete();//CPU와 GPu를 동기화하는 함수이다.
 	//https://vitacpp.tistory.com/m/50
 

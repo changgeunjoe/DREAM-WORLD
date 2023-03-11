@@ -30,6 +30,7 @@ public:
 	virtual void ReleaseShaderVariables();
 
 	virtual bool onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
+	virtual bool onProcessingKeyboardMessageUI(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	virtual void onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
 private: //active object 
@@ -41,19 +42,28 @@ private: //active object
 	GameObject* m_pArcherObject{ NULL };
 	GameObject* m_pTankerObject{ NULL }; // ∂À≈ ≈© √¢±Ÿ¿Ã
 	GameObject* m_pPriestObject{ NULL };
-	DepthRenderShaderComponent* m_pDepthShaderComponent{ NULL };
-	ShadowMapShaderComponent* m_pShadowmapShaderComponent{NULL};
-	TextureToViewportComponent* m_pTextureToViewportComponent{ NULL };
 	GameObject* m_pPlaneObject{ NULL };
 	GameObject* m_pSkyboxObject{ NULL };
 	GameObject* m_pAnimationObject{ NULL };
 	GameObject* m_pMonsterObject{ NULL };
+	GameObject* m_pPlayerObject{ NULL };
+
+
+	DepthRenderShaderComponent* m_pDepthShaderComponent{ NULL };
+	ShadowMapShaderComponent* m_pShadowmapShaderComponent{ NULL };
+	TextureToViewportComponent* m_pTextureToViewportComponent{ NULL };
+
+
 	CLight* m_pLight{ NULL };
 	CCamera* m_pCamera{ NULL };
 
-	GameObject* m_pPlayerObject = NULL;
 
+
+	////////////UI Object////////////// 
+	vector<GameObject*> m_ppUIObjects;
+	int				m_nUIObjects{};
 	GameObject* m_pUIGameSearchObject{ NULL };
+	GameObject* m_pUIGameChoiceObject{ NULL };
 
 	POINT						m_ptOldCursorPos;
 public:

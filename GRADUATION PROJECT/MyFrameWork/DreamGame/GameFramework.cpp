@@ -59,6 +59,7 @@ bool CGameFramework::onCreate(HINSTANCE hinstance, HWND hmainwnd)
 	CreateRtvAndDsvDescriptorHeaps();
 	CreateRenderTargetViews();
 	CreateDepthStencilView();
+	CreateDirect2D();
 
 
 
@@ -402,6 +403,12 @@ void CGameFramework::CreateDepthStencilView()//깊이 스텐실 뷰를 만든다.
 
 }
 
+void CGameFramework::CreateDirect2D()
+{
+	D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &pD2DFactory);
+	DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), reinterpret_cast<IUnknown**>(&pDWriteFactory));
+}
+
 void CGameFramework::BuildObjects()
 {
 	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
@@ -648,6 +655,7 @@ void CGameFramework::FrameAdvance()
 	//&d3dDsvCPUDescriptorHandle);
 	//렌더 타겟 뷰(서술자)와 깊이-스텐실 뷰(서술자)를 출력-병합 단계(OM)에 연결한다. //렌더링 코드는 여기에 추가될 것이다.
 	//m_pScene->OnPreRender(m_pd3dDevice, m_pd3dCommandList, m_pCamera);
+	Render2DFont();
 	if (m_pScene) m_pScene->Render(m_pd3dDevice, m_pd3dCommandList, m_pCamera);
 	//m_pScene->CreateGraphicsPipelineState(m_pd3dDevice);
 	d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
@@ -678,4 +686,45 @@ void CGameFramework::FrameAdvance()
 	//m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
 	m_GameTimer.GetFrameRate(m_pszFrameRate + 12, 37);
 	::SetWindowText(m_hwnd, m_pszFrameRate);
+}
+
+void CGameFramework::Render2DFont()
+{
+	RECT rc;
+	GetClientRect(m_hwnd, &rc);
+
+	D2D1_SIZE_U size = D2D1::SizeU(rc.right - rc.left, rc.bottom - rc.top);
+
+	wchar_t* pText = L"Hello, World!";
+
+	// Direct2D 브러시
+	ID2D1SolidColorBrush* pBrush = nullptr;
+
+	// DirectWrite 텍스트 포맷 및 레이아웃
+	IDWriteTextFormat* pTextFormat = nullptr;
+	IDWriteTextLayout* pTextLayout = nullptr;
+
+	// Direct2D 렌더 타겟
+	ID2D1HwndRenderTarget* pRenderTarget = nullptr;
+
+	// Direct2D 렌더 타겟 생성
+	 D2D1_RENDER_TARGET_PROPERTIES props = D2D1::RenderTargetProperties(
+		D2D1_RENDER_TARGET_TYPE_DEFAULT,
+		D2D1::PixelFormat(DXGI_FORMAT_UNKNOWN, D2D1_ALPHA_MODE_PREMULTIPLIED));
+
+	pD2DFactory->CreateHwndRenderTarget(&props, &D2D1::HwndRenderTargetProperties(m_hwnd, size), &pRenderTarget);
+
+	// Direct2D 브러시 생성
+	pRenderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White), &pBrush);
+
+	// DirectWrite 텍스트 포맷 생성
+	pDWriteFactory->CreateTextFormat(L"Arial", nullptr, DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 36.0f, L"en-us", &pTextFormat);
+
+	// DirectWrite 텍스트 레이아웃 생성
+	pDWriteFactory->CreateTextLayout(pText, lstrlenW(pText), pTextFormat, size.width, size.height, &pTextLayout);
+
+	// Direct2D 렌더 타겟에 텍스트 레이아웃을 그림
+	pRenderTarget->BeginDraw();
+	pRenderTarget->DrawTextLayout(D2D1::Point2F(0, 0), pTextLayout, pBrush);
+	pRenderTarget->EndDraw();
 }

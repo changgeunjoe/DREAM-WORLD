@@ -95,7 +95,12 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	//m_pPlaneObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//m_pMonsterObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
-	m_pUIGameSearchObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+
+	for (int i = 0; i < m_ppUIObjects.size(); i++) {
+		m_ppUIObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
+
+	
 
 	if (m_pShadowmapShaderComponent)
 	{
@@ -199,9 +204,22 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pUIGameSearchObject->InsertComponent<UiShaderComponent>();
 	m_pUIGameSearchObject->InsertComponent<TextureComponent>();
 	m_pUIGameSearchObject->SetTexture(L"Image/GameSearching.dds", RESOURCE_TEXTURE2D, 3);
-	m_pUIGameSearchObject->SetPosition(XMFLOAT3(0, 0, 1.02f));
-	m_pUIGameSearchObject->SetScale(0.1, 0.03, 1);
+	m_pUIGameSearchObject->SetPosition(XMFLOAT3(0, 0, 1.01f));
+	m_pUIGameSearchObject->SetScale(0.05, 0.025, 1);
 	m_pUIGameSearchObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppUIObjects.emplace_back(m_pUIGameSearchObject);
+
+	m_pUIGameChoiceObject = new GameObject(UI_ENTITY);
+	m_pUIGameChoiceObject->InsertComponent<RenderComponent>();
+	m_pUIGameChoiceObject->InsertComponent<UIMeshComponent>();
+	m_pUIGameChoiceObject->InsertComponent<UiShaderComponent>();
+	m_pUIGameChoiceObject->InsertComponent<TextureComponent>();
+	m_pUIGameChoiceObject->SetTexture(L"Image/GameSearching.dds", RESOURCE_TEXTURE2D, 3);
+	m_pUIGameChoiceObject->SetPosition(XMFLOAT3(0.5, 0.1, 1.01));
+	m_pUIGameChoiceObject->SetScale(0.05, 0.02, 1);
+	m_pUIGameChoiceObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppUIObjects.emplace_back(m_pUIGameChoiceObject);
+
 
 
 
@@ -768,6 +786,57 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 	if (g_Logic.m_inGamePlayerSession[0].m_currentDirection & DIRECTION::BACK)
 		std::cout << "BACK ";
 	std::cout << std::endl;
+	return(false);
+}
+
+bool GameobjectManager::onProcessingKeyboardMessageUI(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
+{
+	switch (nMessageID)
+	{
+	case WM_KEYDOWN:
+		std::cout << "GameobjectManager::onProcessingKeyboardMessage() -key down: ";
+		switch (wParam)
+		{
+		case 'P':
+		{
+			XMFLOAT3 TempPosition = m_ppUIObjects[m_nUIObjects]->GetPosition();
+			TempPosition.x += 0.01;
+			m_ppUIObjects[m_nUIObjects]->SetPosition(TempPosition);
+		}
+		break;
+		case 'O':
+		{
+			XMFLOAT3 TempPosition = m_ppUIObjects[m_nUIObjects]->GetPosition();
+			TempPosition.x -= 0.01;
+			m_ppUIObjects[m_nUIObjects]->SetPosition(TempPosition);
+		}
+		break;
+		case 'K':
+		{
+			XMFLOAT3 TempPosition = m_ppUIObjects[m_nUIObjects]->GetPosition();
+			TempPosition.y += 0.01;
+			m_ppUIObjects[m_nUIObjects]->SetPosition(TempPosition);
+		}
+		break;
+		case 'L':
+		{
+			XMFLOAT3 TempPosition = m_ppUIObjects[m_nUIObjects]->GetPosition();
+			TempPosition.y -= 0.01;
+			m_ppUIObjects[m_nUIObjects]->SetPosition(TempPosition);
+		}
+		break;
+		case 'I':
+		{
+			m_nUIObjects++;
+		//	if (m_nUIObjects > m_ppUIObjects.size())
+			//m_nUIObjects = 0;
+		}
+		break;
+		default:
+			break;
+		}
+		break;
+	}
 	return(false);
 }
 
