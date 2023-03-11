@@ -556,8 +556,8 @@ void CGameFramework::ProcessInput()
 					/*g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetUp(), -30.0f * fTimeElapsed);
 					g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y -= 30.0f * fTimeElapsed;
 					g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::Y, -30.0f * fTimeElapsed);*/
-					g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetUp(), cxDelta);
-					g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += cxDelta;
+					//g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetUp(), cxDelta);
+					g_Logic.m_inGamePlayerSession[0].m_ownerRotateAngle.y += cxDelta;
 					g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::Y, cxDelta);
 
 					m_pCamera->Rotate(cyDelta, cxDelta, 0.0f);

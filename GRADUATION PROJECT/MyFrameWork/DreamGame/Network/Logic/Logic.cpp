@@ -253,7 +253,7 @@ void Logic::ProcessPacket(char* p)
 			{
 				switch (findRes->m_currentDirection)
 				{
-				case DIRECTION::FRONT:					
+				case DIRECTION::FRONT:
 					break;
 				case DIRECTION::LEFT:					
 					findRes->m_currentPlayGameObject->Rotate(&upVec, -45.0f);

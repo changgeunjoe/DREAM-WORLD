@@ -15,6 +15,7 @@ public:
 	DIRECTION m_prevDirection = DIRECTION::IDLE;
 public:
 	XMFLOAT3 m_rotateAngle = XMFLOAT3(0, 0, 0);
+	XMFLOAT3 m_ownerRotateAngle = XMFLOAT3(0, 0, 0); // 마우스 회전을 위한 객체
 private:
 	std::wstring name;
 public:

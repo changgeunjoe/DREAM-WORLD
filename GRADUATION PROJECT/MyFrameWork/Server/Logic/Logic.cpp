@@ -138,14 +138,15 @@ void Logic::ProcessPacket(int userId, char* p)
 	case CLIENT_PACKET::MATCH:
 	{
 		CLIENT_PACKET::MatchPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::MatchPacket*>(p);
-
+		recvPacket->Role;
 
 	}
 	break;
 	case CLIENT_PACKET::CREATE_ROOM:
 	{
 		CLIENT_PACKET::CreateRoomPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::CreateRoomPacket*>(p);
-
+		recvPacket->Role;
+		recvPacket->roomName;
 	}
 	break;
 	case CLIENT_PACKET::REQUEST_ROOM_LIST:
