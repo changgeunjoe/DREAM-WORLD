@@ -100,9 +100,23 @@ void Archer::RbuttonUp()
 void Archer::Move(DIRECTION direction, float fDistance)
 {
 	//fDistance *= m_fSpeed;
+	DIRECTION tespDIR = direction;
+	if (((tespDIR & DIRECTION::LEFT) == DIRECTION::LEFT) &&
+		((tespDIR & DIRECTION::RIGHT) == DIRECTION::RIGHT))
+	{
+		tespDIR = (DIRECTION)(tespDIR ^ DIRECTION::LEFT);
+		tespDIR = (DIRECTION)(tespDIR ^ DIRECTION::RIGHT);
+	}
+	if (((tespDIR & DIRECTION::FRONT) == DIRECTION::FRONT) &&
+		((tespDIR & DIRECTION::BACK) == DIRECTION::BACK))
+	{
+		tespDIR = (DIRECTION)(tespDIR ^ DIRECTION::FRONT);
+		tespDIR = (DIRECTION)(tespDIR ^ DIRECTION::BACK);
+	}
+
 	if (!m_bRButtonClicked)
 	{
-		switch (direction)
+		switch (tespDIR)
 		{
 		case DIRECTION::FRONT:
 		case DIRECTION::FRONT | DIRECTION::RIGHT:
@@ -119,7 +133,7 @@ void Archer::Move(DIRECTION direction, float fDistance)
 	else
 	{
 		//fDistance /= 3;
-		switch (direction)
+		switch (tespDIR)
 		{
 		case DIRECTION::IDLE: break;
 		case DIRECTION::FRONT: MoveForward(fDistance); break;
@@ -182,9 +196,23 @@ void Tanker::RbuttonUp()
 void Tanker::Move(DIRECTION direction, float fDistance)
 {
 	//fDistance *= m_fSpeed;
+	DIRECTION tespDIR = direction;
+	if (((tespDIR & DIRECTION::LEFT) == DIRECTION::LEFT) &&
+		((tespDIR & DIRECTION::RIGHT) == DIRECTION::RIGHT))
+	{
+		tespDIR = (DIRECTION)(tespDIR ^ DIRECTION::LEFT);
+		tespDIR = (DIRECTION)(tespDIR ^ DIRECTION::RIGHT);
+	}
+	if (((tespDIR & DIRECTION::FRONT) == DIRECTION::FRONT) &&
+		((tespDIR & DIRECTION::BACK) == DIRECTION::BACK))
+	{
+		tespDIR = (DIRECTION)(tespDIR ^ DIRECTION::FRONT);
+		tespDIR = (DIRECTION)(tespDIR ^ DIRECTION::BACK);
+	}
+
 	if (!m_bRButtonClicked)
 	{
-		switch (direction)
+		switch (tespDIR)
 		{
 		case DIRECTION::FRONT:
 		case DIRECTION::FRONT | DIRECTION::RIGHT:
@@ -201,7 +229,7 @@ void Tanker::Move(DIRECTION direction, float fDistance)
 	else
 	{
 		//fDistance /= 3;
-		switch (direction)
+		switch (tespDIR)
 		{
 		case DIRECTION::IDLE: break;
 		case DIRECTION::FRONT: MoveForward(fDistance); break;

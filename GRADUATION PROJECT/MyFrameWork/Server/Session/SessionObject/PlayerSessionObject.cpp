@@ -453,9 +453,23 @@ void PlayerSessionObject::ChangeDirection(DIRECTION d)
 
 void PlayerSessionObject::Move(float fDistance)
 {
+	DIRECTION tespDIR = m_inputDirection;
+	if (((tespDIR & DIRECTION::LEFT) == DIRECTION::LEFT) &&
+		((tespDIR & DIRECTION::RIGHT) == DIRECTION::RIGHT))
+	{
+		tespDIR = (DIRECTION)(tespDIR ^ DIRECTION::LEFT);
+		tespDIR = (DIRECTION)(tespDIR ^ DIRECTION::RIGHT);
+	}
+	if (((tespDIR & DIRECTION::FRONT) == DIRECTION::FRONT) &&
+		((tespDIR & DIRECTION::BACK) == DIRECTION::BACK))
+	{
+		tespDIR = (DIRECTION)(tespDIR ^ DIRECTION::FRONT);
+		tespDIR = (DIRECTION)(tespDIR ^ DIRECTION::BACK);
+	}
+
 	if (m_inputDirection != DIRECTION::IDLE)
 	{
-		switch (m_inputDirection)
+		switch (tespDIR)
 		{
 		case DIRECTION::FRONT:
 		case DIRECTION::FRONT | DIRECTION::RIGHT:
@@ -484,14 +498,14 @@ void PlayerSessionObject::Rotate(ROTATE_AXIS axis, float angle)
 	break;
 	case Y:
 	{
-		DirectX::XMMATRIX mtxRotate = DirectX::XMMatrixRotationAxis(DirectX::XMLoadFloat3(&upVec), DirectX::XMConvertToRadians(angle));
-		m_worldMatrix = Matrix4x4::Multiply(mtxRotate, m_worldMatrix);
-		/*std::cout << "matrix\n"
-			<< m_worldMatrix._11 << "   " << m_worldMatrix._12 << "   " << m_worldMatrix._13 << std::endl
-			<< m_worldMatrix._21 << "   " << m_worldMatrix._22 << "   " << m_worldMatrix._23 << std::endl
-			<< m_worldMatrix._31 << "   " << m_worldMatrix._32 << "   " << m_worldMatrix._33 << std::endl;*/
+		//DirectX::XMMATRIX mtxRotate = DirectX::XMMatrixRotationAxis(DirectX::XMLoadFloat3(&upVec), DirectX::XMConvertToRadians(angle));
+		//m_worldMatrix = Matrix4x4::Multiply(mtxRotate, m_worldMatrix);
+		///*std::cout << "matrix\n"
+		//	<< m_worldMatrix._11 << "   " << m_worldMatrix._12 << "   " << m_worldMatrix._13 << std::endl
+		//	<< m_worldMatrix._21 << "   " << m_worldMatrix._22 << "   " << m_worldMatrix._23 << std::endl
+		//	<< m_worldMatrix._31 << "   " << m_worldMatrix._32 << "   " << m_worldMatrix._33 << std::endl;*/
 
-		m_directionVector = Vector3::Normalize(XMFLOAT3(m_worldMatrix._31, m_worldMatrix._32, m_worldMatrix._33));
+		//m_directionVector = Vector3::Normalize(XMFLOAT3(m_worldMatrix._31, m_worldMatrix._32, m_worldMatrix._33));
 
 		m_rotateAngle.y += angle;
 		SetDirection(m_inputDirection);
