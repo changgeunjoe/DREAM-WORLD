@@ -73,6 +73,25 @@ private:
 	ID2D1Factory* pD2DFactory = nullptr;
 	IDWriteFactory* pDWriteFactory = nullptr;
 
+#ifdef _WITH_DIRECT2D
+	ID3D11On12Device* m_pd3d11On12Device = NULL;
+	ID3D11DeviceContext* m_pd3d11DeviceContext = NULL;
+	ID2D1Factory3* m_pd2dFactory = NULL;
+	IDWriteFactory* m_pdWriteFactory = NULL;
+	ID2D1Device2* m_pd2dDevice = NULL;
+	ID2D1DeviceContext2* m_pd2dDeviceContext = NULL;
+
+	ID3D11Resource* m_ppd3d11WrappedBackBuffers[m_nSwapChainBuffers];
+	ID2D1Bitmap1* m_ppd2dRenderTargets[m_nSwapChainBuffers];
+
+	ID2D1SolidColorBrush* m_pd2dbrBackground = NULL;
+	ID2D1SolidColorBrush* m_pd2dbrBorder = NULL;
+	IDWriteTextFormat* m_pdwFont = NULL;
+	IDWriteTextLayout* m_pdwTextLayout = NULL;
+	ID2D1SolidColorBrush* m_pd2dbrText = NULL;
+#endif
+
+
 
 	POINT						m_ptOldCursorPos;
 public:
@@ -96,6 +115,10 @@ public:
 	void CreateDepthStencilView();// 깊이 - 스텐실 뷰를 생성하는 함수이다.
 	void CreateDirect2D();
 	//랜더 타겟 뷰와 깊이-스텐실 뷰를 생성하는 함수이다.
+
+#ifdef _WITH_DIRECT2D
+	void CreateDirect2DDevice();
+#endif
 
 	void BuildObjects();
 	void ReleaseObjects();

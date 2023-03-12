@@ -3,6 +3,15 @@
 #define WIN32_LEAN_AND_MEAN             // 거의 사용되지 않는 내용은 Windows 헤더에서 제외합니다.
 // Windows 헤더 파일:
 #include <windows.h>
+#pragma comment(lib, "d3dcompiler.lib")
+#pragma comment(lib, "d3d12.lib")
+#pragma comment(lib, "dxgi.lib")
+#pragma comment(lib, "d2d1.lib")
+#pragma comment(lib, "dwrite.lib")
+#pragma comment(lib, "dxguid.lib")
+#pragma comment(lib, "d3d11.lib")
+#pragma comment(lib, "windowscodecs.lib")
+
 
 // C의 런타임 헤더 파일입니다.
 #include <stdlib.h>
@@ -34,6 +43,10 @@ using namespace std;
 #pragma comment(lib, "d2d1.lib")
 #pragma comment(lib, "dwrite.lib")
 
+#include <d2d1_3.h>
+#include <dwrite_1.h>
+#include <d3d11on12.h>
+#include <d2d1_1helper.h>
 
 #include <Mmsystem.h>
 
@@ -113,6 +126,8 @@ using Microsoft::WRL::ComPtr;
 #define _WITH_CB_WORLD_MATRIX_DESCRIPTOR_TABLE
 
 #define _WITH_STANDARD_TEXTURE_MULTIPLE_DESCRIPTORS
+
+#define _WITH_DIRECT2D
 
 #define PARAMETER_STANDARD_TEXTURE		3
 #ifdef _WITH_STANDARD_TEXTURE_MULTIPLE_DESCRIPTORS

@@ -165,6 +165,39 @@ void MeshComponent::OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList, void
 	pd3dCommandList->IASetVertexBuffers(m_nSlot, 1, &m_d3dVertexBufferView);
 }
 
+int MeshComponent::CheckRayIntersection(XMFLOAT3& xmf3RayOrigin, XMFLOAT3& xmf3RayDirection, float* pfNearHitDistance)
+{
+	int nIntersections = 0;
+
+	int nOffset = (m_d3dPrimitiveTopology == D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST) ? 3 : 1;
+	int nPrimitives = (m_d3dPrimitiveTopology == D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST) ? (m_nVertices / 3) : (m_nVertices - 2);
+	if (m_nIndices > 0) nPrimitives = (m_d3dPrimitiveTopology == D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST) ? (m_nIndices / 3) : (m_nIndices - 2);
+
+	XMVECTOR xmRayOrigin = XMLoadFloat3(&xmf3RayOrigin);
+	XMVECTOR xmRayDirection = XMLoadFloat3(&xmf3RayDirection);
+
+	bool bIntersected = m_xmBoundingBox.Intersects(xmRayOrigin, xmRayDirection, *pfNearHitDistance);
+	if (bIntersected)
+	{
+		float fNearHitDistance = FLT_MAX;
+		for (int i = 0; i < nPrimitives; i++)
+		{
+			XMVECTOR v0 = XMLoadFloat3(&m_pxmf3Positions[(m_pnIndices) ? m_pnIndices[(i * nOffset) + 0] : ((i * nOffset) + 0)]);
+			XMVECTOR v1 = XMLoadFloat3(&m_pxmf3Positions[(m_pnIndices) ? m_pnIndices[(i * nOffset) + 1] : ((i * nOffset) + 1)]);
+			XMVECTOR v2 = XMLoadFloat3(&m_pxmf3Positions[(m_pnIndices) ? m_pnIndices[(i * nOffset) + 2] : ((i * nOffset) + 2)]);
+
+			float fHitDistance;
+			BOOL bIntersected = TriangleTests::Intersects(xmRayOrigin, xmRayDirection, v0, v1, v2, fHitDistance);
+			if (bIntersected)
+			{
+				if (fHitDistance < fNearHitDistance) *pfNearHitDistance = fNearHitDistance = fHitDistance;
+				nIntersections++;
+			}
+		}
+	}
+	return(nIntersections);
+}
+
 
 
 StandardMeshComponent::StandardMeshComponent()

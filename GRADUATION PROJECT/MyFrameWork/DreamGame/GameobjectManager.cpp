@@ -269,6 +269,23 @@ void GameobjectManager::Build2DUI(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	m_pTextureToViewportComponent->BuildObjects(pd3dDevice, pd3dCommandList, m_pDepthShaderComponent->GetDepthTexture());
 
 }
+void GameobjectManager::PickObjectByRayIntersection(XMFLOAT3& xmf3PickPosition, XMFLOAT4X4& xmf4x4View, float* pfNearHitDistance)
+{
+	int nIntersected = 0;
+	*pfNearHitDistance = FLT_MAX;
+	float fHitDistance = FLT_MAX;
+	GameObject* pSelectedObject = NULL;
+	for (int j = 0; j < m_nObjects; j++)
+	{
+		nIntersected = m_ppUIObjects[j]->PickObjectByRayIntersection(xmf3PickPosition, xmf4x4View, &fHitDistance);
+		if ((nIntersected > 0) && (fHitDistance < *pfNearHitDistance))
+		{
+			*pfNearHitDistance = fHitDistance;
+			pSelectedObject = m_ppUIObjects[j];
+		}
+	}
+	//return(pSelectedObject);
+}
 void GameobjectManager::AnimateObjects()
 {
 	m_pSkyboxObject->SetPosition(m_pCamera->GetPosition());

@@ -804,7 +804,7 @@ int GameObject::PickObjectByRayIntersection(XMFLOAT3& xmf3PickPosition, XMFLOAT4
 		XMFLOAT3 xmf3PickRayOrigin, xmf3PickRayDirection;
 		GenerateRayForPicking(xmf3PickPosition, &m_xmf4x4World, xmf4x4View, &xmf3PickRayOrigin, &xmf3PickRayDirection);
 
-		/*nIntersected = m_pMeshComponent->CheckRayIntersection(xmf3PickRayOrigin, xmf3PickRayDirection, pfHitDistance);*/
+		nIntersected = m_pMeshComponent->CheckRayIntersection(xmf3PickRayOrigin, xmf3PickRayDirection, pfHitDistance);
 	}
 	return(nIntersected);
 }
