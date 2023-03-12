@@ -33,6 +33,7 @@ public:
 	void SendRotatePacket(ROTATE_AXIS axis, float angle);
 	void SendKeyUpPacket(DIRECTION d);
 	void SendLoginData(char* loginId, char* pw);
+	void SendMouseStatePacket(unsigned char MouseClicked);
 private:
 	void ConstructPacket(int ioByte);
 private:

@@ -12,6 +12,7 @@ namespace CLIENT_PACKET {
 	constexpr unsigned char MATCH = 6;
 	constexpr unsigned char CREATE_ROOM = 7;
 	constexpr unsigned char REQUEST_ROOM_LIST = 8;
+	constexpr unsigned char MOUSE_INPUT = 9;
 
 	struct MovePacket
 	{
@@ -58,7 +59,12 @@ namespace CLIENT_PACKET {
 		char size;
 		char type;
 	};
-
+	
+	struct MouseInputPacket {
+		char size;
+		char type;
+		char ClickedButton;
+	};
 }
 
 namespace SERVER_PACKET {
@@ -68,6 +74,7 @@ namespace SERVER_PACKET {
 	constexpr unsigned char ROTATE = 68;
 	constexpr unsigned char LOGIN_OK = 69;
 	constexpr unsigned char ADD_PLAYER = 70;
+	constexpr unsigned char MOUSE_INPUT = 71;
 
 	struct MovePacket
 	{
@@ -114,6 +121,13 @@ namespace SERVER_PACKET {
 		char roomName[30];
 		char playerName[4][10];//방장은 0번 인덱스임
 		char role[4];
+	};
+
+	struct MouseInputPacket {
+		char size;
+		char type;
+		int userId;
+		char ClickedButton;
 	};
 }
 

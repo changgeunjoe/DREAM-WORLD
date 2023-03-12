@@ -357,6 +357,11 @@ void PlayerSessionObject::SetDirection(DIRECTION d)
 	}
 }
 
+void PlayerSessionObject::SetMouseInput(unsigned char mouseInput)
+{
+	m_mouseInput = mouseInput;
+}
+
 void PlayerSessionObject::StartMove(DIRECTION d)
 {
 	if (m_inputDirection == DIRECTION::IDLE)

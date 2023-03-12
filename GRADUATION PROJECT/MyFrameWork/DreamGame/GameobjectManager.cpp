@@ -45,15 +45,15 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	m_pMonsterObject->Animate(fTimeElapsed);
 	if (!g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject) return;
 	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->UpdateCameraPosition();
+
+	if (g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetRButtonClicked())
+		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->RbuttonClicked(fTimeElapsed);
 	for (auto& session : g_Logic.m_inGamePlayerSession) {
 		if (-1 != session.m_id && session.m_isVisible) {
 			if (session.m_currentDirection != DIRECTION::IDLE) {
 				//session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
 				session.m_currentPlayGameObject->MoveObject(session.m_currentDirection, session.m_ownerRotateAngle);
 				session.m_currentPlayGameObject->Move(session.m_currentDirection, 50 * fTimeElapsed);
-
-				if (session.m_currentPlayGameObject->GetRButtonClicked())
-					session.m_currentPlayGameObject->RbuttonClicked(fTimeElapsed);
 #ifdef _DEBUG
 				auto look = session.m_currentPlayGameObject->GetLook();
 				auto up = session.m_currentPlayGameObject->GetUp();
@@ -281,6 +281,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		case 'W':
 		{
 			g_Logic.m_KeyInput->m_bWKey = true;
+			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetMoveState(true);
 			g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection | DIRECTION::FRONT);
 			g_NetworkHelper.SendMovePacket(DIRECTION::FRONT);
 		}
@@ -288,6 +289,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		case 'A':
 		{
 			g_Logic.m_KeyInput->m_bAKey = true;
+			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetMoveState(true);
 			g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection | DIRECTION::LEFT);
 			g_NetworkHelper.SendMovePacket(DIRECTION::LEFT);
 		}
@@ -295,6 +297,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		case 'S':
 		{
 			g_Logic.m_KeyInput->m_bSKey = true;
+			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetMoveState(true);
 			g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection | DIRECTION::BACK);
 			g_NetworkHelper.SendMovePacket(DIRECTION::BACK);
 		}
@@ -302,6 +305,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		case 'D':
 		{
 			g_Logic.m_KeyInput->m_bDKey = true;
+			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetMoveState(true);
 			g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection | DIRECTION::RIGHT);
 			g_NetworkHelper.SendMovePacket(DIRECTION::RIGHT);
 		}
@@ -347,6 +351,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection ^ DIRECTION::FRONT);
 				if (g_Logic.m_KeyInput->IsAllMovekeyUp()) 
 				{
+					g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetMoveState(false);
 					g_Logic.m_inGamePlayerSession[0].m_currentDirection = DIRECTION::IDLE;
 					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition()); //, g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate				
 				}
@@ -363,9 +368,9 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection ^ DIRECTION::LEFT);
 				if (g_Logic.m_KeyInput->IsAllMovekeyUp()) 
 				{
+					g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetMoveState(false);
 					g_Logic.m_inGamePlayerSession[0].m_currentDirection = DIRECTION::IDLE;
 					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition()); //, g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate
-					//g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetMove(false);
 				}
 				else 
 					g_NetworkHelper.SendKeyUpPacket(DIRECTION::LEFT);
@@ -380,9 +385,9 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection ^ DIRECTION::BACK);
 				if (g_Logic.m_KeyInput->IsAllMovekeyUp())
 				{
+					g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetMoveState(false);
 					g_Logic.m_inGamePlayerSession[0].m_currentDirection = DIRECTION::IDLE;
 					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition()); // , g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate
-					//g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetMove(false);
 				}
 				else
 					g_NetworkHelper.SendKeyUpPacket(DIRECTION::BACK);
@@ -396,9 +401,9 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 				g_Logic.m_KeyInput->m_bDKey = false;
 				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection ^ DIRECTION::RIGHT);
 				if (g_Logic.m_KeyInput->IsAllMovekeyUp()) {
+					g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetMoveState(false);
 					g_Logic.m_inGamePlayerSession[0].m_currentDirection = DIRECTION::IDLE;
 					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition()); //, g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate
-					//g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetMove(false);
 				}
 				else 
 					g_NetworkHelper.SendKeyUpPacket(DIRECTION::RIGHT);
@@ -425,45 +430,49 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 
 void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
+	bool SomethingChanging = false;
 	switch (nMessageID)
 	{
 	case WM_LBUTTONDOWN:
 	{
-		if (g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->GetMove())
-		{
-			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetAnimationBlending(true);
-			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetAction(true);
-			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->m_nUpperBodyAnimation = CharacterAnimation::CA_ATTACK;
-		}
-		else
-		{
-			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetAction(true);
-			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetAllTrackdisable();
-			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetTrackEnable(CharacterAnimation::CA_ATTACK, true);
-		}
+		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_cMouseInput |= 0x01;
+		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetLButtonClicked(true);
+		SomethingChanging = true;
 		break;
 	}
 	case WM_LBUTTONUP:
 	{
-		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetAnimationBlending(false);
-		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetAction(false);
+		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_cMouseInput ^= 0x01;
+		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetLButtonClicked(false);
+		SomethingChanging = true;
 		break;
 	}
 	case WM_RBUTTONDOWN:
 	{
-		//m_pPlayerObject->SetRButtonClicked(true);
+		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_cMouseInput |= 0x10;
 		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetRButtonClicked(true);
+		SomethingChanging = true;
 		break;
 	}
 	case WM_RBUTTONUP:
 	{
+
+		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_cMouseInput ^= 0x10;
 		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetRButtonClicked(false);
 		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->RbuttonUp();
+		SomethingChanging = true;
 		break;
 	}
 	default:
 		break;
 	}
+	
+#ifndef LOCAL_TASK
+	if(SomethingChanging)
+		g_NetworkHelper.SendMouseStatePacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_cMouseInput);
+	// temp & 0xF; 좌클릭
+	// (temp >> 4) & 0xF; 우클릭
+#endif
 
 }
 

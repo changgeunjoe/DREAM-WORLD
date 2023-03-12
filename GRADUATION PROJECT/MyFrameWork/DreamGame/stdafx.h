@@ -214,6 +214,7 @@ enum CharacterAnimation
 	CA_DEFENCE,
 	CA_MOVEL,
 	CA_MOVER,
+	CA_BLENDING = 99
 };
 
 enum Message {

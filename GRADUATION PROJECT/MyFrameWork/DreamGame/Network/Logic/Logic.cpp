@@ -34,200 +34,201 @@ void Logic::ProcessPacket(char* p)
 		if (findRes != m_inGamePlayerSession.end()) {
 			DIRECTION currentDir = findRes->m_currentDirection;
 			findRes->m_currentDirection = (DIRECTION)(findRes->m_currentDirection | recvPacket->direction);
-			if (currentDir == DIRECTION::IDLE) {
-				switch (recvPacket->direction)
-				{
-				case DIRECTION::FRONT:					
-					std::cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - F" << std::endl;
-					switch (findRes->m_prevDirection)
-					{
-					case DIRECTION::IDLE:
-					case DIRECTION::FRONT:
-						break;
-					case DIRECTION::BACK:
-						cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - prev: B" << std::endl;
-						findRes->m_currentPlayGameObject->Rotate(&upVec, 180.0f);
-						findRes->m_rotateAngle.y += 180.0f;
-						break;
-					case DIRECTION::RIGHT:
-						cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - prev: R" << std::endl;
-						findRes->m_currentPlayGameObject->Rotate(&upVec, -90.0f);
-						findRes->m_rotateAngle.y += -90.0f;
-						break;
-					case DIRECTION::LEFT:
-						cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - prev: L" << std::endl;
-						findRes->m_currentPlayGameObject->Rotate(&upVec, 90.0f);
-						findRes->m_rotateAngle.y += 90.0f;
-						break;
-					default:
-						break;
-					}
-					break;
-				case DIRECTION::LEFT:
-					std::cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - L" << std::endl;
-					switch (findRes->m_prevDirection)
-					{
-					case DIRECTION::IDLE:
-					case DIRECTION::FRONT:
-						cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - prev: F" << std::endl;
-						findRes->m_currentPlayGameObject->Rotate(&upVec, -90.0f);
-						findRes->m_rotateAngle.y += -90.0f;
-						break;
-					case DIRECTION::BACK:
-						cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - prev: B" << std::endl;
-						findRes->m_currentPlayGameObject->Rotate(&upVec, 90.0f);
-						findRes->m_rotateAngle.y += 90.0f;
-						break;
-					case DIRECTION::RIGHT:
-						cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - prev: R" << std:: endl;
-						findRes->m_currentPlayGameObject->Rotate(&upVec, 180.0f);
-						findRes->m_rotateAngle.y += 180.0f;
-						break;
-					case DIRECTION::LEFT:
-						break;
-					default:
-						break;
-					}
-					break;
-				case DIRECTION::BACK:
-					std::cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - B" << std::endl;
-					switch (findRes->m_prevDirection)
-					{
-					case DIRECTION::IDLE:
-					case DIRECTION::FRONT:
-						cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - prev: F" << std::endl;
-						findRes->m_currentPlayGameObject->Rotate(&upVec, 180.0f);
-						findRes->m_rotateAngle.y += 180.0f;
-						break;
-					case DIRECTION::BACK:
-						break;
-					case DIRECTION::RIGHT:
-						cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - prev: R" << std::endl;
-						findRes->m_currentPlayGameObject->Rotate(&upVec, 90.0f);
-						findRes->m_rotateAngle.y += 90.0f;
-						break;
-					case DIRECTION::LEFT:
-						cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - prev: L" << std::endl;
-						findRes->m_currentPlayGameObject->Rotate(&upVec, -90.0f);
-						findRes->m_rotateAngle.y += -90.0f;
-						break;
-					default:
-						break;
-					}
-					break;
-				case DIRECTION::RIGHT:
-					std::cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - R" << std::endl;
-					switch (findRes->m_prevDirection)
-					{
-					case DIRECTION::IDLE:
-					case DIRECTION::FRONT:
-						cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - prev: F" << std::endl;
-						findRes->m_currentPlayGameObject->Rotate(&upVec, 90.0f);
-						findRes->m_rotateAngle.y += 90.0f;
-						break;
-					case DIRECTION::BACK:
-						cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - prev: B" << std::endl;
-						findRes->m_currentPlayGameObject->Rotate(&upVec, -90.0f);
-						findRes->m_rotateAngle.y += -90.0f;
-						break;
-					case DIRECTION::RIGHT:
-						break;
-					case DIRECTION::LEFT:
-						cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - prev: L" << std::endl;
-						findRes->m_currentPlayGameObject->Rotate(&upVec, 180.0f);
-						findRes->m_rotateAngle.y += 180.0f;
-						break;
-					default:
-						break;
-					}
-					break;
-				}
-			}
-			else {
-				switch (currentDir)
-				{
-				case DIRECTION::FRONT:
-				{
-					std::cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - F" << std::endl;
-					switch (recvPacket->direction)
-					{
-					case DIRECTION::FRONT:
-						break;
-					case DIRECTION::LEFT:
-						findRes->m_currentPlayGameObject->Rotate(&upVec, -45.0f);
-						findRes->m_rotateAngle.y += -45.0f;
-						break;
-					case DIRECTION::BACK:
-						break;
-					case DIRECTION::RIGHT:
-						findRes->m_currentPlayGameObject->Rotate(&upVec, 45.0f);
-						findRes->m_rotateAngle.y += 45.0f;
-						break;
-					}
-				}
-				break;
-				case DIRECTION::LEFT:
-				{
-					std::cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - L" << std::endl;
-					switch (recvPacket->direction)
-					{
-					case DIRECTION::FRONT:
-						findRes->m_currentPlayGameObject->Rotate(&upVec, 45.0f);
-						findRes->m_rotateAngle.y += 45.0f;
-						break;
-					case DIRECTION::LEFT:
-						break;
-					case DIRECTION::BACK:
-						findRes->m_currentPlayGameObject->Rotate(&upVec, -45.0f);
-						findRes->m_rotateAngle.y += -45.0f;
-						break;
-					case DIRECTION::RIGHT:
-						break;
-					}
-				}
-				break;
-				case DIRECTION::BACK:
-				{
-					std::cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - B" << std::endl;
-					switch (recvPacket->direction)
-					{
-					case DIRECTION::FRONT:
-						break;
-					case DIRECTION::LEFT:
-						findRes->m_currentPlayGameObject->Rotate(&upVec, 45.0f);
-						findRes->m_rotateAngle.y += 45.0f;
-						break;
-					case DIRECTION::BACK:
-						break;
-					case DIRECTION::RIGHT:
-						findRes->m_currentPlayGameObject->Rotate(&upVec, -45.0f);
-						findRes->m_rotateAngle.y += -45.0f;
-						break;
-					}
-				}
-				break;
-				case DIRECTION::RIGHT:
-				{
-					std::cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - R" << std::endl;
-					switch (recvPacket->direction)
-					{
-					case DIRECTION::FRONT:
-						findRes->m_currentPlayGameObject->Rotate(&upVec, -45.0f);
-						findRes->m_rotateAngle.y += -45.0f;
-						break;
-					case DIRECTION::LEFT:
-						break;
-					case DIRECTION::BACK:
-						findRes->m_currentPlayGameObject->Rotate(&upVec, 45.0f);
-						findRes->m_rotateAngle.y += 45.0f;
-						break;
-					case DIRECTION::RIGHT:
-						break;
-					}
-				}
-				break;
-				}
-			}
+			findRes->m_currentPlayGameObject->SetMoveState(true);
+			//if (currentDir == DIRECTION::IDLE) {
+			//	switch (recvPacket->direction)
+			//	{
+			//	case DIRECTION::FRONT:					
+			//		std::cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - F" << std::endl;
+			//		switch (findRes->m_prevDirection)
+			//		{
+			//		case DIRECTION::IDLE:
+			//		case DIRECTION::FRONT:
+			//			break;
+			//		case DIRECTION::BACK:
+			//			cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - prev: B" << std::endl;
+			//			findRes->m_currentPlayGameObject->Rotate(&upVec, 180.0f);
+			//			findRes->m_rotateAngle.y += 180.0f;
+			//			break;
+			//		case DIRECTION::RIGHT:
+			//			cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - prev: R" << std::endl;
+			//			findRes->m_currentPlayGameObject->Rotate(&upVec, -90.0f);
+			//			findRes->m_rotateAngle.y += -90.0f;
+			//			break;
+			//		case DIRECTION::LEFT:
+			//			cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - prev: L" << std::endl;
+			//			findRes->m_currentPlayGameObject->Rotate(&upVec, 90.0f);
+			//			findRes->m_rotateAngle.y += 90.0f;
+			//			break;
+			//		default:
+			//			break;
+			//		}
+			//		break;
+			//	case DIRECTION::LEFT:
+			//		std::cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - L" << std::endl;
+			//		switch (findRes->m_prevDirection)
+			//		{
+			//		case DIRECTION::IDLE:
+			//		case DIRECTION::FRONT:
+			//			cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - prev: F" << std::endl;
+			//			findRes->m_currentPlayGameObject->Rotate(&upVec, -90.0f);
+			//			findRes->m_rotateAngle.y += -90.0f;
+			//			break;
+			//		case DIRECTION::BACK:
+			//			cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - prev: B" << std::endl;
+			//			findRes->m_currentPlayGameObject->Rotate(&upVec, 90.0f);
+			//			findRes->m_rotateAngle.y += 90.0f;
+			//			break;
+			//		case DIRECTION::RIGHT:
+			//			cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - prev: R" << std:: endl;
+			//			findRes->m_currentPlayGameObject->Rotate(&upVec, 180.0f);
+			//			findRes->m_rotateAngle.y += 180.0f;
+			//			break;
+			//		case DIRECTION::LEFT:
+			//			break;
+			//		default:
+			//			break;
+			//		}
+			//		break;
+			//	case DIRECTION::BACK:
+			//		std::cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - B" << std::endl;
+			//		switch (findRes->m_prevDirection)
+			//		{
+			//		case DIRECTION::IDLE:
+			//		case DIRECTION::FRONT:
+			//			cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - prev: F" << std::endl;
+			//			findRes->m_currentPlayGameObject->Rotate(&upVec, 180.0f);
+			//			findRes->m_rotateAngle.y += 180.0f;
+			//			break;
+			//		case DIRECTION::BACK:
+			//			break;
+			//		case DIRECTION::RIGHT:
+			//			cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - prev: R" << std::endl;
+			//			findRes->m_currentPlayGameObject->Rotate(&upVec, 90.0f);
+			//			findRes->m_rotateAngle.y += 90.0f;
+			//			break;
+			//		case DIRECTION::LEFT:
+			//			cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - prev: L" << std::endl;
+			//			findRes->m_currentPlayGameObject->Rotate(&upVec, -90.0f);
+			//			findRes->m_rotateAngle.y += -90.0f;
+			//			break;
+			//		default:
+			//			break;
+			//		}
+			//		break;
+			//	case DIRECTION::RIGHT:
+			//		std::cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - R" << std::endl;
+			//		switch (findRes->m_prevDirection)
+			//		{
+			//		case DIRECTION::IDLE:
+			//		case DIRECTION::FRONT:
+			//			cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - prev: F" << std::endl;
+			//			findRes->m_currentPlayGameObject->Rotate(&upVec, 90.0f);
+			//			findRes->m_rotateAngle.y += 90.0f;
+			//			break;
+			//		case DIRECTION::BACK:
+			//			cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - prev: B" << std::endl;
+			//			findRes->m_currentPlayGameObject->Rotate(&upVec, -90.0f);
+			//			findRes->m_rotateAngle.y += -90.0f;
+			//			break;
+			//		case DIRECTION::RIGHT:
+			//			break;
+			//		case DIRECTION::LEFT:
+			//			cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - prev: L" << std::endl;
+			//			findRes->m_currentPlayGameObject->Rotate(&upVec, 180.0f);
+			//			findRes->m_rotateAngle.y += 180.0f;
+			//			break;
+			//		default:
+			//			break;
+			//		}
+			//		break;
+			//	}
+			//}
+			//else {
+			//	switch (currentDir)
+			//	{
+			//	case DIRECTION::FRONT:
+			//	{
+			//		std::cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - F" << std::endl;
+			//		switch (recvPacket->direction)
+			//		{
+			//		case DIRECTION::FRONT:
+			//			break;
+			//		case DIRECTION::LEFT:
+			//			findRes->m_currentPlayGameObject->Rotate(&upVec, -45.0f);
+			//			findRes->m_rotateAngle.y += -45.0f;
+			//			break;
+			//		case DIRECTION::BACK:
+			//			break;
+			//		case DIRECTION::RIGHT:
+			//			findRes->m_currentPlayGameObject->Rotate(&upVec, 45.0f);
+			//			findRes->m_rotateAngle.y += 45.0f;
+			//			break;
+			//		}
+			//	}
+			//	break;
+			//	case DIRECTION::LEFT:
+			//	{
+			//		std::cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - L" << std::endl;
+			//		switch (recvPacket->direction)
+			//		{
+			//		case DIRECTION::FRONT:
+			//			findRes->m_currentPlayGameObject->Rotate(&upVec, 45.0f);
+			//			findRes->m_rotateAngle.y += 45.0f;
+			//			break;
+			//		case DIRECTION::LEFT:
+			//			break;
+			//		case DIRECTION::BACK:
+			//			findRes->m_currentPlayGameObject->Rotate(&upVec, -45.0f);
+			//			findRes->m_rotateAngle.y += -45.0f;
+			//			break;
+			//		case DIRECTION::RIGHT:
+			//			break;
+			//		}
+			//	}
+			//	break;
+			//	case DIRECTION::BACK:
+			//	{
+			//		std::cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - B" << std::endl;
+			//		switch (recvPacket->direction)
+			//		{
+			//		case DIRECTION::FRONT:
+			//			break;
+			//		case DIRECTION::LEFT:
+			//			findRes->m_currentPlayGameObject->Rotate(&upVec, 45.0f);
+			//			findRes->m_rotateAngle.y += 45.0f;
+			//			break;
+			//		case DIRECTION::BACK:
+			//			break;
+			//		case DIRECTION::RIGHT:
+			//			findRes->m_currentPlayGameObject->Rotate(&upVec, -45.0f);
+			//			findRes->m_rotateAngle.y += -45.0f;
+			//			break;
+			//		}
+			//	}
+			//	break;
+			//	case DIRECTION::RIGHT:
+			//	{
+			//		std::cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - R" << std::endl;
+			//		switch (recvPacket->direction)
+			//		{
+			//		case DIRECTION::FRONT:
+			//			findRes->m_currentPlayGameObject->Rotate(&upVec, -45.0f);
+			//			findRes->m_rotateAngle.y += -45.0f;
+			//			break;
+			//		case DIRECTION::LEFT:
+			//			break;
+			//		case DIRECTION::BACK:
+			//			findRes->m_currentPlayGameObject->Rotate(&upVec, 45.0f);
+			//			findRes->m_rotateAngle.y += 45.0f;
+			//			break;
+			//		case DIRECTION::RIGHT:
+			//			break;
+			//		}
+			//	}
+			//	break;
+			//	}
+			//}
 		}
 		else cout << "not found array" << endl;
 #ifdef _DEBUG
@@ -247,85 +248,85 @@ void Logic::ProcessPacket(char* p)
 			});
 		if (findRes != m_inGamePlayerSession.end()) {
 			findRes->m_currentDirection = (DIRECTION)(findRes->m_currentDirection ^ recvPacket->direction);
-			switch (recvPacket->direction)
-			{
-			case DIRECTION::FRONT:
-			{
-				switch (findRes->m_currentDirection)
-				{
-				case DIRECTION::FRONT:
-					break;
-				case DIRECTION::LEFT:					
-					findRes->m_currentPlayGameObject->Rotate(&upVec, -45.0f);
-					findRes->m_rotateAngle.y += -45.0f;
-					break;
-				case DIRECTION::BACK:
-					break;
-				case DIRECTION::RIGHT:
-					findRes->m_currentPlayGameObject->Rotate(&upVec, 45.0f);
-					findRes->m_rotateAngle.y += 45.0f;
-					break;
-				}
-			}
-			break;
-			case DIRECTION::LEFT:
-			{
-				switch (findRes->m_currentDirection)
-				{
-				case DIRECTION::FRONT:
-					findRes->m_currentPlayGameObject->Rotate(&upVec, 45.0f);
-					findRes->m_rotateAngle.y += 45.0f;
-					break;
-				case DIRECTION::LEFT:
-					break;
-				case DIRECTION::BACK:
-					findRes->m_currentPlayGameObject->Rotate(&upVec, -45.0f);
-					findRes->m_rotateAngle.y += -45.0f;
-					break;
-				case DIRECTION::RIGHT:
-					break;
-				}
-			}
-			break;
-			case DIRECTION::BACK:
-			{
-				switch (findRes->m_currentDirection)
-				{
-				case DIRECTION::FRONT:
-					break;
-				case DIRECTION::LEFT:
-					findRes->m_currentPlayGameObject->Rotate(&upVec, 45.0f);
-					findRes->m_rotateAngle.y += 45.0f;
-					break;
-				case DIRECTION::BACK:
-					break;
-				case DIRECTION::RIGHT:
-					findRes->m_currentPlayGameObject->Rotate(&upVec, -45.0f);
-					findRes->m_rotateAngle.y += -45.0f;
-					break;
-				}
-			}
-			break;
-			case DIRECTION::RIGHT:
-			{
-				switch (findRes->m_currentDirection)
-				{
-				case DIRECTION::FRONT:
-					findRes->m_currentPlayGameObject->Rotate(&upVec, -45.0f);
-					findRes->m_rotateAngle.y += -45.0f;
-					break;
-				case DIRECTION::LEFT:
-					break;
-				case DIRECTION::BACK:
-					findRes->m_currentPlayGameObject->Rotate(&upVec, 45.0f);
-					findRes->m_rotateAngle.y += 45.0f;
-					break;
-				case DIRECTION::RIGHT:
-					break;
-				}
-			}
-			break;
-			}
+			//switch (recvPacket->direction)
+			//{
+			//case DIRECTION::FRONT:
+			//{
+			//	switch (findRes->m_currentDirection)
+			//	{
+			//	case DIRECTION::FRONT:
+			//		break;
+			//	case DIRECTION::LEFT:					
+			//		findRes->m_currentPlayGameObject->Rotate(&upVec, -45.0f);
+			//		findRes->m_rotateAngle.y += -45.0f;
+			//		break;
+			//	case DIRECTION::BACK:
+			//		break;
+			//	case DIRECTION::RIGHT:
+			//		findRes->m_currentPlayGameObject->Rotate(&upVec, 45.0f);
+			//		findRes->m_rotateAngle.y += 45.0f;
+			//		break;
+			//	}
+			//}
+			//break;
+			//case DIRECTION::LEFT:
+			//{
+			//	switch (findRes->m_currentDirection)
+			//	{
+			//	case DIRECTION::FRONT:
+			//		findRes->m_currentPlayGameObject->Rotate(&upVec, 45.0f);
+			//		findRes->m_rotateAngle.y += 45.0f;
+			//		break;
+			//	case DIRECTION::LEFT:
+			//		break;
+			//	case DIRECTION::BACK:
+			//		findRes->m_currentPlayGameObject->Rotate(&upVec, -45.0f);
+			//		findRes->m_rotateAngle.y += -45.0f;
+			//		break;
+			//	case DIRECTION::RIGHT:
+			//		break;
+			//	}
+			//}
+			//break;
+			//case DIRECTION::BACK:
+			//{
+			//	switch (findRes->m_currentDirection)
+			//	{
+			//	case DIRECTION::FRONT:
+			//		break;
+			//	case DIRECTION::LEFT:
+			//		findRes->m_currentPlayGameObject->Rotate(&upVec, 45.0f);
+			//		findRes->m_rotateAngle.y += 45.0f;
+			//		break;
+			//	case DIRECTION::BACK:
+			//		break;
+			//	case DIRECTION::RIGHT:
+			//		findRes->m_currentPlayGameObject->Rotate(&upVec, -45.0f);
+			//		findRes->m_rotateAngle.y += -45.0f;
+			//		break;
+			//	}
+			//}
+			//break;
+			//case DIRECTION::RIGHT:
+			//{
+			//	switch (findRes->m_currentDirection)
+			//	{
+			//	case DIRECTION::FRONT:
+			//		findRes->m_currentPlayGameObject->Rotate(&upVec, -45.0f);
+			//		findRes->m_rotateAngle.y += -45.0f;
+			//		break;
+			//	case DIRECTION::LEFT:
+			//		break;
+			//	case DIRECTION::BACK:
+			//		findRes->m_currentPlayGameObject->Rotate(&upVec, 45.0f);
+			//		findRes->m_rotateAngle.y += 45.0f;
+			//		break;
+			//	case DIRECTION::RIGHT:
+			//		break;
+			//	}
+			//}
+			//break;
+			//}
 		}
 		else cout << "not found array" << endl;
 #ifdef _DEBUG
@@ -388,6 +389,7 @@ void Logic::ProcessPacket(char* p)
 				findRes->m_prevDirection = findRes->m_currentDirection;
 			findRes->m_currentDirection = DIRECTION::IDLE;
 			findRes->m_currentPlayGameObject->SetPosition(recvPacket->position);
+			findRes->m_currentPlayGameObject->SetMoveState(false);
 			// if (abs(findRes->m_rotateAngle.y - recvPacket->rotate.y) > FLT_EPSILON) {
 				// PrintCurrentTime();
 				// cout << "Logic::ProcessPacket() - SERVER_PACKET::STOP - Rotation: current(" << findRes->m_rotateAngle.y << ") - new(" << recvPacket->rotate.y << ")" << endl;
@@ -443,6 +445,33 @@ void Logic::ProcessPacket(char* p)
 		}
 	}
 	break;
+	case SERVER_PACKET::MOUSE_INPUT:
+	{
+		SERVER_PACKET::MouseInputPacket* recvPacket = reinterpret_cast<SERVER_PACKET::MouseInputPacket*>(p);
+
+		auto findRes = find_if(m_inGamePlayerSession.begin(), m_inGamePlayerSession.end(), [&recvPacket](auto& fObj) {
+			if (fObj.m_id == recvPacket->userId)
+				return true;
+			return false;
+			});
+		if (findRes != m_inGamePlayerSession.end()) {
+			if (recvPacket->ClickedButton & 0xF) {
+				findRes->m_currentPlayGameObject->SetLButtonClicked(true);
+			}
+			else {
+				findRes->m_currentPlayGameObject->SetLButtonClicked(false);
+			}
+
+			if ((recvPacket->ClickedButton >> 4) & 0xF) {
+				findRes->m_currentPlayGameObject->SetRButtonClicked(true);
+			}
+			else {
+				findRes->m_currentPlayGameObject->SetRButtonClicked(false);
+			}
+
+			findRes->m_currentPlayGameObject->m_cMouseInput = recvPacket->ClickedButton;
+		}
+	}
 	default:
 		break;
 	}

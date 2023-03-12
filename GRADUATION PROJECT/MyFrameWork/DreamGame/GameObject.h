@@ -65,10 +65,6 @@ public:
     XMFLOAT3 GetUp();
     XMFLOAT3 GetRight();
 
-    void SetRButtonClicked(bool bRButtonClicked) { m_bRButtonClicked = bRButtonClicked; }
-    bool GetRButtonClicked() { return m_bRButtonClicked; }
-    virtual void RbuttonClicked(float fTimeElapsed) {};
-    virtual void RbuttonUp() {};
 	unordered_map<component_id, ComponentBase*> Getcomponents();
 
 	// void SetOrientation(const Quaternion& orientation);
@@ -81,7 +77,7 @@ public:
     void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
     void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,bool bPrerender=false);
     void ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent);
-    void Animate(float fTimeElapsed);
+    virtual void Animate(float fTimeElapsed);
     virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
     virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
     virtual void ReleaseShaderVariables();
@@ -146,6 +142,8 @@ public:
     int                             m_iRButtionCount = 0;
 
     DIRECTION                       m_prevDirection = DIRECTION::IDLE;
+    unsigned char                   m_cMouseInput = 0x00;
+
 protected:
 
     int								m_nReferences = 0;
@@ -157,7 +155,6 @@ protected:
     XMFLOAT3 m_position{};
     //Quaternion m_orientation;
     float                           m_nRotateAngle = 0.0f;
-    bool                            m_bRButtonClicked = false;
 
     wchar_t* pszFileNames{};
     char* pszModelNames{};
@@ -186,11 +183,28 @@ protected:
 	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);// 삭제 예정(변경)
 	int nObjects = 0;//삭제 예정(변경)
 
+public:
+    void SetRButtonClicked(bool bRButtonClicked) { m_bRButtonClicked = bRButtonClicked; }
+    bool GetRButtonClicked() { return m_bRButtonClicked; }
+    
+    void SetLButtonClicked(bool bLButtonClicked) { m_bLButtonClicked = bLButtonClicked; }
+    bool GetLButtonClicked() { return m_bLButtonClicked; }
+    
+    void SetMoveState(bool bMoveState) { m_bMoveState = bMoveState; }
+    bool GetMoveState() { return m_bMoveState; }
+    
+    virtual void RbuttonClicked(float fTimeElapsed) {};
+    virtual void RbuttonUp() {};
 
 protected:
-    float m_fHp;
-    float m_fSpeed;
-    float m_fDamage;
+    bool                            m_bLButtonClicked = false;
+    bool                            m_bRButtonClicked = false;
+    bool                            m_bMoveState = false;
+
+protected:
+    float                           m_fHp;
+    float                           m_fSpeed;
+    float                           m_fDamage;
 };
 
 template<typename T>//템플릿을 활용하는 이유-> 

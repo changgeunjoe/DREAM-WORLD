@@ -24,7 +24,8 @@ public:
 	std::array<Session, 4> m_inGamePlayerSession;
 	int myId = 0;
 public:
-	CKeyInput* m_KeyInput;
+	CKeyInput*	m_KeyInput;
+	char		m_MouseInput;
 public:
 	Logic();
 	~Logic();
