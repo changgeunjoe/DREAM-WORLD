@@ -68,6 +68,12 @@ namespace SERVER_PACKET {
 	constexpr unsigned char ROTATE = 68;
 	constexpr unsigned char LOGIN_OK = 69;
 	constexpr unsigned char ADD_PLAYER = 70;
+	constexpr unsigned char CREATE_ROOM_SUCCESS = 71;
+	constexpr unsigned char CREATE_ROOM_FAILURE = 72;
+	constexpr unsigned char REQUEST_ROOM_LIST = 73;
+	constexpr unsigned char REQUEST_ROOM_LIST_END = 74;
+	constexpr unsigned char REQUEST_ROOM_LIST_NONE = 75;
+
 
 	struct MovePacket
 	{
@@ -108,12 +114,23 @@ namespace SERVER_PACKET {
 		wchar_t name[NAME_SIZE];
 	};
 
+	struct NoneRoomInfoPacket {
+		char size;
+		char type;
+	};
+
 	struct RoomInfoPacket {
 		char size;
 		char type;
 		char roomName[30];
-		char playerName[4][10];//방장은 0번 인덱스임
+		char playerName[4][20];//방장은 0번 인덱스일까?
 		char role[4];
+	};
+
+	struct CreateRoomResultPacket {
+		char size;
+		char type;
+		char roomName[30];
 	};
 }
 

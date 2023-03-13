@@ -19,7 +19,7 @@ private:
 	int					m_prevBufferSize;
 	ROLE				m_InGameRole = ROLE::NONE_SELECT;
 private:
-	std::wstring m_roomId;
+	std::string m_roomId;
 public:
 	PlayerSessionObject(Session* session, SOCKET& sock);
 	virtual	~PlayerSessionObject();
@@ -47,4 +47,9 @@ public:
 	virtual const DirectX::XMFLOAT3 GetRotation() override;
 public:
 	char* GetPlayerInfo();
+public:
+	void SetRole(ROLE r) { m_InGameRole = r; }
+	void ResetRole() { m_InGameRole = ROLE::NONE_SELECT; }
+	void SetRoomId(std::string& roomId) { m_roomId = roomId; }
+	std::string GetRoomId() { return m_roomId; }
 };

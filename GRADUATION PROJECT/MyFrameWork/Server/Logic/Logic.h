@@ -19,6 +19,9 @@ public:
 	void ProcessPacket(int userId, char* p);
 	void BroadCastPacket(void* p);
 	void MultiCastOtherPlayer(int userId, void* p);
+	void MultiCastOtherPlayerInRoom(int userId, void* p);
+	void BroadCastOtherPlayerInRoom(int userId, void* p);
+
 public:
 	void AutoMoveServer();
 };

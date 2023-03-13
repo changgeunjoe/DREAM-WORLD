@@ -8,6 +8,9 @@
 #include "../Room/RoomManager.h"
 #include "../IOCPNetwork/protocol/protocol.h"
 
+
+#pragma warning(disable : 4996)
+
 extern IOCPNetwork	g_iocpNetwork;
 extern DBObject		g_DBObj;
 Logic::Logic()
@@ -22,6 +25,7 @@ Logic::~Logic()
 	m_isRunningThread = false;
 	if (m_PlayerMoveThread.joinable())
 		m_PlayerMoveThread.join();
+	delete m_roomManager;
 }
 
 void Logic::AcceptPlayer(Session* session, int userId, SOCKET& sock)
@@ -148,14 +152,59 @@ void Logic::ProcessPacket(int userId, char* p)
 	case CLIENT_PACKET::CREATE_ROOM:
 	{
 		CLIENT_PACKET::CreateRoomPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::CreateRoomPacket*>(p);
-		recvPacket->Role;
-		recvPacket->roomName;
+		PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
+		std::string roomId;
+		auto now = std::chrono::system_clock::now();
+		auto in_time_t = std::chrono::system_clock::to_time_t(now);
+		roomId.append(std::to_string(std::localtime(&in_time_t)->tm_year % 100));
+		roomId.append(std::to_string(std::localtime(&in_time_t)->tm_mon));
+		roomId.append(std::to_string(std::localtime(&in_time_t)->tm_mday));
+		roomId.append(std::to_string(std::localtime(&in_time_t)->tm_hour));
+		roomId.append(std::to_string(std::localtime(&in_time_t)->tm_min));
+		std::string tempName{ recvPacket->roomName };
+		std::wstring roomName;
+		roomName.assign(tempName.begin(), tempName.end());
+		m_roomManager->InsertRecruitingRoom(roomId, roomName, userId);
+		pSessionObj->SetRole((ROLE)recvPacket->Role);
+		pSessionObj->SetRoomId(roomId);
+		//send Create Room Success Packet
 	}
 	break;
 	case CLIENT_PACKET::REQUEST_ROOM_LIST:
 	{
 		CLIENT_PACKET::RequestRoomListPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::RequestRoomListPacket*>(p);
+		std::vector<Room> recruitRoom = m_roomManager->GetRecruitingRoomList();
+		if (recruitRoom.size() == 0) {
+			SERVER_PACKET::NoneRoomInfoPacket sendPacket;
+			sendPacket.size = 2;
+			sendPacket.type = SERVER_PACKET::REQUEST_ROOM_LIST_NONE;
+			PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
+			pSessionObj->Send(p);
+			return;
+		}
+		for (auto r = recruitRoom.begin(); r != recruitRoom.end(); r++) {
+			SERVER_PACKET::RoomInfoPacket sendPacket;
+			sendPacket.size = sizeof(SERVER_PACKET::RoomInfoPacket);
+			ZeroMemory(sendPacket.playerName, 80);
+			ZeroMemory(sendPacket.role, 4);
 
+
+			//Name
+			std::wstring tempWstring{ r->GetRoomName() };
+			std::string roomNameStr;
+			roomNameStr.assign(tempWstring.begin(), tempWstring.end());
+			strcpy(sendPacket.roomName, roomNameStr.c_str());
+			sendPacket.roomName[roomNameStr.size()] = 0;
+
+			if (r == recruitRoom.end() - 1) {
+				sendPacket.type;
+
+			}
+			else {
+				sendPacket.type;
+
+			}
+		}
 	}
 	break;
 	default:
@@ -182,6 +231,31 @@ void Logic::MultiCastOtherPlayer(int userId, void* p)
 		if (cli.GetId() > MAX_USER) break;
 		if (cli.m_sessionCategory == PLAYER) {
 			PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(cli.m_sessionObject);
+			pSessionObj->Send(p);
+		}
+	}
+}
+
+void Logic::MultiCastOtherPlayerInRoom(int userId, void* p)
+{
+	PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
+	auto roomPlayerSet = m_roomManager->GetRecruitingRoom(pSessionObj->GetRoomId()).GetPlayerSet();
+	for (auto& cli : roomPlayerSet) {
+		if (cli == userId) continue;//자기 자신을 제외한 플레이어들에게 전송
+		if (g_iocpNetwork.m_session[cli].m_sessionCategory == PLAYER) {
+			PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[cli].m_sessionObject);
+			pSessionObj->Send(p);
+		}
+	}
+}
+
+void Logic::BroadCastOtherPlayerInRoom(int userId, void* p)
+{
+	PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
+	auto roomPlayerSet = m_roomManager->GetRecruitingRoom(pSessionObj->GetRoomId()).GetPlayerSet();
+	for (auto& cli : roomPlayerSet) {
+		if (g_iocpNetwork.m_session[cli].m_sessionCategory == PLAYER) {
+			PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[cli].m_sessionObject);
 			pSessionObj->Send(p);
 		}
 	}
