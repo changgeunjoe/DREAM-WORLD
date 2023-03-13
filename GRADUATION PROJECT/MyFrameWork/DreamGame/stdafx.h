@@ -78,6 +78,15 @@ enum ROTATE_AXIS :char
 	X, Y, Z
 };
 
+enum ROLE :char {
+	NONE_SELECT = 0x00,
+	WARRIOR = 0x01,
+	PRIEST = 0x02,
+	TANKER = 0x03,
+	ARCHER = 0x04,
+	RAND = 0x05
+};
+
 using namespace DirectX;
 using namespace DirectX::PackedVector;
 

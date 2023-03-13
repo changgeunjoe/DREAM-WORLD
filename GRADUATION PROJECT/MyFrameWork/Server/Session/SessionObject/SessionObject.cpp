@@ -13,59 +13,7 @@ SessionObject::~SessionObject()
 }
 
 void SessionObject::AutoMove() // /1000.0f해서 이동하자
-{
-	CalcRightVector();
-	auto currentTime = std::chrono::high_resolution_clock::now();
-	double durationTime = std::chrono::duration_cast<std::chrono::microseconds>(currentTime - m_lastMoveTime).count();
-	durationTime = (double)durationTime / 1000.0f;
-	if (DIRECTION::FRONT == (m_inputDirection & DIRECTION::FRONT)) {
-		if (DIRECTION::LEFT == (m_inputDirection & DIRECTION::LEFT)) {
-			DirectX::XMFLOAT3 resDir = Vector3::Normalize(Vector3::Subtract(m_directionVector, m_rightVector));
-			m_position = Vector3::Add(m_position, Vector3::ScalarProduct(resDir, ((double)durationTime / 1000.0f) * 50.0f));
-			//std::cout << "diagonal dir: " << resDir.x << ", " << resDir.z << "distance: " << ((double)durationTime / 1000.0f) * 50.0f << std::endl;
-			//std::cout << "LF" << std::endl;
-		}
-		else if (DIRECTION::RIGHT == (m_inputDirection & DIRECTION::RIGHT)) {
-			DirectX::XMFLOAT3 resDir = Vector3::Normalize(Vector3::Add(m_directionVector, m_rightVector));
-			m_position = Vector3::Add(m_position, Vector3::ScalarProduct(resDir, ((double)durationTime / 1000.0f) * 50.0f));
-			//std::cout << "diagonal dir: " << resDir.x << ", " << resDir.z << std::endl;
-			//std::cout << "RF" << std::endl;
-		}
-		else {
-			m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, ((double)durationTime / 1000.0f) * 50.0f));
-			std::cout << "F" << std::endl;
-		}
-	}
-	else if (DIRECTION::BACK == (m_inputDirection & DIRECTION::BACK)) {
-		if (DIRECTION::LEFT == (m_inputDirection & DIRECTION::LEFT)) {
-			DirectX::XMFLOAT3 resDir = Vector3::Normalize(Vector3::Add(m_directionVector, m_rightVector));
-			m_position = Vector3::Add(m_position, Vector3::ScalarProduct(resDir, ((double)durationTime / 1000.0f) * -50.0f));
-			//std::cout << "diagonal dir: " << resDir.x << ", " << resDir.z << std::endl;
-			//std::cout << "LB" << std::endl;
-		}
-		else if (DIRECTION::RIGHT == (m_inputDirection & DIRECTION::RIGHT)) {
-			DirectX::XMFLOAT3 resDir = Vector3::Normalize(Vector3::Subtract(m_rightVector, m_directionVector));
-			m_position = Vector3::Add(m_position, Vector3::ScalarProduct(resDir, ((double)durationTime / 1000.0f) * 50.0f));
-			//std::cout << "diagonal dir: " << resDir.x << ", " << resDir.z << std::endl;
-			//std::cout << "RB" << std::endl;
-		}
-		else {
-			m_position = Vector3::Subtract(m_position, Vector3::ScalarProduct(m_directionVector, ((double)durationTime / 1000.0f) * 50.0f));
-			std::cout << "B" << std::endl;
-		}
-	}
-	else {
-		if (DIRECTION::LEFT == (m_inputDirection & DIRECTION::LEFT)) {
-			m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_rightVector, ((double)durationTime / 1000.0f) * -50.0f));
-			std::cout << "L" << std::endl;
-		}
-		else if (DIRECTION::RIGHT == (m_inputDirection & DIRECTION::RIGHT)) {
-			m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_rightVector, ((double)durationTime / 1000.0f) * 50.0f));
-			std::cout << "R" << std::endl;
-		}
-	}
-	m_lastMoveTime = currentTime;
-	std::cout << "current Position " << m_position.x << " " << m_position.y << " " << m_position.z << std::endl;
+{	
 }
 
 void SessionObject::StartMove(DIRECTION d)

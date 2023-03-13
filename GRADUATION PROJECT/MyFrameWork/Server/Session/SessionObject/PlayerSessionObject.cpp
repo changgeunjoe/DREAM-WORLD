@@ -2,7 +2,7 @@
 #include "PlayerSessionObject.h"
 #include "../Session.h"
 #include "../../Logic/Logic.h"
-
+#include "../../IOCPNetwork/protocol/protocol.h"
 
 extern  Logic g_logic;
 

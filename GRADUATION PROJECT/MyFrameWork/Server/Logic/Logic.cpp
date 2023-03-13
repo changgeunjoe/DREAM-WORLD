@@ -5,6 +5,8 @@
 #include "../Session/SessionObject/PlayerSessionObject.h"
 #include "../IOCPNetwork/IOCP/IOCPNetwork.h"
 #include "../DB/DBObject.h"
+#include "../Room/RoomManager.h"
+#include "../IOCPNetwork/protocol/protocol.h"
 
 extern IOCPNetwork	g_iocpNetwork;
 extern DBObject		g_DBObj;
@@ -12,6 +14,7 @@ Logic::Logic()
 {
 	m_isRunningThread = true;
 	m_PlayerMoveThread = std::thread{ [this]() {AutoMoveServer(); } };
+	m_roomManager = new RoomManager();
 }
 
 Logic::~Logic()

@@ -1,5 +1,5 @@
 #pragma once
-#include "../../IOCPNetwork/protocol/protocol.h"
+//
 
 class Session;
 class SessionObject

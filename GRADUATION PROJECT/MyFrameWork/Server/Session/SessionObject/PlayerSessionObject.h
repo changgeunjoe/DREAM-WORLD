@@ -3,9 +3,6 @@
 #include "../ExpOver.h"
 
 
-#define NAME_SIZE	20
-
-
 class PlayerSessionObject : public SessionObject
 {
 private:
@@ -20,8 +17,9 @@ private:
 	ExpOver				m_exOver;
 	SOCKET				m_socket;
 	int					m_prevBufferSize;
+	ROLE				m_InGameRole = ROLE::NONE_SELECT;
 private:
-	int m_roomNumber;
+	std::wstring m_roomId;
 public:
 	PlayerSessionObject(Session* session, SOCKET& sock);
 	virtual	~PlayerSessionObject();

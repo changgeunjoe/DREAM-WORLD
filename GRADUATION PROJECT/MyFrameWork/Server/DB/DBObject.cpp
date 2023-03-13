@@ -4,6 +4,7 @@
 #include "../IOCPNetwork/IOCP/IOCPNetwork.h"
 #include "../Session/SessionObject/PlayerSessionObject.h"
 #include "../Logic/Logic.h"
+#include "../IOCPNetwork/protocol/protocol.h"
 
 extern IOCPNetwork	g_iocpNetwork;
 extern Logic		g_logic;

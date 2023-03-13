@@ -1,6 +1,7 @@
 #pragma once
 
 class Session;
+class RoomManager;
 class Logic
 {
 private:
@@ -11,6 +12,7 @@ public:
 private:
 	volatile bool m_isRunningThread = false;
 	std::thread m_PlayerMoveThread;
+	RoomManager* m_roomManager = nullptr;
 public:
 
 	void AcceptPlayer(Session* session, int userId, SOCKET& sock);

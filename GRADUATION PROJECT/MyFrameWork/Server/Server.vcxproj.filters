@@ -61,8 +61,8 @@
     <ClCompile Include="Room\Room.cpp">
       <Filter>Room</Filter>
     </ClCompile>
-    <ClCompile Include="RoomManager.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="Room\RoomManager.cpp">
+      <Filter>Room</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -96,6 +96,8 @@
     <ClInclude Include="Room\Room.h">
       <Filter>Room</Filter>
     </ClInclude>
-    <ClInclude Include="RoomManager.h" />
+    <ClInclude Include="Room\RoomManager.h">
+      <Filter>Room</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
