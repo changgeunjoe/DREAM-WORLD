@@ -24,7 +24,7 @@ public:
 	virtual void BuildLight();
 	virtual void BuildShadow(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void Build2DUI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
-	virtual void PickObjectByRayIntersection(XMFLOAT3& xmf3PickPosition, XMFLOAT4X4& xmf4x4View, float* pfNearHitDistance);
+	virtual void PickObjectByRayIntersection();
 	
 
 	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
@@ -66,8 +66,11 @@ private: //active object
 	int				m_nUIObjects{};
 	GameObject* m_pUIGameSearchObject{ NULL };
 	GameObject* m_pUIGameChoiceObject{ NULL };
+	GameObject* m_pSelectedObject = NULL;
 
 	POINT						m_ptOldCursorPos;
+
+	bool	m_bUIScene = true;
 public:
 	void SetPlayCharacter(Session* pSession);
 };

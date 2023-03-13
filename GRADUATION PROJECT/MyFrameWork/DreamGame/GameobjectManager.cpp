@@ -269,22 +269,32 @@ void GameobjectManager::Build2DUI(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	m_pTextureToViewportComponent->BuildObjects(pd3dDevice, pd3dCommandList, m_pDepthShaderComponent->GetDepthTexture());
 
 }
-void GameobjectManager::PickObjectByRayIntersection(XMFLOAT3& xmf3PickPosition, XMFLOAT4X4& xmf4x4View, float* pfNearHitDistance)
+void GameobjectManager::PickObjectByRayIntersection()
 {
+
+	XMFLOAT4X4 xmf4x4View = m_pCamera->GetViewMatrix();
+	XMFLOAT4X4 xmf4x4Projection = m_pCamera->GetProjectionMatrix();
+	D3D12_VIEWPORT d3dViewport = m_pCamera->GetViewport();
+
+	XMFLOAT3 xmf3PickPosition;
+	/*xmf3PickPosition.x = (((2.0f * xClient) / d3dViewport.Width) - 1) / xmf4x4Projection._11;
+	xmf3PickPosition.y = -(((2.0f * yClient) / d3dViewport.Height) - 1) / xmf4x4Projection._22;
+	xmf3PickPosition.z = 1.0f;*/
+
 	int nIntersected = 0;
-	*pfNearHitDistance = FLT_MAX;
-	float fHitDistance = FLT_MAX;
-	GameObject* pSelectedObject = NULL;
-	for (int j = 0; j < m_nObjects; j++)
+	float fHitDistance = FLT_MAX, fNearestHitDistance = FLT_MAX;
+	m_pSelectedObject = NULL;
+	for (int j = 0; j < m_ppUIObjects.size(); j++)
 	{
 		nIntersected = m_ppUIObjects[j]->PickObjectByRayIntersection(xmf3PickPosition, xmf4x4View, &fHitDistance);
-		if ((nIntersected > 0) && (fHitDistance < *pfNearHitDistance))
+		if ((nIntersected > 0) && (fHitDistance < fNearestHitDistance))
 		{
-			*pfNearHitDistance = fHitDistance;
-			pSelectedObject = m_ppUIObjects[j];
+			fNearestHitDistance = fHitDistance;
+			m_pSelectedObject = m_ppUIObjects[j];
+			break;
 		}
 	}
-	//return(pSelectedObject);
+	
 }
 void GameobjectManager::AnimateObjects()
 {
@@ -816,37 +826,51 @@ bool GameobjectManager::onProcessingKeyboardMessageUI(HWND hWnd, UINT nMessageID
 		{
 		case 'P':
 		{
-			XMFLOAT3 TempPosition = m_ppUIObjects[m_nUIObjects]->GetPosition();
-			TempPosition.x += 0.01;
-			m_ppUIObjects[m_nUIObjects]->SetPosition(TempPosition);
+
+			if (m_pSelectedObject)
+			{
+				XMFLOAT3 TempPosition = m_pSelectedObject->GetPosition();
+				TempPosition.x += 0.01;
+				m_pSelectedObject->SetPosition(TempPosition);
+
+			}
 		}
 		break;
 		case 'O':
 		{
-			XMFLOAT3 TempPosition = m_ppUIObjects[m_nUIObjects]->GetPosition();
-			TempPosition.x -= 0.01;
-			m_ppUIObjects[m_nUIObjects]->SetPosition(TempPosition);
+			if (m_pSelectedObject)
+			{
+				XMFLOAT3 TempPosition = m_pSelectedObject->GetPosition();
+				TempPosition.x -= 0.01;
+				m_pSelectedObject->SetPosition(TempPosition);
+			}
 		}
 		break;
 		case 'K':
 		{
-			XMFLOAT3 TempPosition = m_ppUIObjects[m_nUIObjects]->GetPosition();
-			TempPosition.y += 0.01;
-			m_ppUIObjects[m_nUIObjects]->SetPosition(TempPosition);
+
+			if (m_pSelectedObject)
+			{
+				XMFLOAT3 TempPosition = m_pSelectedObject->GetPosition();
+				TempPosition.y += 0.01;
+				m_pSelectedObject->SetPosition(TempPosition);
+			}
 		}
 		break;
 		case 'L':
 		{
-			XMFLOAT3 TempPosition = m_ppUIObjects[m_nUIObjects]->GetPosition();
-			TempPosition.y -= 0.01;
-			m_ppUIObjects[m_nUIObjects]->SetPosition(TempPosition);
+			
+			if (m_pSelectedObject)
+			{
+				XMFLOAT3 TempPosition = m_pSelectedObject->GetPosition();
+				TempPosition.y -= 0.01;
+				m_pSelectedObject->SetPosition(TempPosition);
+			}
 		}
 		break;
 		case 'I':
 		{
-			m_nUIObjects++;
-		//	if (m_nUIObjects > m_ppUIObjects.size())
-			//m_nUIObjects = 0;
+	
 		}
 		break;
 		default:
@@ -875,6 +899,12 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetAllTrackdisable();
 			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pSkinnedAnimationController->SetTrackEnable(CharacterAnimation::CA_ATTACK, true);
 		}
+
+		if (m_bUIScene)
+		{
+			cout << "마우스 클릭 성공" << endl;
+			PickObjectByRayIntersection();
+		}
 		break;
 	}
 	case WM_LBUTTONUP:
@@ -887,6 +917,8 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 	{
 		//m_pPlayerObject->SetRButtonClicked(true);
 		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetRButtonClicked(true);
+
+		
 		break;
 	}
 	case WM_RBUTTONUP:
@@ -899,7 +931,7 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 		break;
 	}
 
-}
+ }
 
 void GameobjectManager::SetPlayCharacter(Session* pSession) // 임시 함수
 {
