@@ -269,7 +269,7 @@ void GameobjectManager::Build2DUI(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	m_pTextureToViewportComponent->BuildObjects(pd3dDevice, pd3dCommandList, m_pDepthShaderComponent->GetDepthTexture());
 
 }
-void GameobjectManager::PickObjectByRayIntersection()
+void GameobjectManager::PickObjectByRayIntersection(int xClient, int yClient)
 {
 
 	XMFLOAT4X4 xmf4x4View = m_pCamera->GetViewMatrix();
@@ -277,9 +277,9 @@ void GameobjectManager::PickObjectByRayIntersection()
 	D3D12_VIEWPORT d3dViewport = m_pCamera->GetViewport();
 
 	XMFLOAT3 xmf3PickPosition;
-	/*xmf3PickPosition.x = (((2.0f * xClient) / d3dViewport.Width) - 1) / xmf4x4Projection._11;
+	xmf3PickPosition.x = (((2.0f * xClient) / d3dViewport.Width) - 1) / xmf4x4Projection._11;
 	xmf3PickPosition.y = -(((2.0f * yClient) / d3dViewport.Height) - 1) / xmf4x4Projection._22;
-	xmf3PickPosition.z = 1.0f;*/
+	xmf3PickPosition.z = 1.0f;
 
 	int nIntersected = 0;
 	float fHitDistance = FLT_MAX, fNearestHitDistance = FLT_MAX;
@@ -903,7 +903,7 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 		if (m_bUIScene)
 		{
 			cout << "마우스 클릭 성공" << endl;
-			PickObjectByRayIntersection();
+			PickObjectByRayIntersection(LOWORD(lParam), HIWORD(lParam));
 		}
 		break;
 	}

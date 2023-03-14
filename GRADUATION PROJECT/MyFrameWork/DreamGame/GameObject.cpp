@@ -774,10 +774,11 @@ GameObject* GameObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice, ID3
 	return(pGameObject);
 }
 
+#define _WITH_RAY_BY_TRANSFORM
 void GameObject::GenerateRayForPicking(XMFLOAT3& xmf3PickPosition, XMFLOAT4X4* pxmf4x4World, XMFLOAT4X4& xmf4x4View, XMFLOAT3* pxmf3PickRayOrigin, XMFLOAT3* pxmf3PickRayDirection)
 {
-	XMFLOAT4X4 xmf4x4WorldView = (pxmf4x4World) ? Matrix4x4::Multiply(*pxmf4x4World, xmf4x4View) : xmf4x4View;
-	XMFLOAT4X4 xmf4x4Inverse = Matrix4x4::Inverse(xmf4x4WorldView);
+	//XMFLOAT4X4 xmf4x4WorldView = (pxmf4x4World) ? Matrix4x4::Multiply(*pxmf4x4World, xmf4x4View) : xmf4x4View;
+	XMFLOAT4X4 xmf4x4Inverse = Matrix4x4::Inverse(*pxmf4x4World);
 
 #ifdef _WITH_RAY_BY_TRANSFORM
 	XMFLOAT3 xmf3CameraOrigin(0.0f, 0.0f, 0.0f);

@@ -498,6 +498,14 @@ void UIMeshComponent::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	pVertices[4] = Textured2DUIVertex(XMFLOAT3(-fx, +fy, fz), XMFLOAT2(0.0f, 0.0f));
 	pVertices[5] = Textured2DUIVertex(XMFLOAT3(+fx, +fy, fz), XMFLOAT2(1.0f, 0.0f));
 
+	m_pxmf3Positions = new XMFLOAT3[m_nVertices];
+
+	m_pxmf3Positions[0] = XMFLOAT3(+fx, +fy, fz);
+	m_pxmf3Positions[1] = XMFLOAT3(+fx, -fy, fz);
+	m_pxmf3Positions[2] = XMFLOAT3(-fx, -fy, fz);
+	m_pxmf3Positions[3] = XMFLOAT3(-fx, -fy, fz);
+	m_pxmf3Positions[4] = XMFLOAT3(-fx, +fy, fz);
+	m_pxmf3Positions[5] = XMFLOAT3(+fx, +fy, fz);
 	/*
 		pVertices[0] = Textured2DUIVertex(XMFLOAT3(-fx, +fy, fz), XMFLOAT2(1.0f, 0.0f));
 		pVertices[1] = Textured2DUIVertex(XMFLOAT3(-fx, -fy, fz), XMFLOAT2(1.0f, 1.0f));
@@ -514,4 +522,18 @@ void UIMeshComponent::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	m_d3dVertexBufferView.BufferLocation = m_pd3dVertexBuffer->GetGPUVirtualAddress();
 	m_d3dVertexBufferView.StrideInBytes = m_nStride;
 	m_d3dVertexBufferView.SizeInBytes = m_nStride * m_nVertices;
+
+	m_xmBoundingBox= BoundingOrientedBox(XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(fx, fy, fz), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
+	
+	m_nIndices = 12;
+	m_pnIndices = new UINT[m_nIndices];
+	//m_pnIndices[0] = 3; m_pnIndices[1] = 1; m_pnIndices[2] = 0;
+	//m_pnIndices[3] = 2; m_pnIndices[4] = 1; m_pnIndices[5] = 3;
+	//m_pnIndices[6] = 0; m_pnIndices[7] = 5; m_pnIndices[8] = 4;
+	//m_pnIndices[9] = 1; m_pnIndices[10] = 5; m_pnIndices[11] = 0;
+
+	m_pnIndices[0] = 3; m_pnIndices[1] = 1; m_pnIndices[2] = 0;
+	m_pnIndices[3] = 2; m_pnIndices[4] = 4; m_pnIndices[5] = 5;
+	m_pnIndices[6] = 0; m_pnIndices[7] = 2; m_pnIndices[8] = 4;
+	m_pnIndices[9] = 1; m_pnIndices[10] = 2; m_pnIndices[11] = 0;
 }
