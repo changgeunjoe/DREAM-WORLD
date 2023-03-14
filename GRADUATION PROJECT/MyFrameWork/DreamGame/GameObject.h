@@ -194,7 +194,7 @@ public:
     bool GetMoveState() { return m_bMoveState; }
     
     virtual void RbuttonClicked(float fTimeElapsed) {};
-    virtual void RbuttonUp() {};
+    virtual void RbuttonUp(const XMFLOAT3& CameraAxis) {};
 
 protected:
     bool                            m_bLButtonClicked = false;

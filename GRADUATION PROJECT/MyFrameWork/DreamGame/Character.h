@@ -7,7 +7,7 @@ public:
 	Character();
 	virtual ~Character();
 	virtual void RbuttonClicked(float fTimeElapsed);
-	virtual void RbuttonUp();
+	virtual void RbuttonUp(const XMFLOAT3& CameraAxis);
 	//virtual void Move(DIRECTION direction, float fDistance);
 };
 
@@ -27,7 +27,7 @@ public:
 	Archer();
 	virtual ~Archer();
 	virtual void RbuttonClicked(float fTimeElapsed);
-	virtual void RbuttonUp();
+	virtual void RbuttonUp(const XMFLOAT3& CameraAxis);
 	virtual void Move(DIRECTION direction, float fDsitance);
 	virtual void Animate(float fTimeElapsed);
 };
@@ -38,7 +38,7 @@ public:
 	Tanker();
 	virtual ~Tanker();
 	virtual void RbuttonClicked(float fTimeElapsed);
-	virtual void RbuttonUp();
+	virtual void RbuttonUp(const XMFLOAT3& CameraAxis);
 	virtual void Move(DIRECTION direction, float fDsitance);
 	virtual void Animate(float fTimeElapsed);
 };
@@ -49,6 +49,7 @@ public:
 	Priest();
 	virtual ~Priest();
 	virtual void RbuttonClicked(float fTimeElapsed);
+	virtual void RbuttonUp(const XMFLOAT3& CameraAxis);
 	virtual void Move(DIRECTION direction, float fDsitance);
 	virtual void Animate(float fTimeElapsed);
 };

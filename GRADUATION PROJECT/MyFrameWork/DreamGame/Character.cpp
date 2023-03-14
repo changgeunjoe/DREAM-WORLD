@@ -14,10 +14,11 @@ void Character::RbuttonClicked(float fTimeElapsed)
 {
 }
 
-void Character::RbuttonUp()
+void Character::RbuttonUp(const XMFLOAT3& CameraAxis)
 {
 	m_pCamera->ReInitCamrea();
 	SetCamera(m_pCamera);
+	m_pCamera->Rotate(CameraAxis.x, CameraAxis.y, CameraAxis.z);
 	m_iRButtionCount = 0;
 }
 
@@ -40,9 +41,23 @@ void Warrior::RbuttonClicked(float fTimeElapsed)
 void Warrior::Move(DIRECTION direction, float fDistance)
 {
 	//fDistance *= m_fSpeed;
+	DIRECTION tespDIR = direction;
+	if (((tespDIR & DIRECTION::LEFT) == DIRECTION::LEFT) &&
+		((tespDIR & DIRECTION::RIGHT) == DIRECTION::RIGHT))
+	{
+		tespDIR = (DIRECTION)(tespDIR ^ DIRECTION::LEFT);
+		tespDIR = (DIRECTION)(tespDIR ^ DIRECTION::RIGHT);
+	}
+	if (((tespDIR & DIRECTION::FRONT) == DIRECTION::FRONT) &&
+		((tespDIR & DIRECTION::BACK) == DIRECTION::BACK))
+	{
+		tespDIR = (DIRECTION)(tespDIR ^ DIRECTION::FRONT);
+		tespDIR = (DIRECTION)(tespDIR ^ DIRECTION::BACK);
+	}
+
 	if (!m_bRButtonClicked)
 	{
-		switch (direction)
+		switch (tespDIR)
 		{
 		case DIRECTION::FRONT:
 		case DIRECTION::FRONT | DIRECTION::RIGHT:
@@ -53,6 +68,23 @@ void Warrior::Move(DIRECTION direction, float fDistance)
 		case DIRECTION::LEFT:
 		case DIRECTION::FRONT | DIRECTION::LEFT:
 			MoveForward(fDistance);
+		default: break;
+		}
+	}
+	else
+	{
+		//fDistance /= 3;
+		switch (tespDIR)
+		{
+		case DIRECTION::IDLE: break;
+		case DIRECTION::FRONT: MoveForward(fDistance); break;
+		case DIRECTION::FRONT | DIRECTION::RIGHT: MoveDiagonal(1, 1, fDistance); break;
+		case DIRECTION::RIGHT: MoveStrafe(fDistance); break;
+		case DIRECTION::BACK | DIRECTION::RIGHT: MoveDiagonal(-1, 1, fDistance);  break;
+		case DIRECTION::BACK: MoveForward(-fDistance); break;
+		case DIRECTION::BACK | DIRECTION::LEFT: MoveDiagonal(-1, -1, fDistance); break;
+		case DIRECTION::LEFT: MoveStrafe(-fDistance); break;
+		case DIRECTION::FRONT | DIRECTION::LEFT: MoveDiagonal(1, -1, fDistance); break;
 		default: break;
 		}
 	}
@@ -135,9 +167,9 @@ void Archer::RbuttonClicked(float fTimeElapsed)
 }
 
 
-void Archer::RbuttonUp()
+void Archer::RbuttonUp(const XMFLOAT3& CameraAxis)
 {
-	Character::RbuttonUp();
+	Character::RbuttonUp(CameraAxis);
 	// 화살 발사 모먼트
 }
 
@@ -263,9 +295,9 @@ void Tanker::RbuttonClicked(float fTimeElapsed)
 	}
 }
 
-void Tanker::RbuttonUp()
+void Tanker::RbuttonUp(const XMFLOAT3& CameraAxis)
 {
-	Character::RbuttonUp();
+	Character::RbuttonUp(CameraAxis);
 }
 
 void Tanker::Move(DIRECTION direction, float fDistance)
@@ -397,7 +429,54 @@ void Priest::RbuttonClicked(float fTimeElapsed)
 
 void Priest::Move(DIRECTION direction, float fDistance)
 {
-	MoveForward(fDistance);
+	//fDistance *= m_fSpeed;
+	DIRECTION tespDIR = direction;
+	if (((tespDIR & DIRECTION::LEFT) == DIRECTION::LEFT) &&
+		((tespDIR & DIRECTION::RIGHT) == DIRECTION::RIGHT))
+	{
+		tespDIR = (DIRECTION)(tespDIR ^ DIRECTION::LEFT);
+		tespDIR = (DIRECTION)(tespDIR ^ DIRECTION::RIGHT);
+	}
+	if (((tespDIR & DIRECTION::FRONT) == DIRECTION::FRONT) &&
+		((tespDIR & DIRECTION::BACK) == DIRECTION::BACK))
+	{
+		tespDIR = (DIRECTION)(tespDIR ^ DIRECTION::FRONT);
+		tespDIR = (DIRECTION)(tespDIR ^ DIRECTION::BACK);
+	}
+
+	if (!m_bRButtonClicked)
+	{
+		switch (tespDIR)
+		{
+		case DIRECTION::FRONT:
+		case DIRECTION::FRONT | DIRECTION::RIGHT:
+		case DIRECTION::RIGHT:
+		case DIRECTION::BACK | DIRECTION::RIGHT:
+		case DIRECTION::BACK:
+		case DIRECTION::BACK | DIRECTION::LEFT:
+		case DIRECTION::LEFT:
+		case DIRECTION::FRONT | DIRECTION::LEFT:
+			MoveForward(fDistance);
+		default: break;
+		}
+	}
+	else
+	{
+		//fDistance /= 3;
+		switch (tespDIR)
+		{
+		case DIRECTION::IDLE: break;
+		case DIRECTION::FRONT: MoveForward(fDistance); break;
+		case DIRECTION::FRONT | DIRECTION::RIGHT: MoveDiagonal(1, 1, fDistance); break;
+		case DIRECTION::RIGHT: MoveStrafe(fDistance); break;
+		case DIRECTION::BACK | DIRECTION::RIGHT: MoveDiagonal(-1, 1, fDistance);  break;
+		case DIRECTION::BACK: MoveForward(-fDistance); break;
+		case DIRECTION::BACK | DIRECTION::LEFT: MoveDiagonal(-1, -1, fDistance); break;
+		case DIRECTION::LEFT: MoveStrafe(-fDistance); break;
+		case DIRECTION::FRONT | DIRECTION::LEFT: MoveDiagonal(1, -1, fDistance); break;
+		default: break;
+		}
+	}
 }
 
 void Priest::Animate(float fTimeElapsed)
@@ -447,4 +526,10 @@ void Priest::Animate(float fTimeElapsed)
 	}
 
 	GameObject::Animate(fTimeElapsed);
+}
+
+void Priest::RbuttonUp(const XMFLOAT3& CameraAxis)
+{
+	Character::RbuttonUp(CameraAxis);
+	// 화살 발사 모먼트
 }
