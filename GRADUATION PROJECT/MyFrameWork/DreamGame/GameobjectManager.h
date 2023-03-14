@@ -66,6 +66,8 @@ private: //active object
 	int				m_nUIObjects{};
 	GameObject* m_pUIGameSearchObject{ NULL };
 	GameObject* m_pUIGameChoiceObject{ NULL };
+	GameObject* m_pUIGameMathchingObject{ NULL };
+	GameObject* m_pUIGameCreateObject{ NULL };
 	GameObject* m_pSelectedObject = NULL;
 
 	POINT						m_ptOldCursorPos;

@@ -203,22 +203,45 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pUIGameSearchObject->InsertComponent<UIMeshComponent>();
 	m_pUIGameSearchObject->InsertComponent<UiShaderComponent>();
 	m_pUIGameSearchObject->InsertComponent<TextureComponent>();
-	m_pUIGameSearchObject->SetTexture(L"Image/GameSearching.dds", RESOURCE_TEXTURE2D, 3);
+	m_pUIGameSearchObject->SetTexture(L"UI/SearchingRoom.dds", RESOURCE_TEXTURE2D, 3);
 	m_pUIGameSearchObject->SetPosition(XMFLOAT3(0, 0, 1.01f));
 	m_pUIGameSearchObject->SetScale(0.05, 0.025, 1);
 	m_pUIGameSearchObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppUIObjects.emplace_back(m_pUIGameSearchObject);
 
-	m_pUIGameChoiceObject = new GameObject(UI_ENTITY);
-	m_pUIGameChoiceObject->InsertComponent<RenderComponent>();
-	m_pUIGameChoiceObject->InsertComponent<UIMeshComponent>();
-	m_pUIGameChoiceObject->InsertComponent<UiShaderComponent>();
-	m_pUIGameChoiceObject->InsertComponent<TextureComponent>();
-	m_pUIGameChoiceObject->SetTexture(L"Image/GameSearching.dds", RESOURCE_TEXTURE2D, 3);
-	m_pUIGameChoiceObject->SetPosition(XMFLOAT3(0.5, 0.1, 1.01));
-	m_pUIGameChoiceObject->SetScale(0.05, 0.02, 1);
-	m_pUIGameChoiceObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppUIObjects.emplace_back(m_pUIGameChoiceObject);
+	//m_pUIGameChoiceObject = new GameObject(UI_ENTITY);
+	//m_pUIGameChoiceObject->InsertComponent<RenderComponent>();
+	//m_pUIGameChoiceObject->InsertComponent<UIMeshComponent>();
+	//m_pUIGameChoiceObject->InsertComponent<UiShaderComponent>();
+	//m_pUIGameChoiceObject->InsertComponent<TextureComponent>();
+	//m_pUIGameChoiceObject->SetTexture(L"Image/GameSearching.dds", RESOURCE_TEXTURE2D, 3);
+	//m_pUIGameChoiceObject->SetPosition(XMFLOAT3(0.5, 0.1, 1.01));
+	//m_pUIGameChoiceObject->SetScale(0.05, 0.02, 1);
+	//m_pUIGameChoiceObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//m_ppUIObjects.emplace_back(m_pUIGameChoiceObject);
+
+
+	m_pUIGameMathchingObject = new GameObject(UI_ENTITY);
+	m_pUIGameMathchingObject->InsertComponent<RenderComponent>();
+	m_pUIGameMathchingObject->InsertComponent<UIMeshComponent>();
+	m_pUIGameMathchingObject->InsertComponent<UiShaderComponent>();
+	m_pUIGameMathchingObject->InsertComponent<TextureComponent>();
+	m_pUIGameMathchingObject->SetTexture(L"UI/Matching.dds", RESOURCE_TEXTURE2D, 3);
+	m_pUIGameMathchingObject->SetPosition(XMFLOAT3(0.5, 0.1, 1.01));
+	m_pUIGameMathchingObject->SetScale(0.05, 0.02, 1);
+	m_pUIGameMathchingObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppUIObjects.emplace_back(m_pUIGameMathchingObject);
+
+	m_pUIGameCreateObject = new GameObject(UI_ENTITY);
+	m_pUIGameCreateObject->InsertComponent<RenderComponent>();
+	m_pUIGameCreateObject->InsertComponent<UIMeshComponent>();
+	m_pUIGameCreateObject->InsertComponent<UiShaderComponent>();
+	m_pUIGameCreateObject->InsertComponent<TextureComponent>();
+	m_pUIGameCreateObject->SetTexture(L"UI/CreateRoom.dds", RESOURCE_TEXTURE2D, 3);
+	m_pUIGameCreateObject->SetPosition(XMFLOAT3(0.5, 0.4, 1.01));
+	m_pUIGameCreateObject->SetScale(0.05, 0.02, 1);
+	m_pUIGameCreateObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppUIObjects.emplace_back(m_pUIGameCreateObject);
 
 
 
