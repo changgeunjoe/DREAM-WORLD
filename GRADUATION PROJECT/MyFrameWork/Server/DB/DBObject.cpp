@@ -55,7 +55,9 @@ void DBObject::RunDBThread()
 						pSession->Send(otherPlayerDataPacket);
 						delete otherPlayerDataPacket;
 					}
-
+				}
+				else {
+					//login failed
 				}
 				if (currentEvent.Data != nullptr)
 					delete currentEvent.Data;

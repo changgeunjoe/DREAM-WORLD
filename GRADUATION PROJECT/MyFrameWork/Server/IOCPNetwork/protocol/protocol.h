@@ -12,6 +12,8 @@ namespace CLIENT_PACKET {
 	constexpr unsigned char MATCH = 6;
 	constexpr unsigned char CREATE_ROOM = 7;
 	constexpr unsigned char REQUEST_ROOM_LIST = 8;
+	constexpr unsigned char PLAYER_APPLY_ROOM = 9;
+	constexpr unsigned char CANCEL_ROOM = 10;
 
 	struct MovePacket
 	{
@@ -57,6 +59,13 @@ namespace CLIENT_PACKET {
 	struct RequestRoomListPacket {
 		char size;
 		char type;
+	};
+
+	struct PlayerApplyRoomPacket {
+		char size;
+		char type;
+		char role;
+		char roomId[40];
 	};
 
 }
@@ -122,6 +131,7 @@ namespace SERVER_PACKET {
 	struct RoomInfoPacket {
 		char size;
 		char type;
+		char roomId[40];
 		char roomName[30];
 		char playerName[4][20];//방장은 0번 인덱스일까?
 		char role[4];

@@ -151,8 +151,8 @@ void Logic::ProcessPacket(int userId, char* p)
 	break;
 	case CLIENT_PACKET::CREATE_ROOM:
 	{
-		CLIENT_PACKET::CreateRoomPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::CreateRoomPacket*>(p);
 		PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
+		CLIENT_PACKET::CreateRoomPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::CreateRoomPacket*>(p);
 		std::string roomId;
 		auto now = std::chrono::system_clock::now();
 		auto in_time_t = std::chrono::system_clock::to_time_t(now);
@@ -161,24 +161,33 @@ void Logic::ProcessPacket(int userId, char* p)
 		roomId.append(std::to_string(std::localtime(&in_time_t)->tm_mday));
 		roomId.append(std::to_string(std::localtime(&in_time_t)->tm_hour));
 		roomId.append(std::to_string(std::localtime(&in_time_t)->tm_min));
+		roomId.append(std::to_string(userId));
 		std::string tempName{ recvPacket->roomName };
 		std::wstring roomName;
 		roomName.assign(tempName.begin(), tempName.end());
-		m_roomManager->InsertRecruitingRoom(roomId, roomName, userId);
-		pSessionObj->SetRole((ROLE)recvPacket->Role);
-		pSessionObj->SetRoomId(roomId);
+
+		SERVER_PACKET::CreateRoomResultPacket sendPacket;
+		if (m_roomManager->InsertRecruitingRoom(roomId, roomName, userId)) {
+			pSessionObj->SetRole((ROLE)recvPacket->Role);
+			pSessionObj->SetRoomId(roomId);
+			sendPacket.type = SERVER_PACKET::CREATE_ROOM_SUCCESS;
+		}
+		else sendPacket.type = SERVER_PACKET::CREATE_ROOM_FAILURE;
 		//send Create Room Success Packet
+		sendPacket.size = sizeof(SERVER_PACKET::CreateRoomResultPacket);
+		memcpy(sendPacket.roomName, recvPacket->roomName, 30);
+		pSessionObj->Send(&sendPacket);
 	}
 	break;
 	case CLIENT_PACKET::REQUEST_ROOM_LIST:
 	{
+		PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
 		CLIENT_PACKET::RequestRoomListPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::RequestRoomListPacket*>(p);
 		std::vector<Room> recruitRoom = m_roomManager->GetRecruitingRoomList();
 		if (recruitRoom.size() == 0) {
 			SERVER_PACKET::NoneRoomInfoPacket sendPacket;
 			sendPacket.size = 2;
 			sendPacket.type = SERVER_PACKET::REQUEST_ROOM_LIST_NONE;
-			PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
 			pSessionObj->Send(p);
 			return;
 		}
@@ -187,23 +196,29 @@ void Logic::ProcessPacket(int userId, char* p)
 			sendPacket.size = sizeof(SERVER_PACKET::RoomInfoPacket);
 			ZeroMemory(sendPacket.playerName, 80);
 			ZeroMemory(sendPacket.role, 4);
-
-
+			std::set<int> pSet = r->GetPlayerSet();
+			int i = 0;
+			for (const auto& p : pSet) {
+				PlayerSessionObject* partPSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[p].m_sessionObject);
+				std::string nameStr;
+				nameStr.assign(partPSessionObj->GetName().begin(), partPSessionObj->GetName().end());
+				memcpy(sendPacket.playerName[i], nameStr.c_str(), nameStr.size());
+				sendPacket.playerName[i][nameStr.size()] = 0;
+				sendPacket.role[i] = partPSessionObj->GetRole();
+			}
 			//Name
 			std::wstring tempWstring{ r->GetRoomName() };
 			std::string roomNameStr;
 			roomNameStr.assign(tempWstring.begin(), tempWstring.end());
 			strcpy(sendPacket.roomName, roomNameStr.c_str());
 			sendPacket.roomName[roomNameStr.size()] = 0;
-
-			if (r == recruitRoom.end() - 1) {
-				sendPacket.type;
-
-			}
-			else {
-				sendPacket.type;
-
-			}
+			strcpy(sendPacket.roomId, r->GetRoomId().c_str());
+			sendPacket.roomId[r->GetRoomId().size()] = 0;
+			if (r == recruitRoom.end() - 1)
+				sendPacket.type = SERVER_PACKET::REQUEST_ROOM_LIST_END;
+			else
+				sendPacket.type = SERVER_PACKET::REQUEST_ROOM_LIST;
+			pSessionObj->Send(&sendPacket);
 		}
 	}
 	break;

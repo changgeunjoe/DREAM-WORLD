@@ -29,6 +29,7 @@ public:
 	{
 		m_playerName = inputWst;
 	}
+	std::wstring& GetName() { return m_playerName; }
 public:
 	void Recv();
 	void Send(void* p);
@@ -50,6 +51,9 @@ public:
 public:
 	void SetRole(ROLE r) { m_InGameRole = r; }
 	void ResetRole() { m_InGameRole = ROLE::NONE_SELECT; }
+	ROLE GetRole() {
+		return m_InGameRole;
+	}
 	void SetRoomId(std::string& roomId) { m_roomId = roomId; }
 	std::string GetRoomId() { return m_roomId; }
 };

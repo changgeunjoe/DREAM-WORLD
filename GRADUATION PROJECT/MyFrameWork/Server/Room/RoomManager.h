@@ -13,7 +13,7 @@ private:
 	std::unordered_map<std::string, Room> m_RunningRoomList;
 	
 public:
-	void InsertRecruitingRoom(std::string& roomId, std::wstring& roomName, int createPlayerId);
+	bool InsertRecruitingRoom(std::string& roomId, std::wstring& roomName, int createPlayerId);
 	void DeleteRoom();
 
 public:
