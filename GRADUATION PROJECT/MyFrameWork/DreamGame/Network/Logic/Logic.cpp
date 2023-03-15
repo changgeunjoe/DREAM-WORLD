@@ -426,6 +426,7 @@ void Logic::ProcessPacket(char* p)
 
 		SERVER_PACKET::AddPlayerPacket* recvPacket = reinterpret_cast<SERVER_PACKET::AddPlayerPacket*>(p);
 		for (auto& pSession : m_inGamePlayerSession) {
+			if (pSession.m_id == myId) continue;
 			if (-1 == pSession.m_id) {
 				pSession.m_id = recvPacket->userId;
 				pSession.SetName(recvPacket->name);
@@ -472,6 +473,7 @@ void Logic::ProcessPacket(char* p)
 			findRes->m_currentPlayGameObject->m_cMouseInput = recvPacket->ClickedButton;
 		}
 	}
+	break;
 	default:
 		break;
 	}

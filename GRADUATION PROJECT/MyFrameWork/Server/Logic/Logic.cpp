@@ -173,6 +173,7 @@ void Logic::ProcessPacket(int userId, char* p)
 #endif
 		MultiCastOtherPlayer(userId, &sendPacket);
 	}
+	break;
 	default:
 		PrintCurrentTime();
 		std::cout << "unknown Packet" << std::endl;
