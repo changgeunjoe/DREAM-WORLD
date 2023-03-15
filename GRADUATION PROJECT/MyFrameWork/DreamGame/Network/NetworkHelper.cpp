@@ -33,7 +33,7 @@ bool NetworkHelper::TryConnect()
 	sockaddr_in sockaddrIn;
 	sockaddrIn.sin_family = AF_INET;
 	sockaddrIn.sin_port = htons(SERVER_PORT);
-	inet_pton(AF_INET, "127.0.0.1", &sockaddrIn.sin_addr.s_addr);
+	inet_pton(AF_INET, SERVER_IP, &sockaddrIn.sin_addr.s_addr);
 	int retVal = connect(m_clientSocket, reinterpret_cast<sockaddr*>(&sockaddrIn), sizeof(sockaddrIn));
 	if (retVal) {
 		std::cout << "connect Fail" << std::endl;
