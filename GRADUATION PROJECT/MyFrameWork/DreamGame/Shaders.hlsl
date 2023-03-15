@@ -237,8 +237,12 @@ float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
     }
     float4 uvs[MAX_LIGHTS];
     float4 cIllumination = Lighting(input.positionW, normalW, false, uvs);
-     return(lerp(cColor, cIllumination, 0.5f));
+    
     //return (cIllumination);
+     if (cColor.w < 0.1f)
+         return cColor;
+     else
+         return(lerp(cColor, cIllumination, 0.5f));;
 }
 
 
