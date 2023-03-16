@@ -359,16 +359,16 @@ void Tanker::Animate(float fTimeElapsed)
 
 	if (m_bMoveState)	// 움직이는 중
 	{
-		if (m_bLButtonClicked)	// 공격
-		{
-			AfterAnimation = CharacterAnimation::CA_BLENDING;
-			blendingAnimation.first = CharacterAnimation::CA_ATTACK;
-			blendingAnimation.second = CharacterAnimation::CA_MOVE;
-		}
-		else if (m_bRButtonClicked)
+		if (m_bRButtonClicked)
 		{
 			AfterAnimation = CharacterAnimation::CA_BLENDING;
 			blendingAnimation.first = CharacterAnimation::CA_DEFENCE;
+			blendingAnimation.second = CharacterAnimation::CA_MOVE;
+		}
+		else if (m_bLButtonClicked)	// 공격
+		{
+			AfterAnimation = CharacterAnimation::CA_BLENDING;
+			blendingAnimation.first = CharacterAnimation::CA_ATTACK;
 			blendingAnimation.second = CharacterAnimation::CA_MOVE;
 		}
 		else						// 그냥 움직이기
@@ -378,14 +378,16 @@ void Tanker::Animate(float fTimeElapsed)
 	}
 	else
 	{
-		if (m_bLButtonClicked)	// 공격
-		{
-			AfterAnimation = CharacterAnimation::CA_ATTACK;
-		}
-		else if (m_bRButtonClicked)
+		if (m_bRButtonClicked)
 		{
 			AfterAnimation = CharacterAnimation::CA_DEFENCE;
 		}
+
+		else if (m_bLButtonClicked)	// 공격
+		{
+			AfterAnimation = CharacterAnimation::CA_ATTACK;
+		}
+
 		else						// IDLE
 		{
 			AfterAnimation = CharacterAnimation::CA_IDLE;

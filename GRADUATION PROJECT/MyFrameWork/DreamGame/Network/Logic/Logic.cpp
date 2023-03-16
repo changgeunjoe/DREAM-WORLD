@@ -433,7 +433,7 @@ void Logic::ProcessPacket(char* p)
 				gGameFramework.m_pScene->m_pObjectManager->SetPlayCharacter(&pSession);
 				pSession.m_currentPlayGameObject->SetPosition(recvPacket->position);
 				pSession.m_currentPlayGameObject->Rotate(&upVec, recvPacket->rotate.y);
-				pSession.m_rotateAngle.y = recvPacket->rotate.y;
+				pSession.m_ownerRotateAngle.y = recvPacket->rotate.y;
 #ifdef _DEBUG
 				PrintCurrentTime();
 				cout << "CLIENT::Logic::" << endl;
