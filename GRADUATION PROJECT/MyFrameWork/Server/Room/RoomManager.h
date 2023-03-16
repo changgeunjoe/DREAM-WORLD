@@ -20,5 +20,7 @@ public:
 	Room& GetRecruitingRoom(std::string roomId);
 	Room& GetRunningRoom(std::string roomId);
 	std::vector<Room> GetRecruitingRoomList();
+public:
+
 };
 

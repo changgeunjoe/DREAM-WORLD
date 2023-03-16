@@ -15,6 +15,7 @@ namespace CLIENT_PACKET {
 	constexpr unsigned char PLAYER_APPLY_ROOM = 9;
 	constexpr unsigned char CANCEL_ROOM = 10;
 
+
 	struct MovePacket
 	{
 		char size;

@@ -145,8 +145,7 @@ void Logic::ProcessPacket(int userId, char* p)
 	case CLIENT_PACKET::MATCH:
 	{
 		CLIENT_PACKET::MatchPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::MatchPacket*>(p);
-		recvPacket->Role;
-
+		InsertMatchQueue((ROLE)recvPacket->Role, userId);
 	}
 	break;
 	case CLIENT_PACKET::CREATE_ROOM:
@@ -222,6 +221,15 @@ void Logic::ProcessPacket(int userId, char* p)
 		}
 	}
 	break;
+	case CLIENT_PACKET::PLAYER_APPLY_ROOM:
+	{
+		PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
+		CLIENT_PACKET::PlayerApplyRoomPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::PlayerApplyRoomPacket*>(p);
+		recvPacket->roomId;
+		recvPacket->role;
+		m_roomManager->GetRecruitingRoom(recvPacket->roomId);
+	}
+	break;
 	default:
 		PrintCurrentTime();
 		std::cout << "unknown Packet" << std::endl;
@@ -293,5 +301,56 @@ void Logic::AutoMoveServer()
 		}
 		while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - currentTime).count() < 1000.0f / 60.0f) {
 		}
+	}
+}
+
+void Logic::MatchMaking()
+{
+	std::vector<ROLE> restRole;
+	for (int i = 0; i < 4; i++) {
+		if (!(m_MatchRole & (char)pow(2, i))) {
+			restRole.push_back((ROLE)pow(2, i));
+		}
+	}
+	if (restRole.size() == 0) {
+		// All Role exist
+		//Matching
+	}
+	if (restRole.size() < randPlayerIdQueue.unsafe_size()) {
+		//matching
+		//Rand
+	}
+}
+
+void Logic::InsertMatchQueue(ROLE r, int userId)
+{
+	if (r != ROLE::RAND && (m_MatchRole.load() ^ r) && !(m_MatchRole.load() & r)) { // &연산시 0이 나와야 현재 비어있는 칸에 넣을 수 있고, ^때 1이 나오면 됨
+		m_MatchRole |= r;
+		m_matchPlayerSet.insert(userId);
+		MatchMaking();
+		return;
+	}
+	switch (r)
+	{
+	case NONE_SELECT:
+		break;
+	case WARRIOR:
+		warriorPlayerIdQueue.push(userId);
+		break;
+	case PRIEST:
+		priestPlayerIdQueue.push(userId);
+		break;
+	case TANKER:
+		tankerPlayerIdQueue.push(userId);
+		break;
+	case ARCHER:
+		archerPlayerIdQueue.push(userId);
+		break;
+	case RAND:
+		randPlayerIdQueue.push(userId);
+		MatchMaking();
+		break;
+	default:
+		break;
 	}
 }

@@ -20,7 +20,13 @@
 #include <array>
 #include <set>
 
+#include <concurrent_queue.h>
+#include <concurrent_unordered_set.h>
+#include <atomic>
+
 #include <iostream>
+#include <math.h>
+
 #include <DirectXMath.h>
 
 
