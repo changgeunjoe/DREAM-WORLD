@@ -9,11 +9,11 @@ namespace CLIENT_PACKET {
 	constexpr unsigned char LOGIN = 5;
 	constexpr unsigned char MATCH = 6;
 	constexpr unsigned char CREATE_ROOM = 7;
-	constexpr unsigned char MOUSE_INPUT = 8;
-	constexpr unsigned char REQUEST_ROOM_LIST = 9; // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½Ã»
-	constexpr unsigned char PLAYER_APPLY_ROOM = 10; // ï¿½ï¿½ ï¿½ï¿½Ã»
-	constexpr unsigned char CANCEL_APPLY_ROOM = 11; // ï¿½ï¿½Ã» ï¿½ï¿½ï¿½
-	
+	constexpr unsigned char REQUEST_ROOM_LIST = 8; // ¹æ ¸®½ºÆ® ¿äÃ»
+	constexpr unsigned char PLAYER_APPLY_ROOM = 9; // ¹æ ½ÅÃ»
+	constexpr unsigned char CANCEL_APPLY_ROOM = 10; // ½ÅÃ» Ãë¼Ò
+	constexpr unsigned char MOUSE_INPUT = 11;
+
 
 
 	struct MovePacket
@@ -61,13 +61,6 @@ namespace CLIENT_PACKET {
 		short size;
 		char type;
 	};
-			
-	struct MouseInputPacket {
-		short size;
-		char type;
-		char ClickedButton;
-	};
-	
 
 	struct PlayerApplyRoomPacket {
 		short size;
@@ -81,7 +74,12 @@ namespace CLIENT_PACKET {
 		char type;
 		char roomId[40];
 	};
-
+	
+	struct MouseInputPacket {
+		short size;
+		char type;
+		char ClickedButton;
+	};
 }
 
 namespace SERVER_PACKET {
@@ -91,18 +89,19 @@ namespace SERVER_PACKET {
 	constexpr unsigned char ROTATE = 68;
 	constexpr unsigned char LOGIN_OK = 69;
 	constexpr unsigned char ADD_PLAYER = 70;
-	constexpr unsigned char MOUSE_INPUT = 71;
-	constexpr unsigned char CREATE_ROOM_SUCCESS = 72;
-	constexpr unsigned char CREATE_ROOM_FAILURE = 73;
-	constexpr unsigned char REQUEST_ROOM_LIST = 74; // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ï¿½
-	constexpr unsigned char REQUEST_ROOM_LIST_END = 75;// ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½
-	constexpr unsigned char REQUEST_ROOM_LIST_NONE = 76;//ï¿½î¶² ï¿½æµµ ï¿½ï¿½ï¿½ï¿½
-	constexpr unsigned char ACCEPT_ENTER_ROOM = 77; // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½
-	constexpr unsigned char REJECT_ENTER_ROOM = 78; // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Åºï¿½
-	constexpr unsigned char NOT_FOUND_ROOM = 79; // ï¿½ï¿½Ã»ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½
+	constexpr unsigned char CREATE_ROOM_SUCCESS = 71;
+	constexpr unsigned char CREATE_ROOM_FAILURE = 72;
+	constexpr unsigned char REQUEST_ROOM_LIST = 73; // ¹æ ¸®½ºÆ® Ãâ·ÂÁß
+	constexpr unsigned char REQUEST_ROOM_LIST_END = 74;// ¹æ ¸®½ºÆ®ÀÇ ³¡
+	constexpr unsigned char REQUEST_ROOM_LIST_NONE = 75;//¾î¶² ¹æµµ ¾ø´Ù
+	constexpr unsigned char ACCEPT_ENTER_ROOM = 76; // ¹æ ÀÔÀå È®ÀÎ
+	constexpr unsigned char REJECT_ENTER_ROOM = 77; // ¹æ ÀÔÀå °ÅºÎ
+	constexpr unsigned char NOT_FOUND_ROOM = 78; // ½ÅÃ»ÇÑ ¹æÀÌ »ç¶óÁü
 
-	constexpr unsigned char PLAYER_APPLY_ROOM = 80; // ï¿½ï¿½Ã»ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½(ï¿½ï¿½)ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
-	constexpr unsigned char PLAYER_CANCEL_ROOM = 81; // ï¿½ï¿½Ã» ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½(ï¿½ï¿½)ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+	constexpr unsigned char PLAYER_APPLY_ROOM = 79; // ½ÅÃ»ÀÚ Á¤º¸ ¹æÀå(¹æ)ÇÑÅ× Àü¼Û
+	constexpr unsigned char PLAYER_CANCEL_ROOM = 80; // ½ÅÃ» Ãë¼Ò Á¤º¸ ¹æÀå(¹æ)ÇÑÅ× Àü¼Û
+	constexpr unsigned char MOUSE_INPUT = 81;
+	
 
 	struct MovePacket
 	{
@@ -148,12 +147,12 @@ namespace SERVER_PACKET {
 		char type;
 	};
 
-	struct RoomInfoPacket { // ï¿½ï¿½Å¶ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	struct RoomInfoPacket { // ÆÐÅ¶ »çÀÌÁî ¿À¹öµÊ
 		short size;
 		char type;
 		char roomId[40];
 		wchar_t roomName[30];
-		wchar_t playerName[4][20];//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 0ï¿½ï¿½ ï¿½Îµï¿½ï¿½ï¿½ï¿½Ï±ï¿½?
+		wchar_t playerName[4][20];//¹æÀåÀº 0¹ø ÀÎµ¦½ºÀÏ±î?
 		char role[4];
 	};
 
@@ -169,14 +168,13 @@ namespace SERVER_PACKET {
 		wchar_t name[NAME_SIZE];
 		char role;
 	};
-
-
 	struct MouseInputPacket {
 		short size;
 		char type;
 		int userId;
 		char ClickedButton;
 	};
+
 }
 
 #pragma pack (pop)
