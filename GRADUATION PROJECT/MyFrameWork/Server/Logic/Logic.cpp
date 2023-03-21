@@ -101,14 +101,14 @@ void Logic::ProcessPacket(int userId, char* p)
 		sendPacket.type = SERVER_PACKET::STOP;
 		sendPacket.size = sizeof(SERVER_PACKET::StopPacket);
 		sendPacket.position = recvPacket->position;
-		sendPacket.rotate = recvPacket->rotate;
+		//sendPacket.rotate = recvPacket->rotate;
 #ifdef _DEBUG
 		PrintCurrentTime();
-		std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::STOP - " << std::endl;
-		std::cout << "position: " << sendPacket.position.x << ", " << sendPacket.position.y << ", " << sendPacket.position.z << std::endl;
-		std::cout << "rotation: " << sendPacket.rotate.x << ", " << sendPacket.rotate.y << ", " << sendPacket.rotate.z << std::endl;
+		//std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::STOP - " << std::endl;
+		//std::cout << "position: " << sendPacket.position.x << ", " << sendPacket.position.y << ", " << sendPacket.position.z << std::endl;
+		//std::cout << "rotation: " << sendPacket.rotate.x << ", " << sendPacket.rotate.y << ", " << sendPacket.rotate.z << std::endl;
 #endif
-		bool adjustRes = pSessionObj->AdjustPlayerInfo(recvPacket->position, recvPacket->rotate);
+		bool adjustRes = pSessionObj->AdjustPlayerInfo(recvPacket->position); // , recvPacket->rotate
 		if (!adjustRes) {
 			sendPacket.position = pSessionObj->GetPosition();
 			BroadCastPacket(&sendPacket);
@@ -256,6 +256,25 @@ void Logic::ProcessPacket(int userId, char* p)
 			m_roomManager->m_RecruitingRoomList[recvPacket->roomId].DeletePlayer(userId);
 		}
 		m_roomManager->m_RecruitRoomListLock.unlock();
+	}
+	break;
+	case CLIENT_PACKET::MOUSE_INPUT:
+	{
+		CLIENT_PACKET::MouseInputPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::MouseInputPacket*>(p);
+		
+		SERVER_PACKET::MouseInputPacket sendPacket;
+		sendPacket.ClickedButton = recvPacket->ClickedButton;
+		sendPacket.userId = userId;
+		sendPacket.type = SERVER_PACKET::MOUSE_INPUT;
+		sendPacket.size = sizeof(SERVER_PACKET::MouseInputPacket);
+
+		PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
+		pSessionObj->SetMouseInput(sendPacket.ClickedButton);
+#ifdef _DEBUG
+		PrintCurrentTime();
+		std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::MOUSE_INPUT - MultiCastOtherPlayer" << std::endl;
+#endif
+		MultiCastOtherPlayer(userId, &sendPacket);
 	}
 	break;
 	default:

@@ -832,6 +832,7 @@ void GameObject::MoveForward(float fDistance)
 	XMFLOAT3 xmf3Look = GetLook();
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, fDistance);
 	if (Vector3::Length(xmf3Position) < 440.0f)	GameObject::SetPosition(xmf3Position);
+	cout << "움직임 이후 위치 : " << xmf3Position.x << ", " << xmf3Position.y << ", " << xmf3Position.z << endl;
 }
 
 void GameObject::Rotate(float fPitch, float fYaw, float fRoll)
@@ -912,30 +913,39 @@ void GameObject::SetCamera(CCamera* pCamera)
 
 #define PI 3.14159265359
 
-void GameObject::SetLookAt()
+void GameObject::MoveObject(DIRECTION& currentDirection, const XMFLOAT3& CameraAxis) // currentDirection : 향한 방향 
 {
-	/*int nCount = 0;
-	XMFLOAT3 xmfLook = XMFLOAT3(m_pCamera->GetLookVector().x, 0.0f, m_pCamera->GetLookVector().z);
-	XMFLOAT3 xmfRev = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	XMFLOAT3 xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
+	XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&xmf3Up), XMConvertToRadians(CameraAxis.y));
+	XMFLOAT3 xmf3Look = XMFLOAT3(0.0f, 0.0f, 1.0f);
+	xmf3Look = Vector3::TransformNormal(xmf3Look, xmmtxRotate);
+
+	XMFLOAT3 xmf3Rev = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	float fRotateAngle = -1.0f;
+
+	DIRECTION tempDir = currentDirection;
 
 	if (m_bRButtonClicked)
 	{
-		SetLook(xmfLook);
+		SetLook(xmf3Look);
 		return;
 	}
 
-	if (m_iLookDirectoin == DIRECTION::IDLE)
+	if (tempDir != DIRECTION::IDLE)
 	{
-		if (!m_pSkinnedAnimationController->GetAction())
+		if (((tempDir & DIRECTION::LEFT) == DIRECTION::LEFT) &&
+			((tempDir & DIRECTION::RIGHT) == DIRECTION::RIGHT))
 		{
-			m_pSkinnedAnimationController->SetAllTrackdisable();
-			m_pSkinnedAnimationController->SetTrackEnable(CharacterAnimation::CA_IDLE, true);
+			tempDir = (DIRECTION)(tempDir ^ DIRECTION::LEFT);
+			tempDir = (DIRECTION)(tempDir ^ DIRECTION::RIGHT);
 		}
-	}
-	else
-	{
-		switch (m_iLookDirectoin)
+		if (((tempDir & DIRECTION::FRONT) == DIRECTION::FRONT) &&
+			((tempDir & DIRECTION::BACK) == DIRECTION::BACK))
+		{
+			tempDir = (DIRECTION)(tempDir ^ DIRECTION::FRONT);
+			tempDir = (DIRECTION)(tempDir ^ DIRECTION::BACK);
+		}
+		switch (tempDir)
 		{
 		case DIRECTION::FRONT:						fRotateAngle = 0.0f;	break;
 		case DIRECTION::LEFT | DIRECTION::FRONT:	fRotateAngle = 45.0f;	break;
@@ -945,26 +955,21 @@ void GameObject::SetLookAt()
 		case DIRECTION::RIGHT | DIRECTION::BACK:	fRotateAngle = 225.0f;	break;
 		case DIRECTION::RIGHT:						fRotateAngle = 270.0f;	break;
 		case DIRECTION::FRONT | DIRECTION::RIGHT:	fRotateAngle = 315.0f;	break;
+		default:
+			tempDir = DIRECTION::IDLE;
+			MoveObject(tempDir, CameraAxis);
+			return;
 		}
 
 		fRotateAngle = fRotateAngle * (PI / 180.0f);
-		xmfRev.x = xmfLook.x * cos(fRotateAngle) - xmfLook.z * sin(fRotateAngle);
-		xmfRev.z = xmfLook.x * sin(fRotateAngle) + xmfLook.z * cos(fRotateAngle);
-		xmfRev = Vector3::Normalize(xmfRev);
+		xmf3Rev.x = xmf3Look.x * cos(fRotateAngle) - xmf3Look.z * sin(fRotateAngle);
+		xmf3Rev.z = xmf3Look.x * sin(fRotateAngle) + xmf3Look.z * cos(fRotateAngle);
+		xmf3Rev = Vector3::Normalize(xmf3Rev);
 	}
 
-	if ((xmfRev.x || xmfRev.y || xmfRev.z))
+	if ((xmf3Rev.x || xmf3Rev.y || xmf3Rev.z))
 	{
-		SetLook(xmfRev);
-		if (!m_pSkinnedAnimationController->GetAction())
-		{
-			m_pSkinnedAnimationController->SetAllTrackdisable();
-			m_pSkinnedAnimationController->SetTrackEnable(CharacterAnimation::CA_MOVE, true);
-		}
-		else
-		{
-			m_pSkinnedAnimationController->SetAnimationBlending(true);
-			m_pSkinnedAnimationController->m_nLowerBodyAnimation = CharacterAnimation::CA_MOVE;
-		}
-	}*/
+		SetLook(xmf3Rev);
+	}
+	std::cout << "rotate angle" << xmf3Rev.x << " " << xmf3Rev.y << " " << xmf3Rev.z << std::endl;
 }

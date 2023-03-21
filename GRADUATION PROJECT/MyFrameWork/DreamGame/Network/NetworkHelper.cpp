@@ -33,7 +33,7 @@ bool NetworkHelper::TryConnect()
 	sockaddr_in sockaddrIn;
 	sockaddrIn.sin_family = AF_INET;
 	sockaddrIn.sin_port = htons(SERVER_PORT);
-	inet_pton(AF_INET, "127.0.0.1", &sockaddrIn.sin_addr.s_addr);
+	inet_pton(AF_INET, SERVER_IP, &sockaddrIn.sin_addr.s_addr);
 	int retVal = connect(m_clientSocket, reinterpret_cast<sockaddr*>(&sockaddrIn), sizeof(sockaddrIn));
 	if (retVal) {
 		std::cout << "connect Fail" << std::endl;
@@ -100,13 +100,13 @@ void NetworkHelper::SendMovePacket(DIRECTION d)
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
-void NetworkHelper::SendStopPacket(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& rotate)
+void NetworkHelper::SendStopPacket(const DirectX::XMFLOAT3& position) // , const DirectX::XMFLOAT3& rotate
 {
 	CLIENT_PACKET::StopPacket sendPacket;
 	sendPacket.type = CLIENT_PACKET::STOP;
 	sendPacket.size = sizeof(CLIENT_PACKET::StopPacket);
 	sendPacket.position = position;
-	sendPacket.rotate = rotate;
+	// sendPacket.rotate = rotate;
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 void NetworkHelper::SendRotatePacket(ROTATE_AXIS axis, float angle)
@@ -137,5 +137,14 @@ void NetworkHelper::SendLoginData(char* loginId, char* pw)
 	ZeroMemory(sendPacket.pw, 0);
 	memcpy(sendPacket.id, loginId, strlen(loginId) + 1);
 	memcpy(sendPacket.pw, pw, strlen(pw) + 1);
+	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
+}
+
+void NetworkHelper::SendMouseStatePacket(unsigned char MouseClicked)
+{
+	CLIENT_PACKET::MouseInputPacket sendPacket;
+	sendPacket.ClickedButton = MouseClicked;
+	sendPacket.type = CLIENT_PACKET::MOUSE_INPUT;
+	sendPacket.size = sizeof(CLIENT_PACKET::MouseInputPacket);
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
