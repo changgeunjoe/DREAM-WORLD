@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include <chrono>
 #include "Logic.h"
 #include "../Session/Session.h"
 #include "../Session/SessionObject/PlayerSessionObject.h"
@@ -35,7 +34,7 @@ void Logic::AcceptPlayer(Session* session, int userId, SOCKET& sock)
 
 void Logic::ProcessPacket(int userId, char* p)
 {
-	switch (p[1])
+	switch (p[2])
 	{
 	case CLIENT_PACKET::MOVE_KEY_DOWN:
 	{
@@ -184,7 +183,7 @@ void Logic::ProcessPacket(int userId, char* p)
 		CLIENT_PACKET::RequestRoomListPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::RequestRoomListPacket*>(p);
 		std::vector<Room> recruitRoom = m_roomManager->GetRecruitingRoomList();
 		if (recruitRoom.size() == 0) {
-			SERVER_PACKET::NoneRoomInfoPacket sendPacket;
+			SERVER_PACKET::NotifyPacket sendPacket;
 			sendPacket.size = 2;
 			sendPacket.type = SERVER_PACKET::REQUEST_ROOM_LIST_NONE;
 			pSessionObj->Send(p);
@@ -193,24 +192,19 @@ void Logic::ProcessPacket(int userId, char* p)
 		for (auto r = recruitRoom.begin(); r != recruitRoom.end(); r++) {
 			SERVER_PACKET::RoomInfoPacket sendPacket;
 			sendPacket.size = sizeof(SERVER_PACKET::RoomInfoPacket);
-			ZeroMemory(sendPacket.playerName, 80);
-			ZeroMemory(sendPacket.role, 4);
-			std::set<int> pSet = r->GetPlayerSet();
+			::ZeroMemory(sendPacket.playerName, sizeof(sendPacket.playerName));
+			::ZeroMemory(sendPacket.role, 4);
+			std::set<std::pair<ROLE, int>> pSet = r->GetPlayerSet();
 			int i = 0;
 			for (const auto& p : pSet) {
-				PlayerSessionObject* partPSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[p].m_sessionObject);
-				std::string nameStr;
-				nameStr.assign(partPSessionObj->GetName().begin(), partPSessionObj->GetName().end());
-				memcpy(sendPacket.playerName[i], nameStr.c_str(), nameStr.size());
-				sendPacket.playerName[i][nameStr.size()] = 0;
+				PlayerSessionObject* partPSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[p.second].m_sessionObject);
+				memcpy(sendPacket.playerName[i], partPSessionObj->GetName().c_str(), partPSessionObj->GetName().size());
+				sendPacket.playerName[i][partPSessionObj->GetName().size()] = 0;
 				sendPacket.role[i] = partPSessionObj->GetRole();
 			}
 			//Name
-			std::wstring tempWstring{ r->GetRoomName() };
-			std::string roomNameStr;
-			roomNameStr.assign(tempWstring.begin(), tempWstring.end());
-			strcpy(sendPacket.roomName, roomNameStr.c_str());
-			sendPacket.roomName[roomNameStr.size()] = 0;
+			memcpy(sendPacket.roomName, r->GetRoomName().c_str(), r->GetRoomName().size());
+			sendPacket.roomName[r->GetRoomName().size()] = 0;
 			strcpy(sendPacket.roomId, r->GetRoomId().c_str());
 			sendPacket.roomId[r->GetRoomId().size()] = 0;
 			if (r == recruitRoom.end() - 1)
@@ -225,9 +219,43 @@ void Logic::ProcessPacket(int userId, char* p)
 	{
 		PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
 		CLIENT_PACKET::PlayerApplyRoomPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::PlayerApplyRoomPacket*>(p);
-		recvPacket->roomId;
-		recvPacket->role;
-		m_roomManager->GetRecruitingRoom(recvPacket->roomId);
+		m_roomManager->m_RecruitRoomListLock.lock();
+		if (m_roomManager->m_RecruitingRoomList.count(recvPacket->roomId)) {
+			m_roomManager->m_RecruitingRoomList[recvPacket->roomId].InsertWaitPlayer((ROLE)recvPacket->role, userId);
+			int roomOwner = m_roomManager->m_RecruitingRoomList[recvPacket->roomId].roomOwner();
+			m_roomManager->m_RecruitRoomListLock.unlock();
+			//PLAYER_APPLY_ROOM
+			//방장한테 보내는 패킷 - 신청자 존재함을 알리는 패킷
+			SERVER_PACKET::PlayerApplyRoomPacket sendPacket;
+			memcpy(sendPacket.name, pSessionObj->GetName().c_str(), pSessionObj->GetName().size());
+			sendPacket.name[pSessionObj->GetName().size()] = 0;
+			sendPacket.role = recvPacket->role;
+			sendPacket.size = sizeof(SERVER_PACKET::PlayerApplyRoomPacket);
+			sendPacket.type = SERVER_PACKET::PLAYER_APPLY_ROOM;
+			PlayerSessionObject* sendPSession = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[roomOwner].m_sessionObject);
+			sendPSession->Send(&sendPacket);
+			return;
+		}
+		else {
+			m_roomManager->m_RecruitRoomListLock.unlock();
+			//방이 사라짐(하필이면)
+			//반송 패킷
+			SERVER_PACKET::NotifyPacket sendPacket;
+			sendPacket.type = SERVER_PACKET::NOT_FOUND_ROOM;
+			sendPacket.size = 2;
+			pSessionObj->Send(&sendPacket);
+		}
+	}
+	break;
+	case CLIENT_PACKET::CANCEL_APPLY_ROOM:
+	{
+		PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
+		CLIENT_PACKET::PlayerCancelRoomPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::PlayerCancelRoomPacket*>(p);
+		m_roomManager->m_RecruitRoomListLock.lock();
+		if (m_roomManager->m_RecruitingRoomList.count(recvPacket->roomId)) {
+			m_roomManager->m_RecruitingRoomList[recvPacket->roomId].DeletePlayer(userId);
+		}
+		m_roomManager->m_RecruitRoomListLock.unlock();
 	}
 	break;
 	default:
@@ -262,26 +290,26 @@ void Logic::MultiCastOtherPlayer(int userId, void* p)
 void Logic::MultiCastOtherPlayerInRoom(int userId, void* p)
 {
 	PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
-	auto roomPlayerSet = m_roomManager->GetRecruitingRoom(pSessionObj->GetRoomId()).GetPlayerSet();
-	for (auto& cli : roomPlayerSet) {
-		if (cli == userId) continue;//자기 자신을 제외한 플레이어들에게 전송
-		if (g_iocpNetwork.m_session[cli].m_sessionCategory == PLAYER) {
-			PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[cli].m_sessionObject);
-			pSessionObj->Send(p);
-		}
-	}
+	//auto roomPlayerSet = m_roomManager->GetRecruitingRoom(pSessionObj->GetRoomId()).GetPlayerSet();
+	//for (auto& cli : roomPlayerSet) {
+	//	if (cli == userId) continue;//자기 자신을 제외한 플레이어들에게 전송
+	//	if (g_iocpNetwork.m_session[cli].m_sessionCategory == PLAYER) {
+	//		PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[cli].m_sessionObject);
+	//		pSessionObj->Send(p);
+	//	}
+	//}
 }
 
 void Logic::BroadCastOtherPlayerInRoom(int userId, void* p)
 {
 	PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
-	auto roomPlayerSet = m_roomManager->GetRecruitingRoom(pSessionObj->GetRoomId()).GetPlayerSet();
-	for (auto& cli : roomPlayerSet) {
-		if (g_iocpNetwork.m_session[cli].m_sessionCategory == PLAYER) {
-			PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[cli].m_sessionObject);
-			pSessionObj->Send(p);
-		}
-	}
+	//auto roomPlayerSet = m_roomManager->GetRecruitingRoom(pSessionObj->GetRoomId()).GetPlayerSet();
+	//for (auto& cli : roomPlayerSet) {
+	//	if (g_iocpNetwork.m_session[cli].m_sessionCategory == PLAYER) {
+	//		PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[cli].m_sessionObject);
+	//		pSessionObj->Send(p);
+	//	}
+	//}
 }
 
 void Logic::AutoMoveServer()

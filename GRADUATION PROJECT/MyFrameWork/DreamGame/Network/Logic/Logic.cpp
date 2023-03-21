@@ -21,7 +21,7 @@ Logic::~Logic()
 void Logic::ProcessPacket(char* p)
 {
 	static XMFLOAT3 upVec = XMFLOAT3(0, 1, 0);
-	switch (p[1])
+	switch (p[2])
 	{
 	case SERVER_PACKET::MOVE_KEY_DOWN:
 	{

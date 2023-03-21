@@ -20,6 +20,8 @@
 #include <array>
 #include <set>
 
+#include <utility>
+
 #include <concurrent_queue.h>
 #include <concurrent_unordered_set.h>
 #include <atomic>

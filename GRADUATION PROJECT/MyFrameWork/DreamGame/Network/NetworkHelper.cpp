@@ -68,11 +68,12 @@ void NetworkHelper::ConstructPacket(int ioByte)
 	int remain_data = ioByte + m_prevPacketSize;
 	char* p = m_buffer;
 	while (remain_data > 0) {
-		int packet_size = p[0];
-		if (packet_size <= remain_data) {
+		short packet_size = 0;
+		memcpy(&packet_size, p, 2);
+		if ((int)packet_size <= remain_data) {
 			g_Logic.ProcessPacket(p);
 			p = p + packet_size;
-			remain_data = remain_data - packet_size;
+			remain_data = remain_data - (int)packet_size;
 		}
 		else break;
 	}

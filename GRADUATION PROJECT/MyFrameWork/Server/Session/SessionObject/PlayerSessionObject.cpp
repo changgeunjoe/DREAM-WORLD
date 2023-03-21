@@ -42,11 +42,12 @@ void PlayerSessionObject::ConstructPacket(int ioByte)
 	int remain_data = ioByte + m_prevBufferSize;
 	char* p = m_exOver.m_buffer;
 	while (remain_data > 0) {
-		int packet_size = p[0];
-		if (packet_size <= remain_data) {
+		short packet_size;
+		memcpy(&packet_size, p, 2);
+		if ((int)packet_size <= remain_data) {
 			g_logic.ProcessPacket(static_cast<int>(m_session->GetId()), p);
-			p = p + packet_size;
-			remain_data = remain_data - packet_size;
+			p = p + (int)packet_size;
+			remain_data = remain_data - (int)packet_size;
 		}
 		else break;
 	}
@@ -235,7 +236,7 @@ void PlayerSessionObject::StartMove(DIRECTION d)
 			break;
 		}
 		return;
-	}	
+	}
 	m_inputDirection = (DIRECTION)(m_inputDirection | d);
 	switch ((DIRECTION)(m_inputDirection ^ d))
 	{
@@ -311,7 +312,7 @@ void PlayerSessionObject::StartMove(DIRECTION d)
 }
 
 void PlayerSessionObject::StopMove()
-{	
+{
 	PrintCurrentTime();
 	std::cout << "PlayerSessionObject::StopMove() - Look Dir: " << m_directionVector.x << ", " << m_directionVector.y << ", " << m_directionVector.z << std::endl;
 	m_prevDirection = m_inputDirection;
@@ -319,7 +320,7 @@ void PlayerSessionObject::StopMove()
 }
 
 void PlayerSessionObject::ChangeDirection(DIRECTION d)
-{	
+{
 	m_inputDirection = (DIRECTION)(m_inputDirection ^ d);
 	switch (d)
 	{

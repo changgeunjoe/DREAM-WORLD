@@ -557,10 +557,10 @@ void CGameFramework::ProcessInput()
 					g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y -= 30.0f * fTimeElapsed;
 					g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::Y, -30.0f * fTimeElapsed);*/
 					//g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetUp(), cxDelta);
-					g_Logic.m_inGamePlayerSession[0].m_ownerRotateAngle.y += cxDelta;
-					g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::Y, cxDelta);
+				g_Logic.m_inGamePlayerSession[0].m_ownerRotateAngle.y += cxDelta;
+				g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::Y, cxDelta);
 
-					m_pCamera->Rotate(cyDelta, cxDelta, 0.0f);
+				m_pCamera->Rotate(cyDelta, cxDelta, 0.0f);
 				//}
 			}
 			if (dwDirection != DIRECTION::IDLE) {
@@ -610,9 +610,9 @@ void CGameFramework::FrameAdvance()
 	HRESULT hResult = m_pd3dCommandAllocator->Reset();
 	hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 	//명령 할당자와 명령 리스트를 리셋한다.
-	
 
-	m_pScene->OnPreRender(m_pd3dDevice,m_pd3dCommandList, m_pCamera);
+
+	m_pScene->OnPreRender(m_pd3dDevice, m_pd3dCommandList, m_pCamera);
 
 	D3D12_RESOURCE_BARRIER d3dResourceBarrier;
 	::ZeroMemory(&d3dResourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));
