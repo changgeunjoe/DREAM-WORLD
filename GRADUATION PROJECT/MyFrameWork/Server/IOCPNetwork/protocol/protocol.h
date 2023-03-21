@@ -54,7 +54,7 @@ namespace CLIENT_PACKET {
 		short size;
 		char type;
 		char Role;
-		char roomName[30];
+		wchar_t roomName[30];
 	};
 
 	struct RequestRoomListPacket {
@@ -89,8 +89,8 @@ namespace SERVER_PACKET {
 	constexpr unsigned char ROTATE = 68;
 	constexpr unsigned char LOGIN_OK = 69;
 	constexpr unsigned char ADD_PLAYER = 70;
-	constexpr unsigned char CREATE_ROOM_SUCCESS = 71;
-	constexpr unsigned char CREATE_ROOM_FAILURE = 72;
+	constexpr unsigned char CREATE_ROOM_SUCCESS = 71; // 룸 생성 시 성공 패킷
+	constexpr unsigned char CREATE_ROOM_FAILURE = 72; // 룸 생성 시 실패 패킷
 	constexpr unsigned char REQUEST_ROOM_LIST = 73; // 방 리스트 출력중
 	constexpr unsigned char REQUEST_ROOM_LIST_END = 74;// 방 리스트의 끝
 	constexpr unsigned char REQUEST_ROOM_LIST_NONE = 75;//어떤 방도 없다
@@ -168,6 +168,7 @@ namespace SERVER_PACKET {
 		wchar_t name[NAME_SIZE];
 		char role;
 	};
+
 	struct MouseInputPacket {
 		short size;
 		char type;
