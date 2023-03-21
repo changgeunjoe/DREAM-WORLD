@@ -12,6 +12,7 @@ private:
 	short	m_hp;
 	short	m_maxHp;
 	short	m_attackDamage;
+	unsigned char m_mouseInput;
 
 private:
 	ExpOver				m_exOver;
@@ -35,12 +36,16 @@ public:
 	void Send(void* p);
 	void ConstructPacket(int ioByte);
 public:
-	bool AdjustPlayerInfo(DirectX::XMFLOAT3& position, DirectX::XMFLOAT3& rotate);
+	bool AdjustPlayerInfo(DirectX::XMFLOAT3& position); // , DirectX::XMFLOAT3& rotate
 public:
 	virtual void AutoMove() override;
 	virtual void StartMove(DIRECTION d) override;
 	virtual void StopMove() override;
 	virtual void ChangeDirection(DIRECTION d) override;
+public:
+	void Move(float fDistance);
+	void SetDirection(DIRECTION d);
+	void SetMouseInput(unsigned char mouseInput);
 public:
 	virtual void Rotate(ROTATE_AXIS axis, float angle) override;
 public:

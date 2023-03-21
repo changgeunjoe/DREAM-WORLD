@@ -138,6 +138,7 @@ void CAnimationController::SetTrackAnimationSet(int nAnimationSet)
 
 void CAnimationController::SetAllTrackdisable()
 {
+	m_bAnimationBlending = false;
 	for (int i = 0; i < m_nAnimationTracks; i++)
 	{
 		SetTrackEnable(i, false);

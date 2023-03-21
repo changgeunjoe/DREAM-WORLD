@@ -12,6 +12,7 @@ namespace CLIENT_PACKET {
 	constexpr unsigned char REQUEST_ROOM_LIST = 8; // 방 리스트 요청
 	constexpr unsigned char PLAYER_APPLY_ROOM = 9; // 방 신청
 	constexpr unsigned char CANCEL_APPLY_ROOM = 10; // 신청 취소
+	constexpr unsigned char MOUSE_INPUT = 11;
 
 
 
@@ -73,7 +74,12 @@ namespace CLIENT_PACKET {
 		char type;
 		char roomId[40];
 	};
-
+	
+	struct MouseInputPacket {
+		short size;
+		char type;
+		char ClickedButton;
+	};
 }
 
 namespace SERVER_PACKET {
@@ -94,7 +100,7 @@ namespace SERVER_PACKET {
 
 	constexpr unsigned char PLAYER_APPLY_ROOM = 79; // 신청자 정보 방장(방)한테 전송
 	constexpr unsigned char PLAYER_CANCEL_ROOM = 80; // 신청 취소 정보 방장(방)한테 전송
-
+	constexpr unsigned char MOUSE_INPUT = 81;
 	
 
 	struct MovePacket
@@ -117,7 +123,7 @@ namespace SERVER_PACKET {
 		char type;
 		int userId;
 		DirectX::XMFLOAT3 position;
-		DirectX::XMFLOAT3 rotate;
+		//DirectX::XMFLOAT3 rotate;
 	};
 
 	struct LoginPacket {
@@ -162,7 +168,12 @@ namespace SERVER_PACKET {
 		wchar_t name[NAME_SIZE];
 		char role;
 	};
-
+	struct MouseInputPacket {
+		short size;
+		char type;
+		int userId;
+		char ClickedButton;
+	};
 
 }
 
