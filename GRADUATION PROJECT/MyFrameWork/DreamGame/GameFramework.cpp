@@ -42,7 +42,8 @@ CGameFramework::CGameFramework()
 #endif
 	}
 	m_pScene = NULL;
-
+	m_pLobbyScene = NULL;
+	m_bLobbyScene = true;
 	m_nWndClientWidth = FRAME_BUFFER_WIDTH;
 	m_nWndClientHeight = FRAME_BUFFER_HEIGHT;
 
@@ -553,6 +554,7 @@ void CGameFramework::BuildObjects()
 {
 	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 	//카메라 객체를 생성하여 뷰표트,씨저 사각형,투영 변환 행렬,카메라 변환 행렬을 생성하고 설정한다.
+	//Scene Camera 생성 
 	m_pCamera = new CCamera();
 	m_pCamera->SetViewport(0, 0, m_nWndClientWidth, m_nWndClientHeight, 0.0f, 1.0f);
 	m_pCamera->SetScissorRect(0, 0, m_nWndClientWidth, m_nWndClientHeight);
@@ -561,9 +563,22 @@ void CGameFramework::BuildObjects()
 	m_pCamera->GenerateViewMatrix(XMFLOAT3(0.0f, 15.0f, -25.0f), XMFLOAT3(0.0f, 0.0f, 0.0f),
 		XMFLOAT3(0.0f, 1.0f, 0.0f));
 	m_pCamera->CreateShaderVariables(m_pd3dDevice, m_pd3dCommandList);
+	//LobbyCamera 생성
+	m_pLobbyCamera = new CCamera();
+	m_pLobbyCamera->SetScissorRect(0, 0, m_nWndClientWidth, m_nWndClientHeight);
+	m_pLobbyCamera->GenerateOhortoMatrix(1.0f, 500.0f, float(m_nWndClientWidth),
+		float(m_nWndClientHeight));
+	m_pLobbyCamera->GenerateViewMatrix(XMFLOAT3(0.0f, 15.0f, -25.0f), XMFLOAT3(0.0f, 0.0f, 0.0f),
+		XMFLOAT3(0.0f, 1.0f, 0.0f));
+	m_pLobbyCamera->CreateShaderVariables(m_pd3dDevice, m_pd3dCommandList);
+
+
 	//씬 객체를 생성하고 씬에 포함될 게임 객체들을 생성한다.
 	m_pScene = new CScene();
 	m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList, m_pCamera);
+	//로비 씬 객체를 생성해준다.
+	m_pLobbyScene = new LobbyCScene();
+	m_pLobbyScene->BuildUIObjects(m_pd3dDevice, m_pd3dCommandList, m_pLobbyCamera);
 	//씬 객체를 생성하기 위하여 필요한 그래픽 명령 리스트들을 명령 큐에 추가한다.
 	m_pd3dCommandList->Close();
 	ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
@@ -574,7 +589,7 @@ void CGameFramework::BuildObjects()
 
 	//그래픽 리소스들을 생성하는 과정에 생성된 업로드 버퍼들을 소멸시킨다.
 	if (m_pScene)m_pScene->ReleaseUploadBuffers();
-
+	if (m_pLobbyScene)m_pLobbyScene->ReleaseUploadBuffers();
 	m_GameTimer.Reset();
 }
 
@@ -582,13 +597,22 @@ void CGameFramework::ReleaseObjects()
 {
 	if (m_pScene) m_pScene->ReleaseObjects();
 	if (m_pScene) delete m_pScene;
+
+	if (m_pLobbyScene) m_pLobbyScene->ReleaseObjects();
+	if (m_pLobbyScene) delete m_pLobbyScene;
 }
 
 
 
 void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
-	m_pScene->onProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
+
+	if (m_bLobbyScene) {
+		m_pLobbyScene->onProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
+	}
+	else if (!m_bLobbyScene) {
+		m_pScene->onProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
+	}
 	switch (nMessageID)
 	{
 	case WM_LBUTTONDOWN:
@@ -611,7 +635,12 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 
 void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
-	m_pScene->onProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
+	if (m_bLobbyScene) {
+		m_pLobbyScene->onProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
+	}
+	else if (!m_bLobbyScene) {
+		m_pScene->onProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
+	}
 	switch (nMessageID)
 	{
 	case WM_KEYUP:
@@ -703,11 +732,11 @@ void CGameFramework::ProcessInput()
 					/*g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetUp(), -30.0f * fTimeElapsed);
 					g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y -= 30.0f * fTimeElapsed;
 					g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::Y, -30.0f * fTimeElapsed);*/
-					g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetUp(), cxDelta);
-					g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += cxDelta;
-					g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::Y, cxDelta);
+				g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetUp(), cxDelta);
+				g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y += cxDelta;
+				g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::Y, cxDelta);
 
-					m_pCamera->Rotate(cyDelta, cxDelta, 0.0f);
+				m_pCamera->Rotate(cyDelta, cxDelta, 0.0f);
 				//}
 			}
 			if (dwDirection != DIRECTION::IDLE) {
@@ -757,9 +786,9 @@ void CGameFramework::FrameAdvance()
 	HRESULT hResult = m_pd3dCommandAllocator->Reset();
 	hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 	//명령 할당자와 명령 리스트를 리셋한다.
-	
 
-	m_pScene->OnPreRender(m_pd3dDevice,m_pd3dCommandList, m_pCamera);
+	if (!m_bLobbyScene)
+		m_pScene->OnPreRender(m_pd3dDevice, m_pd3dCommandList, m_pCamera);
 
 	D3D12_RESOURCE_BARRIER d3dResourceBarrier;
 	::ZeroMemory(&d3dResourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));
@@ -796,7 +825,15 @@ void CGameFramework::FrameAdvance()
 	//렌더 타겟 뷰(서술자)와 깊이-스텐실 뷰(서술자)를 출력-병합 단계(OM)에 연결한다. //렌더링 코드는 여기에 추가될 것이다.
 	//m_pScene->OnPreRender(m_pd3dDevice, m_pd3dCommandList, m_pCamera);
 	//Render2DFont();
-	if (m_pScene) m_pScene->Render(m_pd3dDevice, m_pd3dCommandList, m_pCamera);
+	if (m_bLobbyScene)
+	{
+		if (m_pLobbyScene) m_pLobbyScene->UIRender(m_pd3dDevice, m_pd3dCommandList, m_pCamera);
+	}
+	else if (!m_bLobbyScene)
+	{
+		if (m_pScene) m_pScene->Render(m_pd3dDevice, m_pd3dCommandList, m_pCamera);
+	}
+
 
 #ifndef _WITH_DIRECT2D
 	//m_pScene->CreateGraphicsPipelineState(m_pd3dDevice);
@@ -880,7 +917,7 @@ void CGameFramework::Render2DFont()
 	ID2D1HwndRenderTarget* pRenderTarget = nullptr;
 
 	// Direct2D 렌더 타겟 생성
-	 D2D1_RENDER_TARGET_PROPERTIES props = D2D1::RenderTargetProperties(
+	D2D1_RENDER_TARGET_PROPERTIES props = D2D1::RenderTargetProperties(
 		D2D1_RENDER_TARGET_TYPE_DEFAULT,
 		D2D1::PixelFormat(DXGI_FORMAT_UNKNOWN, D2D1_ALPHA_MODE_PREMULTIPLIED));
 

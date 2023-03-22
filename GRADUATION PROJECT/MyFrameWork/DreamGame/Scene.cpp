@@ -21,7 +21,7 @@ bool CScene::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,
 bool CScene::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
 	m_pObjectManager->onProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
-	m_pObjectManager->onProcessingKeyboardMessageUI(hWnd, nMessageID, wParam, lParam);
+	//m_pObjectManager->onProcessingKeyboardMessageUI(hWnd, nMessageID, wParam, lParam);
 	return false;
 }
 
@@ -253,7 +253,6 @@ ID3D12RootSignature* CScene::GetGraphicsRootSignature()
 
 void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,CCamera* pCamera)
 {
-	
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 	m_pObjectManager = new GameobjectManager(pCamera);
 	m_pObjectManager->BuildObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);

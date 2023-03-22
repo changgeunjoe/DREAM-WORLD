@@ -195,6 +195,18 @@
     <ClInclude Include="Character.h">
       <Filter>07.Character</Filter>
     </ClInclude>
+    <ClInclude Include="define.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureToViewportComponent.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="UiShaderComponent.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="LobbyScene.h">
+      <Filter>01.Scene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -283,6 +295,15 @@
     </ClCompile>
     <ClCompile Include="Character.cpp">
       <Filter>07.Character</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureToViewportComponent.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="UiShaderComponent.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="LobbyScene.cpp">
+      <Filter>01.Scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

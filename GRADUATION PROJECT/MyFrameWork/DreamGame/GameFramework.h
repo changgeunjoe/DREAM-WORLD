@@ -2,6 +2,7 @@
 #include"stdafx.h"
 #include"Timer.h"
 #include"Scene.h"
+#include"LobbyScene.h"
 
 
 
@@ -58,8 +59,12 @@ private:
 	//펜스 인터페이스 포인터,펜스의 값,이벤트 핸들이다.
 
 	CScene* m_pScene;
+	LobbyCScene* m_pLobbyScene;
+
+	bool m_bLobbyScene;
 
 	CCamera* m_pCamera = NULL;
+	CCamera* m_pLobbyCamera = NULL;
 
 	//다음은 게임 프레임 워크에서 사용할 타이머이다.
 	CGameTimer m_GameTimer;

@@ -442,6 +442,13 @@ namespace Matrix4x4
 		return(xmmtx4x4Result);
 	}
 
+	inline XMFLOAT4X4 OrthographicsFovLH(float ScreenWidth, float ScreenHeight, float NearZ, float FarZ)
+	{
+		XMFLOAT4X4 xmmtx4x4Result;
+		XMStoreFloat4x4(&xmmtx4x4Result, XMMatrixOrthographicLH(ScreenWidth, ScreenHeight, NearZ, FarZ));
+		return(xmmtx4x4Result);
+	}
+
 	inline XMFLOAT4X4 LookAtLH(const XMFLOAT3& xmf3EyePosition, const XMFLOAT3& xmf3LookAtPosition, const XMFLOAT3& xmf3UpDirection)
 	{
 		XMFLOAT4X4 xmmtx4x4Result;
