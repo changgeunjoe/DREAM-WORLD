@@ -124,21 +124,21 @@ void MaterialComponent::PrepareShaders(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);// 삭제 예정(변경)
 	m_pStandardShader = new  StandardShaderComponent();
 	m_pStandardShader->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
-	m_pStandardShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 10, 20);
+	m_pStandardShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 20);
 	m_pStandardShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	m_pStandardShader->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObjects, ncbElementBytes);
 	m_pStandardShader->SetCbvGPUDescriptorHandlePtr(m_pStandardShader->GetGPUCbvDescriptorStartHandle().ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));
 	//m_pStandardShader->SetName("Standard");
 	m_pSkinnedAnimationShader = new SkinnedShaderComponent();
 	m_pSkinnedAnimationShader->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
-	m_pSkinnedAnimationShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 10, 20);
+	m_pSkinnedAnimationShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 20);
 	m_pSkinnedAnimationShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	m_pSkinnedAnimationShader->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObjects, ncbElementBytes);
 	m_pSkinnedAnimationShader->SetCbvGPUDescriptorHandlePtr(m_pSkinnedAnimationShader->GetGPUCbvDescriptorStartHandle().ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));
 
 	m_pBoundingBoxShader = new BoundingBoxShaderComponent();
 	m_pBoundingBoxShader->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
-	m_pBoundingBoxShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 10, 10);
+	m_pBoundingBoxShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 10);
 	m_pBoundingBoxShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	m_pBoundingBoxShader->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObjects, ncbElementBytes);
 	m_pBoundingBoxShader->SetCbvGPUDescriptorHandlePtr(m_pBoundingBoxShader->GetGPUCbvDescriptorStartHandle().ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));

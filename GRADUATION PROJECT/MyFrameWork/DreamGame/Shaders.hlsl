@@ -464,6 +464,16 @@ float4 PSShadowMapShadow(VS_SHADOW_MAP_OUTPUT input) : SV_TARGET
 
     //return (cIllumination);
     float4 cColor = cAlbedoColor;
+    ////////////////////////////////Rimlight outline////////////////////////////////////////
+    // Edge detection
+    //어둡게 해야 하므로 
+    float3 RimColor = float3(-2.f, -2.f, -2.f);
+    int Rimpower = 5.f; 
+    
+    //카메라 방향과 노말벡터를 내적하여 어둡게해줄 외각(outline)을 따낸다
+    float Rim =saturate(dot(input.normalW,gtxvi))
+    
+   
     if (cColor.w < 0.1f)
         return cColor;
     else

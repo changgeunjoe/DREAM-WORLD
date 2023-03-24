@@ -270,8 +270,11 @@ void ShaderComponent::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dComma
 
 	XMStoreFloat4x4(&m_pcbMappedGameObjects->m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(pxmf4x4World)));//오브젝트의 월드좌표계를 변환시켜준다.
 	
-	if (ppMaterialsComponent) {
+	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbGameObjects->GetGPUVirtualAddress();
+	pd3dCommandList->SetGraphicsRootConstantBufferView(0, d3dGpuVirtualAddress);
 
+	if (ppMaterialsComponent) {
+		
 		for (int i = 0; i < ppMaterialsComponent->m_nTextures; i++)
 		{
 			if (ppMaterialsComponent->m_ppTextures[i])

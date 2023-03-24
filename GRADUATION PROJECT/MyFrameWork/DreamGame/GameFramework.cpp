@@ -43,7 +43,7 @@ CGameFramework::CGameFramework()
 	}
 	m_pScene = NULL;
 	m_pLobbyScene = NULL;
-	m_bLobbyScene = true;
+	m_bLobbyScene = false;
 	m_nWndClientWidth = FRAME_BUFFER_WIDTH;
 	m_nWndClientHeight = FRAME_BUFFER_HEIGHT;
 
@@ -444,7 +444,7 @@ void CGameFramework::CreateDirect2D()
 	D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &pD2DFactory);
 	DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), reinterpret_cast<IUnknown**>(&pDWriteFactory));
 }
-
+#ifdef _WITH_DIRECT2D
 void CGameFramework::CreateDirect2DDevice()
 {
 	UINT nD3D11DeviceFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
@@ -549,6 +549,7 @@ void CGameFramework::CreateDirect2DDevice()
 #endif
 
 }
+#endif
 
 void CGameFramework::BuildObjects()
 {
