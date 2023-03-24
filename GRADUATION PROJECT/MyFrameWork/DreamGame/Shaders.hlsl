@@ -32,6 +32,7 @@ cbuffer cbCameraInfo : register(b1)
     matrix gmtxProjection : packoffset(c4);
     matrix gmtxInverseView : packoffset(c8);
     float3 gvCameraPosition : packoffset(c12);
+   // float3 gvCameraView : packoffset(c12.w);
 };
 
 cbuffer cbBoneOffsets : register(b4)
@@ -165,7 +166,6 @@ float4 PSUITextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
     //if (cColor.x != left.x || cColor.y != left.y || cColor.z != left.z )
     //{
     //    return outlineColor;
-
     //}
 
     return (cColor);
@@ -465,15 +465,20 @@ float4 PSShadowMapShadow(VS_SHADOW_MAP_OUTPUT input) : SV_TARGET
     //return (cIllumination);
     float4 cColor = cAlbedoColor;
     ////////////////////////////////Rimlight outline////////////////////////////////////////
-    // Edge detection
-    //어둡게 해야 하므로 
+    
+    float3 viewDir = normalize(gvCameraPosition - input.positionW);
+    
     float3 RimColor = float3(-2.f, -2.f, -2.f);
-    int Rimpower = 5.f; 
+    float rimPower = 7.0; // 림의 강도
+    float3 normal = normalize(input.normalW); // 정규화된 법선 벡터
+
+    // 림 라이팅을 위한 계산
+    float rim =  saturate(dot(normal, viewDir));
     
-    //카메라 방향과 노말벡터를 내적하여 어둡게해줄 외각(outline)을 따낸다
-    float Rim =saturate(dot(input.normalW,gtxvi))
+    //rim *= saturate((rimWidth - distance) / rimWidth);
+    float4 Rimline = float4(pow(1 - rim, rimPower) * RimColor,0.f);
+    cColor = cColor + Rimline; // 색상 값에 림 라이팅 효과 추가
     
-   
     if (cColor.w < 0.1f)
         return cColor;
     else
