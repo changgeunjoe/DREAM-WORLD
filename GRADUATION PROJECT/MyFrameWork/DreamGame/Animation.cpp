@@ -29,11 +29,28 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fTrackElapsedT
 		}
 		break;
 	}
+	case ANIMATION_TYPE_HALF:
+	{
+		cout << "Update m_fPosition : " << m_fPosition << endl;
+		if (m_fPosition < 0.0f) m_fPosition = 0.0f;
+		else
+		{
+			m_fPosition = fTrackPosition + TrackElapsedTime;
+			if (m_fPosition > fAnimationLength * 0.7)
+			{
+				m_fPosition = fAnimationLength * 0.7;
+			}
+		}
+		break;
+	}
 	case ANIMATION_TYPE_ONCE:
 		m_fPosition = fTrackPosition + TrackElapsedTime;
-		if (m_fPosition > fAnimationLength) m_fPosition = fAnimationLength;
-		break;
-	case ANIMATION_TYPE_PINGPONG:
+		if (m_fPosition > fAnimationLength)
+		{
+			m_fPosition = fAnimationLength;
+			m_bAnimationEnd = true;
+			// 이 부분에서 애니메이션이 끝났다는 것을 알려주고 이를 이용해서 다음 애니메이션 연결
+		}
 		break;
 	}
 

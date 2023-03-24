@@ -48,6 +48,7 @@ private: //active object
 	GameObject* m_pSkyboxObject{ NULL };
 	GameObject* m_pAnimationObject{ NULL };
 	GameObject* m_pMonsterObject{ NULL };
+	GameObject* m_pArrowObjects{ NULL };
 	CLight* m_pLight{ NULL };
 	CCamera* m_pCamera{ NULL };
 

@@ -150,6 +150,13 @@ Archer::~Archer()
 {
 }
 
+void Archer::Attack(GameObject* pGameObject)
+{
+	m_pArrow = static_cast<Arrow*>(pGameObject);
+	m_pArrow->SetPosition(Vector3::Add(GetPosition(), XMFLOAT3(5.0f, 7.5f, 0.0f)));
+	m_pArrow->SetLook(GetObjectLook());
+}
+
 void Archer::RbuttonClicked(float fTimeElapsed)
 {
 	if (m_iRButtionCount < 50)
@@ -165,7 +172,6 @@ void Archer::RbuttonClicked(float fTimeElapsed)
 		}
 	}
 }
-
 
 void Archer::RbuttonUp(const XMFLOAT3& CameraAxis)
 {
@@ -229,10 +235,17 @@ void Archer::Animate(float fTimeElapsed)
 {
 	CharacterAnimation AfterAnimation = static_cast<CharacterAnimation>(m_pSkinnedAnimationController->m_CurrentAnimation);
 	pair<CharacterAnimation, CharacterAnimation> blendingAnimation;
-
+	bool RButtonAnimation = false;
 	if (m_bMoveState)	// 움직이는 중
 	{
-		if (m_bLButtonClicked)	// 공격
+		if (m_bRButtonClicked)
+		{
+			AfterAnimation = CharacterAnimation::CA_BLENDING;
+			blendingAnimation.first = CharacterAnimation::CA_ATTACK;
+			blendingAnimation.second = CharacterAnimation::CA_MOVE;
+			RButtonAnimation = true;
+		}
+		else if (m_bLButtonClicked)	// 공격
 		{
 			AfterAnimation = CharacterAnimation::CA_BLENDING;
 			blendingAnimation.first = CharacterAnimation::CA_ATTACK;
@@ -245,7 +258,12 @@ void Archer::Animate(float fTimeElapsed)
 	}
 	else
 	{
-		if (m_bLButtonClicked)	// 공격
+		if (m_bRButtonClicked)
+		{
+			AfterAnimation = CharacterAnimation::CA_ATTACK;
+			RButtonAnimation = true;
+		}
+		else if (m_bLButtonClicked)	// 공격
 		{
 			AfterAnimation = CharacterAnimation::CA_ATTACK;
 		}
@@ -260,6 +278,19 @@ void Archer::Animate(float fTimeElapsed)
 		m_pSkinnedAnimationController->SetAllTrackdisable();
 		m_pSkinnedAnimationController->m_CurrentAnimation = AfterAnimation;
 
+		if (RButtonAnimation)
+		{
+			m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_ATTACK]->m_nType = ANIMATION_TYPE_HALF;
+			if (m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_fPosition >= m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_ATTACK]->m_fLength * 0.7f)
+				m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_fPosition = -1.0f;
+			m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_fSpeed = 0.3f;
+		}
+		else
+		{
+			m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_ATTACK]->m_nType = ANIMATION_TYPE_LOOP;
+			m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_fSpeed = 1.0f;
+		}
+
 		if (AfterAnimation == CharacterAnimation::CA_BLENDING)
 		{
 			m_pSkinnedAnimationController->SetAnimationBlending(true);
@@ -269,9 +300,17 @@ void Archer::Animate(float fTimeElapsed)
 		{
 			m_pSkinnedAnimationController->SetTrackEnable(AfterAnimation, true);
 		}
+
 	}
 
+	if (m_pArrow) m_pArrow->Animate(fTimeElapsed);
 	GameObject::Animate(fTimeElapsed);
+}
+
+void Archer::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender)
+{
+	if (m_pArrow) m_pArrow->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
+	GameObject::Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
 }
 
 Tanker::Tanker() : Character()
@@ -362,6 +401,7 @@ void Tanker::Animate(float fTimeElapsed)
 		if (m_bRButtonClicked)
 		{
 			AfterAnimation = CharacterAnimation::CA_BLENDING;
+			m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_DEFENCE]->m_fPosition = -1.0f;
 			blendingAnimation.first = CharacterAnimation::CA_DEFENCE;
 			blendingAnimation.second = CharacterAnimation::CA_MOVE;
 		}
@@ -380,6 +420,7 @@ void Tanker::Animate(float fTimeElapsed)
 	{
 		if (m_bRButtonClicked)
 		{
+			m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_DEFENCE]->m_fPosition = -1.0f;
 			AfterAnimation = CharacterAnimation::CA_DEFENCE;
 		}
 
@@ -412,7 +453,6 @@ void Tanker::Animate(float fTimeElapsed)
 
 	GameObject::Animate(fTimeElapsed);
 }
-
 
 Priest::Priest() : Character()
 {
@@ -534,4 +574,21 @@ void Priest::RbuttonUp(const XMFLOAT3& CameraAxis)
 {
 	Character::RbuttonUp(CameraAxis);
 	// 화살 발사 모먼트
+}
+
+Arrow::Arrow() : GameObject(UNDEF_ENTITY)
+{
+}
+
+Arrow::~Arrow()
+{
+}
+
+void Arrow::Animate(float fTimeElapsed)
+{
+	MoveForward(fTimeElapsed * 100);
+}
+
+void Arrow::ShootArrow(const XMFLOAT3& xmf3StartPos, const XMFLOAT3& xmf3direction)
+{
 }

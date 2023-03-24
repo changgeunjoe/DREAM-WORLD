@@ -38,7 +38,7 @@ using namespace std;
 #endif
 
 //#ifndef LOCAL_TASK
-//#define LOCAL_TASK 1
+#define LOCAL_TASK 1
 //#endif // !LOCAL_TASK
 
 ///////////////////////////////////////
@@ -110,7 +110,7 @@ using Microsoft::WRL::ComPtr;
 
 #define ANIMATION_TYPE_ONCE				0
 #define ANIMATION_TYPE_LOOP				1
-#define ANIMATION_TYPE_PINGPONG			2
+#define ANIMATION_TYPE_HALF				2
 
 #define ANIMATION_CALLBACK_EPSILON		0.0165f
 //#define _WITH_CB_GAMEOBJECT_32BIT_CONSTANTS

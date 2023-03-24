@@ -147,6 +147,15 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pArcherObject->SetScale(30.0f);
 	m_ppGameObjects.emplace_back(m_pArcherObject);
 
+	m_pArrowObjects = new Arrow();
+	m_pArrowObjects->InsertComponent<RenderComponent>();
+	m_pArrowObjects->InsertComponent<CLoadedModelInfoCompnent>();
+	m_pArrowObjects->SetPosition(XMFLOAT3(0, 0, 0));
+	m_pArrowObjects->SetModel("Model/Arrow.bin");
+	m_pArrowObjects->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pArrowObjects->SetScale(30.0f);
+
+	m_ppGameObjects.emplace_back(m_pPlaneObject);
 	m_pTankerObject = new Tanker();
 	m_pTankerObject->InsertComponent<RenderComponent>();
 	m_pTankerObject->InsertComponent<CLoadedModelInfoCompnent>();
@@ -156,6 +165,8 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pTankerObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pTankerObject->m_pSkinnedAnimationController->SetTrackAnimationSet(7);
 	m_pTankerObject->m_pSkinnedAnimationController->SetTrackEnable(6, true);
+	m_pTankerObject->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_DEFENCE]->m_nType = ANIMATION_TYPE_HALF;
+	m_pTankerObject->m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_DEFENCE].m_fSpeed = 0.3f;
 	m_pTankerObject->SetScale(30.0f);
 	m_ppGameObjects.emplace_back(m_pTankerObject);
 
@@ -437,6 +448,7 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 	{
 		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_cMouseInput |= 0x01;
 		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetLButtonClicked(true);
+		static_cast<Archer*>(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject)->Attack(m_pArrowObjects);
 		SomethingChanging = true;
 		break;
 	}

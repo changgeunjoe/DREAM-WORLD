@@ -19,7 +19,7 @@ public:
 	int 							m_nAnimationSet = 0;
 
 	int 							m_nType = ANIMATION_TYPE_LOOP; //Once, Loop, PingPong
-
+	bool							m_bAnimationEnd = false;
 	int 							m_nCallbackKeys = 0;
 	CALLBACKKEY* m_pCallbackKeys = NULL;
 
