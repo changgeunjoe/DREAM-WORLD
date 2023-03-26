@@ -1,31 +1,64 @@
+
 #include "stdafx.h"
-#include "Scene.h"
+#include "LobbyScene.h"
 #include"GameobjectManager.h"
 #include "Camera.h"
 
-CScene::CScene()
-{
-
-}
-
-CScene::~CScene()
+LobbyCScene::LobbyCScene()
 {
 }
 
-bool CScene::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
+LobbyCScene::~LobbyCScene()
+{
+}
+
+bool LobbyCScene::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
 	m_pObjectManager->onProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
 	return false;
 }
 
-bool CScene::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
+bool LobbyCScene::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
-	m_pObjectManager->onProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
-	//m_pObjectManager->onProcessingKeyboardMessageUI(hWnd, nMessageID, wParam, lParam);
+	m_pObjectManager->onProcessingKeyboardMessageUI(hWnd, nMessageID, wParam, lParam);
 	return false;
 }
 
-ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevice)
+void LobbyCScene::BuildUIObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
+{
+	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
+	m_pObjectManager = new GameobjectManager(pCamera);
+	m_pObjectManager->Build2DUI(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+}
+
+void LobbyCScene::ReleaseObjects()
+{
+}
+
+bool LobbyCScene::ProcessInput()
+{
+	return false;
+}
+
+void LobbyCScene::AnimateObjects(float fTimeElapsed)
+{
+}
+
+void LobbyCScene::UIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
+{
+	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
+	pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
+	if (pCamera) pCamera->UpdateShaderVariables(pd3dCommandList);
+	//씬을 렌더링하는 것은 씬을 구성하는 게임 객체(셰이더를 포함하는 객체)들을 렌더링하는 것이다. 
+
+	m_pObjectManager->UIRender(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+}
+
+void LobbyCScene::ReleaseUploadBuffers()
+{
+}
+
+ID3D12RootSignature* LobbyCScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevice)
 {
 	ID3D12RootSignature* pd3dGraphicsRootSignature = NULL;
 #ifdef _WITH_STANDARD_TEXTURE_MULTIPLE_DESCRIPTORS
@@ -87,7 +120,7 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	RootSignature.Descriptorrange[10].NumDescriptors = 1;
 	RootSignature.Descriptorrange[10].BaseShaderRegister = 2; //t2: SkyboxTexture
 	RootSignature.Descriptorrange[10].RegisterSpace = 0;
-	RootSignature.Descriptorrange[10].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND; 
+	RootSignature.Descriptorrange[10].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 	RootSignature.Descriptorrange[11].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	RootSignature.Descriptorrange[11].NumDescriptors = MAX_LIGHTS;
 	RootSignature.Descriptorrange[11].BaseShaderRegister = 14; //t14: gtxtDepthTextures
@@ -244,103 +277,7 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	return(pd3dGraphicsRootSignature);
 }
 
-ID3D12RootSignature* CScene::GetGraphicsRootSignature()
+ID3D12RootSignature* LobbyCScene::GetGraphicsRootSignature()
 {
-	return(m_pd3dGraphicsRootSignature);
+	return nullptr;
 }
-
-
-
-void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,CCamera* pCamera)
-{
-	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
-	m_pObjectManager = new GameobjectManager(pCamera);
-	m_pObjectManager->BuildObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-}
-
-
-void CScene::ReleaseObjects()
-{
-	if (m_pd3dGraphicsRootSignature) m_pd3dGraphicsRootSignature->Release();
-	//if (m_ppObjects)
-	//{
-	//	for (int j = 0; j < m_nObjects; j++) if (m_ppObjects[j]) delete m_ppObjects[j];
-	//	delete[] m_ppObjects;
-	//}
-}
-
-
-bool CScene::ProcessInput()
-{
-	return false;
-}
-
-void CScene::AnimateObjects(float fTimeElapsed)
-{
-	//for (int j = 0; j < m_nObjects; j++)
-	//{
-	//	m_ppObjects[j]->Animate(fTimeElapsed);
-	//}
-	if(m_pObjectManager) m_pObjectManager->Animate(fTimeElapsed);
-	//m_pObjectManager->AnimateObjects();
-}
-void CScene::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
-{
-	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
-	pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
-	if (pCamera) pCamera->UpdateShaderVariables(pd3dCommandList);
-	//씬을 렌더링하는 것은 씬을 구성하는 게임 객체(셰이더를 포함하는 객체)들을 렌더링하는 것이다. 
-
-	m_pObjectManager->Render(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-}
-
-void CScene::OnPreRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,CCamera* pCamera)
-{
-	pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
-	m_pObjectManager->OnPreRender(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-
-}
-
-void CScene::ReleaseUploadBuffers()
-{
-	//if (m_ppObjects)
-	//{
-	//	for (int j = 0; j < m_nObjects; j++) if (m_ppObjects[j])
-	//		m_ppObjects[j]->ReleaseUploadBuffers();
-	//}
-}
-
-void CScene::SetDescriptorRange(D3D12_DESCRIPTOR_RANGE* pd3dDescriptorRanges, int iIndex, D3D12_DESCRIPTOR_RANGE_TYPE RangeType, UINT NumDescriptors, UINT BaseShaderRegister, UINT RegisterSpace)
-{
-	pd3dDescriptorRanges[iIndex].RangeType = RangeType;
-	pd3dDescriptorRanges[iIndex].NumDescriptors = NumDescriptors;
-	pd3dDescriptorRanges[iIndex].BaseShaderRegister = BaseShaderRegister;
-	pd3dDescriptorRanges[iIndex].RegisterSpace = RegisterSpace;
-	pd3dDescriptorRanges[iIndex].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-}
-
-void CScene::SetRootParameterCBV(D3D12_ROOT_PARAMETER pd3dRootParameter[], int iIndex, UINT ShaderRegister, UINT RegisterSpace, D3D12_SHADER_VISIBILITY ShaderVisibility)
-{
-	pd3dRootParameter[iIndex].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	pd3dRootParameter[iIndex].Descriptor.ShaderRegister = ShaderRegister;
-	pd3dRootParameter[iIndex].Descriptor.RegisterSpace = RegisterSpace;
-	pd3dRootParameter[iIndex].ShaderVisibility = ShaderVisibility;
-}
-
-void CScene::SetRootParameterDescriptorTable(D3D12_ROOT_PARAMETER pd3dRootParameter[], int iIndex, UINT NumDescriptorRanges, const D3D12_DESCRIPTOR_RANGE* pDescriptorRanges, D3D12_SHADER_VISIBILITY ShaderVisibility)
-{
-	pd3dRootParameter[iIndex].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	pd3dRootParameter[iIndex].DescriptorTable.NumDescriptorRanges = NumDescriptorRanges;
-	pd3dRootParameter[iIndex].DescriptorTable.pDescriptorRanges = pDescriptorRanges;
-	pd3dRootParameter[iIndex].ShaderVisibility = ShaderVisibility;
-}
-
-void CScene::SetRootParameterConstants(D3D12_ROOT_PARAMETER pd3dRootParameter[], int iIndex, UINT Num32BitValues, UINT ShaderRegister, UINT RegisterSpace, D3D12_SHADER_VISIBILITY ShaderVisibility)
-{
-	pd3dRootParameter[iIndex].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-	pd3dRootParameter[iIndex].Constants.Num32BitValues = Num32BitValues;
-	pd3dRootParameter[iIndex].Constants.ShaderRegister = ShaderRegister;
-	pd3dRootParameter[iIndex].Constants.RegisterSpace = RegisterSpace;
-	pd3dRootParameter[iIndex].ShaderVisibility = ShaderVisibility;
-}
-

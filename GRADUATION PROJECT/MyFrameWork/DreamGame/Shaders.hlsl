@@ -150,14 +150,24 @@ VS_TEXTURED_OUTPUT VSUITextured(VS_TEXTURED_INPUT input)
 }
 
 float4 PSUITextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
-{
+{   
+       // Sample the texture
     float4 cColor = shaderTexture.Sample(gWrapSamplerState, input.uv);
-   // if (cColor.x > 0.99)
-   // {
-		 //cColor.a = 0;
-   // }
-    //cColor.a = Alpha;
-	
+    //  float4 outlineColor = float4(1, 0, 0, 1);
+
+    //// Find pixels with different colors in the neighborhood
+    //float4 left = shaderTexture.Sample(gWrapSamplerState, input.uv - float2(0.99, 0));
+    //float4 right = shaderTexture.Sample(gWrapSamplerState, input.uv + float2(0.99, 0));
+    //float4 top = shaderTexture.Sample(gWrapSamplerState, input.uv - float2(0,0.99));
+    //float4 bottom = shaderTexture.Sample(gWrapSamplerState, input.uv + float2(0,0.99));
+
+    //// Set the outline color for the pixels that have different colors
+    //if (cColor.x != left.x || cColor.y != left.y || cColor.z != left.z )
+    //{
+    //    return outlineColor;
+
+    //}
+
     return (cColor);
 }
 

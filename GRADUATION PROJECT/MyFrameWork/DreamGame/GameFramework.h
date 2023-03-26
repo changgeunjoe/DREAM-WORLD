@@ -2,6 +2,8 @@
 #include"stdafx.h"
 #include"Timer.h"
 #include"Scene.h"
+#include"LobbyScene.h"
+
 
 
 class CCamera;
@@ -57,8 +59,13 @@ private:
 	//펜스 인터페이스 포인터,펜스의 값,이벤트 핸들이다.
 
 	CScene* m_pScene;
+	LobbyCScene* m_pLobbyScene;
+
+	bool m_bLobbyScene;
+	bool m_bSceneBuild{false};
 
 	CCamera* m_pCamera = NULL;
+	CCamera* m_pLobbyCamera = NULL;
 
 	//다음은 게임 프레임 워크에서 사용할 타이머이다.
 	CGameTimer m_GameTimer;
@@ -66,6 +73,30 @@ private:
 
 	//다음은 프레임 레이트를 주 윈도우의 캡션에 출력하기 위한 문자열이다.
 	_TCHAR m_pszFrameRate[50];
+
+
+	//2d ui리소스를 띄우는 
+	ID2D1Factory* pD2DFactory = nullptr;
+	IDWriteFactory* pDWriteFactory = nullptr;
+
+#ifdef _WITH_DIRECT2D
+	ID3D11On12Device* m_pd3d11On12Device = NULL;
+	ID3D11DeviceContext* m_pd3d11DeviceContext = NULL;
+	ID2D1Factory3* m_pd2dFactory = NULL;
+	IDWriteFactory* m_pdWriteFactory = NULL;
+	ID2D1Device2* m_pd2dDevice = NULL;
+	ID2D1DeviceContext2* m_pd2dDeviceContext = NULL;
+
+	ID3D11Resource* m_ppd3d11WrappedBackBuffers[m_nSwapChainBuffers];
+	ID2D1Bitmap1* m_ppd2dRenderTargets[m_nSwapChainBuffers];
+
+	ID2D1SolidColorBrush* m_pd2dbrBackground = NULL;
+	ID2D1SolidColorBrush* m_pd2dbrBorder = NULL;
+	IDWriteTextFormat* m_pdwFont = NULL;
+	IDWriteTextLayout* m_pdwTextLayout = NULL;
+	ID2D1SolidColorBrush* m_pd2dbrText = NULL;
+#endif
+
 
 
 	POINT						m_ptOldCursorPos;
@@ -88,7 +119,12 @@ public:
 
 	void CreateRenderTargetViews();//랜더 타겟 뷰를 생성하는 함수
 	void CreateDepthStencilView();// 깊이 - 스텐실 뷰를 생성하는 함수이다.
+	void CreateDirect2D();
 	//랜더 타겟 뷰와 깊이-스텐실 뷰를 생성하는 함수이다.
+
+#ifdef _WITH_DIRECT2D
+	void CreateDirect2DDevice();
+#endif
 
 	void BuildObjects();
 	void ReleaseObjects();
@@ -98,7 +134,8 @@ public:
 	void ProcessInput();
 	void AnimateObjects();
 	void FrameAdvance();
-
+	void Render2DFont();
+	
 	void WaitForGpuComplete();//CPU와 GPu를 동기화하는 함수이다.
 	//https://vitacpp.tistory.com/m/50
 

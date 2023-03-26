@@ -213,6 +213,9 @@
     <ClInclude Include="Network\Room\RoomManger.h">
       <Filter>10.NetworkHelper\Room</Filter>
     </ClInclude>
+    <ClInclude Include="LobbyScene.h">
+      <Filter>01.Scene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -313,6 +316,9 @@
     </ClCompile>
     <ClCompile Include="Network\Room\RoomManger.cpp">
       <Filter>10.NetworkHelper\Room</Filter>
+    </ClCompile>
+    <ClCompile Include="LobbyScene.cpp">
+      <Filter>01.Scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
