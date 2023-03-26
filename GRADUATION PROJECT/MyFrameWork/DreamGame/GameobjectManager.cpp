@@ -8,6 +8,7 @@
 #include "UiShaderComponent.h"
 #include "Character.h"
 
+
 extern NetworkHelper g_NetworkHelper;
 extern Logic g_Logic;
 
@@ -101,7 +102,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	//	m_ppUIObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//}
 
-	
+
 
 	if (m_pShadowmapShaderComponent)
 	{
@@ -251,7 +252,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	//m_pUIGameCreateObject->SetScale(0.05, 0.02, 1);
 	//m_pUIGameCreateObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//m_ppUIObjects.emplace_back(m_pUIGameCreateObject);
-	
+
 #if LOCAL_TASK
 	// 플레이어가 캐릭터 선택하는 부분에 유사하게 넣을 예정
 	m_pPlayerObject = new GameObject(UNDEF_ENTITY);	//수정필요
@@ -306,7 +307,7 @@ void GameobjectManager::Build2DUI(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	m_pUIGameSearchObject->SetScale(0.05, 0.025, 1);
 	m_pUIGameSearchObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppUIObjects.emplace_back(m_pUIGameSearchObject);
-	
+
 	m_pUIGameMathchingObject = new GameObject(UI_ENTITY);
 	m_pUIGameMathchingObject->InsertComponent<RenderComponent>();
 	m_pUIGameMathchingObject->InsertComponent<UIMeshComponent>();
@@ -329,7 +330,7 @@ void GameobjectManager::Build2DUI(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	m_pUIGameCreateObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppUIObjects.emplace_back(m_pUIGameCreateObject);
 
-	
+
 }
 void GameobjectManager::PickObjectByRayIntersection(int xClient, int yClient)
 {
@@ -356,7 +357,7 @@ void GameobjectManager::PickObjectByRayIntersection(int xClient, int yClient)
 			break;
 		}
 	}
-	
+
 }
 void GameobjectManager::AnimateObjects()
 {
@@ -367,17 +368,17 @@ void GameobjectManager::AnimateObjects()
 void GameobjectManager::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	if (m_pLight)
-	m_pLight->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+		m_pLight->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 void GameobjectManager::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	if(m_pLight)
-	m_pLight->UpdateShaderVariables(pd3dCommandList);
+	if (m_pLight)
+		m_pLight->UpdateShaderVariables(pd3dCommandList);
 }
 void GameobjectManager::ReleaseShaderVariables()
 {
 	if (m_pLight)
-	m_pLight->ReleaseShaderVariables();
+		m_pLight->ReleaseShaderVariables();
 }
 bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
@@ -454,41 +455,41 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		{
 		case 'W':
 		{
-			if (g_Logic.m_KeyInput->m_bWKey) 
+			if (g_Logic.m_KeyInput->m_bWKey)
 			{
 				g_Logic.m_KeyInput->m_bWKey = false;
 				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection ^ DIRECTION::FRONT);
-				if (g_Logic.m_KeyInput->IsAllMovekeyUp()) 
+				if (g_Logic.m_KeyInput->IsAllMovekeyUp())
 				{
 					g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetMoveState(false);
 					g_Logic.m_inGamePlayerSession[0].m_currentDirection = DIRECTION::IDLE;
 					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition()); //, g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate				
 				}
-				else 
+				else
 					g_NetworkHelper.SendKeyUpPacket(DIRECTION::FRONT);
 			}
 		}
 		break;
 		case 'A':
 		{
-			if (g_Logic.m_KeyInput->m_bAKey) 
+			if (g_Logic.m_KeyInput->m_bAKey)
 			{
 				g_Logic.m_KeyInput->m_bAKey = false;
 				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection ^ DIRECTION::LEFT);
-				if (g_Logic.m_KeyInput->IsAllMovekeyUp()) 
+				if (g_Logic.m_KeyInput->IsAllMovekeyUp())
 				{
 					g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetMoveState(false);
 					g_Logic.m_inGamePlayerSession[0].m_currentDirection = DIRECTION::IDLE;
 					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition()); //, g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate
 				}
-				else 
+				else
 					g_NetworkHelper.SendKeyUpPacket(DIRECTION::LEFT);
 			}
 		}
 		break;
 		case 'S':
 		{
-			if (g_Logic.m_KeyInput->m_bSKey) 
+			if (g_Logic.m_KeyInput->m_bSKey)
 			{
 				g_Logic.m_KeyInput->m_bSKey = false;
 				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection ^ DIRECTION::BACK);
@@ -505,7 +506,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		break;
 		case 'D':
 		{
-			if (g_Logic.m_KeyInput->m_bDKey) 
+			if (g_Logic.m_KeyInput->m_bDKey)
 			{
 				g_Logic.m_KeyInput->m_bDKey = false;
 				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection ^ DIRECTION::RIGHT);
@@ -514,7 +515,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 					g_Logic.m_inGamePlayerSession[0].m_currentDirection = DIRECTION::IDLE;
 					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition()); //, g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate
 				}
-				else 
+				else
 					g_NetworkHelper.SendKeyUpPacket(DIRECTION::RIGHT);
 			}
 		}
@@ -580,7 +581,7 @@ bool GameobjectManager::onProcessingKeyboardMessageUI(HWND hWnd, UINT nMessageID
 		break;
 		case 'L':
 		{
-			
+
 			if (m_pSelectedObject)
 			{
 				XMFLOAT3 TempPosition = m_pSelectedObject->GetPosition();
@@ -591,7 +592,24 @@ bool GameobjectManager::onProcessingKeyboardMessageUI(HWND hWnd, UINT nMessageID
 		break;
 		case 'I':
 		{
-	
+
+		}
+		break;
+		case 'q':
+		case 'Q':
+		{
+			uniform_int_distribution<int> uid(0, 1000);
+			random_device rd;
+			default_random_engine dre(rd());
+			g_NetworkHelper.SendCreateRoomPacket(ROLE::ARCHER, L"testRoomCreate" + to_wstring(uid(dre)));
+			cout << "create Room" << endl;
+		}
+		break;
+		case 'w':
+		case 'W':
+		{
+			g_NetworkHelper.SendRequestRoomList();
+			cout << "request Room List" << endl;
 		}
 		break;
 		default:
@@ -645,9 +663,9 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 	default:
 		break;
 	}
-	
+
 #ifndef LOCAL_TASK
-	if(SomethingChanging)
+	if (SomethingChanging)
 		g_NetworkHelper.SendMouseStatePacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_cMouseInput);
 #endif
 

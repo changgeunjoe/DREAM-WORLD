@@ -7,13 +7,12 @@ namespace CLIENT_PACKET {
 	constexpr unsigned char STOP = 3;
 	constexpr unsigned char ROTATE = 4;
 	constexpr unsigned char LOGIN = 5;
-	constexpr unsigned char MATCH = 6;
+	constexpr unsigned char MATCH = 6; 
 	constexpr unsigned char CREATE_ROOM = 7;
 	constexpr unsigned char REQUEST_ROOM_LIST = 8; // 规 府胶飘 夸没
 	constexpr unsigned char PLAYER_APPLY_ROOM = 9; // 规 脚没
 	constexpr unsigned char CANCEL_APPLY_ROOM = 10; // 脚没 秒家
 	constexpr unsigned char MOUSE_INPUT = 11;
-
 
 
 	struct MovePacket

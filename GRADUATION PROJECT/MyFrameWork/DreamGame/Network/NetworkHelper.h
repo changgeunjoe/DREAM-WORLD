@@ -35,6 +35,8 @@ public:
 	void SendKeyUpPacket(DIRECTION d);
 	void SendLoginData(char* loginId, char* pw);
 	void SendMouseStatePacket(unsigned char MouseClicked);
+	void SendCreateRoomPacket(ROLE r, wstring roomName);
+	void SendRequestRoomList();
 private:
 	void ConstructPacket(int ioByte);
 private:

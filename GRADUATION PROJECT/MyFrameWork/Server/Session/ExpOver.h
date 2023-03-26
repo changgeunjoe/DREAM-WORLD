@@ -26,9 +26,11 @@ public:
 	ExpOver(char* p)
 	{
 		ZeroMemory(&m_overlap, sizeof(m_overlap));
-		m_wsaBuf.len = p[0];
+		short size = 0;
+		memcpy(&size, p, 2);		
+		m_wsaBuf.len = size;
 		m_wsaBuf.buf = m_buffer;
 		m_opCode = OP_SEND;
-		memcpy(m_buffer, p, p[0]);
+		memcpy(m_buffer, p, size);
 	}
 };

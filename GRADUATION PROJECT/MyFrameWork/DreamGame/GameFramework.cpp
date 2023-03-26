@@ -652,7 +652,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		case VK_RETURN:
 			break;
 		case VK_F2:
-			m_bLobbyScene=false ;
+			//m_bLobbyScene= !m_bLobbyScene;
 			break;
 		case VK_F8:
 			break;

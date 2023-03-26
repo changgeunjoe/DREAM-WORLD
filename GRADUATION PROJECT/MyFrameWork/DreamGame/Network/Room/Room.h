@@ -5,14 +5,14 @@ class Room
 public:
 	Room() {}
 	~Room() {}
-	Room(wstring roomName, string roomId, char* role, string* playerName);
+	Room(wstring roomName, string roomId, char* role, wstring* playerName);
 private:
 	wstring m_roomName;
 	string m_roomId;
 	//lock?
-	map<ROLE, string> m_inGamePlayers;
+	map<ROLE, wstring> m_inGamePlayers;
 public:
 	const wstring GetRoomName();
 	const string GetRoomId();
-	const map<ROLE, string> GetIngamePlayersInfo();
+	const map<ROLE, wstring> GetIngamePlayersInfo();
 };

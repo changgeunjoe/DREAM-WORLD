@@ -159,10 +159,11 @@ void Logic::ProcessPacket(int userId, char* p)
 		auto now = std::chrono::system_clock::now();
 		auto in_time_t = std::chrono::system_clock::to_time_t(now);
 		roomId.append(std::to_string(std::localtime(&in_time_t)->tm_year % 100));
-		roomId.append(std::to_string(std::localtime(&in_time_t)->tm_mon));
+		roomId.append(std::to_string(std::localtime(&in_time_t)->tm_mon + 1) );
 		roomId.append(std::to_string(std::localtime(&in_time_t)->tm_mday));
 		roomId.append(std::to_string(std::localtime(&in_time_t)->tm_hour));
 		roomId.append(std::to_string(std::localtime(&in_time_t)->tm_min));
+		roomId.append(std::to_string(std::localtime(&in_time_t)->tm_sec));
 		roomId.append(std::to_string(userId));
 
 		std::wstring roomName{ recvPacket->roomName };
@@ -202,19 +203,20 @@ void Logic::ProcessPacket(int userId, char* p)
 			int i = 0;
 			for (const auto& p : pMap) {
 				PlayerSessionObject* partPSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[p.second].m_sessionObject);
-				memcpy(sendPacket.playerName[i], partPSessionObj->GetName().c_str(), partPSessionObj->GetName().size());
+				memcpy(sendPacket.playerName[i], partPSessionObj->GetName().c_str(), partPSessionObj->GetName().size() * 2);
 				sendPacket.playerName[i][partPSessionObj->GetName().size()] = 0;
 				sendPacket.role[i] = partPSessionObj->GetRole();
 			}
 			//Name
-			memcpy(sendPacket.roomName, r->GetRoomName().c_str(), r->GetRoomName().size());
+			memcpy(sendPacket.roomName, r->GetRoomName().c_str(), r->GetRoomName().size() * 2);
 			sendPacket.roomName[r->GetRoomName().size()] = 0;
-			strcpy(sendPacket.roomId, r->GetRoomId().c_str());
+			memcpy(sendPacket.roomId, r->GetRoomId().c_str(), r->GetRoomId().size());
 			sendPacket.roomId[r->GetRoomId().size()] = 0;
 			if (r == recruitRoom.end() - 1)
 				sendPacket.type = SERVER_PACKET::REQUEST_ROOM_LIST_END;
 			else
 				sendPacket.type = SERVER_PACKET::REQUEST_ROOM_LIST;
+			std::cout << "ProcessPacket() - CLIENT_PACKET::REQUEST_ROOM_LIST sendByte: " << sendPacket.size << std::endl;
 			pSessionObj->Send(&sendPacket);
 		}
 	}

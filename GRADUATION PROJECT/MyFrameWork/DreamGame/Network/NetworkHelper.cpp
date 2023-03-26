@@ -2,8 +2,10 @@
 #include <iostream>
 #include "Logic/Logic.h"
 #include "NetworkHelper.h"
+#include "Room/RoomManger.h"
 
 extern Logic g_Logic;
+extern RoomManger g_RoomManager;
 
 NetworkHelper::NetworkHelper()
 {
@@ -56,6 +58,7 @@ void NetworkHelper::RunThread()
 		}
 		else if (ioByte > 0) {
 			ConstructPacket(ioByte);
+			cout << "recvByte: " << ioByte << endl;
 		}
 		else {
 			//error
@@ -147,4 +150,27 @@ void NetworkHelper::SendMouseStatePacket(unsigned char MouseClicked)
 	sendPacket.type = CLIENT_PACKET::MOUSE_INPUT;
 	sendPacket.size = sizeof(CLIENT_PACKET::MouseInputPacket);
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
+}
+
+void NetworkHelper::SendCreateRoomPacket(ROLE r, wstring roomName)
+{
+	CLIENT_PACKET::CreateRoomPacket sendPacket;
+	sendPacket.Role = r;
+	memcpy(sendPacket.roomName, roomName.c_str(), roomName.size() * 2);
+	sendPacket.roomName[roomName.size()] = 0;
+	sendPacket.size = sizeof(CLIENT_PACKET::CreateRoomPacket);
+	sendPacket.type = CLIENT_PACKET::CREATE_ROOM;
+	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
+}
+
+void NetworkHelper::SendRequestRoomList()
+{
+	auto durationTime = chrono::high_resolution_clock::now() - g_RoomManager.m_lastUpdateTime;
+	if (g_RoomManager.m_bFirstUpdate || durationTime.count() > 30000) { // 30√ ?
+		CLIENT_PACKET::RequestRoomListPacket sendPacket;
+		sendPacket.size = sizeof(CLIENT_PACKET::RequestRoomListPacket);
+		sendPacket.type = CLIENT_PACKET::REQUEST_ROOM_LIST;
+		send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
+		g_RoomManager.m_lastUpdateTime = chrono::high_resolution_clock::now();
+	}
 }

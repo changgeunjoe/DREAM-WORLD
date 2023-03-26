@@ -4,8 +4,10 @@
 #include "../../GameFramework.h"
 #include "../../Scene.h"
 #include "../../GameobjectManager.h"
+#include "../Room/RoomManger.h"
 
 extern CGameFramework gGameFramework;
+extern RoomManger g_RoomManager;
 
 
 Logic::Logic()
@@ -219,10 +221,16 @@ void Logic::ProcessPacket(char* p)
 	{
 		// 방 리스트 정보
 		SERVER_PACKET::RoomInfoPacket* recvPacket = reinterpret_cast<SERVER_PACKET::RoomInfoPacket*>(p);
-		recvPacket->playerName;
-		recvPacket->role;
-		recvPacket->roomId;
-		recvPacket->roomName;
+		//recvPacket->playerName;
+		//recvPacket->role;
+		//recvPacket->roomId;
+		//recvPacket->roomName;
+		wstring playerName[4] = { recvPacket->playerName[0], recvPacket->playerName[1], recvPacket->playerName[2], recvPacket->playerName[3] };
+		g_RoomManager.InsertRoom(string{ recvPacket->roomId }, wstring{ recvPacket->roomName }, playerName, recvPacket->role);
+#if _DEBUG
+		wstring roomName{ recvPacket->roomName };
+		wcout << "방 이름: " << roomName << " 방 아이디: " << recvPacket->roomId << endl;
+#endif // 0
 	}
 	break;
 
@@ -234,6 +242,13 @@ void Logic::ProcessPacket(char* p)
 		recvPacket->role;
 		recvPacket->roomId;
 		recvPacket->roomName;
+		wstring playerName[4] = { recvPacket->playerName[0], recvPacket->playerName[1], recvPacket->playerName[2], recvPacket->playerName[3] };
+		g_RoomManager.InsertRoom(string{ recvPacket->roomId }, wstring{ recvPacket->roomName }, playerName, recvPacket->role);
+#if _DEBUG
+		wstring roomName{ recvPacket->roomName };
+		wcout << "마지막 방 이름: " << roomName << " 방 아이디: " << recvPacket->roomId << endl;
+#endif // 0
+
 	}
 	break;
 
@@ -241,7 +256,7 @@ void Logic::ProcessPacket(char* p)
 	{
 		//방 리스트 없는 상황 보여주면 됨
 		SERVER_PACKET::NotifyPacket* recvPacket = reinterpret_cast<SERVER_PACKET::NotifyPacket*>(p);
-		
+		cout << "방 없음" << endl;
 	}
 	break;
 
