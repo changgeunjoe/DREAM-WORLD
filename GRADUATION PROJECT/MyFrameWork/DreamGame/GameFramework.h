@@ -62,6 +62,7 @@ private:
 	LobbyCScene* m_pLobbyScene;
 
 	bool m_bLobbyScene;
+	bool m_bSceneBuild{false};
 
 	CCamera* m_pCamera = NULL;
 	CCamera* m_pLobbyCamera = NULL;
