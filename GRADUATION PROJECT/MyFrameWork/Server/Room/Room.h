@@ -5,7 +5,7 @@ class Room
 public:
 	Room();
 	Room(std::string& roomId, std::wstring& roomName, int onwerId);
-	Room(std::string& roomId, int player1, int player2, int player3, int player4);
+	Room(std::string& roomId, int player1, int player2, int player3, int player4); // 메칭용 룸 생성자
 	Room(std::string roomId);
 	Room(const Room& rhs);
 	~Room();
@@ -18,26 +18,32 @@ private:
 private:
 	//현재 존재하는 플레이어들을 어떻게 담을까
 	//set<pair> // 그러기엔... PlayerObj에 Role을 넣었다. // Set<int> : Player ID(server상)으로 하면 될까
-	std::mutex m_LockPlayerSet;
-	std::set<std::pair<ROLE, int>> m_Players;
 
-	std::mutex m_LockWaitPlayerSet;
-	std::set<std::pair<ROLE, int>> m_WaitPlayers;
+	std::mutex m_lockInGamePlayers;
+	std::map<ROLE, int> m_inGamePlayers;
+	//std::set<std::pair<ROLE, int>> m_Players;
+
+	std::mutex m_lockWaitPlayers;
+	std::map<ROLE, int> m_waitPlayers;
 
 public://Get
-	const std::set<std::pair<ROLE, int>> GetPlayerSet() {
-		std::set<std::pair<ROLE, int>> playerSet;
+
+
+	const std::map<ROLE, int> GetInGamePlayerMap() {
+		std::map<ROLE, int> playerMap;
 		{
-			std::lock_guard<std::mutex> lg{ m_LockPlayerSet };
-			playerSet = m_Players;
+			std::lock_guard<std::mutex> lg{ m_lockInGamePlayers };
+			playerMap = m_inGamePlayers;
 		}
-		return playerSet;
+		return playerMap;
 	}
 	const std::string& GetRoomId() { return m_roomId; }
 	const std::wstring& GetRoomName() { return m_roomName; }
 	const int roomOwner() { return m_roomOwnerId; }
 public:
-	void InsertPlayer(ROLE r, int playerId);
+	void InsertInGamePlayer(ROLE r, int playerId);
+	void DeleteInGamePlayer(int playerId);
+public:
 	void InsertWaitPlayer(ROLE r, int playerId);
-	void DeletePlayer(int playerId);
+	void DeleteWaitPlayer(int playerId);
 };

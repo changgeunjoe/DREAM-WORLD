@@ -139,6 +139,9 @@ void Logic::ProcessPacket(int userId, char* p)
 		newEvent.userId = userId;
 		newEvent.Data = pInfo;
 		g_DBObj.m_workQueue.push(newEvent);
+
+		/////////////////////////////////////////////////////////////////
+		//여기다가 동접 테스트 하기위한 객체 생성하기 **
 	}
 	break;
 	case CLIENT_PACKET::MATCH:
@@ -161,12 +164,12 @@ void Logic::ProcessPacket(int userId, char* p)
 		roomId.append(std::to_string(std::localtime(&in_time_t)->tm_hour));
 		roomId.append(std::to_string(std::localtime(&in_time_t)->tm_min));
 		roomId.append(std::to_string(userId));
-		
+
 		std::wstring roomName{ recvPacket->roomName };
 
 		SERVER_PACKET::CreateRoomResultPacket sendPacket;
 		if (m_roomManager->InsertRecruitingRoom(roomId, roomName, userId)) {
-			m_roomManager->m_RecruitingRoomList[roomId].InsertPlayer((ROLE)recvPacket->Role, userId);			
+			m_roomManager->m_RecruitingRoomList[roomId].InsertInGamePlayer((ROLE)recvPacket->Role, userId);
 			pSessionObj->SetRoomId(roomId);
 			sendPacket.type = SERVER_PACKET::CREATE_ROOM_SUCCESS;
 			//룸 생성 성공
@@ -186,7 +189,7 @@ void Logic::ProcessPacket(int userId, char* p)
 		if (recruitRoom.size() == 0) {
 			SERVER_PACKET::NotifyPacket sendPacket;
 			sendPacket.size = 2;
-			sendPacket.type = SERVER_PACKET::REQUEST_ROOM_LIST_NONE;
+			sendPacket.type = SERVER_PACKET::REQUEST_ROOM_LIST_NONE; 
 			pSessionObj->Send(p);
 			return;
 		}
@@ -195,9 +198,9 @@ void Logic::ProcessPacket(int userId, char* p)
 			sendPacket.size = sizeof(SERVER_PACKET::RoomInfoPacket);
 			::ZeroMemory(sendPacket.playerName, sizeof(sendPacket.playerName));
 			::ZeroMemory(sendPacket.role, 4);
-			std::set<std::pair<ROLE, int>> pSet = r->GetPlayerSet();
+			std::map<ROLE, int> pMap = r->GetInGamePlayerMap();
 			int i = 0;
-			for (const auto& p : pSet) {
+			for (const auto& p : pMap) {
 				PlayerSessionObject* partPSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[p.second].m_sessionObject);
 				memcpy(sendPacket.playerName[i], partPSessionObj->GetName().c_str(), partPSessionObj->GetName().size());
 				sendPacket.playerName[i][partPSessionObj->GetName().size()] = 0;
@@ -257,7 +260,7 @@ void Logic::ProcessPacket(int userId, char* p)
 		CLIENT_PACKET::PlayerCancelRoomPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::PlayerCancelRoomPacket*>(p);
 		m_roomManager->m_RecruitRoomListLock.lock();
 		if (m_roomManager->m_RecruitingRoomList.count(recvPacket->roomId)) {
-			m_roomManager->m_RecruitingRoomList[recvPacket->roomId].DeletePlayer(userId);
+			m_roomManager->m_RecruitingRoomList[recvPacket->roomId].DeleteWaitPlayer(userId);
 		}
 		m_roomManager->m_RecruitRoomListLock.unlock();
 		//방에 있는 사람들에게 취소한 신청자 있음을 전송
@@ -267,7 +270,7 @@ void Logic::ProcessPacket(int userId, char* p)
 	case CLIENT_PACKET::MOUSE_INPUT:
 	{
 		CLIENT_PACKET::MouseInputPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::MouseInputPacket*>(p);
-		
+
 		SERVER_PACKET::MouseInputPacket sendPacket;
 		sendPacket.ClickedButton = recvPacket->ClickedButton;
 		sendPacket.userId = userId;

@@ -154,6 +154,8 @@
     <ClInclude Include="Network\Logic\Logic.h" />
     <ClInclude Include="Network\NetworkHelper.h" />
     <ClInclude Include="MaterialComponent.h" />
+    <ClInclude Include="Network\Room\Room.h" />
+    <ClInclude Include="Network\Room\RoomManger.h" />
     <ClInclude Include="Network\Session\Session.h" />
     <ClInclude Include="DepthRenderShaderComponent.h" />
     <ClInclude Include="ShadowMapShaderComponent.h" />
@@ -189,6 +191,8 @@
     <ClCompile Include="Network\Logic\Logic.cpp" />
     <ClCompile Include="Network\NetworkHelper.cpp" />
     <ClCompile Include="MaterialComponent.cpp" />
+    <ClCompile Include="Network\Room\Room.cpp" />
+    <ClCompile Include="Network\Room\RoomManger.cpp" />
     <ClCompile Include="Network\Session\Session.cpp" />
     <ClCompile Include="DepthRenderShaderComponent.cpp" />
     <ClCompile Include="ShadowMapShaderComponent.cpp" />

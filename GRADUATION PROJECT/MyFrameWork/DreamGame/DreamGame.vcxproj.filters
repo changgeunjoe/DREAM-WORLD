@@ -100,6 +100,9 @@
     <Filter Include="07.Character">
       <UniqueIdentifier>{bc6d394e-adff-4b29-be46-842ac711a195}</UniqueIdentifier>
     </Filter>
+    <Filter Include="10.NetworkHelper\Room">
+      <UniqueIdentifier>{1d08716e-9694-4e88-b3d1-932e1b12d059}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -195,6 +198,21 @@
     <ClInclude Include="Character.h">
       <Filter>07.Character</Filter>
     </ClInclude>
+    <ClInclude Include="define.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureToViewportComponent.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="UiShaderComponent.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\Room\Room.h">
+      <Filter>10.NetworkHelper\Room</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\Room\RoomManger.h">
+      <Filter>10.NetworkHelper\Room</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -283,6 +301,18 @@
     </ClCompile>
     <ClCompile Include="Character.cpp">
       <Filter>07.Character</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureToViewportComponent.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="UiShaderComponent.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\Room\Room.cpp">
+      <Filter>10.NetworkHelper\Room</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\Room\RoomManger.cpp">
+      <Filter>10.NetworkHelper\Room</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

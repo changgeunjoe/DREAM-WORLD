@@ -58,8 +58,12 @@ using namespace std;
 #include <iostream>
 #include<random>
 #include <unordered_map>
+#include <map>
+#include <utility>
+
 #include "d3dx12.h"
 
+#include <mutex>
 
 #pragma comment(lib, "ws2_32") // ws2_32.lib ¸µÅ©
 ///////////////////////////////////////////

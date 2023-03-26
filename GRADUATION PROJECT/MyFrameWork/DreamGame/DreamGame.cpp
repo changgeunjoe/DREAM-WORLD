@@ -7,6 +7,7 @@
 #include"GameFramework.h"
 #include "Network/NetworkHelper.h"
 #include "Network/Logic/Logic.h"
+#include "Network/Room/RoomManger.h"
 
 #ifdef _DEBUG
 #ifdef UNICODE
@@ -19,6 +20,7 @@
 CGameFramework gGameFramework;
 NetworkHelper g_NetworkHelper;
 Logic g_Logic;
+RoomManger g_RoomManager;
 
 HWND g_wnd;
 int g_cmd;
