@@ -189,9 +189,9 @@ void Logic::ProcessPacket(int userId, char* p)
 		std::vector<Room> recruitRoom = m_roomManager->GetRecruitingRoomList();
 		if (recruitRoom.size() == 0) {
 			SERVER_PACKET::NotifyPacket sendPacket;
-			sendPacket.size = 2;
+			sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
 			sendPacket.type = SERVER_PACKET::REQUEST_ROOM_LIST_NONE; 
-			pSessionObj->Send(p);
+			pSessionObj->Send(&sendPacket);
 			return;
 		}
 		for (auto r = recruitRoom.begin(); r != recruitRoom.end(); r++) {

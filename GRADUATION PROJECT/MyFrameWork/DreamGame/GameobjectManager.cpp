@@ -118,8 +118,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 void GameobjectManager::UIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
 	UpdateShaderVariables(pd3dCommandList);
-
-	for (int i = 0; i < m_ppUIObjects.size(); i++) {
+	for (int i = Section[m_nSection]; i < Section[m_nSection + 1]; i++) {
 		m_ppUIObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 
@@ -303,7 +302,7 @@ void GameobjectManager::Build2DUI(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	m_pUIGameSearchObject->InsertComponent<UiShaderComponent>();
 	m_pUIGameSearchObject->InsertComponent<TextureComponent>();
 	m_pUIGameSearchObject->SetTexture(L"UI/SearchingRoom.dds", RESOURCE_TEXTURE2D, 3);
-	m_pUIGameSearchObject->SetPosition(XMFLOAT3(0, 0, 1.01f));
+	m_pUIGameSearchObject->SetPosition(XMFLOAT3(0.25, 0.5, 1.03));
 	m_pUIGameSearchObject->SetScale(0.05, 0.025, 1);
 	m_pUIGameSearchObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppUIObjects.emplace_back(m_pUIGameSearchObject);
@@ -314,10 +313,66 @@ void GameobjectManager::Build2DUI(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	m_pUIGameMathchingObject->InsertComponent<UiShaderComponent>();
 	m_pUIGameMathchingObject->InsertComponent<TextureComponent>();
 	m_pUIGameMathchingObject->SetTexture(L"UI/Matching.dds", RESOURCE_TEXTURE2D, 3);
-	m_pUIGameMathchingObject->SetPosition(XMFLOAT3(0.5, 0.1, 1.01));
+	m_pUIGameMathchingObject->SetPosition(XMFLOAT3(-0.25, 0.5, 1.03));
 	m_pUIGameMathchingObject->SetScale(0.05, 0.02, 1);
 	m_pUIGameMathchingObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppUIObjects.emplace_back(m_pUIGameMathchingObject);
+
+	m_pUIWarriorCharacterObject = new GameObject(UI_ENTITY);
+	m_pUIWarriorCharacterObject->InsertComponent<RenderComponent>();
+	m_pUIWarriorCharacterObject->InsertComponent<UIMeshComponent>();
+	m_pUIWarriorCharacterObject->InsertComponent<UiShaderComponent>();
+	m_pUIWarriorCharacterObject->InsertComponent<TextureComponent>();
+	m_pUIWarriorCharacterObject->SetTexture(L"UI/Warrior.dds", RESOURCE_TEXTURE2D, 3);
+	m_pUIWarriorCharacterObject->SetPosition(XMFLOAT3(-0.3, 0.2, 1.03));
+	m_pUIWarriorCharacterObject->SetScale(0.08, 0.08, 1);
+	m_pUIWarriorCharacterObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppUIObjects.emplace_back(m_pUIWarriorCharacterObject);
+
+	m_pUIArcherCharacterObject = new GameObject(UI_ENTITY);
+	m_pUIArcherCharacterObject->InsertComponent<RenderComponent>();
+	m_pUIArcherCharacterObject->InsertComponent<UIMeshComponent>();
+	m_pUIArcherCharacterObject->InsertComponent<UiShaderComponent>();
+	m_pUIArcherCharacterObject->InsertComponent<TextureComponent>();
+	m_pUIArcherCharacterObject->SetTexture(L"UI/Archer.dds", RESOURCE_TEXTURE2D, 3);
+	m_pUIArcherCharacterObject->SetPosition(XMFLOAT3(0.3, 0.2, 1.03));
+	m_pUIArcherCharacterObject->SetScale(0.08, 0.08, 1);
+	m_pUIArcherCharacterObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppUIObjects.emplace_back(m_pUIArcherCharacterObject);
+
+	m_pUITankerCharacterObject = new GameObject(UI_ENTITY);
+	m_pUITankerCharacterObject->InsertComponent<RenderComponent>();
+	m_pUITankerCharacterObject->InsertComponent<UIMeshComponent>();
+	m_pUITankerCharacterObject->InsertComponent<UiShaderComponent>();
+	m_pUITankerCharacterObject->InsertComponent<TextureComponent>();
+	m_pUITankerCharacterObject->SetTexture(L"UI/Tanker.dds", RESOURCE_TEXTURE2D, 3);
+	m_pUITankerCharacterObject->SetPosition(XMFLOAT3(-0.3, -0.2, 1.03));
+	m_pUITankerCharacterObject->SetScale(0.08, 0.08, 1);
+	m_pUITankerCharacterObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppUIObjects.emplace_back(m_pUITankerCharacterObject);
+
+	m_pUIPriestCharacterObject = new GameObject(UI_ENTITY);
+	m_pUIPriestCharacterObject->InsertComponent<RenderComponent>();
+	m_pUIPriestCharacterObject->InsertComponent<UIMeshComponent>();
+	m_pUIPriestCharacterObject->InsertComponent<UiShaderComponent>();
+	m_pUIPriestCharacterObject->InsertComponent<TextureComponent>();
+	m_pUIPriestCharacterObject->SetTexture(L"UI/Priest.dds", RESOURCE_TEXTURE2D, 3);
+	m_pUIPriestCharacterObject->SetPosition(XMFLOAT3(0.3, -0.2, 1.03));
+	m_pUIPriestCharacterObject->SetScale(0.08, 0.08, 1);
+	m_pUIPriestCharacterObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppUIObjects.emplace_back(m_pUIPriestCharacterObject);
+
+	//SECTION2 
+	m_pUIEnterRoomObject = new GameObject(UI_ENTITY);
+	m_pUIEnterRoomObject->InsertComponent<RenderComponent>();
+	m_pUIEnterRoomObject->InsertComponent<UIMeshComponent>();
+	m_pUIEnterRoomObject->InsertComponent<UiShaderComponent>();
+	m_pUIEnterRoomObject->InsertComponent<TextureComponent>();
+	m_pUIEnterRoomObject->SetTexture(L"UI/PlayerApply.dds", RESOURCE_TEXTURE2D, 3);
+	m_pUIEnterRoomObject->SetPosition(XMFLOAT3(0.15, -0.5, 1.03));
+	m_pUIEnterRoomObject->SetScale(0.05, 0.02, 1);
+	m_pUIEnterRoomObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppUIObjects.emplace_back(m_pUIEnterRoomObject);
 
 	m_pUIGameCreateObject = new GameObject(UI_ENTITY);
 	m_pUIGameCreateObject->InsertComponent<RenderComponent>();
@@ -325,13 +380,24 @@ void GameobjectManager::Build2DUI(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	m_pUIGameCreateObject->InsertComponent<UiShaderComponent>();
 	m_pUIGameCreateObject->InsertComponent<TextureComponent>();
 	m_pUIGameCreateObject->SetTexture(L"UI/CreateRoom.dds", RESOURCE_TEXTURE2D, 3);
-	m_pUIGameCreateObject->SetPosition(XMFLOAT3(0.5, 0.4, 1.01));
+	m_pUIGameCreateObject->SetPosition(XMFLOAT3(0.45, -0.5, 1.03));
 	m_pUIGameCreateObject->SetScale(0.05, 0.02, 1);
 	m_pUIGameCreateObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppUIObjects.emplace_back(m_pUIGameCreateObject);
-
-
 }
+
+enum UI
+{
+	UI_GAMESEARCHING,
+	UI_GAMEMATCHING,
+	UI_WARRIORCHARACTER,
+	UI_ARCHERCHARACTER,
+	UI_TANKERCHARACTER,
+	UI_PRIESTCHARACTER,
+	UI_ENTERROOM,
+	UI_CREATEROOM,
+};
+
 void GameobjectManager::PickObjectByRayIntersection(int xClient, int yClient)
 {
 
@@ -352,6 +418,7 @@ void GameobjectManager::PickObjectByRayIntersection(int xClient, int yClient)
 		nIntersected = m_ppUIObjects[j]->PickObjectByRayIntersection(xmf3PickPosition, xmf4x4View, &fHitDistance);
 		if ((nIntersected > 0) && (fHitDistance < fNearestHitDistance))
 		{
+			ProcessingUI(j);
 			fNearestHitDistance = fHitDistance;
 			m_pSelectedObject = m_ppUIObjects[j];
 			break;
@@ -359,6 +426,69 @@ void GameobjectManager::PickObjectByRayIntersection(int xClient, int yClient)
 	}
 
 }
+
+void GameobjectManager::ProcessingUI(int n)
+{
+	switch (n)
+	{
+	case UI::UI_GAMESEARCHING:
+	{
+#ifdef LOCAL_TASK 1
+		m_nSection = 1;
+#endif
+		cout << "request Room List" << endl;
+		g_NetworkHelper.SendRequestRoomList();
+		break;
+	}
+	case UI::UI_GAMEMATCHING:
+	{
+		cout << "StartMatching" << endl;
+		break;
+	}
+	case UI::UI_WARRIORCHARACTER:
+	{		
+		// 선택한 캐릭터 Warrior
+		cout << "Choose Warrior Character" << endl;
+		break;
+	}
+	case UI::UI_ARCHERCHARACTER:
+	{
+		// 선택한 캐릭터 Archer
+		cout << "Choose Archer Character" << endl;
+		break;
+	}
+	case UI::UI_TANKERCHARACTER:
+	{
+		// 선택한 캐릭터 tanker
+		cout << "Choose Tanker Character" << endl;
+		break;
+	}
+	case UI::UI_PRIESTCHARACTER:
+	{
+		// 선택한 캐릭터 priest
+		cout << "Choose Priest Character" << endl;
+		break;
+	}
+	case UI::UI_ENTERROOM:
+	{
+		// 방 입장 요청 Send
+		cout << "Request Entering The Room" << endl;
+		break;
+	}
+	case UI::UI_CREATEROOM:
+	{
+		cout << "Create Room" << endl;
+		uniform_int_distribution<int> uid(0, 1000);
+		random_device rd;
+		default_random_engine dre(rd());
+		g_NetworkHelper.SendCreateRoomPacket(ROLE::ARCHER, L"testRoomCreate" + to_wstring(uid(dre)));
+		break;
+	}
+	default:
+		break;
+	}
+}
+
 void GameobjectManager::AnimateObjects()
 {
 	m_pSkyboxObject->SetPosition(m_pCamera->GetPosition());
@@ -630,11 +760,6 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_cMouseInput |= 0x01;
 		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetLButtonClicked(true);
 		SomethingChanging = true;
-		if (m_bUIScene)
-		{
-			cout << "마우스 클릭 성공" << endl;
-			PickObjectByRayIntersection(LOWORD(lParam), HIWORD(lParam));
-		}
 		break;
 	}
 	case WM_LBUTTONUP:
@@ -669,6 +794,24 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 		g_NetworkHelper.SendMouseStatePacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_cMouseInput);
 #endif
 
+}
+
+void GameobjectManager::onProcessingMouseMessageUI(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
+{
+	switch (nMessageID)
+	{
+	case WM_LBUTTONDOWN:
+		break;
+	case WM_LBUTTONUP:
+		cout << "마우스 클릭 성공" << endl;
+		PickObjectByRayIntersection(LOWORD(lParam), HIWORD(lParam));
+		break;
+	case WM_RBUTTONDOWN:
+	case WM_RBUTTONUP:
+		break;
+	default:
+		break;
+	}
 }
 
 void GameobjectManager::SetPlayCharacter(Session* pSession) // 임시 함수

@@ -14,7 +14,7 @@ LobbyCScene::~LobbyCScene()
 
 bool LobbyCScene::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
-	m_pObjectManager->onProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
+	m_pObjectManager->onProcessingMouseMessageUI(hWnd, nMessageID, wParam, lParam);
 	return false;
 }
 

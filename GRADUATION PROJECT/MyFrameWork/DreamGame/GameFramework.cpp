@@ -617,16 +617,22 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 	{
 	case WM_LBUTTONDOWN:
 	case WM_RBUTTONDOWN:
+		if (m_bLobbyScene)
+		{
+			::SetCapture(hWnd);
+			::GetCursorPos(&m_ptOldCursorPos);
+		}
 		break;
 	case WM_LBUTTONUP:
 	case WM_RBUTTONUP:
 		::ReleaseCapture();
 		break;
 	case WM_MOUSEMOVE:
-		::SetCapture(hWnd);
-		::GetCursorPos(&m_ptOldCursorPos);
-		//::SetCapture(hWnd);
-		//::GetCursorPos(&m_ptOldCursorPos);
+		if (!m_bLobbyScene)
+		{
+			::SetCapture(hWnd);
+			::GetCursorPos(&m_ptOldCursorPos);
+		}
 		break;
 	default:
 		break;
@@ -652,7 +658,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		case VK_RETURN:
 			break;
 		case VK_F2:
-			//m_bLobbyScene= !m_bLobbyScene;
+			m_bLobbyScene = !m_bLobbyScene;
 			break;
 		case VK_F8:
 			break;
