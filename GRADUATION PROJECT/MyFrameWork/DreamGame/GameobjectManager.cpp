@@ -611,6 +611,36 @@ bool GameobjectManager::onProcessingKeyboardMessageUI(HWND hWnd, UINT nMessageID
 			g_NetworkHelper.SendRequestRoomList();
 			cout << "request Room List" << endl;
 		}
+		case 'r':
+		case 'R':
+		{
+			g_NetworkHelper.SendMatchRequestPacket(ROLE::RAND);
+		}
+		break;
+		case 'z':
+		case 'Z': // z´Â ¶ËÅÊÅ© Ã¢±ÙÀÌ ><
+		{
+			g_NetworkHelper.SendMatchRequestPacket(ROLE::TANKER);
+		}
+		break;
+		case 'x':
+		case 'X': // Àü»ç
+		{
+			g_NetworkHelper.SendMatchRequestPacket(ROLE::WARRIOR);
+		}
+		break;
+		case 'c':
+		case 'C': //ÇÁ¸®½ºÆ®
+		{
+			g_NetworkHelper.SendMatchRequestPacket(ROLE::PRIEST);
+		}
+		break;
+		case 'v':
+		case 'V': // ±Ã¼ö
+		{
+			g_NetworkHelper.SendMatchRequestPacket(ROLE::ARCHER);
+		}
+		break;
 		break;
 		default:
 			break;

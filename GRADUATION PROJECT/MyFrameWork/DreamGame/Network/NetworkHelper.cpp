@@ -174,3 +174,12 @@ void NetworkHelper::SendRequestRoomList()
 		g_RoomManager.m_lastUpdateTime = chrono::high_resolution_clock::now();
 	}
 }
+
+void NetworkHelper::SendMatchRequestPacket(ROLE r)
+{
+	CLIENT_PACKET::MatchPacket sendPacket;
+	sendPacket.size = sizeof(CLIENT_PACKET::MatchPacket);
+	sendPacket.type = CLIENT_PACKET::MATCH;
+	sendPacket.Role = (char)r;
+	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
+}

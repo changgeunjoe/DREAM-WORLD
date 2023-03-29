@@ -16,6 +16,7 @@ Logic::Logic()
 {
 	m_isRunningThread = true;
 	m_PlayerMoveThread = std::thread{ [this]() {AutoMoveServer(); } };
+	m_MatchingThread = std::thread{ [this]() {MatchMaking(); } };
 	m_roomManager = new RoomManager();
 }
 
@@ -24,6 +25,8 @@ Logic::~Logic()
 	m_isRunningThread = false;
 	if (m_PlayerMoveThread.joinable())
 		m_PlayerMoveThread.join();
+	if (m_MatchingThread.joinable())
+		m_MatchingThread.join();
 	delete m_roomManager;
 }
 
@@ -159,7 +162,7 @@ void Logic::ProcessPacket(int userId, char* p)
 		auto now = std::chrono::system_clock::now();
 		auto in_time_t = std::chrono::system_clock::to_time_t(now);
 		roomId.append(std::to_string(std::localtime(&in_time_t)->tm_year % 100));
-		roomId.append(std::to_string(std::localtime(&in_time_t)->tm_mon + 1) );
+		roomId.append(std::to_string(std::localtime(&in_time_t)->tm_mon + 1));
 		roomId.append(std::to_string(std::localtime(&in_time_t)->tm_mday));
 		roomId.append(std::to_string(std::localtime(&in_time_t)->tm_hour));
 		roomId.append(std::to_string(std::localtime(&in_time_t)->tm_min));
@@ -190,7 +193,7 @@ void Logic::ProcessPacket(int userId, char* p)
 		if (recruitRoom.size() == 0) {
 			SERVER_PACKET::NotifyPacket sendPacket;
 			sendPacket.size = 2;
-			sendPacket.type = SERVER_PACKET::REQUEST_ROOM_LIST_NONE; 
+			sendPacket.type = SERVER_PACKET::REQUEST_ROOM_LIST_NONE;
 			pSessionObj->Send(p);
 			return;
 		}
@@ -364,19 +367,34 @@ void Logic::AutoMoveServer()//2500Έν?
 
 void Logic::MatchMaking()
 {
-	std::vector<ROLE> restRole;
-	for (int i = 0; i < 4; i++) {
-		if (!(m_MatchRole & (char)pow(2, i))) {
-			restRole.push_back((ROLE)pow(2, i));
+	while (true) {
+		std::vector<ROLE> restRole;
+		for (int i = 0; i < 4; i++) {
+			if (!(m_MatchRole & (char)pow(2, i))) {
+				restRole.push_back((ROLE)pow(2, i));
+			}
 		}
-	}
-	if (restRole.size() == 0) {
-		// All Role exist
-		//Matching
-	}
-	if (restRole.size() < randPlayerIdQueue.unsafe_size()) {
-		//matching
-		//Rand
+
+		if (restRole.size() == 0) {
+			//randPlayerIdQueue.unsafe_begin();
+			// All Role exist
+			//Matching
+			if (randPlayerIdQueue.unsafe_size() >= 4) {
+				for (int i = 0; i < 4; i++) {
+					int randUserId = -1;
+					if (randPlayerIdQueue.try_pop(randUserId)) {
+						//pop success
+					}
+					else {
+						//error
+					}
+				}
+			}
+		}
+		if (restRole.size() < randPlayerIdQueue.unsafe_size()) {
+			//matching
+			//Rand
+		}
 	}
 }
 

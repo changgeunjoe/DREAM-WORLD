@@ -13,6 +13,7 @@ namespace CLIENT_PACKET {
 	constexpr unsigned char PLAYER_APPLY_ROOM = 9; // 规 脚没
 	constexpr unsigned char CANCEL_APPLY_ROOM = 10; // 脚没 秒家
 	constexpr unsigned char MOUSE_INPUT = 11;
+	constexpr unsigned char MATCH_REQUEST = 12;
 
 
 	struct MovePacket

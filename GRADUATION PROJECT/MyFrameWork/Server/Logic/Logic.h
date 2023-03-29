@@ -12,6 +12,7 @@ public:
 private:
 	volatile bool m_isRunningThread = false;
 	std::thread m_PlayerMoveThread;
+	std::thread m_MatchingThread;
 	RoomManager* m_roomManager = nullptr;
 private:
 	Concurrency::concurrent_queue<int> warriorPlayerIdQueue;

@@ -37,6 +37,7 @@ public:
 	void SendMouseStatePacket(unsigned char MouseClicked);
 	void SendCreateRoomPacket(ROLE r, wstring roomName);
 	void SendRequestRoomList();
+	void SendMatchRequestPacket(ROLE r);
 private:
 	void ConstructPacket(int ioByte);
 private:
