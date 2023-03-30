@@ -45,8 +45,8 @@ void MaterialComponent::SetTexture(TextureComponent* pTexture, UINT nTexture)
 	if (m_ppTextures[nTexture]) m_ppTextures[nTexture]->AddRef();
 }
 ShaderComponent* MaterialComponent::m_pBoundingBoxShader = NULL;
-ShaderComponent* MaterialComponent::m_pSkinnedAnimationShader = NULL;
-ShaderComponent* MaterialComponent::m_pStandardShader = NULL;
+vector<ShaderComponent*> MaterialComponent::m_pSkinnedAnimationShader{};
+vector<ShaderComponent*> MaterialComponent::m_pStandardShader{};
 
 void MaterialComponent::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList)
 {
@@ -118,24 +118,37 @@ void MaterialComponent::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12Grap
 	}
 }
 
+void MaterialComponent::PrepareSkinnedShaders(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, ID3D12Resource* m_pd3dcbGameObjects)
+{
+	int nObjects = 0;
+	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);// 삭제 예정(변경)
+	SkinnedShaderComponent* pSkinnedShader = new SkinnedShaderComponent();
+	pSkinnedShader->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
+	pSkinnedShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 10, 20);
+	pSkinnedShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	pSkinnedShader->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObjects, ncbElementBytes);
+	pSkinnedShader->SetCbvGPUDescriptorHandlePtr(pSkinnedShader->GetGPUCbvDescriptorStartHandle().ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));
+	m_pSkinnedAnimationShader.emplace_back(pSkinnedShader);
+}
+
+void MaterialComponent::PrepareStandardShaders(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, ID3D12Resource* m_pd3dcbGameObjects)
+{
+	int nObjects = 0;
+	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);// 삭제 예정(변경)
+	StandardShaderComponent* pStandardShader= new  StandardShaderComponent();
+	pStandardShader = new  StandardShaderComponent();
+	pStandardShader->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
+	pStandardShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 10, 40);
+	pStandardShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	pStandardShader->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObjects, ncbElementBytes);
+	pStandardShader->SetCbvGPUDescriptorHandlePtr(pStandardShader->GetGPUCbvDescriptorStartHandle().ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));
+	m_pStandardShader.emplace_back(pStandardShader);
+}
+
 void MaterialComponent::PrepareShaders(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, ID3D12Resource* m_pd3dcbGameObjects)
 {
 	int nObjects = 0;
 	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);// 삭제 예정(변경)
-	m_pStandardShader = new  StandardShaderComponent();
-	m_pStandardShader->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
-	m_pStandardShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 10, 20);
-	m_pStandardShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	m_pStandardShader->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObjects, ncbElementBytes);
-	m_pStandardShader->SetCbvGPUDescriptorHandlePtr(m_pStandardShader->GetGPUCbvDescriptorStartHandle().ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));
-	//m_pStandardShader->SetName("Standard");
-	m_pSkinnedAnimationShader = new SkinnedShaderComponent();
-	m_pSkinnedAnimationShader->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
-	m_pSkinnedAnimationShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 10, 20);
-	m_pSkinnedAnimationShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	m_pSkinnedAnimationShader->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObjects, ncbElementBytes);
-	m_pSkinnedAnimationShader->SetCbvGPUDescriptorHandlePtr(m_pSkinnedAnimationShader->GetGPUCbvDescriptorStartHandle().ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));
-
 	m_pBoundingBoxShader = new BoundingBoxShaderComponent();
 	m_pBoundingBoxShader->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
 	m_pBoundingBoxShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 10, 10);

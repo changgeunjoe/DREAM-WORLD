@@ -135,7 +135,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPlaneObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pPlaneObject->SetModel("Model/Floor.bin");
 	m_pPlaneObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pPlaneObject->SetScale(30.0f, 1.0f, 30.0f);
+	m_pPlaneObject->SetScale(30.0f, 30.0f, 30.0f);
 	m_ppGameObjects.emplace_back(m_pPlaneObject);
 
 	m_pWarriorObject = new Warrior();//사각형 오브젝트를 만들겠다

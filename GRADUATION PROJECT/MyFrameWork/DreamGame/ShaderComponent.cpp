@@ -297,6 +297,8 @@ void ShaderComponent::Render(ID3D12GraphicsCommandList* pd3dCommandList, int nPi
 {
 	if (pd3dGraphicsRootSignature) pd3dCommandList->SetGraphicsRootSignature(pd3dGraphicsRootSignature);
 	if (m_ppd3dPipelineStates && !bPrerender) pd3dCommandList->SetPipelineState(m_ppd3dPipelineStates[nPipelineState]);
+
+
 	if (m_pd3dCbvSrvDescriptorHeap) pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 
 	//UpdateShaderVariables(pd3dCommandList); //삭제예정
