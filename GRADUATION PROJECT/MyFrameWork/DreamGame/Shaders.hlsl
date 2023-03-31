@@ -471,6 +471,19 @@ float4 PSShadowMapShadow(VS_SHADOW_MAP_OUTPUT input) : SV_TARGET
 
     float cThreshold = 0.5f; // 등급을 결정하는 임계값입니다. 값이 작을수록 등급이 높아집니다.
 
+     
+    float3 viewDir = normalize(gvCameraPosition - input.positionW);
+    
+    float3 RimColor = float3(-2.f, -2.f, -2.f);
+    float rimPower = 7.0; // 
+    float3 normal = normalize(input.normalW); // 
+    
+    float rim = saturate(dot(normal, viewDir));
+    
+    //rim *= saturate((rimWidth - distance) / rimWidth);
+    float4 Rimline = float4(pow(1 - rim, rimPower) * RimColor, 0.f);
+    cColor = cColor + Rimline;     
+    
     if (cColor.w < 0.1f)
         return cColor;
     //else if (dot(normalize(cIllumination), normalize(gLightDir.xyz)) > cThreshold) // 빛의 방향과 색상 값으로 경계면을 계산합니다.
