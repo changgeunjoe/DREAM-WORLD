@@ -46,6 +46,7 @@ private: //active object
 	GameObject* m_pTankerObject{ NULL }; // ∂À≈ ≈© √¢±Ÿ¿Ã
 	GameObject* m_pPriestObject{ NULL };
 	GameObject* m_pPlaneObject{ NULL };
+	GameObject* m_pRockObject{ NULL };
 	GameObject* m_pSkyboxObject{ NULL };
 	GameObject* m_pAnimationObject{ NULL };
 	GameObject* m_pMonsterObject{ NULL };

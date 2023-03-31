@@ -138,6 +138,15 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPlaneObject->SetScale(30.0f, 30.0f, 30.0f);
 	m_ppGameObjects.emplace_back(m_pPlaneObject);
 
+	m_pRockObject = new GameObject(UNDEF_ENTITY);
+	m_pRockObject->InsertComponent<RenderComponent>();
+	m_pRockObject->InsertComponent<CLoadedModelInfoCompnent>();
+	m_pRockObject->SetPosition(XMFLOAT3(0, 0, 0));
+	m_pRockObject->SetModel("Model/OutLineRock.bin");
+	m_pRockObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pRockObject->SetScale(30.0f, 30.0f, 30.0f);
+	m_ppGameObjects.emplace_back(m_pRockObject);
+
 	m_pWarriorObject = new Warrior();//사각형 오브젝트를 만들겠다
 	m_pWarriorObject->InsertComponent<RenderComponent>();
 	m_pWarriorObject->InsertComponent<CLoadedModelInfoCompnent>();

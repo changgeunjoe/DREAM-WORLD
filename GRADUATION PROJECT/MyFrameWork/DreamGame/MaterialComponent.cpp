@@ -79,7 +79,7 @@ void MaterialComponent::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12Grap
 		strcpy_s(pstrFilePath, 64, "Model/Textures/");
 
 		bDuplicated = (pstrTextureName[0] == '@');
-		strcpy_s(pstrFilePath + 15, 64 - 15, (bDuplicated) ? (pstrTextureName + 1) : pstrTextureName);
+		strcpy_s(pstrFilePath + 15, 64 - 15, pstrTextureName); // (bDuplicated) ? (pstrTextureName + 1) :
 		strcpy_s(pstrFilePath + 15 + ((bDuplicated) ? (nStrLength - 1) : nStrLength), 64 - 15 - ((bDuplicated) ? (nStrLength - 1) : nStrLength), ".dds");
 
 		size_t nConverted = 0;
@@ -90,7 +90,7 @@ void MaterialComponent::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12Grap
 #ifdef _WITH_DISPLAY_TEXTURE_NAME
 		static int nTextures = 0, nRepeatedTextures = 0;
 		TCHAR pstrDebug[256] = { 0 };
-		_stprintf_s(pstrDebug, 256, _T("Texture Name: %d %c %s\n"), (pstrTextureName[0] == '@') ? nRepeatedTextures++ : nTextures++, (pstrTextureName[0] == '@') ? '@' : ' ', pwstrTextureName);
+		_stprintf_s(pstrDebug, 256, _T("Texture Name: %d %c %s\n"), nTextures++, ' ', pwstrTextureName);
 		OutputDebugString(pstrDebug);
 #endif
 		if (!bDuplicated)
