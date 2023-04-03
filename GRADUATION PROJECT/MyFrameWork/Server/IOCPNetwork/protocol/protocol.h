@@ -14,6 +14,7 @@ namespace CLIENT_PACKET {
 	constexpr unsigned char CANCEL_APPLY_ROOM = 10; // 신청 취소
 	constexpr unsigned char MOUSE_INPUT = 11;
 	constexpr unsigned char MATCH_REQUEST = 12;
+	constexpr unsigned char MATCH_REQUEST1 = 13;
 
 
 	struct MovePacket
@@ -101,6 +102,7 @@ namespace SERVER_PACKET {
 	constexpr unsigned char PLAYER_APPLY_ROOM = 79; // 신청자 정보 방장(방)한테 전송
 	constexpr unsigned char PLAYER_CANCEL_ROOM = 80; // 신청 취소 정보 방장(방)한테 전송
 	constexpr unsigned char MOUSE_INPUT = 81;
+	constexpr unsigned char INTO_GAME = 82;
 	
 
 	struct MovePacket
@@ -133,7 +135,7 @@ namespace SERVER_PACKET {
 		wchar_t name[NAME_SIZE];
 	};
 
-	struct AddPlayerPacket {
+	struct AddPlayerPacket { // ROLE 도 필요하다고 생각함 - 추가하는게 날듯?
 		short size;
 		char type;
 		int userId;

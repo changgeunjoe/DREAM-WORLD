@@ -46,15 +46,16 @@ void DBObject::RunDBThread()
 					myInfoPacket.size = sizeof(SERVER_PACKET::AddPlayerPacket);
 					g_logic.MultiCastOtherPlayer(myInfoPacket.userId, &myInfoPacket);
 
-					for (auto& session : g_iocpNetwork.m_session) {
-						if (currentEvent.userId == session.GetId() || session.GetId() == -1)
-							continue;
-						PlayerSessionObject* otherSession = dynamic_cast<PlayerSessionObject*>(session.m_sessionObject);
-						SERVER_PACKET::AddPlayerPacket* otherPlayerDataPacket = reinterpret_cast<SERVER_PACKET::AddPlayerPacket*>(otherSession->GetPlayerInfo());
-						//char* otherPlayerDataPacket = otherSession->GetPlayerInfo();
-						pSession->Send(otherPlayerDataPacket);
-						delete otherPlayerDataPacket;
-					}
+					//for (auto& session : g_iocpNetwork.m_session) {
+					//	if (currentEvent.userId == session.GetId() || session.GetId() == -1)
+					//		continue;
+					//	PlayerSessionObject* otherSession = dynamic_cast<PlayerSessionObject*>(session.m_sessionObject);
+					//	char* otherPlayerDataPacket = otherSession->GetPlayerInfo();
+					//	//SERVER_PACKET::AddPlayerPacket* otherPlayerDataPacket = reinterpret_cast<SERVER_PACKET::AddPlayerPacket*>(otherSession->GetPlayerInfo());
+					//	//char* otherPlayerDataPacket = otherSession->GetPlayerInfo();
+					//	pSession->Send(otherPlayerDataPacket);
+					//	delete otherPlayerDataPacket;
+					//}
 				}
 				else {
 					//login failed

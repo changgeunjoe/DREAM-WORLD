@@ -6,6 +6,7 @@
 #include "../DB/DBObject.h"
 #include "../Room/RoomManager.h"
 #include "../IOCPNetwork/protocol/protocol.h"
+#include <random>
 
 
 #pragma warning(disable : 4996)
@@ -368,30 +369,96 @@ void Logic::AutoMoveServer()//2500명?
 void Logic::MatchMaking()
 {
 	while (true) {
+		std::map<ROLE, int> matchPlayer;
 		std::vector<ROLE> restRole;
-		for (int i = 0; i < 4; i++) {
-			if (!(m_MatchRole & (char)pow(2, i))) {
+		char sumRole = 0;
+		{
+			//match Player Lock Guard
+			std::lock_guard<std::mutex> lg{ m_matchPlayerLock };
+			matchPlayer = m_matchPlayer;
+		}
+		int i = 0;
+		for (const auto& a : matchPlayer) {
+			if (!(a.first & (char)pow(2, i))) {
+				sumRole |= (char)pow(2, i);
 				restRole.push_back((ROLE)pow(2, i));
+			}
+			i++;
+		}
+
+		if (restRole.size() == 4) {
+			for (const auto& p : matchPlayer) {
+				//send match Success Packet
+			}
+			//초기화해주기
+			{
+				std::lock_guard<std::mutex> lg{ m_matchPlayerLock };
+				m_matchPlayer.clear();
 			}
 		}
 
-		if (restRole.size() == 0) {
-			//randPlayerIdQueue.unsafe_begin();
-			// All Role exist
-			//Matching
+		else if (restRole.size() == 0) {
 			if (randPlayerIdQueue.unsafe_size() >= 4) {
+				std::map<ROLE, int> randMatchPlayer;
 				for (int i = 0; i < 4; i++) {
 					int randUserId = -1;
 					if (randPlayerIdQueue.try_pop(randUserId)) {
-						//pop success
+						ROLE r = (ROLE)pow(2, i);
+						randMatchPlayer.emplace(r, randUserId); // 어쨌든 랜덤처럼 보이지 않을까 싶음
 					}
-					else {
-						//error
+				}
+				SERVER_PACKET::NotifyPacket sendPacket;
+				sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
+				sendPacket.type = SERVER_PACKET::INTO_GAME;
+				for (const auto& p : randMatchPlayer) {
+					//send match Success Packet
+					PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[p.second].m_sessionObject);
+					pSessionObj->Send(&sendPacket);
+					for (const auto& addP : matchPlayer) {
+						if (p == addP)continue;
+						char* sendAddPlayerPacket = pSessionObj->GetPlayerInfo();
+						PlayerSessionObject* sendSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[addP.second].m_sessionObject);
+						sendSessionObj->Send(sendAddPlayerPacket);
+						delete sendAddPlayerPacket;
 					}
 				}
 			}
 		}
-		if (restRole.size() < randPlayerIdQueue.unsafe_size()) {
+
+		else if (4 - restRole.size() < randPlayerIdQueue.unsafe_size()) {
+			//없는 역할 넣어주기 추가하자
+			for (int i = 0; i < 4 - restRole.size(); i++) {
+				int randUserId = -1;
+				if (randPlayerIdQueue.try_pop(randUserId)) {
+					ROLE r = ROLE::WARRIOR;
+					char ableRole = 1;
+					char resultRole = 0;
+					while (true) {
+						resultRole = sumRole & ableRole;
+						if (resultRole == 0) break;
+					}
+					matchPlayer.emplace((ROLE)ableRole, randUserId);
+					ableRole = ableRole << 1;
+					//pop success
+				}
+				else {
+					//error
+				}
+			}
+			SERVER_PACKET::NotifyPacket sendPacket;
+			sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
+			sendPacket.type = SERVER_PACKET::INTO_GAME;
+			for (const auto& p : matchPlayer) {
+				PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[p.second].m_sessionObject);
+				pSessionObj->Send(&sendPacket);
+				for (const auto& addP : matchPlayer) {
+					if (p == addP)continue;
+					char* sendAddPlayerPacket = pSessionObj->GetPlayerInfo();
+					PlayerSessionObject* sendSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[addP.second].m_sessionObject);
+					sendSessionObj->Send(sendAddPlayerPacket);
+					delete sendAddPlayerPacket;
+				}
+			}
 			//matching
 			//Rand
 		}
@@ -402,8 +469,10 @@ void Logic::InsertMatchQueue(ROLE r, int userId)
 {
 	if (r != ROLE::RAND && (m_MatchRole.load() ^ r) && !(m_MatchRole.load() & r)) { // &연산시 0이 나와야 현재 비어있는 칸에 넣을 수 있고, ^때 1이 나오면 됨
 		m_MatchRole |= r;
-		m_matchPlayerSet.insert(userId);
-		MatchMaking();
+		{
+			std::lock_guard<std::mutex> lg{ m_matchPlayerLock };
+			m_matchPlayer.emplace(r, userId);
+		}
 		return;
 	}
 	switch (r)
@@ -424,7 +493,6 @@ void Logic::InsertMatchQueue(ROLE r, int userId)
 		break;
 	case RAND:
 		randPlayerIdQueue.push(userId);
-		MatchMaking();
 		break;
 	default:
 		break;

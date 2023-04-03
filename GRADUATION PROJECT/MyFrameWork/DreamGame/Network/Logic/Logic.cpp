@@ -300,6 +300,12 @@ void Logic::ProcessPacket(char* p)
 		recvPacket->role;
 	}
 	break;
+	case SERVER_PACKET::INTO_GAME:
+	{
+		//로딩창이면 좋을듯?
+		gGameFramework.m_bLobbyScene = false;
+	}
+	break;
 	default:
 		break;
 	}
