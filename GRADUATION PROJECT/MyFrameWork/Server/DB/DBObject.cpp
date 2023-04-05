@@ -36,15 +36,15 @@ void DBObject::RunDBThread()
 					sendPacket.name[wst_nickName.size()] = 0;
 					pSession->Send(&sendPacket);
 
-					SERVER_PACKET::AddPlayerPacket myInfoPacket;
-					memcpy(myInfoPacket.name, wst_nickName.c_str(), wst_nickName.size() * 2);
-					myInfoPacket.name[wst_nickName.size()] = 0;
-					myInfoPacket.userId = currentEvent.userId;
-					myInfoPacket.position = pSession->GetPosition();
-					myInfoPacket.rotate = pSession->GetRotation();
-					myInfoPacket.type = SERVER_PACKET::ADD_PLAYER;
-					myInfoPacket.size = sizeof(SERVER_PACKET::AddPlayerPacket);
-					g_logic.MultiCastOtherPlayer(myInfoPacket.userId, &myInfoPacket);
+					//SERVER_PACKET::AddPlayerPacket myInfoPacket;
+					//memcpy(myInfoPacket.name, wst_nickName.c_str(), wst_nickName.size() * 2);
+					//myInfoPacket.name[wst_nickName.size()] = 0;
+					//myInfoPacket.userId = currentEvent.userId;
+					//myInfoPacket.position = pSession->GetPosition();
+					//myInfoPacket.rotate = pSession->GetRotation();
+					//myInfoPacket.type = SERVER_PACKET::ADD_PLAYER;
+					//myInfoPacket.size = sizeof(SERVER_PACKET::AddPlayerPacket);
+					//g_logic.MultiCastOtherPlayer(myInfoPacket.userId, &myInfoPacket);
 
 					//for (auto& session : g_iocpNetwork.m_session) {
 					//	if (currentEvent.userId == session.GetId() || session.GetId() == -1)

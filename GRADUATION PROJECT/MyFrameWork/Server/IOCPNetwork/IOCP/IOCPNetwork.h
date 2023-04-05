@@ -2,7 +2,7 @@
 #include "../../Session/Session.h"
 
 #define PORT 9000
-#define MAX_USER 4
+#define MAX_USER 10
 
 class ExpOver;
 class IOCPNetwork

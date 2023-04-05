@@ -141,7 +141,7 @@ void Logic::ProcessPacket(char* p)
 		wstring wst_name = recvPacket->name;
 		m_inGamePlayerSession[0].m_id = myId = recvPacket->userID;
 		m_inGamePlayerSession[0].SetName(wst_name);
-		gGameFramework.m_pScene->m_pObjectManager->SetPlayCharacter(&m_inGamePlayerSession[0]);
+		//gGameFramework.m_pScene->m_pObjectManager->SetPlayCharacter(&m_inGamePlayerSession[0]);
 #ifdef _DEBUG
 		PrintCurrentTime();
 		std::wcout << "Logic::ProcessPacket() - SERVER_PACKET::LOGIN_OK - " << "user Name: " << wst_name << std::endl;
@@ -159,6 +159,7 @@ void Logic::ProcessPacket(char* p)
 			if (-1 == pSession.m_id) {
 				pSession.m_id = recvPacket->userId;
 				pSession.SetName(recvPacket->name);
+				pSession.SetRole((ROLE)recvPacket->role);
 				gGameFramework.m_pScene->m_pObjectManager->SetPlayCharacter(&pSession);
 				pSession.m_currentPlayGameObject->SetPosition(recvPacket->position);
 				pSession.m_currentPlayGameObject->Rotate(&upVec, recvPacket->rotate.y);
@@ -304,6 +305,7 @@ void Logic::ProcessPacket(char* p)
 	{
 		//로딩창이면 좋을듯?
 		gGameFramework.m_bLobbyScene = false;
+
 	}
 	break;
 	default:

@@ -611,6 +611,7 @@ bool GameobjectManager::onProcessingKeyboardMessageUI(HWND hWnd, UINT nMessageID
 			g_NetworkHelper.SendRequestRoomList();
 			cout << "request Room List" << endl;
 		}
+		break;
 		case 'r':
 		case 'R':
 		{
@@ -653,41 +654,49 @@ bool GameobjectManager::onProcessingKeyboardMessageUI(HWND hWnd, UINT nMessageID
 void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
 	bool SomethingChanging = false;
+
 	switch (nMessageID)
 	{
 	case WM_LBUTTONDOWN:
 	{
-		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_cMouseInput |= 0x01;
-		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetLButtonClicked(true);
-		SomethingChanging = true;
 		if (m_bUIScene)
 		{
 			cout << "마우스 클릭 성공" << endl;
 			PickObjectByRayIntersection(LOWORD(lParam), HIWORD(lParam));
 		}
+		else {
+			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_cMouseInput |= 0x01;
+			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetLButtonClicked(true);
+			SomethingChanging = true;
+		}
 		break;
 	}
 	case WM_LBUTTONUP:
 	{
-		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_cMouseInput ^= 0x01;
-		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetLButtonClicked(false);
-		SomethingChanging = true;
+		if (!m_bUIScene) {
+			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_cMouseInput ^= 0x01;
+			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetLButtonClicked(false);
+			SomethingChanging = true;
+		}
 		break;
 	}
 	case WM_RBUTTONDOWN:
 	{
-		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_cMouseInput |= 0x10;
-		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetRButtonClicked(true);
-		SomethingChanging = true;
+		if (!m_bUIScene) {
+			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_cMouseInput |= 0x10;
+			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetRButtonClicked(true);
+			SomethingChanging = true;
+		}
 		break;
 	}
 	case WM_RBUTTONUP:
 	{
-
-		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_cMouseInput ^= 0x10;
-		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetRButtonClicked(false);
-		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->RbuttonUp(g_Logic.m_inGamePlayerSession[0].m_ownerRotateAngle);
-		SomethingChanging = true;
+		if (!m_bUIScene) {
+			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_cMouseInput ^= 0x10;
+			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetRButtonClicked(false);
+			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->RbuttonUp(g_Logic.m_inGamePlayerSession[0].m_ownerRotateAngle);
+			SomethingChanging = true;
+		}
 		break;
 	}
 	default:
@@ -705,17 +714,28 @@ void GameobjectManager::SetPlayCharacter(Session* pSession) // 임시 함수
 {
 	//4명
 	Session* cliSession = reinterpret_cast<Session*>(pSession);
-	if (0 == cliSession->m_id) {
-		cliSession->SetGameObject(m_pTankerObject);
-	}
-	else if (1 == cliSession->m_id) {
-		cliSession->SetGameObject(m_pWarriorObject);
-	}
-	else if (2 == cliSession->m_id) {
+	switch (cliSession->GetRole())
+	{
+	case ROLE::ARCHER:
+	{
 		cliSession->SetGameObject(m_pArcherObject);
 	}
-	else {
+	case ROLE::PRIEST:
+	{
 		cliSession->SetGameObject(m_pPriestObject);
+	}
+	case ROLE::TANKER:
+	{
+		cliSession->SetGameObject(m_pTankerObject);
+	}
+	case ROLE::WARRIOR:
+	{
+		cliSession->SetGameObject(m_pWarriorObject);
+	}
+
+	break;
+	default:
+		break;
 	}
 	if (g_Logic.myId == cliSession->m_id)
 		cliSession->m_currentPlayGameObject->SetCamera(m_pCamera);

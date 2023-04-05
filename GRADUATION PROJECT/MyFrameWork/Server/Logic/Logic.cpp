@@ -438,6 +438,8 @@ void Logic::MatchMaking()
 						if (resultRole == 0) break;
 					}
 					matchPlayer.emplace((ROLE)ableRole, randUserId);
+					PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[randUserId].m_sessionObject);
+					pSessionObj->SetRole((ROLE)ableRole);
 					ableRole = ableRole << 1;
 					//pop success
 				}
@@ -450,14 +452,15 @@ void Logic::MatchMaking()
 			sendPacket.type = SERVER_PACKET::INTO_GAME;
 			for (const auto& p : matchPlayer) {
 				PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[p.second].m_sessionObject);
-				pSessionObj->Send(&sendPacket);
 				for (const auto& addP : matchPlayer) {
 					if (p == addP)continue;
 					char* sendAddPlayerPacket = pSessionObj->GetPlayerInfo();
+					pSessionObj->GetRole();
 					PlayerSessionObject* sendSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[addP.second].m_sessionObject);
 					sendSessionObj->Send(sendAddPlayerPacket);
 					delete sendAddPlayerPacket;
 				}
+				pSessionObj->Send(&sendPacket);//지금은 로딩창이 없으니까 바로 인게임 들어가라는 패킷 전송
 			}
 			//matching
 			//Rand

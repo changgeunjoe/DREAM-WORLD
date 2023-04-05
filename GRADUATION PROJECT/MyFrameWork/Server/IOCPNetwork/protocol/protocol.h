@@ -139,6 +139,7 @@ namespace SERVER_PACKET {
 		short size;
 		char type;
 		int userId;
+		char role;
 		DirectX::XMFLOAT3 position;
 		DirectX::XMFLOAT3 rotate;
 		wchar_t name[NAME_SIZE];

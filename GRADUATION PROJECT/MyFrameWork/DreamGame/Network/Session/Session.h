@@ -13,11 +13,12 @@ public:
 	bool m_isVisible = false;
 	DIRECTION m_currentDirection = DIRECTION::IDLE;
 	DIRECTION m_prevDirection = DIRECTION::IDLE;
-public:
+public: 
 	XMFLOAT3 m_rotateAngle = XMFLOAT3(0, 0, 0);
 	XMFLOAT3 m_ownerRotateAngle = XMFLOAT3(0, 0, 0); // 마우스 회전을 위한 객체
 private:
 	std::wstring name;
+	ROLE m_role = ROLE::NONE_SELECT;
 public:
 	GameObject* m_currentPlayGameObject = nullptr;
 public:
@@ -28,5 +29,7 @@ public:
 	}
 	void SetName(wstring& n) { name = n; }
 	void SetName(wchar_t* n) { name = n; }
+	void SetRole(ROLE r) { m_role = r; }
+	ROLE GetRole() { return m_role; }
 	const wstring getName() { return name; }
 };

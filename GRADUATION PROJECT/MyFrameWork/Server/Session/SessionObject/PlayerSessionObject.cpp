@@ -35,7 +35,7 @@ void PlayerSessionObject::Send(void* p)
 	DWORD sendByte = 0;
 	ExpOver* sendOverlap = new ExpOver(reinterpret_cast<char*>(p));
 	WSASend(m_socket, &sendOverlap->m_wsaBuf, 1, &sendByte, 0, &sendOverlap->m_overlap, 0);
-	std::cout << "sendByte: " << sendByte << std::endl;
+	//std::cout << "sendByte: " << sendByte << std::endl;
 }
 
 void PlayerSessionObject::ConstructPacket(int ioByte)
@@ -549,6 +549,7 @@ char* PlayerSessionObject::GetPlayerInfo()
 	playerInfo->rotate = m_rotateAngle;
 	playerInfo->name[m_playerName.size()] = 0;
 	playerInfo->type = SERVER_PACKET::ADD_PLAYER;
+	playerInfo->role = m_InGameRole;
 	playerInfo->size = sizeof(SERVER_PACKET::AddPlayerPacket);
 	return reinterpret_cast<char*>(playerInfo);
 }
