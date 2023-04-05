@@ -144,17 +144,31 @@ Archer::Archer() : Character()
 	m_fHp = 150.0f;
 	m_fSpeed = 150.0f;
 	m_fDamage = 80.0f;
+	m_pArrow.reserve(10);
 }
 
 Archer::~Archer()
 {
+	for (auto& i : m_pArrow)
+	{
+		delete i;
+	}
 }
 
 void Archer::Attack(GameObject* pGameObject)
 {
-	m_pArrow = static_cast<Arrow*>(pGameObject);
-	m_pArrow->SetPosition(Vector3::Add(GetPosition(), XMFLOAT3(5.0f, 7.5f, 0.0f)));
-	m_pArrow->SetLook(GetObjectLook());
+	static int nArrow = 0;
+	nArrow = (nArrow > 5) ? nArrow : nArrow % 5;
+	if (nArrow < 5)
+	{
+		Arrow* tempArrow = new Arrow();
+		memcpy(tempArrow, static_cast<Arrow*>(pGameObject), sizeof(Arrow));
+		tempArrow->SetPosition(Vector3::Add(GetPosition(), XMFLOAT3(5.0f, 7.5f, 0.0f)));
+		tempArrow->SetLook(GetObjectLook());
+		m_pArrow.emplace_back(tempArrow);
+		nArrow++;
+	}
+
 }
 
 void Archer::RbuttonClicked(float fTimeElapsed)
@@ -303,13 +317,25 @@ void Archer::Animate(float fTimeElapsed)
 
 	}
 
-	if (m_pArrow) m_pArrow->Animate(fTimeElapsed);
+	if (m_pArrow.size() > 0)
+	{
+		for (int i = 0; i < m_pArrow.size(); ++i)
+		{
+			m_pArrow[i]->Animate(fTimeElapsed);
+		}
+	}
 	GameObject::Animate(fTimeElapsed);
 }
 
 void Archer::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender)
 {
-	if (m_pArrow) m_pArrow->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
+	if (m_pArrow.size() > 0)
+	{
+		for (int i = 0; i < m_pArrow.size(); ++i)
+		{
+			m_pArrow[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
+		}
+	}
 	GameObject::Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
 }
 

@@ -214,6 +214,14 @@ enum component_id
 	UISHADER_COMPONENT
 };
 //mean about component_id;
+enum CharacterType
+{
+	CT_NONE = 0,
+	CT_WARRIOR,
+	CT_ARCHER,
+	CT_TANKER,
+	CT_PRIEST,
+};
 
 enum CharacterAnimation
 {

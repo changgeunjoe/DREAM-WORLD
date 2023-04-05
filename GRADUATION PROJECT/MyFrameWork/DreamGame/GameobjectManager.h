@@ -34,6 +34,8 @@ public:
 
 private: //active object 
 	vector<GameObject*> m_ppGameObjects;
+	vector<Arrow*> m_pArrowObjects;
+
 	int				m_nObjects{};
 	GameObject* m_pGameObject{ NULL };
 
@@ -48,7 +50,6 @@ private: //active object
 	GameObject* m_pSkyboxObject{ NULL };
 	GameObject* m_pAnimationObject{ NULL };
 	GameObject* m_pMonsterObject{ NULL };
-	GameObject* m_pArrowObjects{ NULL };
 	CLight* m_pLight{ NULL };
 	CCamera* m_pCamera{ NULL };
 

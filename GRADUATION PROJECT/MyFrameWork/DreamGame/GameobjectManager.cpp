@@ -146,16 +146,20 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pArcherObject->m_pSkinnedAnimationController->SetTrackEnable(CharacterAnimation::CA_IDLE, true);
 	m_pArcherObject->SetScale(30.0f);
 	m_ppGameObjects.emplace_back(m_pArcherObject);
+	
+	Arrow* tempArrow;
+	for (int i = 0; i < 10; ++i)
+	{
+		tempArrow = new Arrow();
+		tempArrow->InsertComponent<RenderComponent>();
+		tempArrow->InsertComponent<CLoadedModelInfoCompnent>();
+		tempArrow->SetPosition(XMFLOAT3(0, 0, 0));
+		tempArrow->SetModel("Model/Arrow.bin");
+		tempArrow->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		tempArrow->SetScale(30.0f);
+		m_pArrowObjects.emplace_back(tempArrow);
+	}
 
-	m_pArrowObjects = new Arrow();
-	m_pArrowObjects->InsertComponent<RenderComponent>();
-	m_pArrowObjects->InsertComponent<CLoadedModelInfoCompnent>();
-	m_pArrowObjects->SetPosition(XMFLOAT3(0, 0, 0));
-	m_pArrowObjects->SetModel("Model/Arrow.bin");
-	m_pArrowObjects->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pArrowObjects->SetScale(30.0f);
-
-	m_ppGameObjects.emplace_back(m_pPlaneObject);
 	m_pTankerObject = new Tanker();
 	m_pTankerObject->InsertComponent<RenderComponent>();
 	m_pTankerObject->InsertComponent<CLoadedModelInfoCompnent>();
@@ -223,6 +227,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPlayerObject = new GameObject(UNDEF_ENTITY);	//수정필요
 	memcpy(m_pPlayerObject, m_pArcherObject, sizeof(GameObject));
 	m_pPlayerObject->SetCamera(m_pCamera);
+	m_pPlayerObject->SetCharacterType(CT_ARCHER);
 	//delete m_pArcherObject;->delete하면서 뎊스렌더 문제 발생
 
 	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject = m_pPlayerObject;
@@ -446,9 +451,11 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 	{
 	case WM_LBUTTONDOWN:
 	{
+		static int j = 0;
 		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_cMouseInput |= 0x01;
 		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetLButtonClicked(true);
-		static_cast<Archer*>(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject)->Attack(m_pArrowObjects);
+		if (g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetCharacterType() == CharacterType::CT_ARCHER)
+			static_cast<Archer*>(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject)->Attack(m_pArrowObjects[j++ % 10]);
 		SomethingChanging = true;
 		break;
 	}
@@ -492,15 +499,19 @@ void GameobjectManager::SetPlayCharacter(Session* pSession) // 임시 함수
 	Session* cliSession = reinterpret_cast<Session*>(pSession);
 	if (0 == cliSession->m_id) {
 		cliSession->SetGameObject(m_pTankerObject);
+		cliSession->m_currentPlayGameObject->SetCharacterType(CharacterType::CT_TANKER);
 	}
 	else if (1 == cliSession->m_id) {
 		cliSession->SetGameObject(m_pWarriorObject);
+		cliSession->m_currentPlayGameObject->SetCharacterType(CharacterType::CT_WARRIOR);
 	}
 	else if (2 == cliSession->m_id) {
 		cliSession->SetGameObject(m_pArcherObject);
+		cliSession->m_currentPlayGameObject->SetCharacterType(CharacterType::CT_ARCHER);
 	}
 	else {
 		cliSession->SetGameObject(m_pPriestObject);
+		cliSession->m_currentPlayGameObject->SetCharacterType(CharacterType::CT_PRIEST);
 	}
 	if (g_Logic.myId == cliSession->m_id)
 		cliSession->m_currentPlayGameObject->SetCamera(m_pCamera);

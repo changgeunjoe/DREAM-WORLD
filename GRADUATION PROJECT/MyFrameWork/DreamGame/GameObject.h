@@ -204,10 +204,15 @@ protected:
     bool                            m_bMoveState = false;
 
 protected:
+    CharacterType                   m_characterType = CharacterType::CT_NONE;
     float                           m_fHp;
     float                           m_fSpeed;
     float                           m_fDamage;
-    Arrow                           *m_pArrow;
+    vector<Arrow*> m_pArrow;
+public:
+    void SetCharacterType(CharacterType type) { m_characterType = type; }
+    CharacterType GetCharacterType() { return m_characterType; }
+
 };
 
 template<typename T>//템플릿을 활용하는 이유-> 
