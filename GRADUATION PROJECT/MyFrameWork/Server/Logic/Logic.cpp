@@ -387,17 +387,6 @@ void Logic::MatchMaking()
 		}
 
 		if (restRole.size() == 4) {
-			for (const auto& p : matchPlayer) {
-				//send match Success Packet
-			}
-			//초기화해주기
-			{
-				std::lock_guard<std::mutex> lg{ m_matchPlayerLock };
-				m_matchPlayer.clear();
-			}
-		}
-
-		else if (restRole.size() == 0) {
 			if (randPlayerIdQueue.unsafe_size() >= 4) {
 				std::map<ROLE, int> randMatchPlayer;
 				for (int i = 0; i < 4; i++) {
@@ -413,15 +402,41 @@ void Logic::MatchMaking()
 				for (const auto& p : randMatchPlayer) {
 					//send match Success Packet
 					PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[p.second].m_sessionObject);
-					pSessionObj->Send(&sendPacket);
+					pSessionObj->SetRole(p.first);
+					char* sendAddPlayerPacket = pSessionObj->GetPlayerInfo();
+					pSessionObj->Send(sendAddPlayerPacket);
 					for (const auto& addP : matchPlayer) {
 						if (p == addP)continue;
-						char* sendAddPlayerPacket = pSessionObj->GetPlayerInfo();
 						PlayerSessionObject* sendSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[addP.second].m_sessionObject);
 						sendSessionObj->Send(sendAddPlayerPacket);
-						delete sendAddPlayerPacket;
 					}
+					delete sendAddPlayerPacket;
+					pSessionObj->Send(&sendPacket);
 				}
+			}
+		}
+
+		else if (restRole.size() == 0 && i == 4) {
+			SERVER_PACKET::NotifyPacket sendPacket;
+			sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
+			sendPacket.type = SERVER_PACKET::INTO_GAME;
+			for (const auto& p : matchPlayer) {
+				//send match Success Packet
+				PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[p.second].m_sessionObject);
+				pSessionObj->SetRole(p.first);
+				char* sendAddPlayerPacket = pSessionObj->GetPlayerInfo();
+				pSessionObj->Send(sendAddPlayerPacket);
+				for (const auto& addP : matchPlayer) {
+					if (p == addP)continue;
+					PlayerSessionObject* sendSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[addP.second].m_sessionObject);
+					sendSessionObj->Send(sendAddPlayerPacket);
+				}
+				delete sendAddPlayerPacket;
+				pSessionObj->Send(&sendPacket);
+			}
+			{
+				std::lock_guard<std::mutex> lg{ m_matchPlayerLock };
+				m_matchPlayer.clear();
 			}
 		}
 
@@ -452,14 +467,15 @@ void Logic::MatchMaking()
 			sendPacket.type = SERVER_PACKET::INTO_GAME;
 			for (const auto& p : matchPlayer) {
 				PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[p.second].m_sessionObject);
+				char* sendAddPlayerPacket = pSessionObj->GetPlayerInfo();
+				pSessionObj->Send(sendAddPlayerPacket);
 				for (const auto& addP : matchPlayer) {
 					if (p == addP)continue;
-					char* sendAddPlayerPacket = pSessionObj->GetPlayerInfo();
 					pSessionObj->GetRole();
 					PlayerSessionObject* sendSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[addP.second].m_sessionObject);
 					sendSessionObj->Send(sendAddPlayerPacket);
-					delete sendAddPlayerPacket;
 				}
+				delete sendAddPlayerPacket;
 				pSessionObj->Send(&sendPacket);//지금은 로딩창이 없으니까 바로 인게임 들어가라는 패킷 전송
 			}
 			//matching

@@ -37,6 +37,7 @@ void Logic::ProcessPacket(char* p)
 			DIRECTION currentDir = findRes->m_currentDirection;
 			findRes->m_currentDirection = (DIRECTION)(findRes->m_currentDirection | recvPacket->direction);
 			findRes->m_currentPlayGameObject->SetMoveState(true);
+			cout << "Move Player Id: " << findRes->m_id << endl;
 		}
 		else cout << "not found array" << endl;
 #ifdef _DEBUG
@@ -56,6 +57,7 @@ void Logic::ProcessPacket(char* p)
 			});
 		if (findRes != m_inGamePlayerSession.end()) {
 			findRes->m_currentDirection = (DIRECTION)(findRes->m_currentDirection ^ recvPacket->direction);
+			cout << "Move Player Id: " << findRes->m_id << endl;
 		}
 		else cout << "not found array" << endl;
 #ifdef _DEBUG
@@ -145,6 +147,7 @@ void Logic::ProcessPacket(char* p)
 #ifdef _DEBUG
 		PrintCurrentTime();
 		std::wcout << "Logic::ProcessPacket() - SERVER_PACKET::LOGIN_OK - " << "user Name: " << wst_name << std::endl;
+		std::wcout << "Logic::ProcessPacket() - SERVER_PACKET::LOGIN_OK - " << "user ID: " << recvPacket->userID << std::endl;
 #endif
 	}
 	break;
@@ -154,24 +157,35 @@ void Logic::ProcessPacket(char* p)
 		XMFLOAT3 dirVec = XMFLOAT3(0, 0, 1);
 
 		SERVER_PACKET::AddPlayerPacket* recvPacket = reinterpret_cast<SERVER_PACKET::AddPlayerPacket*>(p);
-		for (auto& pSession : m_inGamePlayerSession) {
-			if (pSession.m_id == myId) continue;
-			if (-1 == pSession.m_id) {
-				pSession.m_id = recvPacket->userId;
-				pSession.SetName(recvPacket->name);
-				pSession.SetRole((ROLE)recvPacket->role);
-				gGameFramework.m_pScene->m_pObjectManager->SetPlayCharacter(&pSession);
-				pSession.m_currentPlayGameObject->SetPosition(recvPacket->position);
-				pSession.m_currentPlayGameObject->Rotate(&upVec, recvPacket->rotate.y);
-				pSession.m_ownerRotateAngle.y = recvPacket->rotate.y;
+		if (recvPacket->userId == myId) {
+			m_inGamePlayerSession[0].m_id = recvPacket->userId;
+			m_inGamePlayerSession[0].SetName(recvPacket->name);
+			m_inGamePlayerSession[0].SetRole((ROLE)recvPacket->role);
+			gGameFramework.m_pScene->m_pObjectManager->SetPlayCharacter(&m_inGamePlayerSession[0]);
+			m_inGamePlayerSession[0].m_currentPlayGameObject->SetPosition(recvPacket->position);
+			m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&upVec, recvPacket->rotate.y);
+			m_inGamePlayerSession[0].m_ownerRotateAngle.y = recvPacket->rotate.y;
+		}
+		else {
+			for (int i = 1; i < 4; i++) {
+				auto& pSession = m_inGamePlayerSession[i];
+				if (-1 == pSession.m_id) {
+					pSession.m_id = recvPacket->userId;
+					pSession.SetName(recvPacket->name);
+					pSession.SetRole((ROLE)recvPacket->role);
+					gGameFramework.m_pScene->m_pObjectManager->SetPlayCharacter(&pSession);
+					pSession.m_currentPlayGameObject->SetPosition(recvPacket->position);
+					pSession.m_currentPlayGameObject->Rotate(&upVec, recvPacket->rotate.y);
+					pSession.m_ownerRotateAngle.y = recvPacket->rotate.y;
 #ifdef _DEBUG
-				PrintCurrentTime();
-				cout << "CLIENT::Logic::" << endl;
-				cout << "AddPlayer ID: " << recvPacket->userId << endl;
-				cout << "Position: " << recvPacket->position.x << ", " << recvPacket->position.y << ", " << recvPacket->position.z << endl;
-				cout << "Rotate: " << recvPacket->rotate.x << ", " << recvPacket->rotate.y << ", " << recvPacket->rotate.z << endl;
+					PrintCurrentTime();
+					cout << "CLIENT::Logic::" << endl;
+					cout << "AddPlayer ID: " << recvPacket->userId << endl;
+					cout << "Position: " << recvPacket->position.x << ", " << recvPacket->position.y << ", " << recvPacket->position.z << endl;
+					cout << "Rotate: " << recvPacket->rotate.x << ", " << recvPacket->rotate.y << ", " << recvPacket->rotate.z << endl;
 #endif
-				break;
+					break;
+				}
 			}
 		}
 	}
