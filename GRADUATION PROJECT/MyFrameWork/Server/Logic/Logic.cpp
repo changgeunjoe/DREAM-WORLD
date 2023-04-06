@@ -378,14 +378,16 @@ void Logic::MatchMaking()
 			std::lock_guard<std::mutex> lg{ m_matchPlayerLock };
 			matchPlayer = m_matchPlayer;
 		}
-		int i = 0;
 		for (const auto& a : matchPlayer) {
-			if (!(a.first & (char)pow(2, i))) {
-				sumRole |= (char)pow(2, i);
+			sumRole |= a.first;
+		}
+		for (int i = 0; i < 4; i++) {
+			if (!(sumRole & (char)pow(2, i))) {
 				restRole.push_back((ROLE)pow(2, i));
 			}
-			i++;
+
 		}
+
 
 		if (restRole.size() == 4) {
 			if (randPlayerIdQueue.unsafe_size() >= 4) {
@@ -417,10 +419,26 @@ void Logic::MatchMaking()
 			}
 		}
 
-		else if (restRole.size() == 0 && i == 4) {
+		else if (restRole.size() == 0) {
 			SERVER_PACKET::NotifyPacket sendPacket;
 			sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
 			sendPacket.type = SERVER_PACKET::INTO_GAME;
+
+			std::string roomId;
+			auto now = std::chrono::system_clock::now();
+			auto in_time_t = std::chrono::system_clock::to_time_t(now);
+			roomId.append(std::to_string(std::localtime(&in_time_t)->tm_year % 100));
+			roomId.append(std::to_string(std::localtime(&in_time_t)->tm_mon + 1));
+			roomId.append(std::to_string(std::localtime(&in_time_t)->tm_mday));
+			roomId.append(std::to_string(std::localtime(&in_time_t)->tm_hour));
+			roomId.append(std::to_string(std::localtime(&in_time_t)->tm_min));
+			roomId.append(std::to_string(std::localtime(&in_time_t)->tm_sec));
+			roomId.append("Matching_");
+
+			std::wstring roomName{ L"RandMatchingRoom" };
+			roomName.append(std::to_wstring(matchPlayer.begin()->second));
+			while (!m_roomManager->InsertRecruitingRoom(roomId, roomName, matchPlayer.begin()->second));
+			//룸 생성 성공
 			for (const auto& p : matchPlayer) {
 				//send match Success Packet
 				PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[p.second].m_sessionObject);
@@ -438,6 +456,8 @@ void Logic::MatchMaking()
 				//send match Success Packet
 				PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[p.second].m_sessionObject);
 				pSessionObj->Send(&sendPacket);
+				m_roomManager->m_RecruitingRoomList[roomId].InsertInGamePlayer((ROLE)p.first, p.second);
+				pSessionObj->SetRoomId(roomId);
 			}
 
 			{
@@ -446,23 +466,19 @@ void Logic::MatchMaking()
 			}
 		}
 
-		else if (4 - restRole.size() < randPlayerIdQueue.unsafe_size()) {
+		else if (restRole.size() <= randPlayerIdQueue.unsafe_size()) {
 			//없는 역할 넣어주기 추가하자
-			for (int i = 0; i < 4 - restRole.size(); i++) {
+			for (int i = 0; i < restRole.size(); i++) {
 				int randUserId = -1;
 				if (randPlayerIdQueue.try_pop(randUserId)) {
-					ROLE r = ROLE::WARRIOR;
-					char ableRole = 1;
-					char resultRole = 0;
-					while (true) {
-						resultRole = sumRole & ableRole;
-						if (resultRole == 0) break;
-					}
-					matchPlayer.emplace((ROLE)ableRole, randUserId);
+					ROLE r = restRole[i];
+					matchPlayer.emplace((ROLE)r, randUserId);
 					PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[randUserId].m_sessionObject);
-					pSessionObj->SetRole((ROLE)ableRole);
-					ableRole = ableRole << 1;
+					pSessionObj->SetRole((ROLE)r);
+					//
+					//m_matchPlayer에 안넣었음
 					//pop success
+					matchPlayer.emplace(r, randUserId);
 				}
 				else {
 					//error
@@ -473,15 +489,16 @@ void Logic::MatchMaking()
 			sendPacket.type = SERVER_PACKET::INTO_GAME;
 			for (const auto& p : matchPlayer) {
 				PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[p.second].m_sessionObject);
-				char* sendAddPlayerPacket = pSessionObj->GetPlayerInfo();
-				pSessionObj->Send(sendAddPlayerPacket);
-				for (const auto& addP : matchPlayer) {
-					if (p == addP)continue;
-					pSessionObj->GetRole();
+				pSessionObj->SetRole(p.first);
+				char* sendAddPlayerPacket = pSessionObj->GetPlayerInfo();				
+				for (const auto& addP : matchPlayer) {					
 					PlayerSessionObject* sendSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[addP.second].m_sessionObject);
 					sendSessionObj->Send(sendAddPlayerPacket);
 				}
 				delete sendAddPlayerPacket;
+			}
+			for (const auto& p : matchPlayer) {
+				PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[p.second].m_sessionObject);
 				pSessionObj->Send(&sendPacket);//지금은 로딩창이 없으니까 바로 인게임 들어가라는 패킷 전송
 			}
 			//matching
