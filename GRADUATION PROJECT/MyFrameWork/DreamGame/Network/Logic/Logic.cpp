@@ -43,6 +43,7 @@ void Logic::ProcessPacket(char* p)
 #ifdef _DEBUG
 		PrintCurrentTime();
 		std::cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - ID: " << recvPacket->userId << std::endl;
+
 #endif
 
 	}
@@ -157,6 +158,10 @@ void Logic::ProcessPacket(char* p)
 		XMFLOAT3 dirVec = XMFLOAT3(0, 0, 1);
 
 		SERVER_PACKET::AddPlayerPacket* recvPacket = reinterpret_cast<SERVER_PACKET::AddPlayerPacket*>(p);
+#ifdef _DEBUG
+		cout << "AddPlayer ID: " << recvPacket->userId << endl;
+		cout << "myID: " << myId << endl;
+#endif
 		if (recvPacket->userId == myId) {
 			m_inGamePlayerSession[0].m_id = recvPacket->userId;
 			m_inGamePlayerSession[0].SetName(recvPacket->name);
@@ -177,13 +182,13 @@ void Logic::ProcessPacket(char* p)
 					pSession.m_currentPlayGameObject->SetPosition(recvPacket->position);
 					pSession.m_currentPlayGameObject->Rotate(&upVec, recvPacket->rotate.y);
 					pSession.m_ownerRotateAngle.y = recvPacket->rotate.y;
-#ifdef _DEBUG
-					PrintCurrentTime();
-					cout << "CLIENT::Logic::" << endl;
-					cout << "AddPlayer ID: " << recvPacket->userId << endl;
-					cout << "Position: " << recvPacket->position.x << ", " << recvPacket->position.y << ", " << recvPacket->position.z << endl;
-					cout << "Rotate: " << recvPacket->rotate.x << ", " << recvPacket->rotate.y << ", " << recvPacket->rotate.z << endl;
-#endif
+//#ifdef _DEBUG
+//					PrintCurrentTime();
+//					cout << "CLIENT::Logic::" << endl;
+//					cout << "AddPlayer ID: " << recvPacket->userId << endl;
+//					cout << "Position: " << recvPacket->position.x << ", " << recvPacket->position.y << ", " << recvPacket->position.z << endl;
+//					cout << "Rotate: " << recvPacket->rotate.x << ", " << recvPacket->rotate.y << ", " << recvPacket->rotate.z << endl;
+//#endif
 					break;
 				}
 			}
@@ -319,6 +324,9 @@ void Logic::ProcessPacket(char* p)
 	{
 		//로딩창이면 좋을듯?
 		gGameFramework.m_bLobbyScene = false;
+		for (int i = 0; i < 4; i++) {
+			cout << "Session Index: " << i << " User Id: " << m_inGamePlayerSession[i].m_id << " User Role: " << (int)m_inGamePlayerSession[i].GetRole() << endl;
+		}
 
 	}
 	break;

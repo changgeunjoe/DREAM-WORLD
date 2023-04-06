@@ -720,19 +720,21 @@ void GameobjectManager::SetPlayCharacter(Session* pSession) // 임시 함수
 	{
 		cliSession->SetGameObject(m_pArcherObject);
 	}
+	break;
 	case ROLE::PRIEST:
 	{
 		cliSession->SetGameObject(m_pPriestObject);
 	}
+	break;
 	case ROLE::TANKER:
 	{
 		cliSession->SetGameObject(m_pTankerObject);
 	}
+	break;
 	case ROLE::WARRIOR:
 	{
 		cliSession->SetGameObject(m_pWarriorObject);
 	}
-
 	break;
 	default:
 		break;

@@ -53,7 +53,7 @@ void Logic::ProcessPacket(int userId, char* p)
 		pSessionObj->StartMove(sendPacket.direction); // 움직임 start
 #ifdef _DEBUG
 		PrintCurrentTime();
-		std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::MOVE_KEY_DOWN - MultiCastOtherPlayer" << std::endl;
+		//std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::MOVE_KEY_DOWN - MultiCastOtherPlayer" << std::endl;		
 #endif
 		MultiCastOtherPlayer(userId, &sendPacket);
 	}
@@ -72,6 +72,7 @@ void Logic::ProcessPacket(int userId, char* p)
 		pSessionObj->Rotate(recvPacket->axis, recvPacket->angle);
 #ifdef _DEBUG
 		//std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::ROTATE - MultiCastOtherPlayer" << std::endl;
+
 #endif
 		MultiCastOtherPlayer(userId, &sendPacket);
 	}
@@ -424,16 +425,21 @@ void Logic::MatchMaking()
 				//send match Success Packet
 				PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[p.second].m_sessionObject);
 				pSessionObj->SetRole(p.first);
-				char* sendAddPlayerPacket = pSessionObj->GetPlayerInfo();
-				pSessionObj->Send(sendAddPlayerPacket);
-				for (const auto& addP : matchPlayer) {
-					if (p == addP)continue;
+				char* sendAddPlayerPacket = pSessionObj->GetPlayerInfo(); // p의 정보를
+				//pSessionObj->Send(sendAddPlayerPacket);// 자기 자신한테 보내고
+				for (const auto& addP : matchPlayer) {//나머지 플레이어들에게 보내고
 					PlayerSessionObject* sendSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[addP.second].m_sessionObject);
 					sendSessionObj->Send(sendAddPlayerPacket);
+					std::cout << "Muticast User Info " << p.second << " to Other Player" << std::endl;
 				}
 				delete sendAddPlayerPacket;
+			}
+			for (const auto& p : matchPlayer) {
+				//send match Success Packet
+				PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[p.second].m_sessionObject);
 				pSessionObj->Send(&sendPacket);
 			}
+
 			{
 				std::lock_guard<std::mutex> lg{ m_matchPlayerLock };
 				m_matchPlayer.clear();
