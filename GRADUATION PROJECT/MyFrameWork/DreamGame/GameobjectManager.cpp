@@ -91,6 +91,12 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	for (auto& session : g_Logic.m_inGamePlayerSession) {
 		if (-1 != session.m_id && session.m_isVisible) {
 			session.m_currentPlayGameObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+			//m_pMonsterObject
+			if (session.m_currentPlayGameObject->m_SPBB.Intersects(m_pMonsterObject->m_SPBB))
+			{
+				cout << " Ãæµ¹ " << endl;
+			}
+
 		}
 	}
 	//m_pPlaneObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -147,17 +153,16 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pArcherObject->SetScale(30.0f);
 	m_ppGameObjects.emplace_back(m_pArcherObject);
 	
-	Arrow* tempArrow;
 	for (int i = 0; i < 10; ++i)
 	{
-		tempArrow = new Arrow();
-		tempArrow->InsertComponent<RenderComponent>();
-		tempArrow->InsertComponent<CLoadedModelInfoCompnent>();
-		tempArrow->SetPosition(XMFLOAT3(0, 0, 0));
-		tempArrow->SetModel("Model/Arrow.bin");
-		tempArrow->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-		tempArrow->SetScale(30.0f);
-		m_pArrowObjects.emplace_back(tempArrow);
+		m_pArrowObjects[i] = new Arrow();
+		m_pArrowObjects[i]->InsertComponent<RenderComponent>();
+		m_pArrowObjects[i]->InsertComponent<CLoadedModelInfoCompnent>();
+		m_pArrowObjects[i]->SetPosition(XMFLOAT3(0, 0, 0));
+		m_pArrowObjects[i]->SetModel("Model/Arrow.bin");
+		m_pArrowObjects[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		m_pArrowObjects[i]->SetScale(30.0f);
+		static_cast<Archer*>(m_pArcherObject)->SetArrow(m_pArrowObjects[i]);
 	}
 
 	m_pTankerObject = new Tanker();
@@ -196,6 +201,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackAnimationSet(3);
 	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackEnable(CharacterAnimation::CA_IDLE, true);
 	m_pMonsterObject->SetScale(30.0f);
+	m_pMonsterObject->SetBoundingSize(25.0f);
 	m_ppGameObjects.emplace_back(m_pMonsterObject);
 
 	m_pSkyboxObject = new GameObject(SQUARE_ENTITY);
@@ -451,11 +457,10 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 	{
 	case WM_LBUTTONDOWN:
 	{
-		static int j = 0;
 		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_cMouseInput |= 0x01;
 		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetLButtonClicked(true);
-		if (g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetCharacterType() == CharacterType::CT_ARCHER)
-			static_cast<Archer*>(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject)->Attack(m_pArrowObjects[j++ % 10]);
+		//if(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetCharacterType() == CT_ARCHER)
+		//	static_cast<Archer*>(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject)->Attack();
 		SomethingChanging = true;
 		break;
 	}

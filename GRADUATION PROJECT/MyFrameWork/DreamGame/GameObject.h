@@ -139,7 +139,8 @@ public:
 
 
     CCamera                         *m_pCamera = NULL;
-    BoundingSphere					m_SPBB = BoundingSphere(XMFLOAT3(0.0f, 0.0f, 0.0f), 7.5f);
+    float                           m_fBoundingSize = 7.5f;
+    BoundingSphere					m_SPBB = BoundingSphere(XMFLOAT3(0.0f, 0.0f, 0.0f), m_fBoundingSize);
 
     int                             m_iRButtionCount = 0;
 
@@ -208,10 +209,18 @@ protected:
     float                           m_fHp;
     float                           m_fSpeed;
     float                           m_fDamage;
-    vector<Arrow*> m_pArrow;
+    int                             m_nArrow;
+    array<Arrow*, 10>               m_pArrow;
 public:
     void SetCharacterType(CharacterType type) { m_characterType = type; }
     CharacterType GetCharacterType() { return m_characterType; }
+
+    void SetBoundingSize(float size) 
+    {
+        m_fBoundingSize = size;
+        m_SPBB = BoundingSphere(GetPosition(), m_fBoundingSize);
+    }
+    float GetBoundingSize() { return m_fBoundingSize; }
 
 };
 

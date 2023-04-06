@@ -58,7 +58,7 @@ void GameObject::SetPosition(const XMFLOAT3& position)
 	m_xmf4x4ToParent._42 = position.y;
 	m_xmf4x4ToParent._43 = position.z;
 
-	m_SPBB = BoundingSphere(XMFLOAT3(position.x, position.y, position.z), 7.5f);
+	m_SPBB = BoundingSphere(XMFLOAT3(position.x, position.y, position.z), m_fBoundingSize);
 	//if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(position, m_pCamera->GetOffset()));
 
 	UpdateTransform(NULL);

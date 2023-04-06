@@ -144,31 +144,37 @@ Archer::Archer() : Character()
 	m_fHp = 150.0f;
 	m_fSpeed = 150.0f;
 	m_fDamage = 80.0f;
-	m_pArrow.reserve(10);
 }
 
 Archer::~Archer()
 {
 	for (auto& i : m_pArrow)
 	{
-		delete i;
+		if(i != nullptr)
+			delete i;
 	}
 }
 
-void Archer::Attack(GameObject* pGameObject)
+void Archer::Attack()
 {
-	static int nArrow = 0;
-	nArrow = (nArrow > 5) ? nArrow : nArrow % 5;
-	if (nArrow < 5)
-	{
-		Arrow* tempArrow = new Arrow();
-		memcpy(tempArrow, static_cast<Arrow*>(pGameObject), sizeof(Arrow));
-		tempArrow->SetPosition(Vector3::Add(GetPosition(), XMFLOAT3(5.0f, 7.5f, 0.0f)));
-		tempArrow->SetLook(GetObjectLook());
-		m_pArrow.emplace_back(tempArrow);
-		nArrow++;
-	}
+	m_nArrow = (m_nArrow < 9) ? m_nArrow : m_nArrow % 10;
+	m_pArrow[m_nArrow]->m_xmf3startPosition = GetPosition();
+	m_pArrow[m_nArrow]->m_xmf3direction = XMFLOAT3(GetObjectLook().x, m_pCamera->GetLookVector().y, GetObjectLook().z);
+	
+	m_pArrow[m_nArrow]->SetPosition(Vector3::Add(GetPosition(), XMFLOAT3(5.0f, 7.5f, 0.0f)));
+	m_pArrow[m_nArrow]->SetLook(XMFLOAT3(GetObjectLook().x, m_pCamera->GetLookVector().y, GetObjectLook().z));
+	m_pArrow[m_nArrow]->m_bActive = true;
+	m_nArrow++;
+}
 
+void Archer::SetArrow(Arrow* pArrow)
+{
+	m_pArrow[m_nArrow] = new Arrow();
+	m_pArrow[m_nArrow] = pArrow;
+	m_pArrow[m_nArrow]->SetPosition(Vector3::Add(GetPosition(), XMFLOAT3(5.0f, 7.5f, 0.0f)));
+	m_pArrow[m_nArrow]->SetLook(GetObjectLook());
+	m_pArrow[m_nArrow]->m_bActive = false;
+	m_nArrow++;
 }
 
 void Archer::RbuttonClicked(float fTimeElapsed)
@@ -190,7 +196,7 @@ void Archer::RbuttonClicked(float fTimeElapsed)
 void Archer::RbuttonUp(const XMFLOAT3& CameraAxis)
 {
 	Character::RbuttonUp(CameraAxis);
-	// 화살 발사 모먼트
+	Attack();
 }
 
 void Archer::Move(DIRECTION direction, float fDistance)
@@ -316,26 +322,22 @@ void Archer::Animate(float fTimeElapsed)
 		}
 
 	}
-
-	if (m_pArrow.size() > 0)
+	if (m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd == true)
 	{
-		for (int i = 0; i < m_pArrow.size(); ++i)
-		{
-			m_pArrow[i]->Animate(fTimeElapsed);
-		}
+		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd = false;
+		Attack();
 	}
+	for (int i = 0; i < m_pArrow.size(); ++i)
+		if(m_pArrow[i]) m_pArrow[i]->Animate(fTimeElapsed);
+
 	GameObject::Animate(fTimeElapsed);
 }
 
 void Archer::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender)
 {
-	if (m_pArrow.size() > 0)
-	{
-		for (int i = 0; i < m_pArrow.size(); ++i)
-		{
-			m_pArrow[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
-		}
-	}
+
+	for (int i = 0; i < m_pArrow.size(); ++i)
+		if (m_pArrow[i]) m_pArrow[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
 	GameObject::Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
 }
 
@@ -613,6 +615,19 @@ Arrow::~Arrow()
 void Arrow::Animate(float fTimeElapsed)
 {
 	MoveForward(fTimeElapsed * 100);
+	XMFLOAT3 xmf3CurrentPos = GetPosition();
+	if (Vector3::Length(Vector3::Subtract(xmf3CurrentPos, m_xmf3startPosition)) > 200.0f)
+	{
+		m_bActive = false;
+	}
+}
+
+void Arrow::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender)
+{
+	if (m_bActive)
+	{
+		GameObject::Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
+	}
 }
 
 void Arrow::ShootArrow(const XMFLOAT3& xmf3StartPos, const XMFLOAT3& xmf3direction)
