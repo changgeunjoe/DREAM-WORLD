@@ -154,7 +154,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pArcherObject = new Archer();
 	m_pArcherObject->InsertComponent<RenderComponent>();
 	m_pArcherObject->InsertComponent<CLoadedModelInfoCompnent>();
-	m_pArcherObject->SetPosition(XMFLOAT3(-20, 0, 0));
+	m_pArcherObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pArcherObject->SetModel("Model/Archer.bin");
 	m_pArcherObject->SetAnimationSets(6);
 	m_pArcherObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -178,7 +178,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPriestObject = new Priest();
 	m_pPriestObject->InsertComponent<RenderComponent>();
 	m_pPriestObject->InsertComponent<CLoadedModelInfoCompnent>();
-	m_pPriestObject->SetPosition(XMFLOAT3(40, 0, 0));
+	m_pPriestObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pPriestObject->SetModel("Model/Priests.bin");
 	m_pPriestObject->SetAnimationSets(4);
 	m_pPriestObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -432,8 +432,15 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		}
 		case 'O':
 		{
+#ifdef  LOCAL_TASK
 			m_pPlayerObject->m_pCamera->ReInitCamrea();
 			m_pPlayerObject->SetCamera(m_pCamera);
+#endif //  
+#ifndef LOCAL_TASK
+			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pCamera->ReInitCamrea();
+			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetCamera(m_pCamera);
+#endif // !LOCAL_TASK
+
 			break;
 		}
 		case VK_CONTROL:
@@ -739,6 +746,18 @@ void GameobjectManager::SetPlayCharacter(Session* pSession) // 임시 함수
 	default:
 		break;
 	}
-	if (g_Logic.myId == cliSession->m_id)
-		cliSession->m_currentPlayGameObject->SetCamera(m_pCamera);
+}
+
+void GameobjectManager::SetPlayerCamera(Session& mySession)
+{
+	mySession.m_currentPlayGameObject->SetCamera(m_pCamera);
+	mySession.m_currentPlayGameObject->m_pCamera->ReInitCamrea();
+	//g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetCamera(m_pCamera);
+	mySession.m_currentPlayGameObject->SetCamera(m_pCamera);
+	auto mPos = mySession.m_currentPlayGameObject->GetPosition();
+	auto cPos = mySession.m_currentPlayGameObject->m_pCamera->GetPosition();
+	boolalpha(cout);
+	cout << "visbie: " << mySession.m_isVisible << endl;
+	cout << "MyPos: " << mPos.x << ", " << mPos.y << ", " << mPos.z << endl;
+	cout << "CameraPos: " << cPos.x << ", " << cPos.y << ", " << cPos.z << endl;
 }

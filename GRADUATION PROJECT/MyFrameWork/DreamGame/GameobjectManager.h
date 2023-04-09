@@ -76,5 +76,6 @@ private: //active object
 	bool	m_bUIScene = true;
 public:
 	void SetPlayCharacter(Session* pSession);
+	void SetPlayerCamera(Session& mySession);
 };
 

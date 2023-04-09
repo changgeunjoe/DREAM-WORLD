@@ -167,6 +167,7 @@ void Logic::ProcessPacket(char* p)
 			m_inGamePlayerSession[0].SetName(recvPacket->name);
 			m_inGamePlayerSession[0].SetRole((ROLE)recvPacket->role);
 			gGameFramework.m_pScene->m_pObjectManager->SetPlayCharacter(&m_inGamePlayerSession[0]);
+			gGameFramework.m_pScene->m_pObjectManager->SetPlayerCamera(m_inGamePlayerSession[0]);
 			m_inGamePlayerSession[0].m_currentPlayGameObject->SetPosition(recvPacket->position);
 			m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&upVec, recvPacket->rotate.y);
 			m_inGamePlayerSession[0].m_ownerRotateAngle.y = recvPacket->rotate.y;
