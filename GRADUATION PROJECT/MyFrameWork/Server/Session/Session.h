@@ -10,7 +10,8 @@ enum SESSION_CATEGORY
 {
 	NONE,
 	PLAYER,
-	NPC
+	BOSS,
+	MONSTER
 };
 
 class SessionObject;
@@ -41,6 +42,7 @@ public:
 	}
 	const int GetId() { return m_id; }
 	const PLAYER_STATE GetPlayerState() { return m_playerState; };
+	void RegistMonster(int id);
 	friend class SessionObject;
 };
 

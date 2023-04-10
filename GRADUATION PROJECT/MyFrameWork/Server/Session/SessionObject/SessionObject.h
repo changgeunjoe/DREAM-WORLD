@@ -37,4 +37,6 @@ protected:
 	{
 		m_rightVector = Vector3::CrossProduct(DirectX::XMFLOAT3(0, 1, 0), m_directionVector);
 	}
+public:
+	virtual void Recv() = 0;
 };

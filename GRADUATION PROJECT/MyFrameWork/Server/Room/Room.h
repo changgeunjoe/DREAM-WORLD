@@ -29,7 +29,7 @@ private:
 
 private:
 	std::vector<Session> m_monsters;
-
+	Session m_boss;
 public://Get
 	std::map<ROLE, int> GetInGamePlayerMap() {
 		std::map<ROLE, int> playerMap;

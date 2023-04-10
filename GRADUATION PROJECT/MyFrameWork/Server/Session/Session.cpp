@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Session.h"
 #include "SessionObject/PlayerSessionObject.h"
+#include "SessionObject/MonsterSessionObject.h"
 #include <iostream>
 Session::Session()
 {
@@ -26,12 +27,25 @@ void Session::RegistPlayer(int id, SOCKET& sock)
 {
 	m_sessionCategory = PLAYER;
 	m_id = id;
-	PlayerSessionObject* newSessionObjet = new PlayerSessionObject(this, sock);
-	m_sessionObject = reinterpret_cast<SessionObject*>(newSessionObjet);
+	//PlayerSessionObject* newSessionObjet = new PlayerSessionObject(this, sock);
+	m_sessionObject = new PlayerSessionObject(this, sock);
+		//= reinterpret_cast<SessionObject*>(newSessionObjet);
 	std::cout << "std::RegistPlayer" << std::endl;
 	{
 		std::lock_guard<std::mutex> psLock(m_playerStateLock);
 		m_playerState = PLAYER_STATE::ALLOC;
 	}
-	newSessionObjet->Recv();
+	m_sessionObject->Recv();
+}
+
+void Session::RegistMonster(int id)
+{
+	m_sessionCategory = BOSS;
+	m_id = id;
+	m_sessionObject = new MonsterSessionObject(this);
+	std::cout << "std::RegistMonster" << std::endl;
+	{
+		std::lock_guard<std::mutex> psLock(m_playerStateLock);
+		m_playerState = PLAYER_STATE::ALLOC;
+	}	
 }

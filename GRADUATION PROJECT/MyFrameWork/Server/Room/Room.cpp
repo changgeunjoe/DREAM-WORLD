@@ -3,6 +3,7 @@
 
 Room::Room()
 {
+	m_boss.RegistMonster(MAX_USER + m_roomOwnerId);
 }
 
 Room::Room(std::string& roomId, std::wstring& roomName, int onwerId, ROLE r) : m_roomId(roomId), m_roomName(roomName), m_roomOwnerId(onwerId)

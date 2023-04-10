@@ -32,6 +32,9 @@
     <Filter Include="Room">
       <UniqueIdentifier>{a13be899-e830-47cb-8b85-8dfe2f61fd3b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="LuaScript">
+      <UniqueIdentifier>{d00ffa82-3ba4-4256-bcc1-b667e71c89ba}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -105,5 +108,10 @@
     <ClInclude Include="Session\SessionObject\MonsterSessionObject.h">
       <Filter>Session\SessionObject</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="LuaScript\boss.lua">
+      <Filter>LuaScript</Filter>
+    </None>
   </ItemGroup>
 </Project>

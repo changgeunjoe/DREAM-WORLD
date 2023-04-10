@@ -8,6 +8,7 @@
 #include "../IOCPNetwork/protocol/protocol.h"
 #include <random>
 
+#define ALONE_TEST 1
 
 #pragma warning(disable : 4996)
 
@@ -17,7 +18,9 @@ Logic::Logic()
 {
 	m_isRunningThread = true;
 	m_PlayerMoveThread = std::thread{ [this]() {AutoMoveServer(); } };
+#ifndef ALONE_TEST
 	m_MatchingThread = std::thread{ [this]() {MatchMaking(); } };
+#endif
 	m_roomManager = new RoomManager();
 }
 
@@ -116,7 +119,7 @@ void Logic::ProcessPacket(int userId, char* p)
 		bool adjustRes = pSessionObj->AdjustPlayerInfo(recvPacket->position); // , recvPacket->rotate
 		if (!adjustRes) {
 			sendPacket.position = pSessionObj->GetPosition();
-			BroadCastOtherPlayerInRoom(userId , &sendPacket);
+			BroadCastOtherPlayerInRoom(userId, &sendPacket);
 #ifdef _DEBUG
 			PrintCurrentTime();
 			std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::STOP - BroadCastPacket" << std::endl;
@@ -151,8 +154,23 @@ void Logic::ProcessPacket(int userId, char* p)
 	break;
 	case CLIENT_PACKET::MATCH:
 	{
+#ifdef ALONE_TEST
+		CLIENT_PACKET::MatchPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::MatchPacket*>(p);
+		PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
+		pSessionObj->SetRole((ROLE)recvPacket->Role);
+		char* sendAddPlayerPacket = pSessionObj->GetPlayerInfo();
+		pSessionObj->Send(sendAddPlayerPacket);
+		delete sendAddPlayerPacket;
+
+		SERVER_PACKET::NotifyPacket sendPacket;
+		sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
+		sendPacket.type = SERVER_PACKET::INTO_GAME;
+		pSessionObj->Send(&sendPacket);
+#else
 		CLIENT_PACKET::MatchPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::MatchPacket*>(p);
 		InsertMatchQueue((ROLE)recvPacket->Role, userId);
+#endif // ALONE_TEST
+
 		//매치 큐 걸어놓고 끝
 	}
 	break;
@@ -195,7 +213,7 @@ void Logic::ProcessPacket(int userId, char* p)
 		if (recruitRoom.size() == 0) {
 			SERVER_PACKET::NotifyPacket sendPacket;
 			sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
-			sendPacket.type = SERVER_PACKET::REQUEST_ROOM_LIST_NONE; 
+			sendPacket.type = SERVER_PACKET::REQUEST_ROOM_LIST_NONE;
 			pSessionObj->Send(&sendPacket);
 			return;
 		}

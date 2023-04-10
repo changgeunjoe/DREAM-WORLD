@@ -2,6 +2,7 @@
 
 class Session;
 class RoomManager;
+
 class Logic
 {
 private:

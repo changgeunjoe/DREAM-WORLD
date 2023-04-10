@@ -166,6 +166,9 @@
     <ClInclude Include="Session\SessionObject\PlayerSessionObject.h" />
     <ClInclude Include="Session\SessionObject\SessionObject.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="LuaScript\boss.lua" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -32,7 +32,7 @@ public:
 	}
 	std::wstring& GetName() { return m_playerName; }
 public:
-	void Recv();
+	void Recv() override;
 	void Send(void* p);
 	void ConstructPacket(int ioByte);
 public:
