@@ -32,7 +32,6 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fTrackElapsedT
 	}
 	case ANIMATION_TYPE_HALF:
 	{
-		cout << "Update m_fPosition : " << m_fPosition << endl;
 		if (m_fPosition < 0.0f) m_fPosition = 0.0f;
 		else
 		{

@@ -210,15 +210,15 @@ protected:
     float                           m_fSpeed;
     float                           m_fDamage;
     int                             m_nArrow;
-    array<Arrow*, 10>               m_pArrow;
 public:
+    array<Arrow*, 10>               m_pArrow;
     void SetCharacterType(CharacterType type) { m_characterType = type; }
     CharacterType GetCharacterType() { return m_characterType; }
 
     void SetBoundingSize(float size) 
     {
         m_fBoundingSize = size;
-        m_SPBB = BoundingSphere(GetPosition(), m_fBoundingSize);
+        m_SPBB = BoundingSphere(XMFLOAT3(GetPosition().x, GetPosition().y + m_fBoundingSize, GetPosition().z), m_fBoundingSize);
     }
     float GetBoundingSize() { return m_fBoundingSize; }
 

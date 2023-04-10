@@ -91,18 +91,27 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	for (auto& session : g_Logic.m_inGamePlayerSession) {
 		if (-1 != session.m_id && session.m_isVisible) {
 			session.m_currentPlayGameObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-			//m_pMonsterObject
-			if (session.m_currentPlayGameObject->m_SPBB.Intersects(m_pMonsterObject->m_SPBB))
-			{
-				cout << " 충돌 " << endl;
-			}
-
+			//if (session.m_currentPlayGameObject->m_SPBB.Intersects(m_pMonsterObject->m_SPBB))
+			//{
+			//	cout << "충돌 " << endl;
+			//}
+			//for (int i = 0; i < 10; ++i)
+			//{
+			//	if (session.m_currentPlayGameObject->m_pArrow[i]->m_bActive)
+			//	{
+			//		if (session.m_currentPlayGameObject->m_pArrow[i]->m_SPBB.Intersects(m_pMonsterObject->m_SPBB))
+			//		{
+			//			cout << i << "번째 화살 충돌 " << endl;
+			//			session.m_currentPlayGameObject->m_pArrow[i]->m_bActive = false;
+			//		}
+			//	}
+			//}
 		}
 	}
 	//m_pPlaneObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//m_pMonsterObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
-	m_pUIGameSearchObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//m_pUIGameSearchObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 	if (m_pShadowmapShaderComponent)
 	{
@@ -137,7 +146,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pWarriorObject->SetAnimationSets(6);
 	m_pWarriorObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pWarriorObject->m_pSkinnedAnimationController->SetTrackAnimationSet(6);
-	m_pWarriorObject->m_pSkinnedAnimationController->SetTrackEnable(CharacterAnimation::CA_ATTACK, true);
+	m_pWarriorObject->m_pSkinnedAnimationController->SetTrackEnable(CharacterAnimation::CA_IDLE, true);
 	m_pWarriorObject->SetScale(30.0f);
 	m_ppGameObjects.emplace_back(m_pWarriorObject);
 
@@ -162,6 +171,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 		m_pArrowObjects[i]->SetModel("Model/Arrow.bin");
 		m_pArrowObjects[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pArrowObjects[i]->SetScale(30.0f);
+		m_pArrowObjects[i]->SetBoundingSize(0.2f);
 		static_cast<Archer*>(m_pArcherObject)->SetArrow(m_pArrowObjects[i]);
 	}
 
@@ -200,8 +210,8 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pMonsterObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackAnimationSet(3);
 	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackEnable(CharacterAnimation::CA_IDLE, true);
-	m_pMonsterObject->SetScale(30.0f);
-	m_pMonsterObject->SetBoundingSize(25.0f);
+	m_pMonsterObject->SetScale(15.0f);
+	m_pMonsterObject->SetBoundingSize(22.5f);
 	m_ppGameObjects.emplace_back(m_pMonsterObject);
 
 	m_pSkyboxObject = new GameObject(SQUARE_ENTITY);
@@ -231,7 +241,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 #if LOCAL_TASK
 	// 플레이어가 캐릭터 선택하는 부분에 유사하게 넣을 예정
 	m_pPlayerObject = new GameObject(UNDEF_ENTITY);	//수정필요
-	memcpy(m_pPlayerObject, m_pArcherObject, sizeof(GameObject));
+	memcpy(m_pPlayerObject, m_pWarriorObject, sizeof(GameObject));
 	m_pPlayerObject->SetCamera(m_pCamera);
 	m_pPlayerObject->SetCharacterType(CT_ARCHER);
 	//delete m_pArcherObject;->delete하면서 뎊스렌더 문제 발생
