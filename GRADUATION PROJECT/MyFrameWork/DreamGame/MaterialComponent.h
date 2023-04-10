@@ -53,10 +53,12 @@ public:
 	void LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, UINT nType, UINT nRootParameter, _TCHAR* pwstrTextureName, TextureComponent** ppTexture, GameObject* pParent, FILE* pInFile, ShaderComponent* pShader);
 	int nObjects = 0;
 public:
-	static ShaderComponent* m_pStandardShader;
-	static ShaderComponent* m_pSkinnedAnimationShader;
+	static vector<ShaderComponent*> m_pStandardShader;
+	static vector<ShaderComponent*> m_pSkinnedAnimationShader;
 	static ShaderComponent* m_pBoundingBoxShader;
 
+	static void MaterialComponent::PrepareSkinnedShaders(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, ID3D12Resource* m_pd3dcbGameObjects);
+	static void MaterialComponent::PrepareStandardShaders(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, ID3D12Resource* m_pd3dcbGameObjects);
 	static void MaterialComponent::PrepareShaders(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, ID3D12Resource* m_pd3dcbGameObjects);
 
 	static D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dCbvStandardGPUDescriptorHandle;
@@ -66,10 +68,10 @@ public:
 	D3D12_GPU_DESCRIPTOR_HANDLE GetCbvGPUDescriptorHandle() { return(m_d3dCbvStandardGPUDescriptorHandle); }
 
 
-	void SetStandardShader() { MaterialComponent::SetShader(m_pStandardShader); }
+	void SetStandardShader() { MaterialComponent::SetShader(*m_pStandardShader.crbegin()); }
 	void SetSkinnedAnimationShader()
 	{
-		MaterialComponent::SetShader(m_pSkinnedAnimationShader);
+		MaterialComponent::SetShader(*m_pSkinnedAnimationShader.crbegin());
 		m_isAnimationShader = true;
 	}
 	void SetBoundingBoxShader()

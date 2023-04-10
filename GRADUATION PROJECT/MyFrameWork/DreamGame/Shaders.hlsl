@@ -459,19 +459,37 @@ float4 PSShadowMapShadow(VS_SHADOW_MAP_OUTPUT input) : SV_TARGET
 {
     float4 cAlbedoColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
     if (gnTexturesMask & MATERIAL_ALBEDO_MAP) 
-        cAlbedoColor = gtxtAlbedoTexture.Sample(gWrapSamplerState, /*float2(0.5f, 0.5f) */input.uv);
+        cAlbedoColor = gtxtAlbedoTexture.Sample(gWrapSamplerState, input.uv);
     else
         cAlbedoColor = gMaterial.m_cDiffuse;
-    
-	//그림자면 어둡고 아니면 원래 조명 색
+
+    cAlbedoColor = round(cAlbedoColor * 8.0f) / 8.0f; // 등급을 16단계로 나누어 반올림합니다.
+
     float4 cIllumination = Lighting(input.positionW, normalize(input.normalW), true, input.uvs);
 
-    //return (cIllumination);
     float4 cColor = cAlbedoColor;
+
+    float cThreshold = 0.5f; // 등급을 결정하는 임계값입니다. 값이 작을수록 등급이 높아집니다.
+
+     
+    float3 viewDir = normalize(gvCameraPosition - input.positionW);
+    
+    float3 RimColor = float3(-2.f, -2.f, -2.f);
+    float rimPower = 7.0; // 
+    float3 normal = normalize(input.normalW); // 
+    
+    float rim = saturate(dot(normal, viewDir));
+    
+    //rim *= saturate((rimWidth - distance) / rimWidth);
+    float4 Rimline = float4(pow(1 - rim, rimPower) * RimColor, 0.f);
+    cColor = cColor + Rimline;     
+    
     if (cColor.w < 0.1f)
         return cColor;
+    //else if (dot(normalize(cIllumination), normalize(gLightDir.xyz)) > cThreshold) // 빛의 방향과 색상 값으로 경계면을 계산합니다.
+    // /   return cColor;
     else
-        return (lerp(cColor, cIllumination, 0.4f));
+        return lerp(cColor, cIllumination, 0.4f); // 경계면 이하의 색상 값은 부드럽게 처리합니다.
     
 }
 ///////////////////////////////////////////////////////////////////////////////

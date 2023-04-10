@@ -200,7 +200,7 @@ void GameObject::HandleMessage(string message)
 
 void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-
+	m_pd3dGraphicsRootSignature = pd3dGraphicsRootSignature;
 	ComponentBase* pComponent = GetComponent(component_id::RENDER_COMPONENT);
 	if (pComponent != NULL)
 	{
@@ -262,7 +262,7 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	ComponentBase* pLoadedmodelComponent = GetComponent(component_id::LOADEDMODEL_COMPONET);
 	if (pLoadedmodelComponent != NULL)
 	{
-		MaterialComponent::PrepareShaders(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pd3dcbGameObjects);
+		//MaterialComponent::PrepareShaders(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pd3dcbGameObjects);
 		m_pLoadedModelComponent = static_cast<CLoadedModelInfoCompnent*>(pLoadedmodelComponent);
 		m_pLoadedModelComponent = LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList,
 			pd3dGraphicsRootSignature, pszModelNames, NULL, true);//NULL ->Shader
@@ -501,7 +501,7 @@ CLoadedModelInfoCompnent* GameObject::LoadGeometryAndAnimationFromFile(ID3D12Dev
 	return(pLoadedModel);
 }
 
-void GameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, GameObject* pParent, FILE* pInFile, ShaderComponent* pShader)
+void GameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, GameObject* pParent, FILE* pInFile, ShaderComponent* pShader,ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
 	char pstrToken[64] = { '\0' };
 	int nMaterial = 0;
@@ -532,14 +532,16 @@ void GameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 				{
 					if (nMeshType & VERTEXT_BONE_INDEX_WEIGHT)
 					{
+						pMaterial->PrepareSkinnedShaders(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,m_pd3dcbGameObjects);
 						pMaterial->SetSkinnedAnimationShader();
 					}
 					else
 					{
-						if (!strncmp(m_pstrFrameName, "Bounding", 8))
+				/*		if (!strncmp(m_pstrFrameName, "Bounding", 8))
 							pMaterial->SetBoundingBoxShader();
-						else
-							pMaterial->SetStandardShader();
+						else*/
+						pMaterial->PrepareStandardShaders(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pd3dcbGameObjects);
+						pMaterial->SetStandardShader();
 					}
 				}
 			}
@@ -747,7 +749,7 @@ GameObject* GameObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice, ID3
 		}
 		else if (!strcmp(pstrToken, "<Materials>:"))
 		{
-			pGameObject->LoadMaterialsFromFile(pd3dDevice, pd3dCommandList, pParent, pInFile, pShader);
+			pGameObject->LoadMaterialsFromFile(pd3dDevice, pd3dCommandList, pParent, pInFile, pShader, pd3dGraphicsRootSignature);
 		}
 		else if (!strcmp(pstrToken, "<Children>:"))
 		{
