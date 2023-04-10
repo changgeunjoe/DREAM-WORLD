@@ -167,6 +167,27 @@ void CAnimationController::SetTrackEnable(int nAnimationTrack, bool bEnable)
 	if (m_pAnimationTracks) m_pAnimationTracks[nAnimationTrack].SetEnable(bEnable);
 }
 
+void CAnimationController::SetTrackEnable(CharacterAnimation nAnimationTrack, int nPos)
+{
+	if (m_pAnimationTracks)
+	{
+		switch (nPos)
+		{
+		case 0:	m_nUpperBodyAnimation = nAnimationTrack; break;
+		case 1:	m_nLowerBodyAnimation = nAnimationTrack; break;
+		}
+	}
+}
+
+void CAnimationController::SetTrackEnable(pair<CharacterAnimation, CharacterAnimation> nAnimationTracks)
+{
+	if (m_pAnimationTracks)
+	{
+		m_nUpperBodyAnimation = nAnimationTracks.first;
+		m_nLowerBodyAnimation = nAnimationTracks.second;
+	}
+}
+
 void CAnimationController::SetTrackPosition(int nAnimationTrack, float fPosition)
 {
 	if (m_pAnimationTracks) m_pAnimationTracks[nAnimationTrack].SetPosition(fPosition);
@@ -206,62 +227,50 @@ void CAnimationController::AdvanceTime(float fElapsedTime, GameObject* pRootGame
 		for (int j = 0; j < m_pAnimationSets->m_nAnimatedBoneFrames; j++)
 		{
 			m_pAnimationSets->m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent = Matrix4x4::Zero();
-			if (!strncmp(m_pAnimationSets->m_ppAnimatedBoneFrameCaches[j]->m_pstrFrameName, "Spine1_M", 8))
+			if (!strncmp(m_pAnimationSets->m_ppAnimatedBoneFrameCaches[j]->m_pstrFrameName, "Spine1_M", 8))	// 골반을 기준으로 상하체 위치 확인
 				temp = j;
-
 		}
 
-		if (!m_bAnimationBlending)
+		if (m_nUpperBodyAnimation != m_nLowerBodyAnimation)
 		{
-			for (int k = 0; k < m_nAnimationTracks; k++)
-			{
-				if (m_pAnimationTracks[k].m_bEnable)
-				{
-					CAnimationSet* pAnimationSet = m_pAnimationSets->m_pAnimationSets[m_pAnimationTracks[k].m_nAnimationSet];
-					float fPosition = m_pAnimationTracks[k].UpdatePosition(m_pAnimationTracks[k].m_fPosition, fElapsedTime, pAnimationSet);
-					for (int j = 0; j < m_pAnimationSets->m_nAnimatedBoneFrames; j++)
-					{
-						XMFLOAT4X4 xmf4x4Transform = m_pAnimationSets->m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent;
-						XMFLOAT4X4 xmf4x4TrackTransform = pAnimationSet->GetSRT(j, fPosition);
-						xmf4x4Transform = Matrix4x4::Add(xmf4x4Transform, Matrix4x4::Scale(xmf4x4TrackTransform, m_pAnimationTracks[k].m_fWeight));
-						m_pAnimationSets->m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent = xmf4x4Transform;
-					}
-					m_pAnimationTracks[k].HandleCallback();
-				}
-			}
-		}
-		else
-		{
-			CAnimationSet* pUAnimationSet = m_pAnimationSets->m_pAnimationSets[m_pAnimationTracks[m_nLowerBodyAnimation].m_nAnimationSet];
-			float fUPosition = m_pAnimationTracks[m_nLowerBodyAnimation].UpdatePosition(m_pAnimationTracks[m_nLowerBodyAnimation].m_fPosition, fElapsedTime, pUAnimationSet);
+			// 상체 애니메이션
+			CAnimationSet* pLAnimationSet = m_pAnimationSets->m_pAnimationSets[m_pAnimationTracks[m_nLowerBodyAnimation].m_nAnimationSet];
+			float fUPosition = m_pAnimationTracks[m_nLowerBodyAnimation].UpdatePosition(m_pAnimationTracks[m_nLowerBodyAnimation].m_fPosition, fElapsedTime, pLAnimationSet);
 			for (int j = 0; j < temp; j++)
 			{
 				XMFLOAT4X4 xmf4x4Transform = m_pAnimationSets->m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent;
-				XMFLOAT4X4 xmf4x4TrackTransform = pUAnimationSet->GetSRT(j, fUPosition);
+				XMFLOAT4X4 xmf4x4TrackTransform = pLAnimationSet->GetSRT(j, fUPosition);
 				xmf4x4Transform = Matrix4x4::Add(xmf4x4Transform, Matrix4x4::Scale(xmf4x4TrackTransform, m_pAnimationTracks[m_nLowerBodyAnimation].m_fWeight));
 				m_pAnimationSets->m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent = xmf4x4Transform;
 			}
 			m_pAnimationTracks[m_nLowerBodyAnimation].HandleCallback();
 
-			CAnimationSet* pLAnimationSet = m_pAnimationSets->m_pAnimationSets[m_pAnimationTracks[m_nUpperBodyAnimation].m_nAnimationSet];
-			float fLPosition = m_pAnimationTracks[m_nUpperBodyAnimation].UpdatePosition(m_pAnimationTracks[m_nUpperBodyAnimation].m_fPosition, fElapsedTime, pLAnimationSet);
+			// 하체 애니메이션
+			CAnimationSet* pUAnimationSet = m_pAnimationSets->m_pAnimationSets[m_pAnimationTracks[m_nUpperBodyAnimation].m_nAnimationSet];
+			float fLPosition = m_pAnimationTracks[m_nUpperBodyAnimation].UpdatePosition(m_pAnimationTracks[m_nUpperBodyAnimation].m_fPosition, fElapsedTime, pUAnimationSet);
 			for (int j = temp; j < m_pAnimationSets->m_nAnimatedBoneFrames; j++)
 			{
 				XMFLOAT4X4 xmf4x4Transform = m_pAnimationSets->m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent;
-				XMFLOAT4X4 xmf4x4TrackTransform = pLAnimationSet->GetSRT(j, fLPosition);
+				XMFLOAT4X4 xmf4x4TrackTransform = pUAnimationSet->GetSRT(j, fLPosition);
 				xmf4x4Transform = Matrix4x4::Add(xmf4x4Transform, Matrix4x4::Scale(xmf4x4TrackTransform, m_pAnimationTracks[m_nUpperBodyAnimation].m_fWeight));
 				m_pAnimationSets->m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent = xmf4x4Transform;
 			}
 			m_pAnimationTracks[m_nUpperBodyAnimation].HandleCallback();
 		}
+		else
+		{
+			CAnimationSet* pAnimationSet = m_pAnimationSets->m_pAnimationSets[m_pAnimationTracks[m_nUpperBodyAnimation].m_nAnimationSet];
+			float fLPosition = m_pAnimationTracks[m_nUpperBodyAnimation].UpdatePosition(m_pAnimationTracks[m_nUpperBodyAnimation].m_fPosition, fElapsedTime, pAnimationSet);
+			for (int j = 0; j < m_pAnimationSets->m_nAnimatedBoneFrames; j++)
+			{
+				XMFLOAT4X4 xmf4x4Transform = m_pAnimationSets->m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent;
+				XMFLOAT4X4 xmf4x4TrackTransform = pAnimationSet->GetSRT(j, fLPosition);
+				xmf4x4Transform = Matrix4x4::Add(xmf4x4Transform, Matrix4x4::Scale(xmf4x4TrackTransform, m_pAnimationTracks[m_nUpperBodyAnimation].m_fWeight));
+				m_pAnimationSets->m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent = xmf4x4Transform;
+			}
+			m_pAnimationTracks[m_nUpperBodyAnimation].HandleCallback();
+		}
+
 		pRootGameObject->UpdateTransform(NULL);
 	}
-}
-
-void CAnimationController::SetTrackBlending(int nUpperBodyAnimation, int nLowerBodyAnimation)
-{
-	m_nUpperBodyAnimation = nUpperBodyAnimation;
-	m_nLowerBodyAnimation = nLowerBodyAnimation;
-	SetTrackEnable(m_nUpperBodyAnimation, true);
-	SetTrackEnable(m_nLowerBodyAnimation, true);
 }

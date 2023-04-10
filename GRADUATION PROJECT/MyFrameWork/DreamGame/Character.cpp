@@ -92,72 +92,51 @@ void Warrior::Move(DIRECTION direction, float fDistance)
 
 void Warrior::Animate(float fTimeElapsed)
 {
-	CharacterAnimation AfterAnimation = static_cast<CharacterAnimation>(m_pSkinnedAnimationController->m_CurrentAnimation);
-	switch (AfterAnimation)
+	pair<CharacterAnimation, CharacterAnimation> AfterAnimation = m_pSkinnedAnimationController->m_CurrentAnimation;
+	bool RButtonAnimation = false;
+	bool UpperLock = false;
+	switch (AfterAnimation.first)
 	{
 	case CharacterAnimation::CA_ATTACK:
 	{
 		if (m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd == false)
 		{
-			GameObject::Animate(fTimeElapsed);
-			return;
-		}
-		break;
-	}
-	case CharacterAnimation::CA_BLENDING:
-	{
-		if (m_pSkinnedAnimationController->m_nUpperBodyAnimation == CharacterAnimation::CA_ATTACK)
-		{
-			if (m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd == false)
-			{
-				GameObject::Animate(fTimeElapsed);
-				return;
-			}
+			UpperLock = true;
 		}
 		break;
 	}
 	}
-	pair<CharacterAnimation, CharacterAnimation> blendingAnimation;
-
 	if (m_bMoveState)	// 움직이는 중
 	{
 		if (m_bLButtonClicked)	// 공격
 		{
-			AfterAnimation = CharacterAnimation::CA_BLENDING;
-			blendingAnimation.first = CharacterAnimation::CA_ATTACK;
-			blendingAnimation.second = CharacterAnimation::CA_MOVE;
+			if (!UpperLock) AfterAnimation.first = CharacterAnimation::CA_ATTACK;
+			AfterAnimation.second = CharacterAnimation::CA_MOVE;
 		}
 		else						// 그냥 움직이기
 		{
-			AfterAnimation = CharacterAnimation::CA_MOVE;
+			if (!UpperLock) AfterAnimation.first = CharacterAnimation::CA_MOVE;
+			AfterAnimation.second = CharacterAnimation::CA_MOVE;
 		}
 	}
-	else
+	else if (!UpperLock)
 	{
 		if (m_bLButtonClicked)	// 공격
 		{
-			AfterAnimation = CharacterAnimation::CA_ATTACK;
+			AfterAnimation.first = CharacterAnimation::CA_ATTACK;
+			AfterAnimation.second = CharacterAnimation::CA_ATTACK;
 		}
 		else						// IDLE
 		{
-			AfterAnimation = CharacterAnimation::CA_IDLE;
+			AfterAnimation.first = CharacterAnimation::CA_IDLE;
+			AfterAnimation.second = CharacterAnimation::CA_IDLE;
 		}
 	}
 
-	if (AfterAnimation != static_cast<CharacterAnimation>(m_pSkinnedAnimationController->m_CurrentAnimation))
+	if (AfterAnimation != m_pSkinnedAnimationController->m_CurrentAnimation)
 	{
-		m_pSkinnedAnimationController->SetAllTrackdisable();
 		m_pSkinnedAnimationController->m_CurrentAnimation = AfterAnimation;
-
-		if (AfterAnimation == CharacterAnimation::CA_BLENDING)
-		{
-			m_pSkinnedAnimationController->SetAnimationBlending(true);
-			m_pSkinnedAnimationController->SetTrackBlending(blendingAnimation.first, blendingAnimation.second);
-		}
-		else
-		{
-			m_pSkinnedAnimationController->SetTrackEnable(AfterAnimation, true);
-		}
+		m_pSkinnedAnimationController->SetTrackEnable(AfterAnimation);
 	}
 	if (m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd == true)
 		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd = false;
@@ -221,6 +200,7 @@ void Archer::RbuttonClicked(float fTimeElapsed)
 void Archer::RbuttonUp(const XMFLOAT3& CameraAxis)
 {
 	Attack();
+	m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd = true;
 	Character::RbuttonUp(CameraAxis);
 }
 
@@ -278,119 +258,94 @@ void Archer::Move(DIRECTION direction, float fDistance)
 
 void Archer::Animate(float fTimeElapsed)
 {
-	CharacterAnimation AfterAnimation = static_cast<CharacterAnimation>(m_pSkinnedAnimationController->m_CurrentAnimation);
-	switch (AfterAnimation)
+	pair<CharacterAnimation, CharacterAnimation> AfterAnimation = m_pSkinnedAnimationController->m_CurrentAnimation;
+	bool RButtonAnimation = false;
+	bool UpperLock = false;
+	bool RButtonUp = false;
+	switch (AfterAnimation.first)
 	{
 	case CharacterAnimation::CA_ATTACK:
 	{
 		if (m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd == false)
-		{
-			for (int i = 0; i < m_pArrow.size(); ++i)
-				if (m_pArrow[i]) m_pArrow[i]->Animate(fTimeElapsed);
-
-			GameObject::Animate(fTimeElapsed);
-			return;
-		}
-		break;
-	}
-	case CharacterAnimation::CA_BLENDING:
-	{
-		if (m_pSkinnedAnimationController->m_nUpperBodyAnimation == CharacterAnimation::CA_ATTACK)
-		{
-			if (m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd == false)
-			{
-				for (int i = 0; i < m_pArrow.size(); ++i)
-					if (m_pArrow[i]) m_pArrow[i]->Animate(fTimeElapsed);
-
-				GameObject::Animate(fTimeElapsed);
-				return;
-			}
-		}
+			UpperLock = true;
 		break;
 	}
 	}
-	pair<CharacterAnimation, CharacterAnimation> blendingAnimation;
-	bool RButtonAnimation = false;
+	if (m_bRButtonClicked)	RButtonAnimation = true;
+
 	if (m_bMoveState)	// 움직이는 중
 	{
 		if (m_bRButtonClicked)
 		{
-			AfterAnimation = CharacterAnimation::CA_BLENDING;
-			blendingAnimation.first = CharacterAnimation::CA_ATTACK;
-			blendingAnimation.second = CharacterAnimation::CA_MOVE;
-			RButtonAnimation = true;
+			if (!UpperLock) AfterAnimation.first = CharacterAnimation::CA_ATTACK;
+			AfterAnimation.second = CharacterAnimation::CA_MOVE;
 		}
 		else if (m_bLButtonClicked)	// 공격
 		{
-			AfterAnimation = CharacterAnimation::CA_BLENDING;
-			blendingAnimation.first = CharacterAnimation::CA_ATTACK;
-			blendingAnimation.second = CharacterAnimation::CA_MOVE;
+			if (!UpperLock) AfterAnimation.first = CharacterAnimation::CA_ATTACK;
+			AfterAnimation.second = CharacterAnimation::CA_MOVE;
 		}
 		else						// 그냥 움직이기
 		{
-			AfterAnimation = CharacterAnimation::CA_MOVE;
+			if (!UpperLock) AfterAnimation.first = CharacterAnimation::CA_MOVE;
+			AfterAnimation.second = CharacterAnimation::CA_MOVE;
 		}
 	}
-	else
+	else if(!UpperLock)
 	{
 		if (m_bRButtonClicked)
 		{
-			AfterAnimation = CharacterAnimation::CA_ATTACK;
-			RButtonAnimation = true;
+			AfterAnimation.first = CharacterAnimation::CA_ATTACK;
+			AfterAnimation.second = CharacterAnimation::CA_ATTACK;
 		}
 		else if (m_bLButtonClicked)	// 공격
 		{
-			AfterAnimation = CharacterAnimation::CA_ATTACK;
+			AfterAnimation.first = CharacterAnimation::CA_ATTACK;
+			AfterAnimation.second = CharacterAnimation::CA_ATTACK;
+			
 		}
 		else						// IDLE
 		{
-			AfterAnimation = CharacterAnimation::CA_IDLE;
+			AfterAnimation.first = CharacterAnimation::CA_IDLE;
+			AfterAnimation.second = CharacterAnimation::CA_IDLE;
 		}
 	}
 
-	if (AfterAnimation != static_cast<CharacterAnimation>(m_pSkinnedAnimationController->m_CurrentAnimation))
+	if (AfterAnimation != m_pSkinnedAnimationController->m_CurrentAnimation)
 	{
-		m_pSkinnedAnimationController->SetAllTrackdisable();
-		m_pSkinnedAnimationController->m_CurrentAnimation = AfterAnimation;
-
 		if (RButtonAnimation)
 		{
 			m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_ATTACK]->m_nType = ANIMATION_TYPE_HALF;
-			if (m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_fPosition >= m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_ATTACK]->m_fLength * 0.7f)
+			if (m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_fPosition >= 
+				m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_ATTACK]->m_fLength * 0.7f)
 				m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_fPosition = -1.0f;
 			m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_fSpeed = 0.3f;
 		}
-		else
+		else if (m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_ATTACK]->m_nType == ANIMATION_TYPE_HALF)
 		{
 			m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_ATTACK]->m_nType = ANIMATION_TYPE_LOOP;
 			m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_fSpeed = 1.0f;
+			m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd = false;
+			RButtonUp = true;
 		}
 
-		if (AfterAnimation == CharacterAnimation::CA_BLENDING)
-		{
-			m_pSkinnedAnimationController->SetAnimationBlending(true);
-			m_pSkinnedAnimationController->SetTrackBlending(blendingAnimation.first, blendingAnimation.second);
-		}
-		else
-		{
-			m_pSkinnedAnimationController->SetTrackEnable(AfterAnimation, true);
-		}
-
+		m_pSkinnedAnimationController->m_CurrentAnimation = AfterAnimation;
+		m_pSkinnedAnimationController->SetTrackEnable(AfterAnimation);
 	}
-	if (m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd == true)
+
+	if (m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd == true && !RButtonUp)
 	{
 		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd = false;
 		Attack();
 	}
 	for (int i = 0; i < m_pArrow.size(); ++i)
-		if(m_pArrow[i]) m_pArrow[i]->Animate(fTimeElapsed);
+		if(m_pArrow[i]->m_bActive) m_pArrow[i]->Animate(fTimeElapsed);
 
 	GameObject::Animate(fTimeElapsed);
 }
 
 void Archer::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender)
 {
-
 	for (int i = 0; i < m_pArrow.size(); ++i)
 		if (m_pArrow[i]) m_pArrow[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
 	GameObject::Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
@@ -476,95 +431,68 @@ void Tanker::Move(DIRECTION direction, float fDistance)
 
 void Tanker::Animate(float fTimeElapsed)
 {
-	CharacterAnimation AfterAnimation = static_cast<CharacterAnimation>(m_pSkinnedAnimationController->m_CurrentAnimation);
-	switch (AfterAnimation)
+	pair<CharacterAnimation, CharacterAnimation> AfterAnimation = m_pSkinnedAnimationController->m_CurrentAnimation;
+	bool RButtonAnimation = false;
+	bool UpperLock = false;
+
+	switch (AfterAnimation.first)
 	{
 	case CharacterAnimation::CA_ATTACK:
 	{
 		if (m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd == false)
 		{
-			for (int i = 0; i < m_pArrow.size(); ++i)
-				if (m_pArrow[i]) m_pArrow[i]->Animate(fTimeElapsed);
-
-			GameObject::Animate(fTimeElapsed);
-			return;
-		}
-		break;
-	}
-	case CharacterAnimation::CA_BLENDING:
-	{
-		if (m_pSkinnedAnimationController->m_nUpperBodyAnimation == CharacterAnimation::CA_ATTACK)
-		{
-			if (m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd == false)
-			{
-				for (int i = 0; i < m_pArrow.size(); ++i)
-					if (m_pArrow[i]) m_pArrow[i]->Animate(fTimeElapsed);
-
-				GameObject::Animate(fTimeElapsed);
-				return;
-			}
+			UpperLock = true;
 		}
 		break;
 	}
 	}
-	pair<CharacterAnimation, CharacterAnimation> blendingAnimation;
 
 	if (m_bMoveState)	// 움직이는 중
 	{
 		if (m_bRButtonClicked)
 		{
-			AfterAnimation = CharacterAnimation::CA_BLENDING;
-			m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_DEFENCE]->m_fPosition = -1.0f;
-			blendingAnimation.first = CharacterAnimation::CA_DEFENCE;
-			blendingAnimation.second = CharacterAnimation::CA_MOVE;
+			if (!UpperLock) AfterAnimation.first = CharacterAnimation::CA_DEFENCE;
+			AfterAnimation.second = CharacterAnimation::CA_MOVE;
 		}
 		else if (m_bLButtonClicked)	// 공격
 		{
-			AfterAnimation = CharacterAnimation::CA_BLENDING;
-			blendingAnimation.first = CharacterAnimation::CA_ATTACK;
-			blendingAnimation.second = CharacterAnimation::CA_MOVE;
+			if (!UpperLock) AfterAnimation.first = CharacterAnimation::CA_ATTACK;
+			AfterAnimation.second = CharacterAnimation::CA_MOVE;
 		}
 		else						// 그냥 움직이기
 		{
-			AfterAnimation = CharacterAnimation::CA_MOVE;
+			if (!UpperLock) AfterAnimation.first = CharacterAnimation::CA_MOVE;
+			AfterAnimation.second = CharacterAnimation::CA_MOVE;
 		}
 	}
-	else
+	else if(!UpperLock)
 	{
 		if (m_bRButtonClicked)
 		{
-			m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_DEFENCE]->m_fPosition = -1.0f;
-			AfterAnimation = CharacterAnimation::CA_DEFENCE;
+			AfterAnimation.first = CharacterAnimation::CA_DEFENCE;
+			AfterAnimation.second = CharacterAnimation::CA_DEFENCE;
 		}
-
 		else if (m_bLButtonClicked)	// 공격
 		{
-			AfterAnimation = CharacterAnimation::CA_ATTACK;
+			AfterAnimation.first = CharacterAnimation::CA_ATTACK;
+			AfterAnimation.second = CharacterAnimation::CA_ATTACK;
 		}
-
 		else						// IDLE
 		{
-			AfterAnimation = CharacterAnimation::CA_IDLE;
+			AfterAnimation.first = CharacterAnimation::CA_IDLE;
+			AfterAnimation.second = CharacterAnimation::CA_IDLE;
 		}
 	}
 
-	if (AfterAnimation != static_cast<CharacterAnimation>(m_pSkinnedAnimationController->m_CurrentAnimation))
-	{
-		m_pSkinnedAnimationController->SetAllTrackdisable();
-		m_pSkinnedAnimationController->m_CurrentAnimation = AfterAnimation;
 
-		if (AfterAnimation == CharacterAnimation::CA_BLENDING)
-		{
-			m_pSkinnedAnimationController->SetAnimationBlending(true);
-			m_pSkinnedAnimationController->SetTrackBlending(blendingAnimation.first, blendingAnimation.second);
-		}
-		else
-		{
-			m_pSkinnedAnimationController->SetTrackEnable(AfterAnimation, true);
-		}
+	if (AfterAnimation != m_pSkinnedAnimationController->m_CurrentAnimation)
+	{
+		m_pSkinnedAnimationController->m_CurrentAnimation = AfterAnimation;
+		m_pSkinnedAnimationController->SetTrackEnable(AfterAnimation);
 	}
 	if (m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd == true)
 		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd = false;
+
 	GameObject::Animate(fTimeElapsed);
 }
 
@@ -637,78 +565,49 @@ void Priest::Move(DIRECTION direction, float fDistance)
 
 void Priest::Animate(float fTimeElapsed)
 {
-	CharacterAnimation AfterAnimation = static_cast<CharacterAnimation>(m_pSkinnedAnimationController->m_CurrentAnimation);
-	switch (AfterAnimation)
+	pair<CharacterAnimation, CharacterAnimation> AfterAnimation = m_pSkinnedAnimationController->m_CurrentAnimation;
+	bool RButtonAnimation = false;
+	bool UpperLock = false;
+	switch (AfterAnimation.first)
 	{
 	case CharacterAnimation::CA_ATTACK:
 	{
 		if (m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd == false)
-		{
-			for (int i = 0; i < m_pArrow.size(); ++i)
-				if (m_pArrow[i]) m_pArrow[i]->Animate(fTimeElapsed);
-
-			GameObject::Animate(fTimeElapsed);
-			return;
-		}
-		break;
-	}
-	case CharacterAnimation::CA_BLENDING:
-	{
-		if (m_pSkinnedAnimationController->m_nUpperBodyAnimation == CharacterAnimation::CA_ATTACK)
-		{
-			if (m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd == false)
-			{
-				for (int i = 0; i < m_pArrow.size(); ++i)
-					if (m_pArrow[i]) m_pArrow[i]->Animate(fTimeElapsed);
-
-				GameObject::Animate(fTimeElapsed);
-				return;
-			}
-		}
+			UpperLock = true;
 		break;
 	}
 	}
-	pair<CharacterAnimation, CharacterAnimation> blendingAnimation;
-
 	if (m_bMoveState)	// 움직이는 중
 	{
 		if (m_bLButtonClicked)	// 공격
 		{
-			AfterAnimation = CharacterAnimation::CA_BLENDING;
-			blendingAnimation.first = CharacterAnimation::CA_ATTACK;
-			blendingAnimation.second = CharacterAnimation::CA_MOVE;
+			if (!UpperLock) AfterAnimation.first = CharacterAnimation::CA_ATTACK;
+			AfterAnimation.second = CharacterAnimation::CA_MOVE;
 		}
 		else						// 그냥 움직이기
 		{
-			AfterAnimation = CharacterAnimation::CA_MOVE;
+			if (!UpperLock) AfterAnimation.first = CharacterAnimation::CA_MOVE;
+			AfterAnimation.second = CharacterAnimation::CA_MOVE;
 		}
 	}
-	else
+	else if (!UpperLock)
 	{
 		if (m_bLButtonClicked)	// 공격
 		{
-			AfterAnimation = CharacterAnimation::CA_ATTACK;
+			AfterAnimation.first = CharacterAnimation::CA_ATTACK;
+			AfterAnimation.second = CharacterAnimation::CA_ATTACK;
 		}
 		else						// IDLE
 		{
-			AfterAnimation = CharacterAnimation::CA_IDLE;
+			AfterAnimation.first = CharacterAnimation::CA_IDLE;
+			AfterAnimation.second = CharacterAnimation::CA_IDLE;
 		}
 	}
 
-	if (AfterAnimation != static_cast<CharacterAnimation>(m_pSkinnedAnimationController->m_CurrentAnimation))
+	if (AfterAnimation != m_pSkinnedAnimationController->m_CurrentAnimation)
 	{
-		m_pSkinnedAnimationController->SetAllTrackdisable();
 		m_pSkinnedAnimationController->m_CurrentAnimation = AfterAnimation;
-
-		if (AfterAnimation == CharacterAnimation::CA_BLENDING)
-		{
-			m_pSkinnedAnimationController->SetAnimationBlending(true);
-			m_pSkinnedAnimationController->SetTrackBlending(blendingAnimation.first, blendingAnimation.second);
-		}
-		else
-		{
-			m_pSkinnedAnimationController->SetTrackEnable(AfterAnimation, true);
-		}
+		m_pSkinnedAnimationController->SetTrackEnable(AfterAnimation);
 	}
 	if (m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd == true)
 		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd = false;
