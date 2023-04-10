@@ -26,6 +26,7 @@ public:
 	virtual void BuildShadow(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void Build2DUI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void PickObjectByRayIntersection(int xClient, int yClient);
+	virtual void ProcessingUI(int n);
 	
 
 	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
@@ -35,6 +36,7 @@ public:
 	virtual bool onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	virtual bool onProcessingKeyboardMessageUI(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	virtual void onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
+	virtual void onProcessingMouseMessageUI(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
 private: //active object 
 	vector<GameObject*> m_ppGameObjects;
@@ -65,10 +67,21 @@ private: //active object
 	////////////UI Object////////////// 
 	vector<GameObject*> m_ppUIObjects;
 	int				m_nUIObjects{};
+	int				m_nSection = 0;
+	array<int, 3> Section{ 0, 6, 8};
+	//SECTION 1
 	GameObject* m_pUIGameSearchObject{ NULL };
 	GameObject* m_pUIGameChoiceObject{ NULL };
 	GameObject* m_pUIGameMathchingObject{ NULL };
+	GameObject* m_pUIWarriorCharacterObject{ NULL };
+	GameObject* m_pUIArcherCharacterObject{ NULL };
+	GameObject* m_pUITankerCharacterObject{ NULL };
+	GameObject* m_pUIPriestCharacterObject{ NULL };
+
+	//SECTION 2
 	GameObject* m_pUIGameCreateObject{ NULL };
+	GameObject* m_pUIEnterRoomObject{ NULL };
+	
 	GameObject* m_pSelectedObject = NULL;
 
 	POINT						m_ptOldCursorPos;
@@ -76,6 +89,7 @@ private: //active object
 	bool	m_bUIScene = true;
 public:
 	void SetPlayCharacter(Session* pSession);
+	void SetSection(int n) { m_nSection = n; }
 	void SetPlayerCamera(Session& mySession);
 };
 

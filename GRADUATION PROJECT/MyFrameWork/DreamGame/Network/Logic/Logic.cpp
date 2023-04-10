@@ -240,6 +240,7 @@ void Logic::ProcessPacket(char* p)
 
 	case SERVER_PACKET::REQUEST_ROOM_LIST: // 방 리스트 출력 중 하나
 	{
+		gGameFramework.m_pLobbyScene->m_pObjectManager->SetSection(1);
 		// 방 리스트 정보
 		SERVER_PACKET::RoomInfoPacket* recvPacket = reinterpret_cast<SERVER_PACKET::RoomInfoPacket*>(p);
 		//recvPacket->playerName;
@@ -257,6 +258,7 @@ void Logic::ProcessPacket(char* p)
 
 	case SERVER_PACKET::REQUEST_ROOM_LIST_END: // 방 리스트의 끝
 	{
+		gGameFramework.m_pLobbyScene->m_pObjectManager->SetSection(1);
 		// 마지막 방 리스트 정보
 		SERVER_PACKET::RoomInfoPacket* recvPacket = reinterpret_cast<SERVER_PACKET::RoomInfoPacket*>(p);
 		recvPacket->playerName;
@@ -275,6 +277,7 @@ void Logic::ProcessPacket(char* p)
 
 	case SERVER_PACKET::REQUEST_ROOM_LIST_NONE: // 방 리스트가 존재하지 않음
 	{
+		gGameFramework.m_pLobbyScene->m_pObjectManager->SetSection(1);
 		//방 리스트 없는 상황 보여주면 됨
 		SERVER_PACKET::NotifyPacket* recvPacket = reinterpret_cast<SERVER_PACKET::NotifyPacket*>(p);
 		cout << "방 없음" << endl;
