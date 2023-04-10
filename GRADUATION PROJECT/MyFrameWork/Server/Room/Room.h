@@ -1,5 +1,5 @@
 #pragma once
-
+#include "../Session/Session.h"
 class Room
 {
 public:
@@ -26,6 +26,9 @@ private:
 
 	std::mutex m_lockWaitPlayers;
 	std::map<ROLE, int> m_waitPlayers;
+
+private:
+	std::vector<Session> m_monsters;
 
 public://Get
 	std::map<ROLE, int> GetInGamePlayerMap() {

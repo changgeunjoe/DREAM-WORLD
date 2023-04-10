@@ -3,6 +3,7 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS 1
 #pragma comment(lib, "mswsock.lib")
 #pragma comment(lib, "WS2_32.lib")
+#pragma comment(lib, "lua54.lib")
 
 #include <WS2tcpip.h>
 #include <MSWSock.h>
@@ -31,6 +32,13 @@
 #include <math.h>
 
 #include <DirectXMath.h>
+
+extern "C"
+{
+#include "../lua/include/lua.h"
+#include "../lua/include/lauxlib.h"
+#include "../lua/include/lualib.h"
+}
 
 
 enum DIRECTION : char

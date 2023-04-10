@@ -18,8 +18,6 @@ protected:
 public:
 	DIRECTION m_inputDirection = DIRECTION::IDLE;
 	DIRECTION m_prevDirection = DIRECTION::IDLE;
-
-
 public:
 public:
 	SessionObject(Session* session);
