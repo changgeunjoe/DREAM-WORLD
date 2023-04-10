@@ -55,7 +55,7 @@ void Logic::ProcessPacket(int userId, char* p)
 		PrintCurrentTime();
 		//std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::MOVE_KEY_DOWN - MultiCastOtherPlayer" << std::endl;		
 #endif
-		MultiCastOtherPlayer(userId, &sendPacket);
+		MultiCastOtherPlayerInRoom(userId, &sendPacket);
 	}
 	break;
 	case CLIENT_PACKET::ROTATE:
@@ -74,7 +74,7 @@ void Logic::ProcessPacket(int userId, char* p)
 		//std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::ROTATE - MultiCastOtherPlayer" << std::endl;
 
 #endif
-		MultiCastOtherPlayer(userId, &sendPacket);
+		MultiCastOtherPlayerInRoom(userId, &sendPacket);
 	}
 	break;
 	case CLIENT_PACKET::MOVE_KEY_UP:
@@ -92,7 +92,7 @@ void Logic::ProcessPacket(int userId, char* p)
 		PrintCurrentTime();
 		std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::MOVE_KEY_UP - MultiCastOtherPlayer" << std::endl;
 #endif
-		MultiCastOtherPlayer(userId, &sendPacket);
+		MultiCastOtherPlayerInRoom(userId, &sendPacket);
 	}
 	break;
 	case CLIENT_PACKET::STOP:
@@ -116,14 +116,14 @@ void Logic::ProcessPacket(int userId, char* p)
 		bool adjustRes = pSessionObj->AdjustPlayerInfo(recvPacket->position); // , recvPacket->rotate
 		if (!adjustRes) {
 			sendPacket.position = pSessionObj->GetPosition();
-			BroadCastPacket(&sendPacket);
+			BroadCastOtherPlayerInRoom(userId , &sendPacket);
 #ifdef _DEBUG
 			PrintCurrentTime();
 			std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::STOP - BroadCastPacket" << std::endl;
 #endif
 		}
 		else {
-			MultiCastOtherPlayer(userId, &sendPacket);
+			MultiCastOtherPlayerInRoom(userId, &sendPacket);
 #ifdef _DEBUG
 			PrintCurrentTime();
 			std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::STOP - MultiCastOtherPlayer" << std::endl;
@@ -174,7 +174,7 @@ void Logic::ProcessPacket(int userId, char* p)
 		std::wstring roomName{ recvPacket->roomName };
 
 		SERVER_PACKET::CreateRoomResultPacket sendPacket;
-		if (m_roomManager->InsertRecruitingRoom(roomId, roomName, userId)) {
+		if (m_roomManager->InsertRecruitingRoom(roomId, roomName, userId, (ROLE)recvPacket->Role)) {
 			m_roomManager->m_RecruitingRoomList[roomId].InsertInGamePlayer((ROLE)recvPacket->Role, userId);
 			pSessionObj->SetRoomId(roomId);
 			sendPacket.type = SERVER_PACKET::CREATE_ROOM_SUCCESS;
@@ -290,7 +290,7 @@ void Logic::ProcessPacket(int userId, char* p)
 		PrintCurrentTime();
 		std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::MOUSE_INPUT - MultiCastOtherPlayer" << std::endl;
 #endif
-		MultiCastOtherPlayer(userId, &sendPacket);
+		MultiCastOtherPlayerInRoom(userId, &sendPacket);
 	}
 	break;
 	default:
@@ -325,26 +325,28 @@ void Logic::MultiCastOtherPlayer(int userId, void* p)
 void Logic::MultiCastOtherPlayerInRoom(int userId, void* p)
 {
 	PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
-	//auto roomPlayerSet = m_roomManager->GetRecruitingRoom(pSessionObj->GetRoomId()).GetPlayerSet();
-	//for (auto& cli : roomPlayerSet) {
-	//	if (cli == userId) continue;//자기 자신을 제외한 플레이어들에게 전송
-	//	if (g_iocpNetwork.m_session[cli].m_sessionCategory == PLAYER) {
-	//		PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[cli].m_sessionObject);
-	//		pSessionObj->Send(p);
-	//	}
-	//}
+	if (!m_roomManager->IsExistRunningRoom(pSessionObj->GetRoomId())) return;
+	auto roomPlayermap = m_roomManager->GetRunningRoom(pSessionObj->GetRoomId()).GetInGamePlayerMap();
+	for (auto& cli : roomPlayermap) {
+		if (cli.second == userId) continue;//자기 자신을 제외한 플레이어들에게 전송
+		if (g_iocpNetwork.m_session[cli.second].m_sessionCategory == PLAYER) {
+			PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[cli.second].m_sessionObject);
+			pSessionObj->Send(p);
+		}
+	}
 }
 
 void Logic::BroadCastOtherPlayerInRoom(int userId, void* p)
 {
 	PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
-	//auto roomPlayerSet = m_roomManager->GetRecruitingRoom(pSessionObj->GetRoomId()).GetPlayerSet();
-	//for (auto& cli : roomPlayerSet) {
-	//	if (g_iocpNetwork.m_session[cli].m_sessionCategory == PLAYER) {
-	//		PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[cli].m_sessionObject);
-	//		pSessionObj->Send(p);
-	//	}
-	//}
+	if (!m_roomManager->IsExistRunningRoom(pSessionObj->GetRoomId())) return;
+	auto roomPlayermap = m_roomManager->GetRunningRoom(pSessionObj->GetRoomId()).GetInGamePlayerMap();
+	for (auto& cli : roomPlayermap) {
+		if (g_iocpNetwork.m_session[cli.second].m_sessionCategory == PLAYER) {
+			PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[cli.second].m_sessionObject);
+			pSessionObj->Send(p);
+		}
+	}
 }
 
 void Logic::AutoMoveServer()//2500명?
@@ -385,10 +387,9 @@ void Logic::MatchMaking()
 			if (!(sumRole & (char)pow(2, i))) {
 				restRole.push_back((ROLE)pow(2, i));
 			}
-
 		}
 
-
+		//아무도 없을 때, 
 		if (restRole.size() == 4) {
 			if (randPlayerIdQueue.unsafe_size() >= 4) {
 				std::map<ROLE, int> randMatchPlayer;
@@ -402,23 +403,41 @@ void Logic::MatchMaking()
 				SERVER_PACKET::NotifyPacket sendPacket;
 				sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
 				sendPacket.type = SERVER_PACKET::INTO_GAME;
+
+				std::string roomId;
+				auto now = std::chrono::system_clock::now();
+				auto in_time_t = std::chrono::system_clock::to_time_t(now);
+				roomId.append(std::to_string(std::localtime(&in_time_t)->tm_year % 100));
+				roomId.append(std::to_string(std::localtime(&in_time_t)->tm_mon + 1));
+				roomId.append(std::to_string(std::localtime(&in_time_t)->tm_mday));
+				roomId.append(std::to_string(std::localtime(&in_time_t)->tm_hour));
+				roomId.append(std::to_string(std::localtime(&in_time_t)->tm_min));
+				roomId.append(std::to_string(std::localtime(&in_time_t)->tm_sec));
+				roomId.append("Matching_");
+
+				std::wstring roomName{ L"RandMatchingRoom" };
+				roomName.append(std::to_wstring(matchPlayer.begin()->second));
+				while (!m_roomManager->InsertRunningRoom(roomId, roomName, randMatchPlayer));
+				//룸 생성 성공
+				for (const auto& p : matchPlayer) {
+					PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[p.second].m_sessionObject);
+					pSessionObj->SetRoomId(roomId);
+				}
+
 				for (const auto& p : randMatchPlayer) {
 					//send match Success Packet
 					PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[p.second].m_sessionObject);
 					pSessionObj->SetRole(p.first);
 					char* sendAddPlayerPacket = pSessionObj->GetPlayerInfo();
 					pSessionObj->Send(sendAddPlayerPacket);
-					for (const auto& addP : matchPlayer) {
-						if (p == addP)continue;
-						PlayerSessionObject* sendSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[addP.second].m_sessionObject);
-						sendSessionObj->Send(sendAddPlayerPacket);
-					}
+					BroadCastOtherPlayerInRoom(p.second, sendAddPlayerPacket);
 					delete sendAddPlayerPacket;
-					pSessionObj->Send(&sendPacket);
 				}
+				BroadCastOtherPlayerInRoom(matchPlayer.begin()->second, &sendPacket);
 			}
 		}
 
+		//모두가 Role을 가지고 돌렸을때
 		else if (restRole.size() == 0) {
 			SERVER_PACKET::NotifyPacket sendPacket;
 			sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
@@ -434,38 +453,31 @@ void Logic::MatchMaking()
 			roomId.append(std::to_string(std::localtime(&in_time_t)->tm_min));
 			roomId.append(std::to_string(std::localtime(&in_time_t)->tm_sec));
 			roomId.append("Matching_");
+			roomId.append(std::to_string(matchPlayer.begin()->second));
 
 			std::wstring roomName{ L"RandMatchingRoom" };
-			roomName.append(std::to_wstring(matchPlayer.begin()->second));
-			while (!m_roomManager->InsertRecruitingRoom(roomId, roomName, matchPlayer.begin()->second));
+			roomName.append(std::to_wstring(matchPlayer.begin()->second)); //
+			while (!m_roomManager->InsertRunningRoom(roomId, roomName, matchPlayer));
 			//룸 생성 성공
+			for (const auto& p : matchPlayer) {
+				PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[p.second].m_sessionObject);
+				pSessionObj->SetRoomId(roomId);
+			}
 			for (const auto& p : matchPlayer) {
 				//send match Success Packet
 				PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[p.second].m_sessionObject);
 				pSessionObj->SetRole(p.first);
-				char* sendAddPlayerPacket = pSessionObj->GetPlayerInfo(); // p의 정보를
-				//pSessionObj->Send(sendAddPlayerPacket);// 자기 자신한테 보내고
-				for (const auto& addP : matchPlayer) {//나머지 플레이어들에게 보내고
-					PlayerSessionObject* sendSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[addP.second].m_sessionObject);
-					sendSessionObj->Send(sendAddPlayerPacket);
-					std::cout << "Muticast User Info " << p.second << " to Other Player" << std::endl;
-				}
+				char* sendAddPlayerPacket = pSessionObj->GetPlayerInfo();
+				BroadCastOtherPlayerInRoom(p.second, sendAddPlayerPacket);
 				delete sendAddPlayerPacket;
 			}
-			for (const auto& p : matchPlayer) {
-				//send match Success Packet
-				PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[p.second].m_sessionObject);
-				pSessionObj->Send(&sendPacket);
-				m_roomManager->m_RecruitingRoomList[roomId].InsertInGamePlayer((ROLE)p.first, p.second);
-				pSessionObj->SetRoomId(roomId);
-			}
-
+			BroadCastOtherPlayerInRoom(matchPlayer.begin()->second, &sendPacket);
 			{
 				std::lock_guard<std::mutex> lg{ m_matchPlayerLock };
 				m_matchPlayer.clear();
 			}
 		}
-
+		//일부만 Role가지고 나머지는 Rand가 존재할때
 		else if (restRole.size() <= randPlayerIdQueue.unsafe_size()) {
 			//없는 역할 넣어주기 추가하자
 			for (int i = 0; i < restRole.size(); i++) {
@@ -487,22 +499,39 @@ void Logic::MatchMaking()
 			SERVER_PACKET::NotifyPacket sendPacket;
 			sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
 			sendPacket.type = SERVER_PACKET::INTO_GAME;
+
+			std::string roomId;
+			auto now = std::chrono::system_clock::now();
+			auto in_time_t = std::chrono::system_clock::to_time_t(now);
+			roomId.append(std::to_string(std::localtime(&in_time_t)->tm_year % 100));
+			roomId.append(std::to_string(std::localtime(&in_time_t)->tm_mon + 1));
+			roomId.append(std::to_string(std::localtime(&in_time_t)->tm_mday));
+			roomId.append(std::to_string(std::localtime(&in_time_t)->tm_hour));
+			roomId.append(std::to_string(std::localtime(&in_time_t)->tm_min));
+			roomId.append(std::to_string(std::localtime(&in_time_t)->tm_sec));
+			roomId.append("Matching_");
+
+			std::wstring roomName{ L"RandMatchingRoom" };
+			roomName.append(std::to_wstring(matchPlayer.begin()->second));
+			while (!m_roomManager->InsertRunningRoom(roomId, roomName, matchPlayer));
+			//룸 생성 성공
+			for (const auto& p : matchPlayer) {
+				PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[p.second].m_sessionObject);
+				pSessionObj->SetRoomId(roomId);
+			}
+
 			for (const auto& p : matchPlayer) {
 				PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[p.second].m_sessionObject);
 				pSessionObj->SetRole(p.first);
-				char* sendAddPlayerPacket = pSessionObj->GetPlayerInfo();				
-				for (const auto& addP : matchPlayer) {					
-					PlayerSessionObject* sendSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[addP.second].m_sessionObject);
-					sendSessionObj->Send(sendAddPlayerPacket);
-				}
+				char* sendAddPlayerPacket = pSessionObj->GetPlayerInfo();
+				BroadCastOtherPlayerInRoom(p.second, sendAddPlayerPacket);
 				delete sendAddPlayerPacket;
 			}
-			for (const auto& p : matchPlayer) {
-				PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[p.second].m_sessionObject);
-				pSessionObj->Send(&sendPacket);//지금은 로딩창이 없으니까 바로 인게임 들어가라는 패킷 전송
+			BroadCastOtherPlayerInRoom(matchPlayer.begin()->second, &sendPacket);
+			{
+				std::lock_guard<std::mutex> lg{ m_matchPlayerLock };
+				m_matchPlayer.clear();
 			}
-			//matching
-			//Rand
 		}
 	}
 }

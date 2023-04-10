@@ -4,9 +4,10 @@ class Room
 {
 public:
 	Room();
-	Room(std::string& roomId, std::wstring& roomName, int onwerId);
+	Room(std::string& roomId, std::wstring& roomName, int onwerId, ROLE r);
 	Room(std::string& roomId, int player1, int player2, int player3, int player4); // 五暢遂 結 持失切
 	Room(std::string roomId);
+	Room(std::string roomId, std::wstring roomName);
 	Room(const Room& rhs);
 	~Room();
 public:
@@ -27,9 +28,7 @@ private:
 	std::map<ROLE, int> m_waitPlayers;
 
 public://Get
-
-
-	const std::map<ROLE, int> GetInGamePlayerMap() {
+	std::map<ROLE, int> GetInGamePlayerMap() {
 		std::map<ROLE, int> playerMap;
 		{
 			std::lock_guard<std::mutex> lg{ m_lockInGamePlayers };
@@ -41,6 +40,7 @@ public://Get
 	const std::wstring& GetRoomName() { return m_roomName; }
 	const int roomOwner() { return m_roomOwnerId; }
 public:
+	void InsertInGamePlayer(std::map<ROLE, int>& matchPlayer);
 	void InsertInGamePlayer(ROLE r, int playerId);
 	void DeleteInGamePlayer(int playerId);
 public:

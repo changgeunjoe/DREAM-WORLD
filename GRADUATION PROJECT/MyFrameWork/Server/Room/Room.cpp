@@ -5,13 +5,25 @@ Room::Room()
 {
 }
 
-Room::Room(std::string& roomId, std::wstring& roomName, int onwerId) : m_roomId(roomId), m_roomName(roomName), m_roomOwnerId(onwerId)
+Room::Room(std::string& roomId, std::wstring& roomName, int onwerId, ROLE r) : m_roomId(roomId), m_roomName(roomName), m_roomOwnerId(onwerId)
 {
-	//m_Players.insert(m_roomOwnerId);
+	//m_inGamePlayers.insert(r, m_roomOwnerId);//ROLE이 없음
+	//m_inGamePlayers.insert(std::make_pair(r, m_roomOwnerId));//ROLE이 없음
+	m_inGamePlayers.insert(std::make_pair(r, m_roomOwnerId));
+	//m_inGamePlayers.try_emplace(r, m_roomOwnerId);//ROLE이 없음
 }
 
+Room::Room(std::string& roomId, int player1, int player2, int player3, int player4)
+{
+
+}
 Room::Room(std::string roomId) : m_roomId(roomId)
 {
+}
+
+Room::Room(std::string roomId, std::wstring roomName) : m_roomId(roomId), m_roomName(roomName)
+{
+
 }
 
 Room::Room(const Room& rhs)
@@ -34,6 +46,12 @@ Room& Room::operator=(Room& rhs)
 	m_roomName = rhs.m_roomName;
 	m_roomOwnerId = rhs.m_roomOwnerId;
 	return *this;
+}
+
+void Room::InsertInGamePlayer(std::map<ROLE, int>& matchPlayer)
+{
+	m_roomOwnerId = matchPlayer.begin()->second;
+	m_inGamePlayers = matchPlayer;
 }
 
 void Room::InsertInGamePlayer(ROLE r, int playerId)
