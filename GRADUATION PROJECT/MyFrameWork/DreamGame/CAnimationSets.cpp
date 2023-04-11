@@ -72,7 +72,7 @@ void CAnimationSet::SetPosition(float fTrackPosition)
 	}
 	case ANIMATION_TYPE_ONCE:
 		break;
-	case ANIMATION_TYPE_PINGPONG:
+	case ANIMATION_TYPE_HALF:
 		break;
 	}
 }

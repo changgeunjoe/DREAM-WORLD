@@ -58,7 +58,7 @@ void GameObject::SetPosition(const XMFLOAT3& position)
 	m_xmf4x4ToParent._42 = position.y;
 	m_xmf4x4ToParent._43 = position.z;
 
-	m_SPBB = BoundingSphere(XMFLOAT3(position.x, position.y, position.z), 7.5f);
+	m_SPBB = BoundingSphere(XMFLOAT3(position.x, position.y, position.z), m_fBoundingSize);
 	//if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(position, m_pCamera->GetOffset()));
 
 	UpdateTransform(NULL);
@@ -88,6 +88,11 @@ void GameObject::SetMaterial(int nMaterial, MaterialComponent* pMaterial)
 XMFLOAT3 GameObject::GetLook()
 {
 	return(Vector3::Normalize(XMFLOAT3(m_xmf4x4World._31, m_xmf4x4World._32, m_xmf4x4World._33)));
+}
+
+XMFLOAT3 GameObject::GetObjectLook()
+{
+	return(Vector3::Normalize(XMFLOAT3(m_xmf4x4ToParent._31, m_xmf4x4ToParent._32, m_xmf4x4ToParent._33)));
 }
 
 void GameObject::SetLook(const XMFLOAT3& xmfLook)
@@ -663,8 +668,6 @@ void GameObject::LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfoCompnent* 
 
 			pLoadedModel->m_pAnimationSets->m_pAnimationSets[nAnimationSet] = new CAnimationSet(fLength, nFramesPerSecond, nKeyFrames, pLoadedModel->m_pAnimationSets->m_nAnimatedBoneFrames, pstrToken);
 
-			if (!strncmp(pstrToken, "Block", 5)) pLoadedModel->m_pAnimationSets->m_pAnimationSets[nAnimationSet]->m_nType = ANIMATION_TYPE_ONCE;
-
 			for (int i = 0; i < nKeyFrames; i++)
 			{
 				::ReadStringFromFile(pInFile, pstrToken);
@@ -835,7 +838,6 @@ void GameObject::MoveForward(float fDistance)
 	XMFLOAT3 xmf3Look = GetLook();
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, fDistance);
 	if (Vector3::Length(xmf3Position) < 440.0f)	GameObject::SetPosition(xmf3Position);
-	cout << "움직임 이후 위치 : " << xmf3Position.x << ", " << xmf3Position.y << ", " << xmf3Position.z << endl;
 }
 
 void GameObject::Rotate(float fPitch, float fYaw, float fRoll)
@@ -974,5 +976,4 @@ void GameObject::MoveObject(DIRECTION& currentDirection, const XMFLOAT3& CameraA
 	{
 		SetLook(xmf3Rev);
 	}
-	std::cout << "rotate angle" << xmf3Rev.x << " " << xmf3Rev.y << " " << xmf3Rev.z << std::endl;
 }

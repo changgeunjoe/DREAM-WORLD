@@ -15,6 +15,7 @@ class CLoadedModelInfoCompnent;
 class SkinnedMeshComponent;
 class ComponentBase;
 class CAnimationController;
+class Arrow;
 
 #define MATERIAL_ALBEDO_MAP				0x01
 #define MATERIAL_SPECULAR_MAP			0x02
@@ -49,8 +50,8 @@ public:
     
 	void MoveStrafe(float fDistance = 1.0f);
 	void MoveUp(float fDistance = 1.0f);
-    void MoveForward(float fDistance = 1.0f);
     void MoveDiagonal(int fowardDirection, int rightDirection, float distance = 1.0f);
+    virtual void MoveForward(float fDistance = 1.0f);
     virtual void Move(DIRECTION direction, float fDistance = 1.0f);
 
     bool CheckIntersect(const GameObject* GameObject);	//수정필요
@@ -61,6 +62,7 @@ public:
 
     void SetMaterial(int nMaterial, MaterialComponent* pMaterial);
     XMFLOAT3 GetLook();
+    XMFLOAT3 GetObjectLook();
     void SetLook(const XMFLOAT3& xmfLook);
     XMFLOAT3 GetUp();
     XMFLOAT3 GetRight();
@@ -75,7 +77,7 @@ public:
 	void HandleMessage(string message);
 
     void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
-    void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,bool bPrerender=false);
+    virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,bool bPrerender=false);
     void ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent);
     virtual void Animate(float fTimeElapsed);
     virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
@@ -137,7 +139,8 @@ public:
 
 
     CCamera                         *m_pCamera = NULL;
-    BoundingSphere					m_SPBB = BoundingSphere(XMFLOAT3(0.0f, 0.0f, 0.0f), 7.5f);
+    float                           m_fBoundingSize = 7.5f;
+    BoundingSphere					m_SPBB = BoundingSphere(XMFLOAT3(0.0f, 0.0f, 0.0f), m_fBoundingSize);
 
     int                             m_iRButtionCount = 0;
 
@@ -205,9 +208,23 @@ protected:
     bool                            m_bMoveState = false;
 
 protected:
+    CharacterType                   m_characterType = CharacterType::CT_NONE;
     float                           m_fHp;
     float                           m_fSpeed;
     float                           m_fDamage;
+    int                             m_nArrow;
+public:
+    array<Arrow*, 10>               m_pArrow;
+    void SetCharacterType(CharacterType type) { m_characterType = type; }
+    CharacterType GetCharacterType() { return m_characterType; }
+
+    void SetBoundingSize(float size) 
+    {
+        m_fBoundingSize = size;
+        m_SPBB = BoundingSphere(XMFLOAT3(GetPosition().x, GetPosition().y + m_fBoundingSize, GetPosition().z), m_fBoundingSize);
+    }
+    float GetBoundingSize() { return m_fBoundingSize; }
+
 };
 
 template<typename T>//템플릿을 활용하는 이유-> 
