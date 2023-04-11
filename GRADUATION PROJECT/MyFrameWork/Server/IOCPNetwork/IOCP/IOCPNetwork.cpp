@@ -116,6 +116,15 @@ void IOCPNetwork::WorkerThread()
 				delete ex_over;
 		}
 		break;
+		//Timer Event Boss
+		case OP_TIMER_TEST:
+		{
+			std::string roomId{ ex_over->m_buffer };
+			//Boss Move To Do...
+			char packet[10];
+			g_logic.BroadCastInRoom(roomId, packet);
+		}
+		break;
 		default: break;
 		}
 	}

@@ -1,20 +1,10 @@
 constexpr int MAX_BUF_SIZE = 512;
-
-enum IOCP_OP_CODE
-{
-	OP_NONE,
-	OP_ACCEPT,
-	OP_RECV,
-	OP_SEND
-	//추가 명령어
-};
-
 class ExpOver
 {
 public:
 	WSAOVERLAPPED	m_overlap;
 	IOCP_OP_CODE	m_opCode;
-	char			m_buffer[MAX_BUF_SIZE];
+	char			m_buffer[MAX_BUF_SIZE];//여기에 roomId를 담자
 	WSABUF			m_wsaBuf;
 public:
 	ExpOver()

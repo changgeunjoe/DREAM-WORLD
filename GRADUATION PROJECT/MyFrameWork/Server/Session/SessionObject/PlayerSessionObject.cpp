@@ -122,7 +122,7 @@ void PlayerSessionObject::AutoMove()
 	//	}
 	//}
 	// m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, ((double)durationTime / 1000.0f) * 50.0f));
-	Move(((double)durationTime / 1000.0f) * 50.0f);
+	Move(((float)durationTime / 1000.0f) * 50.0f);
 	m_lastMoveTime = currentTime;
 	std::cout << "current Position " << m_position.x << " " << m_position.y << " " << m_position.z << std::endl;
 	//std::cout << "rotate angle" << m_rotateAngle.x << " " << m_rotateAngle.y << " " << m_rotateAngle.z << std::endl;
@@ -350,7 +350,7 @@ void PlayerSessionObject::SetDirection(DIRECTION d)
 		case DIRECTION::FRONT | DIRECTION::RIGHT:	fRotateAngle = 315.0f;	break;
 		}
 
-		fRotateAngle = fRotateAngle * (3.14159265359 / 180.0f);
+		fRotateAngle = fRotateAngle * (3.14159265359f / 180.0f);
 		xmf3Rev.x = xmf3Look.x * cos(fRotateAngle) - xmf3Look.z * sin(fRotateAngle);
 		xmf3Rev.z = xmf3Look.x * sin(fRotateAngle) + xmf3Look.z * cos(fRotateAngle);
 		xmf3Rev = Vector3::Normalize(xmf3Rev);

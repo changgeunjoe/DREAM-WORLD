@@ -793,7 +793,7 @@ bool GameobjectManager::onProcessingKeyboardMessageUI(HWND hWnd, UINT nMessageID
 		}
 		break;
 		case 'z':
-		case 'Z': // z╢б ╤кейе╘ ц╒╠ыюл ><
+		case 'Z': //ейд©
 		{
 			g_NetworkHelper.SendMatchRequestPacket(ROLE::TANKER);
 		}

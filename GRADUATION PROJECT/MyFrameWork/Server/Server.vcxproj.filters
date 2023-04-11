@@ -32,8 +32,8 @@
     <Filter Include="Room">
       <UniqueIdentifier>{a13be899-e830-47cb-8b85-8dfe2f61fd3b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="LuaScript">
-      <UniqueIdentifier>{d00ffa82-3ba4-4256-bcc1-b667e71c89ba}</UniqueIdentifier>
+    <Filter Include="Timer">
+      <UniqueIdentifier>{cf8ae021-9f8f-43cb-bc14-3e832e28ebfe}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -69,6 +69,9 @@
     </ClCompile>
     <ClCompile Include="Session\SessionObject\MonsterSessionObject.cpp">
       <Filter>Session\SessionObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Timer\Timer.cpp">
+      <Filter>Timer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -108,10 +111,8 @@
     <ClInclude Include="Session\SessionObject\MonsterSessionObject.h">
       <Filter>Session\SessionObject</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="LuaScript\boss.lua">
-      <Filter>LuaScript</Filter>
-    </None>
+    <ClInclude Include="Timer\Timer.h">
+      <Filter>Timer</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

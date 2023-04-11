@@ -23,10 +23,11 @@
 #include <array>
 #include <set>
 #include <map>
-
+#include <thread>
 #include <utility>
 
 #include <concurrent_queue.h>
+#include <concurrent_priority_queue.h>
 #include <concurrent_unordered_set.h>
 #include <atomic>
 
@@ -42,6 +43,15 @@ extern "C"
 #include "../lua/include/lualib.h"
 }
 
+enum IOCP_OP_CODE
+{
+	OP_NONE,
+	OP_ACCEPT,
+	OP_RECV,
+	OP_SEND,
+	OP_TIMER_TEST
+	
+};
 
 enum DIRECTION : char
 {
@@ -64,6 +74,20 @@ enum ROLE :char {
 	TANKER = 0x04,
 	ARCHER = 0x08,
 	RAND = 0x10
+};
+
+enum EVENT_TYPE { EV_NONE, EV_RANDOM_MOVE };
+
+struct TIMER_EVENT
+{
+	std::chrono::system_clock::time_point wakeupTime;
+	std::string roomId; // 보스 일때
+	int playerId; // 플레이어 일때
+	EVENT_TYPE eventId = EV_NONE;
+	constexpr bool operator < (const TIMER_EVENT& L) const
+	{
+		return (wakeupTime > L.wakeupTime);
+	}
 };
 
 using namespace DirectX;

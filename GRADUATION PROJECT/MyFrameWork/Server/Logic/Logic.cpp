@@ -367,6 +367,18 @@ void Logic::BroadCastOtherPlayerInRoom(int userId, void* p)
 	}
 }
 
+void Logic::BroadCastInRoom(std::string& roomId, void* p)
+{
+	if (!m_roomManager->IsExistRunningRoom(roomId)) return;
+	auto roomPlayermap = m_roomManager->GetRunningRoom(roomId).GetInGamePlayerMap();
+	for (auto& cli : roomPlayermap) {
+		if (g_iocpNetwork.m_session[cli.second].m_sessionCategory == PLAYER) {
+			PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[cli.second].m_sessionObject);
+			pSessionObj->Send(p);
+		}
+	}
+}
+
 void Logic::AutoMoveServer()//2500Έν?
 {
 	auto currentTime = std::chrono::high_resolution_clock::now();

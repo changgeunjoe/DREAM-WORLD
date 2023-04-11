@@ -7,7 +7,7 @@ class ExpOver;
 class IOCPNetwork
 {
 private:
-	HANDLE m_hIocp;	
+	HANDLE m_hIocp;
 	std::vector<std::thread> m_workerThread;
 
 private:
@@ -38,4 +38,7 @@ private:
 
 public:
 	int GetCurrentId() { return m_currentClientId; };
+	HANDLE& GetIocpHandle() {
+		return m_hIocp;
+	};
 };
