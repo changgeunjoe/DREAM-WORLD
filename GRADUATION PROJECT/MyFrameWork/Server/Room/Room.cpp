@@ -3,6 +3,7 @@
 
 Room::Room()
 {
+	//test용으로 존재함
 	m_boss.RegistMonster(MAX_USER + m_roomOwnerId);
 }
 
