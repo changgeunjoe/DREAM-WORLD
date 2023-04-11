@@ -40,6 +40,8 @@ public:
 
 private: //active object 
 	vector<GameObject*> m_ppGameObjects;
+	array<Arrow*, 10> m_pArrowObjects;
+
 	int				m_nObjects{};
 	GameObject* m_pGameObject{ NULL };
 
