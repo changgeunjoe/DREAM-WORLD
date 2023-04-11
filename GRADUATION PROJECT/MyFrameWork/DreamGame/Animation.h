@@ -19,8 +19,9 @@ public:
 	int 							m_nAnimationSet = 0;
 
 	int 							m_nType = ANIMATION_TYPE_LOOP; //Once, Loop, PingPong
-
+	bool							m_bAnimationEnd = false;
 	int 							m_nCallbackKeys = 0;
+
 	CALLBACKKEY* m_pCallbackKeys = NULL;
 
 	CAnimationCallbackHandler* m_pAnimationCallbackHandler = NULL;
@@ -54,9 +55,9 @@ public:
 	int 							m_nAnimationTracks = 0;
 	CAnimationTrack* m_pAnimationTracks = NULL;
 
-	int								m_nLowerBodyAnimation = 0;
-	int								m_nUpperBodyAnimation = 0;
-	int								m_CurrentAnimation = 0;
+	CharacterAnimation				m_nLowerBodyAnimation = CharacterAnimation::CA_IDLE;
+	CharacterAnimation				m_nUpperBodyAnimation = CharacterAnimation::CA_IDLE;
+	pair<CharacterAnimation, CharacterAnimation> m_CurrentAnimation = { CharacterAnimation::CA_IDLE, CharacterAnimation::CA_IDLE };
 
 	CAnimationSets* m_pAnimationSets = NULL;
 
@@ -75,6 +76,8 @@ public:
 
 	void SetAllTrackdisable();
 	void SetTrackEnable(int nAnimationTrack, bool bEnable);
+	void SetTrackEnable(CharacterAnimation nAnimationTrack, int nPos);
+	void SetTrackEnable(pair<CharacterAnimation, CharacterAnimation> nAnimationTracks);
 	void SetTrackPosition(int nAnimationTrack, float fPosition);
 	void SetTrackSpeed(int nAnimationTrack, float fSpeed);
 	void SetTrackWeight(int nAnimationTrack, float fWeight);
@@ -84,8 +87,6 @@ public:
 	void SetAnimationCallbackHandler(int nAnimationTrack, CAnimationCallbackHandler* pCallbackHandler);
 
 	void AdvanceTime(float fElapsedTime, GameObject* pRootGameObject);
-
-	void SetTrackBlending(int nUpperBodyAnimation, int nLowerBodyAnimation);
 
 	void SetAnimationBlending(bool bAnimationBlending) { m_bAnimationBlending = bAnimationBlending; }
 	bool GetAnimationBlending() { return m_bAnimationBlending; }
