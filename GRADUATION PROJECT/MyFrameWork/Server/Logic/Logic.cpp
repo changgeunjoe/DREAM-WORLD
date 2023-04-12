@@ -4,8 +4,9 @@
 #include "../Session/SessionObject/PlayerSessionObject.h"
 #include "../IOCPNetwork/IOCP/IOCPNetwork.h"
 #include "../DB/DBObject.h"
-#include "../Room/RoomManager.h"
 #include "../IOCPNetwork/protocol/protocol.h"
+#include "../Room/RoomManager.h"
+
 #include <random>
 
 #define ALONE_TEST 1
@@ -14,6 +15,7 @@
 
 extern IOCPNetwork	g_iocpNetwork;
 extern DBObject		g_DBObj;
+extern RoomManager	g_RoomManager;
 Logic::Logic()
 {
 	m_isRunningThread = true;
@@ -21,7 +23,7 @@ Logic::Logic()
 #ifndef ALONE_TEST
 	m_MatchingThread = std::thread{ [this]() {MatchMaking(); } };
 #endif
-	m_roomManager = new RoomManager();
+	
 }
 
 Logic::~Logic()
@@ -31,7 +33,6 @@ Logic::~Logic()
 		m_PlayerMoveThread.join();
 	if (m_MatchingThread.joinable())
 		m_MatchingThread.join();
-	delete m_roomManager;
 }
 
 void Logic::AcceptPlayer(Session* session, int userId, SOCKET& sock)
@@ -192,8 +193,8 @@ void Logic::ProcessPacket(int userId, char* p)
 		std::wstring roomName{ recvPacket->roomName };
 
 		SERVER_PACKET::CreateRoomResultPacket sendPacket;
-		if (m_roomManager->InsertRecruitingRoom(roomId, roomName, userId, (ROLE)recvPacket->Role)) {
-			m_roomManager->m_RecruitingRoomList[roomId].InsertInGamePlayer((ROLE)recvPacket->Role, userId);
+		if (g_RoomManager.InsertRecruitingRoom(roomId, roomName, userId, (ROLE)recvPacket->Role)) {
+			g_RoomManager.m_RecruitingRoomList[roomId].InsertInGamePlayer((ROLE)recvPacket->Role, userId);
 			pSessionObj->SetRoomId(roomId);
 			sendPacket.type = SERVER_PACKET::CREATE_ROOM_SUCCESS;
 			//룸 생성 성공
@@ -209,7 +210,7 @@ void Logic::ProcessPacket(int userId, char* p)
 	{
 		PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
 		CLIENT_PACKET::RequestRoomListPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::RequestRoomListPacket*>(p);
-		std::vector<Room> recruitRoom = m_roomManager->GetRecruitingRoomList();
+		std::vector<Room> recruitRoom = g_RoomManager.GetRecruitingRoomList();
 		if (recruitRoom.size() == 0) {
 			SERVER_PACKET::NotifyPacket sendPacket;
 			sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
@@ -248,11 +249,11 @@ void Logic::ProcessPacket(int userId, char* p)
 	{
 		PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
 		CLIENT_PACKET::PlayerApplyRoomPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::PlayerApplyRoomPacket*>(p);
-		m_roomManager->m_RecruitRoomListLock.lock();
-		if (m_roomManager->m_RecruitingRoomList.count(recvPacket->roomId)) {
-			m_roomManager->m_RecruitingRoomList[recvPacket->roomId].InsertWaitPlayer((ROLE)recvPacket->role, userId);
-			int roomOwner = m_roomManager->m_RecruitingRoomList[recvPacket->roomId].roomOwner();
-			m_roomManager->m_RecruitRoomListLock.unlock();
+		g_RoomManager.m_RecruitRoomListLock.lock();
+		if (g_RoomManager.m_RecruitingRoomList.count(recvPacket->roomId)) {
+			g_RoomManager.m_RecruitingRoomList[recvPacket->roomId].InsertWaitPlayer((ROLE)recvPacket->role, userId);
+			int roomOwner = g_RoomManager.m_RecruitingRoomList[recvPacket->roomId].roomOwner();
+			g_RoomManager.m_RecruitRoomListLock.unlock();
 			//PLAYER_APPLY_ROOM
 			//방장한테 보내는 패킷 - 신청자 존재함을 알리는 패킷
 
@@ -269,7 +270,7 @@ void Logic::ProcessPacket(int userId, char* p)
 			return;
 		}
 		else {
-			m_roomManager->m_RecruitRoomListLock.unlock();
+			g_RoomManager.m_RecruitRoomListLock.unlock();
 			//방이 사라짐(하필이면)
 			//반송 패킷
 			SERVER_PACKET::NotifyPacket sendPacket;
@@ -283,11 +284,11 @@ void Logic::ProcessPacket(int userId, char* p)
 	{
 		PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
 		CLIENT_PACKET::PlayerCancelRoomPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::PlayerCancelRoomPacket*>(p);
-		m_roomManager->m_RecruitRoomListLock.lock();
-		if (m_roomManager->m_RecruitingRoomList.count(recvPacket->roomId)) {
-			m_roomManager->m_RecruitingRoomList[recvPacket->roomId].DeleteWaitPlayer(userId);
+		g_RoomManager.m_RecruitRoomListLock.lock();
+		if (g_RoomManager.m_RecruitingRoomList.count(recvPacket->roomId)) {
+			g_RoomManager.m_RecruitingRoomList[recvPacket->roomId].DeleteWaitPlayer(userId);
 		}
-		m_roomManager->m_RecruitRoomListLock.unlock();
+		g_RoomManager.m_RecruitRoomListLock.unlock();
 		//방에 있는 사람들에게 취소한 신청자 있음을 전송
 		//multicast by people in room
 	}
@@ -343,8 +344,8 @@ void Logic::MultiCastOtherPlayer(int userId, void* p)
 void Logic::MultiCastOtherPlayerInRoom(int userId, void* p)
 {
 	PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
-	if (!m_roomManager->IsExistRunningRoom(pSessionObj->GetRoomId())) return;
-	auto roomPlayermap = m_roomManager->GetRunningRoom(pSessionObj->GetRoomId()).GetInGamePlayerMap();
+	if (!g_RoomManager.IsExistRunningRoom(pSessionObj->GetRoomId())) return;
+	auto roomPlayermap = g_RoomManager.GetRunningRoom(pSessionObj->GetRoomId()).GetInGamePlayerMap();
 	for (auto& cli : roomPlayermap) {
 		if (cli.second == userId) continue;//자기 자신을 제외한 플레이어들에게 전송
 		if (g_iocpNetwork.m_session[cli.second].m_sessionCategory == PLAYER) {
@@ -357,8 +358,8 @@ void Logic::MultiCastOtherPlayerInRoom(int userId, void* p)
 void Logic::BroadCastOtherPlayerInRoom(int userId, void* p)
 {
 	PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
-	if (!m_roomManager->IsExistRunningRoom(pSessionObj->GetRoomId())) return;
-	auto roomPlayermap = m_roomManager->GetRunningRoom(pSessionObj->GetRoomId()).GetInGamePlayerMap();
+	if (!g_RoomManager.IsExistRunningRoom(pSessionObj->GetRoomId())) return;
+	auto roomPlayermap = g_RoomManager.GetRunningRoom(pSessionObj->GetRoomId()).GetInGamePlayerMap();
 	for (auto& cli : roomPlayermap) {
 		if (g_iocpNetwork.m_session[cli.second].m_sessionCategory == PLAYER) {
 			PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[cli.second].m_sessionObject);
@@ -369,8 +370,8 @@ void Logic::BroadCastOtherPlayerInRoom(int userId, void* p)
 
 void Logic::BroadCastInRoom(std::string& roomId, void* p)
 {
-	if (!m_roomManager->IsExistRunningRoom(roomId)) return;
-	auto roomPlayermap = m_roomManager->GetRunningRoom(roomId).GetInGamePlayerMap();
+	if (!g_RoomManager.IsExistRunningRoom(roomId)) return;
+	auto roomPlayermap = g_RoomManager.GetRunningRoom(roomId).GetInGamePlayerMap();
 	for (auto& cli : roomPlayermap) {
 		if (g_iocpNetwork.m_session[cli.second].m_sessionCategory == PLAYER) {
 			PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[cli.second].m_sessionObject);
@@ -447,7 +448,7 @@ void Logic::MatchMaking()
 
 				std::wstring roomName{ L"RandMatchingRoom" };
 				roomName.append(std::to_wstring(matchPlayer.begin()->second));
-				while (!m_roomManager->InsertRunningRoom(roomId, roomName, randMatchPlayer));
+				while (!g_RoomManager.InsertRunningRoom(roomId, roomName, randMatchPlayer));
 				//룸 생성 성공
 				for (const auto& p : matchPlayer) {
 					PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[p.second].m_sessionObject);
@@ -487,7 +488,7 @@ void Logic::MatchMaking()
 
 			std::wstring roomName{ L"RandMatchingRoom" };
 			roomName.append(std::to_wstring(matchPlayer.begin()->second)); //
-			while (!m_roomManager->InsertRunningRoom(roomId, roomName, matchPlayer));
+			while (!g_RoomManager.InsertRunningRoom(roomId, roomName, matchPlayer));
 			//룸 생성 성공
 			for (const auto& p : matchPlayer) {
 				PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[p.second].m_sessionObject);
@@ -543,7 +544,7 @@ void Logic::MatchMaking()
 
 			std::wstring roomName{ L"RandMatchingRoom" };
 			roomName.append(std::to_wstring(matchPlayer.begin()->second));
-			while (!m_roomManager->InsertRunningRoom(roomId, roomName, matchPlayer));
+			while (!g_RoomManager.InsertRunningRoom(roomId, roomName, matchPlayer));
 			//룸 생성 성공
 			for (const auto& p : matchPlayer) {
 				PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[p.second].m_sessionObject);

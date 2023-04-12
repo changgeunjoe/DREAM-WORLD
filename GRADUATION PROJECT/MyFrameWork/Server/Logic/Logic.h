@@ -1,7 +1,7 @@
 #pragma once
 
 class Session;
-class RoomManager;
+
 
 class Logic
 {
@@ -13,8 +13,7 @@ public:
 private:
 	volatile bool m_isRunningThread = false;
 	std::thread m_PlayerMoveThread;
-	std::thread m_MatchingThread;
-	RoomManager* m_roomManager = nullptr;
+	std::thread m_MatchingThread;	
 private:
 	Concurrency::concurrent_queue<int> warriorPlayerIdQueue;
 	Concurrency::concurrent_queue<int> archerPlayerIdQueue;

@@ -3,8 +3,7 @@
 
 Room::Room()
 {
-	//test용으로 존재함
-	m_boss.RegistMonster(MAX_USER + m_roomOwnerId);
+
 }
 
 Room::Room(std::string& roomId, std::wstring& roomName, int onwerId, ROLE r) : m_roomId(roomId), m_roomName(roomName), m_roomOwnerId(onwerId)
@@ -13,6 +12,9 @@ Room::Room(std::string& roomId, std::wstring& roomName, int onwerId, ROLE r) : m
 	//m_inGamePlayers.insert(std::make_pair(r, m_roomOwnerId));//ROLE이 없음
 	m_inGamePlayers.insert(std::make_pair(r, m_roomOwnerId));
 	//m_inGamePlayers.try_emplace(r, m_roomOwnerId);//ROLE이 없음
+		//test용으로 존재함
+	m_boss.RegistMonster(MAX_USER + m_roomOwnerId);
+
 }
 
 Room::Room(std::string& roomId, int player1, int player2, int player3, int player4)

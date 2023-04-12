@@ -121,8 +121,11 @@ void IOCPNetwork::WorkerThread()
 		{
 			std::string roomId{ ex_over->m_buffer };
 			//Boss Move To Do...
+			
 			char packet[10];
 			g_logic.BroadCastInRoom(roomId, packet);
+			if (ex_over != nullptr)
+				delete ex_over;
 		}
 		break;
 		default: break;
