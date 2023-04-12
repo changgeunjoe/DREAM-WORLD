@@ -22,6 +22,9 @@ private:
 private:
 	std::string m_roomId;
 public:
+	DIRECTION m_inputDirection = DIRECTION::IDLE;
+	DIRECTION m_prevDirection = DIRECTION::IDLE;
+public:
 	PlayerSessionObject(Session* session, SOCKET& sock);
 	virtual	~PlayerSessionObject();
 

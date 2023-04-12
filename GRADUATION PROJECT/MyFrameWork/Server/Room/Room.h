@@ -49,4 +49,7 @@ public:
 public:
 	void InsertWaitPlayer(ROLE r, int playerId);
 	void DeleteWaitPlayer(int playerId);
+public:
+	void CreateBossMonster();
+	Session& GetBoss() { return m_boss; };
 };

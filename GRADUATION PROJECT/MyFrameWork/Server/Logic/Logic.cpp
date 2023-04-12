@@ -23,7 +23,7 @@ Logic::Logic()
 #ifndef ALONE_TEST
 	m_MatchingThread = std::thread{ [this]() {MatchMaking(); } };
 #endif
-	
+
 }
 
 Logic::~Logic()
@@ -390,8 +390,8 @@ void Logic::AutoMoveServer()//2500Έν?
 		for (auto& cli : g_iocpNetwork.m_session) {
 			if (cli.GetId() > MAX_USER) break;
 			if (cli.GetPlayerState() == PLAYER_STATE::FREE) continue;
-			if (cli.m_sessionObject->m_inputDirection != DIRECTION::IDLE) {
-				PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(cli.m_sessionObject);
+			PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(cli.m_sessionObject);
+			if (pSessionObj->m_inputDirection != DIRECTION::IDLE) {
 				pSessionObj->AutoMove();
 			}
 		}

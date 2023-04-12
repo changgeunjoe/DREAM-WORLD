@@ -2,11 +2,13 @@
 #include "IOCPNetwork.h"
 #include "../../Logic/Logic.h"
 #include "../../Session/SessionObject/PlayerSessionObject.h"
+#include "../../Session/SessionObject/MonsterSessionObject.h"
 #include "../../DB/DBObject.h"
+#include "../../Room/RoomManager.h"
 
 extern  Logic		g_logic;
 extern	DBObject	g_DBObj;
-
+extern RoomManager	g_RoomManager;
 
 IOCPNetwork::IOCPNetwork()
 {
@@ -117,11 +119,19 @@ void IOCPNetwork::WorkerThread()
 		}
 		break;
 		//Timer Event Boss
-		case OP_TIMER_TEST:
+		case OP_TIMER_RAND_MOVE:
 		{
-			std::string roomId{ ex_over->m_buffer };
+			std::string roomId{ ex_over->m_buffer };			
+			if (g_RoomManager.IsExistRunningRoom(roomId)) {
+				Room& refRoom = g_RoomManager.GetRunningRoom(roomId);				
+				MonsterSessionObject* bossSession = dynamic_cast<MonsterSessionObject*>(refRoom.GetBoss().m_sessionObject);
+				if (bossSession->isMove) {
+					//bossSession->ChangeDirection();
+				}
+				else;// bossSession->StartMove();
+			}
 			//Boss Move To Do...
-			
+
 			char packet[10];
 			g_logic.BroadCastInRoom(roomId, packet);
 			if (ex_over != nullptr)

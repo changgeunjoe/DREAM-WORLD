@@ -38,7 +38,7 @@ void Timer::TimerThreadFunc()
 			case EV_RANDOM_MOVE:
 			{
 				ExpOver* ov = new ExpOver();
-				ov->m_opCode = OP_TIMER_TEST;
+				ov->m_opCode = OP_TIMER_RAND_MOVE;
 				memcpy(ov->m_buffer, ev.roomId.c_str(), ev.roomId.size());//exOver의 cchar*버퍼에 roomId를 담는다면?
 				ov->m_buffer[ev.roomId.size()] = 0;
 				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, -1, &ov->m_overlap);

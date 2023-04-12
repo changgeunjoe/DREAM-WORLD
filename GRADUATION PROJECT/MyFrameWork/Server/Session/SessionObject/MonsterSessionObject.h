@@ -16,6 +16,9 @@ public:
 
 private:
 	std::string m_roomId;
+	DirectX::XMFLOAT3 m_DestinationPos = { 0,0,0 };
+public:
+	bool isMove = false;
 public:
 	virtual void Recv() override;
 public:
