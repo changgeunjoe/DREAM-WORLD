@@ -63,6 +63,18 @@ std::vector<Room> RoomManager::GetRecruitingRoomList()
 	return resRoom;
 }
 
+std::vector<Room> RoomManager::GetRunningRoomList()
+{
+	std::vector<Room> resRoom;
+	{
+		std::lock_guard<std::mutex> lg{ m_runningRoomListLock };
+		for (const auto& r : m_RunningRoomList) {
+			resRoom.push_back(r.second);
+		}
+	}
+	return resRoom;
+}
+
 bool RoomManager::IsExistRecruitRoom(std::string& roomId)
 {
 	return m_RecruitingRoomList.count(roomId);	

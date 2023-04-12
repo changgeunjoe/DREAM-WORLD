@@ -17,6 +17,7 @@ public:
 private:
 	std::string m_roomId;
 	DirectX::XMFLOAT3 m_DestinationPos = { 0,0,0 };
+	DirectX::XMFLOAT3 m_RestRotateAngle = { 0,0,0 };
 public:
 	bool isMove = false;
 public:
@@ -36,4 +37,9 @@ public:
 	void Move(float fDistance);
 public:
 	const std::string& GetRoomId() { return m_roomId; }
+public:
+	void SetDestinationPos(DirectX::XMFLOAT3 des) {
+		isMove = true;
+		m_DestinationPos = des;
+	}
 };

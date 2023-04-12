@@ -5,6 +5,7 @@
 #include "../../Session/SessionObject/MonsterSessionObject.h"
 #include "../../DB/DBObject.h"
 #include "../../Room/RoomManager.h"
+#include "../protocol/protocol.h"
 
 extern  Logic		g_logic;
 extern	DBObject	g_DBObj;
@@ -121,19 +122,18 @@ void IOCPNetwork::WorkerThread()
 		//Timer Event Boss
 		case OP_TIMER_RAND_MOVE:
 		{
-			std::string roomId{ ex_over->m_buffer };			
+			std::string roomId{ ex_over->m_buffer };
 			if (g_RoomManager.IsExistRunningRoom(roomId)) {
-				Room& refRoom = g_RoomManager.GetRunningRoom(roomId);				
-				MonsterSessionObject* bossSession = dynamic_cast<MonsterSessionObject*>(refRoom.GetBoss().m_sessionObject);
-				if (bossSession->isMove) {
-					//bossSession->ChangeDirection();
-				}
-				else;// bossSession->StartMove();
+				Room& refRoom = g_RoomManager.GetRunningRoom(roomId);
+				MonsterSessionObject* bossSession = dynamic_cast<MonsterSessionObject*>(refRoom.GetBoss().m_sessionObject);			
+				SERVER_PACKET::BossChangeStateMovePacket sendPacket;
+				sendPacket.size = sizeof(SERVER_PACKET::BossChangeStateMovePacket);
+				sendPacket.type = SERVER_PACKET::BOSS_CHANGE_STATE_MOVE_DES;
+				sendPacket.desPos = bossSession->GetPosition();
+				sendPacket.desPos.z -= 5.0f;
+				g_logic.BroadCastInRoom(roomId, &sendPacket);
+				bossSession->SetDestinationPos(sendPacket.desPos);
 			}
-			//Boss Move To Do...
-
-			char packet[10];
-			g_logic.BroadCastInRoom(roomId, packet);
 			if (ex_over != nullptr)
 				delete ex_over;
 		}

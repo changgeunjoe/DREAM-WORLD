@@ -1,6 +1,7 @@
 #pragma once
 #include "Room.h"
 #include <string>
+#include <vector>
 
 class Logic;
 class RoomManager
@@ -24,6 +25,7 @@ public:
 	void ChangeRecruitToRunning(std::string& roomId);
 public:
 	std::vector<Room> GetRecruitingRoomList();
+	std::vector<Room> GetRunningRoomList();
 public:
 	bool IsExistRecruitRoom(std::string& roomId);
 	bool IsExistRunningRoom(std::string& roomId);

@@ -103,6 +103,10 @@ namespace SERVER_PACKET {
 	constexpr unsigned char PLAYER_CANCEL_ROOM = 80; // 신청 취소 정보 방장(방)한테 전송
 	constexpr unsigned char MOUSE_INPUT = 81;
 	constexpr unsigned char INTO_GAME = 82;
+	constexpr unsigned char BOSS_CHANGE_STATE_MOVE_DES = 83;
+	constexpr unsigned char BOSS_CHANGE_STATE_ROTATE_DES = 84;
+	//constexpr unsigned char BOSS_CHANGE_STATE_MOVE = 83;
+	//constexpr unsigned char BOSS_CHANGE_STATE_MOVE = 83;
 	
 
 	struct MovePacket
@@ -177,6 +181,20 @@ namespace SERVER_PACKET {
 		char type;
 		int userId;
 		char ClickedButton;
+	};
+
+	struct BossChangeStateMovePacket {
+		short size;
+		char type;
+		DirectX::XMFLOAT3 desPos;
+		//?
+	};
+
+	struct BossChangeStateRotatePacket {
+		short size;
+		char type;
+		char axis;
+		float angle;
 	};
 
 }

@@ -2,6 +2,7 @@
 #include "Logic.h"
 #include "../Session/Session.h"
 #include "../Session/SessionObject/PlayerSessionObject.h"
+#include "../Session/SessionObject/MonsterSessionObject.h"
 #include "../IOCPNetwork/IOCP/IOCPNetwork.h"
 #include "../DB/DBObject.h"
 #include "../IOCPNetwork/protocol/protocol.h"
@@ -387,12 +388,19 @@ void Logic::AutoMoveServer()//2500명?
 	{
 		if (g_iocpNetwork.GetCurrentId() == 0) continue;
 		currentTime = std::chrono::high_resolution_clock::now();
-		for (auto& cli : g_iocpNetwork.m_session) {
+		for (auto& cli : g_iocpNetwork.m_session) {//플레이어 자동 움직임
 			if (cli.GetId() > MAX_USER) break;
 			if (cli.GetPlayerState() == PLAYER_STATE::FREE) continue;
 			PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(cli.m_sessionObject);
 			if (pSessionObj->m_inputDirection != DIRECTION::IDLE) {
 				pSessionObj->AutoMove();
+			}
+		}
+		auto RunningRooms = g_RoomManager.GetRunningRoomList();
+		for (auto& room : RunningRooms) {
+			MonsterSessionObject* mSessionObj = dynamic_cast<MonsterSessionObject*>(room.GetBoss().m_sessionObject);
+			if (mSessionObj->GetRoomId() == room.GetRoomId() && mSessionObj->isMove) {
+				mSessionObj->AutoMove();
 			}
 		}
 		while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - currentTime).count() < 1000.0f / 60.0f) {

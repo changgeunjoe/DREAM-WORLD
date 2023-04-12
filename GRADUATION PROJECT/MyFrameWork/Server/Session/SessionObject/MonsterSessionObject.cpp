@@ -42,17 +42,17 @@ void MonsterSessionObject::AutoMove()
 
 void MonsterSessionObject::StartMove(DIRECTION d)
 {
-	
+
 }
 
 void MonsterSessionObject::StopMove()
 {
-	
+
 }
 
 void MonsterSessionObject::ChangeDirection(DIRECTION d)
 {
-	
+
 }
 
 const DirectX::XMFLOAT3 MonsterSessionObject::GetPosition()
@@ -92,10 +92,17 @@ void MonsterSessionObject::Rotate(ROTATE_AXIS axis, float angle)
 
 void MonsterSessionObject::SetDirection(DIRECTION d)
 {
-	
+
 }
 
 void MonsterSessionObject::Move(float fDistance)
 {
-	
+	auto pos2desDistance = Vector3::Subtract(m_position, m_DestinationPos);
+	float dis = Vector3::Length(pos2desDistance);
+	if (dis - fDistance < DBL_EPSILON) {
+		isMove = false;
+		m_position = m_DestinationPos;//Á¶Á¤
+		return;
+	}
+	m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, fDistance));
 }
