@@ -35,6 +35,9 @@
     <Filter Include="Timer">
       <UniqueIdentifier>{cf8ae021-9f8f-43cb-bc14-3e832e28ebfe}</UniqueIdentifier>
     </Filter>
+    <Filter Include="QuadTree">
+      <UniqueIdentifier>{80f0689f-59df-466d-a951-f72cfb41b296}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -72,6 +75,9 @@
     </ClCompile>
     <ClCompile Include="Timer\Timer.cpp">
       <Filter>Timer</Filter>
+    </ClCompile>
+    <ClCompile Include="QuadTree\QuadTree.cpp">
+      <Filter>QuadTree</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -113,6 +119,9 @@
     </ClInclude>
     <ClInclude Include="Timer\Timer.h">
       <Filter>Timer</Filter>
+    </ClInclude>
+    <ClInclude Include="QuadTree\QuadTree.h">
+      <Filter>QuadTree</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

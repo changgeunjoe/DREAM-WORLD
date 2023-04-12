@@ -32,6 +32,7 @@
 #include <atomic>
 
 #include <iostream>
+#include <fstream>
 #include <math.h>
 #include <random>
 #include <DirectXMath.h>

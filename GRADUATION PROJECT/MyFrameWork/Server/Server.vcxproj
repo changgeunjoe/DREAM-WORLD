@@ -145,6 +145,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="QuadTree\QuadTree.cpp" />
     <ClCompile Include="Room\Room.cpp" />
     <ClCompile Include="Room\RoomManager.cpp" />
     <ClCompile Include="Session\Session.cpp" />
@@ -159,6 +160,7 @@
     <ClInclude Include="IOCPNetwork\protocol\protocol.h" />
     <ClInclude Include="Logic\Logic.h" />
     <ClInclude Include="PCH\stdafx.h" />
+    <ClInclude Include="QuadTree\QuadTree.h" />
     <ClInclude Include="Room\Room.h" />
     <ClInclude Include="Room\RoomManager.h" />
     <ClInclude Include="Session\ExpOver.h" />
