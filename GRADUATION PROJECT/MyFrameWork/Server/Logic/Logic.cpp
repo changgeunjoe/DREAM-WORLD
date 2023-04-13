@@ -159,6 +159,12 @@ void Logic::ProcessPacket(int userId, char* p)
 #ifdef ALONE_TEST
 		CLIENT_PACKET::MatchPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::MatchPacket*>(p);
 		PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
+		std::map<ROLE, int> testMap;
+		testMap.insert(std::make_pair((ROLE)recvPacket->Role, userId));
+		std::string id = "BossTestRoom";
+		std::wstring name = L"BossTestRoom";
+		g_RoomManager.InsertRunningRoom(id, name, testMap);
+		pSessionObj->SetRoomId(id);
 		pSessionObj->SetRole((ROLE)recvPacket->Role);
 		char* sendAddPlayerPacket = pSessionObj->GetPlayerInfo();
 		pSessionObj->Send(sendAddPlayerPacket);
@@ -398,9 +404,11 @@ void Logic::AutoMoveServer()//2500Έν?
 		}
 		auto RunningRooms = g_RoomManager.GetRunningRoomList();
 		for (auto& room : RunningRooms) {
-			MonsterSessionObject* mSessionObj = dynamic_cast<MonsterSessionObject*>(room.GetBoss().m_sessionObject);
-			if (mSessionObj->GetRoomId() == room.GetRoomId() && mSessionObj->isMove) {
-				mSessionObj->AutoMove();
+			if (room.GetBoss().m_sessionObject) {
+				MonsterSessionObject* mSessionObj = dynamic_cast<MonsterSessionObject*>(room.GetBoss().m_sessionObject);
+				if (mSessionObj->GetRoomId() == room.GetRoomId() && mSessionObj->isMove) {
+					mSessionObj->AutoMove();
+				}
 			}
 		}
 		while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - currentTime).count() < 1000.0f / 60.0f) {

@@ -42,7 +42,7 @@ public:
 	}
 	const int GetId() { return m_id; }
 	const PLAYER_STATE GetPlayerState() { return m_playerState; };
-	void RegistMonster(int id);
+	void RegistMonster(int id, std::string& roomId);
 	friend class SessionObject;
 };
 

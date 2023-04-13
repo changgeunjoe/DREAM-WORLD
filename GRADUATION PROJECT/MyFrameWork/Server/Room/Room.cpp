@@ -26,7 +26,7 @@ Room::Room(std::string roomId) : m_roomId(roomId)
 
 Room::Room(std::string roomId, std::wstring roomName) : m_roomId(roomId), m_roomName(roomName)
 {
-
+	CreateBossMonster(); //임시 입니다.
 }
 
 Room::Room(const Room& rhs)
@@ -93,5 +93,5 @@ void Room::DeleteWaitPlayer(int playerId)
 
 void Room::CreateBossMonster()
 {	
-	m_boss.RegistMonster(MAX_USER + m_roomOwnerId);
+	m_boss.RegistMonster(MAX_USER + m_roomOwnerId, m_roomId);
 }

@@ -1,7 +1,12 @@
 #pragma once
 #include "../../Session/Session.h"
+#include "../../PCH/stdafx.h" //Áö¿ö¾ßµÊ
 
 #define PORT 9000
+
+static std::random_device rd;
+static std::default_random_engine dre(rd());
+static std::uniform_int_distribution<> randDir(0, 4);
 
 class ExpOver;
 class IOCPNetwork

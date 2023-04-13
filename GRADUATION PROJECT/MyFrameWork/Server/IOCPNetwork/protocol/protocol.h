@@ -104,7 +104,7 @@ namespace SERVER_PACKET {
 	constexpr unsigned char MOUSE_INPUT = 81;
 	constexpr unsigned char INTO_GAME = 82;
 	constexpr unsigned char BOSS_CHANGE_STATE_MOVE_DES = 83;
-	constexpr unsigned char BOSS_CHANGE_STATE_ROTATE_DES = 84;
+	constexpr unsigned char BOSS_CHANGE_STATE_REST_ROTATE= 84;
 	//constexpr unsigned char BOSS_CHANGE_STATE_MOVE = 83;
 	//constexpr unsigned char BOSS_CHANGE_STATE_MOVE = 83;
 	

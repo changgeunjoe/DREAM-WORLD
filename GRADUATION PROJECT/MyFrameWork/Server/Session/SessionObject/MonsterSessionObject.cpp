@@ -104,5 +104,5 @@ void MonsterSessionObject::Move(float fDistance)
 		m_position = m_DestinationPos;//조정
 		return;
 	}
-	m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, fDistance));
+	m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, fDistance));//틱마다 움직임
 }

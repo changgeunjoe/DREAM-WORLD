@@ -38,11 +38,11 @@ void Session::RegistPlayer(int id, SOCKET& sock)
 	m_sessionObject->Recv();
 }
 
-void Session::RegistMonster(int id)
+void Session::RegistMonster(int id, std::string& roomId)
 {
 	m_sessionCategory = BOSS;
 	m_id = id;
-	m_sessionObject = new MonsterSessionObject(this);
+	m_sessionObject = new MonsterSessionObject(this, roomId);
 	std::cout << "std::RegistMonster" << std::endl;
 	{
 		std::lock_guard<std::mutex> psLock(m_playerStateLock);

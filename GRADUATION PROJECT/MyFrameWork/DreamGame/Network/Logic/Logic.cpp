@@ -334,6 +334,19 @@ void Logic::ProcessPacket(char* p)
 
 	}
 	break;
+	case SERVER_PACKET::BOSS_CHANGE_STATE_MOVE_DES:
+	{
+		SERVER_PACKET::BossChangeStateMovePacket* recvPacket = reinterpret_cast<SERVER_PACKET::BossChangeStateMovePacket*>(p);
+		recvPacket->desPos; //여기 목적지 까지 보스 몬스터 이동 시키면 됩니다
+	}
+	break;
+	case SERVER_PACKET::BOSS_CHANGE_STATE_REST_ROTATE:
+	{
+		SERVER_PACKET::BossChangeStateRotatePacket* recvPacket = reinterpret_cast<SERVER_PACKET::BossChangeStateRotatePacket*>(p);
+		recvPacket->angle;
+		recvPacket->axis;
+	}
+	break;
 	default:
 		break;
 	}

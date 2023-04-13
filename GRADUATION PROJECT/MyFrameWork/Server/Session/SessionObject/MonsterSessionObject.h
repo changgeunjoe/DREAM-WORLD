@@ -1,11 +1,7 @@
 #pragma once
 #include "SessionObject.h"
 #include "../../Room/Room.h"
-#include "../../PCH/stdafx.h"
-
-static std::random_device rd;
-static std::default_random_engine dre(rd());
-static std::uniform_int_distribution<> randDir(0, 4);
+#include "../../PCH/stdafx.h" // Áö¿ö¾ßµÊ
 
 class MonsterSessionObject : public SessionObject
 {
@@ -16,7 +12,8 @@ public:
 
 private:
 	std::string m_roomId;
-	DirectX::XMFLOAT3 m_DestinationPos = { 0,0,0 };
+	DirectX::XMFLOAT3 m_DestinationPos = { 0,0,0 };	
+	std::mutex m_restRotateAngleLock;
 	DirectX::XMFLOAT3 m_RestRotateAngle = { 0,0,0 };
 public:
 	bool isMove = false;
@@ -42,4 +39,22 @@ public:
 		isMove = true;
 		m_DestinationPos = des;
 	}
+	void SetRestRotateAngle(ROTATE_AXIS axis, float angle) {
+		switch (axis)
+		{
+		case X:
+			m_RestRotateAngle.x = angle;
+			break;
+		case Y:
+			m_RestRotateAngle.y = angle;
+			break;
+		case Z:
+			m_RestRotateAngle.z = angle;
+			break;
+		default:
+			break;
+		}
+	}
+public:
+	DirectX::XMFLOAT3 GetLook() { return m_directionVector; }
 };
