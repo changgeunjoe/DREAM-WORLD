@@ -47,8 +47,6 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	if (!g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject) return;
 	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->UpdateCameraPosition();
 
-	if (g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetRButtonClicked())
-		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->RbuttonClicked(fTimeElapsed);
 	for (auto& session : g_Logic.m_inGamePlayerSession) {
 		if (-1 != session.m_id && session.m_isVisible) {
 			if (session.m_currentDirection != DIRECTION::IDLE) {
@@ -70,6 +68,8 @@ void GameobjectManager::Animate(float fTimeElapsed)
 #endif
 
 			}
+			if (session.m_currentPlayGameObject->GetRButtonClicked())
+				session.m_currentPlayGameObject->RbuttonClicked(fTimeElapsed);
 			session.m_currentPlayGameObject->Animate(fTimeElapsed);
 		}
 	}
@@ -833,44 +833,31 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 	{
 	case WM_LBUTTONDOWN:
 	{
-		if (m_bUIScene)
-		{
-			cout << "마우스 클릭 성공" << endl;
-			PickObjectByRayIntersection(LOWORD(lParam), HIWORD(lParam));
-		}
-		else {
-			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_cMouseInput |= 0x01;
-			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetLButtonClicked(true);
-			SomethingChanging = true;
-		}
+		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_cMouseInput |= 0x01;
+		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetLButtonClicked(true);
+		SomethingChanging = true;
 		break;
 	}
 	case WM_LBUTTONUP:
 	{
-		if (!m_bUIScene) {
-			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_cMouseInput ^= 0x01;
-			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetLButtonClicked(false);
-			SomethingChanging = true;
-		}
+		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_cMouseInput ^= 0x01;
+		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetLButtonClicked(false);
+		SomethingChanging = true;
 		break;
 	}
 	case WM_RBUTTONDOWN:
 	{
-		if (!m_bUIScene) {
-			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_cMouseInput |= 0x10;
-			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetRButtonClicked(true);
-			SomethingChanging = true;
-		}
+		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_cMouseInput |= 0x10;
+		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetRButtonClicked(true);
+		SomethingChanging = true;
 		break;
 	}
 	case WM_RBUTTONUP:
 	{
-		if (!m_bUIScene) {
-			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_cMouseInput ^= 0x10;
-			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetRButtonClicked(false);
-			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->RbuttonUp(g_Logic.m_inGamePlayerSession[0].m_ownerRotateAngle);
-			SomethingChanging = true;
-		}
+		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_cMouseInput ^= 0x10;
+		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetRButtonClicked(false);
+		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->RbuttonUp(g_Logic.m_inGamePlayerSession[0].m_ownerRotateAngle);
+		SomethingChanging = true;
 		break;
 	}
 	default:

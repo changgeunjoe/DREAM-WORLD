@@ -218,6 +218,7 @@ void Logic::ProcessPacket(char* p)
 			}
 			else {
 				findRes->m_currentPlayGameObject->SetRButtonClicked(false);
+				findRes->m_currentPlayGameObject->RbuttonUp();
 			}
 
 			findRes->m_currentPlayGameObject->m_cMouseInput = recvPacket->ClickedButton;

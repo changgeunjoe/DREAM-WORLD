@@ -200,7 +200,7 @@ public:
     bool GetMoveState() { return m_bMoveState; }
     
     virtual void RbuttonClicked(float fTimeElapsed) {};
-    virtual void RbuttonUp(const XMFLOAT3& CameraAxis) {};
+    virtual void RbuttonUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f }) {};
 
 protected:
     bool                            m_bLButtonClicked = false;
@@ -212,7 +212,7 @@ protected:
     float                           m_fHp;
     float                           m_fSpeed;
     float                           m_fDamage;
-    int                             m_nArrow;
+    int                             m_nArrow = 0;
 public:
     array<Arrow*, 10>               m_pArrow;
     void SetCharacterType(CharacterType type) { m_characterType = type; }
