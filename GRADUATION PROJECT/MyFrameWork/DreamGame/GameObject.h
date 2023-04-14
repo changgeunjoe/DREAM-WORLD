@@ -225,6 +225,8 @@ public:
     }
     float GetBoundingSize() { return m_fBoundingSize; }
 
+public:
+    XMFLOAT3                        m_xmf3Destination;
 };
 
 template<typename T>//템플릿을 활용하는 이유-> 

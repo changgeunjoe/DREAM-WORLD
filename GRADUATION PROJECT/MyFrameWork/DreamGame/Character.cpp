@@ -649,3 +649,37 @@ void Arrow::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComm
 void Arrow::ShootArrow(const XMFLOAT3& xmf3StartPos, const XMFLOAT3& xmf3direction)
 {
 }
+
+Monster::Monster() : Character()
+{
+}
+
+Monster::~Monster()
+{
+}
+
+void Monster::Animate(float fTimeElapsed)
+{
+	XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f);
+	XMFLOAT3 des = Vector3::Subtract(m_xmf3Destination, GetPosition());	// 목적지랑 위치랑 벡터
+	bool OnRight = (Vector3::DotProduct(GetRight(), Vector3::Normalize(des)) > 0) ? true : false;	// 목적지가 올느쪽 왼
+	float ChangingAngle = Vector3::Angle(Vector3::Normalize(des),GetLook());	// 
+
+	if (Vector3::Length(des) < 1.0f)
+		SetPosition(m_xmf3Destination);
+	else
+	{
+		if (ChangingAngle > 1.0f)
+		{
+			if (OnRight)
+				Rotate(&up, 90.0f * fTimeElapsed);
+			else if (!OnRight)
+				Rotate(&up, -90.0f * fTimeElapsed);
+		}
+		else
+			SetLook(Vector3::Normalize(des));
+
+		MoveForward(fTimeElapsed * 50.0f);
+	}
+	Character::Animate(fTimeElapsed);
+}
