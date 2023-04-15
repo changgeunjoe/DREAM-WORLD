@@ -17,14 +17,15 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fTrackElapsedT
 	{
 	case ANIMATION_TYPE_LOOP:
 	{
-		if (m_fPosition < 0.0f) m_fPosition = 0.0f;
+		if (m_fPosition < 0.0f)	m_fPosition = 0.0f;
 		else
 		{
+			if(m_fPosition < 0.6f * fAnimationLength && fTrackPosition + TrackElapsedTime > 0.6f * fAnimationLength)
+				m_bAnimationEnd = true;
 			m_fPosition = fTrackPosition + TrackElapsedTime;
 			if (m_fPosition > fAnimationLength)
 			{
 				m_fPosition = -ANIMATION_CALLBACK_EPSILON;
-				m_bAnimationEnd = true;
 				return(fAnimationLength);
 			}
 		}
@@ -32,7 +33,7 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fTrackElapsedT
 	}
 	case ANIMATION_TYPE_HALF:
 	{
-		if (m_fPosition < 0.0f) m_fPosition = 0.0f;
+		if (m_fPosition < 0.0f)	m_fPosition = 0.0f;
 		else
 		{
 			m_fPosition = fTrackPosition + TrackElapsedTime;
@@ -44,13 +45,13 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fTrackElapsedT
 		break;
 	}
 	case ANIMATION_TYPE_ONCE:
-		m_fPosition = fTrackPosition + TrackElapsedTime;
-		if (m_fPosition > fAnimationLength)
-		{
-			m_fPosition = fAnimationLength;
-			m_bAnimationEnd = true;
-			// 이 부분에서 애니메이션이 끝났다는 것을 알려주고 이를 이용해서 다음 애니메이션 연결
-		}
+		//m_fPosition = fTrackPosition + TrackElapsedTime;
+		//if (m_fPosition > fAnimationLength)
+		//{
+		//	m_fPosition = fAnimationLength;
+		//	m_bAnimationEnd = true;
+		//	// 이 부분에서 애니메이션이 끝났다는 것을 알려주고 이를 이용해서 다음 애니메이션 연결
+		//}
 		break;
 	}
 

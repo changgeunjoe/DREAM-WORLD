@@ -48,8 +48,6 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	if (!g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject) return;
 	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->UpdateCameraPosition();
 
-	if (g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetRButtonClicked())
-		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->RbuttonClicked(fTimeElapsed);
 	for (auto& session : g_Logic.m_inGamePlayerSession) {
 		if (-1 != session.m_id && session.m_isVisible) {
 			if (session.m_currentDirection != DIRECTION::IDLE) {
@@ -71,6 +69,8 @@ void GameobjectManager::Animate(float fTimeElapsed)
 #endif
 
 			}
+			if (session.m_currentPlayGameObject->GetRButtonClicked())
+				session.m_currentPlayGameObject->RbuttonClicked(fTimeElapsed);
 			session.m_currentPlayGameObject->Animate(fTimeElapsed);
 		}
 	}
