@@ -248,7 +248,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pMonsterObject = new Monster();
 	m_pMonsterObject->InsertComponent<RenderComponent>();
 	m_pMonsterObject->InsertComponent<CLoadedModelInfoCompnent>();
-	m_pMonsterObject->SetPosition(XMFLOAT3(0, 0, 100));
+	m_pMonsterObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pMonsterObject->SetModel("Model/Boss.bin");
 	m_pMonsterObject->SetAnimationSets(3);
 	m_pMonsterObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
