@@ -38,7 +38,7 @@ public:
 	const std::string& GetRoomId() { return m_roomId; }
 public:
 	void SetDestinationPos(DirectX::XMFLOAT3 des) {
-		isMove = true;
+		
 		m_DestinationPos = des;
 	}
 	void SetRestRotateAngle(ROTATE_AXIS axis, float angle) {

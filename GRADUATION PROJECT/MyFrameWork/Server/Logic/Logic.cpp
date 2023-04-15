@@ -400,12 +400,16 @@ void Logic::AutoMoveServer()//2500Έν?
 				pSessionObj->AutoMove();
 			}
 		}
-		auto RunningRooms = g_RoomManager.GetRunningRoomList();
-		for (auto& room : RunningRooms) {
-			if (room.GetBoss().m_sessionObject) {
+		auto RunningRooms = g_RoomManager.GetRunningRoomIdList();
+
+		for (auto roomId : RunningRooms) {
+			if (g_RoomManager.IsExistRunningRoom(roomId)) {
+				Room& room = g_RoomManager.GetRunningRoom(roomId);
 				MonsterSessionObject* mSessionObj = dynamic_cast<MonsterSessionObject*>(room.GetBoss().m_sessionObject);
-				if (mSessionObj->GetRoomId() == room.GetRoomId() && mSessionObj->isMove) {
-					mSessionObj->AutoMove();
+				if (mSessionObj != nullptr) {
+					if (mSessionObj->GetRoomId() == room.GetRoomId() && mSessionObj->isMove) {
+						mSessionObj->AutoMove();
+					}
 				}
 			}
 		}

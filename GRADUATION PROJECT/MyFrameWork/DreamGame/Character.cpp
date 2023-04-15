@@ -631,3 +631,11 @@ void Arrow::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComm
 		GameObject::Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
 	}
 }
+
+Monster::Monster() : Character()
+{
+}
+
+Monster::~Monster()
+{
+}

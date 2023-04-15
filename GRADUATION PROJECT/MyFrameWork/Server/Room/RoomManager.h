@@ -1,7 +1,6 @@
 #pragma once
+#include "../PCH/stdafx.h"
 #include "Room.h"
-#include <string>
-#include <vector>
 
 class Logic;
 class RoomManager
@@ -26,6 +25,10 @@ public:
 public:
 	std::vector<Room> GetRecruitingRoomList();
 	std::vector<Room> GetRunningRoomList();
+public:
+	std::vector<std::string> GetRunningRoomIdList();
+	std::vector<std::string> GetRecruitingRoomIdList();
+
 public:
 	bool IsExistRecruitRoom(std::string& roomId);
 	bool IsExistRunningRoom(std::string& roomId);

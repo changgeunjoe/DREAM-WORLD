@@ -46,6 +46,6 @@ void Session::RegistMonster(int id, std::string& roomId)
 	std::cout << "std::RegistMonster" << std::endl;
 	{
 		std::lock_guard<std::mutex> psLock(m_playerStateLock);
-		m_playerState = PLAYER_STATE::ALLOC;
+		m_playerState = PLAYER_STATE::IN_GAME;
 	}	
 }

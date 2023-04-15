@@ -149,7 +149,7 @@ void IOCPNetwork::WorkerThread()
 				MonsterSessionObject* bossSession = dynamic_cast<MonsterSessionObject*>(refRoom.GetBoss().m_sessionObject);
 				//юс╫ц			
 				if (bossSession->GetAggroPlayerId() != -1) {
-					bossSession->isMove = true;
+					std::cout << "aggro Player ID: " << bossSession->GetAggroPlayerId() << std::endl;
 					auto playerPos = m_session[bossSession->GetAggroPlayerId()].m_sessionObject->GetPosition();
 					bossSession->SetDestinationPos(playerPos);
 					SERVER_PACKET::BossChangeStateMovePacket sendPacket;

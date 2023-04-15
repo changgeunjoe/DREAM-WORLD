@@ -14,7 +14,7 @@ MonsterSessionObject::MonsterSessionObject(Session* session) : SessionObject(ses
 
 MonsterSessionObject::MonsterSessionObject(Session* session, std::string& roomId) : SessionObject(session), m_roomId(roomId)
 {
-	
+
 }
 
 MonsterSessionObject::~MonsterSessionObject()
@@ -87,6 +87,11 @@ void MonsterSessionObject::Rotate(ROTATE_AXIS axis, float angle)
 	default:
 		break;
 	}
+	DirectX::XMFLOAT3 xmf3Rev = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	xmf3Rev.x = m_directionVector.x * cos(m_rotateAngle.y) - m_directionVector.z * sin(m_rotateAngle.y);
+	xmf3Rev.z = m_directionVector.x * sin(m_rotateAngle.y) + m_directionVector.z * cos(m_rotateAngle.y);
+	xmf3Rev = Vector3::Normalize(xmf3Rev);
+	m_directionVector = xmf3Rev;
 }
 
 void MonsterSessionObject::SetDirection(DIRECTION d)

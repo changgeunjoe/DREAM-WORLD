@@ -48,9 +48,12 @@ void Timer::TimerThreadFunc()
 				ov->m_buffer[ev.roomId.size()] = 0;
 				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, -1, &ov->m_overlap);
 				if (g_RoomManager.IsExistRunningRoom(ev.roomId)) {
-					auto room = g_RoomManager.GetRunningRoom(ev.roomId);
-					if (room.GetBoss().m_sessionObject != nullptr) {
-						if (!reinterpret_cast<MonsterSessionObject*>(room.GetBoss().m_sessionObject)->isMove) {
+					Room& room = g_RoomManager.GetRunningRoom(ev.roomId);
+					//if (room.GetBoss().m_sessionObject != nullptr) {
+					if (room.GetBoss().GetPlayerState() == PLAYER_STATE::IN_GAME) {
+						MonsterSessionObject* monsterSession = reinterpret_cast<MonsterSessionObject*>(room.GetBoss().m_sessionObject);
+						if (!monsterSession->isMove) {
+							monsterSession->isMove = true;
 							TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::milliseconds(10), ev.roomId, -1,EV_RANDOM_MOVE };
 							m_TimerQueue.push(new_ev);
 						}

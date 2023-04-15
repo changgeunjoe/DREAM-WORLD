@@ -45,6 +45,21 @@ extern "C"
 
 //#define ALONE_TEST 1
 
+enum PLAYER_STATE
+{
+	FREE,
+	ALLOC,
+	IN_GAME
+};
+
+enum SESSION_CATEGORY
+{
+	NONE,
+	PLAYER,
+	BOSS,
+	MONSTER
+};
+
 enum IOCP_OP_CODE
 {
 	OP_NONE,
