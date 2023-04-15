@@ -490,7 +490,6 @@ float4 PSShadowMapShadow(VS_SHADOW_MAP_OUTPUT input) : SV_TARGET
     // /   return cColor;
     else
         return lerp(cColor, cIllumination, 0.4f); // 경계면 이하의 색상 값은 부드럽게 처리합니다.
-    
 }
 ///////////////////////////////////////////////////////////////////////////////
 //

@@ -376,6 +376,13 @@ void GameObject::Animate(float fTimeElapsed)
 	if (m_pChild) m_pChild->Animate(fTimeElapsed);
 }
 
+void GameObject::AnimateRowColumn(float fTimeElapsed)
+{
+	m_fTime += fTimeElapsed * 0.5f;
+	if (m_fTime >= m_fSpeed) m_fTime = 0.0f;
+	//m_pMaterial->m_pTexture->AnimateRowColumn(m_fTime);
+}
+
 void GameObject::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256ÀÇ ¹è¼ö

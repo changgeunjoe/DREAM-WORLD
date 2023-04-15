@@ -80,6 +80,7 @@ public:
     virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,bool bPrerender=false);
     void ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent);
     virtual void Animate(float fTimeElapsed);
+    virtual void AnimateRowColumn(float fTimeElapsed);
     virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
     virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
     virtual void ReleaseShaderVariables();
@@ -143,6 +144,7 @@ public:
     BoundingSphere					m_SPBB = BoundingSphere(XMFLOAT3(0.0f, 0.0f, 0.0f), m_fBoundingSize);
 
     int                             m_iRButtionCount = 0;
+ 
 
     DIRECTION                       m_prevDirection = DIRECTION::IDLE;
     unsigned char                   m_cMouseInput = 0x00;
@@ -189,6 +191,8 @@ protected:
 	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);// 삭제 예정(변경)
 	int nObjects = 0;//삭제 예정(변경)
 
+    
+
 public:
     void SetRButtonClicked(bool bRButtonClicked) { m_bRButtonClicked = bRButtonClicked; }
     bool GetRButtonClicked() { return m_bRButtonClicked; }
@@ -213,6 +217,8 @@ protected:
     float                           m_fSpeed;
     float                           m_fDamage;
     int                             m_nArrow = 0;
+
+    float                           m_fTime{};
 public:
     array<Arrow*, 10>               m_pArrow;
     void SetCharacterType(CharacterType type) { m_characterType = type; }
