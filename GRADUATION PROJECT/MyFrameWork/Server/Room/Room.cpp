@@ -1,5 +1,8 @@
 #include "stdafx.h"
 #include "Room.h"
+#include "../Timer/Timer.h"
+
+extern Timer g_Timer;
 
 Room::Room()
 {
@@ -27,6 +30,8 @@ Room::Room(std::string roomId) : m_roomId(roomId)
 Room::Room(std::string roomId, std::wstring roomName) : m_roomId(roomId), m_roomName(roomName)
 {
 	CreateBossMonster(); //임시 입니다.
+	TIMER_EVENT firstEv{ std::chrono::system_clock::now() + std::chrono::seconds(3), m_roomId, -1,EV_FIND_PLAYER };
+	g_Timer.m_TimerQueue.push(firstEv);
 }
 
 Room::Room(const Room& rhs)

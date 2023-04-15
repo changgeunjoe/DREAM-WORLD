@@ -43,6 +43,8 @@ extern "C"
 #include "../lua/include/lualib.h"
 }
 
+//#define ALONE_TEST 1
+
 enum IOCP_OP_CODE
 {
 	OP_NONE,
@@ -50,8 +52,7 @@ enum IOCP_OP_CODE
 	OP_RECV,
 	OP_SEND,
 	OP_FIND_PLAYER,
-	OP_TIMER_RAND_MOVE
-	
+	OP_MOVE_BOSS
 };
 
 enum DIRECTION : char

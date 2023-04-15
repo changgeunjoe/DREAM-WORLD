@@ -1,5 +1,6 @@
 #pragma once
 #include "../Session/Session.h"
+
 class Room
 {
 public:

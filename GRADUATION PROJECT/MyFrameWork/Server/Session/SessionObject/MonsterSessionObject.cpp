@@ -14,8 +14,7 @@ MonsterSessionObject::MonsterSessionObject(Session* session) : SessionObject(ses
 
 MonsterSessionObject::MonsterSessionObject(Session* session, std::string& roomId) : SessionObject(session), m_roomId(roomId)
 {
-	TIMER_EVENT firstEv{ std::chrono::system_clock::now() + std::chrono::seconds(3), m_roomId, -1,EV_RANDOM_MOVE };
-	g_Timer.m_TimerQueue.push(firstEv);
+	
 }
 
 MonsterSessionObject::~MonsterSessionObject()
@@ -34,7 +33,7 @@ void MonsterSessionObject::AutoMove()
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	double durationTime = std::chrono::duration_cast<std::chrono::microseconds>(currentTime - m_lastMoveTime).count();
 	durationTime = (double)durationTime / 1000.0f;
-	Move(((float)durationTime / 1000.0f) * 50.0f);
+	Move(((float)durationTime / 1000.0f) * 50.0f, ((float)durationTime / 1000.0f));
 	m_lastMoveTime = currentTime;
 	std::cout << "current Position " << m_position.x << " " << m_position.y << " " << m_position.z << std::endl;
 	std::cout << "rotate angle" << m_directionVector.x << " " << m_directionVector.y << " " << m_directionVector.z << std::endl;
@@ -95,14 +94,25 @@ void MonsterSessionObject::SetDirection(DIRECTION d)
 
 }
 
-void MonsterSessionObject::Move(float fDistance)
+void MonsterSessionObject::Move(float fDistance, float elapsedTime)
 {
-	auto pos2desDistance = Vector3::Subtract(m_position, m_DestinationPos);
-	float dis = Vector3::Length(pos2desDistance);
-	if (dis - fDistance < DBL_EPSILON) {
-		isMove = false;
-		m_position = m_DestinationPos;//조정
-		return;
+	XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f);
+	XMFLOAT3 des = Vector3::Subtract(m_DestinationPos, m_position);	// 목적지랑 위치랑 벡터	
+	CalcRightVector();
+	bool OnRight = (Vector3::DotProduct(m_rightVector, Vector3::Normalize(des)) > 0) ? true : false;	// 목적지가 올느쪽 왼
+	float ChangingAngle = Vector3::Angle(Vector3::Normalize(des), GetLook());	// 
+
+	if (Vector3::Length(des) < DBL_EPSILON)
+		m_position = m_DestinationPos;
+	else
+	{
+		if (ChangingAngle > 1.0f)
+		{
+			if (OnRight)
+				Rotate(ROTATE_AXIS::Y, 10.0f * elapsedTime);
+			else if (!OnRight)
+				Rotate(ROTATE_AXIS::Y, -10.0f * elapsedTime);
+		}
+		m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, fDistance));//틱마다 움직임		
 	}
-	m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, fDistance));//틱마다 움직임
 }

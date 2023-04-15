@@ -10,8 +10,6 @@
 
 #include <random>
 
-#define ALONE_TEST 1
-
 #pragma warning(disable : 4996)
 
 extern IOCPNetwork	g_iocpNetwork;

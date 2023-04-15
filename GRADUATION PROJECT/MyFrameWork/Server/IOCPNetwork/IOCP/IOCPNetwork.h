@@ -6,7 +6,7 @@
 
 static std::random_device rd;
 static std::default_random_engine dre(rd());
-static std::uniform_int_distribution<> randDir(0, 4);
+static std::uniform_int_distribution<> aggroRandomPlayer(0, 4);
 
 class ExpOver;
 class IOCPNetwork

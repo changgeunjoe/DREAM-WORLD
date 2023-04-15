@@ -331,7 +331,6 @@ void Logic::ProcessPacket(char* p)
 		for (int i = 0; i < 4; i++) {
 			cout << "Session Index: " << i << " User Id: " << m_inGamePlayerSession[i].m_id << " User Role: " << (int)m_inGamePlayerSession[i].GetRole() << endl;
 		}
-
 	}
 	break;
 	case SERVER_PACKET::BOSS_CHANGE_STATE_MOVE_DES:
@@ -339,13 +338,6 @@ void Logic::ProcessPacket(char* p)
 		SERVER_PACKET::BossChangeStateMovePacket* recvPacket = reinterpret_cast<SERVER_PACKET::BossChangeStateMovePacket*>(p);
 		recvPacket->desPos; //여기 목적지 까지 보스 몬스터 이동 시키면 됩니다
 		m_MonsterSession.m_currentPlayGameObject->m_xmf3Destination = recvPacket->desPos;
-	}
-	break;
-	case SERVER_PACKET::BOSS_CHANGE_STATE_REST_ROTATE:
-	{
-		SERVER_PACKET::BossChangeStateRotatePacket* recvPacket = reinterpret_cast<SERVER_PACKET::BossChangeStateRotatePacket*>(p);
-		recvPacket->angle;
-		recvPacket->axis;
 	}
 	break;
 	default:

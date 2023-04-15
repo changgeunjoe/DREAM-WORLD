@@ -12,9 +12,11 @@ public:
 
 private:
 	std::string m_roomId;
-	DirectX::XMFLOAT3 m_DestinationPos = { 0,0,0 };	
+	DirectX::XMFLOAT3 m_DestinationPos = { 0,0,0 };
 	std::mutex m_restRotateAngleLock;
 	DirectX::XMFLOAT3 m_RestRotateAngle = { 0,0,0 };
+private:
+	int m_aggroPlayerId = -1;
 public:
 	bool isMove = false;
 public:
@@ -31,7 +33,7 @@ public:
 	virtual void Rotate(ROTATE_AXIS axis, float angle) override;
 public:
 	void SetDirection(DIRECTION d);
-	void Move(float fDistance);
+	void Move(float fDistance, float elapsedTime);
 public:
 	const std::string& GetRoomId() { return m_roomId; }
 public:
@@ -57,4 +59,7 @@ public:
 	}
 public:
 	DirectX::XMFLOAT3 GetLook() { return m_directionVector; }
+public:
+	void SetAggroPlayerId(int id) { m_aggroPlayerId = id; }
+	int GetAggroPlayerId() { return m_aggroPlayerId; }
 };

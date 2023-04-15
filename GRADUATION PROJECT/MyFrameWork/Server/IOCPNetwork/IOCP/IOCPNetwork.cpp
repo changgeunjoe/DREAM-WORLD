@@ -127,51 +127,37 @@ void IOCPNetwork::WorkerThread()
 			if (g_RoomManager.IsExistRunningRoom(roomId)) {
 				Room& refRoom = g_RoomManager.GetRunningRoom(roomId);
 				MonsterSessionObject* bossSession = dynamic_cast<MonsterSessionObject*>(refRoom.GetBoss().m_sessionObject);
-				//임시
-#define ALONE_TEST 1
+				//#define ALONE_TEST 1
 #ifdef ALONE_TEST
-				auto bossPos = bossSession->GetPosition();
-
-				auto player1 = *refRoom.GetInGamePlayerMap().begin();
-				auto palyerPos = m_session[player1.second].m_sessionObject->GetPosition();
-				auto desLook = Vector3::Subtract(palyerPos, bossPos);
-				//목적 룩 벡터 계산			
-				Vector3::Normalize(desLook);
-				//현재 보스가 바라보는 방향
-				auto bossLook = bossSession->GetLook();
-				Vector3::Normalize(bossLook);
-
-				float desRotAngle = acosf(Vector3::DotProduct(desLook, bossLook)); //angle - radian
-				desRotAngle = 180.0f * desRotAngle / 3.141592f; // angle - degree
-				bossSession->SetRestRotateAngle(ROTATE_AXIS::Y, desRotAngle);
-				SERVER_PACKET::BossChangeStateRotatePacket sendPacket;
-				sendPacket.size = sizeof(SERVER_PACKET::BossChangeStateRotatePacket);
-				sendPacket.type = SERVER_PACKET::BOSS_CHANGE_STATE_REST_ROTATE;
-				sendPacket.angle = ROTATE_AXIS::Y;
-				sendPacket.angle = desRotAngle;
-				g_logic.BroadCastInRoom(roomId, &sendPacket);
-#elif
-				auto player1 = *refRoom.GetInGamePlayerMap().begin();
-				auto desPos = m_session[player1.second].m_sessionObject->GetPosition();
-#endif
+				auto playerMap = refRoom.GetInGamePlayerMap();
+				bossSession->SetAggroPlayerId( playerMap.begin()->second );
+#endif // ALONE_TEST
+#ifndef ALONE_TEST
+				auto playerMap = refRoom.GetInGamePlayerMap();
+				bossSession->SetAggroPlayerId(playerMap[(ROLE)aggroRandomPlayer(dre)]);
+#endif // ALONE_TEST
 			}
 			if (ex_over != nullptr)
 				delete ex_over;
 		}
 		break;
-		case OP_TIMER_RAND_MOVE:
+		case OP_MOVE_BOSS:
 		{
 			std::string roomId{ ex_over->m_buffer };
 			if (g_RoomManager.IsExistRunningRoom(roomId)) {
 				Room& refRoom = g_RoomManager.GetRunningRoom(roomId);
 				MonsterSessionObject* bossSession = dynamic_cast<MonsterSessionObject*>(refRoom.GetBoss().m_sessionObject);
-				SERVER_PACKET::BossChangeStateMovePacket sendPacket;
-				sendPacket.size = sizeof(SERVER_PACKET::BossChangeStateMovePacket);
-				sendPacket.type = SERVER_PACKET::BOSS_CHANGE_STATE_MOVE_DES;
-				sendPacket.desPos = bossSession->GetPosition();
-				sendPacket.desPos.z -= 5.0f;
-				g_logic.BroadCastInRoom(roomId, &sendPacket);
-				bossSession->SetDestinationPos(sendPacket.desPos);
+				//임시			
+				if (bossSession->GetAggroPlayerId() != -1) {
+					bossSession->isMove = true;
+					auto playerPos = m_session[bossSession->GetAggroPlayerId()].m_sessionObject->GetPosition();
+					bossSession->SetDestinationPos(playerPos);
+					SERVER_PACKET::BossChangeStateMovePacket sendPacket;
+					sendPacket.type = SERVER_PACKET::BOSS_CHANGE_STATE_MOVE_DES;
+					sendPacket.size = sizeof(SERVER_PACKET::BossChangeStateMovePacket);
+					sendPacket.desPos = playerPos;
+					g_logic.BroadCastInRoom(roomId, &sendPacket);
+				}
 			}
 			if (ex_over != nullptr)
 				delete ex_over;
