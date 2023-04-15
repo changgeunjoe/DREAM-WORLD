@@ -639,3 +639,30 @@ Monster::Monster() : Character()
 Monster::~Monster()
 {
 }
+
+void Monster::Animate(float fTimeElapsed)
+{
+	XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f);
+	XMFLOAT3 des = Vector3::Subtract(m_xmf3Destination, GetPosition());
+	bool OnRight = (Vector3::DotProduct(GetRight(), Vector3::Normalize(des)) > 0) ? true : false;
+	float ChangingAngle = Vector3::Angle(Vector3::Normalize(des), GetLook());
+
+	if (Vector3::Length(des) < DBL_EPSILON)
+		SetPosition(m_xmf3Destination);
+	else
+	{
+		if (ChangingAngle > 1.0f)
+		{
+			if (OnRight)
+				Rotate(&up, 45.0f * fTimeElapsed);
+			else if (!OnRight)
+				Rotate(&up, -45.0f * fTimeElapsed);
+		}
+		else
+			SetLook(Vector3::Normalize(des));
+
+		MoveForward(50 * fTimeElapsed);
+	}
+
+	Character::Animate(fTimeElapsed);
+}

@@ -114,9 +114,9 @@ void MonsterSessionObject::Move(float fDistance, float elapsedTime)
 		if (ChangingAngle > 1.0f)
 		{
 			if (OnRight)
-				Rotate(ROTATE_AXIS::Y, 10.0f * elapsedTime);
+				Rotate(ROTATE_AXIS::Y, 45.0f * elapsedTime);
 			else if (!OnRight)
-				Rotate(ROTATE_AXIS::Y, -10.0f * elapsedTime);
+				Rotate(ROTATE_AXIS::Y, -45.0f * elapsedTime);
 		}
 		m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, fDistance));//틱마다 움직임		
 	}

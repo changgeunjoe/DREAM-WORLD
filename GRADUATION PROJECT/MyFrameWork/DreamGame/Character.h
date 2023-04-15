@@ -77,5 +77,5 @@ class Monster : public Character
 public:
 	Monster();
 	virtual ~Monster();
-	//virtual void Animate(float fTimeElapsed);
+	virtual void Animate(float fTimeElapsed);
 };
