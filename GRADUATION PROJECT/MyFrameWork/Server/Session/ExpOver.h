@@ -1,10 +1,11 @@
-constexpr int MAX_BUF_SIZE = 512;
+#include "../PCH/stdafx.h"
+
 class ExpOver
 {
 public:
 	WSAOVERLAPPED	m_overlap;
 	IOCP_OP_CODE	m_opCode;
-	char			m_buffer[MAX_BUF_SIZE];//여기에 roomId를 담자
+	char			m_buffer[MAX_BUF_SIZE] = { 0 };//여기에 roomId를 담자
 	WSABUF			m_wsaBuf;
 public:
 	ExpOver()
@@ -17,7 +18,7 @@ public:
 	{
 		ZeroMemory(&m_overlap, sizeof(m_overlap));
 		short size = 0;
-		memcpy(&size, p, 2);		
+		memcpy(&size, p, 2);
 		m_wsaBuf.len = size;
 		m_wsaBuf.buf = m_buffer;
 		m_opCode = OP_SEND;

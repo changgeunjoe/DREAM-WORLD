@@ -2,7 +2,7 @@
 
 #define _WINSOCK_DEPRECATED_NO_WARNINGS 1
 #define MAX_USER 10
-
+//#define ALONE_TEST 1
 #pragma comment(lib, "mswsock.lib")
 #pragma comment(lib, "WS2_32.lib")
 #pragma comment(lib, "lua54.lib")
@@ -43,23 +43,12 @@ extern "C"
 #include "../lua/include/lualib.h"
 }
 
-//#define ALONE_TEST 1
-
 enum PLAYER_STATE
 {
 	FREE,
 	ALLOC,
-	IN_GAME
-};
-
-enum SESSION_CATEGORY
-{
-	NONE,
-	PLAYER,
-	BOSS,
-	MONSTER,
-	ARROW,
-	ENERGY_BALL
+	IN_GAME,
+	IN_GAME_ROOM
 };
 
 enum IOCP_OP_CODE
@@ -108,7 +97,7 @@ struct TIMER_EVENT
 		return (wakeupTime > L.wakeupTime);
 	}
 };
-
+constexpr int MAX_BUF_SIZE = 512;
 using namespace DirectX;
 
 namespace Vector3

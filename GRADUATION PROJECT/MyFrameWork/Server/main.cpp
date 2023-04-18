@@ -6,10 +6,10 @@
 #include "Room/RoomManager.h"
 
 IOCPNetwork g_iocpNetwork;
-Logic		g_logic;
 DBObject	g_DBObj;
 Timer		g_Timer;
 RoomManager	g_RoomManager;
+Logic		g_logic;
 
 int main()
 {

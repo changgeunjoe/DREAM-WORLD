@@ -9,24 +9,19 @@ extern Logic g_logic;
 extern Timer g_Timer;
 extern IOCPNetwork g_iocpNetwork;
 
-MonsterSessionObject::MonsterSessionObject(Session* session) : SessionObject(session)
+MonsterSessionObject::MonsterSessionObject()
 {
 
 }
 
-MonsterSessionObject::MonsterSessionObject(Session* session, std::string& roomId) : SessionObject(session), m_roomId(roomId)
+MonsterSessionObject::MonsterSessionObject(std::string& roomId)
 {
-
+	m_roomId = roomId;
 }
 
 MonsterSessionObject::~MonsterSessionObject()
 {
 
-}
-
-void MonsterSessionObject::Recv()
-{
-	std::cout << "Monster Can not Recv" << std::endl;
 }
 
 void MonsterSessionObject::AutoMove()

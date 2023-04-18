@@ -5,9 +5,11 @@
 class Session;
 class ShootingSessionObject : public SessionObject
 {
+private:
+	int m_id = -1;
 public:
-	ShootingSessionObject(Session* session);
-	ShootingSessionObject(Session* session, std::string& roomId);
+	ShootingSessionObject();
+	ShootingSessionObject(std::string& roomId);
 	~ShootingSessionObject();
 private:
 	std::string m_roomId;
@@ -21,9 +23,14 @@ public:
 public:
 	virtual const DirectX::XMFLOAT3 GetPosition();
 	virtual const DirectX::XMFLOAT3 GetRotation();
-	virtual void Recv();
 	void SetSpeed(float speed);
 	void SetStart(XMFLOAT3& dir, XMFLOAT3& srcPos, float speed);
 	void Move(float distance);
+public:
+	void SetInfo(std::string& roomId, int idx)
+	{
+		m_id = idx;
+		m_roomId = roomId;
+	}
 };
 

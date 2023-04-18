@@ -1,11 +1,9 @@
 #pragma once
-//
 
-class Session;
 class SessionObject
 {
 protected:
-	Session* m_session;
+	std::string m_roomId;
 protected:
 	DirectX::XMFLOAT3 m_position;
 	DirectX::XMFLOAT3 m_rotateAngle = { 0,0,0 };
@@ -14,11 +12,8 @@ protected:
 
 	DirectX::XMFLOAT4X4 m_worldMatrix = Matrix4x4::Identity();
 	std::chrono::high_resolution_clock::time_point m_lastMoveTime;
-
-private:
-
 public:
-	SessionObject(Session* session);
+	SessionObject();
 	virtual ~SessionObject();
 public:
 	virtual void AutoMove() = 0;
@@ -38,5 +33,9 @@ protected:
 protected:
 	void SetPosition(DirectX::XMFLOAT3 pos) { m_position = pos; }
 public:
-	virtual void Recv() = 0;
+	void SetRoomId(std::string& roomId)
+	{
+		m_roomId = roomId;
+	}
+	std::string& GetRoomId() { return m_roomId; }
 };

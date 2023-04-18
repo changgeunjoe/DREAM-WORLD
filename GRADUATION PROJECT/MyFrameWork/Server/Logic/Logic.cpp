@@ -3,7 +3,6 @@
 #include "../Session/Session.h"
 #include "../Session/SessionObject/PlayerSessionObject.h"
 #include "../Session/SessionObject/MonsterSessionObject.h"
-
 #include "../IOCPNetwork/IOCP/IOCPNetwork.h"
 #include "../DB/DBObject.h"
 #include "../IOCPNetwork/protocol/protocol.h"
@@ -36,7 +35,7 @@ Logic::~Logic()
 
 void Logic::AcceptPlayer(Session* session, int userId, SOCKET& sock)
 {
-	session->RegistPlayer(userId, sock);
+	session->RegistPlayer(sock, userId);
 }
 
 void Logic::ProcessPacket(int userId, char* p)
@@ -45,92 +44,95 @@ void Logic::ProcessPacket(int userId, char* p)
 	{
 	case CLIENT_PACKET::MOVE_KEY_DOWN:
 	{
-		CLIENT_PACKET::MovePacket* recvPacket = reinterpret_cast<CLIENT_PACKET::MovePacket*>(p);
-
-		SERVER_PACKET::MovePacket sendPacket;
-		sendPacket.direction = recvPacket->direction;
-		sendPacket.userId = userId;
-		sendPacket.type = SERVER_PACKET::MOVE_KEY_DOWN;
-		sendPacket.size = sizeof(SERVER_PACKET::MovePacket);
-		PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
-		pSessionObj->StartMove(sendPacket.direction); // 움직임 start
+		if (g_iocpNetwork.m_session[userId].GetPlayerState() == IN_GAME_ROOM) {
+			CLIENT_PACKET::MovePacket* recvPacket = reinterpret_cast<CLIENT_PACKET::MovePacket*>(p);
+			SERVER_PACKET::MovePacket sendPacket;
+			sendPacket.direction = recvPacket->direction;
+			sendPacket.userId = userId;
+			sendPacket.type = SERVER_PACKET::MOVE_KEY_DOWN;
+			sendPacket.size = sizeof(SERVER_PACKET::MovePacket);
+			g_iocpNetwork.m_session[userId].m_sessionObject->StartMove(sendPacket.direction); // 움직임 start;
 #ifdef _DEBUG
-		PrintCurrentTime();
-		//std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::MOVE_KEY_DOWN - MultiCastOtherPlayer" << std::endl;		
+			PrintCurrentTime();
+			//std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::MOVE_KEY_DOWN - MultiCastOtherPlayer" << std::endl;		
 #endif
-		MultiCastOtherPlayerInRoom(userId, &sendPacket);
+			MultiCastOtherPlayerInRoom(userId, &sendPacket);
+		}
 	}
 	break;
 	case CLIENT_PACKET::ROTATE:
 	{
-		CLIENT_PACKET::RotatePacket* recvPacket = reinterpret_cast<CLIENT_PACKET::RotatePacket*>(p);
+		if (g_iocpNetwork.m_session[userId].GetPlayerState() == IN_GAME_ROOM) {
+			CLIENT_PACKET::RotatePacket* recvPacket = reinterpret_cast<CLIENT_PACKET::RotatePacket*>(p);
 
-		SERVER_PACKET::RotatePacket sendPacket;
-		sendPacket.angle = recvPacket->angle;
-		sendPacket.axis = recvPacket->axis;
-		sendPacket.userId = userId;
-		sendPacket.type = SERVER_PACKET::ROTATE;
-		sendPacket.size = sizeof(SERVER_PACKET::RotatePacket);
-		PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
-		pSessionObj->Rotate(recvPacket->axis, recvPacket->angle);
+			SERVER_PACKET::RotatePacket sendPacket;
+			sendPacket.angle = recvPacket->angle;
+			sendPacket.axis = recvPacket->axis;
+			sendPacket.userId = userId;
+			sendPacket.type = SERVER_PACKET::ROTATE;
+			sendPacket.size = sizeof(SERVER_PACKET::RotatePacket);
+			g_iocpNetwork.m_session[userId].m_sessionObject->Rotate(recvPacket->axis, recvPacket->angle);
 #ifdef _DEBUG
-		//std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::ROTATE - MultiCastOtherPlayer" << std::endl;
+			//std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::ROTATE - MultiCastOtherPlayer" << std::endl;
 
 #endif
-		MultiCastOtherPlayerInRoom(userId, &sendPacket);
+			MultiCastOtherPlayerInRoom(userId, &sendPacket);
+		}
 	}
 	break;
 	case CLIENT_PACKET::MOVE_KEY_UP:
 	{
-		CLIENT_PACKET::MovePacket* recvPacket = reinterpret_cast<CLIENT_PACKET::MovePacket*>(p);
+		if (g_iocpNetwork.m_session[userId].GetPlayerState() == IN_GAME_ROOM) {
+			CLIENT_PACKET::MovePacket* recvPacket = reinterpret_cast<CLIENT_PACKET::MovePacket*>(p);
 
-		SERVER_PACKET::MovePacket sendPacket;
-		sendPacket.direction = recvPacket->direction;
-		sendPacket.userId = userId;
-		sendPacket.type = SERVER_PACKET::MOVE_KEY_UP;
-		sendPacket.size = sizeof(SERVER_PACKET::MovePacket);
-		PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
-		pSessionObj->ChangeDirection(sendPacket.direction); // 움직임 start
+			SERVER_PACKET::MovePacket sendPacket;
+			sendPacket.direction = recvPacket->direction;
+			sendPacket.userId = userId;
+			sendPacket.type = SERVER_PACKET::MOVE_KEY_UP;
+			sendPacket.size = sizeof(SERVER_PACKET::MovePacket);
+			g_iocpNetwork.m_session[userId].m_sessionObject->ChangeDirection(sendPacket.direction); // 움직임 start
 #ifdef _DEBUG
-		PrintCurrentTime();
-		std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::MOVE_KEY_UP - MultiCastOtherPlayer" << std::endl;
+			PrintCurrentTime();
+			std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::MOVE_KEY_UP - MultiCastOtherPlayer" << std::endl;
 #endif
-		MultiCastOtherPlayerInRoom(userId, &sendPacket);
+			MultiCastOtherPlayerInRoom(userId, &sendPacket);
+		}
 	}
 	break;
 	case CLIENT_PACKET::STOP:
 	{
-		CLIENT_PACKET::StopPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::StopPacket*>(p);
-		PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
-		pSessionObj->StopMove();
+		if (g_iocpNetwork.m_session[userId].GetPlayerState() == IN_GAME_ROOM) {
+			CLIENT_PACKET::StopPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::StopPacket*>(p);
+			g_iocpNetwork.m_session[userId].m_sessionObject->StopMove();
 
-		SERVER_PACKET::StopPacket sendPacket;
-		sendPacket.userId = userId;
-		sendPacket.type = SERVER_PACKET::STOP;
-		sendPacket.size = sizeof(SERVER_PACKET::StopPacket);
-		sendPacket.position = recvPacket->position;
-		//sendPacket.rotate = recvPacket->rotate;
-#ifdef _DEBUG
-		PrintCurrentTime();
-		//std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::STOP - " << std::endl;
-		//std::cout << "position: " << sendPacket.position.x << ", " << sendPacket.position.y << ", " << sendPacket.position.z << std::endl;
-		//std::cout << "rotation: " << sendPacket.rotate.x << ", " << sendPacket.rotate.y << ", " << sendPacket.rotate.z << std::endl;
-#endif
-		bool adjustRes = pSessionObj->AdjustPlayerInfo(recvPacket->position); // , recvPacket->rotate
-		if (!adjustRes) {
-			sendPacket.position = pSessionObj->GetPosition();
-			BroadCastOtherPlayerInRoom(userId, &sendPacket);
+			SERVER_PACKET::StopPacket sendPacket;
+			sendPacket.userId = userId;
+			sendPacket.type = SERVER_PACKET::STOP;
+			sendPacket.size = sizeof(SERVER_PACKET::StopPacket);
+			sendPacket.position = recvPacket->position;
+			//sendPacket.rotate = recvPacket->rotate;
 #ifdef _DEBUG
 			PrintCurrentTime();
-			std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::STOP - BroadCastPacket" << std::endl;
+			//std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::STOP - " << std::endl;
+			//std::cout << "position: " << sendPacket.position.x << ", " << sendPacket.position.y << ", " << sendPacket.position.z << std::endl;
+			//std::cout << "rotation: " << sendPacket.rotate.x << ", " << sendPacket.rotate.y << ", " << sendPacket.rotate.z << std::endl;
 #endif
-		}
-		else {
-			MultiCastOtherPlayerInRoom(userId, &sendPacket);
+			bool adjustRes = g_iocpNetwork.m_session[userId].m_sessionObject->AdjustPlayerInfo(recvPacket->position); // , recvPacket->rotate
+			if (!adjustRes) {
+				sendPacket.position = g_iocpNetwork.m_session[userId].m_sessionObject->GetPosition();
+				BroadCastOtherPlayerInRoom(userId, &sendPacket);
 #ifdef _DEBUG
-			PrintCurrentTime();
-			std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::STOP - MultiCastOtherPlayer" << std::endl;
+				PrintCurrentTime();
+				std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::STOP - BroadCastPacket" << std::endl;
 #endif
+			}
+			else {
+				MultiCastOtherPlayerInRoom(userId, &sendPacket);
+#ifdef _DEBUG
+				PrintCurrentTime();
+				std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::STOP - MultiCastOtherPlayer" << std::endl;
+#endif
+			}
 		}
 	}
 	break;
@@ -156,22 +158,22 @@ void Logic::ProcessPacket(int userId, char* p)
 	{
 #ifdef ALONE_TEST
 		CLIENT_PACKET::MatchPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::MatchPacket*>(p);
-		PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
 		std::map<ROLE, int> testMap;
 		testMap.insert(std::make_pair((ROLE)recvPacket->Role, userId));
 		std::string id = "BossTestRoom";
 		std::wstring name = L"BossTestRoom";
 		g_RoomManager.InsertRunningRoom(id, name, testMap);
-		pSessionObj->SetRoomId(id);
-		pSessionObj->SetRole((ROLE)recvPacket->Role);
-		char* sendAddPlayerPacket = pSessionObj->GetPlayerInfo();
-		pSessionObj->Send(sendAddPlayerPacket);
+		g_iocpNetwork.m_session[userId].SetPlaySessionObject((ROLE)recvPacket->Role);
+		g_iocpNetwork.m_session[userId].m_sessionObject->SetRoomId(id);
+		g_iocpNetwork.m_session[userId].m_sessionObject->SetRole((ROLE)recvPacket->Role);
+		char* sendAddPlayerPacket = g_iocpNetwork.m_session[userId].m_sessionObject->GetPlayerInfo();
+		g_iocpNetwork.m_session[userId].Send(sendAddPlayerPacket);
 		delete sendAddPlayerPacket;
 
 		SERVER_PACKET::NotifyPacket sendPacket;
 		sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
 		sendPacket.type = SERVER_PACKET::INTO_GAME;
-		pSessionObj->Send(&sendPacket);
+		g_iocpNetwork.m_session[userId].Send(&sendPacket);
 #else
 		CLIENT_PACKET::MatchPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::MatchPacket*>(p);
 		InsertMatchQueue((ROLE)recvPacket->Role, userId);
@@ -182,7 +184,6 @@ void Logic::ProcessPacket(int userId, char* p)
 	break;
 	case CLIENT_PACKET::CREATE_ROOM:
 	{
-		PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
 		CLIENT_PACKET::CreateRoomPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::CreateRoomPacket*>(p);
 		std::string roomId;
 		auto now = std::chrono::system_clock::now();
@@ -200,7 +201,7 @@ void Logic::ProcessPacket(int userId, char* p)
 		SERVER_PACKET::CreateRoomResultPacket sendPacket;
 		if (g_RoomManager.InsertRecruitingRoom(roomId, roomName, userId, (ROLE)recvPacket->Role)) {
 			g_RoomManager.m_RecruitingRoomList[roomId].InsertInGamePlayer((ROLE)recvPacket->Role, userId);
-			pSessionObj->SetRoomId(roomId);
+			g_iocpNetwork.m_session[userId].SetRoomId(roomId);
 			sendPacket.type = SERVER_PACKET::CREATE_ROOM_SUCCESS;
 			//룸 생성 성공
 		}
@@ -208,7 +209,7 @@ void Logic::ProcessPacket(int userId, char* p)
 		////////////////////////////////////////////////////////////////////////////
 		sendPacket.size = sizeof(SERVER_PACKET::CreateRoomResultPacket);
 		memcpy(sendPacket.roomName, recvPacket->roomName, 30);
-		pSessionObj->Send(&sendPacket);
+		g_iocpNetwork.m_session[userId].Send(&sendPacket);
 	}
 	break;
 	case CLIENT_PACKET::REQUEST_ROOM_LIST:
@@ -220,7 +221,7 @@ void Logic::ProcessPacket(int userId, char* p)
 			SERVER_PACKET::NotifyPacket sendPacket;
 			sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
 			sendPacket.type = SERVER_PACKET::REQUEST_ROOM_LIST_NONE;
-			pSessionObj->Send(&sendPacket);
+			g_iocpNetwork.m_session[userId].Send(&sendPacket);
 			return;
 		}
 		for (auto r = recruitRoom.begin(); r != recruitRoom.end(); r++) {
@@ -231,10 +232,9 @@ void Logic::ProcessPacket(int userId, char* p)
 			std::map<ROLE, int> pMap = r->GetInGamePlayerMap();
 			int i = 0;
 			for (const auto& p : pMap) {
-				PlayerSessionObject* partPSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[p.second].m_sessionObject);
-				memcpy(sendPacket.playerName[i], partPSessionObj->GetName().c_str(), partPSessionObj->GetName().size() * 2);
-				sendPacket.playerName[i][partPSessionObj->GetName().size()] = 0;
-				sendPacket.role[i] = partPSessionObj->GetRole();
+				memcpy(sendPacket.playerName[i], g_iocpNetwork.m_session[p.second].GetName().c_str(), g_iocpNetwork.m_session[p.second].GetName().size() * 2);
+				sendPacket.playerName[i][g_iocpNetwork.m_session[p.second].GetName().size()] = 0;
+				sendPacket.role[i] = g_iocpNetwork.m_session[p.second].m_sessionObject->GetRole();
 			}
 			//Name
 			memcpy(sendPacket.roomName, r->GetRoomName().c_str(), r->GetRoomName().size() * 2);
@@ -246,13 +246,12 @@ void Logic::ProcessPacket(int userId, char* p)
 			else
 				sendPacket.type = SERVER_PACKET::REQUEST_ROOM_LIST;
 			std::cout << "ProcessPacket() - CLIENT_PACKET::REQUEST_ROOM_LIST sendByte: " << sendPacket.size << std::endl;
-			pSessionObj->Send(&sendPacket);
+			g_iocpNetwork.m_session[userId].Send(&sendPacket);
 		}
 	}
 	break;
 	case CLIENT_PACKET::PLAYER_APPLY_ROOM:
 	{
-		PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
 		CLIENT_PACKET::PlayerApplyRoomPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::PlayerApplyRoomPacket*>(p);
 		g_RoomManager.m_RecruitRoomListLock.lock();
 		if (g_RoomManager.m_RecruitingRoomList.count(recvPacket->roomId)) {
@@ -263,15 +262,15 @@ void Logic::ProcessPacket(int userId, char* p)
 			//방장한테 보내는 패킷 - 신청자 존재함을 알리는 패킷
 
 			SERVER_PACKET::PlayerApplyRoomPacket sendPacket;
-			memcpy(sendPacket.name, pSessionObj->GetName().c_str(), pSessionObj->GetName().size());
-			sendPacket.name[pSessionObj->GetName().size()] = 0;
+			memcpy(sendPacket.name, g_iocpNetwork.m_session[userId].GetName().c_str(), 2 * g_iocpNetwork.m_session[userId].GetName().size());
+			sendPacket.name[g_iocpNetwork.m_session[userId].GetName().size()] = 0;
 			sendPacket.role = recvPacket->role;
 			sendPacket.size = sizeof(SERVER_PACKET::PlayerApplyRoomPacket);
 			sendPacket.type = SERVER_PACKET::PLAYER_APPLY_ROOM;
 
 			////////////////////////////////////////////////////////////////////////////////////////////
 			PlayerSessionObject* sendPSession = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[roomOwner].m_sessionObject);
-			sendPSession->Send(&sendPacket);
+			g_iocpNetwork.m_session[roomOwner].Send(&sendPacket);
 			return;
 		}
 		else {
@@ -281,7 +280,7 @@ void Logic::ProcessPacket(int userId, char* p)
 			SERVER_PACKET::NotifyPacket sendPacket;
 			sendPacket.type = SERVER_PACKET::NOT_FOUND_ROOM;
 			sendPacket.size = 2;
-			pSessionObj->Send(&sendPacket);
+			g_iocpNetwork.m_session[userId].Send(&sendPacket);
 		}
 	}
 	break;
@@ -307,9 +306,7 @@ void Logic::ProcessPacket(int userId, char* p)
 		sendPacket.userId = userId;
 		sendPacket.type = SERVER_PACKET::MOUSE_INPUT;
 		sendPacket.size = sizeof(SERVER_PACKET::MouseInputPacket);
-
-		PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
-		pSessionObj->SetMouseInput(sendPacket.ClickedButton);
+		g_iocpNetwork.m_session[userId].m_sessionObject->SetMouseInput(sendPacket.ClickedButton);
 #ifdef _DEBUG
 		PrintCurrentTime();
 		std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::MOUSE_INPUT - MultiCastOtherPlayer" << std::endl;
@@ -320,13 +317,13 @@ void Logic::ProcessPacket(int userId, char* p)
 	case CLIENT_PACKET::SHOOTING_ARROW:
 	{
 		CLIENT_PACKET::ShootingObject* recvPacket = reinterpret_cast<CLIENT_PACKET::ShootingObject*>(p);
-		g_RoomManager.GetRunningRoom(dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject)->GetRoomId()).ShootArrow(recvPacket->dir, recvPacket->srcPos, recvPacket->speed);
+		g_RoomManager.GetRunningRoom(g_iocpNetwork.m_session[userId].GetRoomId()).ShootArrow(recvPacket->dir, recvPacket->srcPos, recvPacket->speed);
 	}
 	break;
 	case CLIENT_PACKET::SHOOTING_BALL:
 	{
-		CLIENT_PACKET::ShootingObject* recvPacket = reinterpret_cast<CLIENT_PACKET::ShootingObject*>(p);		
-		g_RoomManager.GetRunningRoom(dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject)->GetRoomId()).ShootBall(recvPacket->dir, recvPacket->srcPos, recvPacket->speed);
+		CLIENT_PACKET::ShootingObject* recvPacket = reinterpret_cast<CLIENT_PACKET::ShootingObject*>(p);
+		g_RoomManager.GetRunningRoom(g_iocpNetwork.m_session[userId].GetRoomId()).ShootBall(recvPacket->dir, recvPacket->srcPos, recvPacket->speed);
 	}
 	break;
 	default:
@@ -339,10 +336,7 @@ void Logic::ProcessPacket(int userId, char* p)
 void Logic::BroadCastPacket(void* p)
 {
 	for (auto& cli : g_iocpNetwork.m_session) {
-		if (cli.m_sessionCategory == PLAYER) {
-			PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(cli.m_sessionObject);
-			pSessionObj->Send(p);
-		}
+		cli.Send(p);
 	}
 }
 
@@ -351,37 +345,27 @@ void Logic::MultiCastOtherPlayer(int userId, void* p)
 	for (auto& cli : g_iocpNetwork.m_session) {
 		if (cli.GetId() == userId) continue;//자기 자신을 제외한 플레이어들에게 전송
 		if (cli.GetId() > MAX_USER) break;
-		if (cli.m_sessionCategory == PLAYER) {
-			PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(cli.m_sessionObject);
-			pSessionObj->Send(p);
-		}
+		cli.Send(p);
 	}
 }
 
 void Logic::MultiCastOtherPlayerInRoom(int userId, void* p)
 {
 	PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
-	if (!g_RoomManager.IsExistRunningRoom(pSessionObj->GetRoomId())) return;
-	auto roomPlayermap = g_RoomManager.GetRunningRoom(pSessionObj->GetRoomId()).GetInGamePlayerMap();
+	if (!g_RoomManager.IsExistRunningRoom(g_iocpNetwork.m_session[userId].GetRoomId())) return;
+	auto roomPlayermap = g_RoomManager.GetRunningRoom(g_iocpNetwork.m_session[userId].GetRoomId()).GetInGamePlayerMap();
 	for (auto& cli : roomPlayermap) {
 		if (cli.second == userId) continue;//자기 자신을 제외한 플레이어들에게 전송
-		if (g_iocpNetwork.m_session[cli.second].m_sessionCategory == PLAYER) {
-			PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[cli.second].m_sessionObject);
-			pSessionObj->Send(p);
-		}
+		g_iocpNetwork.m_session[cli.second].Send(p);
 	}
 }
 
 void Logic::BroadCastOtherPlayerInRoom(int userId, void* p)
 {
-	PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
-	if (!g_RoomManager.IsExistRunningRoom(pSessionObj->GetRoomId())) return;
-	auto roomPlayermap = g_RoomManager.GetRunningRoom(pSessionObj->GetRoomId()).GetInGamePlayerMap();
+	if (!g_RoomManager.IsExistRunningRoom(g_iocpNetwork.m_session[userId].GetRoomId())) return;
+	auto roomPlayermap = g_RoomManager.GetRunningRoom(g_iocpNetwork.m_session[userId].GetRoomId()).GetInGamePlayerMap();
 	for (auto& cli : roomPlayermap) {
-		if (g_iocpNetwork.m_session[cli.second].m_sessionCategory == PLAYER) {
-			PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[cli.second].m_sessionObject);
-			pSessionObj->Send(p);
-		}
+		g_iocpNetwork.m_session[cli.second].Send(p);
 	}
 }
 
@@ -390,10 +374,7 @@ void Logic::BroadCastInRoom(std::string& roomId, void* p)
 	if (!g_RoomManager.IsExistRunningRoom(roomId)) return;
 	auto roomPlayermap = g_RoomManager.GetRunningRoom(roomId).GetInGamePlayerMap();
 	for (auto& cli : roomPlayermap) {
-		if (g_iocpNetwork.m_session[cli.second].m_sessionCategory == PLAYER) {
-			PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[cli.second].m_sessionObject);
-			pSessionObj->Send(p);
-		}
+		g_iocpNetwork.m_session[cli.second].Send(p);
 	}
 }
 
@@ -404,23 +385,24 @@ void Logic::AutoMoveServer()//2500명?
 	{
 		if (g_iocpNetwork.GetCurrentId() == 0) continue;
 		currentTime = std::chrono::high_resolution_clock::now();
-		for (auto& cli : g_iocpNetwork.m_session) {//플레이어 자동 움직임
-			if (cli.GetId() > MAX_USER) break;
-			if (cli.GetPlayerState() == PLAYER_STATE::FREE) continue;
-			PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(cli.m_sessionObject);
-			if (pSessionObj->m_inputDirection != DIRECTION::IDLE) {
-				pSessionObj->AutoMove();
-			}
-		}
+		//for (auto& cli : g_iocpNetwork.m_session) {//플레이어 자동 움직임
+		//	if (cli.GetId() > MAX_USER) break;
+		//	if (cli.GetPlayerState() != PLAYER_STATE::IN_GAME_ROOM) continue;
+		//	if (cli.m_sessionObject->m_inputDirection != DIRECTION::IDLE) {
+		//		cli.m_sessionObject->AutoMove();
+		//	}
+		//}
 		auto RunningRooms = g_RoomManager.GetRunningRoomIdList();
 
 		for (auto roomId : RunningRooms) {
 			if (g_RoomManager.IsExistRunningRoom(roomId)) {
 				Room& room = g_RoomManager.GetRunningRoom(roomId);
-				MonsterSessionObject* mSessionObj = dynamic_cast<MonsterSessionObject*>(room.GetBoss().m_sessionObject);
-				if (mSessionObj != nullptr) {
-					if (mSessionObj->GetRoomId() == room.GetRoomId() && mSessionObj->isMove) {
-						mSessionObj->AutoMove();
+				if (room.GetBoss().GetRoomId() == room.GetRoomId() && room.GetBoss().isMove) {
+					room.GetBoss().AutoMove();
+						for (auto& p : room.GetInGamePlayerMap()) {
+						if (g_iocpNetwork.m_session[p.second].m_sessionObject->m_inputDirection != DIRECTION::IDLE) {
+							g_iocpNetwork.m_session[p.second].m_sessionObject->AutoMove();
+						}
 					}
 				}
 			}
@@ -461,9 +443,7 @@ void Logic::MatchMaking()
 						randMatchPlayer.emplace(r, randUserId); // 어쨌든 랜덤처럼 보이지 않을까 싶음
 					}
 				}
-				SERVER_PACKET::NotifyPacket sendPacket;
-				sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
-				sendPacket.type = SERVER_PACKET::INTO_GAME;
+
 
 				std::string roomId;
 				auto now = std::chrono::system_clock::now();
@@ -481,19 +461,20 @@ void Logic::MatchMaking()
 				while (!g_RoomManager.InsertRunningRoom(roomId, roomName, randMatchPlayer));
 				//룸 생성 성공
 				for (const auto& p : matchPlayer) {
-					PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[p.second].m_sessionObject);
-					pSessionObj->SetRoomId(roomId);
+					g_iocpNetwork.m_session[p.second].SetRoomId(roomId);
 				}
 
 				for (const auto& p : randMatchPlayer) {
-					//send match Success Packet
-					PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[p.second].m_sessionObject);
-					pSessionObj->SetRole(p.first);
-					char* sendAddPlayerPacket = pSessionObj->GetPlayerInfo();
-					pSessionObj->Send(sendAddPlayerPacket);
+					//send match Success Packet					
+					g_iocpNetwork.m_session[p.second].SetPlaySessionObject(p.first);
+					char* sendAddPlayerPacket = g_iocpNetwork.m_session[p.second].m_sessionObject->GetPlayerInfo();
+					g_iocpNetwork.m_session[p.second].Send(sendAddPlayerPacket);
 					BroadCastOtherPlayerInRoom(p.second, sendAddPlayerPacket);
 					delete sendAddPlayerPacket;
 				}
+				SERVER_PACKET::NotifyPacket sendPacket;
+				sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
+				sendPacket.type = SERVER_PACKET::INTO_GAME;
 				BroadCastOtherPlayerInRoom(matchPlayer.begin()->second, &sendPacket);
 			}
 		}
@@ -521,14 +502,12 @@ void Logic::MatchMaking()
 			while (!g_RoomManager.InsertRunningRoom(roomId, roomName, matchPlayer));
 			//룸 생성 성공
 			for (const auto& p : matchPlayer) {
-				PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[p.second].m_sessionObject);
-				pSessionObj->SetRoomId(roomId);
+				g_iocpNetwork.m_session[p.second].SetRoomId(roomId);
 			}
 			for (const auto& p : matchPlayer) {
 				//send match Success Packet
-				PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[p.second].m_sessionObject);
-				pSessionObj->SetRole(p.first);
-				char* sendAddPlayerPacket = pSessionObj->GetPlayerInfo();
+				g_iocpNetwork.m_session[p.second].SetPlaySessionObject(p.first);
+				char* sendAddPlayerPacket = g_iocpNetwork.m_session[p.second].m_sessionObject->GetPlayerInfo();
 				BroadCastOtherPlayerInRoom(p.second, sendAddPlayerPacket);
 				delete sendAddPlayerPacket;
 			}
@@ -539,15 +518,14 @@ void Logic::MatchMaking()
 			}
 		}
 		//일부만 Role가지고 나머지는 Rand가 존재할때
-		else if (restRole.size() <= randPlayerIdQueue.unsafe_size()) {
+		else if (restRole.size() <= randPlayerIdQueue.unsafe_size()) { // 나중에 Player Session 다시 구현 해야됨
 			//없는 역할 넣어주기 추가하자
 			for (int i = 0; i < restRole.size(); i++) {
 				int randUserId = -1;
 				if (randPlayerIdQueue.try_pop(randUserId)) {
 					ROLE r = restRole[i];
 					matchPlayer.emplace((ROLE)r, randUserId);
-					PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[randUserId].m_sessionObject);
-					pSessionObj->SetRole((ROLE)r);
+					g_iocpNetwork.m_session[randUserId].m_sessionObject->SetRole((ROLE)r);
 					//
 					//m_matchPlayer에 안넣었음
 					//pop success
@@ -577,14 +555,12 @@ void Logic::MatchMaking()
 			while (!g_RoomManager.InsertRunningRoom(roomId, roomName, matchPlayer));
 			//룸 생성 성공
 			for (const auto& p : matchPlayer) {
-				PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[p.second].m_sessionObject);
-				pSessionObj->SetRoomId(roomId);
+				g_iocpNetwork.m_session[p.second].SetRoomId(roomId);
 			}
 
 			for (const auto& p : matchPlayer) {
-				PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[p.second].m_sessionObject);
-				pSessionObj->SetRole(p.first);
-				char* sendAddPlayerPacket = pSessionObj->GetPlayerInfo();
+				g_iocpNetwork.m_session[p.second].m_sessionObject->SetRole(p.first);
+				char* sendAddPlayerPacket = g_iocpNetwork.m_session[p.second].m_sessionObject->GetPlayerInfo();
 				BroadCastOtherPlayerInRoom(p.second, sendAddPlayerPacket);
 				delete sendAddPlayerPacket;
 			}

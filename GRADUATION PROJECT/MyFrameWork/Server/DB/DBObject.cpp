@@ -24,17 +24,16 @@ void DBObject::RunDBThread()
 			{
 				DB_STRUCT::PlayerInfo* pInfo = reinterpret_cast<DB_STRUCT::PlayerInfo*>(currentEvent.Data);
 				std::wstring wst_nickName;
-				if (GetPlayerInfo(pInfo->PlayerLoginId, pInfo->pw, wst_nickName)) {
-					PlayerSessionObject* pSession = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[currentEvent.userId].m_sessionObject);
+				if (GetPlayerInfo(pInfo->PlayerLoginId, pInfo->pw, wst_nickName)) {					
 					g_iocpNetwork.m_session[currentEvent.userId].SetInGameState();
-					pSession->SetName(wst_nickName);
+					g_iocpNetwork.m_session[currentEvent.userId].SetName(wst_nickName);
 					SERVER_PACKET::LoginPacket sendPacket;
 					sendPacket.type = SERVER_PACKET::LOGIN_OK;
 					sendPacket.size = sizeof(SERVER_PACKET::LoginPacket);
 					sendPacket.userID = currentEvent.userId;
 					memcpy(sendPacket.name, wst_nickName.c_str(), wst_nickName.size() * 2);
 					sendPacket.name[wst_nickName.size()] = 0;
-					pSession->Send(&sendPacket);
+					g_iocpNetwork.m_session[currentEvent.userId].Send(&sendPacket);
 
 					//SERVER_PACKET::AddPlayerPacket myInfoPacket;
 					//memcpy(myInfoPacket.name, wst_nickName.c_str(), wst_nickName.size() * 2);
