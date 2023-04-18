@@ -1,7 +1,8 @@
 #pragma once
 
 class Session;
-class RoomManager;
+
+
 class Logic
 {
 private:
@@ -12,8 +13,7 @@ public:
 private:
 	volatile bool m_isRunningThread = false;
 	std::thread m_PlayerMoveThread;
-	std::thread m_MatchingThread;
-	RoomManager* m_roomManager = nullptr;
+	std::thread m_MatchingThread;	
 private:
 	Concurrency::concurrent_queue<int> warriorPlayerIdQueue;
 	Concurrency::concurrent_queue<int> archerPlayerIdQueue;
@@ -33,6 +33,8 @@ public:
 	void MultiCastOtherPlayer(int userId, void* p);
 	void MultiCastOtherPlayerInRoom(int userId, void* p);
 	void BroadCastOtherPlayerInRoom(int userId, void* p);
+	//Boss Broad Cast
+	void BroadCastInRoom(std::string& roomId, void* p);
 
 public:
 	void AutoMoveServer();

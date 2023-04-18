@@ -1,5 +1,6 @@
 #pragma once
 #include "../Session/Session.h"
+
 class Room
 {
 public:
@@ -29,7 +30,7 @@ private:
 
 private:
 	std::vector<Session> m_monsters;
-
+	Session m_boss;
 public://Get
 	std::map<ROLE, int> GetInGamePlayerMap() {
 		std::map<ROLE, int> playerMap;
@@ -49,4 +50,7 @@ public:
 public:
 	void InsertWaitPlayer(ROLE r, int playerId);
 	void DeleteWaitPlayer(int playerId);
+public:
+	void CreateBossMonster();
+	Session& GetBoss() { return m_boss; };
 };

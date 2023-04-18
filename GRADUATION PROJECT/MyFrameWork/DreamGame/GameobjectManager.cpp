@@ -51,7 +51,9 @@ void GameobjectManager::Animate(float fTimeElapsed)
 		m_pMonsterHPBarObject->Rotate(0, 180, 0);
 		m_pMonsterHPBarObject->SetScale(10);
 	}
-	m_pMonsterObject->Animate(fTimeElapsed);
+
+	//m_pMonsterObject->Animate(fTimeElapsed);
+	g_Logic.m_MonsterSession.m_currentPlayGameObject->Animate(fTimeElapsed);
 	if (!g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject) return;
 	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->UpdateCameraPosition();
 
@@ -80,6 +82,28 @@ void GameobjectManager::Animate(float fTimeElapsed)
 			session.m_currentPlayGameObject->Animate(fTimeElapsed);
 		}
 	}
+
+#ifdef LOCAL_TASK
+	static int tempcount = 0;
+	if (tempcount % 900 == 0)
+	{
+		float y = 0.0f;
+		float z = 0.0f;
+		float x = 0.0f;
+		
+		while (true)
+		{
+			x = 80.f * (2.f * (((float)rand() / (float)RAND_MAX)) - 1.f);
+			y = 0.0f;
+			z = 80.f * (2.f * (((float)rand() / (float)RAND_MAX)) - 1.f);
+			if (Vector3::Length(XMFLOAT3(x, y, z)) < 350.0f)
+				break;
+		}
+		cout << "x : " << x << ", y : " << y << ", z : " << z << endl;
+		g_Logic.m_MonsterSession.m_currentPlayGameObject->m_xmf3Destination = XMFLOAT3(x, y, z);
+	}
+	tempcount++;
+#endif
 }
 
 void GameobjectManager::OnPreRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -95,7 +119,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	UpdateShaderVariables(pd3dCommandList);
 	m_pSkyboxObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pDepthShaderComponent->UpdateShaderVariables(pd3dCommandList);
-
+	g_Logic.m_MonsterSession.m_currentPlayGameObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	for (auto& session : g_Logic.m_inGamePlayerSession) {
 		if (-1 != session.m_id && session.m_isVisible) {
 			session.m_currentPlayGameObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -240,10 +264,10 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPriestObject->SetScale(30.0f);
 	m_ppGameObjects.emplace_back(m_pPriestObject);
 
-	m_pMonsterObject = new GameObject(UNDEF_ENTITY);
+	m_pMonsterObject = new Monster();
 	m_pMonsterObject->InsertComponent<RenderComponent>();
 	m_pMonsterObject->InsertComponent<CLoadedModelInfoCompnent>();
-	m_pMonsterObject->SetPosition(XMFLOAT3(0, 0, 100));
+	m_pMonsterObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pMonsterObject->SetModel("Model/Boss.bin");
 	m_pMonsterObject->SetAnimationSets(3);
 	m_pMonsterObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -251,6 +275,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pMonsterObject->SetScale(15.0f);
 	m_pMonsterObject->SetBoundingSize(22.5f);
 	m_ppGameObjects.emplace_back(m_pMonsterObject);
+	g_Logic.m_MonsterSession.SetGameObject(m_pMonsterObject);
 
 	m_pSkyboxObject = new GameObject(SQUARE_ENTITY);
 	m_pSkyboxObject->InsertComponent<RenderComponent>();
@@ -503,7 +528,7 @@ void GameobjectManager::ProcessingUI(int n)
 	{
 	case UI::UI_GAMESEARCHING:
 	{
-#ifdef LOCAL_TASK 1
+#ifdef LOCAL_TASK
 		m_nSection = 1;
 #endif
 		cout << "request Room List" << endl;
@@ -827,7 +852,7 @@ bool GameobjectManager::onProcessingKeyboardMessageUI(HWND hWnd, UINT nMessageID
 		}
 		break;
 		case 'z':
-		case 'Z': // z´Â ¶ËÅÊÅ© Ã¢±ÙÀÌ ><
+		case 'Z': //ÅÊÄ¿
 		{
 			g_NetworkHelper.SendMatchRequestPacket(ROLE::TANKER);
 		}
@@ -942,13 +967,11 @@ void GameobjectManager::SetPlayCharacter(Session* pSession) // ÀÓ½Ã ÇÔ¼ö
 	case ROLE::TANKER:
 	{
 		cliSession->SetGameObject(m_pTankerObject);
-		cliSession->m_currentPlayGameObject->SetCharacterType(CharacterType::CT_TANKER);
 	}
 	break;
 	case ROLE::WARRIOR:
 	{
 		cliSession->SetGameObject(m_pWarriorObject);
-		cliSession->m_currentPlayGameObject->SetCharacterType(CharacterType::CT_WARRIOR);
 	}
 	break;
 	default:

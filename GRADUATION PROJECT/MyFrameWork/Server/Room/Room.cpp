@@ -1,8 +1,12 @@
 #include "stdafx.h"
 #include "Room.h"
+#include "../Timer/Timer.h"
+
+extern Timer g_Timer;
 
 Room::Room()
 {
+
 }
 
 Room::Room(std::string& roomId, std::wstring& roomName, int onwerId, ROLE r) : m_roomId(roomId), m_roomName(roomName), m_roomOwnerId(onwerId)
@@ -11,6 +15,8 @@ Room::Room(std::string& roomId, std::wstring& roomName, int onwerId, ROLE r) : m
 	//m_inGamePlayers.insert(std::make_pair(r, m_roomOwnerId));//ROLE이 없음
 	m_inGamePlayers.insert(std::make_pair(r, m_roomOwnerId));
 	//m_inGamePlayers.try_emplace(r, m_roomOwnerId);//ROLE이 없음
+		//test용으로 존재함
+	CreateBossMonster(); //임시 입니다.
 }
 
 Room::Room(std::string& roomId, int player1, int player2, int player3, int player4)
@@ -23,7 +29,7 @@ Room::Room(std::string roomId) : m_roomId(roomId)
 
 Room::Room(std::string roomId, std::wstring roomName) : m_roomId(roomId), m_roomName(roomName)
 {
-
+	CreateBossMonster(); //임시 입니다.	
 }
 
 Room::Room(const Room& rhs)
@@ -37,6 +43,7 @@ Room::Room(const Room& rhs)
 
 Room::~Room()
 {
+
 }
 
 Room& Room::operator=(Room& rhs)
@@ -86,4 +93,11 @@ void Room::DeleteWaitPlayer(int playerId)
 			return p.second == playerId;
 			})
 	);
+}
+
+void Room::CreateBossMonster()
+{	
+	m_boss.RegistMonster(MAX_USER + m_roomOwnerId, m_roomId);
+	TIMER_EVENT firstEv{ std::chrono::system_clock::now() + std::chrono::seconds(3), m_roomId, -1,EV_FIND_PLAYER };
+	g_Timer.m_TimerQueue.push(firstEv);
 }

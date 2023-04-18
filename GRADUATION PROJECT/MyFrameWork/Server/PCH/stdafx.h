@@ -1,6 +1,8 @@
 #pragma once
 
 #define _WINSOCK_DEPRECATED_NO_WARNINGS 1
+#define MAX_USER 10
+
 #pragma comment(lib, "mswsock.lib")
 #pragma comment(lib, "WS2_32.lib")
 #pragma comment(lib, "lua54.lib")
@@ -21,16 +23,17 @@
 #include <array>
 #include <set>
 #include <map>
-
+#include <thread>
 #include <utility>
 
 #include <concurrent_queue.h>
+#include <concurrent_priority_queue.h>
 #include <concurrent_unordered_set.h>
 #include <atomic>
 
 #include <iostream>
 #include <math.h>
-
+#include <random>
 #include <DirectXMath.h>
 
 extern "C"
@@ -40,6 +43,32 @@ extern "C"
 #include "../lua/include/lualib.h"
 }
 
+//#define ALONE_TEST 1
+
+enum PLAYER_STATE
+{
+	FREE,
+	ALLOC,
+	IN_GAME
+};
+
+enum SESSION_CATEGORY
+{
+	NONE,
+	PLAYER,
+	BOSS,
+	MONSTER
+};
+
+enum IOCP_OP_CODE
+{
+	OP_NONE,
+	OP_ACCEPT,
+	OP_RECV,
+	OP_SEND,
+	OP_FIND_PLAYER,
+	OP_MOVE_BOSS
+};
 
 enum DIRECTION : char
 {
@@ -62,6 +91,20 @@ enum ROLE :char {
 	TANKER = 0x04,
 	ARCHER = 0x08,
 	RAND = 0x10
+};
+
+enum EVENT_TYPE { EV_NONE, EV_FIND_PLAYER ,EV_RANDOM_MOVE };
+
+struct TIMER_EVENT
+{
+	std::chrono::system_clock::time_point wakeupTime;
+	std::string roomId; // 보스 일때
+	int playerId; // 플레이어 일때
+	EVENT_TYPE eventId = EV_NONE;
+	constexpr bool operator < (const TIMER_EVENT& L) const
+	{
+		return (wakeupTime > L.wakeupTime);
+	}
 };
 
 using namespace DirectX;

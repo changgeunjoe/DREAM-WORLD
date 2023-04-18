@@ -1,17 +1,5 @@
 #pragma once
-enum PLAYER_STATE
-{
-	FREE,
-	ALLOC,
-	IN_GAME
-};
 
-enum SESSION_CATEGORY
-{
-	NONE,
-	PLAYER,
-	NPC
-};
 
 class SessionObject;
 class Session
@@ -41,6 +29,7 @@ public:
 	}
 	const int GetId() { return m_id; }
 	const PLAYER_STATE GetPlayerState() { return m_playerState; };
+	void RegistMonster(int id, std::string& roomId);	
 	friend class SessionObject;
 };
 

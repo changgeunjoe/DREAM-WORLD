@@ -1,14 +1,18 @@
 #pragma once
 #include "../../Session/Session.h"
+#include "../../PCH/stdafx.h" //Áö¿ö¾ßµÊ
 
 #define PORT 9000
-#define MAX_USER 10
+
+static std::random_device rd;
+static std::default_random_engine dre(rd());
+static std::uniform_int_distribution<> aggroRandomPlayer(0, 4);
 
 class ExpOver;
 class IOCPNetwork
 {
 private:
-	HANDLE m_hIocp;	
+	HANDLE m_hIocp;
 	std::vector<std::thread> m_workerThread;
 
 private:
@@ -39,4 +43,7 @@ private:
 
 public:
 	int GetCurrentId() { return m_currentClientId; };
+	HANDLE& GetIocpHandle() {
+		return m_hIocp;
+	};
 };

@@ -2,11 +2,14 @@
 #include "IOCPNetwork.h"
 #include "../../Logic/Logic.h"
 #include "../../Session/SessionObject/PlayerSessionObject.h"
+#include "../../Session/SessionObject/MonsterSessionObject.h"
 #include "../../DB/DBObject.h"
+#include "../../Room/RoomManager.h"
+#include "../protocol/protocol.h"
 
 extern  Logic		g_logic;
 extern	DBObject	g_DBObj;
-
+extern RoomManager	g_RoomManager;
 
 IOCPNetwork::IOCPNetwork()
 {
@@ -112,6 +115,50 @@ void IOCPNetwork::WorkerThread()
 		break;
 		case OP_SEND:
 		{
+			if (ex_over != nullptr)
+				delete ex_over;
+		}
+		break;
+		//Timer Event Boss
+
+		case OP_FIND_PLAYER:
+		{
+			std::string roomId{ ex_over->m_buffer };
+			if (g_RoomManager.IsExistRunningRoom(roomId)) {
+				Room& refRoom = g_RoomManager.GetRunningRoom(roomId);
+				MonsterSessionObject* bossSession = dynamic_cast<MonsterSessionObject*>(refRoom.GetBoss().m_sessionObject);
+				//#define ALONE_TEST 1
+#ifdef ALONE_TEST
+				auto playerMap = refRoom.GetInGamePlayerMap();
+				bossSession->SetAggroPlayerId( playerMap.begin()->second );
+#endif // ALONE_TEST
+#ifndef ALONE_TEST
+				auto playerMap = refRoom.GetInGamePlayerMap();
+				bossSession->SetAggroPlayerId(playerMap[(ROLE)aggroRandomPlayer(dre)]);
+#endif // ALONE_TEST
+			}
+			if (ex_over != nullptr)
+				delete ex_over;
+		}
+		break;
+		case OP_MOVE_BOSS:
+		{
+			std::string roomId{ ex_over->m_buffer };
+			if (g_RoomManager.IsExistRunningRoom(roomId)) {
+				Room& refRoom = g_RoomManager.GetRunningRoom(roomId);
+				MonsterSessionObject* bossSession = dynamic_cast<MonsterSessionObject*>(refRoom.GetBoss().m_sessionObject);
+				//юс╫ц			
+				if (bossSession->GetAggroPlayerId() != -1) {
+					std::cout << "aggro Player ID: " << bossSession->GetAggroPlayerId() << std::endl;
+					auto playerPos = m_session[bossSession->GetAggroPlayerId()].m_sessionObject->GetPosition();
+					bossSession->SetDestinationPos(playerPos);
+					SERVER_PACKET::BossChangeStateMovePacket sendPacket;
+					sendPacket.type = SERVER_PACKET::BOSS_CHANGE_STATE_MOVE_DES;
+					sendPacket.size = sizeof(SERVER_PACKET::BossChangeStateMovePacket);
+					sendPacket.desPos = playerPos;
+					g_logic.BroadCastInRoom(roomId, &sendPacket);
+				}
+			}
 			if (ex_over != nullptr)
 				delete ex_over;
 		}

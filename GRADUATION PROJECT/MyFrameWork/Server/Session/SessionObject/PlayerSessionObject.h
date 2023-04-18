@@ -22,6 +22,9 @@ private:
 private:
 	std::string m_roomId;
 public:
+	DIRECTION m_inputDirection = DIRECTION::IDLE;
+	DIRECTION m_prevDirection = DIRECTION::IDLE;
+public:
 	PlayerSessionObject(Session* session, SOCKET& sock);
 	virtual	~PlayerSessionObject();
 
@@ -32,7 +35,7 @@ public:
 	}
 	std::wstring& GetName() { return m_playerName; }
 public:
-	void Recv();
+	void Recv() override;
 	void Send(void* p);
 	void ConstructPacket(int ioByte);
 public:

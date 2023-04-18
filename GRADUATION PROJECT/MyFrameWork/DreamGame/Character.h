@@ -71,3 +71,11 @@ public:
 	virtual void Move(DIRECTION direction, float fDsitance) override;
 	virtual void Animate(float fTimeElapsed);
 };
+
+class Monster : public Character
+{
+public:
+	Monster();
+	virtual ~Monster();
+	virtual void Animate(float fTimeElapsed);
+};
