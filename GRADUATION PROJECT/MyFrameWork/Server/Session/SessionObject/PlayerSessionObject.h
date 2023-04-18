@@ -1,14 +1,14 @@
 #pragma once
 #include "SessionObject.h"
 #include "../ExpOver.h"
-
+#include "../../PCH/stdafx.h"
 
 class PlayerSessionObject : public SessionObject
 {
 private:
 	std::wstring m_playerName;
-	short	m_level;
-	short	m_exp;
+	/*short	m_level;
+	short	m_exp;*/
 	short	m_hp;
 	short	m_maxHp;
 	short	m_attackDamage;
@@ -57,7 +57,42 @@ public:
 public:
 	char* GetPlayerInfo();
 public:
-	void SetRole(ROLE r) { m_InGameRole = r; }
+	void SetRole(ROLE r) {
+		m_InGameRole = r;
+		switch (r)
+		{
+		case WARRIOR:
+		{
+			SetPosition(XMFLOAT3(300, 0, 100));
+			m_maxHp = m_hp = 400;
+			m_attackDamage = 150;
+		}
+		break;
+		case PRIEST:
+		{
+			SetPosition(XMFLOAT3(270, 0, 80));
+			m_maxHp = m_hp = 480;
+			m_attackDamage = 30;
+		}
+		break;
+		case TANKER:
+		{
+			SetPosition(XMFLOAT3(230, 0, 60));
+			m_maxHp = m_hp = 600;
+			m_attackDamage = 60;
+		}
+		break;
+		case ARCHER:
+		{
+			SetPosition(XMFLOAT3(200, 0, 40));
+			m_maxHp = m_hp = 250;
+			m_attackDamage = 200;
+		}
+		break;
+		default:
+			break;
+		}
+	}
 	void ResetRole() { m_InGameRole = ROLE::NONE_SELECT; }
 	ROLE GetRole() {
 		return m_InGameRole;

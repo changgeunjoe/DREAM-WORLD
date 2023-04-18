@@ -52,7 +52,7 @@ private: //active object
 
 	GameObject* m_pWarriorObject{ NULL };
 	GameObject* m_pArcherObject{ NULL };
-	GameObject* m_pTankerObject{ NULL }; // ∂À≈ ≈© √¢±Ÿ¿Ã
+	GameObject* m_pTankerObject{ NULL };
 	GameObject* m_pPriestObject{ NULL };
 	GameObject* m_pPlaneObject{ NULL };
 	GameObject* m_pRockObject{ NULL };

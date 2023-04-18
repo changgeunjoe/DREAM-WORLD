@@ -1,11 +1,13 @@
 #include "stdafx.h"
 #include "../Session.h"
 #include "MonsterSessionObject.h"
+#include "../../IOCPNetwork/IOCP/IOCPNetwork.h"
 #include "../../Logic/Logic.h"
 #include "../../Timer/Timer.h"
 
 extern Logic g_logic;
 extern Timer g_Timer;
+extern IOCPNetwork g_iocpNetwork;
 
 MonsterSessionObject::MonsterSessionObject(Session* session) : SessionObject(session)
 {
@@ -35,8 +37,8 @@ void MonsterSessionObject::AutoMove()
 	durationTime = (double)durationTime / 1000.0f;
 	Move(((float)durationTime / 1000.0f) * 50.0f, ((float)durationTime / 1000.0f));
 	m_lastMoveTime = currentTime;
-	std::cout << "current Position " << m_position.x << " " << m_position.y << " " << m_position.z << std::endl;
-	std::cout << "rotate angle" << m_directionVector.x << " " << m_directionVector.y << " " << m_directionVector.z << std::endl;
+	//std::cout << "Boss current Position " << m_position.x << " " << m_position.y << " " << m_position.z << std::endl;
+	//std::cout << "Boss Dir Vector" << m_directionVector.x << " " << m_directionVector.y << " " << m_directionVector.z << std::endl;
 }
 
 void MonsterSessionObject::StartMove(DIRECTION d)
@@ -66,7 +68,6 @@ const DirectX::XMFLOAT3 MonsterSessionObject::GetRotation()
 
 void MonsterSessionObject::Rotate(ROTATE_AXIS axis, float angle)
 {
-	DirectX::XMFLOAT3 upVec = DirectX::XMFLOAT3(0, 1, 0);
 	switch (axis)
 	{
 	case X:
@@ -87,11 +88,13 @@ void MonsterSessionObject::Rotate(ROTATE_AXIS axis, float angle)
 	default:
 		break;
 	}
+	std::cout << "Rotate angle: " << angle << std::endl;//
 	DirectX::XMFLOAT3 xmf3Rev = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-	xmf3Rev.x = m_directionVector.x * cos(m_rotateAngle.y) - m_directionVector.z * sin(m_rotateAngle.y);
-	xmf3Rev.z = m_directionVector.x * sin(m_rotateAngle.y) + m_directionVector.z * cos(m_rotateAngle.y);
+	xmf3Rev.x = m_directionVector.x * cos(XMConvertToRadians(-angle)) - m_directionVector.z * sin(XMConvertToRadians(-angle));
+	xmf3Rev.z = m_directionVector.x * sin(XMConvertToRadians(-angle)) + m_directionVector.z * cos(XMConvertToRadians(-angle));
 	xmf3Rev = Vector3::Normalize(xmf3Rev);
 	m_directionVector = xmf3Rev;
+	std::cout << "Boss Dir Vector" << m_directionVector.x << " " << m_directionVector.y << " " << m_directionVector.z << std::endl;
 }
 
 void MonsterSessionObject::SetDirection(DIRECTION d)
@@ -105,8 +108,8 @@ void MonsterSessionObject::Move(float fDistance, float elapsedTime)
 	XMFLOAT3 des = Vector3::Subtract(m_DestinationPos, m_position);	// 목적지랑 위치랑 벡터	
 	CalcRightVector();
 	bool OnRight = (Vector3::DotProduct(m_rightVector, Vector3::Normalize(des)) > 0) ? true : false;	// 목적지가 올느쪽 왼
-	float ChangingAngle = Vector3::Angle(Vector3::Normalize(des), GetLook());	// 
-
+	float ChangingAngle = Vector3::Angle(Vector3::Normalize(des), m_directionVector);
+	std::cout << "changingAngle: " << ChangingAngle << std::endl;
 	if (Vector3::Length(des) < DBL_EPSILON)
 		m_position = m_DestinationPos;
 	else
@@ -118,6 +121,11 @@ void MonsterSessionObject::Move(float fDistance, float elapsedTime)
 			else if (!OnRight)
 				Rotate(ROTATE_AXIS::Y, -45.0f * elapsedTime);
 		}
-		m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, fDistance));//틱마다 움직임		
+		m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, fDistance));//틱마다 움직임
 	}
+}
+
+void MonsterSessionObject::SetAggroPlayerId(int id)
+{
+	m_aggroPlayerId = id;
 }

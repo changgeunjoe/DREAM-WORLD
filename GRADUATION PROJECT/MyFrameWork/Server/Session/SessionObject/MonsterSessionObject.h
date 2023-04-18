@@ -60,6 +60,6 @@ public:
 public:
 	DirectX::XMFLOAT3 GetLook() { return m_directionVector; }
 public:
-	void SetAggroPlayerId(int id) { m_aggroPlayerId = id; }
+	void SetAggroPlayerId(int id);
 	int GetAggroPlayerId() { return m_aggroPlayerId; }
 };

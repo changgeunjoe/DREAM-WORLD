@@ -1,6 +1,6 @@
 #pragma once
 #include "../Session/Session.h"
-
+#include "../PCH/stdafx.h"
 class Room
 {
 public:
@@ -27,7 +27,14 @@ private:
 
 	std::mutex m_lockWaitPlayers;
 	std::map<ROLE, int> m_waitPlayers;
-
+	std::array<Session, 10> m_arrows;
+	std::array<Session, 10> m_balls;
+	std::mutex m_arrowLock;
+	std::mutex m_ballLock;
+	std::list<int> m_shootingBall;
+	std::list<int> m_shootingArrow;
+	Concurrency::concurrent_queue<int> m_restArrow;
+	Concurrency::concurrent_queue<int> m_restBall;
 private:
 	std::vector<Session> m_monsters;
 	Session m_boss;
@@ -53,4 +60,7 @@ public:
 public:
 	void CreateBossMonster();
 	Session& GetBoss() { return m_boss; };
+public:
+	void ShootArrow(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 srcPos, float speed);
+	void ShootBall(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 srcPos, float speed);
 };

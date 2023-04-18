@@ -73,6 +73,9 @@
     <ClCompile Include="Timer\Timer.cpp">
       <Filter>Timer</Filter>
     </ClCompile>
+    <ClCompile Include="Session\SessionObject\ShootingSessionObject.cpp">
+      <Filter>Session\SessionObject</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Session\ExpOver.h">
@@ -113,6 +116,9 @@
     </ClInclude>
     <ClInclude Include="Timer\Timer.h">
       <Filter>Timer</Filter>
+    </ClInclude>
+    <ClInclude Include="Session\SessionObject\ShootingSessionObject.h">
+      <Filter>Session\SessionObject</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
