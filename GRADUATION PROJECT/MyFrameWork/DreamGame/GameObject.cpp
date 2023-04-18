@@ -123,6 +123,17 @@ XMFLOAT3 GameObject::GetRight()
 	return(Vector3::Normalize(XMFLOAT3(m_xmf4x4World._11, m_xmf4x4World._12, m_xmf4x4World._13)));
 }
 
+void GameObject::SetLookAt(XMFLOAT3& xmf3Target, XMFLOAT3& xmf3Up)
+{
+	XMFLOAT3 xmf3Position(m_xmf4x4ToParent._41, m_xmf4x4ToParent._42, m_xmf4x4ToParent._43);
+	XMFLOAT4X4 mtxLookAt = Matrix4x4::LookAtLH(xmf3Position, xmf3Target, xmf3Up);
+	m_xmf4x4ToParent._11 = mtxLookAt._11; m_xmf4x4ToParent._12 = mtxLookAt._21; m_xmf4x4ToParent._13 = mtxLookAt._31;
+	m_xmf4x4ToParent._21 = mtxLookAt._12; m_xmf4x4ToParent._22 = mtxLookAt._22; m_xmf4x4ToParent._23 = mtxLookAt._32;
+	m_xmf4x4ToParent._31 = mtxLookAt._13; m_xmf4x4ToParent._32 = mtxLookAt._23; m_xmf4x4ToParent._33 = mtxLookAt._33;
+
+	UpdateTransform(NULL);
+}
+
 
 void GameObject::SetScale(float x, float y, float z)
 {
@@ -205,6 +216,7 @@ void GameObject::HandleMessage(string message)
 
 void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	m_pd3dGraphicsRootSignature = pd3dGraphicsRootSignature;
 	ComponentBase* pComponent = GetComponent(component_id::RENDER_COMPONENT);
 	if (pComponent != NULL)
@@ -282,7 +294,6 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 
 void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender)
 {
-	//UpdateTransform(&m_xmf4x4ToParent);
 	if (m_pSkinnedAnimationController)
 		m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
 
@@ -296,19 +307,10 @@ void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3
 			m_pTextureComponent->UpdateShaderVariables(pd3dCommandList);
 		}
 	}
-	if (m_pDepthShaderComponent != NULL)
-	{
-	//	m_pDepthShaderComponent->UpdateShaderVariables(pd3dCommandList);
-	}
-	if (m_pShadowMapShaderComponent)
-	{
-		//	m_pShadowMapShaderComponent->Render(pd3dCommandList, pCamera);
-	}
 	if (m_pRenderComponent != NULL && m_pMeshComponent != NULL && m_ppMaterialsComponent == NULL && m_pLoadedModelComponent == NULL)
 	{
 		m_pRenderComponent->Render(pd3dCommandList, m_pMeshComponent, 0);//수정필요
 	}
-
 	if (m_nMaterials > 0)
 	{
 		for (int i = 0; i < m_nMaterials; i++)
@@ -385,16 +387,18 @@ void GameObject::AnimateRowColumn(float fTimeElapsed)
 
 void GameObject::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
+	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_STAT) + 255) & ~255); //256의 배수
 	m_pd3dcbGameObjects = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 
 	m_pd3dcbGameObjects->Map(0, NULL, (void**)&m_pcbMappedGameObjects);
 }
 void GameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	XMStoreFloat4x4(&m_pcbMappedGameObjects->m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4World)));
-	//::memcpy(&m_pcbMappedGameObjects->m_material.m_xmf4Ambient, &(m_ppMaterialsComponent->, sizeof(XMFLOAT3));
-
+	float mfhp;
+	mfhp = (m_fHp / m_fMaxHp);//현재 체력값을 최대체력 비례로 나타낸식 23.04.18 .ccg
+	::memcpy(&m_pcbMappedGameObjects->m_xmfHP, &mfhp, sizeof(float));
+	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbGameObjects->GetGPUVirtualAddress();
+	pd3dCommandList->SetGraphicsRootConstantBufferView(17, d3dGpuVirtualAddress);
 }
 void GameObject::ReleaseShaderVariables()
 {

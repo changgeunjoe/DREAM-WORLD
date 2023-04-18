@@ -43,6 +43,14 @@ GameobjectManager::~GameobjectManager()
 void GameobjectManager::Animate(float fTimeElapsed)
 {
 	m_pSkyboxObject->SetPosition(m_pCamera->GetPosition());
+	if (m_pMonsterHPBarObject)//23.04.18 몬스터 체력바 -> 카메라를 바라 보도록 .ccg
+	{
+		m_pMonsterHPBarObject->SetLookAt(m_pCamera->GetPosition());
+		m_pMonsterHPBarObject->SetPosition(XMFLOAT3(m_pMonsterObject->GetPosition().x,
+			m_pMonsterObject->GetPosition().y+70, m_pMonsterObject->GetPosition().z));
+		m_pMonsterHPBarObject->Rotate(0, 180, 0);
+		m_pMonsterHPBarObject->SetScale(10);
+	}
 	m_pMonsterObject->Animate(fTimeElapsed);
 	if (!g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject) return;
 	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->UpdateCameraPosition();
@@ -443,7 +451,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pMonsterHPBarObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pMonsterHPBarObject->SetModel("Model/BossHp.bin");
 	m_pMonsterHPBarObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pMonsterHPBarObject->Rotate(90.0f, 0.0f, 0.0f);
+	m_pMonsterHPBarObject->Rotate(0.0f, 0.0f, 0.0f);
 	m_pMonsterHPBarObject->SetScale(3.0f, 3.0f, 3.0f);
 	m_ppCharacterUIObjects.emplace_back(m_pMonsterHPBarObject);
 
@@ -587,6 +595,7 @@ void GameobjectManager::ProcessingUI(int n)
 void GameobjectManager::AnimateObjects()
 {
 	m_pSkyboxObject->SetPosition(m_pCamera->GetPosition());
+	
 	m_pLight->m_pLights[1].m_xmf3Position = m_pCamera->GetPosition();
 	m_pLight->m_pLights[1].m_xmf3Direction = m_pCamera->GetLookVector();
 }

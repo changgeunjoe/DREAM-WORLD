@@ -67,6 +67,8 @@ public:
     XMFLOAT3 GetUp();
     XMFLOAT3 GetRight();
 
+    void SetLookAt(XMFLOAT3& xmf3Target, XMFLOAT3& xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f));
+
 	unordered_map<component_id, ComponentBase*> Getcomponents();
 
 	// void SetOrientation(const Quaternion& orientation);
@@ -80,7 +82,6 @@ public:
     virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,bool bPrerender=false);
     void ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent);
     virtual void Animate(float fTimeElapsed);
-    virtual void AnimateRowColumn(float fTimeElapsed);
     virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
     virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
     virtual void ReleaseShaderVariables();
@@ -96,6 +97,8 @@ public:
 
     UINT GetMeshType() { return((m_pMeshComponent) ? m_pMeshComponent->GetType() : 0x00); };
     void SetMaterialType(UINT nType) { m_nType |= nType; }
+
+    void AnimateRowColumn(float fTimeElapsed);
 
 public:
     static CLoadedModelInfoCompnent* LoadGeometryAndAnimationFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, ShaderComponent* pShader, bool isBinary);
@@ -144,7 +147,6 @@ public:
     BoundingSphere					m_SPBB = BoundingSphere(XMFLOAT3(0.0f, 0.0f, 0.0f), m_fBoundingSize);
 
     int                             m_iRButtionCount = 0;
- 
 
     DIRECTION                       m_prevDirection = DIRECTION::IDLE;
     unsigned char                   m_cMouseInput = 0x00;
@@ -183,15 +185,14 @@ protected:
     ID3D12RootSignature* m_pd3dGraphicsRootSignature;
 
 	ID3D12Resource* m_pd3dcbGameObjects = NULL;
-	CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
+	//CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
+    CB_GAMEOBJECT_STAT* m_pcbMappedGameObjects = NULL;
 
 	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dCbvGPUDescriptorHandle;
 
 	ID3D12Resource* pShadowMap = NULL;
 	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);// 삭제 예정(변경)
 	int nObjects = 0;//삭제 예정(변경)
-
-    
 
 public:
     void SetRButtonClicked(bool bRButtonClicked) { m_bRButtonClicked = bRButtonClicked; }
@@ -213,10 +214,11 @@ protected:
 
 protected:
     CharacterType                   m_characterType = CharacterType::CT_NONE;
-    float                           m_fHp;
+    float                           m_fHp{100};//캐릭터 현재 체력
+    float                           m_fMaxHp{100};//캐릭터 최대 체력
     float                           m_fSpeed;
     float                           m_fDamage;
-    int                             m_nArrow = 0;
+    int                             m_nArrow{};
 
     float                           m_fTime{};
 public:
@@ -231,6 +233,8 @@ public:
     }
     float GetBoundingSize() { return m_fBoundingSize; }
 
+public:
+    XMFLOAT3                        m_xmf3Destination;
 };
 
 template<typename T>//템플릿을 활용하는 이유-> 
