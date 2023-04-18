@@ -3,6 +3,7 @@
 #include "../Session/Session.h"
 #include "../Session/SessionObject/PlayerSessionObject.h"
 #include "../Session/SessionObject/MonsterSessionObject.h"
+
 #include "../IOCPNetwork/IOCP/IOCPNetwork.h"
 #include "../DB/DBObject.h"
 #include "../IOCPNetwork/protocol/protocol.h"
@@ -22,7 +23,6 @@ Logic::Logic()
 #ifndef ALONE_TEST
 	m_MatchingThread = std::thread{ [this]() {MatchMaking(); } };
 #endif
-
 }
 
 Logic::~Logic()
@@ -315,6 +315,18 @@ void Logic::ProcessPacket(int userId, char* p)
 		std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::MOUSE_INPUT - MultiCastOtherPlayer" << std::endl;
 #endif
 		MultiCastOtherPlayerInRoom(userId, &sendPacket);
+	}
+	break;
+	case CLIENT_PACKET::SHOOTING_ARROW:
+	{
+		CLIENT_PACKET::ShootingObject* recvPacket = reinterpret_cast<CLIENT_PACKET::ShootingObject*>(p);
+		g_RoomManager.GetRunningRoom(dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject)->GetRoomId()).ShootArrow(recvPacket->dir, recvPacket->srcPos, recvPacket->speed);
+	}
+	break;
+	case CLIENT_PACKET::SHOOTING_BALL:
+	{
+		CLIENT_PACKET::ShootingObject* recvPacket = reinterpret_cast<CLIENT_PACKET::ShootingObject*>(p);		
+		g_RoomManager.GetRunningRoom(dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject)->GetRoomId()).ShootBall(recvPacket->dir, recvPacket->srcPos, recvPacket->speed);
 	}
 	break;
 	default:

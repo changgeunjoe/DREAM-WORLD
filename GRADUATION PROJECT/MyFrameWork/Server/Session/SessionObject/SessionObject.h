@@ -13,8 +13,9 @@ protected:
 	DirectX::XMFLOAT3 m_rightVector = DirectX::XMFLOAT3{ 1,0,0 };
 
 	DirectX::XMFLOAT4X4 m_worldMatrix = Matrix4x4::Identity();
-
 	std::chrono::high_resolution_clock::time_point m_lastMoveTime;
+
+private:
 
 public:
 	SessionObject(Session* session);

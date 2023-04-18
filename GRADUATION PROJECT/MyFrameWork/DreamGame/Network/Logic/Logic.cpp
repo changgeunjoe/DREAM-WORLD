@@ -183,13 +183,13 @@ void Logic::ProcessPacket(char* p)
 					pSession.m_currentPlayGameObject->SetPosition(recvPacket->position);
 					pSession.m_currentPlayGameObject->Rotate(&upVec, recvPacket->rotate.y);
 					pSession.m_ownerRotateAngle.y = recvPacket->rotate.y;
-//#ifdef _DEBUG
-//					PrintCurrentTime();
-//					cout << "CLIENT::Logic::" << endl;
-//					cout << "AddPlayer ID: " << recvPacket->userId << endl;
-//					cout << "Position: " << recvPacket->position.x << ", " << recvPacket->position.y << ", " << recvPacket->position.z << endl;
-//					cout << "Rotate: " << recvPacket->rotate.x << ", " << recvPacket->rotate.y << ", " << recvPacket->rotate.z << endl;
-//#endif
+					//#ifdef _DEBUG
+					//					PrintCurrentTime();
+					//					cout << "CLIENT::Logic::" << endl;
+					//					cout << "AddPlayer ID: " << recvPacket->userId << endl;
+					//					cout << "Position: " << recvPacket->position.x << ", " << recvPacket->position.y << ", " << recvPacket->position.z << endl;
+					//					cout << "Rotate: " << recvPacket->rotate.x << ", " << recvPacket->rotate.y << ", " << recvPacket->rotate.z << endl;
+					//#endif
 					break;
 				}
 			}
@@ -339,6 +339,22 @@ void Logic::ProcessPacket(char* p)
 		SERVER_PACKET::BossChangeStateMovePacket* recvPacket = reinterpret_cast<SERVER_PACKET::BossChangeStateMovePacket*>(p);
 		recvPacket->desPos; //여기 목적지 까지 보스 몬스터 이동 시키면 됩니다
 		m_MonsterSession.m_currentPlayGameObject->m_xmf3Destination = recvPacket->desPos;
+	}
+	break;
+	case SERVER_PACKET::SHOOTING_ARROW://화살
+	{
+		SERVER_PACKET::ShootingObject* recvPacket = reinterpret_cast<SERVER_PACKET::ShootingObject*>(p);
+		recvPacket->dir;
+		recvPacket->srcPos;
+		recvPacket->speed;
+	}
+	break;
+	case SERVER_PACKET::SHOOTING_BALL://공
+	{
+		SERVER_PACKET::ShootingObject* recvPacket = reinterpret_cast<SERVER_PACKET::ShootingObject*>(p);
+		recvPacket->dir;
+		recvPacket->srcPos;
+		recvPacket->speed;
 	}
 	break;
 	default:

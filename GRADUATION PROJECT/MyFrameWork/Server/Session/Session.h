@@ -29,7 +29,9 @@ public:
 	}
 	const int GetId() { return m_id; }
 	const PLAYER_STATE GetPlayerState() { return m_playerState; };
-	void RegistMonster(int id, std::string& roomId);	
+	void RegistMonster(int id, std::string& roomId);
+	void RegistArrow(std::string& roomId, int id);
+	void RegistEnergtBall(std::string& roomId, int id);
 	friend class SessionObject;
 };
 

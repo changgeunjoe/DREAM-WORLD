@@ -13,8 +13,10 @@ namespace CLIENT_PACKET {
 	constexpr unsigned char PLAYER_APPLY_ROOM = 9; // 방 신청
 	constexpr unsigned char CANCEL_APPLY_ROOM = 10; // 신청 취소
 	constexpr unsigned char MOUSE_INPUT = 11;
-	constexpr unsigned char MATCH_REQUEST = 12;
-	constexpr unsigned char MATCH_REQUEST1 = 13;
+	constexpr unsigned char MATCH_REQUEST = 12;	
+	constexpr unsigned char SHOOTING_ARROW = 13;
+	constexpr unsigned char SHOOTING_BALL = 14;
+
 
 
 	struct MovePacket
@@ -81,6 +83,14 @@ namespace CLIENT_PACKET {
 		char type;
 		char ClickedButton;
 	};
+
+	struct ShootingObject {
+		short size;
+		char type;
+		XMFLOAT3 dir;
+		XMFLOAT3 srcPos;
+		float speed;
+	};
 }
 
 namespace SERVER_PACKET {
@@ -103,8 +113,9 @@ namespace SERVER_PACKET {
 	constexpr unsigned char PLAYER_CANCEL_ROOM = 80; // 신청 취소 정보 방장(방)한테 전송
 	constexpr unsigned char MOUSE_INPUT = 81;
 	constexpr unsigned char INTO_GAME = 82;
-	constexpr unsigned char BOSS_CHANGE_STATE_MOVE_DES = 83;	
-	//constexpr unsigned char BOSS_CHANGE_STATE_MOVE = 83;
+	constexpr unsigned char BOSS_CHANGE_STATE_MOVE_DES = 83;
+	constexpr unsigned char SHOOTING_ARROW = 84;
+	constexpr unsigned char SHOOTING_BALL = 85;
 	//constexpr unsigned char BOSS_CHANGE_STATE_MOVE = 83;
 	
 
@@ -186,6 +197,14 @@ namespace SERVER_PACKET {
 		short size;
 		char type;
 		DirectX::XMFLOAT3 desPos;
+	};
+
+	struct ShootingObject {
+		short size;
+		char type;
+		XMFLOAT3 dir;
+		XMFLOAT3 srcPos;
+		float speed;
 	};
 }
 

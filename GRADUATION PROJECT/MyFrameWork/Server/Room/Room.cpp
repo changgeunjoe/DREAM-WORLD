@@ -1,9 +1,11 @@
 #include "stdafx.h"
 #include "Room.h"
 #include "../Timer/Timer.h"
+#include "../Logic/Logic.h"
+#include "../Session/SessionObject/ShootingSessionObject.h"
 
 extern Timer g_Timer;
-
+extern Logic g_logic;
 Room::Room()
 {
 
@@ -30,6 +32,16 @@ Room::Room(std::string roomId) : m_roomId(roomId)
 Room::Room(std::string roomId, std::wstring roomName) : m_roomId(roomId), m_roomName(roomName)
 {
 	CreateBossMonster(); //임시 입니다.	
+	int i = 0;
+	for (auto& arrow : m_arrows) {
+		m_restArrow.push(i);
+		arrow.RegistArrow(roomId, i++);
+	}
+	i = 0;
+	for (auto& arrow : m_balls) {
+		m_restBall.push(i);
+		arrow.RegistEnergtBall(roomId, i++);
+	}
 }
 
 Room::Room(const Room& rhs)
@@ -96,8 +108,36 @@ void Room::DeleteWaitPlayer(int playerId)
 }
 
 void Room::CreateBossMonster()
-{	
+{
 	m_boss.RegistMonster(MAX_USER + m_roomOwnerId, m_roomId);
 	TIMER_EVENT firstEv{ std::chrono::system_clock::now() + std::chrono::seconds(3), m_roomId, -1,EV_FIND_PLAYER };
 	g_Timer.m_TimerQueue.push(firstEv);
+}
+
+void Room::ShootArrow(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 srcPos, float speed)
+{
+	int arrowIndex = -1;
+	if (m_restArrow.try_pop(arrowIndex)) {
+		{
+			std::lock_guard<std::mutex> lg(m_arrowLock);
+			m_shootingArrow.push_back(arrowIndex);
+		}
+		dynamic_cast<ShootingSessionObject*>(m_arrows[arrowIndex].m_sessionObject)->SetStart(dir, srcPos, speed);
+		//발사체 발사했다는 패킷보내기
+		//g_logic.BroadCastInRoom(m_roomId, &sendPacket);
+	}
+}
+
+void Room::ShootBall(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 srcPos, float speed)
+{
+	int ballIndex = -1;
+	if (m_restBall.try_pop(ballIndex)) {
+		{
+			std::lock_guard<std::mutex> lg(m_ballLock);
+			m_shootingBall.push_back(ballIndex);
+		}
+		//발사체 발사했다는 패킷보내기
+		//g_logic.BroadCastInRoom(m_roomId, &sendPacket);
+		dynamic_cast<ShootingSessionObject*>(m_balls[ballIndex].m_sessionObject)->SetStart(dir, srcPos, speed);
+	}
 }
