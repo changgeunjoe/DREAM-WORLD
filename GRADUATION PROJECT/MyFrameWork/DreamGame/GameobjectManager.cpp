@@ -112,26 +112,33 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	m_pSkyboxObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pDepthShaderComponent->UpdateShaderVariables(pd3dCommandList);
 	g_Logic.m_MonsterSession.m_currentPlayGameObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	for (auto& session : g_Logic.m_inGamePlayerSession) {
-		if (-1 != session.m_id && session.m_isVisible) {
-			session.m_currentPlayGameObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-			//if (session.m_currentPlayGameObject->m_SPBB.Intersects(m_pMonsterObject->m_SPBB))
-			//{
-			//	cout << "충돌 " << endl;
-			//}
-			//for (int i = 0; i < 10; ++i)
-			//{
-			//	if (session.m_currentPlayGameObject->m_pArrow[i]->m_bActive)
-			//	{
-			//		if (session.m_currentPlayGameObject->m_pArrow[i]->m_SPBB.Intersects(m_pMonsterObject->m_SPBB))
-			//		{
-			//			cout << i << "번째 화살 충돌 " << endl;
-			//			session.m_currentPlayGameObject->m_pArrow[i]->m_bActive = false;
-			//		}
-			//	}
-			//}
-		}
+
+	for (int i = 0; i < m_pArrowObjects.size(); i++) {
+		m_pArrowObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
+	for (int i = 0; i < m_pEnergyBallObjects.size(); i++) {
+		m_pEnergyBallObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
+	//for (auto& session : g_Logic.m_inGamePlayerSession) {
+	//	if (-1 != session.m_id && session.m_isVisible) {
+	//		session.m_currentPlayGameObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//		//if (session.m_currentPlayGameObject->m_SPBB.Intersects(m_pMonsterObject->m_SPBB))
+	//		//{
+	//		//	cout << "충돌 " << endl;
+	//		//}
+	//		//for (int i = 0; i < 10; ++i)
+	//		//{
+	//		//	if (session.m_currentPlayGameObject->m_pArrow[i]->m_bActive)
+	//		//	{
+	//		//		if (session.m_currentPlayGameObject->m_pArrow[i]->m_SPBB.Intersects(m_pMonsterObject->m_SPBB))
+	//		//		{
+	//		//			cout << i << "번째 화살 충돌 " << endl;
+	//		//			session.m_currentPlayGameObject->m_pArrow[i]->m_bActive = false;
+	//		//		}
+	//		//	}
+	//		//}
+	//	}
+	//}
 	//m_pPlaneObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//m_pMonsterObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
@@ -244,6 +251,21 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPriestObject->m_pSkinnedAnimationController->SetTrackAnimationSet(4);
 	m_pPriestObject->SetScale(30.0f);
 	m_ppGameObjects.emplace_back(m_pPriestObject);
+
+	for (int i = 0; i < 10; ++i)
+	{
+		m_pEnergyBallObjects[i] = new EnergyBall();
+		m_pEnergyBallObjects[i]->InsertComponent<RenderComponent>();
+		m_pEnergyBallObjects[i]->InsertComponent<CubeMeshComponent>();
+		m_pEnergyBallObjects[i]->InsertComponent<ShaderComponent>();
+		m_pEnergyBallObjects[i]->InsertComponent<TextureComponent>();
+		m_pEnergyBallObjects[i]->SetPosition(XMFLOAT3(0, 0, 100));
+		m_pEnergyBallObjects[i]->SetTexture(L"Image/Yellow.dds", RESOURCE_TEXTURE2D, 3);
+		m_pEnergyBallObjects[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		m_pEnergyBallObjects[i]->SetScale(0.5f);
+		m_pEnergyBallObjects[i]->SetBoundingSize(0.2f);
+		static_cast<Priest*>(m_pPriestObject)->SetEnergyBall(m_pEnergyBallObjects[i]);
+	}
 
 	m_pMonsterObject = new Monster();
 	m_pMonsterObject->InsertComponent<RenderComponent>();

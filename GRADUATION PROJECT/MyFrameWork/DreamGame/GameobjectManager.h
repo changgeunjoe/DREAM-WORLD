@@ -40,7 +40,8 @@ public:
 
 private: //active object 
 	vector<GameObject*> m_ppGameObjects;
-	array<Arrow*, 10> m_pArrowObjects;
+	array<Projectile*, 10> m_pArrowObjects;
+	array<Projectile*, 10> m_pEnergyBallObjects;
 
 	int				m_nObjects{};
 	GameObject* m_pGameObject{ NULL };

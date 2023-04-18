@@ -878,6 +878,13 @@ void GameObject::Move(DIRECTION direction, float fDistance)
 {
 }
 
+void GameObject::Move(XMFLOAT3 direction, float fDistance)
+{
+	XMFLOAT3 xmf3Position = GetPosition();
+	xmf3Position = Vector3::Add(xmf3Position, direction, fDistance);
+	if (Vector3::Length(xmf3Position) < 440.0f)	GameObject::SetPosition(xmf3Position);
+}
+
 void GameObject::MoveDiagonal(int fowardDirection, int rightDirection, float distance)
 {
 	XMFLOAT3 xmf3Position = GetPosition();

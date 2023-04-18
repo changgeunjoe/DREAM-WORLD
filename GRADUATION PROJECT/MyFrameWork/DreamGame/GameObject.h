@@ -15,7 +15,7 @@ class CLoadedModelInfoCompnent;
 class SkinnedMeshComponent;
 class ComponentBase;
 class CAnimationController;
-class Arrow;
+class Projectile;
 
 #define MATERIAL_ALBEDO_MAP				0x01
 #define MATERIAL_SPECULAR_MAP			0x02
@@ -53,6 +53,7 @@ public:
     void MoveDiagonal(int fowardDirection, int rightDirection, float distance = 1.0f);
     virtual void MoveForward(float fDistance = 1.0f);
     virtual void Move(DIRECTION direction, float fDistance = 1.0f);
+    virtual void Move(XMFLOAT3 direction, float fDistance = 1.0f);
 
     bool CheckIntersect(const GameObject* GameObject);	//수정필요
 
@@ -129,16 +130,16 @@ public:
     XMFLOAT4X4						m_xmf4x4Transform;//변환 행렬
     XMFLOAT4X4						m_xmf4x4World; //월드 행렬
 
-    GameObject                      *m_pParent = NULL;
-    GameObject                      *m_pChild = NULL;
-    GameObject                      *m_pSibling = NULL;
+    GameObject                      *m_pParent = nullptr;
+    GameObject                      *m_pChild = nullptr;
+    GameObject                      *m_pSibling = nullptr;
 
 
     UINT							m_nType = 0x00;
     char							m_pstrFrameName[64];
 
 
-    CCamera                         *m_pCamera = NULL;
+    CCamera                         *m_pCamera = nullptr;
     float                           m_fBoundingSize = 7.5f;
     BoundingSphere					m_SPBB = BoundingSphere(XMFLOAT3(0.0f, 0.0f, 0.0f), m_fBoundingSize);
 
@@ -164,28 +165,28 @@ protected:
     
     //////////////////////Component/////////////////////////////////
     unordered_map<component_id, ComponentBase*> m_components;
-    MeshComponent* m_pMeshComponent{ NULL };
-    TextureComponent* m_pTextureComponent{ NULL };
-    CubeMeshComponent* m_pCubeComponent{ NULL };
-    SkyBoxMeshComponent* m_pSkyboxComponent{ NULL };
-    UIMeshComponent* m_pUiComponent{ NULL };
-    ShaderComponent* m_pShaderComponent{ NULL };
-    RenderComponent* m_pRenderComponent{ NULL };
-    CLoadedModelInfoCompnent* m_pLoadedModelComponent{ NULL };
-    MaterialComponent** m_ppMaterialsComponent{ NULL };
-    DepthRenderShaderComponent* m_pDepthShaderComponent{ NULL };
-    ShadowMapShaderComponent* m_pShadowMapShaderComponent{NULL};
+    MeshComponent* m_pMeshComponent{ nullptr };
+    TextureComponent* m_pTextureComponent{ nullptr };
+    CubeMeshComponent* m_pCubeComponent{ nullptr };
+    SkyBoxMeshComponent* m_pSkyboxComponent{ nullptr };
+    UIMeshComponent* m_pUiComponent{ nullptr };
+    ShaderComponent* m_pShaderComponent{ nullptr };
+    RenderComponent* m_pRenderComponent{ nullptr };
+    CLoadedModelInfoCompnent* m_pLoadedModelComponent{ nullptr };
+    MaterialComponent** m_ppMaterialsComponent{ nullptr };
+    DepthRenderShaderComponent* m_pDepthShaderComponent{ nullptr };
+    ShadowMapShaderComponent* m_pShadowMapShaderComponent{ nullptr };
 
 protected:
 
     ID3D12RootSignature* m_pd3dGraphicsRootSignature;
 
-	ID3D12Resource* m_pd3dcbGameObjects = NULL;
-	CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
+	ID3D12Resource* m_pd3dcbGameObjects = nullptr;
+	CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = nullptr;
 
 	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dCbvGPUDescriptorHandle;
 
-	ID3D12Resource* pShadowMap = NULL;
+	ID3D12Resource* pShadowMap = nullptr;
 	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);// 삭제 예정(변경)
 	int nObjects = 0;//삭제 예정(변경)
 
@@ -212,9 +213,9 @@ protected:
     float                           m_fHp;
     float                           m_fSpeed;
     float                           m_fDamage;
-    int                             m_nArrow = 0;
+    int                             m_nProjectiles = 0;
 public:
-    array<Arrow*, 10>               m_pArrow;
+    array<Projectile*, 10>               m_pProjectiles;
     void SetCharacterType(CharacterType type) { m_characterType = type; }
     CharacterType GetCharacterType() { return m_characterType; }
 
