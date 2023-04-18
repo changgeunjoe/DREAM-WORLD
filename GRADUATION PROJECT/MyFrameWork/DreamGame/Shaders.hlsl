@@ -44,6 +44,13 @@ cbuffer cbBoneTransforms : register(b5)
     float4x4 gpmtxBoneTransforms[SKINNED_ANIMATION_BONES];
 };
 
+
+cbuffer cbBoneTransforms : register(b6)
+{
+    float  gfCharactertHP: packoffset(c0);
+
+};
+
 Texture2D shaderTexture : register(t0);
 TextureCube SkyCubeTexture : register(t2);
 Texture2D ShadowMap : register(t1);
@@ -165,9 +172,7 @@ float4 PSUITextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
     //if (cColor.x != left.x || cColor.y != left.y || cColor.z != left.z )
     //{
     //    return outlineColor;
-
     //}
-
     return (cColor);
 }
 

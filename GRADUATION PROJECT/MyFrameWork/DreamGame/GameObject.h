@@ -46,6 +46,7 @@ public:
     void SetAnimationSets(int nAnimationSets);
     void SetMesh(MeshComponent* pMesh);
     void SetCamera(CCamera* pCamera);
+    void SetRowColumn(float x, float y);
     void MoveObject(DIRECTION& currentDirection, const XMFLOAT3& CameraAxis);
     
 	void MoveStrafe(float fDistance = 1.0f);
@@ -67,6 +68,8 @@ public:
     void SetLook(const XMFLOAT3& xmfLook);
     XMFLOAT3 GetUp();
     XMFLOAT3 GetRight();
+
+    void SetLookAt(XMFLOAT3& xmf3Target, XMFLOAT3& xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f));
 
 	unordered_map<component_id, ComponentBase*> Getcomponents();
 
@@ -96,6 +99,8 @@ public:
 
     UINT GetMeshType() { return((m_pMeshComponent) ? m_pMeshComponent->GetType() : 0x00); };
     void SetMaterialType(UINT nType) { m_nType |= nType; }
+
+    void AnimateRowColumn(float fTimeElapsed);
 
 public:
     static CLoadedModelInfoCompnent* LoadGeometryAndAnimationFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, ShaderComponent* pShader, bool isBinary);
@@ -133,6 +138,14 @@ public:
     GameObject                      *m_pParent = nullptr;
     GameObject                      *m_pChild = nullptr;
     GameObject                      *m_pSibling = nullptr;
+    
+    int 							m_nRow = 0;
+    int 							m_nCol = 0;
+
+    int 							m_nRows = 1;
+    int 							m_nCols = 1;
+
+    XMFLOAT4X4						m_xmf4x4Texture;//멀티스프라이트를 활용하기위한 4x4행렬 
 
 
     UINT							m_nType = 0x00;
@@ -182,7 +195,8 @@ protected:
     ID3D12RootSignature* m_pd3dGraphicsRootSignature;
 
 	ID3D12Resource* m_pd3dcbGameObjects = nullptr;
-	CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = nullptr;
+	//CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
+    CB_GAMEOBJECT_STAT* m_pcbMappedGameObjects = nullptr;
 
 	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dCbvGPUDescriptorHandle;
 
@@ -210,10 +224,13 @@ protected:
 
 protected:
     CharacterType                   m_characterType = CharacterType::CT_NONE;
-    float                           m_fHp;
+    float                           m_fHp{100};//캐릭터 현재 체력
+    float                           m_fMaxHp{100};//캐릭터 최대 체력
     float                           m_fSpeed;
     float                           m_fDamage;
-    int                             m_nProjectiles = 0;
+
+    float                           m_fTime{};
+    int                             m_nProjectiles{};
 public:
     array<Projectile*, 10>               m_pProjectiles;
     void SetCharacterType(CharacterType type) { m_characterType = type; }
@@ -244,6 +261,7 @@ inline T* GameObject::InsertComponent()//컴포넌트를 게임 오브젝트에 넣는 함수
     pComponent->SetOwner(this);
     return pComponent;
 }
+
 
 template<typename T>
 inline T* GameObject::ComponentType(component_id& componentID)
@@ -288,7 +306,6 @@ inline T* GameObject::ComponentType(component_id& componentID)
     {
         componentID = component_id::LOADEDMODEL_COMPONET;
     }
-
     else
     {
         componentID = component_id::UNDEF_COMPONENT;

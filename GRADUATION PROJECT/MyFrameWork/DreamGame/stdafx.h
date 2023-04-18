@@ -202,6 +202,11 @@ struct CB_GAMEOBJECT_INFO
 	UINT							m_nType;
 	bool							m_bAnimateshader;
 };
+
+struct CB_GAMEOBJECT_STAT
+{
+	float							m_xmfHP;
+};
 struct SHADOW_INFO
 {
 	XMFLOAT4X4						m_xmf4x4View;
@@ -217,7 +222,8 @@ enum entity_id
 	SQUARE_ENTITY,
 	PlANE_ENTITY,
 	UNDEF_ENTITY,
-	UI_ENTITY
+	UI_ENTITY,
+	MULTYSPRITE_ENTITY
 };
 enum component_id
 {

@@ -21,10 +21,14 @@ public:
 	virtual void OnPreRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void UIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void CharacterUIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+
 	virtual void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void BuildLight();
 	virtual void BuildShadow(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void Build2DUI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void PickObjectByRayIntersection(int xClient, int yClient);
 	virtual void ProcessingUI(int n);
 	
@@ -85,8 +89,19 @@ private: //active object
 	//SECTION 2
 	GameObject* m_pUIGameCreateObject{ NULL };
 	GameObject* m_pUIEnterRoomObject{ NULL };
-	
-	GameObject* m_pSelectedObject = NULL;
+	GameObject* m_pSelectedObject{ NULL };
+
+	//GmaeUI-HPBAR,CharacterUI - 조창근 23.04.13
+	GameObject* m_pMonsterHPBarObject{ NULL };
+	GameObject* m_pCharacterHPBarObject{ NULL };//캐릭터 HPBAR
+	GameObject* m_pCharacterProfileObject{ NULL };//캐릭터 사진이 들어갈 UI
+	GameObject* m_pCharacterSkillBarObject{ NULL };
+	vector<GameObject*> m_ppCharacterUIObjects;
+
+	//ParticleObject-Particle -  23.04.13 .ccg
+	GameObject* m_pParticleObject{ NULL };
+	vector<GameObject*> m_ppParticleObjects;
+
 
 	POINT						m_ptOldCursorPos;
 

@@ -43,6 +43,15 @@ GameobjectManager::~GameobjectManager()
 void GameobjectManager::Animate(float fTimeElapsed)
 {
 	m_pSkyboxObject->SetPosition(m_pCamera->GetPosition());
+	if (m_pMonsterHPBarObject)//23.04.18 몬스터 체력바 -> 카메라를 바라 보도록 .ccg
+	{
+		m_pMonsterHPBarObject->SetLookAt(m_pCamera->GetPosition());
+		m_pMonsterHPBarObject->SetPosition(XMFLOAT3(m_pMonsterObject->GetPosition().x,
+			m_pMonsterObject->GetPosition().y+70, m_pMonsterObject->GetPosition().z));
+		m_pMonsterHPBarObject->Rotate(0, 180, 0);
+		m_pMonsterHPBarObject->SetScale(10);
+	}
+
 	//m_pMonsterObject->Animate(fTimeElapsed);
 	g_Logic.m_MonsterSession.m_currentPlayGameObject->Animate(fTimeElapsed);
 	if (!g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject) return;
@@ -59,7 +68,6 @@ void GameobjectManager::Animate(float fTimeElapsed)
 				auto up = session.m_currentPlayGameObject->GetUp();
 				auto right = session.m_currentPlayGameObject->GetRight();
 				auto pos = session.m_currentPlayGameObject->GetPosition();
-
 				//cout << "GameobjectManager::Animate() SessionId: " << session.m_id << endl;
 				// cout << "GameobjectManager::Animate() Position: " << pos.x << ", 0, " << pos.z << endl;
 				//cout << "GameobjectManager::Animate() Look: " << look.x << ", " << look.y << ", " << look.z << endl;
@@ -159,6 +167,10 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	//{
 	//	m_pTextureToViewportComponent->Render(pd3dCommandList, m_pCamera, 0, pd3dGraphicsRootSignature);
 	//}
+
+	for (int i = 0; i < m_ppCharacterUIObjects.size(); i++) {
+		m_ppCharacterUIObjects[i]->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature);
+	}
 }
 
 void GameobjectManager::UIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -168,6 +180,13 @@ void GameobjectManager::UIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 		m_ppUIObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 
+}
+
+void GameobjectManager::CharacterUIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+{
+	for (int i = 0; i < m_ppCharacterUIObjects.size(); i++) {
+		m_ppCharacterUIObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
 }
 
 void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -270,7 +289,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pMonsterObject = new Monster();
 	m_pMonsterObject->InsertComponent<RenderComponent>();
 	m_pMonsterObject->InsertComponent<CLoadedModelInfoCompnent>();
-	m_pMonsterObject->SetPosition(XMFLOAT3(0, 0, 100));
+	m_pMonsterObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pMonsterObject->SetModel("Model/Boss.bin");
 	m_pMonsterObject->SetAnimationSets(3);
 	m_pMonsterObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -290,50 +309,6 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pSkyboxObject->SetScale(1, 1, 1);
 	m_pSkyboxObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
-	//m_pUIGameSearchObject = new GameObject(UI_ENTITY);
-	//m_pUIGameSearchObject->InsertComponent<RenderComponent>();
-	//m_pUIGameSearchObject->InsertComponent<UIMeshComponent>();
-	//m_pUIGameSearchObject->InsertComponent<UiShaderComponent>();
-	//m_pUIGameSearchObject->InsertComponent<TextureComponent>();
-	//m_pUIGameSearchObject->SetTexture(L"UI/SearchingRoom.dds", RESOURCE_TEXTURE2D, 3);
-	//m_pUIGameSearchObject->SetPosition(XMFLOAT3(0, 0, 1.01f));
-	//m_pUIGameSearchObject->SetScale(0.05, 0.025, 1);
-	//m_pUIGameSearchObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//m_ppUIObjects.emplace_back(m_pUIGameSearchObject);
-
-	//m_pUIGameChoiceObject = new GameObject(UI_ENTITY);
-	//m_pUIGameChoiceObject->InsertComponent<RenderComponent>();
-	//m_pUIGameChoiceObject->InsertComponent<UIMeshComponent>();
-	//m_pUIGameChoiceObject->InsertComponent<UiShaderComponent>();
-	//m_pUIGameChoiceObject->InsertComponent<TextureComponent>();
-	//m_pUIGameChoiceObject->SetTexture(L"Image/GameSearching.dds", RESOURCE_TEXTURE2D, 3);
-	//m_pUIGameChoiceObject->SetPosition(XMFLOAT3(0.5, 0.1, 1.01));
-	//m_pUIGameChoiceObject->SetScale(0.05, 0.02, 1);
-	//m_pUIGameChoiceObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//m_ppUIObjects.emplace_back(m_pUIGameChoiceObject);
-
-	//m_pUIGameMathchingObject = new GameObject(UI_ENTITY);
-	//m_pUIGameMathchingObject->InsertComponent<RenderComponent>();
-	//m_pUIGameMathchingObject->InsertComponent<UIMeshComponent>();
-	//m_pUIGameMathchingObject->InsertComponent<UiShaderComponent>();
-	//m_pUIGameMathchingObject->InsertComponent<TextureComponent>();
-	//m_pUIGameMathchingObject->SetTexture(L"UI/Matching.dds", RESOURCE_TEXTURE2D, 3);
-	//m_pUIGameMathchingObject->SetPosition(XMFLOAT3(0.5, 0.1, 1.01));
-	//m_pUIGameMathchingObject->SetScale(0.05, 0.02, 1);
-	//m_pUIGameMathchingObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//m_ppUIObjects.emplace_back(m_pUIGameMathchingObject);
-
-	//m_pUIGameCreateObject = new GameObject(UI_ENTITY);
-	//m_pUIGameCreateObject->InsertComponent<RenderComponent>();
-	//m_pUIGameCreateObject->InsertComponent<UIMeshComponent>();
-	//m_pUIGameCreateObject->InsertComponent<UiShaderComponent>();
-	//m_pUIGameCreateObject->InsertComponent<TextureComponent>();
-	//m_pUIGameCreateObject->SetTexture(L"UI/CreateRoom.dds", RESOURCE_TEXTURE2D, 3);
-	//m_pUIGameCreateObject->SetPosition(XMFLOAT3(0.5, 0.4, 1.01));
-	//m_pUIGameCreateObject->SetScale(0.05, 0.02, 1);
-	//m_pUIGameCreateObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//m_ppUIObjects.emplace_back(m_pUIGameCreateObject);
-
 #if LOCAL_TASK
 	// 플레이어가 캐릭터 선택하는 부분에 유사하게 넣을 예정
 	m_pPlayerObject = new GameObject(UNDEF_ENTITY);	//수정필요
@@ -350,6 +325,19 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 
 	BuildShadow(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//무조건 마지막에 해줘야된다.
 	Build2DUI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	BuildCharacterUI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+}
+void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+{
+	m_pParticleObject = new GameObject(MULTYSPRITE_ENTITY);
+	m_pParticleObject->InsertComponent<RenderComponent>();
+	m_pParticleObject->InsertComponent<CLoadedModelInfoCompnent>();
+	m_pParticleObject->SetPosition(XMFLOAT3(0, 0, 0));
+	m_pParticleObject->SetModel("Model/BossHp.bin");
+	m_pParticleObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pParticleObject->SetScale(3.0f, 3.0f, 3.0f);
+	m_pParticleObject->SetScale(3.0f, 3.0f, 3.0f);
+	m_ppParticleObjects.emplace_back(m_pMonsterHPBarObject);
 }
 void GameobjectManager::BuildLight()
 {
@@ -469,6 +457,52 @@ void GameobjectManager::Build2DUI(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	m_ppUIObjects.emplace_back(m_pUIGameCreateObject);
 }
 
+void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+{
+	m_pMonsterHPBarObject = new GameObject(UNDEF_ENTITY);
+	m_pMonsterHPBarObject->InsertComponent<RenderComponent>();
+	m_pMonsterHPBarObject->InsertComponent<CLoadedModelInfoCompnent>();
+	m_pMonsterHPBarObject->SetPosition(XMFLOAT3(0, 0, 0));
+	m_pMonsterHPBarObject->SetModel("Model/BossHp.bin");
+	m_pMonsterHPBarObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pMonsterHPBarObject->Rotate(0.0f, 0.0f, 0.0f);
+	m_pMonsterHPBarObject->SetScale(3.0f, 3.0f, 3.0f);
+	m_ppCharacterUIObjects.emplace_back(m_pMonsterHPBarObject);
+
+	m_pCharacterHPBarObject = new GameObject(UI_ENTITY);
+	m_pCharacterHPBarObject->InsertComponent<RenderComponent>();
+	m_pCharacterHPBarObject->InsertComponent<UIMeshComponent>();
+	m_pCharacterHPBarObject->InsertComponent<UiShaderComponent>();
+	m_pCharacterHPBarObject->InsertComponent<TextureComponent>();
+	m_pCharacterHPBarObject->SetTexture(L"UI/HP.dds", RESOURCE_TEXTURE2D, 3);
+	m_pCharacterHPBarObject->SetPosition(XMFLOAT3(0.25, 0.5, 1.03));
+	m_pCharacterHPBarObject->SetScale(0.05, 0.025, 1);
+	m_pCharacterHPBarObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppCharacterUIObjects.emplace_back(m_pCharacterHPBarObject);
+
+	m_pCharacterProfileObject = new GameObject(UI_ENTITY);
+	m_pCharacterProfileObject->InsertComponent<RenderComponent>();
+	m_pCharacterProfileObject->InsertComponent<UIMeshComponent>();
+	m_pCharacterProfileObject->InsertComponent<UiShaderComponent>();
+	m_pCharacterProfileObject->InsertComponent<TextureComponent>();
+	m_pCharacterProfileObject->SetTexture(L"UI/HP.dds", RESOURCE_TEXTURE2D, 3);
+	m_pCharacterProfileObject->SetPosition(XMFLOAT3(0.25, 0.5, 1.03));
+	m_pCharacterProfileObject->SetScale(0.05, 0.025, 1);
+	m_pCharacterProfileObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppCharacterUIObjects.emplace_back(m_pCharacterProfileObject);
+
+	m_pCharacterSkillBarObject = new GameObject(UI_ENTITY);
+	m_pCharacterSkillBarObject->InsertComponent<RenderComponent>();
+	m_pCharacterSkillBarObject->InsertComponent<UIMeshComponent>();
+	m_pCharacterSkillBarObject->InsertComponent<UiShaderComponent>();
+	m_pCharacterSkillBarObject->InsertComponent<TextureComponent>();
+	m_pCharacterSkillBarObject->SetTexture(L"UI/HP.dds", RESOURCE_TEXTURE2D, 3);
+	m_pCharacterSkillBarObject->SetPosition(XMFLOAT3(0.25, 0.5, 1.03));
+	m_pCharacterSkillBarObject->SetScale(0.05, 0.025, 1);
+	m_pCharacterSkillBarObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppCharacterUIObjects.emplace_back(m_pCharacterSkillBarObject);
+}
+
 enum UI
 {
 	UI_GAMESEARCHING,
@@ -575,6 +609,7 @@ void GameobjectManager::ProcessingUI(int n)
 void GameobjectManager::AnimateObjects()
 {
 	m_pSkyboxObject->SetPosition(m_pCamera->GetPosition());
+	
 	m_pLight->m_pLights[1].m_xmf3Position = m_pCamera->GetPosition();
 	m_pLight->m_pLights[1].m_xmf3Direction = m_pCamera->GetLookVector();
 }

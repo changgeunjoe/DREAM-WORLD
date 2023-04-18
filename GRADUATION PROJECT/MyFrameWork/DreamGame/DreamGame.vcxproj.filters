@@ -103,6 +103,9 @@
     <Filter Include="10.NetworkHelper\Room">
       <UniqueIdentifier>{1d08716e-9694-4e88-b3d1-932e1b12d059}</UniqueIdentifier>
     </Filter>
+    <Filter Include="04.Component\TextureComponent\Texturetoviewport">
+      <UniqueIdentifier>{2a627ed8-98cb-4841-86b2-1893400e7e09}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -201,9 +204,6 @@
     <ClInclude Include="define.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="TextureToViewportComponent.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="UiShaderComponent.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -215,6 +215,9 @@
     </ClInclude>
     <ClInclude Include="LobbyScene.h">
       <Filter>01.Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureToViewportComponent.h">
+      <Filter>04.Component\TextureComponent\Texturetoviewport</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -305,9 +308,6 @@
     <ClCompile Include="Character.cpp">
       <Filter>07.Character</Filter>
     </ClCompile>
-    <ClCompile Include="TextureToViewportComponent.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="UiShaderComponent.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -319,6 +319,9 @@
     </ClCompile>
     <ClCompile Include="LobbyScene.cpp">
       <Filter>01.Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureToViewportComponent.cpp">
+      <Filter>04.Component\TextureComponent\Texturetoviewport</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -341,11 +344,11 @@
     <FxCompile Include="Shaders.hlsl">
       <Filter>04.Component\ShaderComponent\Shader\HLSL</Filter>
     </FxCompile>
-    <FxCompile Include="Shadow.hlsl">
-      <Filter>04.Component\ShaderComponent\Shader\HLSL</Filter>
-    </FxCompile>
     <FxCompile Include="Light.hlsl">
       <Filter>04.Component\ShaderComponent\Shader\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Shadow.hlsl">
+      <Filter>04.Component\ShaderComponent\ShadowShaderComponent</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

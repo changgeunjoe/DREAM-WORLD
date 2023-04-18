@@ -95,7 +95,7 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	RootSignature.Descriptorrange[11].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	//-------------------------------rootParameter----------------------------------------------------    
-	RootSignature.RootParameter.resize(17);
+	RootSignature.RootParameter.resize(18);
 	//shaderTexture (b0)Shaders.hlsl
 	RootSignature.RootParameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	RootSignature.RootParameter[0].DescriptorTable.NumDescriptorRanges = 1;
@@ -183,6 +183,11 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	RootSignature.RootParameter[16].DescriptorTable.NumDescriptorRanges = 1;
 	RootSignature.RootParameter[16].DescriptorTable.pDescriptorRanges = &(RootSignature.Descriptorrange[11]);
 	RootSignature.RootParameter[16].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	//Camera(b6) Shaders.hlsl
+	RootSignature.RootParameter[17].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	RootSignature.RootParameter[17].Descriptor.ShaderRegister = 6;
+	RootSignature.RootParameter[17].Descriptor.RegisterSpace = 0;
+	RootSignature.RootParameter[17].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	//textureSampler
 	RootSignature.TextureSamplerDescs.resize(3);
@@ -292,6 +297,8 @@ void CScene::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCom
 	//씬을 렌더링하는 것은 씬을 구성하는 게임 객체(셰이더를 포함하는 객체)들을 렌더링하는 것이다. 
 
 	m_pObjectManager->Render(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	m_pObjectManager->CharacterUIRender(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+
 }
 
 void CScene::OnPreRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,CCamera* pCamera)
