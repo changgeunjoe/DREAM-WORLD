@@ -45,6 +45,8 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	m_pSkyboxObject->SetPosition(m_pCamera->GetPosition());
 	//m_pMonsterObject->Animate(fTimeElapsed);
 	g_Logic.m_MonsterSession.m_currentPlayGameObject->Animate(fTimeElapsed);
+	auto pos = g_Logic.m_MonsterSession.m_currentPlayGameObject->GetPosition();
+	cout << "GameobjectManager::Boss Position: " << pos.x << ", 0, " << pos.z << endl;
 	if (!g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject) return;
 	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->UpdateCameraPosition();
 
@@ -54,20 +56,19 @@ void GameobjectManager::Animate(float fTimeElapsed)
 				//session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
 				session.m_currentPlayGameObject->MoveObject(session.m_currentDirection, session.m_ownerRotateAngle);
 				session.m_currentPlayGameObject->Move(session.m_currentDirection, 50 * fTimeElapsed);
-#ifdef _DEBUG
-				auto look = session.m_currentPlayGameObject->GetLook();
-				auto up = session.m_currentPlayGameObject->GetUp();
-				auto right = session.m_currentPlayGameObject->GetRight();
-				auto pos = session.m_currentPlayGameObject->GetPosition();
-
-				//cout << "GameobjectManager::Animate() SessionId: " << session.m_id << endl;
-				// cout << "GameobjectManager::Animate() Position: " << pos.x << ", 0, " << pos.z << endl;
-				//cout << "GameobjectManager::Animate() Look: " << look.x << ", " << look.y << ", " << look.z << endl;
-				//cout << "GameobjectManager::Animate() up: " << up.x << ", " << up.y << ", " << up.z << endl;
-				//cout << "GameobjectManager::Animate() right: " << right.x << ", " << right.y << ", " << right.z << endl;
-				// std::cout << "GameobjectManager::Animate() rotation angle: " << session.m_rotateAngle.x << ", " << session.m_rotateAngle.y << ", " << session.m_rotateAngle.z << std::endl;
-#endif
-
+//#ifdef _DEBUG
+//				auto look = session.m_currentPlayGameObject->GetLook();
+//				auto up = session.m_currentPlayGameObject->GetUp();
+//				auto right = session.m_currentPlayGameObject->GetRight();
+//				auto pos = session.m_currentPlayGameObject->GetPosition();
+//
+//				//cout << "GameobjectManager::Animate() SessionId: " << session.m_id << endl;
+//				// cout << "GameobjectManager::Animate() Position: " << pos.x << ", 0, " << pos.z << endl;
+//				//cout << "GameobjectManager::Animate() Look: " << look.x << ", " << look.y << ", " << look.z << endl;
+//				//cout << "GameobjectManager::Animate() up: " << up.x << ", " << up.y << ", " << up.z << endl;
+//				//cout << "GameobjectManager::Animate() right: " << right.x << ", " << right.y << ", " << right.z << endl;
+//				// std::cout << "GameobjectManager::Animate() rotation angle: " << session.m_rotateAngle.x << ", " << session.m_rotateAngle.y << ", " << session.m_rotateAngle.z << std::endl;
+//#endif
 			}
 			if (session.m_currentPlayGameObject->GetRButtonClicked())
 				session.m_currentPlayGameObject->RbuttonClicked(fTimeElapsed);
@@ -82,7 +83,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 		float y = 0.0f;
 		float z = 0.0f;
 		float x = 0.0f;
-		
+
 		while (true)
 		{
 			x = 80.f * (2.f * (((float)rand() / (float)RAND_MAX)) - 1.f);
@@ -207,7 +208,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pArcherObject->m_pSkinnedAnimationController->SetTrackAnimationSet(6);
 	m_pArcherObject->SetScale(30.0f);
 	m_ppGameObjects.emplace_back(m_pArcherObject);
-	
+
 	for (int i = 0; i < 10; ++i)
 	{
 		m_pArrowObjects[i] = new Arrow();
@@ -507,7 +508,7 @@ void GameobjectManager::ProcessingUI(int n)
 		break;
 	}
 	case UI::UI_WARRIORCHARACTER:
-	{		
+	{
 		// 선택한 캐릭터 Warrior
 		cout << "Choose Warrior Character" << endl;
 		break;
@@ -922,21 +923,25 @@ void GameobjectManager::SetPlayCharacter(Session* pSession) // 임시 함수
 	case ROLE::ARCHER:
 	{
 		cliSession->SetGameObject(m_pArcherObject);
+		cliSession->m_currentPlayGameObject->SetPosition(XMFLOAT3(200, 0, 40));
 	}
 	break;
 	case ROLE::PRIEST:
 	{
 		cliSession->SetGameObject(m_pPriestObject);
+		cliSession->m_currentPlayGameObject->SetPosition(XMFLOAT3(270, 0, 80));
 	}
 	break;
 	case ROLE::TANKER:
 	{
 		cliSession->SetGameObject(m_pTankerObject);
+		cliSession->m_currentPlayGameObject->SetPosition(XMFLOAT3(230, 0, 60));
 	}
 	break;
 	case ROLE::WARRIOR:
 	{
 		cliSession->SetGameObject(m_pWarriorObject);
+		cliSession->m_currentPlayGameObject->SetPosition(XMFLOAT3(300, 0, 100));
 	}
 	break;
 	default:
@@ -947,8 +952,7 @@ void GameobjectManager::SetPlayCharacter(Session* pSession) // 임시 함수
 void GameobjectManager::SetPlayerCamera(Session& mySession)
 {
 	mySession.m_currentPlayGameObject->SetCamera(m_pCamera);
-	mySession.m_currentPlayGameObject->m_pCamera->ReInitCamrea();
-	//g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetCamera(m_pCamera);
+	mySession.m_currentPlayGameObject->m_pCamera->ReInitCamrea();	
 	mySession.m_currentPlayGameObject->SetCamera(m_pCamera);
 	auto mPos = mySession.m_currentPlayGameObject->GetPosition();
 	auto cPos = mySession.m_currentPlayGameObject->m_pCamera->GetPosition();

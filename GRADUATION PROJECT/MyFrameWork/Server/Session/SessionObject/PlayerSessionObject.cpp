@@ -8,8 +8,8 @@ extern  Logic g_logic;
 
 PlayerSessionObject::PlayerSessionObject(Session* session, SOCKET& sock) : SessionObject(session), m_socket(sock)
 {
-	m_level = 0;
-	m_exp = 0;
+	/*m_level = 0;
+	m_exp = 0;*/
 	m_hp = 0;
 	m_maxHp = 0;
 	m_attackDamage = 0;
