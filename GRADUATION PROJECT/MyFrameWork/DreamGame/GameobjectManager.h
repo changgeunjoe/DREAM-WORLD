@@ -24,6 +24,7 @@ public:
 	virtual void CharacterUIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 
 	virtual void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void BuildLight();
 	virtual void BuildShadow(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void Build2DUI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
@@ -96,6 +97,9 @@ private: //active object
 	GameObject* m_pCharacterSkillBarObject{ NULL };
 	vector<GameObject*> m_ppCharacterUIObjects;
 
+	//ParticleObject-Particle -  23.04.13 .ccg
+	GameObject* m_pParticleObject{ NULL };
+	vector<GameObject*> m_ppParticleObjects;
 
 
 	POINT						m_ptOldCursorPos;

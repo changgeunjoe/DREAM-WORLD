@@ -46,6 +46,7 @@ public:
     void SetAnimationSets(int nAnimationSets);
     void SetMesh(MeshComponent* pMesh);
     void SetCamera(CCamera* pCamera);
+    void SetRowColumn(float x, float y);
     void MoveObject(DIRECTION& currentDirection, const XMFLOAT3& CameraAxis);
     
 	void MoveStrafe(float fDistance = 1.0f);
@@ -136,6 +137,14 @@ public:
     GameObject                      *m_pParent = NULL;
     GameObject                      *m_pChild = NULL;
     GameObject                      *m_pSibling = NULL;
+    
+    int 							m_nRow = 0;
+    int 							m_nCol = 0;
+
+    int 							m_nRows = 1;
+    int 							m_nCols = 1;
+
+    XMFLOAT4X4						m_xmf4x4Texture;//멀티스프라이트를 활용하기위한 4x4행렬 
 
 
     UINT							m_nType = 0x00;
@@ -252,6 +261,7 @@ inline T* GameObject::InsertComponent()//컴포넌트를 게임 오브젝트에 넣는 함수
     return pComponent;
 }
 
+
 template<typename T>
 inline T* GameObject::ComponentType(component_id& componentID)
 {
@@ -295,7 +305,6 @@ inline T* GameObject::ComponentType(component_id& componentID)
     {
         componentID = component_id::LOADEDMODEL_COMPONET;
     }
-
     else
     {
         componentID = component_id::UNDEF_COMPONENT;

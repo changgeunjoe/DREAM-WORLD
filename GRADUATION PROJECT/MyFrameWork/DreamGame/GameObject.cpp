@@ -382,7 +382,16 @@ void GameObject::AnimateRowColumn(float fTimeElapsed)
 {
 	m_fTime += fTimeElapsed * 0.5f;
 	if (m_fTime >= m_fSpeed) m_fTime = 0.0f;
-	//m_pMaterial->m_pTexture->AnimateRowColumn(m_fTime);
+
+	m_xmf4x4Texture._11 = 1.0f / float(m_nRows);
+	m_xmf4x4Texture._22 = 1.0f / float(m_nCols);
+	m_xmf4x4Texture._31 = float(m_nRow) / float(m_nRows);
+	m_xmf4x4Texture._32 = float(m_nCol) / float(m_nCols);
+	if (m_fTime == 0.0f)
+	{
+		if (++m_nCol == m_nCols) { m_nRow++; m_nCol = 0; }
+		if (m_nRow == m_nRows) m_nRow = 0;
+	}
 }
 
 void GameObject::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
@@ -925,6 +934,12 @@ void GameObject::SetCamera(CCamera* pCamera)
 	m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
 	m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
 	m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
+}
+
+void GameObject::SetRowColumn(float nRows, float nCols)
+{
+	m_nRows = nRows;
+	m_nCols = nCols;
 }
 
 #define PI 3.14159265359

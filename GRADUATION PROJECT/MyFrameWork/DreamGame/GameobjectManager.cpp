@@ -66,7 +66,6 @@ void GameobjectManager::Animate(float fTimeElapsed)
 				auto up = session.m_currentPlayGameObject->GetUp();
 				auto right = session.m_currentPlayGameObject->GetRight();
 				auto pos = session.m_currentPlayGameObject->GetPosition();
-
 				//cout << "GameobjectManager::Animate() SessionId: " << session.m_id << endl;
 				// cout << "GameobjectManager::Animate() Position: " << pos.x << ", 0, " << pos.z << endl;
 				//cout << "GameobjectManager::Animate() Look: " << look.x << ", " << look.y << ", " << look.z << endl;
@@ -263,50 +262,6 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pSkyboxObject->SetScale(1, 1, 1);
 	m_pSkyboxObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
-	//m_pUIGameSearchObject = new GameObject(UI_ENTITY);
-	//m_pUIGameSearchObject->InsertComponent<RenderComponent>();
-	//m_pUIGameSearchObject->InsertComponent<UIMeshComponent>();
-	//m_pUIGameSearchObject->InsertComponent<UiShaderComponent>();
-	//m_pUIGameSearchObject->InsertComponent<TextureComponent>();
-	//m_pUIGameSearchObject->SetTexture(L"UI/SearchingRoom.dds", RESOURCE_TEXTURE2D, 3);
-	//m_pUIGameSearchObject->SetPosition(XMFLOAT3(0, 0, 1.01f));
-	//m_pUIGameSearchObject->SetScale(0.05, 0.025, 1);
-	//m_pUIGameSearchObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//m_ppUIObjects.emplace_back(m_pUIGameSearchObject);
-
-	//m_pUIGameChoiceObject = new GameObject(UI_ENTITY);
-	//m_pUIGameChoiceObject->InsertComponent<RenderComponent>();
-	//m_pUIGameChoiceObject->InsertComponent<UIMeshComponent>();
-	//m_pUIGameChoiceObject->InsertComponent<UiShaderComponent>();
-	//m_pUIGameChoiceObject->InsertComponent<TextureComponent>();
-	//m_pUIGameChoiceObject->SetTexture(L"Image/GameSearching.dds", RESOURCE_TEXTURE2D, 3);
-	//m_pUIGameChoiceObject->SetPosition(XMFLOAT3(0.5, 0.1, 1.01));
-	//m_pUIGameChoiceObject->SetScale(0.05, 0.02, 1);
-	//m_pUIGameChoiceObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//m_ppUIObjects.emplace_back(m_pUIGameChoiceObject);
-
-	//m_pUIGameMathchingObject = new GameObject(UI_ENTITY);
-	//m_pUIGameMathchingObject->InsertComponent<RenderComponent>();
-	//m_pUIGameMathchingObject->InsertComponent<UIMeshComponent>();
-	//m_pUIGameMathchingObject->InsertComponent<UiShaderComponent>();
-	//m_pUIGameMathchingObject->InsertComponent<TextureComponent>();
-	//m_pUIGameMathchingObject->SetTexture(L"UI/Matching.dds", RESOURCE_TEXTURE2D, 3);
-	//m_pUIGameMathchingObject->SetPosition(XMFLOAT3(0.5, 0.1, 1.01));
-	//m_pUIGameMathchingObject->SetScale(0.05, 0.02, 1);
-	//m_pUIGameMathchingObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//m_ppUIObjects.emplace_back(m_pUIGameMathchingObject);
-
-	//m_pUIGameCreateObject = new GameObject(UI_ENTITY);
-	//m_pUIGameCreateObject->InsertComponent<RenderComponent>();
-	//m_pUIGameCreateObject->InsertComponent<UIMeshComponent>();
-	//m_pUIGameCreateObject->InsertComponent<UiShaderComponent>();
-	//m_pUIGameCreateObject->InsertComponent<TextureComponent>();
-	//m_pUIGameCreateObject->SetTexture(L"UI/CreateRoom.dds", RESOURCE_TEXTURE2D, 3);
-	//m_pUIGameCreateObject->SetPosition(XMFLOAT3(0.5, 0.4, 1.01));
-	//m_pUIGameCreateObject->SetScale(0.05, 0.02, 1);
-	//m_pUIGameCreateObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//m_ppUIObjects.emplace_back(m_pUIGameCreateObject);
-
 #if LOCAL_TASK
 	// 플레이어가 캐릭터 선택하는 부분에 유사하게 넣을 예정
 	m_pPlayerObject = new GameObject(UNDEF_ENTITY);	//수정필요
@@ -324,6 +279,18 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	BuildShadow(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//무조건 마지막에 해줘야된다.
 	Build2DUI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildCharacterUI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+}
+void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+{
+	m_pParticleObject = new GameObject(MULTYSPRITE_ENTITY);
+	m_pParticleObject->InsertComponent<RenderComponent>();
+	m_pParticleObject->InsertComponent<CLoadedModelInfoCompnent>();
+	m_pParticleObject->SetPosition(XMFLOAT3(0, 0, 0));
+	m_pParticleObject->SetModel("Model/BossHp.bin");
+	m_pParticleObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pParticleObject->SetScale(3.0f, 3.0f, 3.0f);
+	m_pParticleObject->SetScale(3.0f, 3.0f, 3.0f);
+	m_ppParticleObjects.emplace_back(m_pMonsterHPBarObject);
 }
 void GameobjectManager::BuildLight()
 {

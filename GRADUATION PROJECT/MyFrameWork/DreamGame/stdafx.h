@@ -222,7 +222,8 @@ enum entity_id
 	SQUARE_ENTITY,
 	PlANE_ENTITY,
 	UNDEF_ENTITY,
-	UI_ENTITY
+	UI_ENTITY,
+	MULTYSPRITE_ENTITY
 };
 enum component_id
 {
