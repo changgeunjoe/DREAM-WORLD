@@ -20,7 +20,7 @@ CGameFramework::CGameFramework()
 	m_pd3dPipelineState = NULL;//그래픽스 파이프라인 상태 객체에 대한 인터페이스 포인터이다.
 	m_pd3dCommandList = NULL;//명령 리스트 인터페이스 포인터->CPU에서 관리한다.->Commanqueue로 보냄
 
-	for (int i = 0; i < m_nSwapChainBuffers; i++)m_ppd3dRenderTargetBuffers[i] = NULL;//후면 버퍼를 m_nSwapChainBuffers갯수 만큼 만든다.
+	for (int i = 0; i < m_nSwapChainBuffers; i++)m_ppd3dSwapChainBackBuffers[i] = NULL;//후면 버퍼를 m_nSwapChainBuffers갯수 만큼 만든다.
 	m_pd3dDsvDescriptorHeap = NULL;//응용 프로그램에 필요한 서술자/ 뷰들을 담을 서술자 힙을 만들어야 한다.
 	m_nRtvDescriptorIncrementSize = 0;//깊이-스텐실 서술자 원소의 크기이다
 
@@ -91,8 +91,8 @@ void CGameFramework::OnDestroy()
 	//게임 객체(게임 월드 객체)를 소멸한다.
 
 	::CloseHandle(m_hFenceEvent);//->헨들값을 반환
-	for (int i = 0; i < m_nSwapChainBuffers; i++)if (m_ppd3dRenderTargetBuffers[i])
-		m_ppd3dRenderTargetBuffers[i]->Release();//->후면 버퍼를 전부 제거
+	for (int i = 0; i < m_nSwapChainBuffers; i++)if (m_ppd3dSwapChainBackBuffers[i])
+		m_ppd3dSwapChainBackBuffers[i]->Release();//->후면 버퍼를 전부 제거
 	if (m_pd3dDepthStencilBuffer)m_pd3dDepthStencilBuffer->Release(); //rtzheap 제거
 
 	if (m_pd3dDepthStencilBuffer)m_pd3dDepthStencilBuffer->Release();//깊이-스텐실 버퍼 제거
@@ -144,46 +144,34 @@ void CGameFramework::OnDestroy()
 void CGameFramework::ChangeSwapChainState()
 {
 	WaitForGpuComplete();
-	BOOL bFullScreenState = FALSE;
-	m_pdxgiSwapChain->GetFullscreenState(&bFullScreenState, NULL);//전체 화면 모드와 연결된 상태를 가져옵니다.스왑 체인이 전체 화면 모드에 있는 경우 TRUE스왑 체인이 창 모드에 있는 경우 FALSE
-	m_pdxgiSwapChain->SetFullscreenState(!bFullScreenState, NULL);//디스플레이 상태를 창 또는 전체 화면으로 설정합니다.디스플레이 상태를 창또는 전체 화면으로 설정할지 여부를 지정하는 Boolean 값입니다. 전체 화면의 경우 TRUE, 창에 대한 FALSE.
 
-	DXGI_MODE_DESC dxgiTargetParameters;//디스플레이 모드를 설명합니다.
-	dxgiTargetParameters.Format = DXGI_FORMAT_R8G8B8A8_UNORM;//->화면 초기화
+	BOOL bFullScreenState = FALSE;
+	m_pdxgiSwapChain->GetFullscreenState(&bFullScreenState, NULL);
+	m_pdxgiSwapChain->SetFullscreenState(!bFullScreenState, NULL);
+
+	DXGI_MODE_DESC dxgiTargetParameters;
+	dxgiTargetParameters.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	dxgiTargetParameters.Width = m_nWndClientWidth;
 	dxgiTargetParameters.Height = m_nWndClientHeight;
-	dxgiTargetParameters.RefreshRate.Numerator = 60;//->초기화 레이트
+	dxgiTargetParameters.RefreshRate.Numerator = 60;
 	dxgiTargetParameters.RefreshRate.Denominator = 1;
 	dxgiTargetParameters.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 	dxgiTargetParameters.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 	m_pdxgiSwapChain->ResizeTarget(&dxgiTargetParameters);
-	//후면 버퍼 초기화
-	for (int i = 0; i < m_nSwapChainBuffers; i++)if (m_ppd3dRenderTargetBuffers[i])
-		m_ppd3dRenderTargetBuffers[i]->Release();
-	//->스왑체인을 다시 만든다.
+
+	for (int i = 0; i < m_nSwapChainBuffers; i++) if (m_ppd3dSwapChainBackBuffers[i]) m_ppd3dSwapChainBackBuffers[i]->Release();
+#ifdef _WITH_ONLY_RESIZE_BACKBUFFERS
 	DXGI_SWAP_CHAIN_DESC dxgiSwapChainDesc;
-	::ZeroMemory(&dxgiSwapChainDesc, sizeof(dxgiSwapChainDesc));
-	dxgiSwapChainDesc.BufferCount = m_nSwapChainBuffers;
-	dxgiSwapChainDesc.BufferDesc.Width = m_nWndClientWidth;
-	dxgiSwapChainDesc.BufferDesc.Height = m_nWndClientHeight;
-	dxgiSwapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	dxgiSwapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
-	dxgiSwapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
-	dxgiSwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	dxgiSwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-	dxgiSwapChainDesc.OutputWindow = m_hwnd;
-	dxgiSwapChainDesc.SampleDesc.Count = (m_bMsaa4xEnable) ? 4 : 1;
-	dxgiSwapChainDesc.SampleDesc.Quality = (m_bMsaa4xEnable) ? (m_nMsaa4xQualityLevels -
-		1) : 0;
-	dxgiSwapChainDesc.Windowed = TRUE;
-	//전체화면 모드에서 바탕화면의 해상도를 스왑체인(후면버퍼)의 크기에 맞게 변경한다. dxgiSwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-	HRESULT hResult = m_pdxgiFactory->CreateSwapChain(m_pd3dCommandQueue,
-		&dxgiSwapChainDesc, (IDXGISwapChain**)&m_pdxgiSwapChain);
+	m_pdxgiSwapChain->GetDesc(&dxgiSwapChainDesc);
+	m_pdxgiSwapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
+#else
+	DXGI_SWAP_CHAIN_DESC dxgiSwapChainDesc;
+	m_pdxgiSwapChain->GetDesc(&dxgiSwapChainDesc);
+	m_pdxgiSwapChain->ResizeBuffers(m_nSwapChainBuffers, m_nWndClientWidth, m_nWndClientHeight, dxgiSwapChainDesc.BufferDesc.Format, dxgiSwapChainDesc.Flags);
+#endif
 	m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
-	hResult = m_pdxgiFactory->MakeWindowAssociation(m_hwnd, DXGI_MWA_NO_ALT_ENTER);
-	//#ifndef _WITH_SWAPCHAIN_FULLSCREEN_STATE
+
 	CreateRenderTargetViews();
-	//#endif
 
 }
 
@@ -191,44 +179,38 @@ void CGameFramework::CreateSwapChain()
 {
 	RECT rcClient;
 	::GetClientRect(m_hwnd, &rcClient);
-	m_nWndClientWidth = rcClient.right - rcClient.left;//가로 길이
-	m_nWndClientHeight = rcClient.bottom - rcClient.top;//세로 길이
+	m_nWndClientWidth = rcClient.right - rcClient.left;
+	m_nWndClientHeight = rcClient.bottom - rcClient.top;
 
-	//DXGI_SWAP_CHAIN_DESC1 dxgiSwapChainDesc;
-	//::ZeroMemory(&dxgiSwapChainDesc, sizeof(DXGI_SWAP_CHAIN_DESC1));
-	//dxgiSwapChainDesc.Width = m_nWndClientWidth; //해상도 너비를 설명하는 값입니다
-	//dxgiSwapChainDesc.Height = m_nWndClientHeight;//해상도 높이를 설명하는 값
-	//dxgiSwapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;//디스플레이 형식을 설명하는 DXGI_FORMAT 구조입니다.
-	//dxgiSwapChainDesc.SampleDesc.Count=(m_bMsaa4xEnable)?4:1;//픽셀당 멀티 셈플 개수입니다.
-	//dxgiSwapChainDesc.SampleDesc.Quality = (m_bMsaa4xEnable) ? (m_nMsaa4xQualityLevels - 1) : 0;
-	//dxgiSwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;//후면 버퍼에 대한 표면 사용량 및 CPU엑세스 옵션을 설명하는 DXGI_USAGE형식값
-	//dxgiSwapChainDesc.BufferCount = m_nSwapChainBuffers;//스왑 체인의 버퍼수를 설명하는 값,전체 화면 스왑 체인을 만들 때 일반적으로 이값에 전면 버퍼를 포함
-	//dxgiSwapChainDesc.Scaling = DXGI_SCALING_NONE;//후면 버퍼의 크기가 대상 출려과 같지 않을 경우 크기 조절 DXGI_SCALING 형식의 값.
-	//dxgiSwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;//스왑 체인에서 사용되는 프레젠테이션 모델과 표면을 제시한 후 프레젠테이션 버퍼의 내용을 처리하는 옵션을 설명하는 DXGI_SWAP_EFFECT 형식의 값입니다.
-	//dxgiSwapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED; //스왑 체인 후면 버퍼의 투명도 동작을 식별하는 DXGI_ALPHA_MODE 형식값입니다.
-	//dxgiSwapChainDesc.Flags = 0;//비트 방향 또는 작업을 사용하여 결합된 DXGI_SWAP_CHAIN_FLAG 형식값의 조합입니다. 결과 값은 스왑 체인 동작에 대한 옵션을 지정합니다.
+#ifdef _WITH_CREATE_SWAPCHAIN_FOR_HWND
+	DXGI_SWAP_CHAIN_DESC1 dxgiSwapChainDesc;
+	::ZeroMemory(&dxgiSwapChainDesc, sizeof(DXGI_SWAP_CHAIN_DESC1));
+	dxgiSwapChainDesc.Width = m_nWndClientWidth;
+	dxgiSwapChainDesc.Height = m_nWndClientHeight;
+	dxgiSwapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	dxgiSwapChainDesc.SampleDesc.Count = (m_bMsaa4xEnable) ? 4 : 1;
+	dxgiSwapChainDesc.SampleDesc.Quality = (m_bMsaa4xEnable) ? (m_nMsaa4xQualityLevels - 1) : 0;
+	dxgiSwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	dxgiSwapChainDesc.BufferCount = m_nSwapChainBuffers;
+	dxgiSwapChainDesc.Scaling = DXGI_SCALING_NONE;
+	dxgiSwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+	dxgiSwapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
+#ifdef _WITH_ONLY_RESIZE_BACKBUFFERS
+	dxgiSwapChainDesc.Flags = 0;
+#else
+	dxgiSwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+#endif
 
-	////스왑체인의 전체 화면 모드를 설명한다.
+	DXGI_SWAP_CHAIN_FULLSCREEN_DESC dxgiSwapChainFullScreenDesc;
+	::ZeroMemory(&dxgiSwapChainFullScreenDesc, sizeof(DXGI_SWAP_CHAIN_FULLSCREEN_DESC));
+	dxgiSwapChainFullScreenDesc.RefreshRate.Numerator = 60;
+	dxgiSwapChainFullScreenDesc.RefreshRate.Denominator = 1;
+	dxgiSwapChainFullScreenDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+	dxgiSwapChainFullScreenDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+	dxgiSwapChainFullScreenDesc.Windowed = TRUE;
 
-	//DXGI_SWAP_CHAIN_FULLSCREEN_DESC dxgiSwapChainFullScreenDesc;
-	//::ZeroMemory(&dxgiSwapChainFullScreenDesc, sizeof(DXGI_SWAP_CHAIN_FULLSCREEN_DESC));
-	//dxgiSwapChainFullScreenDesc.RefreshRate.Numerator = 60;//새로고침 빈도 60분자
-	//dxgiSwapChainFullScreenDesc.RefreshRate.Denominator = 1;//새로고침 빈도 1분자
-	//dxgiSwapChainFullScreenDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;//스캔 선 그리기 모드를 설명하는 DXGI_MODE_SCANLINE_ORDER  STRUCT 형식의 멤버입니다.
-	//dxgiSwapChainFullScreenDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;//배율 조정 모드를 설명하는  DXGI_MODE_SCALING 확대된 형식의 멤버입니다
-	//dxgiSwapChainFullScreenDesc.Windowed = TRUE; //스왑 체인이 창 모드에 있는지 여부를 지정하는 Boole 값입니다.스왑 체인이 창 모드에 있는 경우 TRUE; 그렇지 않으면 FALSE.
-
-	//m_pdxgiFactory->CreateSwapChainForHwnd(m_pd3dCommandQueue, m_hwnd,
-	//	&dxgiSwapChainDesc, &dxgiSwapChainFullScreenDesc, NULL, (IDXGISwapChain1**)&m_pdxgiSwapChain);//HWND 핸들과 연결된 스왑 체인을 스왑 체인의 출력 창에 만듭니다.
-	////스왑체인을 생성한다.(in,in,in,in,in,out)->t순서대로 &m_pdxgiSwapChain로 출력한다.,
-
-	//m_pdxgiFactory->MakeWindowAssociation(m_hwnd, DXGI_MWA_NO_ALT_ENTER);
-
-	////ALT+ENTER 키의 동작을 비활성화 한다.
-
-	//m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();//->가장 중요할듯??
-
-
+	HRESULT hResult = m_pdxgiFactory->CreateSwapChainForHwnd(m_pd3dCommandQueue, m_hWnd, &dxgiSwapChainDesc, &dxgiSwapChainFullScreenDesc, NULL, (IDXGISwapChain1**)&m_pdxgiSwapChain);
+#else
 	DXGI_SWAP_CHAIN_DESC dxgiSwapChainDesc;
 	::ZeroMemory(&dxgiSwapChainDesc, sizeof(dxgiSwapChainDesc));
 	dxgiSwapChainDesc.BufferCount = m_nSwapChainBuffers;
@@ -241,17 +223,26 @@ void CGameFramework::CreateSwapChain()
 	dxgiSwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	dxgiSwapChainDesc.OutputWindow = m_hwnd;
 	dxgiSwapChainDesc.SampleDesc.Count = (m_bMsaa4xEnable) ? 4 : 1;
-	dxgiSwapChainDesc.SampleDesc.Quality = (m_bMsaa4xEnable) ? (m_nMsaa4xQualityLevels -
-		1) : 0;
+	dxgiSwapChainDesc.SampleDesc.Quality = (m_bMsaa4xEnable) ? (m_nMsaa4xQualityLevels - 1) : 0;
 	dxgiSwapChainDesc.Windowed = TRUE;
-	//전체화면 모드에서 바탕화면의 해상도를 스왑체인(후면버퍼)의 크기에 맞게 변경한다. dxgiSwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-	HRESULT hResult = m_pdxgiFactory->CreateSwapChain(m_pd3dCommandQueue,
-		&dxgiSwapChainDesc, (IDXGISwapChain**)&m_pdxgiSwapChain);
-	m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
+#ifdef _WITH_ONLY_RESIZE_BACKBUFFERS
+	dxgiSwapChainDesc.Flags = 0;
+#else
+	dxgiSwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+#endif
+
+	HRESULT hResult = m_pdxgiFactory->CreateSwapChain(m_pd3dCommandQueue, &dxgiSwapChainDesc, (IDXGISwapChain**)&m_pdxgiSwapChain);
+#endif
+
+	if (!m_pdxgiSwapChain)
+	{
+		MessageBox(NULL, L"Swap Chain Cannot be Created.", L"Error", MB_OK);
+		::PostQuitMessage(0);
+		return;
+	}
+
 	hResult = m_pdxgiFactory->MakeWindowAssociation(m_hwnd, DXGI_MWA_NO_ALT_ENTER);
-	//#ifndef _WITH_SWAPCHAIN_FULLSCREEN_STATE
-	//	CreateRenderTargetViews();
-	//#endif
+	m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
 
 }
 
@@ -393,8 +384,8 @@ void CGameFramework::CreateRenderTargetViews()
 	for (UINT i = 0; i < m_nSwapChainBuffers; i++)
 	{
 		m_pdxgiSwapChain->GetBuffer(i, __uuidof(ID3D12Resource), (void
-			**)&m_ppd3dRenderTargetBuffers[i]);//->스왑체인의 후면버퍼 중 하나에 엑세스 합니다.
-		m_pd3dDevice->CreateRenderTargetView(m_ppd3dRenderTargetBuffers[i], NULL,
+			**)&m_ppd3dSwapChainBackBuffers[i]);//->스왑체인의 후면버퍼 중 하나에 엑세스 합니다.
+		m_pd3dDevice->CreateRenderTargetView(m_ppd3dSwapChainBackBuffers[i], NULL,
 			d3dRtvCPUDescriptorHandle);//->랜더 타겟 생성
 		d3dRtvCPUDescriptorHandle.ptr += m_nRtvDescriptorIncrementSize;//->이게 배열 느낌으로 이만큼올려줘야 나온다  였다.. 다시 기억나면 수정해봄
 	}
@@ -511,7 +502,7 @@ void CGameFramework::CreateDirect2D()
 //	for (UINT i = 0; i < m_nSwapChainBuffers; i++)
 //	{
 //		D3D11_RESOURCE_FLAGS d3d11Flags = { D3D11_BIND_RENDER_TARGET };
-//		m_pd3d11On12Device->CreateWrappedResource(m_ppd3dRenderTargetBuffers[i], &d3d11Flags, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT, IID_PPV_ARGS(&m_ppd3d11WrappedBackBuffers[i]));
+//		m_pd3d11On12Device->CreateWrappedResource(m_ppd3dSwapChainBackBuffers[i], &d3d11Flags, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT, IID_PPV_ARGS(&m_ppd3d11WrappedBackBuffers[i]));
 //		IDXGISurface* pdxgiSurface = NULL;
 //		m_ppd3d11WrappedBackBuffers[i]->QueryInterface(__uuidof(IDXGISurface), (void**)&pdxgiSurface);
 //		m_pd2dDeviceContext->CreateBitmapFromDxgiSurface(pdxgiSurface, &d2dBitmapProperties, &m_ppd2dRenderTargets[i]);
@@ -628,11 +619,23 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 		::ReleaseCapture();
 		break;
 	case WM_MOUSEMOVE:
-		if (!m_bLobbyScene)
-		{
+		if (!m_bLobbyScene) {
 			::SetCapture(hWnd);
-			::GetCursorPos(&m_ptOldCursorPos);
+			POINT ptCursor;
+			::GetCursorPos(&ptCursor);
+			if (::GetCapture() != hWnd && (ptCursor.x != m_ptOldCursorPos.x || ptCursor.y != m_ptOldCursorPos.y)) {
+				int dx = ptCursor.x - m_ptOldCursorPos.x;
+				int dy = ptCursor.y - m_ptOldCursorPos.y;
+				// 마우스 움직임에 따라 처리하는 코드 작성
+				// ...
+				m_ptOldCursorPos = ptCursor;
+				// 마우스 캡처를 해제합니다.
+				::ReleaseCapture();
+			}
+		
+			
 		}
+		
 		break;
 	default:
 		break;
@@ -807,7 +810,7 @@ void CGameFramework::FrameAdvance()
 	d3dResourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 	d3dResourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 	d3dResourceBarrier.Transition.pResource =
-		m_ppd3dRenderTargetBuffers[m_nSwapChainBufferIndex];
+		m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex];
 	d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
 	d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;

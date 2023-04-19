@@ -106,8 +106,9 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	}
 	tempcount++;
 #endif
-
-	m_pParticleObject->AnimateRowColumn(fTimeElapsed);
+	for (int i = 0; i < m_ppParticleObjects.size(); i++) {
+		m_ppParticleObjects[i]->AnimateRowColumn(fTimeElapsed);
+	}
 }
 
 void GameobjectManager::OnPreRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -169,7 +170,9 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	for (int i = 0; i < m_ppCharacterUIObjects.size(); i++) {
 		m_ppCharacterUIObjects[i]->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature);
 	}
-	m_pParticleObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	for (int i = 0; i < m_ppParticleObjects.size(); i++) {
+		m_ppParticleObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
 }
 
 void GameobjectManager::UIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -325,16 +328,29 @@ void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	//m_pParticleObject->SetRowColumn(8.0f, 8.0f);
 	//m_ppParticleObjects.emplace_back(m_pMonsterHPBarObject);
 	
-	m_pParticleObject = new GameObject(UNDEF_ENTITY);
-	m_pParticleObject->InsertComponent<RenderComponent>();
-	m_pParticleObject->InsertComponent<UIMeshComponent>();
-	m_pParticleObject->InsertComponent<MultiSpriteShaderComponent>();
-	m_pParticleObject->InsertComponent<TextureComponent>();
-	m_pParticleObject->SetTexture(L"Image/Explode_8x8.dds", RESOURCE_TEXTURE2D, 3);
-	m_pParticleObject->SetPosition(XMFLOAT3(0, 40, 100));
-	m_pParticleObject->SetScale(3);
-	m_pParticleObject->SetRowColumn(8, 8);
-	m_pParticleObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pFireballSpriteObject = new GameObject(UNDEF_ENTITY);
+	m_pFireballSpriteObject->InsertComponent<RenderComponent>();
+	m_pFireballSpriteObject->InsertComponent<UIMeshComponent>();
+	m_pFireballSpriteObject->InsertComponent<MultiSpriteShaderComponent>();
+	m_pFireballSpriteObject->InsertComponent<TextureComponent>();
+	m_pFireballSpriteObject->SetTexture(L"MagicEffect/Fireball_7x7.dds", RESOURCE_TEXTURE2D, 3);
+	m_pFireballSpriteObject->SetPosition(XMFLOAT3(0, 40, 100));
+	m_pFireballSpriteObject->SetScale(10);
+	m_pFireballSpriteObject->SetRowColumn(7, 7,0.05);
+	m_pFireballSpriteObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppParticleObjects.emplace_back(m_pFireballSpriteObject);
+
+	m_pFireballEmissionSpriteObject = new GameObject(UNDEF_ENTITY);
+	m_pFireballEmissionSpriteObject->InsertComponent<RenderComponent>();
+	m_pFireballEmissionSpriteObject->InsertComponent<UIMeshComponent>();
+	m_pFireballEmissionSpriteObject->InsertComponent<MultiSpriteShaderComponent>();
+	m_pFireballEmissionSpriteObject->InsertComponent<TextureComponent>();
+	m_pFireballEmissionSpriteObject->SetTexture(L"MagicEffect/FireballEmission_7x7.dds", RESOURCE_TEXTURE2D, 3);
+	m_pFireballEmissionSpriteObject->SetPosition(XMFLOAT3(0, 40, 100));
+	m_pFireballEmissionSpriteObject->SetScale(10);
+	m_pFireballEmissionSpriteObject->SetRowColumn(7, 7, 0.05);
+	m_pFireballEmissionSpriteObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppParticleObjects.emplace_back(m_pFireballEmissionSpriteObject);
 }
 void GameobjectManager::BuildLight()
 {

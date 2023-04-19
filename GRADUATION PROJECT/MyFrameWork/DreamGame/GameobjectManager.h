@@ -97,7 +97,8 @@ private: //active object
 	vector<GameObject*> m_ppCharacterUIObjects;
 
 	//ParticleObject-Particle -  23.04.13 .ccg
-	GameObject* m_pParticleObject{ NULL };
+	GameObject* m_pFireballSpriteObject{ NULL };
+	GameObject* m_pFireballEmissionSpriteObject{ NULL };
 	vector<GameObject*> m_ppParticleObjects;
 
 

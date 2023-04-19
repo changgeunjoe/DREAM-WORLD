@@ -35,7 +35,7 @@ private:
 	UINT m_nSwapChainBufferIndex;
 	//현재 스왑 체인의 후면 버퍼 인덱스이다.
 
-	ID3D12Resource* m_ppd3dRenderTargetBuffers[m_nSwapChainBuffers];//렌더 타겟버퍼는 전면 m_nRtvDescriptorIncrementSize버퍼를 나타내는 것이 아닌 
+	ID3D12Resource* m_ppd3dSwapChainBackBuffers[m_nSwapChainBuffers];//렌더 타겟버퍼는 전면 m_nRtvDescriptorIncrementSize버퍼를 나타내는 것이 아닌 
 	//후면 버퍼를 나타내는 것이다.배열을 쓰는 이유는 후면 버퍼가 여러개 준뵈 될 수 있어서 이다.
 	ID3D12DescriptorHeap* m_pd3dRtvDescriptorHeap;
 	//다음으로, 응용 프로그램에 필요한 서술자 / 뷰들을 담을 서술자 힙을 만들어야 한다.
@@ -69,7 +69,6 @@ private:
 
 	//다음은 게임 프레임 워크에서 사용할 타이머이다.
 	CGameTimer m_GameTimer;
-	ID3D12Resource* m_ppd3dSwapChainBackBuffers[m_nSwapChainBuffers];
 
 	//다음은 프레임 레이트를 주 윈도우의 캡션에 출력하기 위한 문자열이다.
 	_TCHAR m_pszFrameRate[50];
