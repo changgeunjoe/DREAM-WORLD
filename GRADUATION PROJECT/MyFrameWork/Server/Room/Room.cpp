@@ -129,9 +129,14 @@ void Room::ShootArrow(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 srcPos, float spe
 			std::lock_guard<std::mutex> lg(m_arrowLock);
 			m_shootingArrow.push_back(arrowIndex);
 		}
+		std::cout << arrowIndex << std::endl;
 		m_arrows[arrowIndex].SetStart(dir, srcPos, speed);
 		//발사체 발사했다는 패킷보내기
 		//g_logic.BroadCastInRoom(m_roomId, &sendPacket);
+	}
+	if (m_restArrow.empty())	// 추후 삭제
+	{
+		m_arrows[m_arrowCount++ % 10].SetStart(dir, srcPos, speed);
 	}
 }
 

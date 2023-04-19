@@ -1,6 +1,9 @@
 #include "stdafx.h"
 #include "Character.h"
 #include "Animation.h"
+#include "Network/NetworkHelper.h"
+
+extern NetworkHelper g_NetworkHelper;
 
 Character::Character() : GameObject(UNDEF_ENTITY)
 {
@@ -173,6 +176,7 @@ void Archer::Attack(float fSpeed)
 		m_pProjectiles[m_nProjectiles]->m_fSpeed = fSpeed;
 		m_pProjectiles[m_nProjectiles]->m_bActive = true;
 		m_nProjectiles++;
+		g_NetworkHelper.SendArrowAttackPacket(fSpeed);
 	}
 }
 

@@ -38,6 +38,7 @@ public:
 	void SendCreateRoomPacket(ROLE r, wstring roomName);
 	void SendRequestRoomList();
 	void SendMatchRequestPacket(ROLE r);
+	void SendArrowAttackPacket(float speed);
 private:
 	void ConstructPacket(int ioByte);
 private:

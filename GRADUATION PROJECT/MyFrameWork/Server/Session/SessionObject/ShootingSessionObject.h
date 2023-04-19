@@ -3,11 +3,16 @@
 #include "../../PCH/stdafx.h"
 
 class Session;
+class MonsterSessionObject;
+
 class ShootingSessionObject : public SessionObject
 {
 private:
 	int m_id = -1;
+	float m_distance = 0.0f;
+	BoundingSphere m_SPBB;
 public:
+	bool m_active = false;
 	ShootingSessionObject();
 	ShootingSessionObject(std::string& roomId);
 	~ShootingSessionObject();
@@ -23,6 +28,7 @@ public:
 public:
 	virtual const DirectX::XMFLOAT3 GetPosition();
 	virtual const DirectX::XMFLOAT3 GetRotation();
+	void DetectCollision(MonsterSessionObject* m_bossSession);
 	void SetSpeed(float speed);
 	void SetStart(XMFLOAT3& dir, XMFLOAT3& srcPos, float speed);
 	void Move(float distance);

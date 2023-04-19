@@ -17,6 +17,7 @@ private:
 	int m_aggroPlayerId = -1;
 public:
 	bool isMove = false;
+	DirectX::BoundingSphere m_SPBB = BoundingSphere(DirectX::XMFLOAT3(0.0f, 22.5f, 0.0f), 22.5f);
 public:
 	virtual void AutoMove() override;
 	virtual void StartMove(DIRECTION d) override;

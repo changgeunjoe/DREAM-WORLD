@@ -35,6 +35,7 @@
 #include <math.h>
 #include <random>
 #include <DirectXMath.h>
+#include <DirectXCollision.h>
 
 extern "C"
 {

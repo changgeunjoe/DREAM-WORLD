@@ -19,14 +19,14 @@ private:
 	std::wstring m_roomName;
 	std::string m_roomId;
 	int m_roomOwnerId = -1;// 룸 생성한 자의 ID
+	int m_arrowCount = 0;
+	int m_ballCount = 0;
 private:
 	std::mutex m_lockInGamePlayers;
 	std::map<ROLE, int> m_inGamePlayers;
 
 	std::mutex m_lockWaitPlayers;
 	std::map<ROLE, int> m_waitPlayers;
-	std::array<ShootingSessionObject, 10> m_arrows;
-	std::array<ShootingSessionObject, 10> m_balls;
 	std::mutex m_arrowLock;
 	std::mutex m_ballLock;
 	std::list<int> m_shootingBall;
@@ -59,6 +59,8 @@ public:
 	void CreateBossMonster();
 	MonsterSessionObject& GetBoss();
 public:
+	std::array<ShootingSessionObject, 10> m_arrows;
+	std::array<ShootingSessionObject, 10> m_balls;
 	void ShootArrow(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 srcPos, float speed);
 	void ShootBall(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 srcPos, float speed);
 };
