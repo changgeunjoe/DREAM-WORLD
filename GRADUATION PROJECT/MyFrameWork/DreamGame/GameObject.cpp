@@ -964,10 +964,9 @@ void GameObject::SetCamera(CCamera* pCamera)
 	m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
 }
 
-void GameObject::SetRowColumn(float nRows, float nCols)
+void GameObject::SetRowColumn(float nRows, float nCols,float fSpeed )
 {
 	m_bMultiSprite = true;
-	m_fSpeed = 0.1;
 	m_nRows = nRows;
 	m_nCols = nCols;
 }

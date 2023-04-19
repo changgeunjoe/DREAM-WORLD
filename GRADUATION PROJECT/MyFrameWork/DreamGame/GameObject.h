@@ -47,7 +47,7 @@ public:
     void SetAnimationSets(int nAnimationSets);
     void SetMesh(MeshComponent* pMesh);
     void SetCamera(CCamera* pCamera);
-    void SetRowColumn(float x, float y);
+    void SetRowColumn(float x, float y, float fSpeed = 0.1);
     void MoveObject(DIRECTION& currentDirection, const XMFLOAT3& CameraAxis);
     
 	void MoveStrafe(float fDistance = 1.0f);
