@@ -916,28 +916,28 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 	{
 	case WM_LBUTTONDOWN:
 	{
-		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_cMouseInput |= 0x01;
+		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_LMouseInput = true;
 		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetLButtonClicked(true);
 		SomethingChanging = true;
 		break;
 	}
 	case WM_LBUTTONUP:
 	{
-		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_cMouseInput ^= 0x01;
+		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_LMouseInput = false;
 		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetLButtonClicked(false);
 		SomethingChanging = true;
 		break;
 	}
 	case WM_RBUTTONDOWN:
 	{
-		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_cMouseInput |= 0x10;
+		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_RMouseInput = true;
 		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetRButtonClicked(true);
 		SomethingChanging = true;
 		break;
 	}
 	case WM_RBUTTONUP:
 	{
-		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_cMouseInput ^= 0x10;
+		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_RMouseInput = false;
 		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetRButtonClicked(false);
 		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->RbuttonUp(g_Logic.m_inGamePlayerSession[0].m_ownerRotateAngle);
 		SomethingChanging = true;
@@ -949,7 +949,8 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 
 #ifndef LOCAL_TASK
 	if (SomethingChanging)
-		g_NetworkHelper.SendMouseStatePacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_cMouseInput);
+		g_NetworkHelper.SendMouseStatePacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_LMouseInput
+											,g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_RMouseInput);
 #endif
 
 }

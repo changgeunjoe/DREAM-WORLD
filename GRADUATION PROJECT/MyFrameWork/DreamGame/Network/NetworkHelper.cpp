@@ -143,10 +143,11 @@ void NetworkHelper::SendLoginData(char* loginId, char* pw)
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
-void NetworkHelper::SendMouseStatePacket(unsigned char MouseClicked)
+void NetworkHelper::SendMouseStatePacket(bool LClickedButton, bool RClickedButton)
 {
 	CLIENT_PACKET::MouseInputPacket sendPacket;
-	sendPacket.ClickedButton = MouseClicked;
+	sendPacket.LClickedButton = LClickedButton;
+	sendPacket.RClickedButton = RClickedButton;
 	sendPacket.type = CLIENT_PACKET::MOUSE_INPUT;
 	sendPacket.size = sizeof(CLIENT_PACKET::MouseInputPacket);
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);

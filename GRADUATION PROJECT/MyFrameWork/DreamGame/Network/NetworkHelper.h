@@ -34,7 +34,7 @@ public:
 	void SendRotatePacket(ROTATE_AXIS axis, float angle);
 	void SendKeyUpPacket(DIRECTION d);
 	void SendLoginData(char* loginId, char* pw);
-	void SendMouseStatePacket(unsigned char MouseClicked);
+	void SendMouseStatePacket(bool LClickedButton, bool RClickedButton);
 	void SendCreateRoomPacket(ROLE r, wstring roomName);
 	void SendRequestRoomList();
 	void SendMatchRequestPacket(ROLE r);

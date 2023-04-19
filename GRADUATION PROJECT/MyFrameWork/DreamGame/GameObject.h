@@ -159,7 +159,8 @@ public:
     int                             m_iRButtionCount = 0;
 
     DIRECTION                       m_prevDirection = DIRECTION::IDLE;
-    unsigned char                   m_cMouseInput = 0x00;
+    bool                            m_LMouseInput = false;
+    bool                            m_RMouseInput = false;
 
 protected:
 

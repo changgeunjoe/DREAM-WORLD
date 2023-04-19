@@ -302,11 +302,12 @@ void Logic::ProcessPacket(int userId, char* p)
 		CLIENT_PACKET::MouseInputPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::MouseInputPacket*>(p);
 
 		SERVER_PACKET::MouseInputPacket sendPacket;
-		sendPacket.ClickedButton = recvPacket->ClickedButton;
+		sendPacket.LClickedButton = recvPacket->LClickedButton;
+		sendPacket.RClickedButton = recvPacket->RClickedButton;
 		sendPacket.userId = userId;
 		sendPacket.type = SERVER_PACKET::MOUSE_INPUT;
 		sendPacket.size = sizeof(SERVER_PACKET::MouseInputPacket);
-		g_iocpNetwork.m_session[userId].m_sessionObject->SetMouseInput(sendPacket.ClickedButton);
+		g_iocpNetwork.m_session[userId].m_sessionObject->SetMouseInput(sendPacket.LClickedButton, sendPacket.RClickedButton);
 #ifdef _DEBUG
 		PrintCurrentTime();
 		std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::MOUSE_INPUT - MultiCastOtherPlayer" << std::endl;

@@ -206,14 +206,14 @@ void Logic::ProcessPacket(char* p)
 			return false;
 			});
 		if (findRes != m_inGamePlayerSession.end()) {
-			if (recvPacket->ClickedButton & 0xF) {
+			if (recvPacket->LClickedButton == true) {
 				findRes->m_currentPlayGameObject->SetLButtonClicked(true);
 			}
 			else {
 				findRes->m_currentPlayGameObject->SetLButtonClicked(false);
 			}
 
-			if ((recvPacket->ClickedButton >> 4) & 0xF) {
+			if (recvPacket->RClickedButton == true) {
 				findRes->m_currentPlayGameObject->SetRButtonClicked(true);
 			}
 			else {
@@ -221,7 +221,8 @@ void Logic::ProcessPacket(char* p)
 				findRes->m_currentPlayGameObject->RbuttonUp();
 			}
 
-			findRes->m_currentPlayGameObject->m_cMouseInput = recvPacket->ClickedButton;
+			findRes->m_currentPlayGameObject->m_LMouseInput = recvPacket->LClickedButton;
+			findRes->m_currentPlayGameObject->m_RMouseInput = recvPacket->RClickedButton;
 		}
 	}
 	break;

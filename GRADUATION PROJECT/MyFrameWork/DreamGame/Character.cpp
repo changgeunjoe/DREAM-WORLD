@@ -43,7 +43,6 @@ void Warrior::RbuttonClicked(float fTimeElapsed)
 
 void Warrior::Move(DIRECTION direction, float fDistance)
 {
-	//fDistance *= m_fSpeed;
 	DIRECTION tempDir = direction;
 	if (((tempDir & DIRECTION::LEFT) == DIRECTION::LEFT) &&
 		((tempDir & DIRECTION::RIGHT) == DIRECTION::RIGHT))
@@ -58,18 +57,38 @@ void Warrior::Move(DIRECTION direction, float fDistance)
 		tempDir = (DIRECTION)(tempDir ^ DIRECTION::BACK);
 	}
 
-	switch (tempDir)
+	if (!m_bRButtonClicked)
 	{
-	case DIRECTION::FRONT:
-	case DIRECTION::FRONT | DIRECTION::RIGHT:
-	case DIRECTION::RIGHT:
-	case DIRECTION::BACK | DIRECTION::RIGHT:
-	case DIRECTION::BACK:
-	case DIRECTION::BACK | DIRECTION::LEFT:
-	case DIRECTION::LEFT:
-	case DIRECTION::FRONT | DIRECTION::LEFT:
-		MoveForward(fDistance);
-	default: break;
+		switch (tempDir)
+		{
+		case DIRECTION::FRONT:
+		case DIRECTION::FRONT | DIRECTION::RIGHT:
+		case DIRECTION::RIGHT:
+		case DIRECTION::BACK | DIRECTION::RIGHT:
+		case DIRECTION::BACK:
+		case DIRECTION::BACK | DIRECTION::LEFT:
+		case DIRECTION::LEFT:
+		case DIRECTION::FRONT | DIRECTION::LEFT:
+			MoveForward(fDistance);
+		default: break;
+		}
+	}
+	else
+	{
+		//fDistance /= 3;
+		switch (tempDir)
+		{
+		case DIRECTION::IDLE: break;
+		case DIRECTION::FRONT: MoveForward(fDistance); break;
+		case DIRECTION::FRONT | DIRECTION::RIGHT: MoveDiagonal(1, 1, fDistance); break;
+		case DIRECTION::RIGHT: MoveStrafe(fDistance); break;
+		case DIRECTION::BACK | DIRECTION::RIGHT: MoveDiagonal(-1, 1, fDistance);  break;
+		case DIRECTION::BACK: MoveForward(-fDistance); break;
+		case DIRECTION::BACK | DIRECTION::LEFT: MoveDiagonal(-1, -1, fDistance); break;
+		case DIRECTION::LEFT: MoveStrafe(-fDistance); break;
+		case DIRECTION::FRONT | DIRECTION::LEFT: MoveDiagonal(1, -1, fDistance); break;
+		default: break;
+		}
 	}
 }
 

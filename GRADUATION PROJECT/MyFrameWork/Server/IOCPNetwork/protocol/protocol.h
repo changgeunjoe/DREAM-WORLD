@@ -81,7 +81,8 @@ namespace CLIENT_PACKET {
 	struct MouseInputPacket {
 		short size;
 		char type;
-		char ClickedButton;
+		bool LClickedButton;
+		bool RClickedButton;
 	};
 
 	struct ShootingObject {
@@ -190,7 +191,8 @@ namespace SERVER_PACKET {
 		short size;
 		char type;
 		int userId;
-		char ClickedButton;
+		bool LClickedButton;
+		bool RClickedButton;
 	};
 
 	struct BossChangeStateMovePacket {

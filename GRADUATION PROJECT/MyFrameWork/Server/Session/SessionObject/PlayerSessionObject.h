@@ -9,7 +9,8 @@ private:
 	short	m_hp;
 	short	m_maxHp;
 	short	m_attackDamage;
-	unsigned char m_mouseInput;
+	bool	m_leftmouseInput;
+	bool	m_rightmouseInput;
 private:
 	int m_id;
 private:
@@ -34,7 +35,7 @@ public:
 public:
 	void Move(float fDistance);
 	void SetDirection(DIRECTION d);
-	void SetMouseInput(unsigned char mouseInput);
+	void SetMouseInput(bool LmouseInput, bool RmouseInput);
 public:
 	virtual void Rotate(ROTATE_AXIS axis, float angle) override;
 public:

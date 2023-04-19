@@ -90,9 +90,10 @@ void PlayerSessionObject::SetDirection(DIRECTION d)
 	}
 }
 
-void PlayerSessionObject::SetMouseInput(unsigned char mouseInput)
+void PlayerSessionObject::SetMouseInput(bool LmouseInput, bool RmouseInput)
 {
-	m_mouseInput = mouseInput;
+	m_leftmouseInput = LmouseInput;
+	m_rightmouseInput = RmouseInput;
 }
 
 void PlayerSessionObject::StartMove(DIRECTION d)
