@@ -39,6 +39,12 @@ Warrior::~Warrior()
 {
 }
 
+void Warrior::Attack(float fSpeed)
+{
+	if (m_pCamera)
+		g_NetworkHelper.SendMeleeAttackPacket(GetLook());
+}
+
 void Warrior::RbuttonClicked(float fTimeElapsed)
 {
 
@@ -143,8 +149,12 @@ void Warrior::Animate(float fTimeElapsed)
 		m_pSkinnedAnimationController->m_CurrentAnimation = AfterAnimation;
 		m_pSkinnedAnimationController->SetTrackEnable(AfterAnimation);
 	}
+
 	if (m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd == true)
+	{
+		Attack();
 		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd = false;
+	}
 	GameObject::Animate(fTimeElapsed);
 }
 
@@ -175,7 +185,8 @@ void Archer::Attack(float fSpeed)
 		m_pProjectiles[m_nProjectiles]->SetPosition(Vector3::Add(GetPosition(), XMFLOAT3(0.0f, 5.0f, 0.0f)));
 		m_pProjectiles[m_nProjectiles]->m_fSpeed = fSpeed;
 		m_pProjectiles[m_nProjectiles]->m_bActive = true;
-		g_NetworkHelper.SendArrowAttackPacket(m_pProjectiles[m_nProjectiles]->m_xmf3startPosition, m_pProjectiles[m_nProjectiles]->m_xmf3direction, fSpeed);
+		if (m_pCamera)
+			g_NetworkHelper.SendArrowAttackPacket(m_pProjectiles[m_nProjectiles]->m_xmf3startPosition, m_pProjectiles[m_nProjectiles]->m_xmf3direction, fSpeed);
 		m_nProjectiles++;
 	}
 	else
@@ -392,6 +403,12 @@ Tanker::~Tanker()
 
 }
 
+void Tanker::Attack(float fSpeed)
+{
+	if (m_pCamera)
+		g_NetworkHelper.SendMeleeAttackPacket(GetLook());
+}
+
 void Tanker::RbuttonClicked(float fTimeElapsed)
 {
 	if (m_pCamera && !m_iRButtionCount)
@@ -519,8 +536,12 @@ void Tanker::Animate(float fTimeElapsed)
 		m_pSkinnedAnimationController->m_CurrentAnimation = AfterAnimation;
 		m_pSkinnedAnimationController->SetTrackEnable(AfterAnimation);
 	}
+
 	if (m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd == true)
+	{
+		Attack();
 		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd = false;
+	}
 
 	GameObject::Animate(fTimeElapsed);
 }
@@ -675,6 +696,8 @@ void Priest::Attack(float fSpeed)
 	m_pProjectiles[m_nProjectiles]->SetPosition(Vector3::Add(GetPosition(), XMFLOAT3(0.0f, 5.0f, 0.0f)));
 	m_pProjectiles[m_nProjectiles]->m_fSpeed = fSpeed;
 	m_pProjectiles[m_nProjectiles]->m_bActive = true;
+	if(m_pCamera)
+		g_NetworkHelper.SendBallAttackPacket(m_pProjectiles[m_nProjectiles]->m_xmf3startPosition, m_pProjectiles[m_nProjectiles]->m_xmf3direction, fSpeed);
 	m_nProjectiles++;
 }
 

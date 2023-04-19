@@ -195,3 +195,23 @@ void NetworkHelper::SendArrowAttackPacket(const XMFLOAT3& pos, const XMFLOAT3& d
 	sendPacket.speed = speed;
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
+
+void NetworkHelper::SendBallAttackPacket(const XMFLOAT3& pos, const XMFLOAT3& dir, float speed)
+{
+	CLIENT_PACKET::ShootingObject sendPacket;
+	sendPacket.size = sizeof(CLIENT_PACKET::ShootingObject);
+	sendPacket.type = CLIENT_PACKET::SHOOTING_BALL;
+	sendPacket.pos = pos;
+	sendPacket.dir = dir;
+	sendPacket.speed = speed;
+	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
+}
+
+void NetworkHelper::SendMeleeAttackPacket(const XMFLOAT3& dir)
+{
+	CLIENT_PACKET::MeleeAttackPacket sendPacket;
+	sendPacket.size = sizeof(CLIENT_PACKET::MeleeAttackPacket);
+	sendPacket.type = CLIENT_PACKET::MELEE_ATTACK;
+	sendPacket.dir = dir;
+	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
+}

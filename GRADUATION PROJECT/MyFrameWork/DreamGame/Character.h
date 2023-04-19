@@ -16,6 +16,7 @@ class Warrior : public Character
 public:
 	Warrior();
 	virtual ~Warrior();
+	virtual void Attack(float fSpeed = 150.0f);
 	virtual void RbuttonClicked(float fTimeElapsed);
 	virtual void Move(DIRECTION direction, float fDsitance) override;
 	virtual void Animate(float fTimeElapsed);
@@ -40,6 +41,7 @@ class Tanker : public Character
 public:
 	Tanker();
 	virtual ~Tanker();
+	virtual void Attack(float fSpeed = 150.0f);
 	virtual void RbuttonClicked(float fTimeElapsed);
 	virtual void RbuttonUp(const XMFLOAT3& CameraAxis);
 	virtual void Move(DIRECTION direction, float fDsitance) override;

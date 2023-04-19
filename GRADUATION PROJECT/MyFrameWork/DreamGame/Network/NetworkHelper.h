@@ -39,6 +39,8 @@ public:
 	void SendRequestRoomList();
 	void SendMatchRequestPacket(ROLE r);
 	void SendArrowAttackPacket(const XMFLOAT3& pos, const XMFLOAT3& dir, float speed);
+	void SendBallAttackPacket(const XMFLOAT3& pos, const XMFLOAT3& dir, float speed);
+	void SendMeleeAttackPacket(const XMFLOAT3& dir);
 private:
 	void ConstructPacket(int ioByte);
 private:

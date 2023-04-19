@@ -81,4 +81,5 @@ public:
 	ROLE GetRole() {
 		return m_InGameRole;
 	}
+	bool GetLeftAttack() { return m_leftmouseInput;	}
 };

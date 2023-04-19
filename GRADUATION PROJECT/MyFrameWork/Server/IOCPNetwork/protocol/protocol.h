@@ -16,6 +16,7 @@ namespace CLIENT_PACKET {
 	constexpr unsigned char MATCH_REQUEST = 12;	
 	constexpr unsigned char SHOOTING_ARROW = 13;
 	constexpr unsigned char SHOOTING_BALL = 14;
+	constexpr unsigned char MELEE_ATTACK = 15;
 
 
 
@@ -91,6 +92,12 @@ namespace CLIENT_PACKET {
 		DirectX::XMFLOAT3 pos;
 		DirectX::XMFLOAT3 dir;
 		float speed;
+	};
+
+	struct MeleeAttackPacket {
+		short size;
+		char type;
+		DirectX::XMFLOAT3 dir;
 	};
 }
 
