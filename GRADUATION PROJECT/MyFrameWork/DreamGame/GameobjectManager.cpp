@@ -47,7 +47,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	{
 		m_pMonsterHPBarObject->SetLookAt(m_pCamera->GetPosition());
 		m_pMonsterHPBarObject->SetPosition(XMFLOAT3(m_pMonsterObject->GetPosition().x,
-			m_pMonsterObject->GetPosition().y+70, m_pMonsterObject->GetPosition().z));
+		m_pMonsterObject->GetPosition().y+70, m_pMonsterObject->GetPosition().z));
 		m_pMonsterHPBarObject->Rotate(0, 180, 0);
 		m_pMonsterHPBarObject->SetScale(10);
 	}
@@ -312,6 +312,7 @@ void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	m_pParticleObject->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pParticleObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pParticleObject->SetModel("Model/BossHp.bin");
+	m_pParticleObject->SetRowColumn(8, 8);
 	m_pParticleObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pParticleObject->SetScale(3.0f, 3.0f, 3.0f);
 	m_pParticleObject->SetScale(3.0f, 3.0f, 3.0f);
@@ -586,10 +587,10 @@ void GameobjectManager::ProcessingUI(int n)
 
 void GameobjectManager::AnimateObjects()
 {
-	m_pSkyboxObject->SetPosition(m_pCamera->GetPosition());
+	/*m_pSkyboxObject->SetPosition(m_pCamera->GetPosition());
 	
 	m_pLight->m_pLights[1].m_xmf3Position = m_pCamera->GetPosition();
-	m_pLight->m_pLights[1].m_xmf3Direction = m_pCamera->GetLookVector();
+	m_pLight->m_pLights[1].m_xmf3Direction = m_pCamera->GetLookVector();*/
 }
 void GameobjectManager::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
