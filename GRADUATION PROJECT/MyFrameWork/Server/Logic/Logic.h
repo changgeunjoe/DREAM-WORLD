@@ -1,8 +1,7 @@
 #pragma once
+#include "../PCH/stdafx.h"
 
 class Session;
-
-
 class Logic
 {
 private:
@@ -32,7 +31,7 @@ public:
 	void BroadCastPacket(void* p);
 	void MultiCastOtherPlayer(int userId, void* p);
 	void MultiCastOtherPlayerInRoom(int userId, void* p);
-	void BroadCastOtherPlayerInRoom(int userId, void* p);
+	void BroadCastInRoomByPlayer(int userId, void* p);
 	//Boss Broad Cast
 	void BroadCastInRoom(std::string& roomId, void* p);
 
@@ -41,4 +40,6 @@ public:
 private:
 	void MatchMaking();
 	void InsertMatchQueue(ROLE r, int userId);
+private:
+	std::string MakeRoomId();
 };

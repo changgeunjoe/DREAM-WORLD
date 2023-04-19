@@ -15,7 +15,7 @@ PlayerSessionObject::PlayerSessionObject(int id, ROLE r)
 	m_maxHp = 0;
 	m_attackDamage = 0;
 	m_InGameRole = r;
-	
+
 }
 
 PlayerSessionObject::~PlayerSessionObject()
@@ -213,9 +213,9 @@ char* PlayerSessionObject::GetPlayerInfo()
 	SERVER_PACKET::AddPlayerPacket* playerInfo = new SERVER_PACKET::AddPlayerPacket;
 	playerInfo->userId = m_id;
 	//memcpy(playerInfo->name, m_playerName.c_str(), m_playerName.size() * 2);
+	//playerInfo->name[m_playerName.size()] = 0;
 	playerInfo->position = m_position;
 	playerInfo->rotate = m_rotateAngle;
-	//playerInfo->name[m_playerName.size()] = 0;
 	playerInfo->type = SERVER_PACKET::ADD_PLAYER;
 	playerInfo->role = m_InGameRole;
 	playerInfo->size = sizeof(SERVER_PACKET::AddPlayerPacket);
