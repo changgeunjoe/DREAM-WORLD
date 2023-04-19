@@ -125,14 +125,10 @@ void Room::ShootArrow(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 srcPos, float spe
 {
 	int arrowIndex = -1;
 	if (m_restArrow.try_pop(arrowIndex)) {
-		{
-			std::lock_guard<std::mutex> lg(m_arrowLock);
-			m_shootingArrow.push_back(arrowIndex);
-		}
 		std::cout << arrowIndex << std::endl;
-		m_arrows[arrowIndex].SetStart(dir, srcPos, speed);
 		//발사체 발사했다는 패킷보내기
 		//g_logic.BroadCastInRoom(m_roomId, &sendPacket);
+		m_arrows[arrowIndex].SetStart(dir, srcPos, speed);
 	}
 	if (m_restArrow.empty())	// 추후 삭제
 	{
@@ -144,10 +140,6 @@ void Room::ShootBall(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 srcPos, float spee
 {
 	int ballIndex = -1;
 	if (m_restBall.try_pop(ballIndex)) {
-		{
-			std::lock_guard<std::mutex> lg(m_ballLock);
-			m_shootingBall.push_back(ballIndex);
-		}
 		//발사체 발사했다는 패킷보내기
 		//g_logic.BroadCastInRoom(m_roomId, &sendPacket);
 		m_balls[ballIndex].SetStart(dir, srcPos, speed);

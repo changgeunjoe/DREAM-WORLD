@@ -404,32 +404,30 @@ void Logic::AutoMoveServer()//2500명?
 		for (auto roomId : RunningRooms) {
 			if (g_RoomManager.IsExistRunningRoom(roomId)) {
 				Room& room = g_RoomManager.GetRunningRoom(roomId);
-				if (room.GetBoss().GetRoomId() == room.GetRoomId() && room.GetBoss().isMove) {
+				if (room.GetBoss().isMove)
 					room.GetBoss().AutoMove();//보스 무브
-					for (auto& p : room.GetInGamePlayerMap()) {//플레이어 무브
-						if (g_iocpNetwork.m_session[p.second].m_sessionObject->m_inputDirection != DIRECTION::IDLE) {
-							g_iocpNetwork.m_session[p.second].m_sessionObject->AutoMove();
-						}
+				for (auto& p : room.GetInGamePlayerMap()) {//플레이어 무브
+					if (g_iocpNetwork.m_session[p.second].m_sessionObject->m_inputDirection != DIRECTION::IDLE) {
+						g_iocpNetwork.m_session[p.second].m_sessionObject->AutoMove();
 					}
-					//여기에 화살이나 ball 오브젝트 이동 구현
 				}
-				if (room.GetBoss().GetRoomId() == room.GetRoomId())
+				//여기에 화살이나 ball 오브젝트 이동 구현
+				for (auto& arrow : room.m_arrows)
 				{
-					for (auto& arrow : room.m_arrows)
+					if (arrow.m_active)
 					{
-						if (arrow.m_active)
-						{
-							arrow.AutoMove();
-							arrow.DetectCollision(&room.GetBoss());
-						}
+						arrow.AutoMove();
+						if (arrow.DetectCollision(&room.GetBoss()) != -1)
+							room.m_restArrow.push(arrow.GetId());
 					}
-					for (auto& ball : room.m_balls)
+				}
+				for (auto& ball : room.m_balls)
+				{
+					if (ball.m_active)
 					{
-						if (ball.m_active)
-						{
-							ball.AutoMove();
-							ball.DetectCollision(&room.GetBoss());
-						}
+						ball.AutoMove();
+						if (ball.DetectCollision(&room.GetBoss()) != -1)
+							room.m_restBall.push(ball.GetId());
 					}
 				}
 			}
@@ -502,7 +500,7 @@ void Logic::MatchMaking()
 			roomName.append(std::to_wstring(matchPlayer.begin()->second)); //
 			while (!g_RoomManager.InsertRunningRoom(roomId, roomName, matchPlayer));
 			//룸 생성 성공
-			
+
 			for (const auto& p : matchPlayer) {//플레이어 정보 세팅하고 뿌려주기
 				//send match Success Packet
 				g_iocpNetwork.m_session[p.second].SetRoomId(roomId);

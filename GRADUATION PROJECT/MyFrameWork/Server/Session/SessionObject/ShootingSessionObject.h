@@ -28,7 +28,7 @@ public:
 public:
 	virtual const DirectX::XMFLOAT3 GetPosition();
 	virtual const DirectX::XMFLOAT3 GetRotation();
-	void DetectCollision(MonsterSessionObject* m_bossSession);
+	int DetectCollision(MonsterSessionObject* m_bossSession);
 	void SetSpeed(float speed);
 	void SetStart(XMFLOAT3& dir, XMFLOAT3& srcPos, float speed);
 	void Move(float distance);
@@ -38,5 +38,6 @@ public:
 		m_id = idx;
 		m_roomId = roomId;
 	}
+	int GetId() { return m_id; }
 };
 

@@ -8,7 +8,7 @@ ShootingSessionObject::ShootingSessionObject()
 
 }
 
-ShootingSessionObject::ShootingSessionObject(std::string& roomId): m_roomId(roomId)
+ShootingSessionObject::ShootingSessionObject(std::string& roomId) : m_roomId(roomId)
 {
 
 }
@@ -61,14 +61,16 @@ void ShootingSessionObject::SetSpeed(float speed)
 	m_speed;
 }
 
-void ShootingSessionObject::DetectCollision(MonsterSessionObject* m_bossSession)
+int ShootingSessionObject::DetectCollision(MonsterSessionObject* m_bossSession)
 {
 	if (m_SPBB.Intersects(m_bossSession->m_SPBB))
 	{
 		// 보스 체력 -
 		std::cout << "충돌체크 완료" << std::endl;
 		m_active = false;	// 추후 생명주기 관리에 사용
+		return m_id;
 	}
+	return -1;
 }
 
 void ShootingSessionObject::SetStart(XMFLOAT3& dir, XMFLOAT3& srcPos, float speed)//초당 이동 속도

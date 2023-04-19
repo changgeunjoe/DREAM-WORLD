@@ -27,12 +27,6 @@ private:
 
 	std::mutex m_lockWaitPlayers;
 	std::map<ROLE, int> m_waitPlayers;
-	std::mutex m_arrowLock;
-	std::mutex m_ballLock;
-	std::list<int> m_shootingBall;
-	std::list<int> m_shootingArrow;
-	Concurrency::concurrent_queue<int> m_restArrow;
-	Concurrency::concurrent_queue<int> m_restBall;
 private:
 	//std::vector<Session> m_monsters;
 	MonsterSessionObject m_boss;
@@ -61,6 +55,8 @@ public:
 public:
 	std::array<ShootingSessionObject, 10> m_arrows;
 	std::array<ShootingSessionObject, 10> m_balls;
+	Concurrency::concurrent_queue<int> m_restArrow;
+	Concurrency::concurrent_queue<int> m_restBall;
 	void ShootArrow(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 srcPos, float speed);
 	void ShootBall(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 srcPos, float speed);
 };
