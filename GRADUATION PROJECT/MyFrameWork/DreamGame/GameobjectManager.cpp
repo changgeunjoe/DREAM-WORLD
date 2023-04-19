@@ -6,6 +6,7 @@
 #include "DepthRenderShaderComponent.h"
 #include "TextureToViewportComponent.h"
 #include "UiShaderComponent.h"
+#include"MultiSpriteShaderComponent.h"
 #include "Character.h"
 
 
@@ -105,6 +106,8 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	}
 	tempcount++;
 #endif
+
+	m_pParticleObject->AnimateRowColumn(fTimeElapsed);
 }
 
 void GameobjectManager::OnPreRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -311,7 +314,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 }
 void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	//m_pParticleObject = new GameObject(MULTYSPRITE_ENTITY);
+	//m_pParticleObject = new GameObject(MultiSPRITE_ENTITY);
 	//m_pParticleObject->InsertComponent<RenderComponent>();
 	//m_pParticleObject->InsertComponent<CLoadedModelInfoCompnent>();
 	//m_pParticleObject->SetPosition(XMFLOAT3(0, 0, 0));
@@ -325,11 +328,12 @@ void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	m_pParticleObject = new GameObject(UNDEF_ENTITY);
 	m_pParticleObject->InsertComponent<RenderComponent>();
 	m_pParticleObject->InsertComponent<UIMeshComponent>();
-	m_pParticleObject->InsertComponent<ShaderComponent>();
+	m_pParticleObject->InsertComponent<MultiSpriteShaderComponent>();
 	m_pParticleObject->InsertComponent<TextureComponent>();
-	m_pParticleObject->SetPosition(XMFLOAT3(0, 0, 100));
-	m_pParticleObject->SetScale(3);
 	m_pParticleObject->SetTexture(L"Image/Explode_8x8.dds", RESOURCE_TEXTURE2D, 3);
+	m_pParticleObject->SetPosition(XMFLOAT3(0, 40, 100));
+	m_pParticleObject->SetScale(3);
+	m_pParticleObject->SetRowColumn(8, 8);
 	m_pParticleObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
 void GameobjectManager::BuildLight()
@@ -597,14 +601,6 @@ void GameobjectManager::ProcessingUI(int n)
 	default:
 		break;
 	}
-}
-
-void GameobjectManager::AnimateObjects()
-{
-	/*m_pSkyboxObject->SetPosition(m_pCamera->GetPosition());
-	
-	m_pLight->m_pLights[1].m_xmf3Position = m_pCamera->GetPosition();
-	m_pLight->m_pLights[1].m_xmf3Direction = m_pCamera->GetLookVector();*/
 }
 void GameobjectManager::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {

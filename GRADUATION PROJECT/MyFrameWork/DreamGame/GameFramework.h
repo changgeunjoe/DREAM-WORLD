@@ -27,7 +27,7 @@ private:
 	bool m_bMsaa4xEnable = false;
 
 	UINT m_nMsaa4xQualityLevels = 0;
-	//MSAA(Multy Sampleing AA) 다중 샘플링을 활성화하고 다중 샘플링 레벨을 설정한다. SSAA(SUPER SAMPLING AA)도 있다.
+	//MSAA(Multi Sampleing AA) 다중 샘플링을 활성화하고 다중 샘플링 레벨을 설정한다. SSAA(SUPER SAMPLING AA)도 있다.
 
 	static const UINT m_nSwapChainBuffers = 2;
 	//스왑 체인의 후면 버퍼의 개수이다.

@@ -9,6 +9,7 @@
 #include"CLoadModelinfo.h"
 #include"MaterialComponent.h"
 #include"UiShaderComponent.h"
+#include"MultiSpriteShaderComponent.h"
 //include"CLoadModelinfo.h"
 class DepthRenderShaderComponent;
 class CLoadedModelInfoCompnent;
@@ -145,7 +146,7 @@ public:
     int 							m_nCols = 1;
 
     XMFLOAT4X4						m_xmf4x4Texture;//멀티스프라이트를 활용하기위한 4x4행렬
-    bool                            m_bMultySprite{false};
+    bool                            m_bMultiSprite{false};
 
 
     UINT							m_nType = 0x00;
@@ -198,9 +199,9 @@ protected:
 	//CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
     CB_GAMEOBJECT_STAT* m_pcbMappedGameObjects = NULL;
 
-    ID3D12Resource* m_pd3dcbMultySpriteGameObjects = NULL;
+    ID3D12Resource* m_pd3dcbMultiSpriteGameObjects = NULL;
 
-    CB_GAMEOBJECT_MULTYSPRITE* m_pcbMappedMultySpriteGameObjects = NULL;
+    CB_GAMEOBJECT_MULTISPRITE* m_pcbMappedMultiSpriteGameObjects = NULL;
 	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dCbvGPUDescriptorHandle;
 
 	ID3D12Resource* pShadowMap = NULL;
@@ -295,11 +296,15 @@ inline T* GameObject::ComponentType(component_id& componentID)
     }
     else if (typeid(T).name() == typeid(SkyBoxShaderComponent).name())
     {
-        componentID = component_id::UISHADER_COMPONENT;
+        componentID = component_id::SKYSHADER_COMPONENT;
     }
     else if (typeid(T).name() == typeid(UiShaderComponent).name())
     {
-        componentID = component_id::SHADER_COMPONENT;
+        componentID = component_id::UISHADER_COMPONENT;
+    }
+    else if (typeid(T).name() == typeid(MultiSpriteShaderComponent).name())
+    {
+        componentID = component_id::SPRITESHADER_COMPONENT;
     }
     else if (typeid(T).name() == typeid(TextureComponent).name())
     {

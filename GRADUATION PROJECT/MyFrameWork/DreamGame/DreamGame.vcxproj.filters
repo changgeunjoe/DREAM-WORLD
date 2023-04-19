@@ -109,6 +109,9 @@
     <Filter Include="04.Component\ShaderComponent\UIShaderComponent">
       <UniqueIdentifier>{651c96ef-c392-4d99-b51e-e774e79f159b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="04.Component\ShaderComponent\Shader\MultySpriteShaderComponent">
+      <UniqueIdentifier>{9ded933d-5c12-4738-92f7-a0fa5be3578c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -222,6 +225,9 @@
     <ClInclude Include="SkinnedShaderComponent.h">
       <Filter>04.Component\ShaderComponent\SkinnedShaderComponent</Filter>
     </ClInclude>
+    <ClInclude Include="MultiSpriteShaderComponent.h">
+      <Filter>04.Component\ShaderComponent\Shader\MultySpriteShaderComponent</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -325,6 +331,9 @@
     </ClCompile>
     <ClCompile Include="StandardShaderComponent.cpp">
       <Filter>04.Component\ShaderComponent\StandardShaderComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="MultiSpriteShaderComponent.cpp">
+      <Filter>04.Component\ShaderComponent\Shader\MultySpriteShaderComponent</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

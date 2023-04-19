@@ -124,6 +124,8 @@ VS_OUTPUT VSDiffused(VS_INPUT input)
 
 
 
+
+
 float4 PSDiffused(VS_OUTPUT input) : SV_TARGET
 {
 #ifdef _WITH_VERTEX_LIGHTING
@@ -153,7 +155,14 @@ struct VS_TEXTURED_OUTPUT
     float4 position : SV_POSITION;
     float2 uv : TEXCOORD;
 };
+VS_TEXTURED_OUTPUT VSSpriteAnimation(VS_TEXTURED_INPUT input)
+{
+    VS_TEXTURED_OUTPUT output;
 
+    output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+    output.uv = mul(float3(input.uv, 1.0f), (float3x3) (gmtxTextureview)).xy;
+    return (output);
+}
 VS_TEXTURED_OUTPUT VSUITextured(VS_TEXTURED_INPUT input)
 {
     VS_TEXTURED_OUTPUT output;
@@ -162,6 +171,8 @@ VS_TEXTURED_OUTPUT VSUITextured(VS_TEXTURED_INPUT input)
     output.uv = input.uv;
     return (output);
 }
+
+
 
 float4 PSUITextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
 {   
@@ -232,14 +243,6 @@ VS_STANDARD_OUTPUT VSStandard(VS_STANDARD_INPUT input)
     return (output);
 }
 
-VS_TEXTURED_OUTPUT VSSpriteAnimation(VS_TEXTURED_INPUT input)
-{
-    VS_TEXTURED_OUTPUT output;
-
-    output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
-    
-    return (output);
-}
 
 float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
 {
