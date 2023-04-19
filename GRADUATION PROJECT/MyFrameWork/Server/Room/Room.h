@@ -59,4 +59,5 @@ public:
 	Concurrency::concurrent_queue<int> m_restBall;
 	void ShootArrow(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 srcPos, float speed);
 	void ShootBall(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 srcPos, float speed);
+	void MeleeAttack(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 pos, bool attacking);
 };
