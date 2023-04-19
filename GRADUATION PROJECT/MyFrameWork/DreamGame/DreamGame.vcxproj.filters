@@ -106,6 +106,12 @@
     <Filter Include="04.Component\TextureComponent\Texturetoviewport">
       <UniqueIdentifier>{2a627ed8-98cb-4841-86b2-1893400e7e09}</UniqueIdentifier>
     </Filter>
+    <Filter Include="04.Component\ShaderComponent\UIShaderComponent">
+      <UniqueIdentifier>{651c96ef-c392-4d99-b51e-e774e79f159b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="04.Component\ShaderComponent\Shader\MultySpriteShaderComponent">
+      <UniqueIdentifier>{9ded933d-5c12-4738-92f7-a0fa5be3578c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -192,9 +198,6 @@
     <ClInclude Include="RenderComponent.h">
       <Filter>04.Component\RenderComponent</Filter>
     </ClInclude>
-    <ClInclude Include="SkinnedShaderComponent.h">
-      <Filter>04.Component\ShaderComponent\StandardShaderComponent</Filter>
-    </ClInclude>
     <ClInclude Include="StandardShaderComponent.h">
       <Filter>04.Component\ShaderComponent\StandardShaderComponent</Filter>
     </ClInclude>
@@ -202,9 +205,6 @@
       <Filter>07.Character</Filter>
     </ClInclude>
     <ClInclude Include="define.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="UiShaderComponent.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Network\Room\Room.h">
@@ -218,6 +218,15 @@
     </ClInclude>
     <ClInclude Include="TextureToViewportComponent.h">
       <Filter>04.Component\TextureComponent\Texturetoviewport</Filter>
+    </ClInclude>
+    <ClInclude Include="UiShaderComponent.h">
+      <Filter>04.Component\ShaderComponent\UIShaderComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="SkinnedShaderComponent.h">
+      <Filter>04.Component\ShaderComponent\SkinnedShaderComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="MultiSpriteShaderComponent.h">
+      <Filter>04.Component\ShaderComponent\Shader\MultySpriteShaderComponent</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -302,14 +311,8 @@
     <ClCompile Include="SkinnedShaderComponent.cpp">
       <Filter>04.Component\ShaderComponent\SkinnedShaderComponent</Filter>
     </ClCompile>
-    <ClCompile Include="StandardShaderComponent.cpp">
-      <Filter>04.Component\ShaderComponent\SkinnedShaderComponent</Filter>
-    </ClCompile>
     <ClCompile Include="Character.cpp">
       <Filter>07.Character</Filter>
-    </ClCompile>
-    <ClCompile Include="UiShaderComponent.cpp">
-      <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Network\Room\Room.cpp">
       <Filter>10.NetworkHelper\Room</Filter>
@@ -322,6 +325,15 @@
     </ClCompile>
     <ClCompile Include="TextureToViewportComponent.cpp">
       <Filter>04.Component\TextureComponent\Texturetoviewport</Filter>
+    </ClCompile>
+    <ClCompile Include="UiShaderComponent.cpp">
+      <Filter>04.Component\ShaderComponent\UIShaderComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="StandardShaderComponent.cpp">
+      <Filter>04.Component\ShaderComponent\StandardShaderComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="MultiSpriteShaderComponent.cpp">
+      <Filter>04.Component\ShaderComponent\Shader\MultySpriteShaderComponent</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

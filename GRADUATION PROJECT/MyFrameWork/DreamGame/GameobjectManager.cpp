@@ -6,6 +6,7 @@
 #include "DepthRenderShaderComponent.h"
 #include "TextureToViewportComponent.h"
 #include "UiShaderComponent.h"
+#include"MultiSpriteShaderComponent.h"
 #include "Character.h"
 
 
@@ -47,12 +48,13 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	{
 		m_pMonsterHPBarObject->SetLookAt(m_pCamera->GetPosition());
 		m_pMonsterHPBarObject->SetPosition(XMFLOAT3(m_pMonsterObject->GetPosition().x,
-			m_pMonsterObject->GetPosition().y+70, m_pMonsterObject->GetPosition().z));
+		m_pMonsterObject->GetPosition().y+70, m_pMonsterObject->GetPosition().z));
 		m_pMonsterHPBarObject->Rotate(0, 180, 0);
 		m_pMonsterHPBarObject->SetScale(10);
 	}
 
 	//m_pMonsterObject->Animate(fTimeElapsed);
+	
 	g_Logic.m_MonsterSession.m_currentPlayGameObject->Animate(fTimeElapsed);
 	auto pos = g_Logic.m_MonsterSession.m_currentPlayGameObject->GetPosition();
 	cout << "GameobjectManager::Boss Position: " << pos.x << ", 0, " << pos.z << endl;
@@ -106,6 +108,8 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	}
 	tempcount++;
 #endif
+
+	m_pParticleObject->AnimateRowColumn(fTimeElapsed);
 }
 
 void GameobjectManager::OnPreRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -120,6 +124,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 
 	UpdateShaderVariables(pd3dCommandList);
 	m_pSkyboxObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	
 	m_pDepthShaderComponent->UpdateShaderVariables(pd3dCommandList);
 	g_Logic.m_MonsterSession.m_currentPlayGameObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
@@ -173,6 +178,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	for (int i = 0; i < m_ppCharacterUIObjects.size(); i++) {
 		m_ppCharacterUIObjects[i]->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature);
 	}
+	m_pParticleObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
 
 void GameobjectManager::UIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -328,18 +334,31 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	BuildShadow(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//무조건 마지막에 해줘야된다.
 	Build2DUI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildCharacterUI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	BuildParticle(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
 void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	m_pParticleObject = new GameObject(MULTYSPRITE_ENTITY);
+	//m_pParticleObject = new GameObject(MultiSPRITE_ENTITY);
+	//m_pParticleObject->InsertComponent<RenderComponent>();
+	//m_pParticleObject->InsertComponent<CLoadedModelInfoCompnent>();
+	//m_pParticleObject->SetPosition(XMFLOAT3(0, 0, 0));
+	//m_pParticleObject->SetModel("Model/BossHp.bin");
+	//m_pParticleObject->SetRowColumn(8, 8);
+	//m_pParticleObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//m_pParticleObject->SetScale(3.0f, 3.0f, 3.0f);
+	//m_pParticleObject->SetRowColumn(8.0f, 8.0f);
+	//m_ppParticleObjects.emplace_back(m_pMonsterHPBarObject);
+	
+	m_pParticleObject = new GameObject(UNDEF_ENTITY);
 	m_pParticleObject->InsertComponent<RenderComponent>();
-	m_pParticleObject->InsertComponent<CLoadedModelInfoCompnent>();
-	m_pParticleObject->SetPosition(XMFLOAT3(0, 0, 0));
-	m_pParticleObject->SetModel("Model/BossHp.bin");
+	m_pParticleObject->InsertComponent<UIMeshComponent>();
+	m_pParticleObject->InsertComponent<MultiSpriteShaderComponent>();
+	m_pParticleObject->InsertComponent<TextureComponent>();
+	m_pParticleObject->SetTexture(L"Image/Explode_8x8.dds", RESOURCE_TEXTURE2D, 3);
+	m_pParticleObject->SetPosition(XMFLOAT3(0, 40, 100));
+	m_pParticleObject->SetScale(3);
+	m_pParticleObject->SetRowColumn(8, 8);
 	m_pParticleObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pParticleObject->SetScale(3.0f, 3.0f, 3.0f);
-	m_pParticleObject->SetScale(3.0f, 3.0f, 3.0f);
-	m_ppParticleObjects.emplace_back(m_pMonsterHPBarObject);
 }
 void GameobjectManager::BuildLight()
 {
@@ -606,14 +625,6 @@ void GameobjectManager::ProcessingUI(int n)
 	default:
 		break;
 	}
-}
-
-void GameobjectManager::AnimateObjects()
-{
-	m_pSkyboxObject->SetPosition(m_pCamera->GetPosition());
-	
-	m_pLight->m_pLights[1].m_xmf3Position = m_pCamera->GetPosition();
-	m_pLight->m_pLights[1].m_xmf3Direction = m_pCamera->GetLookVector();
 }
 void GameobjectManager::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {

@@ -207,6 +207,11 @@ struct CB_GAMEOBJECT_STAT
 {
 	float							m_xmfHP;
 };
+struct CB_GAMEOBJECT_MULTISPRITE
+{
+	XMFLOAT4X4						m_xmf4x4Texture;
+	bool							m_bMultiSprite;
+};
 struct SHADOW_INFO
 {
 	XMFLOAT4X4						m_xmf4x4View;
@@ -223,7 +228,7 @@ enum entity_id
 	PlANE_ENTITY,
 	UNDEF_ENTITY,
 	UI_ENTITY,
-	MULTYSPRITE_ENTITY
+	MultiSPRITE_ENTITY
 };
 enum component_id
 {
@@ -240,7 +245,8 @@ enum component_id
 	LOADEDMODEL_COMPONET,
 	TEXTURE_COMPONENT,
 	DEPTHSHADER_COMPONENT,
-	UISHADER_COMPONENT
+	UISHADER_COMPONENT,
+	SPRITESHADER_COMPONENT
 };
 //mean about component_id;
 enum CharacterType

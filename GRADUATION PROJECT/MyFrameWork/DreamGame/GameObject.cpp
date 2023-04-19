@@ -216,7 +216,7 @@ void GameObject::HandleMessage(string message)
 
 void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	
 	m_pd3dGraphicsRootSignature = pd3dGraphicsRootSignature;
 	ComponentBase* pComponent = GetComponent(component_id::RENDER_COMPONENT);
 	if (pComponent != NULL)
@@ -256,7 +256,8 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	ComponentBase* pShaderComponent = GetComponent(component_id::SHADER_COMPONENT);
 	ComponentBase* pSkyShaderComponent = GetComponent(component_id::SKYSHADER_COMPONENT);
 	ComponentBase* pUiShaderComponent = GetComponent(component_id::UISHADER_COMPONENT);
-	if (pShaderComponent != NULL|| pSkyShaderComponent!=NULL|| pUiShaderComponent!=NULL)
+	ComponentBase* pSpriteShaderComponent = GetComponent(component_id::SPRITESHADER_COMPONENT);
+	if (pShaderComponent != NULL|| pSkyShaderComponent!=NULL|| pUiShaderComponent!=NULL|| pSpriteShaderComponent!=NULL)
 	{
 		if (pShaderComponent != NULL)
 		{
@@ -267,7 +268,9 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		}
 		else if (pUiShaderComponent != NULL) {
 			m_pShaderComponent = static_cast<UiShaderComponent*>(pUiShaderComponent);
-
+		}
+		else if (pSpriteShaderComponent != NULL) {
+			m_pShaderComponent = static_cast<MultiSpriteShaderComponent*>(pSpriteShaderComponent);
 		}
 		m_pShaderComponent->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
 		m_pShaderComponent->CreateCbvSrvDescriptorHeaps(pd3dDevice, 2, 2);
@@ -290,10 +293,13 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 			m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, m_nAnimationSets, m_pLoadedModelComponent);
 		}
 	}
+
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
 void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender)
 {
+	UpdateShaderVariables(pd3dCommandList);
 	if (m_pSkinnedAnimationController)
 		m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
 
@@ -400,14 +406,29 @@ void GameObject::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 	m_pd3dcbGameObjects = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 
 	m_pd3dcbGameObjects->Map(0, NULL, (void**)&m_pcbMappedGameObjects);
+
+	UINT ncbElementBytes2 = ((sizeof(CB_GAMEOBJECT_MULTISPRITE) + 255) & ~255); //256의 배수
+	m_pd3dcbMultiSpriteGameObjects = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes2, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+
+	m_pd3dcbMultiSpriteGameObjects->Map(0, NULL, (void**)&m_pcbMappedMultiSpriteGameObjects);
 }
 void GameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	float mfhp;
-	mfhp = (m_fHp / m_fMaxHp);//현재 체력값을 최대체력 비례로 나타낸식 23.04.18 .ccg
-	::memcpy(&m_pcbMappedGameObjects->m_xmfHP, &mfhp, sizeof(float));
-	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbGameObjects->GetGPUVirtualAddress();
-	pd3dCommandList->SetGraphicsRootConstantBufferView(17, d3dGpuVirtualAddress);
+	if (m_pd3dcbGameObjects)
+	{
+		float mfhp;
+		mfhp = (m_fHp / m_fMaxHp);//현재 체력값을 최대체력 비례로 나타낸식 23.04.18 .ccg
+		::memcpy(&m_pcbMappedGameObjects->m_xmfHP, &mfhp, sizeof(float));
+		D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbGameObjects->GetGPUVirtualAddress();
+		pd3dCommandList->SetGraphicsRootConstantBufferView(17, d3dGpuVirtualAddress);
+	}
+	if (m_bMultiSprite)
+	{
+		XMStoreFloat4x4(&m_pcbMappedMultiSpriteGameObjects->m_xmf4x4Texture, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4Texture)));
+		::memcpy(&m_pcbMappedMultiSpriteGameObjects->m_bMultiSprite, &m_bMultiSprite, sizeof(bool));//멀티 스프라이트 활성화를 나타내는 코드 23.04.19 .ccg
+		D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress2 = m_pd3dcbMultiSpriteGameObjects->GetGPUVirtualAddress();
+		pd3dCommandList->SetGraphicsRootConstantBufferView(18, d3dGpuVirtualAddress2);
+	}
 }
 void GameObject::ReleaseShaderVariables()
 {
@@ -945,6 +966,8 @@ void GameObject::SetCamera(CCamera* pCamera)
 
 void GameObject::SetRowColumn(float nRows, float nCols)
 {
+	m_bMultiSprite = true;
+	m_fSpeed = 0.1;
 	m_nRows = nRows;
 	m_nCols = nCols;
 }

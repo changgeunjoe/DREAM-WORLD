@@ -152,6 +152,7 @@
     <ClInclude Include="define.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="LobbyScene.h" />
+    <ClInclude Include="MultiSpriteShaderComponent.h" />
     <ClInclude Include="Network\Logic\Logic.h" />
     <ClInclude Include="Network\NetworkHelper.h" />
     <ClInclude Include="MaterialComponent.h" />
@@ -190,6 +191,7 @@
     <ClCompile Include="ComponentBase.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="LobbyScene.cpp" />
+    <ClCompile Include="MultiSpriteShaderComponent.cpp" />
     <ClCompile Include="Network\Logic\Logic.cpp" />
     <ClCompile Include="Network\NetworkHelper.cpp" />
     <ClCompile Include="MaterialComponent.cpp" />
