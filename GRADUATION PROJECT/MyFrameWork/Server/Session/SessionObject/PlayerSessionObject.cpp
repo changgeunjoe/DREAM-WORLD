@@ -87,6 +87,10 @@ void PlayerSessionObject::SetDirection(DIRECTION d)
 		xmf3Rev = Vector3::Normalize(xmf3Rev);
 
 		m_directionVector = xmf3Rev;
+		if (m_rightmouseInput == false)
+			m_lookVector = xmf3Rev;
+		else
+			m_lookVector = xmf3Look;
 	}
 }
 
@@ -176,6 +180,7 @@ void PlayerSessionObject::Rotate(ROTATE_AXIS axis, float angle)
 		//m_directionVector = Vector3::Normalize(XMFLOAT3(m_worldMatrix._31, m_worldMatrix._32, m_worldMatrix._33));
 
 		m_rotateAngle.y += angle;
+		if(!m_rightmouseInput) 
 		SetDirection(m_inputDirection);
 	}
 	break;
