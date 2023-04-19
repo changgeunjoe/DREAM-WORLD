@@ -38,7 +38,8 @@ void MonsterSessionObject::AutoMove()
 
 void MonsterSessionObject::StartMove(DIRECTION d)
 {
-
+	m_lastMoveTime = std::chrono::high_resolution_clock::now();
+	isMove = true;
 }
 
 void MonsterSessionObject::StopMove()

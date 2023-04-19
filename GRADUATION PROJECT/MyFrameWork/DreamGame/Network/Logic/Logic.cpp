@@ -359,6 +359,16 @@ void Logic::ProcessPacket(char* p)
 		recvPacket->speed;
 	}
 	break;
+	case SERVER_PACKET::GAME_STATE:
+	{
+		SERVER_PACKET::GameState* recvPacket = reinterpret_cast<SERVER_PACKET::GameState*>(p);
+		recvPacket->bossState.hp; //boss Hp
+		for (int i = 0; i < 4; i++) {//그냥 4개 여서 도는 for문 주의
+			recvPacket->userState[i].hp;
+			recvPacket->userState[i].userId; // 실제 내가 가진 플레이어 ID
+		}
+	}
+	break;
 	default:
 		break;
 	}

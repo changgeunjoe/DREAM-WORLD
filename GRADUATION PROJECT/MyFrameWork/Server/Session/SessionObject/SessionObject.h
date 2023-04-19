@@ -3,6 +3,9 @@
 class SessionObject
 {
 protected:
+	short	m_hp;
+	short	m_maxHp;
+	short	m_attackDamage;
 	std::string m_roomId;
 protected:
 	DirectX::XMFLOAT3 m_position;
@@ -15,6 +18,10 @@ protected:
 public:
 	SessionObject();
 	virtual ~SessionObject();
+public:
+	short GetHp() { return m_hp; }
+	short AttackedHp(short damage) { m_hp -= damage; };
+	short GetAttackDamage() { return m_attackDamage; }
 public:
 	virtual void AutoMove() = 0;
 	virtual void StartMove(DIRECTION d) = 0;

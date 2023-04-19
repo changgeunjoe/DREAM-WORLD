@@ -117,7 +117,7 @@ namespace SERVER_PACKET {
 	constexpr unsigned char BOSS_CHANGE_STATE_MOVE_DES = 83;
 	constexpr unsigned char SHOOTING_ARROW = 84;
 	constexpr unsigned char SHOOTING_BALL = 85;
-	//constexpr unsigned char BOSS_CHANGE_STATE_MOVE = 83;
+	constexpr unsigned char GAME_STATE = 86;
 	
 
 	struct MovePacket
@@ -209,6 +209,23 @@ namespace SERVER_PACKET {
 		XMFLOAT3 srcPos;
 		float speed;
 	};
+
+	struct InGamePlayerState {
+		int userId = -1;
+		int hp;
+	};
+
+	struct InGameBossState {
+		int hp;
+	};
+
+	struct GameState {
+		short size;
+		char type;
+		InGamePlayerState userState[4];
+		InGameBossState bossState;
+	};
+
 }
 
 #pragma pack (pop)
