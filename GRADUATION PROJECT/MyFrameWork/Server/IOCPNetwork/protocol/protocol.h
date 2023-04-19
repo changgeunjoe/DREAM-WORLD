@@ -199,6 +199,7 @@ namespace SERVER_PACKET {
 		short size;
 		char type;
 		DirectX::XMFLOAT3 desPos;
+		DirectX::XMFLOAT3 bossPos;
 	};
 
 	struct ShootingObject {

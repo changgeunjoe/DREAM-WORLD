@@ -102,6 +102,7 @@ void PlayerSessionObject::SetMouseInput(bool LmouseInput, bool RmouseInput)
 
 void PlayerSessionObject::StartMove(DIRECTION d)
 {
+	std::cout << "PlayerSessionObject::StartMove()" << std::endl;
 	if (m_inputDirection == DIRECTION::IDLE)
 		m_lastMoveTime = std::chrono::high_resolution_clock::now();
 
@@ -113,6 +114,7 @@ void PlayerSessionObject::StopMove()
 {
 	PrintCurrentTime();
 	std::cout << "PlayerSessionObject::StopMove() - Look Dir: " << m_directionVector.x << ", " << m_directionVector.y << ", " << m_directionVector.z << std::endl;
+	std::cout << "PlayerSessionObject::StopMove() - Pos: " << m_position.x << ", " << m_position.y << ", " << m_position.z << std::endl;
 	// m_prevDirection = m_inputDirection;
 	m_inputDirection = DIRECTION::IDLE;
 }

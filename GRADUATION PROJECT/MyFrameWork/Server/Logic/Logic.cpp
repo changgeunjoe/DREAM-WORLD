@@ -164,6 +164,7 @@ void Logic::ProcessPacket(int userId, char* p)
 		std::wstring name = L"BossTestRoom";
 		g_RoomManager.InsertRunningRoom(id, name, testMap);
 		g_iocpNetwork.m_session[userId].SetPlaySessionObject((ROLE)recvPacket->Role);
+		g_iocpNetwork.m_session[userId].SetRoomId(id);
 		g_iocpNetwork.m_session[userId].m_sessionObject->SetRoomId(id);
 		g_iocpNetwork.m_session[userId].m_sessionObject->SetRole((ROLE)recvPacket->Role);
 		char* sendAddPlayerPacket = g_iocpNetwork.m_session[userId].m_sessionObject->GetPlayerInfo();
@@ -399,8 +400,8 @@ void Logic::AutoMoveServer()//2500명?
 			if (g_RoomManager.IsExistRunningRoom(roomId)) {
 				Room& room = g_RoomManager.GetRunningRoom(roomId);
 				if (room.GetBoss().GetRoomId() == room.GetRoomId() && room.GetBoss().isMove) {
-					room.GetBoss().AutoMove();
-						for (auto& p : room.GetInGamePlayerMap()) {
+					room.GetBoss().AutoMove();//보스 무브
+						for (auto& p : room.GetInGamePlayerMap()) {//플레이어 무브
 						if (g_iocpNetwork.m_session[p.second].m_sessionObject->m_inputDirection != DIRECTION::IDLE) {
 							g_iocpNetwork.m_session[p.second].m_sessionObject->AutoMove();
 						}
@@ -444,8 +445,6 @@ void Logic::MatchMaking()
 						randMatchPlayer.emplace(r, randUserId); // 어쨌든 랜덤처럼 보이지 않을까 싶음
 					}
 				}
-
-
 				std::string roomId;
 				auto now = std::chrono::system_clock::now();
 				auto in_time_t = std::chrono::system_clock::to_time_t(now);

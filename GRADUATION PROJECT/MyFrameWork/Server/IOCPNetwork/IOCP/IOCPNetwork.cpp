@@ -152,6 +152,7 @@ void IOCPNetwork::WorkerThread()
 					sendPacket.type = SERVER_PACKET::BOSS_CHANGE_STATE_MOVE_DES;
 					sendPacket.size = sizeof(SERVER_PACKET::BossChangeStateMovePacket);
 					sendPacket.desPos = playerPos;
+					sendPacket.bossPos = refRoom.GetBoss().GetPosition();
 					g_logic.BroadCastInRoom(roomId, &sendPacket);
 				}
 			}

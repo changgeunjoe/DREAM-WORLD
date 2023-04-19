@@ -703,11 +703,12 @@ void Monster::Animate(float fTimeElapsed)
 	bool OnRight = (Vector3::DotProduct(GetRight(), Vector3::Normalize(des)) > 0) ? true : false;
 	float ChangingAngle = Vector3::Angle(Vector3::Normalize(des), GetLook());
 
-	if (Vector3::Length(des) < DBL_EPSILON)
-		SetPosition(m_xmf3Destination);
+	if (Vector3::Length(des) < 10.0f) {
+		//SetPosition(m_xmf3Destination);
+	}
 	else
 	{
-		if (ChangingAngle > 1.0f)
+		if (ChangingAngle > 0.5f)
 		{
 			if (OnRight)
 				Rotate(&up, 45.0f * fTimeElapsed);

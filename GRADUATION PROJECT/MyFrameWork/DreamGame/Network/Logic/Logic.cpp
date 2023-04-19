@@ -340,6 +340,7 @@ void Logic::ProcessPacket(char* p)
 		SERVER_PACKET::BossChangeStateMovePacket* recvPacket = reinterpret_cast<SERVER_PACKET::BossChangeStateMovePacket*>(p);
 		recvPacket->desPos; //여기 목적지 까지 보스 몬스터 이동 시키면 됩니다
 		m_MonsterSession.m_currentPlayGameObject->m_xmf3Destination = recvPacket->desPos;
+		m_MonsterSession.m_currentPlayGameObject->SetPosition(recvPacket->bossPos);
 	}
 	break;
 	case SERVER_PACKET::SHOOTING_ARROW://화살

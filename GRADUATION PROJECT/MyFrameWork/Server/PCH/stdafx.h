@@ -2,7 +2,7 @@
 
 #define _WINSOCK_DEPRECATED_NO_WARNINGS 1
 #define MAX_USER 10
-//#define ALONE_TEST 1
+#define ALONE_TEST 1
 #pragma comment(lib, "mswsock.lib")
 #pragma comment(lib, "WS2_32.lib")
 #pragma comment(lib, "lua54.lib")
@@ -84,7 +84,13 @@ enum ROLE :char {
 	RAND = 0x10
 };
 
-enum EVENT_TYPE { EV_NONE, EV_FIND_PLAYER ,EV_RANDOM_MOVE };
+enum BOSS_ATTACK : char {
+	ATTACK_FOWARD,
+	ATTACK_SPIN,
+	ATTACK_KICK
+};
+
+enum EVENT_TYPE { EV_NONE, EV_FIND_PLAYER, EV_RANDOM_MOVE };
 
 struct TIMER_EVENT
 {
