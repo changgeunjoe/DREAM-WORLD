@@ -184,3 +184,12 @@ void NetworkHelper::SendMatchRequestPacket(ROLE r)
 	sendPacket.Role = (char)r;
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
+
+void NetworkHelper::SendArrowAttackPacket(float speed)
+{
+	CLIENT_PACKET::ShootingObject sendPacket;
+	sendPacket.size = sizeof(CLIENT_PACKET::ShootingObject);
+	sendPacket.type = CLIENT_PACKET::SHOOTING_ARROW;
+	sendPacket.speed = speed;
+	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
+}

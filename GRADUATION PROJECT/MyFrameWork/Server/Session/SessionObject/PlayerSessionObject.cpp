@@ -41,8 +41,8 @@ void PlayerSessionObject::AutoMove()
 	durationTime = (double)durationTime / 1000.0f;	
 	Move(((float)durationTime / 1000.0f) * 50.0f);
 	m_lastMoveTime = currentTime;
-	std::cout << "current Position " << m_position.x << " " << m_position.y << " " << m_position.z << std::endl;	
-	std::cout << "rotate angle" << m_directionVector.x << " " << m_directionVector.y << " " << m_directionVector.z << std::endl;
+	// std::cout << "current Position " << m_position.x << " " << m_position.y << " " << m_position.z << std::endl;	
+	// std::cout << "rotate angle" << m_directionVector.x << " " << m_directionVector.y << " " << m_directionVector.z << std::endl;
 }
 
 void PlayerSessionObject::SetDirection(DIRECTION d)
@@ -182,7 +182,6 @@ void PlayerSessionObject::Rotate(ROTATE_AXIS axis, float angle)
 		//m_directionVector = Vector3::Normalize(XMFLOAT3(m_worldMatrix._31, m_worldMatrix._32, m_worldMatrix._33));
 
 		m_rotateAngle.y += angle;
-		if(!m_rightmouseInput) 
 		SetDirection(m_inputDirection);
 	}
 	break;

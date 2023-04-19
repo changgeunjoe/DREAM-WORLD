@@ -319,13 +319,17 @@ void Logic::ProcessPacket(int userId, char* p)
 	case CLIENT_PACKET::SHOOTING_ARROW:
 	{
 		CLIENT_PACKET::ShootingObject* recvPacket = reinterpret_cast<CLIENT_PACKET::ShootingObject*>(p);
-		g_RoomManager.GetRunningRoom(g_iocpNetwork.m_session[userId].GetRoomId()).ShootArrow(recvPacket->dir, recvPacket->srcPos, recvPacket->speed);
+		DirectX::XMFLOAT3 dir = g_iocpNetwork.m_session[userId].m_sessionObject->GetLook();
+		DirectX::XMFLOAT3 startPos = g_iocpNetwork.m_session[userId].m_sessionObject->GetPosition();
+		g_RoomManager.GetRunningRoom(g_iocpNetwork.m_session[userId].GetRoomId()).ShootArrow(dir, startPos, recvPacket->speed);
 	}
 	break;
 	case CLIENT_PACKET::SHOOTING_BALL:
 	{
 		CLIENT_PACKET::ShootingObject* recvPacket = reinterpret_cast<CLIENT_PACKET::ShootingObject*>(p);
-		g_RoomManager.GetRunningRoom(g_iocpNetwork.m_session[userId].GetRoomId()).ShootBall(recvPacket->dir, recvPacket->srcPos, recvPacket->speed);
+		DirectX::XMFLOAT3 dir = g_iocpNetwork.m_session[userId].m_sessionObject->GetLook();
+		DirectX::XMFLOAT3 startPos = g_iocpNetwork.m_session[userId].m_sessionObject->GetPosition();
+		g_RoomManager.GetRunningRoom(g_iocpNetwork.m_session[userId].GetRoomId()).ShootBall(dir, startPos, recvPacket->speed);
 	}
 	break;
 	default:
@@ -404,6 +408,25 @@ void Logic::AutoMoveServer()//2500명?
 						for (auto& p : room.GetInGamePlayerMap()) {//플레이어 무브
 						if (g_iocpNetwork.m_session[p.second].m_sessionObject->m_inputDirection != DIRECTION::IDLE) {
 							g_iocpNetwork.m_session[p.second].m_sessionObject->AutoMove();
+						}
+					}
+				}
+				if (room.GetBoss().GetRoomId() == room.GetRoomId())
+				{
+					for (auto& arrow : room.m_arrows)
+					{
+						if (arrow.m_active)
+						{
+							arrow.AutoMove();
+							arrow.DetectCollision(&room.GetBoss());
+						}
+					}
+					for (auto& ball : room.m_balls)
+					{
+						if (ball.m_active)
+						{
+							ball.AutoMove();
+							ball.DetectCollision(&room.GetBoss());
 						}
 					}
 				}
