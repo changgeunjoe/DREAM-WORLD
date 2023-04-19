@@ -1,6 +1,8 @@
 #pragma once
-#include "../Session/Session.h"
 #include "../PCH/stdafx.h"
+#include "../Session/SessionObject/ShootingSessionObject.h"
+#include "../Session/SessionObject/MonsterSessionObject.h"
+
 class Room
 {
 public:
@@ -18,17 +20,13 @@ private:
 	std::string m_roomId;
 	int m_roomOwnerId = -1;// 룸 생성한 자의 ID
 private:
-	//현재 존재하는 플레이어들을 어떻게 담을까
-	//set<pair> // 그러기엔... PlayerObj에 Role을 넣었다. // Set<int> : Player ID(server상)으로 하면 될까
-
 	std::mutex m_lockInGamePlayers;
 	std::map<ROLE, int> m_inGamePlayers;
-	//std::set<std::pair<ROLE, int>> m_Players;
 
 	std::mutex m_lockWaitPlayers;
 	std::map<ROLE, int> m_waitPlayers;
-	std::array<Session, 10> m_arrows;
-	std::array<Session, 10> m_balls;
+	std::array<ShootingSessionObject, 10> m_arrows;
+	std::array<ShootingSessionObject, 10> m_balls;
 	std::mutex m_arrowLock;
 	std::mutex m_ballLock;
 	std::list<int> m_shootingBall;
@@ -36,8 +34,8 @@ private:
 	Concurrency::concurrent_queue<int> m_restArrow;
 	Concurrency::concurrent_queue<int> m_restBall;
 private:
-	std::vector<Session> m_monsters;
-	Session m_boss;
+	//std::vector<Session> m_monsters;
+	MonsterSessionObject m_boss;
 public://Get
 	std::map<ROLE, int> GetInGamePlayerMap() {
 		std::map<ROLE, int> playerMap;
@@ -59,7 +57,7 @@ public:
 	void DeleteWaitPlayer(int playerId);
 public:
 	void CreateBossMonster();
-	Session& GetBoss() { return m_boss; };
+	MonsterSessionObject& GetBoss();
 public:
 	void ShootArrow(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 srcPos, float speed);
 	void ShootBall(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 srcPos, float speed);

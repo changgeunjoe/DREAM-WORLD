@@ -2,12 +2,12 @@
 #include "ShootingSessionObject.h"
 #include "../Session.h"
 
-ShootingSessionObject::ShootingSessionObject(Session* session) : SessionObject(session)
+ShootingSessionObject::ShootingSessionObject()
 {
 
 }
 
-ShootingSessionObject::ShootingSessionObject(Session* session, std::string& roomId) :SessionObject(session), m_roomId(roomId)
+ShootingSessionObject::ShootingSessionObject(std::string& roomId): m_roomId(roomId)
 {
 
 }
@@ -51,10 +51,6 @@ const DirectX::XMFLOAT3 ShootingSessionObject::GetPosition()
 const DirectX::XMFLOAT3 ShootingSessionObject::GetRotation()
 {
 	return DirectX::XMFLOAT3();
-}
-
-void ShootingSessionObject::Recv()
-{
 }
 
 void ShootingSessionObject::SetSpeed(float speed)

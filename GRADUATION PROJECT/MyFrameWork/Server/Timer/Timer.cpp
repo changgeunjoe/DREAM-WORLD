@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "Timer.h"
-#include "../Session/ExpOver.h"
 #include "../IOCPNetwork/IOCP/IOCPNetwork.h"
 #include "../Logic/Logic.h"
 #include "../Room/RoomManager.h"
@@ -49,14 +48,10 @@ void Timer::TimerThreadFunc()
 				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, -1, &ov->m_overlap);
 				if (g_RoomManager.IsExistRunningRoom(ev.roomId)) {
 					Room& room = g_RoomManager.GetRunningRoom(ev.roomId);
-					//if (room.GetBoss().m_sessionObject != nullptr) {
-					if (room.GetBoss().GetPlayerState() == PLAYER_STATE::IN_GAME) {
-						MonsterSessionObject* monsterSession = reinterpret_cast<MonsterSessionObject*>(room.GetBoss().m_sessionObject);
-						if (!monsterSession->isMove) {
-							monsterSession->isMove = true;
-							TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::milliseconds(10), ev.roomId, -1,EV_RANDOM_MOVE };
-							m_TimerQueue.push(new_ev);
-						}
+					if (!room.GetBoss().isMove) {
+						room.GetBoss().isMove = true;
+						TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::milliseconds(10), ev.roomId, -1,EV_RANDOM_MOVE };
+						m_TimerQueue.push(new_ev);
 					}
 				}
 				TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::seconds(2) + std::chrono::milliseconds(500), ev.roomId, -1,EV_FIND_PLAYER };

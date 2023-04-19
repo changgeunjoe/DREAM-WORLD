@@ -108,9 +108,8 @@ void IOCPNetwork::WorkerThread()
 		}
 		break;
 		case OP_RECV:
-		{
-			PlayerSessionObject* pSession = dynamic_cast<PlayerSessionObject*>(m_session[key].m_sessionObject);
-			pSession->ConstructPacket(ioByte);
+		{			
+			m_session[key].ConstructPacket(ioByte);
 		}
 		break;
 		case OP_SEND:
@@ -125,16 +124,15 @@ void IOCPNetwork::WorkerThread()
 		{
 			std::string roomId{ ex_over->m_buffer };
 			if (g_RoomManager.IsExistRunningRoom(roomId)) {
-				Room& refRoom = g_RoomManager.GetRunningRoom(roomId);
-				MonsterSessionObject* bossSession = dynamic_cast<MonsterSessionObject*>(refRoom.GetBoss().m_sessionObject);
+				Room& refRoom = g_RoomManager.GetRunningRoom(roomId);				
 				//#define ALONE_TEST 1
 #ifdef ALONE_TEST
 				auto playerMap = refRoom.GetInGamePlayerMap();
-				bossSession->SetAggroPlayerId( playerMap.begin()->second );
+				refRoom.GetBoss().SetAggroPlayerId( playerMap.begin()->second );
 #endif // ALONE_TEST
 #ifndef ALONE_TEST
 				auto playerMap = refRoom.GetInGamePlayerMap();
-				bossSession->SetAggroPlayerId(playerMap[(ROLE)aggroRandomPlayer(dre)]);
+				refRoom.GetBoss().SetAggroPlayerId(playerMap[(ROLE)aggroRandomPlayer(dre)]);
 #endif // ALONE_TEST
 			}
 			if (ex_over != nullptr)
@@ -146,12 +144,10 @@ void IOCPNetwork::WorkerThread()
 			std::string roomId{ ex_over->m_buffer };
 			if (g_RoomManager.IsExistRunningRoom(roomId)) {
 				Room& refRoom = g_RoomManager.GetRunningRoom(roomId);
-				MonsterSessionObject* bossSession = dynamic_cast<MonsterSessionObject*>(refRoom.GetBoss().m_sessionObject);
-				//юс╫ц			
-				if (bossSession->GetAggroPlayerId() != -1) {
-					std::cout << "aggro Player ID: " << bossSession->GetAggroPlayerId() << std::endl;
-					auto playerPos = m_session[bossSession->GetAggroPlayerId()].m_sessionObject->GetPosition();
-					bossSession->SetDestinationPos(playerPos);
+				if (refRoom.GetBoss().GetAggroPlayerId() != -1) {
+					std::cout << "aggro Player ID: " << refRoom.GetBoss().GetAggroPlayerId() << std::endl;
+					XMFLOAT3 playerPos = m_session[refRoom.GetBoss().GetAggroPlayerId()].m_sessionObject->GetPosition();
+					refRoom.GetBoss().SetDestinationPos(playerPos);
 					SERVER_PACKET::BossChangeStateMovePacket sendPacket;
 					sendPacket.type = SERVER_PACKET::BOSS_CHANGE_STATE_MOVE_DES;
 					sendPacket.size = sizeof(SERVER_PACKET::BossChangeStateMovePacket);

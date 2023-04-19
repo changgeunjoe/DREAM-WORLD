@@ -1,17 +1,15 @@
 #pragma once
 #include "SessionObject.h"
-#include "../../Room/Room.h"
 #include "../../PCH/stdafx.h" // Áö¿ö¾ßµÊ
 
 class MonsterSessionObject : public SessionObject
 {
 public:
-	MonsterSessionObject(Session* session);
-	MonsterSessionObject(Session* session, std::string& roomId);
+	MonsterSessionObject();
+	MonsterSessionObject(std::string& roomId);
 	~MonsterSessionObject();
 
-private:
-	std::string m_roomId;
+private:	
 	DirectX::XMFLOAT3 m_DestinationPos = { 0,0,0 };
 	std::mutex m_restRotateAngleLock;
 	DirectX::XMFLOAT3 m_RestRotateAngle = { 0,0,0 };
@@ -19,8 +17,6 @@ private:
 	int m_aggroPlayerId = -1;
 public:
 	bool isMove = false;
-public:
-	virtual void Recv() override;
 public:
 	virtual void AutoMove() override;
 	virtual void StartMove(DIRECTION d) override;
@@ -34,8 +30,6 @@ public:
 public:
 	void SetDirection(DIRECTION d);
 	void Move(float fDistance, float elapsedTime);
-public:
-	const std::string& GetRoomId() { return m_roomId; }
 public:
 	void SetDestinationPos(DirectX::XMFLOAT3 des) {
 		

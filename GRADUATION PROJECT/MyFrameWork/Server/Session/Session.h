@@ -1,7 +1,8 @@
 #pragma once
+#include "../PCH/stdafx.h"
+#include "ExpOver.h"
 
-
-class SessionObject;
+class PlayerSessionObject;
 class Session
 {
 private:
@@ -9,29 +10,48 @@ private:
 	int					m_id;
 	PLAYER_STATE		m_playerState;
 
+	ExpOver				m_exOver;
+	SOCKET				m_socket;
+	int					m_prevBufferSize;
+	std::wstring m_playerName;
+
 public:
-	SESSION_CATEGORY	m_sessionCategory;
-	SessionObject* m_sessionObject;
+	PlayerSessionObject* m_sessionObject;
+	std::string m_roomId;
 public:
 	Session();
 	~Session();
 
 private:
 	void Initialize();
-
 public:
-	void RegistPlayer(int id, SOCKET& socket);
+public:
+	void Recv();
+	void Send(void* p);
+	void ConstructPacket(int ioByte);
+public:
 	void SetInGameState() {
-		{
-			std::lock_guard<std::mutex> psLock(m_playerStateLock);
-			m_playerState = PLAYER_STATE::IN_GAME;
-		}
+		std::lock_guard<std::mutex> psLock(m_playerStateLock);
+		m_playerState = PLAYER_STATE::IN_GAME;
 	}
 	const int GetId() { return m_id; }
 	const PLAYER_STATE GetPlayerState() { return m_playerState; };
-	void RegistMonster(int id, std::string& roomId);
-	void RegistArrow(std::string& roomId, int id);
-	void RegistEnergtBall(std::string& roomId, int id);
+public:
+	void SetRoomId(std::string& roomId) {
+		std::lock_guard<std::mutex> psLock(m_playerStateLock);
+		m_playerState = PLAYER_STATE::IN_GAME_ROOM;
+		m_roomId = roomId;
+	}
+	std::string GetRoomId() { return m_roomId; }
+	void RegistPlayer(SOCKET& sock, int id);
+
+public:
+	void SetName(std::wstring& inputWst)
+	{
+		m_playerName = inputWst;
+	}
+	std::wstring& GetName() { return m_playerName; }
+public:
+	PlayerSessionObject* SetPlaySessionObject(ROLE r);
 	friend class SessionObject;
 };
-

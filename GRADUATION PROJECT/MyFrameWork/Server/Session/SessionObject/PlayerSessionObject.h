@@ -1,43 +1,29 @@
 #pragma once
 #include "SessionObject.h"
-#include "../ExpOver.h"
+
 #include "../../PCH/stdafx.h"
 
 class PlayerSessionObject : public SessionObject
 {
 private:
-	std::wstring m_playerName;
-	/*short	m_level;
-	short	m_exp;*/
 	short	m_hp;
 	short	m_maxHp;
 	short	m_attackDamage;
 	unsigned char m_mouseInput;
+private:
+	int m_id;
+private:
 
-private:
-	ExpOver				m_exOver;
-	SOCKET				m_socket;
-	int					m_prevBufferSize;
-	ROLE				m_InGameRole = ROLE::NONE_SELECT;
-private:
-	std::string m_roomId;
+	ROLE m_InGameRole = ROLE::NONE_SELECT;
 public:
 	DIRECTION m_inputDirection = DIRECTION::IDLE;
 	DIRECTION m_prevDirection = DIRECTION::IDLE;
 public:
-	PlayerSessionObject(Session* session, SOCKET& sock);
+	PlayerSessionObject(int id, ROLE r);
 	virtual	~PlayerSessionObject();
 
-public:
-	void SetName(std::wstring& inputWst)
-	{
-		m_playerName = inputWst;
-	}
-	std::wstring& GetName() { return m_playerName; }
-public:
-	void Recv() override;
-	void Send(void* p);
-	void ConstructPacket(int ioByte);
+
+
 public:
 	bool AdjustPlayerInfo(DirectX::XMFLOAT3& position); // , DirectX::XMFLOAT3& rotate
 public:
@@ -97,6 +83,4 @@ public:
 	ROLE GetRole() {
 		return m_InGameRole;
 	}
-	void SetRoomId(std::string& roomId) { m_roomId = roomId; }
-	std::string GetRoomId() { return m_roomId; }
 };
