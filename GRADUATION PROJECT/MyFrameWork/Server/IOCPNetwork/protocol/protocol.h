@@ -88,6 +88,8 @@ namespace CLIENT_PACKET {
 	struct ShootingObject {
 		short size;
 		char type;
+		DirectX::XMFLOAT3 pos;
+		DirectX::XMFLOAT3 dir;
 		float speed;
 	};
 }

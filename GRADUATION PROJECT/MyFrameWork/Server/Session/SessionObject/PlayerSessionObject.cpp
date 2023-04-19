@@ -6,7 +6,7 @@
 
 extern  Logic g_logic;
 
-PlayerSessionObject::PlayerSessionObject(int id, ROLE r)
+PlayerSessionObject::PlayerSessionObject(int id, ROLE r) : SessionObject()
 {
 	m_id = id;
 	/*m_level = 0;
@@ -87,10 +87,6 @@ void PlayerSessionObject::SetDirection(DIRECTION d)
 		xmf3Rev = Vector3::Normalize(xmf3Rev);
 
 		m_directionVector = xmf3Rev;
-		if (m_rightmouseInput == false)
-			m_lookVector = xmf3Rev;
-		else
-			m_lookVector = xmf3Look;
 	}
 }
 
@@ -102,7 +98,7 @@ void PlayerSessionObject::SetMouseInput(bool LmouseInput, bool RmouseInput)
 
 void PlayerSessionObject::StartMove(DIRECTION d)
 {
-	std::cout << "PlayerSessionObject::StartMove()" << std::endl;
+	//std::cout << "PlayerSessionObject::StartMove()" << std::endl;
 	if (m_inputDirection == DIRECTION::IDLE)
 		m_lastMoveTime = std::chrono::high_resolution_clock::now();
 
@@ -113,8 +109,8 @@ void PlayerSessionObject::StartMove(DIRECTION d)
 void PlayerSessionObject::StopMove()
 {
 	PrintCurrentTime();
-	std::cout << "PlayerSessionObject::StopMove() - Look Dir: " << m_directionVector.x << ", " << m_directionVector.y << ", " << m_directionVector.z << std::endl;
-	std::cout << "PlayerSessionObject::StopMove() - Pos: " << m_position.x << ", " << m_position.y << ", " << m_position.z << std::endl;
+	//std::cout << "PlayerSessionObject::StopMove() - Look Dir: " << m_directionVector.x << ", " << m_directionVector.y << ", " << m_directionVector.z << std::endl;
+	//std::cout << "PlayerSessionObject::StopMove() - Pos: " << m_position.x << ", " << m_position.y << ", " << m_position.z << std::endl;
 	// m_prevDirection = m_inputDirection;
 	m_inputDirection = DIRECTION::IDLE;
 }

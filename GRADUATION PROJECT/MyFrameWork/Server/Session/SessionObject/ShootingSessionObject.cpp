@@ -3,7 +3,7 @@
 #include "MonsterSessionObject.h"
 #include "../Session.h"
 
-ShootingSessionObject::ShootingSessionObject()
+ShootingSessionObject::ShootingSessionObject() : SessionObject()
 {
 
 }
