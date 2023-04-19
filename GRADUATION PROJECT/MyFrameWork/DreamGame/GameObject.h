@@ -144,7 +144,8 @@ public:
     int 							m_nRows = 1;
     int 							m_nCols = 1;
 
-    XMFLOAT4X4						m_xmf4x4Texture;//멀티스프라이트를 활용하기위한 4x4행렬 
+    XMFLOAT4X4						m_xmf4x4Texture;//멀티스프라이트를 활용하기위한 4x4행렬
+    bool                            m_bMultySprite{false};
 
 
     UINT							m_nType = 0x00;
@@ -197,6 +198,9 @@ protected:
 	//CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
     CB_GAMEOBJECT_STAT* m_pcbMappedGameObjects = NULL;
 
+    ID3D12Resource* m_pd3dcbMultySpriteGameObjects = NULL;
+
+    CB_GAMEOBJECT_MULTYSPRITE* m_pcbMappedMultySpriteGameObjects = NULL;
 	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dCbvGPUDescriptorHandle;
 
 	ID3D12Resource* pShadowMap = NULL;

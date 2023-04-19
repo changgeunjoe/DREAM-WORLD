@@ -207,6 +207,11 @@ struct CB_GAMEOBJECT_STAT
 {
 	float							m_xmfHP;
 };
+struct CB_GAMEOBJECT_MULTYSPRITE
+{
+	XMFLOAT4X4						m_xmf4x4Texture;
+	bool							m_bMultySprite;
+};
 struct SHADOW_INFO
 {
 	XMFLOAT4X4						m_xmf4x4View;

@@ -45,11 +45,18 @@ cbuffer cbBoneTransforms : register(b5)
 };
 
 
-cbuffer cbBoneTransforms : register(b6)
+cbuffer cbCharacterInfo : register(b6)
 {
     float  gfCharactertHP: packoffset(c0);
 
 };
+cbuffer cbMultiSpriteInfo : register(b7)
+{
+    matrix gmtxTextureview : packoffset(c0);
+    bool bMultiSprite : packoffset(c4);
+
+};
+
 
 Texture2D shaderTexture : register(t0);
 TextureCube SkyCubeTexture : register(t2);
@@ -207,8 +214,14 @@ VS_STANDARD_OUTPUT VSStandard(VS_STANDARD_INPUT input)
     output.tangentW = mul(input.tangent, (float3x3) gmtxGameObject);
     output.bitangentW = mul(input.bitangent, (float3x3) gmtxGameObject);
     output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
-    output.uv = input.uv;
-
+    if (bMultiSprite)
+    {
+        output.uv = mul(float3(input.uv, 1.0f), (float3x3) (gmtxTextureview)).xy;    
+    }
+    else if (!bMultiSprite)
+    {
+        output.uv = input.uv;
+    }
     for (int i = 0; i < MAX_LIGHTS; i++)
     {
 		//0은 조명끔, 조명 좌표계로 바꾸고 텍스쳐 좌표계로 바꿈
@@ -216,6 +229,15 @@ VS_STANDARD_OUTPUT VSStandard(VS_STANDARD_INPUT input)
             output.uvs[i] = mul(positionW, gcbToLightSpaces[i].mtxToTexture);
     }
 	
+    return (output);
+}
+
+VS_TEXTURED_OUTPUT VSSpriteAnimation(VS_TEXTURED_INPUT input)
+{
+    VS_TEXTURED_OUTPUT output;
+
+    output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+    
     return (output);
 }
 
@@ -459,6 +481,8 @@ VS_SHADOW_MAP_OUTPUT VSShadowMapShadow(VS_LIGHTING_INPUT input)
     }
     return (output);
 }
+
+
 
 float4 PSShadowMapShadow(VS_SHADOW_MAP_OUTPUT input) : SV_TARGET
 {

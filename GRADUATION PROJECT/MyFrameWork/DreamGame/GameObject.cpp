@@ -401,8 +401,8 @@ void GameObject::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 
 	m_pd3dcbGameObjects->Map(0, NULL, (void**)&m_pcbMappedGameObjects);
 
-	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_MULTYSPRITE) + 255) & ~255); //256의 배수
-	m_pd3dcbMultySpriteGameObjects = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+	UINT ncbElementBytes2 = ((sizeof(CB_GAMEOBJECT_MULTYSPRITE) + 255) & ~255); //256의 배수
+	m_pd3dcbMultySpriteGameObjects = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes2, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 
 	m_pd3dcbMultySpriteGameObjects->Map(0, NULL, (void**)&m_pcbMappedMultySpriteGameObjects);
 }
@@ -414,10 +414,10 @@ void GameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandLis
 	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbGameObjects->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(17, d3dGpuVirtualAddress);
 
-	
 	XMStoreFloat4x4(&m_pcbMappedMultySpriteGameObjects->m_xmf4x4Texture, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4Texture)));
-	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbGameObjects->GetGPUVirtualAddress();
-	pd3dCommandList->SetGraphicsRootConstantBufferView(18, d3dGpuVirtualAddress);
+	::memcpy(&m_pcbMappedMultySpriteGameObjects->m_bMultySprite, &m_bMultySprite, sizeof(bool));//멀티 스프라이트 활성화를 나타내는 코드 23.04.19 .ccg
+	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress2 = m_pd3dcbMultySpriteGameObjects->GetGPUVirtualAddress();
+	pd3dCommandList->SetGraphicsRootConstantBufferView(18, d3dGpuVirtualAddress2);
 }
 void GameObject::ReleaseShaderVariables()
 {
@@ -948,6 +948,7 @@ void GameObject::SetCamera(CCamera* pCamera)
 
 void GameObject::SetRowColumn(float nRows, float nCols)
 {
+	m_bMultySprite = true;
 	m_nRows = nRows;
 	m_nCols = nCols;
 }
