@@ -9,7 +9,7 @@ extern Logic g_logic;
 extern Timer g_Timer;
 extern IOCPNetwork g_iocpNetwork;
 
-MonsterSessionObject::MonsterSessionObject()
+MonsterSessionObject::MonsterSessionObject() : SessionObject()
 {
 
 }
@@ -119,7 +119,7 @@ void MonsterSessionObject::Move(float fDistance, float elapsedTime)
 				Rotate(ROTATE_AXIS::Y, -45.0f * elapsedTime);
 		}
 		m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, fDistance));//틱마다 움직임
-		m_SPBB = BoundingSphere(DirectX::XMFLOAT3(m_position.x, m_position.y + 22.5f, m_position.z), 22.5f);;
+		m_SPBB = BoundingSphere(DirectX::XMFLOAT3(m_position.x, m_position.y + 22.5f, m_position.z), 50.0f);
 	}
 	//std::cout << "BossPos: " << m_position.x << "0, " << m_position.z << std::endl;
 }

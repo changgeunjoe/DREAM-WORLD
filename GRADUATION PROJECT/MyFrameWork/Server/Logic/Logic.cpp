@@ -320,17 +320,13 @@ void Logic::ProcessPacket(int userId, char* p)
 	case CLIENT_PACKET::SHOOTING_ARROW:
 	{
 		CLIENT_PACKET::ShootingObject* recvPacket = reinterpret_cast<CLIENT_PACKET::ShootingObject*>(p);
-		DirectX::XMFLOAT3 dir = g_iocpNetwork.m_session[userId].m_sessionObject->GetLook();
-		DirectX::XMFLOAT3 startPos = g_iocpNetwork.m_session[userId].m_sessionObject->GetPosition();
-		g_RoomManager.GetRunningRoom(g_iocpNetwork.m_session[userId].GetRoomId()).ShootArrow(dir, startPos, recvPacket->speed);
+		g_RoomManager.GetRunningRoom(g_iocpNetwork.m_session[userId].GetRoomId()).ShootArrow(recvPacket->dir, recvPacket->pos, recvPacket->speed);
 	}
 	break;
 	case CLIENT_PACKET::SHOOTING_BALL:
 	{
 		CLIENT_PACKET::ShootingObject* recvPacket = reinterpret_cast<CLIENT_PACKET::ShootingObject*>(p);
-		DirectX::XMFLOAT3 dir = g_iocpNetwork.m_session[userId].m_sessionObject->GetLook();
-		DirectX::XMFLOAT3 startPos = g_iocpNetwork.m_session[userId].m_sessionObject->GetPosition();
-		g_RoomManager.GetRunningRoom(g_iocpNetwork.m_session[userId].GetRoomId()).ShootBall(dir, startPos, recvPacket->speed);
+		g_RoomManager.GetRunningRoom(g_iocpNetwork.m_session[userId].GetRoomId()).ShootArrow(recvPacket->dir, recvPacket->pos, recvPacket->speed);
 	}
 	break;
 	default:

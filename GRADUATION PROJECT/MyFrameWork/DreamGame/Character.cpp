@@ -175,8 +175,13 @@ void Archer::Attack(float fSpeed)
 		m_pProjectiles[m_nProjectiles]->SetPosition(Vector3::Add(GetPosition(), XMFLOAT3(0.0f, 5.0f, 0.0f)));
 		m_pProjectiles[m_nProjectiles]->m_fSpeed = fSpeed;
 		m_pProjectiles[m_nProjectiles]->m_bActive = true;
+		g_NetworkHelper.SendArrowAttackPacket(m_pProjectiles[m_nProjectiles]->m_xmf3startPosition, m_pProjectiles[m_nProjectiles]->m_xmf3direction, fSpeed);
 		m_nProjectiles++;
-		g_NetworkHelper.SendArrowAttackPacket(fSpeed);
+	}
+	else
+	{
+		m_pProjectiles[m_nProjectiles]->m_fSpeed = 150.0f;
+		m_pProjectiles[m_nProjectiles % 10]->m_RAttack = false;
 	}
 }
 
@@ -235,11 +240,11 @@ void Archer::RbuttonUp(const XMFLOAT3& CameraAxis)
 		float arrowSpeed = pow((chargingTime / fullTime), 2);
 
 		if (m_pCamera)
-			m_pProjectiles[m_nProjectiles % 10]->m_xmf3direction = XMFLOAT3(GetObjectLook().x, m_pCamera->GetLookVector().y, GetObjectLook().z);
+			m_pProjectiles[m_nProjectiles % 10]->m_xmf3direction = XMFLOAT3(GetObjectLook().x, 0.0f, GetObjectLook().z);
 		else
 			m_pProjectiles[m_nProjectiles % 10]->m_xmf3direction = GetObjectLook();
 
-		m_pProjectiles[m_nProjectiles % 10]->m_fSpeed = (chargingTime / fullTime > 0.5f) ? arrowSpeed * 400.0f : 0.0f;
+		m_pProjectiles[m_nProjectiles % 10]->m_fSpeed = (chargingTime / fullTime > 0.5f) ? arrowSpeed * 400.0f : -1.0f;
 		m_pProjectiles[m_nProjectiles % 10]->m_RAttack = true;
 		Character::RbuttonUp(CameraAxis);
 	}

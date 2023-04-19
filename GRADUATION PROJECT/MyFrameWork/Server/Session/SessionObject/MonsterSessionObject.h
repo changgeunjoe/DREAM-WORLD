@@ -7,7 +7,7 @@ class MonsterSessionObject : public SessionObject
 public:
 	MonsterSessionObject();
 	MonsterSessionObject(std::string& roomId);
-	~MonsterSessionObject();
+	virtual ~MonsterSessionObject();
 
 private:	
 	DirectX::XMFLOAT3 m_DestinationPos = { 0,0,0 };

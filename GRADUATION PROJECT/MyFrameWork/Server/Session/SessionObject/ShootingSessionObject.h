@@ -15,7 +15,7 @@ public:
 	bool m_active = false;
 	ShootingSessionObject();
 	ShootingSessionObject(std::string& roomId);
-	~ShootingSessionObject();
+	virtual ~ShootingSessionObject();
 private:
 	std::string m_roomId;
 	float m_speed;

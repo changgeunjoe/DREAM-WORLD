@@ -11,7 +11,6 @@ private:
 	short	m_attackDamage;
 	bool	m_leftmouseInput;
 	bool	m_rightmouseInput;
-	DirectX::XMFLOAT3 m_lookVector = DirectX::XMFLOAT3{ 0,0,1 };
 private:
 	int m_id;
 private:
@@ -85,7 +84,4 @@ public:
 	ROLE GetRole() {
 		return m_InGameRole;
 	}
-
-	DirectX::XMFLOAT3 GetLook() { return m_lookVector; }
-	DirectX::XMFLOAT3 SetLook(DirectX::XMFLOAT3 lookVector) { m_lookVector = lookVector; }
 };
