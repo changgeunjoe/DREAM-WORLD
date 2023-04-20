@@ -163,6 +163,7 @@ void Logic::ProcessPacket(int userId, char* p)
 		std::string id = "BossTestRoom";
 		std::wstring name = L"BossTestRoom";
 		g_RoomManager.InsertRunningRoom(id, name, testMap);
+		g_RoomManager.GetRunningRoom(id).GameStart();
 		g_iocpNetwork.m_session[userId].SetPlaySessionObject((ROLE)recvPacket->Role);
 		g_iocpNetwork.m_session[userId].SetRoomId(id);
 		g_iocpNetwork.m_session[userId].m_sessionObject->SetRoomId(id);
@@ -510,7 +511,7 @@ void Logic::MatchMaking()
 			roomName.append(std::to_wstring(matchPlayer.begin()->second)); //
 			while (!g_RoomManager.InsertRunningRoom(roomId, roomName, matchPlayer));
 			//룸 생성 성공
-
+			g_RoomManager.GetRunningRoom(roomId).GameStart();
 			for (const auto& p : matchPlayer) {//플레이어 정보 세팅하고 뿌려주기
 				//send match Success Packet
 				g_iocpNetwork.m_session[p.second].SetRoomId(roomId);

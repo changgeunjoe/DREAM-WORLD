@@ -103,6 +103,8 @@ public:
 
     void AnimateRowColumn(float fTimeElapsed);
 
+    void SetRimLight(bool bRimLight);
+
 public:
     static CLoadedModelInfoCompnent* LoadGeometryAndAnimationFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, ShaderComponent* pShader, bool isBinary);
 
@@ -163,6 +165,8 @@ public:
     DIRECTION                       m_prevDirection = DIRECTION::IDLE;
     bool                            m_LMouseInput = false;
     bool                            m_RMouseInput = false;
+
+    bool                            m_bRimLight = true;
 
 protected:
 
