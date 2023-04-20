@@ -334,7 +334,8 @@ void Logic::ProcessPacket(int userId, char* p)
 		CLIENT_PACKET::MeleeAttackPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::MeleeAttackPacket*>(p);
 		bool attacking = g_iocpNetwork.m_session[userId].m_sessionObject->GetLeftAttack();
 		DirectX::XMFLOAT3 pos = g_iocpNetwork.m_session[userId].m_sessionObject->GetPosition();
-		g_RoomManager.GetRunningRoom(g_iocpNetwork.m_session[userId].GetRoomId()).MeleeAttack(recvPacket->dir, pos, attacking);
+		if (g_RoomManager.GetRunningRoom(g_iocpNetwork.m_session[userId].GetRoomId()).MeleeAttack(recvPacket->dir, pos))
+			g_RoomManager.GetRunningRoom(g_iocpNetwork.m_session[userId].GetRoomId()).m_bossDamagedQueue.push(g_iocpNetwork.m_session[userId].m_sessionObject->GetAttackDamage());
 	}
 	break;
 	default:
@@ -421,8 +422,11 @@ void Logic::AutoMoveServer()//2500Έν?
 					if (arrow.m_active)
 					{
 						arrow.AutoMove();
-						if (arrow.DetectCollision(&room.GetBoss()) != -1)
+						if (arrow.DetectCollision(&room.GetBoss()) != -1) {
 							room.m_restArrow.push(arrow.GetId());
+							room.m_bossDamagedQueue.push(200);
+						}
+							
 					}
 				}
 				for (auto& ball : room.m_balls)
@@ -430,8 +434,10 @@ void Logic::AutoMoveServer()//2500Έν?
 					if (ball.m_active)
 					{
 						ball.AutoMove();
-						if (ball.DetectCollision(&room.GetBoss()) != -1)
+						if (ball.DetectCollision(&room.GetBoss()) != -1) {
 							room.m_restBall.push(ball.GetId());
+							room.m_bossDamagedQueue.push(30);
+						}
 					}
 				}
 			}

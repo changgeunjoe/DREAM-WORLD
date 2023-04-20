@@ -143,17 +143,17 @@ void Room::ShootBall(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 srcPos, float spee
 	}
 }
 
-void Room::MeleeAttack(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 pos, bool attacking)
+bool Room::MeleeAttack(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 pos)
 {
-	if (attacking) {
-		DirectX::XMFLOAT3 bossPos = GetBoss().GetPosition();
-		DirectX::XMFLOAT3 toBoss = Vector3::Subtract(bossPos, pos);
-		if (Vector3::DotProduct(dir, toBoss) > -FLT_EPSILON) {
-			if (Vector3::Length(toBoss) < 40.0f) {
-				std::cout << "데미지 입히기" << std::endl;
-			}
+	DirectX::XMFLOAT3 bossPos = GetBoss().GetPosition();
+	DirectX::XMFLOAT3 toBoss = Vector3::Subtract(bossPos, pos);
+	if (Vector3::DotProduct(dir, toBoss) > -FLT_EPSILON) {
+		if (Vector3::Length(toBoss) < 40.0f) {
+			std::cout << "데미지 입히기" << std::endl;
+			return true;
 		}
 	}
+	return false;
 }
 
 void Room::GameStart()

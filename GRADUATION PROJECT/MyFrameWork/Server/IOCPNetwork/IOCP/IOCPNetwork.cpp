@@ -165,11 +165,17 @@ void IOCPNetwork::WorkerThread()
 			std::string roomId{ ex_over->m_buffer };
 			if (g_RoomManager.IsExistRunningRoom(roomId)) {
 				Room& refRoom = g_RoomManager.GetRunningRoom(roomId);
+				int damage = -1;
+				float bossHp = refRoom.GetBoss().GetHp();
+				while (refRoom.m_bossDamagedQueue.try_pop(damage)) {
+					bossHp -= damage;
+				}
+				std::cout << "bossHp : " << bossHp << std::endl;
 				//refRoom.GetBoss().GetHp();
 				SERVER_PACKET::GameState sendPacket;
 				sendPacket.type = SERVER_PACKET::GAME_STATE;
 				sendPacket.size = sizeof(SERVER_PACKET::GameState);
-				sendPacket.bossState.hp = refRoom.GetBoss().GetHp();
+				sendPacket.bossState.hp = bossHp;
 				int i = 0;
 				for (auto& p : refRoom.GetInGamePlayerMap()) {
 					sendPacket.userState[i].userId = p.second;
