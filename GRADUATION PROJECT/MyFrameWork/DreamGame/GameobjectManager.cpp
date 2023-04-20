@@ -48,9 +48,10 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	{
 		m_pMonsterHPBarObject->SetLookAt(m_pCamera->GetPosition());
 		m_pMonsterHPBarObject->SetPosition(XMFLOAT3(m_pMonsterObject->GetPosition().x,
-		m_pMonsterObject->GetPosition().y+70, m_pMonsterObject->GetPosition().z));
+			m_pMonsterObject->GetPosition().y+70, m_pMonsterObject->GetPosition().z));
 		m_pMonsterHPBarObject->Rotate(0, 180, 0);
-		m_pMonsterHPBarObject->SetScale(10);
+		float scale = g_Logic.m_MonsterSession.m_currentPlayGameObject->m_UIScale;
+		m_pMonsterHPBarObject->SetScale(scale, 10.0f, 10.0f);
 	}
 
 	//m_pMonsterObject->Animate(fTimeElapsed);

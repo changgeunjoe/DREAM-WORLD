@@ -363,7 +363,8 @@ void Logic::ProcessPacket(char* p)
 	{
 		SERVER_PACKET::GameState* recvPacket = reinterpret_cast<SERVER_PACKET::GameState*>(p);
 		std::cout << "ProcessPacket()::SERVER_PACKET::GAME_STATE - Boss HP: " << recvPacket->bossState.hp << std::endl;
-		recvPacket->bossState.hp; //boss Hp
+		//recvPacket->bossState.hp; //boss Hp
+		m_MonsterSession.m_currentPlayGameObject->m_UIScale = static_cast<float>(recvPacket->bossState.hp) / 250.0f;
 		for (int i = 0; i < 4; i++) {//그냥 4개 여서 도는 for문 주의
 			recvPacket->userState[i].hp;
 			recvPacket->userState[i].userId;
@@ -376,6 +377,6 @@ void Logic::ProcessPacket(char* p)
 	}
 	break;
 	default:
-		break;
+		break; 
 	}
 }
