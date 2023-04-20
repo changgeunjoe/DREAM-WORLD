@@ -60,7 +60,7 @@ public:
 	void ShootArrow(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 srcPos, float speed);
 	void ShootBall(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 srcPos, float speed);
 public:
-	Concurrency::concurrent_queue<int> m_bossDamagedQueue;
+	Concurrency::concurrent_queue<short> m_bossDamagedQueue;
 	bool MeleeAttack(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 pos);
 	void GameStart();
 };

@@ -20,7 +20,7 @@ public:
 	virtual ~SessionObject();
 public:
 	short GetHp() { return m_hp; }
-	short AttackedHp(short damage) { m_hp -= damage; };
+	void AttackedHp(short damage) { m_hp -= damage; };
 	short GetAttackDamage() { return m_attackDamage; }
 public:
 	virtual void AutoMove() = 0;
