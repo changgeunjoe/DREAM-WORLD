@@ -11,12 +11,13 @@ extern IOCPNetwork g_iocpNetwork;
 
 MonsterSessionObject::MonsterSessionObject() : SessionObject()
 {
-
+	m_hp = 2500;
 }
 
-MonsterSessionObject::MonsterSessionObject(std::string& roomId)
+MonsterSessionObject::MonsterSessionObject(std::string& roomId) : SessionObject()
 {
 	m_roomId = roomId;
+	m_hp = 2500;
 }
 
 MonsterSessionObject::~MonsterSessionObject()

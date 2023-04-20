@@ -163,6 +163,7 @@ void Logic::ProcessPacket(int userId, char* p)
 		std::string id = "BossTestRoom";
 		std::wstring name = L"BossTestRoom";
 		g_RoomManager.InsertRunningRoom(id, name, testMap);
+		g_RoomManager.GetRunningRoom(id).GameStart();
 		g_iocpNetwork.m_session[userId].SetPlaySessionObject((ROLE)recvPacket->Role);
 		g_iocpNetwork.m_session[userId].SetRoomId(id);
 		g_iocpNetwork.m_session[userId].m_sessionObject->SetRoomId(id);
