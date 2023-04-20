@@ -400,6 +400,11 @@ void GameObject::AnimateRowColumn(float fTimeElapsed)
 	}
 }
 
+void GameObject::SetRimLight(bool bRimLight)
+{
+	m_bRimLight = bRimLight;
+}
+
 void GameObject::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_STAT) + 255) & ~255); //256의 배수
@@ -419,6 +424,7 @@ void GameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandLis
 		float mfhp;
 		mfhp = (m_fHp / m_fMaxHp);//현재 체력값을 최대체력 비례로 나타낸식 23.04.18 .ccg
 		::memcpy(&m_pcbMappedGameObjects->m_xmfHP, &mfhp, sizeof(float));
+		::memcpy(&m_pcbMappedGameObjects->m_bRimLight, &m_bRimLight, sizeof(bool));
 		D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbGameObjects->GetGPUVirtualAddress();
 		pd3dCommandList->SetGraphicsRootConstantBufferView(17, d3dGpuVirtualAddress);
 	}

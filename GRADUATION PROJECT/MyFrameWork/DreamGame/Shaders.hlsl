@@ -48,6 +48,7 @@ cbuffer cbBoneTransforms : register(b5)
 cbuffer cbCharacterInfo : register(b6)
 {
     float  gfCharactertHP: packoffset(c0);
+    bool bRimLight : packoffset(c0.y);
 
 };
 cbuffer cbMultiSpriteInfo : register(b7)
@@ -514,8 +515,10 @@ float4 PSShadowMapShadow(VS_SHADOW_MAP_OUTPUT input) : SV_TARGET
     
     //rim *= saturate((rimWidth - distance) / rimWidth);
     float4 Rimline = float4(pow(1 - rim, rimPower) * RimColor, 0.f);
-    cColor = cColor + Rimline;     
-    
+    if (bRimLight)
+    {
+        cColor = cColor + Rimline;
+    }
     if (cColor.w < 0.1f)
         return cColor;
     //else if (dot(normalize(cIllumination), normalize(gLightDir.xyz)) > cThreshold) // 빛의 방향과 색상 값으로 경계면을 계산합니다.

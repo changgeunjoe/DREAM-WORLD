@@ -212,6 +212,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPlaneObject->SetModel("Model/Floor.bin");
 	m_pPlaneObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pPlaneObject->SetScale(30.0f, 30.0f, 30.0f);
+	m_pPlaneObject->SetRimLight(false);
 	m_ppGameObjects.emplace_back(m_pPlaneObject);
 
 	m_pRockObject = new GameObject(UNDEF_ENTITY);
@@ -512,8 +513,8 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pCharacterHPBarObject->InsertComponent<UiShaderComponent>();
 	m_pCharacterHPBarObject->InsertComponent<TextureComponent>();
 	m_pCharacterHPBarObject->SetTexture(L"UI/HP.dds", RESOURCE_TEXTURE2D, 3);
-	m_pCharacterHPBarObject->SetPosition(XMFLOAT3(0.25, 0.5, 1.03));
-	m_pCharacterHPBarObject->SetScale(0.05, 0.025, 1);
+	m_pCharacterHPBarObject->SetPosition(XMFLOAT3(0.1, -0.5, 1.03));
+	m_pCharacterHPBarObject->SetScale(0.1, 0.015, 1);
 	m_pCharacterHPBarObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppCharacterUIObjects.emplace_back(m_pCharacterHPBarObject);
 
@@ -522,8 +523,8 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pCharacterProfileObject->InsertComponent<UIMeshComponent>();
 	m_pCharacterProfileObject->InsertComponent<UiShaderComponent>();
 	m_pCharacterProfileObject->InsertComponent<TextureComponent>();
-	m_pCharacterProfileObject->SetTexture(L"UI/HP.dds", RESOURCE_TEXTURE2D, 3);
-	m_pCharacterProfileObject->SetPosition(XMFLOAT3(0.25, 0.5, 1.03));
+	m_pCharacterProfileObject->SetTexture(L"UI/Archer.dds", RESOURCE_TEXTURE2D, 3);
+	m_pCharacterProfileObject->SetPosition(XMFLOAT3(-0.1, -0.5, 1.03));
 	m_pCharacterProfileObject->SetScale(0.05, 0.025, 1);
 	m_pCharacterProfileObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppCharacterUIObjects.emplace_back(m_pCharacterProfileObject);

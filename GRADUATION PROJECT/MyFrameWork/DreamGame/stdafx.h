@@ -201,11 +201,13 @@ struct CB_GAMEOBJECT_INFO
 	MATERIAL						m_material;
 	UINT							m_nType;
 	bool							m_bAnimateshader;
+	
 };
 
 struct CB_GAMEOBJECT_STAT
 {
 	float							m_xmfHP;
+	bool							m_bRimLight;
 };
 struct CB_GAMEOBJECT_MULTISPRITE
 {
