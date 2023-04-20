@@ -5,6 +5,7 @@
 
 extern Timer g_Timer;
 extern Logic g_logic;
+
 Room::Room()
 {
 
@@ -16,18 +17,14 @@ Room::Room(std::string& roomId, std::wstring& roomName, int onwerId, ROLE r) : m
 	//m_inGamePlayers.insert(std::make_pair(r, m_roomOwnerId));//ROLE이 없음
 	m_inGamePlayers.insert(std::make_pair(r, m_roomOwnerId));
 	//m_inGamePlayers.try_emplace(r, m_roomOwnerId);//ROLE이 없음
-		//test용으로 존재함
-	CreateBossMonster(); //임시 입니다.
 }
 
 Room::Room(std::string& roomId, int player1, int player2, int player3, int player4)
 {
-	CreateBossMonster(); //임시 입니다.
 
 }
 Room::Room(std::string roomId) : m_roomId(roomId)
 {
-	CreateBossMonster(); //임시 입니다.	
 }
 
 Room::Room(std::string roomId, std::wstring roomName) : m_roomId(roomId), m_roomName(roomName)
@@ -144,4 +141,26 @@ void Room::ShootBall(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 srcPos, float spee
 		//g_logic.BroadCastInRoom(m_roomId, &sendPacket);
 		m_balls[ballIndex].SetStart(dir, srcPos, speed);
 	}
+}
+
+void Room::MeleeAttack(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 pos, bool attacking)
+{
+	if (attacking) {
+		DirectX::XMFLOAT3 bossPos = GetBoss().GetPosition();
+		DirectX::XMFLOAT3 toBoss = Vector3::Subtract(bossPos, pos);
+		if (Vector3::DotProduct(dir, toBoss) > -FLT_EPSILON) {
+			if (Vector3::Length(toBoss) < 40.0f) {
+				std::cout << "데미지 입히기" << std::endl;
+			}
+		}
+	}
+}
+
+void Room::GameStart()
+{
+	CreateBossMonster(); //임시 입니다.
+	TIMER_EVENT firstEv{ std::chrono::system_clock::now() + std::chrono::seconds(1), m_roomId, -1,EV_FIND_PLAYER };
+	g_Timer.m_TimerQueue.push(firstEv);
+	TIMER_EVENT gameStateEvent{ std::chrono::system_clock::now() + std::chrono::seconds(1) + std::chrono::milliseconds(500), m_roomId, -1,EV_GAME_STATE_SEND };
+	g_Timer.m_TimerQueue.push(gameStateEvent);
 }

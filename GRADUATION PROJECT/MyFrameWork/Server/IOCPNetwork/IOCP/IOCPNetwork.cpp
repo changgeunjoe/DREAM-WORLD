@@ -108,7 +108,7 @@ void IOCPNetwork::WorkerThread()
 		}
 		break;
 		case OP_RECV:
-		{			
+		{
 			m_session[key].ConstructPacket(ioByte);
 		}
 		break;
@@ -124,11 +124,11 @@ void IOCPNetwork::WorkerThread()
 		{
 			std::string roomId{ ex_over->m_buffer };
 			if (g_RoomManager.IsExistRunningRoom(roomId)) {
-				Room& refRoom = g_RoomManager.GetRunningRoom(roomId);				
+				Room& refRoom = g_RoomManager.GetRunningRoom(roomId);
 				//#define ALONE_TEST 1
 #ifdef ALONE_TEST
 				auto playerMap = refRoom.GetInGamePlayerMap();
-				refRoom.GetBoss().SetAggroPlayerId( playerMap.begin()->second );
+				refRoom.GetBoss().SetAggroPlayerId(playerMap.begin()->second);
 #endif // ALONE_TEST
 #ifndef ALONE_TEST
 				auto playerMap = refRoom.GetInGamePlayerMap();
@@ -155,6 +155,28 @@ void IOCPNetwork::WorkerThread()
 					sendPacket.bossPos = refRoom.GetBoss().GetPosition();
 					g_logic.BroadCastInRoom(roomId, &sendPacket);
 				}
+			}
+			if (ex_over != nullptr)
+				delete ex_over;
+		}
+		break;
+		case OP_GAME_STATE_SEND:
+		{
+			std::string roomId{ ex_over->m_buffer };
+			if (g_RoomManager.IsExistRunningRoom(roomId)) {
+				Room& refRoom = g_RoomManager.GetRunningRoom(roomId);
+				//refRoom.GetBoss().GetHp();
+				SERVER_PACKET::GameState sendPacket;
+				sendPacket.type = SERVER_PACKET::GAME_STATE;
+				sendPacket.size = sizeof(SERVER_PACKET::GameState);
+				sendPacket.bossState.hp = refRoom.GetBoss().GetHp();
+				int i = 0;
+				for (auto& p : refRoom.GetInGamePlayerMap()) {
+					sendPacket.userState[i].userId = p.second;
+					sendPacket.userState[i].hp = m_session[p.second].m_sessionObject->GetHp();
+					++i;
+				}
+				g_logic.BroadCastInRoom(roomId, &sendPacket);
 			}
 			if (ex_over != nullptr)
 				delete ex_over;

@@ -16,6 +16,7 @@ namespace CLIENT_PACKET {
 	constexpr unsigned char MATCH_REQUEST = 12;	
 	constexpr unsigned char SHOOTING_ARROW = 13;
 	constexpr unsigned char SHOOTING_BALL = 14;
+	constexpr unsigned char MELEE_ATTACK = 15;
 
 
 
@@ -92,6 +93,12 @@ namespace CLIENT_PACKET {
 		DirectX::XMFLOAT3 dir;
 		float speed;
 	};
+
+	struct MeleeAttackPacket {
+		short size;
+		char type;
+		DirectX::XMFLOAT3 dir;
+	};
 }
 
 namespace SERVER_PACKET {
@@ -117,7 +124,7 @@ namespace SERVER_PACKET {
 	constexpr unsigned char BOSS_CHANGE_STATE_MOVE_DES = 83;
 	constexpr unsigned char SHOOTING_ARROW = 84;
 	constexpr unsigned char SHOOTING_BALL = 85;
-	//constexpr unsigned char BOSS_CHANGE_STATE_MOVE = 83;
+	constexpr unsigned char GAME_STATE = 86;
 	
 
 	struct MovePacket
@@ -209,6 +216,23 @@ namespace SERVER_PACKET {
 		XMFLOAT3 srcPos;
 		float speed;
 	};
+
+	struct InGamePlayerState {
+		int userId = -1;
+		int hp;
+	};
+
+	struct InGameBossState {
+		int hp;
+	};
+
+	struct GameState {
+		short size;
+		char type;
+		InGamePlayerState userState[4];
+		InGameBossState bossState;
+	};
+
 }
 
 #pragma pack (pop)

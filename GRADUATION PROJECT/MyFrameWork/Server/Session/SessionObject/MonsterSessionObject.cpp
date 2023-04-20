@@ -11,12 +11,13 @@ extern IOCPNetwork g_iocpNetwork;
 
 MonsterSessionObject::MonsterSessionObject() : SessionObject()
 {
-
+	m_hp = 2500;
 }
 
-MonsterSessionObject::MonsterSessionObject(std::string& roomId)
+MonsterSessionObject::MonsterSessionObject(std::string& roomId) : SessionObject()
 {
 	m_roomId = roomId;
+	m_hp = 2500;
 }
 
 MonsterSessionObject::~MonsterSessionObject()
@@ -38,7 +39,8 @@ void MonsterSessionObject::AutoMove()
 
 void MonsterSessionObject::StartMove(DIRECTION d)
 {
-
+	m_lastMoveTime = std::chrono::high_resolution_clock::now();
+	isMove = true;
 }
 
 void MonsterSessionObject::StopMove()
@@ -119,7 +121,7 @@ void MonsterSessionObject::Move(float fDistance, float elapsedTime)
 				Rotate(ROTATE_AXIS::Y, -45.0f * elapsedTime);
 		}
 		m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, fDistance));//틱마다 움직임
-		m_SPBB = BoundingSphere(DirectX::XMFLOAT3(m_position.x, m_position.y + 22.5f, m_position.z), 50.0f);
+		m_SPBB = BoundingSphere(DirectX::XMFLOAT3(m_position.x, m_position.y + 12.5f, m_position.z), 22.5f);
 	}
 	//std::cout << "BossPos: " << m_position.x << "0, " << m_position.z << std::endl;
 }

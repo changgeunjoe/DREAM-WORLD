@@ -15,7 +15,7 @@ PlayerSessionObject::PlayerSessionObject(int id, ROLE r) : SessionObject()
 	m_maxHp = 0;
 	m_attackDamage = 0;
 	m_InGameRole = r;
-
+	SetRole(r);
 }
 
 PlayerSessionObject::~PlayerSessionObject()

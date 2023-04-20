@@ -5,10 +5,7 @@
 
 class PlayerSessionObject : public SessionObject
 {
-private:
-	short	m_hp;
-	short	m_maxHp;
-	short	m_attackDamage;
+private:	
 	bool	m_leftmouseInput;
 	bool	m_rightmouseInput;
 private:
@@ -84,4 +81,5 @@ public:
 	ROLE GetRole() {
 		return m_InGameRole;
 	}
+	bool GetLeftAttack() { return m_leftmouseInput;	}
 };

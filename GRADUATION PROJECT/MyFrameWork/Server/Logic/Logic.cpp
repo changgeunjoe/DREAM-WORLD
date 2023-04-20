@@ -163,6 +163,7 @@ void Logic::ProcessPacket(int userId, char* p)
 		std::string id = "BossTestRoom";
 		std::wstring name = L"BossTestRoom";
 		g_RoomManager.InsertRunningRoom(id, name, testMap);
+		g_RoomManager.GetRunningRoom(id).GameStart();
 		g_iocpNetwork.m_session[userId].SetPlaySessionObject((ROLE)recvPacket->Role);
 		g_iocpNetwork.m_session[userId].SetRoomId(id);
 		g_iocpNetwork.m_session[userId].m_sessionObject->SetRoomId(id);
@@ -326,7 +327,15 @@ void Logic::ProcessPacket(int userId, char* p)
 	case CLIENT_PACKET::SHOOTING_BALL:
 	{
 		CLIENT_PACKET::ShootingObject* recvPacket = reinterpret_cast<CLIENT_PACKET::ShootingObject*>(p);
-		g_RoomManager.GetRunningRoom(g_iocpNetwork.m_session[userId].GetRoomId()).ShootArrow(recvPacket->dir, recvPacket->pos, recvPacket->speed);
+		g_RoomManager.GetRunningRoom(g_iocpNetwork.m_session[userId].GetRoomId()).ShootBall(recvPacket->dir, recvPacket->pos, recvPacket->speed);
+	}
+	break;
+	case CLIENT_PACKET::MELEE_ATTACK:
+	{
+		CLIENT_PACKET::MeleeAttackPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::MeleeAttackPacket*>(p);
+		bool attacking = g_iocpNetwork.m_session[userId].m_sessionObject->GetLeftAttack();
+		DirectX::XMFLOAT3 pos = g_iocpNetwork.m_session[userId].m_sessionObject->GetPosition();
+		g_RoomManager.GetRunningRoom(g_iocpNetwork.m_session[userId].GetRoomId()).MeleeAttack(recvPacket->dir, pos, attacking);
 	}
 	break;
 	default:
@@ -496,7 +505,7 @@ void Logic::MatchMaking()
 			roomName.append(std::to_wstring(matchPlayer.begin()->second)); //
 			while (!g_RoomManager.InsertRunningRoom(roomId, roomName, matchPlayer));
 			//룸 생성 성공
-
+			g_RoomManager.GetRunningRoom(roomId).GameStart();
 			for (const auto& p : matchPlayer) {//플레이어 정보 세팅하고 뿌려주기
 				//send match Success Packet
 				g_iocpNetwork.m_session[p.second].SetRoomId(roomId);

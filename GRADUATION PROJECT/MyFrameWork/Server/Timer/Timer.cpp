@@ -49,7 +49,7 @@ void Timer::TimerThreadFunc()
 				if (g_RoomManager.IsExistRunningRoom(ev.roomId)) {
 					Room& room = g_RoomManager.GetRunningRoom(ev.roomId);
 					if (!room.GetBoss().isMove) {
-						room.GetBoss().isMove = true;
+						room.GetBoss().StartMove(DIRECTION::FRONT);
 						TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::milliseconds(10), ev.roomId, -1,EV_RANDOM_MOVE };
 						m_TimerQueue.push(new_ev);
 					}
@@ -66,6 +66,17 @@ void Timer::TimerThreadFunc()
 				ov->m_buffer[ev.roomId.size()] = 0;
 				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, -1, &ov->m_overlap);
 				TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::milliseconds(700), ev.roomId, -1,EV_RANDOM_MOVE };
+				m_TimerQueue.push(new_ev);
+			}
+			break;
+			case EV_GAME_STATE_SEND:
+			{
+				ExpOver* ov = new ExpOver();
+				ov->m_opCode = OP_GAME_STATE_SEND;
+				memcpy(ov->m_buffer, ev.roomId.c_str(), ev.roomId.size());//exOver의 cchar*버퍼에 roomId를 담는다면?
+				ov->m_buffer[ev.roomId.size()] = 0;
+				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, -1, &ov->m_overlap);
+				TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::milliseconds(500), ev.roomId, -1,EV_GAME_STATE_SEND };
 				m_TimerQueue.push(new_ev);
 			}
 			break;
