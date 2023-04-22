@@ -884,6 +884,7 @@ void GameObject::MoveForward(float fDistance)
 	XMFLOAT3 xmf3Position = GetPosition();
 	XMFLOAT3 xmf3Look = GetLook();
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, fDistance);
+	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance);
 	if (Vector3::Length(xmf3Position) < 440.0f)	GameObject::SetPosition(xmf3Position);
 }
 
@@ -943,6 +944,7 @@ void GameObject::MoveDiagonal(int fowardDirection, int rightDirection, float dis
 	XMFLOAT3 resDirection = Vector3::Add(xmf3Right, xmf3Look);
 	resDirection = Vector3::Normalize(resDirection);
 	xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(resDirection, distance));
+	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance);
 	GameObject::SetPosition(xmf3Position);
 	if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(xmf3Position, m_pCamera->GetOffset()));
 }
