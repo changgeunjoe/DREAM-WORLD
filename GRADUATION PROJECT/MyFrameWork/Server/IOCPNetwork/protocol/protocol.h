@@ -25,13 +25,14 @@ namespace CLIENT_PACKET {
 		short size;
 		char type;
 		DIRECTION direction;
+		std::chrono::utc_clock::time_point t;
 	};
 
 	struct RotatePacket {
 		short size;
 		char type;
 		ROTATE_AXIS axis;
-		float angle;
+		float angle;		
 	};
 
 	struct StopPacket {
@@ -39,6 +40,7 @@ namespace CLIENT_PACKET {
 		char type;
 		DirectX::XMFLOAT3 position;
 		DirectX::XMFLOAT3 rotate;
+		std::chrono::utc_clock::time_point t;
 	};
 
 	struct LoginPacket {
@@ -133,6 +135,7 @@ namespace SERVER_PACKET {
 		char type;
 		int userId;
 		DIRECTION direction;
+		std::chrono::utc_clock::time_point t;
 	};
 
 	struct RotatePacket {
@@ -142,12 +145,14 @@ namespace SERVER_PACKET {
 		ROTATE_AXIS axis;
 		float angle;
 	};
+
 	struct StopPacket {
 		short size;
 		char type;
 		int userId;
 		DirectX::XMFLOAT3 position;
 		//DirectX::XMFLOAT3 rotate;
+		std::chrono::utc_clock::time_point t;
 	};
 
 	struct LoginPacket {
@@ -207,6 +212,7 @@ namespace SERVER_PACKET {
 		char type;
 		DirectX::XMFLOAT3 desPos;
 		DirectX::XMFLOAT3 bossPos;
+		std::chrono::utc_clock::time_point t;
 	};
 
 	struct ShootingObject {
@@ -231,6 +237,7 @@ namespace SERVER_PACKET {
 		char type;
 		InGamePlayerState userState[4];
 		InGameBossState bossState;
+		std::chrono::utc_clock::time_point t;
 	};
 
 }

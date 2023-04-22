@@ -413,8 +413,10 @@ void Logic::AutoMoveServer()//2500명?
 				if (room.GetBoss().isMove)
 					room.GetBoss().AutoMove();//보스 무브
 				for (auto& p : room.GetInGamePlayerMap()) {//플레이어 무브
-					if (g_iocpNetwork.m_session[p.second].m_sessionObject->m_inputDirection != DIRECTION::IDLE) {
-						g_iocpNetwork.m_session[p.second].m_sessionObject->AutoMove();
+					if (g_iocpNetwork.m_session[p.second].m_sessionObject != nullptr) {
+						if (g_iocpNetwork.m_session[p.second].m_sessionObject->m_inputDirection != DIRECTION::IDLE) {
+							g_iocpNetwork.m_session[p.second].m_sessionObject->AutoMove();
+						}
 					}
 				}
 				//여기에 화살이나 ball 오브젝트 이동 구현
@@ -427,7 +429,7 @@ void Logic::AutoMoveServer()//2500명?
 							room.m_restArrow.push(arrow.GetId());
 							room.m_bossDamagedQueue.push(200);
 						}
-							
+
 					}
 				}
 				for (auto& ball : room.m_balls)
@@ -634,3 +636,5 @@ std::string Logic::MakeRoomId()
 	roomId.append("Matching_");
 	return roomId;
 }
+
+//std::chrono::utc_clock::time_point t = std::chrono::utc_clock::now();//latency 체크
