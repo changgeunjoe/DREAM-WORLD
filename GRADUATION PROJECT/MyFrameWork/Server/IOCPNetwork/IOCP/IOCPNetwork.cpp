@@ -185,6 +185,7 @@ void IOCPNetwork::WorkerThread()
 
 					++i;
 				}
+				sendPacket.time = std::chrono::utc_clock::now();
 				g_logic.BroadCastInRoom(roomId, &sendPacket);
 			}
 			if (ex_over != nullptr)
