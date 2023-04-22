@@ -108,7 +108,7 @@ void PlayerSessionObject::StartMove(DIRECTION d)
 
 void PlayerSessionObject::StopMove()
 {
-	PrintCurrentTime();
+	//PrintCurrentTime();
 	//std::cout << "PlayerSessionObject::StopMove() - Look Dir: " << m_directionVector.x << ", " << m_directionVector.y << ", " << m_directionVector.z << std::endl;
 	//std::cout << "PlayerSessionObject::StopMove() - Pos: " << m_position.x << ", " << m_position.y << ", " << m_position.z << std::endl;
 	// m_prevDirection = m_inputDirection;

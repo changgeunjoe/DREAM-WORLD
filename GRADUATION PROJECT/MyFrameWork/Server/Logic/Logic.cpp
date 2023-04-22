@@ -53,7 +53,7 @@ void Logic::ProcessPacket(int userId, char* p)
 			sendPacket.size = sizeof(SERVER_PACKET::MovePacket);
 			g_iocpNetwork.m_session[userId].m_sessionObject->StartMove(sendPacket.direction); // 움직임 start;
 #ifdef _DEBUG
-			PrintCurrentTime();
+			//PrintCurrentTime();
 			//std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::MOVE_KEY_DOWN - MultiCastOtherPlayer" << std::endl;
 #endif
 			MultiCastOtherPlayerInRoom(userId, &sendPacket);
@@ -92,7 +92,7 @@ void Logic::ProcessPacket(int userId, char* p)
 			sendPacket.size = sizeof(SERVER_PACKET::MovePacket);
 			g_iocpNetwork.m_session[userId].m_sessionObject->ChangeDirection(sendPacket.direction); // 움직임 start
 #ifdef _DEBUG
-			PrintCurrentTime();
+			//PrintCurrentTime();
 			std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::MOVE_KEY_UP - MultiCastOtherPlayer" << std::endl;
 #endif
 			MultiCastOtherPlayerInRoom(userId, &sendPacket);
@@ -112,7 +112,7 @@ void Logic::ProcessPacket(int userId, char* p)
 			sendPacket.position = recvPacket->position;
 			//sendPacket.rotate = recvPacket->rotate;
 #ifdef _DEBUG
-			PrintCurrentTime();
+			//PrintCurrentTime();
 			//std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::STOP - " << std::endl;
 			//std::cout << "position: " << sendPacket.position.x << ", " << sendPacket.position.y << ", " << sendPacket.position.z << std::endl;
 			//std::cout << "rotation: " << sendPacket.rotate.x << ", " << sendPacket.rotate.y << ", " << sendPacket.rotate.z << std::endl;
@@ -122,14 +122,14 @@ void Logic::ProcessPacket(int userId, char* p)
 				sendPacket.position = g_iocpNetwork.m_session[userId].m_sessionObject->GetPosition();
 				BroadCastInRoomByPlayer(userId, &sendPacket);
 #ifdef _DEBUG
-				PrintCurrentTime();
+			//	PrintCurrentTime();
 				std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::STOP - BroadCastPacket" << std::endl;
 #endif
 			}
 			else {
 				MultiCastOtherPlayerInRoom(userId, &sendPacket);
 #ifdef _DEBUG
-				PrintCurrentTime();
+				//PrintCurrentTime();
 				std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::STOP - MultiCastOtherPlayer" << std::endl;
 #endif
 			}
@@ -312,7 +312,7 @@ void Logic::ProcessPacket(int userId, char* p)
 		sendPacket.size = sizeof(SERVER_PACKET::MouseInputPacket);
 		g_iocpNetwork.m_session[userId].m_sessionObject->SetMouseInput(sendPacket.LClickedButton, sendPacket.RClickedButton);
 #ifdef _DEBUG
-		PrintCurrentTime();
+		//PrintCurrentTime();
 		std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::MOUSE_INPUT - MultiCastOtherPlayer" << std::endl;
 #endif
 		MultiCastOtherPlayerInRoom(userId, &sendPacket);
