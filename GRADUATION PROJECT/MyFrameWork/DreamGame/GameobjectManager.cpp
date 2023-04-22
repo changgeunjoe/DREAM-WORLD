@@ -58,7 +58,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	
 	g_Logic.m_MonsterSession.m_currentPlayGameObject->Animate(fTimeElapsed);
 	auto pos = g_Logic.m_MonsterSession.m_currentPlayGameObject->GetPosition();
-	cout << "GameobjectManager::Boss Position: " << pos.x << ", 0, " << pos.z << endl;
+	//cout << "GameobjectManager::Boss Position: " << pos.x << ", 0, " << pos.z << endl;
 	if (!g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject) return;
 	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->UpdateCameraPosition();
 

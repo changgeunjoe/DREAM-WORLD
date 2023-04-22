@@ -341,7 +341,6 @@ void Logic::ProcessPacket(char* p)
 		SERVER_PACKET::BossChangeStateMovePacket* recvPacket = reinterpret_cast<SERVER_PACKET::BossChangeStateMovePacket*>(p);
 		recvPacket->desPos; //여기 목적지 까지 보스 몬스터 이동 시키면 됩니다
 		m_MonsterSession.m_currentPlayGameObject->m_xmf3Destination = recvPacket->desPos;
-		m_MonsterSession.m_currentPlayGameObject->SetPosition(recvPacket->bossPos);
 	}
 	break;
 	case SERVER_PACKET::SHOOTING_ARROW://화살
@@ -366,25 +365,48 @@ void Logic::ProcessPacket(char* p)
 		std::cout << "ProcessPacket()::SERVER_PACKET::GAME_STATE - Boss HP: " << recvPacket->bossState.hp << std::endl;
 		m_MonsterSession.m_currentPlayGameObject->m_UIScale = static_cast<float>(recvPacket->bossState.hp) / 2500.0f;//maxHp 2500입니다
 
-		XMFLOAT3 interpolationVector = Vector3::Subtract(recvPacket->bossState.pos, m_MonsterSession.m_currentPlayGameObject->GetPosition());
 		utc_clock::time_point currentUTC_Time = utc_clock::now();
-		auto durationTime = duration_cast<microseconds>(currentUTC_Time - recvPacket->time).count();
-		durationTime = (double)durationTime / 1000.0f;//milliseconds
-		durationTime = (double)durationTime / 1000.0f;//seconds
-		//서버와 
-		float interpolationDistance = Vector3::Length(interpolationVector);
-		interpolationDistance = interpolationDistance - (float)durationTime * 50.0f;//length - v*t
-		if (interpolationDistance < 0.3f) {
+		XMFLOAT3 bossPos = m_MonsterSession.m_currentPlayGameObject->GetPosition();
+		high_resolution_clock::time_point h_t = high_resolution_clock::now();
+		XMFLOAT3 bossInterpolationVector = Vector3::Subtract(recvPacket->bossState.pos, bossPos);
+
+		//cout << "current UTC: " << currentUTC_Time << endl;
+		//cout << "recv UTC: " << recvPacket->time << endl;
+		double t = duration_cast<microseconds>(h_t - recvPacket->h_t).count();
+		t = (double)t / 1000.0f;//microseconds to milli
+		//cout << "duration high: " << t << "mili" << endl;
+		t = (double)t / 1000.0f;//milliseconds ti sec
+		//cout << "duration high: " << t << "second" << endl;
+
+		double bosDurationTime = duration_cast<microseconds>(currentUTC_Time - recvPacket->time).count();
+		bosDurationTime = (double)bosDurationTime / 1000.0f;//microseconds to milli
+		//cout << "duration UTC: " << bosDurationTime << "mili" << endl;
+		bosDurationTime = (double)bosDurationTime / 1000.0f;//milliseconds ti sec
+		cout << "boss duration UTC: " << bosDurationTime << "second" << endl;
+
+		float bossPosDistance = Vector3::Length(bossInterpolationVector);
+		float bossInterpolationDistance = bossPosDistance - (float)bosDurationTime * 50.0f;//length - v*t
+
+		cout << "bossPosDistance: " << bossPosDistance << endl;
+		cout << "bossInterplationDis: " << bossInterpolationDistance << endl;
+
+		if (bossPosDistance < DBL_EPSILON) {
+			m_MonsterSession.m_currentPlayGameObject->m_interpolationDistance = 0.0f;
+		}
+		else if (abs(bossInterpolationDistance) > 10.0f) {
+			m_MonsterSession.m_currentPlayGameObject->SetPosition(recvPacket->bossState.pos);
+		}
+		else if (abs(bossInterpolationDistance) < 5.0f) {
 			m_MonsterSession.m_currentPlayGameObject->m_interpolationDistance = 0.0f;
 		}
 		else {
-			m_MonsterSession.m_currentPlayGameObject->m_interpolationDistance = interpolationDistance;
-			m_MonsterSession.m_currentPlayGameObject->m_interpolationVector = interpolationVector;
+			m_MonsterSession.m_currentPlayGameObject->m_interpolationDistance = bossInterpolationDistance;
+			m_MonsterSession.m_currentPlayGameObject->m_interpolationVector = bossInterpolationVector;
 		}
 		recvPacket->bossState.rot;
 		for (int i = 0; i < 4; i++) {//그냥 4개 여서 도는 for문 주의			
 			if (-1 != recvPacket->userState[i].userId) {
-				std::cout << "ProcessPacket()::SERVER_PACKET::GAME_STATE - User ID: " << recvPacket->userState[i].hp << " HP: " << recvPacket->userState[i].hp << std::endl;
+				std::cout << "ProcessPacket()::SERVER_PACKET::GAME_STATE - User ID: " << recvPacket->userState[i].userId << " HP: " << recvPacket->userState[i].hp << std::endl;
 				//playerSession에서 해당 플레이어 탐색
 				auto findRes = find_if(m_inGamePlayerSession.begin(), m_inGamePlayerSession.end(), [&recvPacket, &i](auto& fObj) {
 					if (fObj.m_id == recvPacket->userState[i].userId)
@@ -392,19 +414,36 @@ void Logic::ProcessPacket(char* p)
 					return false;
 					});
 				if (findRes == m_inGamePlayerSession.end())continue;
-				XMFLOAT3 interpolationVector = Vector3::Subtract(recvPacket->userState[i].pos, findRes->m_currentPlayGameObject->GetPosition());
-				auto durationTime = duration_cast<microseconds>(currentUTC_Time - recvPacket->time).count();
-				durationTime = (double)durationTime / 1000.0f;//milliseconds
-				durationTime = (double)durationTime / 1000.0f;//seconds
-				//서버와 
-				float interpolationDistance = Vector3::Length(interpolationVector);
-				interpolationDistance = interpolationDistance - (float)durationTime * 50.0f;
-				if (interpolationDistance < 0.3f) {
+				utc_clock::time_point playerCurrentUTC_Time = utc_clock::now();
+				XMFLOAT3 playerPos = findRes->m_currentPlayGameObject->GetPosition();
+
+				XMFLOAT3 playerInterpolationVector = Vector3::Subtract(recvPacket->userState[i].pos, playerPos);
+
+				//cout << "current UTC: " << playerCurrentUTC_Time << endl;
+				double playerDurationTime = duration_cast<microseconds>(playerCurrentUTC_Time - recvPacket->time).count();
+				playerDurationTime = (double)playerDurationTime / 1000.0f;//microseconds to mill
+				//cout << "duration UTC: " << playerDurationTime << "mili" << endl;
+				playerDurationTime = (double)playerDurationTime / 1000.0f;//milliseconds to sec
+				//cout << "duration UTC: " << playerDurationTime << "second" << endl;
+
+				float playerPosDistance = Vector3::Length(playerInterpolationVector);
+				float playerInterpolationDistance = playerPosDistance - (float)playerDurationTime * 50.0f;//length - v*t
+
+				cout << "player PosDistance: " << playerPosDistance<< endl;
+				cout << "player InterplationDis: " << playerInterpolationDistance << endl;
+
+				if (playerPosDistance < DBL_EPSILON) {
+					m_MonsterSession.m_currentPlayGameObject->m_interpolationDistance = 0.0f;
+				}
+				else if (abs(playerInterpolationDistance) > 10.0f) {
+					findRes->m_currentPlayGameObject->SetPosition(recvPacket->userState[i].pos);
+				}
+				else if (abs(playerInterpolationDistance) < 5.0f) {
 					findRes->m_currentPlayGameObject->m_interpolationDistance = 0.0f;
 				}
 				else {
-					findRes->m_currentPlayGameObject->m_interpolationDistance = interpolationDistance;
-					findRes->m_currentPlayGameObject->m_interpolationVector = interpolationVector;
+					findRes->m_currentPlayGameObject->m_interpolationDistance = playerInterpolationDistance;
+					findRes->m_currentPlayGameObject->m_interpolationVector = playerInterpolationVector;
 				}
 
 				//recvPacket->userState[i].hp;
