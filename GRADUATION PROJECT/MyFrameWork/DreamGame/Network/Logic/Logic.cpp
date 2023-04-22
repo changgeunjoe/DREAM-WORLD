@@ -372,10 +372,10 @@ void Logic::ProcessPacket(char* p)
 
 		//cout << "current UTC: " << currentUTC_Time << endl;
 		//cout << "recv UTC: " << recvPacket->time << endl;
-		double t = duration_cast<microseconds>(h_t - recvPacket->h_t).count();
-		t = (double)t / 1000.0f;//microseconds to milli
+		//double t = duration_cast<microseconds>(h_t - recvPacket->h_t).count();
+		//t = (double)t / 1000.0f;//microseconds to milli
 		//cout << "duration high: " << t << "mili" << endl;
-		t = (double)t / 1000.0f;//milliseconds ti sec
+		//t = (double)t / 1000.0f;//milliseconds ti sec
 		//cout << "duration high: " << t << "second" << endl;
 
 		double bosDurationTime = duration_cast<microseconds>(currentUTC_Time - recvPacket->time).count();
@@ -401,7 +401,7 @@ void Logic::ProcessPacket(char* p)
 		}
 		else {
 			m_MonsterSession.m_currentPlayGameObject->m_interpolationDistance = bossInterpolationDistance;
-			m_MonsterSession.m_currentPlayGameObject->m_interpolationVector = bossInterpolationVector;
+			m_MonsterSession.m_currentPlayGameObject->m_interpolationVector = Vector3::Normalize(bossInterpolationVector);
 		}
 		recvPacket->bossState.rot;
 		for (int i = 0; i < 4; i++) {//그냥 4개 여서 도는 for문 주의			
@@ -436,6 +436,8 @@ void Logic::ProcessPacket(char* p)
 					m_MonsterSession.m_currentPlayGameObject->m_interpolationDistance = 0.0f;
 				}
 				else if (abs(playerInterpolationDistance) > 10.0f) {
+					cout << "client playerPos: " << playerPos.x << ", " << playerPos.z << endl;
+					cout << "server playerPos: " << recvPacket->userState[i].pos.x << ", " << recvPacket->userState[i].pos.z << endl;
 					findRes->m_currentPlayGameObject->SetPosition(recvPacket->userState[i].pos);
 				}
 				else if (abs(playerInterpolationDistance) < 5.0f) {
@@ -443,7 +445,7 @@ void Logic::ProcessPacket(char* p)
 				}
 				else {
 					findRes->m_currentPlayGameObject->m_interpolationDistance = playerInterpolationDistance;
-					findRes->m_currentPlayGameObject->m_interpolationVector = playerInterpolationVector;
+					findRes->m_currentPlayGameObject->m_interpolationVector = Vector3::Normalize(playerInterpolationVector);
 				}
 
 				//recvPacket->userState[i].hp;

@@ -216,7 +216,7 @@ void GameObject::HandleMessage(string message)
 
 void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	
+
 	m_pd3dGraphicsRootSignature = pd3dGraphicsRootSignature;
 	ComponentBase* pComponent = GetComponent(component_id::RENDER_COMPONENT);
 	if (pComponent != NULL)
@@ -257,7 +257,7 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	ComponentBase* pSkyShaderComponent = GetComponent(component_id::SKYSHADER_COMPONENT);
 	ComponentBase* pUiShaderComponent = GetComponent(component_id::UISHADER_COMPONENT);
 	ComponentBase* pSpriteShaderComponent = GetComponent(component_id::SPRITESHADER_COMPONENT);
-	if (pShaderComponent != NULL|| pSkyShaderComponent!=NULL|| pUiShaderComponent!=NULL|| pSpriteShaderComponent!=NULL)
+	if (pShaderComponent != NULL || pSkyShaderComponent != NULL || pUiShaderComponent != NULL || pSpriteShaderComponent != NULL)
 	{
 		if (pShaderComponent != NULL)
 		{
@@ -327,7 +327,7 @@ void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3
 				{
 					m_ppMaterialsComponent[i]->m_pShader->Render(pd3dCommandList, 0, pd3dGraphicsRootSignature, bPrerender);
 
-					
+
 					pd3dCommandList->SetGraphicsRootDescriptorTable(0, m_ppMaterialsComponent[i]->m_pShader->GetCbvGPUDescriptorHandle());
 					m_ppMaterialsComponent[i]->m_pShader->UpdateShaderVariables(pd3dCommandList, &m_xmf4x4World, m_ppMaterialsComponent[i]);
 					//m_ppMaterialsComponent[i]->UpdateShaderVariable(pd3dCommandList);
@@ -342,7 +342,7 @@ void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3
 
 void GameObject::ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent)
 {
-	
+
 	if (m_pSkinnedAnimationController)
 		m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
 
@@ -553,7 +553,7 @@ CLoadedModelInfoCompnent* GameObject::LoadGeometryAndAnimationFromFile(ID3D12Dev
 	return(pLoadedModel);
 }
 
-void GameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, GameObject* pParent, FILE* pInFile, ShaderComponent* pShader,ID3D12RootSignature* pd3dGraphicsRootSignature)
+void GameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, GameObject* pParent, FILE* pInFile, ShaderComponent* pShader, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
 	char pstrToken[64] = { '\0' };
 	int nMaterial = 0;
@@ -584,14 +584,14 @@ void GameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 				{
 					if (nMeshType & VERTEXT_BONE_INDEX_WEIGHT)
 					{
-						pMaterial->PrepareSkinnedShaders(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,m_pd3dcbGameObjects);
+						pMaterial->PrepareSkinnedShaders(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pd3dcbGameObjects);
 						pMaterial->SetSkinnedAnimationShader();
 					}
 					else
 					{
-				/*		if (!strncmp(m_pstrFrameName, "Bounding", 8))
-							pMaterial->SetBoundingBoxShader();
-						else*/
+						/*		if (!strncmp(m_pstrFrameName, "Bounding", 8))
+									pMaterial->SetBoundingBoxShader();
+								else*/
 						pMaterial->PrepareStandardShaders(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pd3dcbGameObjects);
 						pMaterial->SetStandardShader();
 					}
@@ -884,7 +884,7 @@ void GameObject::MoveForward(float fDistance)
 	XMFLOAT3 xmf3Position = GetPosition();
 	XMFLOAT3 xmf3Look = GetLook();
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, fDistance);
-	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance);
+	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * fDistance / 50.0f);
 	if (Vector3::Length(xmf3Position) < 440.0f)	GameObject::SetPosition(xmf3Position);
 }
 
@@ -944,7 +944,7 @@ void GameObject::MoveDiagonal(int fowardDirection, int rightDirection, float dis
 	XMFLOAT3 resDirection = Vector3::Add(xmf3Right, xmf3Look);
 	resDirection = Vector3::Normalize(resDirection);
 	xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(resDirection, distance));
-	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance);
+	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * distance / 50.0f);
 	GameObject::SetPosition(xmf3Position);
 	if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(xmf3Position, m_pCamera->GetOffset()));
 }
@@ -972,7 +972,7 @@ void GameObject::SetCamera(CCamera* pCamera)
 	m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
 }
 
-void GameObject::SetRowColumn(float nRows, float nCols,float fSpeed )
+void GameObject::SetRowColumn(float nRows, float nCols, float fSpeed)
 {
 	m_bMultiSprite = true;
 	m_nRows = nRows;
