@@ -258,7 +258,7 @@ public:
 	float                           m_UIScale = 10.0f;
 public:
 	float m_interpolationDistance = 0.0f;
-	XMFLOAT3 m_interpolationVector = XMFLOAT3(0);
+	XMFLOAT3 m_interpolationVector = XMFLOAT3{ 0,0,0 };
 };
 
 template<typename T>//템플릿을 활용하는 이유-> 
