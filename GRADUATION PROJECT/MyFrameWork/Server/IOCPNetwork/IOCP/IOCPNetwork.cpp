@@ -169,16 +169,20 @@ void IOCPNetwork::WorkerThread()
 				while (refRoom.m_bossDamagedQueue.try_pop(damage)) {
 					refRoom.GetBoss().AttackedHp(damage);
 				}
-				std::cout << "bossHp : " << refRoom.GetBoss().GetHp() << std::endl;
-				//refRoom.GetBoss().GetHp();
+				std::cout << "bossHp : " << refRoom.GetBoss().GetHp() << std::endl;				
 				SERVER_PACKET::GameState sendPacket;
 				sendPacket.type = SERVER_PACKET::GAME_STATE;
 				sendPacket.size = sizeof(SERVER_PACKET::GameState);
 				sendPacket.bossState.hp = refRoom.GetBoss().GetHp();
+				sendPacket.bossState.pos = refRoom.GetBoss().GetPos();
+				sendPacket.bossState.rot = refRoom.GetBoss().GetRot();
 				int i = 0;
 				for (auto& p : refRoom.GetInGamePlayerMap()) {
 					sendPacket.userState[i].userId = p.second;
 					sendPacket.userState[i].hp = m_session[p.second].m_sessionObject->GetHp();
+					sendPacket.userState[i].pos = m_session[p.second].m_sessionObject->GetPos();
+					sendPacket.userState[i].rot = m_session[p.second].m_sessionObject->GetRot();
+
 					++i;
 				}
 				g_logic.BroadCastInRoom(roomId, &sendPacket);

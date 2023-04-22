@@ -226,18 +226,22 @@ namespace SERVER_PACKET {
 	struct InGamePlayerState {
 		int userId = -1;
 		int hp;
+		XMFLOAT3 pos;
+		XMFLOAT3 rot;
 	};
 
 	struct InGameBossState {
 		int hp;
+		XMFLOAT3 pos;
+		XMFLOAT3 rot;
 	};
 
-	struct GameState {
+	struct GameState {//Player State-> pos rot...추가하여 보정?
 		short size;
 		char type;
 		InGamePlayerState userState[4];
 		InGameBossState bossState;
-		std::chrono::utc_clock::time_point t;
+		std::chrono::utc_clock::time_point time;
 	};
 
 }

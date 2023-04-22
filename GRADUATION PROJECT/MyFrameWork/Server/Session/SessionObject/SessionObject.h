@@ -20,6 +20,8 @@ public:
 	virtual ~SessionObject();
 public:
 	short GetHp() { return m_hp; }
+	XMFLOAT3& GetPos() { return m_position; }
+	XMFLOAT3& GetRot() { return m_rotateAngle; }
 	void AttackedHp(short damage) { m_hp -= damage; };
 	short GetAttackDamage() { return m_attackDamage; }
 public:

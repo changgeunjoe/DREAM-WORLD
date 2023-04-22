@@ -9,6 +9,7 @@
 extern CGameFramework gGameFramework;
 extern RoomManger g_RoomManager;
 
+using namespace chrono;
 
 Logic::Logic()
 {
@@ -363,20 +364,56 @@ void Logic::ProcessPacket(char* p)
 	{
 		SERVER_PACKET::GameState* recvPacket = reinterpret_cast<SERVER_PACKET::GameState*>(p);
 		std::cout << "ProcessPacket()::SERVER_PACKET::GAME_STATE - Boss HP: " << recvPacket->bossState.hp << std::endl;
-		//recvPacket->bossState.hp; //boss Hp
-		m_MonsterSession.m_currentPlayGameObject->m_UIScale = static_cast<float>(recvPacket->bossState.hp) / 250.0f;
-		for (int i = 0; i < 4; i++) {//그냥 4개 여서 도는 for문 주의
-			recvPacket->userState[i].hp;
-			recvPacket->userState[i].userId;
+		m_MonsterSession.m_currentPlayGameObject->m_UIScale = static_cast<float>(recvPacket->bossState.hp) / 2500.0f;//maxHp 2500입니다
+
+		XMFLOAT3 interpolationVector = Vector3::Subtract(recvPacket->bossState.pos, m_MonsterSession.m_currentPlayGameObject->GetPosition());
+		utc_clock::time_point currentUTC_Time = utc_clock::now();
+		auto durationTime = duration_cast<microseconds>(currentUTC_Time - recvPacket->time).count();
+		durationTime = (double)durationTime / 1000.0f;//milliseconds
+		durationTime = (double)durationTime / 1000.0f;//seconds
+		//서버와 
+		float interpolationDistance = Vector3::Length(interpolationVector);
+		interpolationDistance = interpolationDistance - (float)durationTime * 50.0f;//length - v*t
+		if (interpolationDistance < 0.3f) {
+			m_MonsterSession.m_currentPlayGameObject->m_interpolationDistance = 0.0f;
+		}
+		else {
+			m_MonsterSession.m_currentPlayGameObject->m_interpolationDistance = interpolationDistance;
+			m_MonsterSession.m_currentPlayGameObject->m_interpolationVector = interpolationVector;
+		}
+		recvPacket->bossState.rot;
+		for (int i = 0; i < 4; i++) {//그냥 4개 여서 도는 for문 주의			
 			if (-1 != recvPacket->userState[i].userId) {
 				std::cout << "ProcessPacket()::SERVER_PACKET::GAME_STATE - User ID: " << recvPacket->userState[i].hp << " HP: " << recvPacket->userState[i].hp << std::endl;
-				recvPacket->userState[i].hp;
-				recvPacket->userState[i].userId;// 실제 내가 가진 플레이어 ID
+				//playerSession에서 해당 플레이어 탐색
+				auto findRes = find_if(m_inGamePlayerSession.begin(), m_inGamePlayerSession.end(), [&recvPacket, &i](auto& fObj) {
+					if (fObj.m_id == recvPacket->userState[i].userId)
+						return true;
+					return false;
+					});
+				if (findRes == m_inGamePlayerSession.end())continue;
+				XMFLOAT3 interpolationVector = Vector3::Subtract(recvPacket->userState[i].pos, findRes->m_currentPlayGameObject->GetPosition());
+				auto durationTime = duration_cast<microseconds>(currentUTC_Time - recvPacket->time).count();
+				durationTime = (double)durationTime / 1000.0f;//milliseconds
+				durationTime = (double)durationTime / 1000.0f;//seconds
+				//서버와 
+				float interpolationDistance = Vector3::Length(interpolationVector);
+				interpolationDistance = interpolationDistance - (float)durationTime * 50.0f;
+				if (interpolationDistance < 0.3f) {
+					findRes->m_currentPlayGameObject->m_interpolationDistance = 0.0f;
+				}
+				else {
+					findRes->m_currentPlayGameObject->m_interpolationDistance = interpolationDistance;
+					findRes->m_currentPlayGameObject->m_interpolationVector = interpolationVector;
+				}
+
+				//recvPacket->userState[i].hp;
+				//recvPacket->userState[i].rot;
 			}
-		}	
+		}
 	}
 	break;
 	default:
-		break; 
+		break;
 	}
 }
