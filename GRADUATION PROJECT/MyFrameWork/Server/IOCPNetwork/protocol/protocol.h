@@ -127,6 +127,8 @@ namespace SERVER_PACKET {
 	constexpr unsigned char SHOOTING_ARROW = 84;
 	constexpr unsigned char SHOOTING_BALL = 85;
 	constexpr unsigned char GAME_STATE = 86;
+	constexpr unsigned char BOSS_ATTACK = 87;	
+
 	
 
 	struct MovePacket
@@ -244,6 +246,11 @@ namespace SERVER_PACKET {
 		std::chrono::utc_clock::time_point time;
 	};
 
+	struct BossAttackPacket {
+		short size;
+		char type;
+		char bossAttackType;
+	};
 }
 
 #pragma pack (pop)

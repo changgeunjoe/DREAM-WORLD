@@ -397,14 +397,7 @@ void Logic::AutoMoveServer()//2500명?
 	while (m_isRunningThread)
 	{
 		if (g_iocpNetwork.GetCurrentId() == 0) continue;
-		currentTime = std::chrono::high_resolution_clock::now();
-		//for (auto& cli : g_iocpNetwork.m_session) {//플레이어 자동 움직임
-		//	if (cli.GetId() > MAX_USER) break;
-		//	if (cli.GetPlayerState() != PLAYER_STATE::IN_GAME_ROOM) continue;
-		//	if (cli.m_sessionObject->m_inputDirection != DIRECTION::IDLE) {
-		//		cli.m_sessionObject->AutoMove();
-		//	}
-		//}
+		currentTime = std::chrono::high_resolution_clock::now();	
 		auto RunningRooms = g_RoomManager.GetRunningRoomIdList();
 
 		for (auto roomId : RunningRooms) {
@@ -445,8 +438,9 @@ void Logic::AutoMoveServer()//2500명?
 				}
 			}
 		}
-		while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - currentTime).count() < 1000.0f / 60.0f) {
-		}
+		Sleep(16.6667f - std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - currentTime).count());
+		/*while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - currentTime).count() < 1000.0f / 60.0f) {
+		}*/
 	}
 }
 

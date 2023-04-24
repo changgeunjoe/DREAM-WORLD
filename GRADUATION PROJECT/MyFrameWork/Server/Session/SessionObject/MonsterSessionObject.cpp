@@ -105,11 +105,10 @@ void MonsterSessionObject::Move(float fDistance, float elapsedTime)
 	XMFLOAT3 des = Vector3::Subtract(m_DestinationPos, m_position);	// 목적지랑 위치랑 벡터	
 	CalcRightVector();
 	bool OnRight = (Vector3::DotProduct(m_rightVector, Vector3::Normalize(des)) > 0) ? true : false;	// 목적지가 올느쪽 왼
-	float ChangingAngle = Vector3::Angle(Vector3::Normalize(des), m_directionVector);
-	//std::cout << "changingAngle: " << ChangingAngle << std::endl;
-	if (Vector3::Length(des) < 10.0f) {
-		//std::cout << "findPlayer" << std::endl;
-		//m_position = m_DestinationPos;
+	float ChangingAngle = Vector3::Angle(Vector3::Normalize(des), m_directionVector);	
+	if (Vector3::Length(des) < 10.0f) {		
+		TIMER_EVENT bossAttackEvent{ std::chrono::system_clock::now() + std::chrono::milliseconds(1), m_roomId, -1,EV_BOSS_ATTACK_ORDER };
+		g_Timer.m_TimerQueue.push(bossAttackEvent);
 	}
 	else
 	{

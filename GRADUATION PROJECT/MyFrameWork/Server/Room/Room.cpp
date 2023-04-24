@@ -30,7 +30,6 @@ Room::Room(std::string roomId) : m_roomId(roomId)
 Room::Room(std::string roomId, std::wstring roomName) : m_roomId(roomId), m_roomName(roomName)
 {
 	m_roomId = roomId;
-	CreateBossMonster(); //임시 입니다.	
 	int i = 0;
 	for (auto& arrow : m_arrows) {
 		m_restArrow.push(i);
@@ -109,7 +108,7 @@ void Room::DeleteWaitPlayer(int playerId)
 void Room::CreateBossMonster()
 {
 	m_boss.SetRoomId(m_roomId);
-	TIMER_EVENT firstEv{ std::chrono::system_clock::now() + std::chrono::seconds(3), m_roomId, -1,EV_FIND_PLAYER };
+	TIMER_EVENT firstEv{ std::chrono::system_clock::now() + std::chrono::milliseconds(200), m_roomId, -1,EV_FIND_PLAYER };
 	g_Timer.m_TimerQueue.push(firstEv);
 }
 

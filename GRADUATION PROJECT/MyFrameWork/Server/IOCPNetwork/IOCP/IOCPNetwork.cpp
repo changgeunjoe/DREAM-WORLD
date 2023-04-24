@@ -5,11 +5,13 @@
 #include "../../Session/SessionObject/MonsterSessionObject.h"
 #include "../../DB/DBObject.h"
 #include "../../Room/RoomManager.h"
+#include "../../Timer/Timer.h"
 #include "../protocol/protocol.h"
 
 extern  Logic		g_logic;
 extern	DBObject	g_DBObj;
 extern RoomManager	g_RoomManager;
+extern Timer		g_Timer;
 
 IOCPNetwork::IOCPNetwork()
 {
@@ -169,7 +171,7 @@ void IOCPNetwork::WorkerThread()
 				while (refRoom.m_bossDamagedQueue.try_pop(damage)) {
 					refRoom.GetBoss().AttackedHp(damage);
 				}
-				std::cout << "bossHp : " << refRoom.GetBoss().GetHp() << std::endl;				
+				std::cout << "bossHp : " << refRoom.GetBoss().GetHp() << std::endl;
 				SERVER_PACKET::GameState sendPacket;
 				sendPacket.type = SERVER_PACKET::GAME_STATE;
 				sendPacket.size = sizeof(SERVER_PACKET::GameState);
@@ -182,7 +184,6 @@ void IOCPNetwork::WorkerThread()
 					sendPacket.userState[i].hp = m_session[p.second].m_sessionObject->GetHp();
 					sendPacket.userState[i].pos = m_session[p.second].m_sessionObject->GetPos();
 					sendPacket.userState[i].rot = m_session[p.second].m_sessionObject->GetRot();
-
 					++i;
 				}
 				sendPacket.time = std::chrono::utc_clock::now();
@@ -190,6 +191,47 @@ void IOCPNetwork::WorkerThread()
 			}
 			if (ex_over != nullptr)
 				delete ex_over;
+		}
+		break;
+		case OP_BOSS_ATTACK:
+		{
+			std::string roomId{ ex_over->m_buffer };
+			if (g_RoomManager.IsExistRunningRoom(roomId)) {
+				Room& refRoom = g_RoomManager.GetRunningRoom(roomId);
+				SERVER_PACKET::BossAttackPacket sendPacket;
+				sendPacket.size = sizeof(SERVER_PACKET::BossAttackPacket);
+				int randAttackNum = bossRandAttack(dre);
+				sendPacket.type = SERVER_PACKET::BOSS_ATTACK;
+				sendPacket.bossAttackType = (BOSS_ATTACK)randAttackNum;
+				refRoom.GetBoss().currentAttack = (BOSS_ATTACK)randAttackNum;
+				TIMER_EVENT bossChangeStateEvent;
+
+				switch (randAttackNum)
+				{
+				case BOSS_ATTACK::ATTACK_KICK:
+				{					
+					bossChangeStateEvent = TIMER_EVENT{ std::chrono::system_clock::now(), roomId, -1, EV_BOSS_STATE_CHANGE_ATTACK_TO_FIND };
+					//패턴마다 공격시간 달라서 설정해줘야됨
+				}
+				break;
+				case BOSS_ATTACK::ATTACK_FOWARD:
+				{
+					bossChangeStateEvent = TIMER_EVENT{ std::chrono::system_clock::now(), roomId, -1, EV_BOSS_STATE_CHANGE_ATTACK_TO_FIND };
+				}
+				break;
+				case BOSS_ATTACK::ATTACK_SPIN:
+				{
+					bossChangeStateEvent = TIMER_EVENT{ std::chrono::system_clock::now(), roomId, -1, EV_BOSS_STATE_CHANGE_ATTACK_TO_FIND };
+				}
+				break;
+				default:
+					break;
+				}
+				g_Timer.m_TimerQueue.push(bossChangeStateEvent);
+				g_logic.BroadCastInRoom(roomId, &sendPacket);
+				refRoom.GetBoss().isMove = false;
+				refRoom.GetBoss().isAttack = true;
+			}
 		}
 		break;
 		default: break;
