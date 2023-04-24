@@ -4,10 +4,14 @@
 #include "../../IOCPNetwork/IOCP/IOCPNetwork.h"
 #include "../../Logic/Logic.h"
 #include "../../Timer/Timer.h"
+#include "../../Room/RoomManager.h"
+#include "PlayerSessionObject.h"
+
 
 extern Logic g_logic;
 extern Timer g_Timer;
 extern IOCPNetwork g_iocpNetwork;
+extern RoomManager g_RoomManager;
 
 MonsterSessionObject::MonsterSessionObject() : SessionObject()
 {
@@ -105,8 +109,8 @@ void MonsterSessionObject::Move(float fDistance, float elapsedTime)
 	XMFLOAT3 des = Vector3::Subtract(m_DestinationPos, m_position);	// ¸ñÀûÁö¶û À§Ä¡¶û º¤ÅÍ	
 	CalcRightVector();
 	bool OnRight = (Vector3::DotProduct(m_rightVector, Vector3::Normalize(des)) > 0) ? true : false;	// ¸ñÀûÁö°¡ ¿Ã´ÀÂÊ ¿Þ
-	float ChangingAngle = Vector3::Angle(Vector3::Normalize(des), m_directionVector);	
-	if (Vector3::Length(des) < 10.0f) {		
+	float ChangingAngle = Vector3::Angle(Vector3::Normalize(des), m_directionVector);
+	if (Vector3::Length(des) < 10.0f) {
 		TIMER_EVENT bossAttackEvent{ std::chrono::system_clock::now() + std::chrono::milliseconds(1), m_roomId, -1,EV_BOSS_ATTACK_ORDER };
 		g_Timer.m_TimerQueue.push(bossAttackEvent);
 	}
@@ -128,4 +132,50 @@ void MonsterSessionObject::Move(float fDistance, float elapsedTime)
 void MonsterSessionObject::SetAggroPlayerId(int id)
 {
 	m_aggroPlayerId = id;
+}
+
+void MonsterSessionObject::AttackPlayer()
+{
+	Room& room = g_RoomManager.GetRunningRoom(m_roomId);
+	auto& playerMap = room.GetInGamePlayerMap();
+	switch (currentAttack)
+	{
+	case ATTACK_KICK:
+	{
+		for (auto& playerInfo : playerMap) {
+			auto bossToPlayerVector = Vector3::Subtract(g_iocpNetwork.m_session[playerInfo.second].m_sessionObject->GetPos(), m_position);
+			float dotProductRes = Vector3::DotProduct(bossToPlayerVector, m_directionVector);
+			float bossToPlayerDis = Vector3::Length(bossToPlayerVector);
+			if (bossToPlayerDis < 30.0f && abs(dotProductRes) < 90.0f) {
+				//player Hit Kick
+			}
+		}
+	}
+	break;
+	case ATTACK_FOWARD:
+	{
+		for (auto& playerInfo : playerMap) {
+			auto bossToPlayerVector = Vector3::Subtract(g_iocpNetwork.m_session[playerInfo.second].m_sessionObject->GetPos(), m_position);
+			float dotProductRes = Vector3::DotProduct(bossToPlayerVector, m_directionVector);
+			float bossToPlayerDis = Vector3::Length(bossToPlayerVector);
+			if (bossToPlayerDis < 15.0f && abs(dotProductRes) < 90.0f) {
+				//player Hit Foward
+			}
+		}
+	}
+	break;
+	case ATTACK_SPIN:
+	{
+		for (auto& playerInfo : playerMap) {
+			auto bossToPlayerVector = Vector3::Subtract(g_iocpNetwork.m_session[playerInfo.second].m_sessionObject->GetPos(), m_position);			
+			float bossToPlayerDis = Vector3::Length(bossToPlayerVector);
+			if (bossToPlayerDis < 15.0f) {
+				//player Hit spin
+			}
+		}
+	}
+	break;
+	default:
+		break;
+	}
 }
