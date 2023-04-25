@@ -8,6 +8,7 @@
 #include "UiShaderComponent.h"
 #include"MultiSpriteShaderComponent.h"
 #include "Character.h"
+#include"InstancingShaderComponent.h"
 
 
 extern NetworkHelper g_NetworkHelper;
@@ -127,6 +128,10 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	m_pSkyboxObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	
 	m_pDepthShaderComponent->UpdateShaderVariables(pd3dCommandList);
+	//인스턴싱 렌더 
+	m_pInstancingShaderComponent->Render(pd3dDevice, pd3dCommandList,0, pd3dGraphicsRootSignature);
+	
+	//
 	g_Logic.m_MonsterSession.m_currentPlayGameObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 	for (int i = 0; i < m_pArrowObjects.size(); i++) {
@@ -339,6 +344,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	Build2DUI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildCharacterUI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildParticle(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	BuildInstanceObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
 void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {	
@@ -365,30 +371,24 @@ void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	m_pFireballEmissionSpriteObject->SetRowColumn(7, 7, 0.05);
 	m_pFireballEmissionSpriteObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppParticleObjects.emplace_back(m_pFireballEmissionSpriteObject);
+	
+	//인스턴싱 객체를 위한 추가 작업진행중 2023.04.25. ccg
+	m_pFireballSpriteObjects.resize(20);
+	m_pFireballSpriteObjects[0] = new GameObject(UNDEF_ENTITY);
+	m_pFireballSpriteObjects[0]->InsertComponent<RenderComponent>();
+	m_pFireballSpriteObjects[0]->InsertComponent<UIMeshComponent>();
+	m_pFireballSpriteObjects[0]->InsertComponent<MultiSpriteShaderComponent>();
+	m_pFireballSpriteObjects[0]->InsertComponent<TextureComponent>();
+	m_pFireballSpriteObjects[0]->SetTexture(L"MagicEffect/FireballEmission_7x7.dds", RESOURCE_TEXTURE2D, 3);
+	m_pFireballSpriteObjects[0]->SetPosition(XMFLOAT3(0, 40, 100));
+	m_pFireballSpriteObjects[0]->SetScale(10);
+	m_pFireballSpriteObjects[0]->SetRowColumn(7, 7, 0.05);
+	m_pFireballSpriteObjects[0]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
-	for (int i = 0; i < 10; i++) {
-		m_pFireballSpriteObjects[i] = m_pFireballSpriteObject;
+	for (int i = 1; i < 10; i++) {
+		m_pFireballSpriteObjects[i]= new GameObject(UNDEF_ENTITY);
 		m_pFireballSpriteObjects[i]->SetPosition(XMFLOAT3(0, 40, 100+i*10));
-		m_ppParticleObjects.emplace_back(m_pFireballSpriteObjects[i]);
 	}
-	
-	
-	m_pFireball2EmissionSpriteObject = m_pFireballEmissionSpriteObject;
-	//m_pFireball2EmissionSpriteObject->SetPosition(XMFLOAT3(0, 70, 100));
-	//m_ppParticleObjects.emplace_back(m_pFireballEmissionSpriteObject);
-
-
-	//m_pFireballEmissionSpriteObject = new GameObject(UNDEF_ENTITY);
-	//m_pFireballEmissionSpriteObject->InsertComponent<RenderComponent>();
-	//m_pFireballEmissionSpriteObject->InsertComponent<UIMeshComponent>();
-	//m_pFireballEmissionSpriteObject->InsertComponent<ShaderComponent>();
-	//m_pFireballEmissionSpriteObject->InsertComponent<TextureComponent>();
-	//m_pFireballEmissionSpriteObject->SetTexture(L"MagicEffect/FireballEmission_7x7.dds", RESOURCE_TEXTURE2D, 3);
-	//m_pFireballEmissionSpriteObject->SetPosition(XMFLOAT3(0, 40, 100));
-	//m_pFireballEmissionSpriteObject->SetScale(10);
-	//m_pFireballEmissionSpriteObject->SetRowColumn(7, 7, 0.05);
-	//m_pFireballEmissionSpriteObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//m_ppParticleObjects.emplace_back(m_pFireballEmissionSpriteObject);
 }
 void GameobjectManager::BuildLight()
 {
@@ -552,6 +552,12 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pCharacterSkillBarObject->SetScale(0.05, 0.025, 1);
 	m_pCharacterSkillBarObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppCharacterUIObjects.emplace_back(m_pCharacterSkillBarObject);
+}
+
+void GameobjectManager::BuildInstanceObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+{
+	m_pInstancingShaderComponent = new InstancingShaderComponent;
+	m_pInstancingShaderComponent->BuildObject(pd3dDevice, pd3dCommandList, m_pFireballSpriteObjects);
 }
 
 enum UI

@@ -10,6 +10,7 @@ class Session;
 class ShadowMapShaderComponent;
 class DepthRenderShaderComponent;
 class TextureToViewportComponent;
+class InstancingShaderComponent;
 #include"CLoadModelinfo.h"
 class GameobjectManager
 {
@@ -28,6 +29,7 @@ public:
 	virtual void BuildShadow(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void Build2DUI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void BuildInstanceObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void PickObjectByRayIntersection(int xClient, int yClient);
 	virtual void ProcessingUI(int n);
 	
@@ -64,6 +66,7 @@ private: //active object
 	DepthRenderShaderComponent* m_pDepthShaderComponent{ NULL };
 	ShadowMapShaderComponent* m_pShadowmapShaderComponent{ NULL };
 	TextureToViewportComponent* m_pTextureToViewportComponent{ NULL };
+	InstancingShaderComponent* m_pInstancingShaderComponent{ NULL };
 
 
 	CLight* m_pLight{ NULL };
@@ -99,7 +102,7 @@ private: //active object
 
 	//ParticleObject-Particle -  23.04.13 .ccg
 
-	array<GameObject*, 10> m_pFireballSpriteObjects;
+	vector<GameObject*>  m_pFireballSpriteObjects;
 	GameObject* m_pFireballSpriteObject{ NULL };
 	GameObject* m_pFireballEmissionSpriteObject{ NULL };
 	GameObject* m_pFireball2EmissionSpriteObject{ NULL };

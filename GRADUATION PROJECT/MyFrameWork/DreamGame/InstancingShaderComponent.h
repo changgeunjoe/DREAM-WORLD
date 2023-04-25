@@ -15,8 +15,12 @@ class InstancingShaderComponent : public ShaderComponent
 		virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 		virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 
+		virtual void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, vector<GameObject*>& pObjects);
+		virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, int nPipelineState, ID3D12RootSignature* pd3dGraphicsRootSignature);
 
-		virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, int nPipelineState, ID3D12RootSignature* pd3dGraphicsRootSignature)
+protected:
+	vector<GameObject*> m_ppObjects;
+
 
 };
 

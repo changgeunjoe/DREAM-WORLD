@@ -63,7 +63,6 @@ cbuffer cbMultiSpriteInfo : register(b7)//멀티스프라이트인포
 struct INSTANCEDGAMEOBJECTINFO//인스턴싱 데이터를 위한 구조체이다
 {
     matrix m_mtxGameObject;
-    float4 m_cColor;
 };
 
 
