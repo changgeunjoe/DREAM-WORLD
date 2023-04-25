@@ -58,5 +58,6 @@ public:
 public:
 	void SetAggroPlayerId(int id);
 	int GetAggroPlayerId() { return m_aggroPlayerId; }
+	void AttackTimer();
 	void AttackPlayer();
 };

@@ -743,9 +743,9 @@ void Monster::Animate(float fTimeElapsed)
 		if (ChangingAngle > 0.5f)
 		{
 			if (OnRight)
-				Rotate(&up, 45.0f * fTimeElapsed);
+				Rotate(&up, 90.0f * fTimeElapsed);
 			else if (!OnRight)
-				Rotate(&up, -45.0f * fTimeElapsed);
+				Rotate(&up, -90.0f * fTimeElapsed);
 		}
 		else
 			SetLook(Vector3::Normalize(des));

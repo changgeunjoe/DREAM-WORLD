@@ -193,7 +193,7 @@ void IOCPNetwork::WorkerThread()
 				delete ex_over;
 		}
 		break;
-		case OP_BOSS_ATTACK:
+		case OP_BOSS_ATTACK_SELECT:
 		{
 			std::string roomId{ ex_over->m_buffer };
 			if (g_RoomManager.IsExistRunningRoom(roomId)) {
@@ -204,33 +204,19 @@ void IOCPNetwork::WorkerThread()
 				sendPacket.type = SERVER_PACKET::BOSS_ATTACK;
 				sendPacket.bossAttackType = (BOSS_ATTACK)randAttackNum;
 				refRoom.GetBoss().currentAttack = (BOSS_ATTACK)randAttackNum;
-				TIMER_EVENT bossChangeStateEvent;
-
-				switch (randAttackNum)
-				{
-				case BOSS_ATTACK::ATTACK_KICK:
-				{					
-					bossChangeStateEvent = TIMER_EVENT{ std::chrono::system_clock::now(), roomId, -1, EV_BOSS_STATE_CHANGE_ATTACK_TO_FIND };
-					//패턴마다 공격시간 달라서 설정해줘야됨
-				}
-				break;
-				case BOSS_ATTACK::ATTACK_FOWARD:
-				{
-					bossChangeStateEvent = TIMER_EVENT{ std::chrono::system_clock::now(), roomId, -1, EV_BOSS_STATE_CHANGE_ATTACK_TO_FIND };
-				}
-				break;
-				case BOSS_ATTACK::ATTACK_SPIN:
-				{
-					bossChangeStateEvent = TIMER_EVENT{ std::chrono::system_clock::now(), roomId, -1, EV_BOSS_STATE_CHANGE_ATTACK_TO_FIND };
-				}
-				break;
-				default:
-					break;
-				}
-				g_Timer.m_TimerQueue.push(bossChangeStateEvent);
+				refRoom.GetBoss().AttackTimer();
 				g_logic.BroadCastInRoom(roomId, &sendPacket);
 				refRoom.GetBoss().isMove = false;
 				refRoom.GetBoss().isAttack = true;
+			}
+		}
+		break;
+		case OP_BOSS_ATTACK_EXECUTE:
+		{
+			std::string roomId{ ex_over->m_buffer };
+			if (g_RoomManager.IsExistRunningRoom(roomId)) {
+				Room& refRoom = g_RoomManager.GetRunningRoom(roomId);
+				refRoom.GetBoss().AttackPlayer();
 			}
 		}
 		break;

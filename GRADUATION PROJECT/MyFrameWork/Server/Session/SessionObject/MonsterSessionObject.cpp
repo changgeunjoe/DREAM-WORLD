@@ -119,9 +119,9 @@ void MonsterSessionObject::Move(float fDistance, float elapsedTime)
 		if (ChangingAngle > 0.5f)
 		{
 			if (OnRight)
-				Rotate(ROTATE_AXIS::Y, 45.0f * elapsedTime);
+				Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime);
 			else if (!OnRight)
-				Rotate(ROTATE_AXIS::Y, -45.0f * elapsedTime);
+				Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
 		}
 		m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, fDistance));//틱마다 움직임
 		m_SPBB = BoundingSphere(DirectX::XMFLOAT3(m_position.x, m_position.y + 12.5f, m_position.z), 22.5f);
@@ -134,8 +134,48 @@ void MonsterSessionObject::SetAggroPlayerId(int id)
 	m_aggroPlayerId = id;
 }
 
+void MonsterSessionObject::AttackTimer()
+{
+	switch (currentAttack)
+	{
+	case ATTACK_KICK:
+	{
+		TIMER_EVENT attackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(563), m_roomId, -1,EV_BOSS_KICK };
+		g_Timer.m_TimerQueue.push(attackTimer);
+	}
+	break;
+	case ATTACK_PUNCH:
+	{
+		TIMER_EVENT attackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(563), m_roomId, -1,EV_BOSS_PUNCH };
+		g_Timer.m_TimerQueue.push(attackTimer);
+	}
+	break;
+	case ATTACK_SPIN:
+	{
+		TIMER_EVENT attackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(300), m_roomId, -1,EV_BOSS_SPIN };
+		g_Timer.m_TimerQueue.push(attackTimer);
+		attackTimer.wakeupTime += std::chrono::milliseconds(300);
+		g_Timer.m_TimerQueue.push(attackTimer);
+		attackTimer.wakeupTime += std::chrono::milliseconds(300);
+		attackTimer.playerId = 0;
+		g_Timer.m_TimerQueue.push(attackTimer);
+	}
+	break;
+	default:
+		break;
+	}
+}
+
 void MonsterSessionObject::AttackPlayer()
 {
+
+	/*Room& room = g_RoomManager.GetRunningRoom(ev.roomId);
+	TIMER_EVENT find_ev{ std::chrono::system_clock::now() + std::chrono::milliseconds(10), ev.roomId, -1,EV_FIND_PLAYER };
+	m_TimerQueue.push(find_ev);
+	TIMER_EVENT move_ev{ std::chrono::system_clock::now() + std::chrono::milliseconds(300), ev.roomId, -1,EV_BOSS_MOVE_SEND };
+	m_TimerQueue.push(move_ev);*/
+
+
 	Room& room = g_RoomManager.GetRunningRoom(m_roomId);
 	auto& playerMap = room.GetInGamePlayerMap();
 	switch (currentAttack)
@@ -152,7 +192,7 @@ void MonsterSessionObject::AttackPlayer()
 		}
 	}
 	break;
-	case ATTACK_FOWARD:
+	case ATTACK_PUNCH:
 	{
 		for (auto& playerInfo : playerMap) {
 			auto bossToPlayerVector = Vector3::Subtract(g_iocpNetwork.m_session[playerInfo.second].m_sessionObject->GetPos(), m_position);
@@ -167,7 +207,7 @@ void MonsterSessionObject::AttackPlayer()
 	case ATTACK_SPIN:
 	{
 		for (auto& playerInfo : playerMap) {
-			auto bossToPlayerVector = Vector3::Subtract(g_iocpNetwork.m_session[playerInfo.second].m_sessionObject->GetPos(), m_position);			
+			auto bossToPlayerVector = Vector3::Subtract(g_iocpNetwork.m_session[playerInfo.second].m_sessionObject->GetPos(), m_position);
 			float bossToPlayerDis = Vector3::Length(bossToPlayerVector);
 			if (bossToPlayerDis < 15.0f) {
 				//player Hit spin
