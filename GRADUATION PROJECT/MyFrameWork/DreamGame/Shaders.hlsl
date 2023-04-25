@@ -18,6 +18,7 @@ struct MATERIAL
     float4 m_cEmissive;
 };
 
+
 cbuffer cbGameObjectInfo : register(b0)
 {
     matrix gmtxGameObject : packoffset(c0);
@@ -45,17 +46,24 @@ cbuffer cbBoneTransforms : register(b5)
 };
 
 
-cbuffer cbCharacterInfo : register(b6)
+cbuffer cbCharacterInfo : register(b6)//캐릭터별 체력과 림라이트 활성화 여부 
 {
     float  gfCharactertHP: packoffset(c0);
     bool bRimLight : packoffset(c0.y);
 
 };
-cbuffer cbMultiSpriteInfo : register(b7)
+cbuffer cbMultiSpriteInfo : register(b7)//멀티스프라이트인포
 {
     matrix gmtxTextureview : packoffset(c0);
     bool bMultiSprite : packoffset(c4);
 
+};
+
+
+struct INSTANCEDGAMEOBJECTINFO//인스턴싱 데이터를 위한 구조체이다
+{
+    matrix m_mtxGameObject;
+    float4 m_cColor;
 };
 
 
@@ -69,6 +77,7 @@ Texture2D gtxtMetallicTexture : register(t9);
 Texture2D gtxtEmissionTexture : register(t10);
 Texture2D gtxtDetailAlbedoTexture : register(t11);
 Texture2D gtxtDetailNormalTexture : register(t12);
+StructuredBuffer<INSTANCEDGAMEOBJECTINFO> gGameObjectInfos : register(t13);
 
 SamplerState gWrapSamplerState : register(s0);
 SamplerState gClampSamplerState : register(s1);
@@ -215,7 +224,26 @@ struct VS_STANDARD_OUTPUT
 	
     float4 uvs[MAX_LIGHTS] : TEXCOORD1;
 };
+VS_STANDARD_OUTPUT VSInstancing(VS_STANDARD_INPUT input, uint nInstanceID : SV_InstanceID)
+{
+  
+    VS_STANDARD_OUTPUT output;
 
+    float4 positionW = mul(float4(input.position, 1.0f), gGameObjectInfos[nInstanceID].m_mtxGameObject);
+    output.positionW = positionW.xyz;
+    output.normalW = mul(input.normal, (float3x3) gGameObjectInfos[nInstanceID].m_mtxGameObject);
+    output.tangentW = mul(input.tangent, (float3x3) gGameObjectInfos[nInstanceID].m_mtxGameObject);
+    output.bitangentW = mul(input.bitangent, (float3x3) gGameObjectInfos[nInstanceID].m_mtxGameObject);
+    output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
+    output.uv = input.uv;
+    for (int i = 0; i < MAX_LIGHTS; i++)
+    {
+		//0은 조명끔, 조명 좌표계로 바꾸고 텍스쳐 좌표계로 바꿈
+        if (gcbToLightSpaces[i].f4Position.w != 0.0f)
+            output.uvs[i] = mul(positionW, gcbToLightSpaces[i].mtxToTexture);
+    }
+    return (output);
+}
 VS_STANDARD_OUTPUT VSStandard(VS_STANDARD_INPUT input)
 {
     VS_STANDARD_OUTPUT output;
@@ -226,21 +254,13 @@ VS_STANDARD_OUTPUT VSStandard(VS_STANDARD_INPUT input)
     output.tangentW = mul(input.tangent, (float3x3) gmtxGameObject);
     output.bitangentW = mul(input.bitangent, (float3x3) gmtxGameObject);
     output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
-    if (bMultiSprite)
-    {
-        output.uv = mul(float3(input.uv, 1.0f), (float3x3) (gmtxTextureview)).xy;    
-    }
-    else if (!bMultiSprite)
-    {
-        output.uv = input.uv;
-    }
+    output.uv = input.uv;
     for (int i = 0; i < MAX_LIGHTS; i++)
     {
 		//0은 조명끔, 조명 좌표계로 바꾸고 텍스쳐 좌표계로 바꿈
         if (gcbToLightSpaces[i].f4Position.w != 0.0f)
             output.uvs[i] = mul(positionW, gcbToLightSpaces[i].mtxToTexture);
     }
-	
     return (output);
 }
 

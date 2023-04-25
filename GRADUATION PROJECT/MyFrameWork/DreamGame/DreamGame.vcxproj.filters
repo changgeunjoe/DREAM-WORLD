@@ -228,6 +228,12 @@
     <ClInclude Include="MultiSpriteShaderComponent.h">
       <Filter>04.Component\ShaderComponent\Shader\MultySpriteShaderComponent</Filter>
     </ClInclude>
+    <ClInclude Include="InstancingShaderComponent.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="InstanceRenderComponent.h">
+      <Filter>04.Component\RenderComponent</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -334,6 +340,12 @@
     </ClCompile>
     <ClCompile Include="MultiSpriteShaderComponent.cpp">
       <Filter>04.Component\ShaderComponent\Shader\MultySpriteShaderComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="InstanceRenderComponent.cpp">
+      <Filter>04.Component\RenderComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="InstancingShaderComponent.cpp">
+      <Filter>04.Component\ShaderComponent</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

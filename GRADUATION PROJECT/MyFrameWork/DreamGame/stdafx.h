@@ -272,6 +272,12 @@ enum CharacterAnimation
 	CA_BLENDING = 99
 };
 
+struct VS_VB_INSTANCE
+{
+	XMFLOAT4X4 m_xmf4x4Transform;
+	XMFLOAT4 m_xmcColor;
+};
+
 enum Message {
 	ITEM_TYPE,
 };

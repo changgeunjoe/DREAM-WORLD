@@ -214,6 +214,10 @@ protected:
 	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);// 삭제 예정(변경)
 	int nObjects = 0;//삭제 예정(변경)
 
+    //인스턴스 데이터를 포함하는 버퍼와 포인터이다.23.04.23 ccg
+   /* ID3D12Resource *m_pd3dcbGameObjects = NULL;
+    VS_VB_INSTANCE* m_pcbMappedGameObjects = NULL;*/
+
 public:
     void SetRButtonClicked(bool bRButtonClicked) { m_bRButtonClicked = bRButtonClicked; }
     bool GetRButtonClicked() { return m_bRButtonClicked; }
