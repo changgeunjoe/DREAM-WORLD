@@ -109,7 +109,7 @@ void Room::CreateBossMonster()
 {
 	m_boss.SetRoomId(m_roomId);
 	TIMER_EVENT firstEv{ std::chrono::system_clock::now() + std::chrono::milliseconds(200), m_roomId, -1,EV_FIND_PLAYER };
-	g_Timer.m_TimerQueue.push(firstEv);
+	g_Timer.InsertTimerQueue(firstEv);	
 }
 
 MonsterSessionObject& Room::GetBoss()
@@ -159,7 +159,7 @@ void Room::GameStart()
 {
 	CreateBossMonster(); //임시 입니다.
 	TIMER_EVENT firstEv{ std::chrono::system_clock::now() + std::chrono::seconds(1), m_roomId, -1,EV_FIND_PLAYER };
-	g_Timer.m_TimerQueue.push(firstEv);
+	g_Timer.InsertTimerQueue(firstEv);	
 	TIMER_EVENT gameStateEvent{ std::chrono::system_clock::now() + std::chrono::seconds(1) + std::chrono::milliseconds(500), m_roomId, -1,EV_GAME_STATE_SEND };
-	g_Timer.m_TimerQueue.push(gameStateEvent);
+	g_Timer.InsertTimerQueue(gameStateEvent);
 }
