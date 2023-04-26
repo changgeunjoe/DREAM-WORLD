@@ -397,7 +397,7 @@ void Logic::AutoMoveServer()//2500Έν?
 	while (m_isRunningThread)
 	{
 		if (g_iocpNetwork.GetCurrentId() == 0) continue;
-		currentTime = std::chrono::high_resolution_clock::now();	
+		currentTime = std::chrono::high_resolution_clock::now();
 		auto RunningRooms = g_RoomManager.GetRunningRoomIdList();
 
 		for (auto roomId : RunningRooms) {
