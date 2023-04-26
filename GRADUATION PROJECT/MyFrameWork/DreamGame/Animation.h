@@ -55,8 +55,8 @@ public:
 	int 							m_nAnimationTracks = 0;
 	CAnimationTrack* m_pAnimationTracks = NULL;
 
-	CharacterAnimation				m_nLowerBodyAnimation = CharacterAnimation::CA_IDLE;
-	CharacterAnimation				m_nUpperBodyAnimation = CharacterAnimation::CA_IDLE;
+	int				m_nLowerBodyAnimation = CharacterAnimation::CA_IDLE;
+	int				m_nUpperBodyAnimation = CharacterAnimation::CA_IDLE;
 	pair<CharacterAnimation, CharacterAnimation> m_CurrentAnimation = { CharacterAnimation::CA_IDLE, CharacterAnimation::CA_IDLE };
 
 	CAnimationSets* m_pAnimationSets = NULL;
@@ -74,9 +74,8 @@ public:
 
 	void SetTrackAnimationSet(int nAnimationSet);
 
-	void SetAllTrackdisable();
-	void SetTrackEnable(int nAnimationTrack, bool bEnable);
-	void SetTrackEnable(CharacterAnimation nAnimationTrack, int nPos);
+	//void SetTrackEnable(int nAnimationTrack, bool bEnable);
+	void SetTrackEnable(int nAnimationTrack, int nPos);
 	void SetTrackEnable(pair<CharacterAnimation, CharacterAnimation> nAnimationTracks);
 	void SetTrackPosition(int nAnimationTrack, float fPosition);
 	void SetTrackSpeed(int nAnimationTrack, float fSpeed);

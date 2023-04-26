@@ -730,29 +730,31 @@ Monster::~Monster()
 
 void Monster::Animate(float fTimeElapsed)
 {
-	XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f);
-	XMFLOAT3 des = Vector3::Subtract(m_xmf3Destination, GetPosition());
-	bool OnRight = (Vector3::DotProduct(GetRight(), Vector3::Normalize(des)) > 0) ? true : false;
-	float ChangingAngle = Vector3::Angle(Vector3::Normalize(des), GetLook());
-
-	if (Vector3::Length(des) < 10.0f) {
-		//SetPosition(m_xmf3Destination);
-	}
-	else
+	if (m_bMoveState)	// 움직이는 중
 	{
-		if (ChangingAngle > 0.5f)
-		{
-			if (OnRight)
-				Rotate(&up, 90.0f * fTimeElapsed);
-			else if (!OnRight)
-				Rotate(&up, -90.0f * fTimeElapsed);
+		XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f);
+		XMFLOAT3 des = Vector3::Subtract(m_xmf3Destination, GetPosition());
+		bool OnRight = (Vector3::DotProduct(GetRight(), Vector3::Normalize(des)) > 0) ? true : false;
+		float ChangingAngle = Vector3::Angle(Vector3::Normalize(des), GetLook());
+
+		if (Vector3::Length(des) < 10.0f) {
+			//SetPosition(m_xmf3Destination);
 		}
 		else
-			SetLook(Vector3::Normalize(des));
+		{
+			if (ChangingAngle > 0.5f)
+			{
+				if (OnRight)
+					Rotate(&up, 90.0f * fTimeElapsed);
+				else if (!OnRight)
+					Rotate(&up, -90.0f * fTimeElapsed);
+			}
+			else
+				SetLook(Vector3::Normalize(des));
 
-		MoveForward(50 * fTimeElapsed);
+			MoveForward(50 * fTimeElapsed);
+		}
 	}
-
 	Character::Animate(fTimeElapsed);
 }
 

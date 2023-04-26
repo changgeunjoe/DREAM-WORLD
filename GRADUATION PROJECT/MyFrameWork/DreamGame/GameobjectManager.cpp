@@ -304,11 +304,12 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pMonsterObject->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pMonsterObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pMonsterObject->SetModel("Model/Boss.bin");
-	m_pMonsterObject->SetAnimationSets(3);
+	m_pMonsterObject->SetAnimationSets(10);
 	m_pMonsterObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackAnimationSet(3);
+	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackAnimationSet(10);
 	m_pMonsterObject->SetScale(15.0f);
 	m_pMonsterObject->SetBoundingSize(22.5f);
+	m_pMonsterObject->SetMoveState(true);
 	m_ppGameObjects.emplace_back(m_pMonsterObject);
 	g_Logic.m_MonsterSession.SetGameObject(m_pMonsterObject);
 

@@ -4,6 +4,7 @@
 #include "../../GameFramework.h"
 #include "../../Scene.h"
 #include "../../GameobjectManager.h"
+#include "../../Animation.h"
 #include "../Room/RoomManger.h"
 
 extern CGameFramework gGameFramework;
@@ -463,6 +464,19 @@ void Logic::ProcessPacket(char* p)
 		SERVER_PACKET::BossAttackPacket* recvPacket = reinterpret_cast<SERVER_PACKET::BossAttackPacket*>(p);
 		//m_MonsterSession
 		//recvPacket->bossAttackType;//이걸로 애니메이션 실행하면 됨
+		switch (recvPacket->bossAttackType)
+		{
+		case BOSS_ATTACK::ATTACK_PUNCH:
+			m_MonsterSession.m_currentPlayGameObject->m_pSkinnedAnimationController->SetTrackEnable(7, 2);
+			break;
+		case BOSS_ATTACK::ATTACK_SPIN:
+			m_MonsterSession.m_currentPlayGameObject->m_pSkinnedAnimationController->SetTrackEnable(5, 2);
+			break;
+		case BOSS_ATTACK::ATTACK_KICK:
+			m_MonsterSession.m_currentPlayGameObject->m_pSkinnedAnimationController->SetTrackEnable(2, 2);
+			break;
+		}
+		m_MonsterSession.m_currentPlayGameObject->SetMoveState(false);
 		cout << "ProcessPacket::SERVER_PACKET::BOSS_ATTACK - recvPacket: " << (int)recvPacket->bossAttackType << endl;
 	}
 	break;

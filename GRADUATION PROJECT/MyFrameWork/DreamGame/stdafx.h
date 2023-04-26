@@ -272,6 +272,13 @@ enum CharacterAnimation
 	CA_BLENDING = 99
 };
 
+enum BOSS_ATTACK : char {
+	ATTACK_PUNCH,
+	ATTACK_SPIN,
+	ATTACK_KICK,
+	ATTACK_COUNT//0~마지막 숫자 갯수
+};
+
 enum Message {
 	ITEM_TYPE,
 };

@@ -154,21 +154,14 @@ void CAnimationController::SetTrackAnimationSet(int nAnimationSet)
 	}
 }
 
-void CAnimationController::SetAllTrackdisable()
-{
-	m_bAnimationBlending = false;
-	for (int i = 0; i < m_nAnimationTracks; i++)
-	{
-		SetTrackEnable(i, false);
-	}
-}
+//
+//void CAnimationController::SetTrackEnable(int nAnimationTrack, bool bEnable)
+//{
+//	if (m_pAnimationTracks) 
+//		m_pAnimationTracks[nAnimationTrack].SetEnable(bEnable);
+//}
 
-void CAnimationController::SetTrackEnable(int nAnimationTrack, bool bEnable)
-{
-	if (m_pAnimationTracks) m_pAnimationTracks[nAnimationTrack].SetEnable(bEnable);
-}
-
-void CAnimationController::SetTrackEnable(CharacterAnimation nAnimationTrack, int nPos)
+void CAnimationController::SetTrackEnable(int nAnimationTrack, int nPos)
 {
 	if (m_pAnimationTracks)
 	{
@@ -176,6 +169,10 @@ void CAnimationController::SetTrackEnable(CharacterAnimation nAnimationTrack, in
 		{
 		case 0:	m_nUpperBodyAnimation = nAnimationTrack; break;
 		case 1:	m_nLowerBodyAnimation = nAnimationTrack; break;
+		case 2:	
+			m_nUpperBodyAnimation = nAnimationTrack;
+			m_nLowerBodyAnimation = nAnimationTrack; 
+			break;
 		}
 	}
 }
