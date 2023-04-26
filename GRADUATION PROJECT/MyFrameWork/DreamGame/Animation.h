@@ -57,7 +57,8 @@ public:
 
 	int				m_nLowerBodyAnimation = CharacterAnimation::CA_IDLE;
 	int				m_nUpperBodyAnimation = CharacterAnimation::CA_IDLE;
-	pair<CharacterAnimation, CharacterAnimation> m_CurrentAnimation = { CharacterAnimation::CA_IDLE, CharacterAnimation::CA_IDLE };
+	int				m_CurrentAnimation = CharacterAnimation::CA_IDLE;
+	pair<CharacterAnimation, CharacterAnimation> m_CurrentAnimations = { CharacterAnimation::CA_IDLE, CharacterAnimation::CA_IDLE };
 
 	CAnimationSets* m_pAnimationSets = NULL;
 

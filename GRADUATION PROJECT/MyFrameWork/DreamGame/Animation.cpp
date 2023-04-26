@@ -167,9 +167,17 @@ void CAnimationController::SetTrackEnable(int nAnimationTrack, int nPos)
 	{
 		switch (nPos)
 		{
-		case 0:	m_nUpperBodyAnimation = nAnimationTrack; break;
-		case 1:	m_nLowerBodyAnimation = nAnimationTrack; break;
+		case 0:	
+			m_nUpperBodyAnimation = nAnimationTrack; 
+			m_pAnimationTracks[m_nUpperBodyAnimation].m_fPosition = 0.0f;
+			break;
+		case 1:	
+			m_nLowerBodyAnimation = nAnimationTrack; 
+			m_pAnimationTracks[m_nLowerBodyAnimation].m_fPosition = 0.0f;
+			break;
 		case 2:	
+			m_pAnimationTracks[m_nUpperBodyAnimation].m_fPosition = 0.0f;
+			m_pAnimationTracks[m_nLowerBodyAnimation].m_fPosition = 0.0f;
 			m_nUpperBodyAnimation = nAnimationTrack;
 			m_nLowerBodyAnimation = nAnimationTrack; 
 			break;

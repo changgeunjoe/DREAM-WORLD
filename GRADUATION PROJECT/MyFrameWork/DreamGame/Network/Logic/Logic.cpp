@@ -341,12 +341,17 @@ void Logic::ProcessPacket(char* p)
 	case SERVER_PACKET::BOSS_CHANGE_STATE_MOVE_DES:
 	{
 		SERVER_PACKET::BossChangeStateMovePacket* recvPacket = reinterpret_cast<SERVER_PACKET::BossChangeStateMovePacket*>(p);
+		cout << "Boss Move\n";
 		recvPacket->desPos; //여기 목적지 까지 보스 몬스터 이동 시키면 됩니다
 		recvPacket->bossPos;
 		recvPacket->t;
 		m_MonsterSession.m_currentPlayGameObject->m_xmf3Destination = recvPacket->desPos;
-		m_MonsterSession.m_currentPlayGameObject->SetMoveState(true);
-		m_MonsterSession.m_currentPlayGameObject->m_pSkinnedAnimationController->SetTrackEnable(0, 2);
+		if (!m_MonsterSession.m_currentPlayGameObject->GetMoveState())
+		{
+			m_MonsterSession.m_currentPlayGameObject->SetMoveState(true);
+			m_MonsterSession.m_currentPlayGameObject->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ATTACK::ATTACK_COUNT;
+			m_MonsterSession.m_currentPlayGameObject->m_pSkinnedAnimationController->SetTrackEnable(0, 2);
+		}
 	}
 	break;
 	case SERVER_PACKET::SHOOTING_ARROW://화살
@@ -477,13 +482,25 @@ void Logic::ProcessPacket(char* p)
 		switch (recvPacket->bossAttackType)
 		{
 		case BOSS_ATTACK::ATTACK_PUNCH:
-			m_MonsterSession.m_currentPlayGameObject->m_pSkinnedAnimationController->SetTrackEnable(7, 2);
+			if (m_MonsterSession.m_currentPlayGameObject->m_pSkinnedAnimationController->m_CurrentAnimation != BOSS_ATTACK::ATTACK_PUNCH)
+			{
+				m_MonsterSession.m_currentPlayGameObject->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ATTACK::ATTACK_PUNCH;
+				m_MonsterSession.m_currentPlayGameObject->m_pSkinnedAnimationController->SetTrackEnable(7, 2);
+			}
 			break;
 		case BOSS_ATTACK::ATTACK_SPIN:
-			m_MonsterSession.m_currentPlayGameObject->m_pSkinnedAnimationController->SetTrackEnable(5, 2);
+			if (m_MonsterSession.m_currentPlayGameObject->m_pSkinnedAnimationController->m_CurrentAnimation != BOSS_ATTACK::ATTACK_SPIN)
+			{
+				m_MonsterSession.m_currentPlayGameObject->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ATTACK::ATTACK_SPIN;
+				m_MonsterSession.m_currentPlayGameObject->m_pSkinnedAnimationController->SetTrackEnable(5, 2);
+			}
 			break;
 		case BOSS_ATTACK::ATTACK_KICK:
-			m_MonsterSession.m_currentPlayGameObject->m_pSkinnedAnimationController->SetTrackEnable(2, 2);
+			if (m_MonsterSession.m_currentPlayGameObject->m_pSkinnedAnimationController->m_CurrentAnimation != BOSS_ATTACK::ATTACK_KICK)
+			{
+				m_MonsterSession.m_currentPlayGameObject->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ATTACK::ATTACK_KICK;
+				m_MonsterSession.m_currentPlayGameObject->m_pSkinnedAnimationController->SetTrackEnable(2, 2);
+			}
 			break;
 		}
 		m_MonsterSession.m_currentPlayGameObject->SetMoveState(false);

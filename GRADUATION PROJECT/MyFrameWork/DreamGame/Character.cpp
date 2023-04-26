@@ -103,7 +103,7 @@ void Warrior::Move(DIRECTION direction, float fDistance)
 
 void Warrior::Animate(float fTimeElapsed)
 {
-	pair<CharacterAnimation, CharacterAnimation> AfterAnimation = m_pSkinnedAnimationController->m_CurrentAnimation;
+	pair<CharacterAnimation, CharacterAnimation> AfterAnimation = m_pSkinnedAnimationController->m_CurrentAnimations;
 	bool RButtonAnimation = false;
 	bool UpperLock = false;
 	switch (AfterAnimation.first)
@@ -144,9 +144,9 @@ void Warrior::Animate(float fTimeElapsed)
 		}
 	}
 
-	if (AfterAnimation != m_pSkinnedAnimationController->m_CurrentAnimation)
+	if (AfterAnimation != m_pSkinnedAnimationController->m_CurrentAnimations)
 	{
-		m_pSkinnedAnimationController->m_CurrentAnimation = AfterAnimation;
+		m_pSkinnedAnimationController->m_CurrentAnimations = AfterAnimation;
 		m_pSkinnedAnimationController->SetTrackEnable(AfterAnimation);
 	}
 
@@ -211,7 +211,7 @@ void Archer::SetArrow(Projectile* pArrow)
 
 void Archer::RbuttonClicked(float fTimeElapsed)
 {
-	if (!(m_pSkinnedAnimationController->m_CurrentAnimation.first == CharacterAnimation::CA_ATTACK &&
+	if (!(m_pSkinnedAnimationController->m_CurrentAnimations.first == CharacterAnimation::CA_ATTACK &&
 		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd == false))
 	{
 		if (m_iRButtionCount == 0)
@@ -315,7 +315,7 @@ void Archer::Move(DIRECTION direction, float fDistance)
 
 void Archer::Animate(float fTimeElapsed)
 {
-	pair<CharacterAnimation, CharacterAnimation> AfterAnimation = m_pSkinnedAnimationController->m_CurrentAnimation;
+	pair<CharacterAnimation, CharacterAnimation> AfterAnimation = m_pSkinnedAnimationController->m_CurrentAnimations;
 	bool UpperLock = false;
 	switch (AfterAnimation.first)
 	{
@@ -365,9 +365,9 @@ void Archer::Animate(float fTimeElapsed)
 		}
 	}
 
-	if (AfterAnimation != m_pSkinnedAnimationController->m_CurrentAnimation)
+	if (AfterAnimation != m_pSkinnedAnimationController->m_CurrentAnimations)
 	{
-		m_pSkinnedAnimationController->m_CurrentAnimation = AfterAnimation;
+		m_pSkinnedAnimationController->m_CurrentAnimations = AfterAnimation;
 		m_pSkinnedAnimationController->SetTrackEnable(AfterAnimation);
 	}
 
@@ -477,7 +477,7 @@ void Tanker::Move(DIRECTION direction, float fDistance)
 
 void Tanker::Animate(float fTimeElapsed)
 {
-	pair<CharacterAnimation, CharacterAnimation> AfterAnimation = m_pSkinnedAnimationController->m_CurrentAnimation;
+	pair<CharacterAnimation, CharacterAnimation> AfterAnimation = m_pSkinnedAnimationController->m_CurrentAnimations;
 	bool RButtonAnimation = false;
 	bool UpperLock = false;
 
@@ -531,9 +531,9 @@ void Tanker::Animate(float fTimeElapsed)
 	}
 
 
-	if (AfterAnimation != m_pSkinnedAnimationController->m_CurrentAnimation)
+	if (AfterAnimation != m_pSkinnedAnimationController->m_CurrentAnimations)
 	{
-		m_pSkinnedAnimationController->m_CurrentAnimation = AfterAnimation;
+		m_pSkinnedAnimationController->m_CurrentAnimations = AfterAnimation;
 		m_pSkinnedAnimationController->SetTrackEnable(AfterAnimation);
 	}
 
@@ -615,7 +615,7 @@ void Priest::Move(DIRECTION direction, float fDistance)
 
 void Priest::Animate(float fTimeElapsed)
 {
-	pair<CharacterAnimation, CharacterAnimation> AfterAnimation = m_pSkinnedAnimationController->m_CurrentAnimation;
+	pair<CharacterAnimation, CharacterAnimation> AfterAnimation = m_pSkinnedAnimationController->m_CurrentAnimations;
 	bool UpperLock = false;
 	switch (AfterAnimation.first)
 	{
@@ -665,9 +665,9 @@ void Priest::Animate(float fTimeElapsed)
 		}
 	}
 
-	if (AfterAnimation != m_pSkinnedAnimationController->m_CurrentAnimation)
+	if (AfterAnimation != m_pSkinnedAnimationController->m_CurrentAnimations)
 	{
-		m_pSkinnedAnimationController->m_CurrentAnimation = AfterAnimation;
+		m_pSkinnedAnimationController->m_CurrentAnimations = AfterAnimation;
 		m_pSkinnedAnimationController->SetTrackEnable(AfterAnimation);
 	}
 

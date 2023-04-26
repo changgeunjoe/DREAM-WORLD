@@ -309,7 +309,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackAnimationSet(10);
 	m_pMonsterObject->SetScale(15.0f);
 	m_pMonsterObject->SetBoundingSize(22.5f);
-	m_pMonsterObject->SetMoveState(true);
+	m_pMonsterObject->SetMoveState(false);
 	m_ppGameObjects.emplace_back(m_pMonsterObject);
 	g_Logic.m_MonsterSession.SetGameObject(m_pMonsterObject);
 
