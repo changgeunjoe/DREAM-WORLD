@@ -43,6 +43,7 @@ void MonsterSessionObject::AutoMove()
 
 void MonsterSessionObject::StartMove(DIRECTION d)
 {
+	std::cout << "MonsterSessionObject::StartMove()" << std::endl;
 	m_lastMoveTime = std::chrono::high_resolution_clock::now();
 	isMove = true;
 }
@@ -110,20 +111,17 @@ void MonsterSessionObject::Move(float fDistance, float elapsedTime)
 	CalcRightVector();
 	bool OnRight = (Vector3::DotProduct(m_rightVector, Vector3::Normalize(des)) > 0) ? true : false;	// 목적지가 올느쪽 왼
 	float ChangingAngle = Vector3::Angle(Vector3::Normalize(des), m_directionVector);
-	if (Vector3::Length(des) < 10.0f) {
-		auto durationTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - m_lastAttackTime);
-		if (durationTime > std::chrono::seconds(1) + std::chrono::milliseconds(500)) {
-			//TIMER_EVENT bossAttackEvent{ std::chrono::system_clock::now() + std::chrono::milliseconds(1), m_roomId, -1,EV_BOSS_ATTACK_ORDER };
-			//g_Timer.InsertTimerQueue(bossAttackEvent);
-			ExpOver* ov = new ExpOver();
-			ov->m_opCode = OP_BOSS_ATTACK_SELECT;
-			memcpy(ov->m_buffer, m_roomId.c_str(), m_roomId.size());
-			ov->m_buffer[m_roomId.size()] = 0;
-			PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, -1, &ov->m_overlap);
-			;
-		}
-	}
-	else {
+	//if (Vector3::Length(des) < 10.0f) {
+	//	auto durationTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - m_lastAttackTime);
+	//	if (durationTime > std::chrono::seconds(1) + std::chrono::milliseconds(500)) {
+	//		ExpOver* ov = new ExpOver();
+	//		ov->m_opCode = OP_BOSS_ATTACK_SELECT;
+	//		memcpy(ov->m_buffer, m_roomId.c_str(), m_roomId.size());
+	//		ov->m_buffer[m_roomId.size()] = 0;
+	//		PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, -1, &ov->m_overlap);
+	//	}
+	//}
+	if (Vector3::Length(des) >= 10.0f) {
 		if (ChangingAngle > 0.5f)
 		{
 			if (OnRight)
@@ -144,20 +142,27 @@ void MonsterSessionObject::SetAggroPlayerId(int id)
 
 void MonsterSessionObject::AttackTimer()
 {
+
 	std::cout << "ReSet lastAttack Time Boss" << std::endl;
-	m_lastAttackTime = std::chrono::high_resolution_clock::now();
+
+	m_lastAttackTime = std::chrono::high_resolution_clock::now();	
+
 	switch (currentAttack)
 	{
 	case ATTACK_KICK:
 	{
 		TIMER_EVENT attackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(332), m_roomId, 0,EV_BOSS_KICK };
 		g_Timer.InsertTimerQueue(attackTimer);
+		TIMER_EVENT endAttackTimer{ std::chrono::system_clock::now()+ std::chrono::milliseconds(900), m_roomId, 0, EV_BOSS_STATE };
+		g_Timer.InsertTimerQueue(endAttackTimer);
 	}
 	break;
 	case ATTACK_PUNCH:
 	{
 		TIMER_EVENT attackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(332), m_roomId, 0,EV_BOSS_PUNCH };
 		g_Timer.InsertTimerQueue(attackTimer);
+		TIMER_EVENT endAttackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(900), m_roomId, 0, EV_BOSS_STATE };		
+		g_Timer.InsertTimerQueue(endAttackTimer);
 	}
 	break;
 	case ATTACK_SPIN:
@@ -165,21 +170,21 @@ void MonsterSessionObject::AttackTimer()
 		TIMER_EVENT attackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(70), m_roomId, 2,EV_BOSS_SPIN };
 		g_Timer.InsertTimerQueue(attackTimer);
 		attackTimer.wakeupTime += std::chrono::milliseconds(70);
-		attackTimer.playerId = 1;
 		g_Timer.InsertTimerQueue(attackTimer);
 		attackTimer.wakeupTime += std::chrono::milliseconds(70);
-		attackTimer.playerId = 0;
 		g_Timer.InsertTimerQueue(attackTimer);
+		TIMER_EVENT endAttackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(400), m_roomId, 0, EV_BOSS_STATE };
+		g_Timer.InsertTimerQueue(endAttackTimer);
 	}
 	break;
 	default:
 		break;
 	}
+
 }
 
 void MonsterSessionObject::AttackPlayer(int restCount)
 {
-	TIMER_EVENT attackTimer{ std::chrono::system_clock::now(), m_roomId, -1,EV_FIND_PLAYER };
 	Room& room = g_RoomManager.GetRunningRoom(m_roomId);
 	auto& playerMap = room.GetInGamePlayerMap();
 	switch (currentAttack)
@@ -195,7 +200,6 @@ void MonsterSessionObject::AttackPlayer(int restCount)
 				//player Hit Kick
 			}
 		}
-		attackTimer.wakeupTime += std::chrono::milliseconds(501);
 	}
 	break;
 	case ATTACK_PUNCH:
@@ -209,7 +213,6 @@ void MonsterSessionObject::AttackPlayer(int restCount)
 				//player Hit Foward
 			}
 		}
-		attackTimer.wakeupTime += std::chrono::milliseconds(501);
 	}
 	break;
 	case ATTACK_SPIN:
@@ -222,15 +225,31 @@ void MonsterSessionObject::AttackPlayer(int restCount)
 				//player Hit spin
 			}
 		}
-		attackTimer.wakeupTime += std::chrono::milliseconds(122);
 	}
 	break;
 	default:
 		break;
 	}
-	if (restCount == 0) {
-		isAttack = false;
-		
-		g_Timer.InsertTimerQueue(attackTimer);
+	//if (restCount == 0) {
+	//	StartMove(DIRECTION::FRONT);
+	//	isAttack = false;
+	//}
+
+}
+
+bool MonsterSessionObject::StartAttack()
+{
+	XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f);
+	XMFLOAT3 des = Vector3::Subtract(m_DestinationPos, m_position);	// 목적지랑 위치랑 벡터	
+	CalcRightVector();
+	bool OnRight = (Vector3::DotProduct(m_rightVector, Vector3::Normalize(des)) > 0) ? true : false;	// 목적지가 올느쪽 왼
+	float ChangingAngle = Vector3::Angle(Vector3::Normalize(des), m_directionVector);
+	if (Vector3::Length(des) < 10.0f) {
+		auto durationTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - m_lastAttackTime);
+		if (durationTime > std::chrono::seconds(1) + std::chrono::milliseconds(500)) {
+			std::cout << "startAttack Return true ElapsedTime: " << durationTime << std::endl;
+			return true;
+		}
 	}
+	return false;
 }

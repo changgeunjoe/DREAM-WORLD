@@ -341,6 +341,9 @@ void Logic::ProcessPacket(char* p)
 	case SERVER_PACKET::BOSS_CHANGE_STATE_MOVE_DES:
 	{
 		SERVER_PACKET::BossChangeStateMovePacket* recvPacket = reinterpret_cast<SERVER_PACKET::BossChangeStateMovePacket*>(p);
+		auto durationTime = chrono::duration_cast<milliseconds>(chrono::high_resolution_clock::now() - attckPacketRecvTime);
+		//attckPacketRecvTime = chrono::high_resolution_clock::now();		
+		cout << "boss Move Packet Recv ElapsedTime: " << durationTime << endl;
 		recvPacket->desPos; //여기 목적지 까지 보스 몬스터 이동 시키면 됩니다
 		recvPacket->bossPos;
 		recvPacket->t;
@@ -480,10 +483,10 @@ void Logic::ProcessPacket(char* p)
 			m_MonsterSession.m_currentPlayGameObject->m_pSkinnedAnimationController->SetTrackEnable(7, 2);
 			break;
 		case BOSS_ATTACK::ATTACK_SPIN:
-			m_MonsterSession.m_currentPlayGameObject->m_pSkinnedAnimationController->SetTrackEnable(5, 2);
+			m_MonsterSession.m_currentPlayGameObject->m_pSkinnedAnimationController->SetTrackEnable(2, 2);
 			break;
 		case BOSS_ATTACK::ATTACK_KICK:
-			m_MonsterSession.m_currentPlayGameObject->m_pSkinnedAnimationController->SetTrackEnable(2, 2);
+			m_MonsterSession.m_currentPlayGameObject->m_pSkinnedAnimationController->SetTrackEnable(5, 2);
 			break;
 		}
 		m_MonsterSession.m_currentPlayGameObject->SetMoveState(false);

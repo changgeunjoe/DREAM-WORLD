@@ -51,11 +51,13 @@ void Timer::TimerThreadFunc()
 				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, -1, &ov->m_overlap);
 				if (g_RoomManager.IsExistRunningRoom(ev.roomId)) {
 					Room& room = g_RoomManager.GetRunningRoom(ev.roomId);
-					if (!room.GetBoss().isMove && !room.GetBoss().isAttack) {//is Attack하고 있다면 팅겨나오게?
-						room.GetBoss().StartMove(DIRECTION::FRONT);
-						TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::milliseconds(10), ev.roomId, -1,EV_BOSS_MOVE_SEND };
-						m_TimerQueue.push(new_ev);
-					}
+					/*if (room.GetBoss().isMove) {
+						TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::milliseconds(1), ev.roomId, -1,EV_BOSS_MOVE_SEND };
+						{
+							std::lock_guard<std::mutex> timer_lg{ m_TimerQueueLock };
+							m_TimerQueue.push(new_ev);
+						}
+					}*/
 				}
 				TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::seconds(2) + std::chrono::milliseconds(500), ev.roomId, -1,EV_FIND_PLAYER };
 				{
@@ -64,20 +66,31 @@ void Timer::TimerThreadFunc()
 				}
 			}
 			break;
-			case EV_BOSS_MOVE_SEND:
+			case EV_BOSS_STATE:
 			{
 				ExpOver* ov = new ExpOver();
-				ov->m_opCode = OP_MOVE_BOSS;
-				memcpy(ov->m_buffer, ev.roomId.c_str(), ev.roomId.size());//exOver의 cchar*버퍼에 roomId를 담는다면?
+				ov->m_opCode = OP_BOSS_STATE;
+				memcpy(ov->m_buffer, ev.roomId.c_str(), ev.roomId.size());
 				ov->m_buffer[ev.roomId.size()] = 0;
 				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, -1, &ov->m_overlap);
-				TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::milliseconds(700), ev.roomId, -1,EV_BOSS_MOVE_SEND };
-				{
-					std::lock_guard<std::mutex> timer_lg{ m_TimerQueueLock };
-					m_TimerQueue.push(new_ev);
-				}
 			}
 			break;
+			//case EV_BOSS_MOVE_SEND:
+			//{
+			//	if (g_RoomManager.GetRunningRoom(ev.roomId).GetBoss().isMove) {
+			//		ExpOver* ov = new ExpOver();
+			//		ov->m_opCode = OP_MOVE_BOSS;
+			//		memcpy(ov->m_buffer, ev.roomId.c_str(), ev.roomId.size());//exOver의 cchar*버퍼에 roomId를 담는다면?
+			//		ov->m_buffer[ev.roomId.size()] = 0;
+			//		PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, -1, &ov->m_overlap);
+			//	}
+			//	TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::milliseconds(700), ev.roomId, -1,EV_BOSS_MOVE_SEND };
+			//	{
+			//		std::lock_guard<std::mutex> timer_lg{ m_TimerQueueLock };
+			//		m_TimerQueue.push(new_ev);
+			//	}
+			//}
+			//break;
 			case EV_GAME_STATE_SEND:
 			{
 				ExpOver* ov = new ExpOver();
@@ -92,32 +105,32 @@ void Timer::TimerThreadFunc()
 				}
 			}
 			break;
-			case EV_BOSS_STATE_CHANGE_ATTACK_TO_FIND:
-			{
-				ExpOver* ov = new ExpOver();
-				ov->m_opCode = OP_FIND_PLAYER;
-				memcpy(ov->m_buffer, ev.roomId.c_str(), ev.roomId.size());
-				ov->m_buffer[ev.roomId.size()] = 0;
-				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, -1, &ov->m_overlap);
-				if (g_RoomManager.IsExistRunningRoom(ev.roomId)) {
-					Room& room = g_RoomManager.GetRunningRoom(ev.roomId);
-					room.GetBoss().isMove = false;
-					room.GetBoss().isAttack = false;
-					room.GetBoss().StartMove(DIRECTION::FRONT);
-					TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::milliseconds(10), ev.roomId, -1,EV_BOSS_MOVE_SEND };
-					{
-						std::lock_guard<std::mutex> timer_lg{ m_TimerQueueLock };
-						m_TimerQueue.push(new_ev);
-					}
-
-				}
-				TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::seconds(2) + std::chrono::milliseconds(500), ev.roomId, -1,EV_FIND_PLAYER };
-				{
-					std::lock_guard<std::mutex> timer_lg{ m_TimerQueueLock };
-					m_TimerQueue.push(new_ev);
-				}
-			}
-			break;
+			//case EV_BOSS_STATE_CHANGE_ATTACK_TO_FIND:
+			//{
+			//	ExpOver* ov = new ExpOver();
+			//	ov->m_opCode = OP_FIND_PLAYER;
+			//	memcpy(ov->m_buffer, ev.roomId.c_str(), ev.roomId.size());
+			//	ov->m_buffer[ev.roomId.size()] = 0;
+			//	PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, -1, &ov->m_overlap);
+			//	if (g_RoomManager.IsExistRunningRoom(ev.roomId)) {
+			//		Room& room = g_RoomManager.GetRunningRoom(ev.roomId);
+			//		room.GetBoss().isMove = false;
+			//		room.GetBoss().isAttack = false;
+			//		room.GetBoss().StartMove(DIRECTION::FRONT);
+			//		TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::milliseconds(1), ev.roomId, -1,EV_BOSS_MOVE_SEND };
+			//		{
+			//			std::lock_guard<std::mutex> timer_lg{ m_TimerQueueLock };
+			//			m_TimerQueue.push(new_ev);
+			//		}
+			//
+			//	}
+			//	TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::seconds(2) + std::chrono::milliseconds(500), ev.roomId, -1,EV_FIND_PLAYER };
+			//	{
+			//		std::lock_guard<std::mutex> timer_lg{ m_TimerQueueLock };
+			//		m_TimerQueue.push(new_ev);
+			//	}
+			//}
+			//break;
 			case EV_BOSS_KICK:
 			{
 				ExpOver* ov = new ExpOver();

@@ -2,9 +2,11 @@
 #include "Room.h"
 #include "../Timer/Timer.h"
 #include "../Logic/Logic.h"
+#include "../IOCPNetwork/IOCP/IOCPNetwork.h"
 
 extern Timer g_Timer;
 extern Logic g_logic;
+extern IOCPNetwork g_iocpNetwork;
 
 Room::Room()
 {
@@ -162,4 +164,12 @@ void Room::GameStart()
 	g_Timer.InsertTimerQueue(firstEv);
 	TIMER_EVENT gameStateEvent{ std::chrono::system_clock::now() + std::chrono::seconds(1) + std::chrono::milliseconds(500), m_roomId, -1,EV_GAME_STATE_SEND };
 	g_Timer.InsertTimerQueue(gameStateEvent);
+	TIMER_EVENT bossStateEvent{ std::chrono::system_clock::now() + std::chrono::milliseconds(10), m_roomId, -1,EV_BOSS_STATE };
+	g_Timer.InsertTimerQueue(bossStateEvent);
+	//ExpOver* ov = new ExpOver();
+	//ov->m_opCode = OP_BOSS_STATE;
+	//memcpy(ov->m_buffer, m_roomId.c_str(), m_roomId.size());//exOver의 cchar*버퍼에 roomId를 담는다면?
+	//ov->m_buffer[m_roomId.size()] = 0;
+	//PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, -1, &ov->m_overlap);
+	m_boss.StartMove(DIRECTION::FRONT);	
 }
