@@ -153,7 +153,7 @@ void MonsterSessionObject::AttackTimer()
 	{
 		TIMER_EVENT attackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(332), m_roomId, 0,EV_BOSS_KICK };
 		g_Timer.InsertTimerQueue(attackTimer);
-		TIMER_EVENT endAttackTimer{ std::chrono::system_clock::now()+ std::chrono::milliseconds(900), m_roomId, 0, EV_BOSS_STATE };
+		TIMER_EVENT endAttackTimer{ std::chrono::system_clock::now()+ std::chrono::milliseconds(823), m_roomId, 0, EV_BOSS_STATE };
 		g_Timer.InsertTimerQueue(endAttackTimer);
 	}
 	break;
@@ -161,19 +161,19 @@ void MonsterSessionObject::AttackTimer()
 	{
 		TIMER_EVENT attackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(332), m_roomId, 0,EV_BOSS_PUNCH };
 		g_Timer.InsertTimerQueue(attackTimer);
-		TIMER_EVENT endAttackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(900), m_roomId, 0, EV_BOSS_STATE };		
+		TIMER_EVENT endAttackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(824), m_roomId, 0, EV_BOSS_STATE };		
 		g_Timer.InsertTimerQueue(endAttackTimer);
 	}
 	break;
 	case ATTACK_SPIN:
 	{
-		TIMER_EVENT attackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(70), m_roomId, 2,EV_BOSS_SPIN };
+		TIMER_EVENT attackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(300), m_roomId, 2,EV_BOSS_SPIN };
 		g_Timer.InsertTimerQueue(attackTimer);
-		attackTimer.wakeupTime += std::chrono::milliseconds(70);
+		attackTimer.wakeupTime += std::chrono::milliseconds(300);
 		g_Timer.InsertTimerQueue(attackTimer);
-		attackTimer.wakeupTime += std::chrono::milliseconds(70);
+		attackTimer.wakeupTime += std::chrono::milliseconds(300);
 		g_Timer.InsertTimerQueue(attackTimer);
-		TIMER_EVENT endAttackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(400), m_roomId, 0, EV_BOSS_STATE };
+		TIMER_EVENT endAttackTimer{ std::chrono::system_clock::now() + std::chrono::seconds(1), m_roomId, 0, EV_BOSS_STATE };
 		g_Timer.InsertTimerQueue(endAttackTimer);
 	}
 	break;
