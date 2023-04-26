@@ -124,7 +124,7 @@ void Timer::TimerThreadFunc()
 				ov->m_opCode = OP_BOSS_ATTACK_EXECUTE;
 				memcpy(ov->m_buffer, ev.roomId.c_str(), ev.roomId.size());
 				ov->m_buffer[ev.roomId.size()] = 0;
-				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, -1, &ov->m_overlap);
+				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, ev.playerId, &ov->m_overlap);
 			}
 			break;
 			case EV_BOSS_PUNCH:
@@ -133,7 +133,7 @@ void Timer::TimerThreadFunc()
 				ov->m_opCode = OP_BOSS_ATTACK_EXECUTE;
 				memcpy(ov->m_buffer, ev.roomId.c_str(), ev.roomId.size());
 				ov->m_buffer[ev.roomId.size()] = 0;
-				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, -1, &ov->m_overlap);
+				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, ev.playerId, &ov->m_overlap);
 			}
 			break;
 			case EV_BOSS_SPIN:
@@ -142,7 +142,7 @@ void Timer::TimerThreadFunc()
 				ov->m_opCode = OP_BOSS_ATTACK_EXECUTE;
 				memcpy(ov->m_buffer, ev.roomId.c_str(), ev.roomId.size());
 				ov->m_buffer[ev.roomId.size()] = 0;
-				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, -1, &ov->m_overlap);
+				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, ev.playerId, &ov->m_overlap);
 			}
 			break;
 			default: break;

@@ -218,7 +218,7 @@ void IOCPNetwork::WorkerThread()
 			std::string roomId{ ex_over->m_buffer };
 			if (g_RoomManager.IsExistRunningRoom(roomId)) {
 				Room& refRoom = g_RoomManager.GetRunningRoom(roomId);
-				refRoom.GetBoss().AttackPlayer();
+				refRoom.GetBoss().AttackPlayer(key);
 			}
 			if (ex_over != nullptr)
 				delete ex_over;

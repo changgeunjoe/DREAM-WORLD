@@ -118,7 +118,7 @@ struct TIMER_EVENT
 		return (wakeupTime > L.wakeupTime);
 	}
 };
-constexpr int MAX_BUF_SIZE = 512;
+constexpr int MAX_BUF_SIZE = 1024;
 using namespace DirectX;
 
 namespace Vector3
