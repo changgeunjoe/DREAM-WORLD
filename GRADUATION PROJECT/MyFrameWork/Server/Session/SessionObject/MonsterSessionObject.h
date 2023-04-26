@@ -17,7 +17,7 @@ private:
 	int m_aggroPlayerId = -1;
 public:
 	bool isMove = false;
-	bool isAttack = false;
+	std::atomic_bool isAttack = false;
 	BOSS_ATTACK currentAttack = BOSS_ATTACK::ATTACK_COUNT;
 	DirectX::BoundingSphere m_SPBB = BoundingSphere(DirectX::XMFLOAT3(0.0f, 22.5f, 0.0f), 22.5f);
 public:

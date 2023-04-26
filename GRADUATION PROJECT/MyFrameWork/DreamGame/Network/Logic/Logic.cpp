@@ -15,6 +15,7 @@ using namespace chrono;
 Logic::Logic()
 {
 	m_KeyInput = new CKeyInput();
+	attckPacketRecvTime = chrono::high_resolution_clock::now();
 }
 
 Logic::~Logic()
@@ -39,12 +40,12 @@ void Logic::ProcessPacket(char* p)
 			DIRECTION currentDir = findRes->m_currentDirection;
 			findRes->m_currentDirection = (DIRECTION)(findRes->m_currentDirection | recvPacket->direction);
 			findRes->m_currentPlayGameObject->SetMoveState(true);
-			cout << "Move Player Id: " << findRes->m_id << endl;
+			//cout << "Move Player Id: " << findRes->m_id << endl;
 		}
 		else cout << "not found array" << endl;
 #ifdef _DEBUG
 		PrintCurrentTime();
-		std::cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - ID: " << recvPacket->userId << std::endl;
+		//std::cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_DOWN - ID: " << recvPacket->userId << std::endl;
 
 #endif
 
@@ -60,12 +61,12 @@ void Logic::ProcessPacket(char* p)
 			});
 		if (findRes != m_inGamePlayerSession.end()) {
 			findRes->m_currentDirection = (DIRECTION)(findRes->m_currentDirection ^ recvPacket->direction);
-			cout << "Move Player Id: " << findRes->m_id << endl;
+			//cout << "Move Player Id: " << findRes->m_id << endl;
 		}
 		else cout << "not found array" << endl;
 #ifdef _DEBUG
 		PrintCurrentTime();
-		std::cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_UP - MOVE_KEY_UP ID: " << recvPacket->userId << std::endl;
+	//	std::cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_UP - MOVE_KEY_UP ID: " << recvPacket->userId << std::endl;
 #endif
 	}
 	break;
@@ -91,8 +92,8 @@ void Logic::ProcessPacket(char* p)
 				findRes->m_ownerRotateAngle.y += recvPacket->angle;
 #ifdef _DEBUG
 				PrintCurrentTime();
-				std::cout << "Logic::ProcessPacket() - SERVER_PACKET::ROTATE - ROTATE ID: " << recvPacket->userId << std::endl;
-				cout << "Rotate axis Y angle: " << recvPacket->angle << endl;
+			//	std::cout << "Logic::ProcessPacket() - SERVER_PACKET::ROTATE - ROTATE ID: " << recvPacket->userId << std::endl;
+			//	cout << "Rotate axis Y angle: " << recvPacket->angle << endl;
 #endif
 			}
 			break;
@@ -131,11 +132,11 @@ void Logic::ProcessPacket(char* p)
 				// findRes->m_rotateAngle.y += recvPacket->rotate.y - findRes->m_rotateAngle.y;
 			// }
 #ifdef _DEBUG
-			PrintCurrentTime();
-			std::cout << "Logic::ProcessPacket() - SERVER_PACKET::STOP - STOP ID: " << recvPacket->userId << std::endl;
-			cout << "Position: " << recvPacket->position.x << ", " << recvPacket->position.y << ", " << recvPacket->position.z << endl;
-			// cout << "Rotation: " << recvPacket->rotate.x << ", " << recvPacket->rotate.y << ", " << recvPacket->rotate.z << endl;
-			cout << "STOP ID: " << recvPacket->userId << endl;
+		//	PrintCurrentTime();
+		//	std::cout << "Logic::ProcessPacket() - SERVER_PACKET::STOP - STOP ID: " << recvPacket->userId << std::endl;
+		//	cout << "Position: " << recvPacket->position.x << ", " << recvPacket->position.y << ", " << recvPacket->position.z << endl;
+		//	// cout << "Rotation: " << recvPacket->rotate.x << ", " << recvPacket->rotate.y << ", " << recvPacket->rotate.z << endl;
+		//	cout << "STOP ID: " << recvPacket->userId << endl;
 #endif
 		}
 	}
@@ -369,7 +370,7 @@ void Logic::ProcessPacket(char* p)
 		SERVER_PACKET::GameState* recvPacket = reinterpret_cast<SERVER_PACKET::GameState*>(p);
 		//std::cout << "ProcessPacket()::SERVER_PACKET::GAME_STATE - Boss HP: " << recvPacket->bossState.hp << std::endl;
 		if (recvPacket->bossState.hp != 2500) {
-			std::cout << "ProcessPacket()::SERVER_PACKET::GAME_STATE - Boss HP: " << recvPacket->bossState.hp << std::endl;
+			//std::cout << "ProcessPacket()::SERVER_PACKET::GAME_STATE - Boss HP: " << recvPacket->bossState.hp << std::endl;
 
 		}
 		m_MonsterSession.m_currentPlayGameObject->m_UIScale = static_cast<float>(recvPacket->bossState.hp) / 250.0f;//maxHp 2500입니다
@@ -411,7 +412,7 @@ void Logic::ProcessPacket(char* p)
 		recvPacket->bossState.rot;
 		for (int i = 0; i < 4; i++) {//그냥 4개 여서 도는 for문 주의			
 			if (-1 != recvPacket->userState[i].userId) {
-				std::cout << "ProcessPacket()::SERVER_PACKET::GAME_STATE - User ID: " << recvPacket->userState[i].userId << " HP: " << recvPacket->userState[i].hp << std::endl;
+			//	std::cout << "ProcessPacket()::SERVER_PACKET::GAME_STATE - User ID: " << recvPacket->userState[i].userId << " HP: " << recvPacket->userState[i].hp << std::endl;
 				//playerSession에서 해당 플레이어 탐색
 				auto findRes = find_if(m_inGamePlayerSession.begin(), m_inGamePlayerSession.end(), [&recvPacket, &i](auto& fObj) {
 					if (fObj.m_id == recvPacket->userState[i].userId)
@@ -434,8 +435,8 @@ void Logic::ProcessPacket(char* p)
 				float playerPosDistance = Vector3::Length(playerInterpolationVector);
 				float playerInterpolationDistance = playerPosDistance - (float)playerDurationTime * 50.0f;//length - v*t
 
-				cout << "player PosDistance: " << playerPosDistance << endl;
-				cout << "player InterplationDis: " << playerInterpolationDistance << endl;
+			//	cout << "player PosDistance: " << playerPosDistance << endl;
+			//	cout << "player InterplationDis: " << playerInterpolationDistance << endl;
 
 				if (playerPosDistance < DBL_EPSILON) {
 					findRes->m_currentPlayGameObject->m_interpolationDistance = 0.0f;
@@ -445,8 +446,8 @@ void Logic::ProcessPacket(char* p)
 					findRes->m_currentPlayGameObject->m_interpolationVector = XMFLOAT3{ 0,0,0 };
 				}
 				else if (abs(playerInterpolationDistance) > 10.0f) {
-					cout << "client playerPos: " << playerPos.x << ", " << playerPos.z << endl;
-					cout << "server playerPos: " << recvPacket->userState[i].pos.x << ", " << recvPacket->userState[i].pos.z << endl;
+					//cout << "client playerPos: " << playerPos.x << ", " << playerPos.z << endl;
+					//cout << "server playerPos: " << recvPacket->userState[i].pos.x << ", " << recvPacket->userState[i].pos.z << endl;
 					findRes->m_currentPlayGameObject->SetPosition(recvPacket->userState[i].pos);
 				}
 				else if (abs(playerInterpolationDistance) < 5.0f) {
@@ -465,9 +466,14 @@ void Logic::ProcessPacket(char* p)
 	break;
 	case SERVER_PACKET::BOSS_ATTACK:
 	{
+		auto durationTime = chrono::duration_cast<milliseconds>(chrono::high_resolution_clock::now() - attckPacketRecvTime);
+		attckPacketRecvTime = chrono::high_resolution_clock::now();
+		cout << "Attack Packet recv ElapsedTime: " << durationTime << endl;
 		SERVER_PACKET::BossAttackPacket* recvPacket = reinterpret_cast<SERVER_PACKET::BossAttackPacket*>(p);
 		//m_MonsterSession
 		//recvPacket->bossAttackType;//이걸로 애니메이션 실행하면 됨
+		//여기에 시간 넣어서 테스트 좀 할게 ㄱㄷ
+
 		switch (recvPacket->bossAttackType)
 		{
 		case BOSS_ATTACK::ATTACK_PUNCH:

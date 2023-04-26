@@ -58,7 +58,7 @@ void NetworkHelper::RunThread()
 		}
 		else if (ioByte > 0) {
 			ConstructPacket(ioByte);
-			cout << "recvByte: " << ioByte << endl;
+			//cout << "recvByte: " << ioByte << endl;
 		}
 		else {
 			//error

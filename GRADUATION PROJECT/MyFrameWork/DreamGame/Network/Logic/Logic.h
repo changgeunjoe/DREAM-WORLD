@@ -33,4 +33,6 @@ public:
 public:
 	void ProcessPacket(char* p);
 	friend class CGameFramework;
+private:
+	chrono::high_resolution_clock::time_point attckPacketRecvTime;
 };

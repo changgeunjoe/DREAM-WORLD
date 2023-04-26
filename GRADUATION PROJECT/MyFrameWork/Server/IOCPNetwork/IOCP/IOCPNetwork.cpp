@@ -146,8 +146,9 @@ void IOCPNetwork::WorkerThread()
 			std::string roomId{ ex_over->m_buffer };
 			if (g_RoomManager.IsExistRunningRoom(roomId)) {
 				Room& refRoom = g_RoomManager.GetRunningRoom(roomId);
+				if (refRoom.GetBoss().isAttack) continue;
 				if (refRoom.GetBoss().GetAggroPlayerId() != -1) {
-					std::cout << "aggro Player ID: " << refRoom.GetBoss().GetAggroPlayerId() << std::endl;
+					//std::cout << "aggro Player ID: " << refRoom.GetBoss().GetAggroPlayerId() << std::endl;
 					XMFLOAT3 playerPos = m_session[refRoom.GetBoss().GetAggroPlayerId()].m_sessionObject->GetPosition();
 					refRoom.GetBoss().SetDestinationPos(playerPos);
 					SERVER_PACKET::BossChangeStateMovePacket sendPacket;
@@ -171,7 +172,7 @@ void IOCPNetwork::WorkerThread()
 				while (refRoom.m_bossDamagedQueue.try_pop(damage)) {
 					refRoom.GetBoss().AttackedHp(damage);
 				}
-				std::cout << "bossHp : " << refRoom.GetBoss().GetHp() << std::endl;
+				//std::cout << "bossHp : " << refRoom.GetBoss().GetHp() << std::endl;
 				SERVER_PACKET::GameState sendPacket;
 				sendPacket.type = SERVER_PACKET::GAME_STATE;
 				sendPacket.size = sizeof(SERVER_PACKET::GameState);
