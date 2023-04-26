@@ -9,17 +9,19 @@ public:
 	MonsterSessionObject(std::string& roomId);
 	virtual ~MonsterSessionObject();
 
-private:	
+private:
 	DirectX::XMFLOAT3 m_DestinationPos = { 0,0,0 };
 	std::mutex m_restRotateAngleLock;
 	DirectX::XMFLOAT3 m_RestRotateAngle = { 0,0,0 };
 private:
-	int m_aggroPlayerId = -1;	
+	int m_aggroPlayerId = -1;
 public:
 	bool isMove = false;
 	bool isAttack = false;
 	BOSS_ATTACK currentAttack = BOSS_ATTACK::ATTACK_COUNT;
 	DirectX::BoundingSphere m_SPBB = BoundingSphere(DirectX::XMFLOAT3(0.0f, 22.5f, 0.0f), 22.5f);
+public:
+	std::chrono::high_resolution_clock::time_point m_lastAttackTime = std::chrono::high_resolution_clock::now();
 public:
 	virtual void AutoMove() override;
 	virtual void StartMove(DIRECTION d) override;
@@ -34,7 +36,7 @@ public:
 	void SetDirection(DIRECTION d);
 	void Move(float fDistance, float elapsedTime);
 public:
-	void SetDestinationPos(DirectX::XMFLOAT3 des) {		
+	void SetDestinationPos(DirectX::XMFLOAT3 des) {
 		m_DestinationPos = des;
 	}
 	void SetRestRotateAngle(ROTATE_AXIS axis, float angle) {

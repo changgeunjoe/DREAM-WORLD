@@ -111,11 +111,19 @@ void MonsterSessionObject::Move(float fDistance, float elapsedTime)
 	bool OnRight = (Vector3::DotProduct(m_rightVector, Vector3::Normalize(des)) > 0) ? true : false;	// 목적지가 올느쪽 왼
 	float ChangingAngle = Vector3::Angle(Vector3::Normalize(des), m_directionVector);
 	if (Vector3::Length(des) < 10.0f) {
-		TIMER_EVENT bossAttackEvent{ std::chrono::system_clock::now() + std::chrono::milliseconds(1), m_roomId, -1,EV_BOSS_ATTACK_ORDER };
-		g_Timer.InsertTimerQueue(bossAttackEvent);
+		auto durationTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - m_lastAttackTime);
+		if (durationTime > std::chrono::seconds(1) + std::chrono::milliseconds(200)) {
+			//TIMER_EVENT bossAttackEvent{ std::chrono::system_clock::now() + std::chrono::milliseconds(1), m_roomId, -1,EV_BOSS_ATTACK_ORDER };
+			//g_Timer.InsertTimerQueue(bossAttackEvent);
+			ExpOver* ov = new ExpOver();
+			ov->m_opCode = OP_BOSS_ATTACK_SELECT;
+			memcpy(ov->m_buffer, m_roomId.c_str(), m_roomId.size());
+			ov->m_buffer[m_roomId.size()] = 0;
+			PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, -1, &ov->m_overlap);
+			;
+		}
 	}
-	else
-	{
+	else {
 		if (ChangingAngle > 0.5f)
 		{
 			if (OnRight)
@@ -141,7 +149,7 @@ void MonsterSessionObject::AttackTimer()
 	case ATTACK_KICK:
 	{
 		TIMER_EVENT attackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(563), m_roomId, -1,EV_BOSS_KICK };
-		g_Timer.InsertTimerQueue(attackTimer);		
+		g_Timer.InsertTimerQueue(attackTimer);
 	}
 	break;
 	case ATTACK_PUNCH:
@@ -168,14 +176,6 @@ void MonsterSessionObject::AttackTimer()
 
 void MonsterSessionObject::AttackPlayer()
 {
-
-	/*Room& room = g_RoomManager.GetRunningRoom(ev.roomId);
-	TIMER_EVENT find_ev{ std::chrono::system_clock::now() + std::chrono::milliseconds(10), ev.roomId, -1,EV_FIND_PLAYER };
-	m_TimerQueue.push(find_ev);
-	TIMER_EVENT move_ev{ std::chrono::system_clock::now() + std::chrono::milliseconds(300), ev.roomId, -1,EV_BOSS_MOVE_SEND };
-	m_TimerQueue.push(move_ev);*/
-
-
 	Room& room = g_RoomManager.GetRunningRoom(m_roomId);
 	auto& playerMap = room.GetInGamePlayerMap();
 	switch (currentAttack)
@@ -187,6 +187,7 @@ void MonsterSessionObject::AttackPlayer()
 			float dotProductRes = Vector3::DotProduct(bossToPlayerVector, m_directionVector);
 			float bossToPlayerDis = Vector3::Length(bossToPlayerVector);
 			if (bossToPlayerDis < 30.0f && abs(dotProductRes) < 90.0f) {
+				g_iocpNetwork.m_session[playerInfo.second].m_sessionObject->AttackedHp(40);
 				//player Hit Kick
 			}
 		}
@@ -199,6 +200,7 @@ void MonsterSessionObject::AttackPlayer()
 			float dotProductRes = Vector3::DotProduct(bossToPlayerVector, m_directionVector);
 			float bossToPlayerDis = Vector3::Length(bossToPlayerVector);
 			if (bossToPlayerDis < 15.0f && abs(dotProductRes) < 90.0f) {
+				g_iocpNetwork.m_session[playerInfo.second].m_sessionObject->AttackedHp(20);
 				//player Hit Foward
 			}
 		}
@@ -210,6 +212,7 @@ void MonsterSessionObject::AttackPlayer()
 			auto bossToPlayerVector = Vector3::Subtract(g_iocpNetwork.m_session[playerInfo.second].m_sessionObject->GetPos(), m_position);
 			float bossToPlayerDis = Vector3::Length(bossToPlayerVector);
 			if (bossToPlayerDis < 15.0f) {
+				g_iocpNetwork.m_session[playerInfo.second].m_sessionObject->AttackedHp(15);
 				//player Hit spin
 			}
 		}
@@ -218,4 +221,5 @@ void MonsterSessionObject::AttackPlayer()
 	default:
 		break;
 	}
+	m_lastAttackTime = std::chrono::high_resolution_clock::now();
 }

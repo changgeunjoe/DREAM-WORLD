@@ -209,6 +209,8 @@ void IOCPNetwork::WorkerThread()
 				refRoom.GetBoss().isMove = false;
 				refRoom.GetBoss().isAttack = true;
 			}
+			if (ex_over != nullptr)
+				delete ex_over;
 		}
 		break;
 		case OP_BOSS_ATTACK_EXECUTE:
@@ -218,6 +220,8 @@ void IOCPNetwork::WorkerThread()
 				Room& refRoom = g_RoomManager.GetRunningRoom(roomId);
 				refRoom.GetBoss().AttackPlayer();
 			}
+			if (ex_over != nullptr)
+				delete ex_over;
 		}
 		break;
 		default: break;

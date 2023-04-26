@@ -109,7 +109,7 @@ void Room::CreateBossMonster()
 {
 	m_boss.SetRoomId(m_roomId);
 	TIMER_EVENT firstEv{ std::chrono::system_clock::now() + std::chrono::milliseconds(200), m_roomId, -1,EV_FIND_PLAYER };
-	g_Timer.InsertTimerQueue(firstEv);	
+	g_Timer.InsertTimerQueue(firstEv);
 }
 
 MonsterSessionObject& Room::GetBoss()
@@ -146,8 +146,8 @@ bool Room::MeleeAttack(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 pos)
 {
 	DirectX::XMFLOAT3 bossPos = GetBoss().GetPosition();
 	DirectX::XMFLOAT3 toBoss = Vector3::Subtract(bossPos, pos);
-	if (Vector3::DotProduct(dir, toBoss) > -FLT_EPSILON) {
-		if (Vector3::Length(toBoss) < 40.0f) {
+	if (abs(Vector3::DotProduct(dir, toBoss)) < 10.0f) {
+		if (Vector3::Length(toBoss) < 5.0f) {
 			std::cout << "데미지 입히기" << std::endl;
 			return true;
 		}
@@ -159,7 +159,7 @@ void Room::GameStart()
 {
 	CreateBossMonster(); //임시 입니다.
 	TIMER_EVENT firstEv{ std::chrono::system_clock::now() + std::chrono::seconds(1), m_roomId, -1,EV_FIND_PLAYER };
-	g_Timer.InsertTimerQueue(firstEv);	
+	g_Timer.InsertTimerQueue(firstEv);
 	TIMER_EVENT gameStateEvent{ std::chrono::system_clock::now() + std::chrono::seconds(1) + std::chrono::milliseconds(500), m_roomId, -1,EV_GAME_STATE_SEND };
 	g_Timer.InsertTimerQueue(gameStateEvent);
 }

@@ -52,7 +52,7 @@ void NetworkHelper::Start()
 void NetworkHelper::RunThread()
 {
 	while (m_bIsRunnung) {
-		int ioByte = recv(m_clientSocket, m_buffer + m_prevPacketSize, MAX_BUF_SIZE, 0);
+		int ioByte = recv(m_clientSocket, m_buffer + m_prevPacketSize, MAX_BUF_SIZE - m_prevPacketSize, 0);
 		if (ioByte == 0) {
 			//Server Disconnect
 		}
@@ -70,7 +70,7 @@ void NetworkHelper::ConstructPacket(int ioByte)
 {
 	int remain_data = ioByte + m_prevPacketSize;
 	char* p = m_buffer;
-	while (remain_data > 0) {
+	while (remain_data > 1) {
 		short packet_size = 0;
 		memcpy(&packet_size, p, 2);
 		if ((int)packet_size <= remain_data) {
@@ -81,9 +81,8 @@ void NetworkHelper::ConstructPacket(int ioByte)
 		else break;
 	}
 	m_prevPacketSize = remain_data;
-	if (remain_data > 0) {
-		std::memcpy(m_buffer, p, remain_data);
-		ZeroMemory(m_buffer + remain_data, MAX_BUF_SIZE - remain_data);
+	if (m_prevPacketSize > 0) {
+		std::memcpy(m_buffer, p, m_prevPacketSize);
 	}
 }
 

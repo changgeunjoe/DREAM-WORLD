@@ -49,7 +49,7 @@ void Session::ConstructPacket(int ioByte)
 {
 	int remain_data = ioByte + m_prevBufferSize;
 	char* p = m_exOver.m_buffer;
-	while (remain_data > 0) {
+	while (remain_data > 1) {
 		short packet_size;
 		memcpy(&packet_size, p, 2);
 		if ((int)packet_size <= remain_data) {
