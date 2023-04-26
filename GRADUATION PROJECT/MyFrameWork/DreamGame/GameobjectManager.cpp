@@ -385,7 +385,7 @@ void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	m_pFireballSpriteObjects[0]->SetRowColumn(7, 7, 0.05);
 	m_pFireballSpriteObjects[0]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
-	for (int i = 1; i < 10; i++) {
+	for (int i = 1; i < 20; i++) {
 		m_pFireballSpriteObjects[i]= new GameObject(UNDEF_ENTITY);
 		m_pFireballSpriteObjects[i]->SetPosition(XMFLOAT3(0, 40, 100+i*10));
 	}

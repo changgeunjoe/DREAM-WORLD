@@ -194,10 +194,10 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	RootSignature.RootParameter[18].Descriptor.RegisterSpace = 0;
 	RootSignature.RootParameter[18].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 	//MultiSprite(t7) Shaders.hlsl
-	RootSignature.RootParameter[19].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	RootSignature.RootParameter[19].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
 	RootSignature.RootParameter[19].Descriptor.ShaderRegister = 13;
 	RootSignature.RootParameter[19].Descriptor.RegisterSpace = 0;
-	RootSignature.RootParameter[19].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	RootSignature.RootParameter[19].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 	//textureSampler
 	RootSignature.TextureSamplerDescs.resize(3);
 	RootSignature.TextureSamplerDescs[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
