@@ -17,6 +17,7 @@ class SkinnedMeshComponent;
 class ComponentBase;
 class CAnimationController;
 class Projectile;
+class InstanceRenderComponent;
 
 #define MATERIAL_ALBEDO_MAP				0x01
 #define MATERIAL_SPECULAR_MAP			0x02
@@ -83,6 +84,7 @@ public:
 
     void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
     virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,bool bPrerender=false);
+    virtual void InstanceRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender = false);
     void ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent);
     virtual void Animate(float fTimeElapsed);
     virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
@@ -192,10 +194,12 @@ protected:
     UIMeshComponent* m_pUiComponent{ nullptr };
     ShaderComponent* m_pShaderComponent{ nullptr };
     RenderComponent* m_pRenderComponent{ nullptr };
+    InstanceRenderComponent* m_pInstanceRenderComponent{ nullptr };//인스턴스 렌더 추가 23.04.26 .ccg
     CLoadedModelInfoCompnent* m_pLoadedModelComponent{ nullptr };
     MaterialComponent** m_ppMaterialsComponent{ nullptr };
     DepthRenderShaderComponent* m_pDepthShaderComponent{ nullptr };
     ShadowMapShaderComponent* m_pShadowMapShaderComponent{ nullptr };
+
 
 protected:
 
@@ -283,6 +287,10 @@ inline T* GameObject::ComponentType(component_id& componentID)
     if (typeid(T).name() == typeid(RenderComponent).name())
     {
         componentID = component_id::RENDER_COMPONENT;
+    }
+    else if (typeid(T).name() == typeid(InstanceRenderComponent).name())
+    {
+        componentID = component_id::INSRENDER_COMPONENT;
     }
     else if (typeid(T).name() == typeid(MeshComponent).name())
     {

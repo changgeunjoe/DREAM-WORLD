@@ -49,13 +49,13 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	{
 		m_pMonsterHPBarObject->SetLookAt(m_pCamera->GetPosition());
 		m_pMonsterHPBarObject->SetPosition(XMFLOAT3(m_pMonsterObject->GetPosition().x,
-		m_pMonsterObject->GetPosition().y+70, m_pMonsterObject->GetPosition().z));
+			m_pMonsterObject->GetPosition().y + 70, m_pMonsterObject->GetPosition().z));
 		m_pMonsterHPBarObject->Rotate(0, 180, 0);
 		m_pMonsterHPBarObject->SetScale(10);
 	}
 
 	//m_pMonsterObject->Animate(fTimeElapsed);
-	
+
 	g_Logic.m_MonsterSession.m_currentPlayGameObject->Animate(fTimeElapsed);
 	auto pos = g_Logic.m_MonsterSession.m_currentPlayGameObject->GetPosition();
 	cout << "GameobjectManager::Boss Position: " << pos.x << ", 0, " << pos.z << endl;
@@ -126,11 +126,11 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 
 	UpdateShaderVariables(pd3dCommandList);
 	m_pSkyboxObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	
+
 	m_pDepthShaderComponent->UpdateShaderVariables(pd3dCommandList);
 	//인스턴싱 렌더 
-	m_pInstancingShaderComponent->Render(pd3dDevice, pd3dCommandList,0, pd3dGraphicsRootSignature);
-	
+	//m_pInstancingShaderComponent->Render(pd3dDevice, pd3dCommandList,0, pd3dGraphicsRootSignature);
+
 	//
 	g_Logic.m_MonsterSession.m_currentPlayGameObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
@@ -347,7 +347,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	BuildInstanceObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
 void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
-{	
+{
 	m_pFireballSpriteObject = new GameObject(UNDEF_ENTITY);
 	m_pFireballSpriteObject->InsertComponent<RenderComponent>();
 	m_pFireballSpriteObject->InsertComponent<UIMeshComponent>();
@@ -356,7 +356,7 @@ void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	m_pFireballSpriteObject->SetTexture(L"MagicEffect/Fireball_7x7.dds", RESOURCE_TEXTURE2D, 3);
 	m_pFireballSpriteObject->SetPosition(XMFLOAT3(0, 40, 100));
 	m_pFireballSpriteObject->SetScale(10);
-	m_pFireballSpriteObject->SetRowColumn(7, 7,0.05);
+	m_pFireballSpriteObject->SetRowColumn(7, 7, 0.05);
 	m_pFireballSpriteObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppParticleObjects.emplace_back(m_pFireballSpriteObject);
 
@@ -371,23 +371,18 @@ void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	m_pFireballEmissionSpriteObject->SetRowColumn(7, 7, 0.05);
 	m_pFireballEmissionSpriteObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppParticleObjects.emplace_back(m_pFireballEmissionSpriteObject);
-	
-	//인스턴싱 객체를 위한 추가 작업진행중 2023.04.25. ccg
-	m_pFireballSpriteObjects.resize(20);
-	m_pFireballSpriteObjects[0] = new GameObject(UNDEF_ENTITY);
-	m_pFireballSpriteObjects[0]->InsertComponent<RenderComponent>();
-	m_pFireballSpriteObjects[0]->InsertComponent<UIMeshComponent>();
-	m_pFireballSpriteObjects[0]->InsertComponent<MultiSpriteShaderComponent>();
-	m_pFireballSpriteObjects[0]->InsertComponent<TextureComponent>();
-	m_pFireballSpriteObjects[0]->SetTexture(L"MagicEffect/FireballEmission_7x7.dds", RESOURCE_TEXTURE2D, 3);
-	m_pFireballSpriteObjects[0]->SetPosition(XMFLOAT3(0, 40, 100));
-	m_pFireballSpriteObjects[0]->SetScale(10);
-	m_pFireballSpriteObjects[0]->SetRowColumn(7, 7, 0.05);
-	m_pFireballSpriteObjects[0]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
+	m_pFireballSpriteObjects.resize(20);
 	for (int i = 1; i < 20; i++) {
-		m_pFireballSpriteObjects[i]= new GameObject(UNDEF_ENTITY);
-		m_pFireballSpriteObjects[i]->SetPosition(XMFLOAT3(0, 40, 100+i*10));
+		m_pFireballSpriteObjects[i] = new GameObject(UNDEF_ENTITY);
+		m_pFireballSpriteObjects[i]->InsertComponent<RenderComponent>();
+		m_pFireballSpriteObjects[i]->InsertComponent<CLoadedModelInfoCompnent>();
+		m_pFireballSpriteObjects[i]->SetPosition(XMFLOAT3(0, i*10, 0));
+		m_pFireballSpriteObjects[i]->SetModel("Model/RockSpike.bin");
+		m_pFireballSpriteObjects[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		m_pFireballSpriteObjects[i]->SetScale(30.0f, 30.0f, 30.0f);
+		m_pFireballSpriteObjects[i]->SetRimLight(false);
+		m_ppParticleObjects.emplace_back(m_pFireballSpriteObjects[i]);
 	}
 }
 void GameobjectManager::BuildLight()
@@ -997,7 +992,7 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 #ifndef LOCAL_TASK
 	if (SomethingChanging)
 		g_NetworkHelper.SendMouseStatePacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_LMouseInput
-											,g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_RMouseInput);
+			, g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_RMouseInput);
 #endif
 
 }
@@ -1058,7 +1053,7 @@ void GameobjectManager::SetPlayCharacter(Session* pSession) // 임시 함수
 void GameobjectManager::SetPlayerCamera(Session& mySession)
 {
 	mySession.m_currentPlayGameObject->SetCamera(m_pCamera);
-	mySession.m_currentPlayGameObject->m_pCamera->ReInitCamrea();	
+	mySession.m_currentPlayGameObject->m_pCamera->ReInitCamrea();
 	mySession.m_currentPlayGameObject->SetCamera(m_pCamera);
 	auto mPos = mySession.m_currentPlayGameObject->GetPosition();
 	auto cPos = mySession.m_currentPlayGameObject->m_pCamera->GetPosition();

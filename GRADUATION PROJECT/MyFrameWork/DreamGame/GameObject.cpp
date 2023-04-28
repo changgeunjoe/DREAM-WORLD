@@ -3,6 +3,7 @@
 #include"CAnimationSets.h"
 #include "Animation.h"
 #include"DepthRenderShaderComponent.h"
+#include"InstanceRenderComponent.h"
 
 
 BYTE ReadStringFromFile(FILE* pInFile, char* pstrToken)
@@ -219,9 +220,17 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	
 	m_pd3dGraphicsRootSignature = pd3dGraphicsRootSignature;
 	ComponentBase* pComponent = GetComponent(component_id::RENDER_COMPONENT);
-	if (pComponent != NULL)
+	ComponentBase* pInsComponent = GetComponent(component_id::INSRENDER_COMPONENT);
+	if (pComponent != NULL|| pInsComponent!=NULL)
 	{
-		m_pRenderComponent = static_cast<RenderComponent*>(pComponent);
+		if (!pComponent)
+		{
+			m_pRenderComponent = static_cast<RenderComponent*>(pComponent);
+		}
+		else if (!pInsComponent)
+		{
+			m_pRenderComponent = static_cast<InstanceRenderComponent*>(pComponent);
+		}
 	}
 	ComponentBase* pTextureComponent = GetComponent(component_id::TEXTURE_COMPONENT);
 	if (pTextureComponent != NULL)
@@ -328,6 +337,50 @@ void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3
 					m_ppMaterialsComponent[i]->m_pShader->Render(pd3dCommandList, 0, pd3dGraphicsRootSignature, bPrerender);
 
 					
+					pd3dCommandList->SetGraphicsRootDescriptorTable(0, m_ppMaterialsComponent[i]->m_pShader->GetCbvGPUDescriptorHandle());
+					m_ppMaterialsComponent[i]->m_pShader->UpdateShaderVariables(pd3dCommandList, &m_xmf4x4World, m_ppMaterialsComponent[i]);
+					//m_ppMaterialsComponent[i]->UpdateShaderVariable(pd3dCommandList);
+				}
+			}
+			m_pRenderComponent->Render(pd3dCommandList, m_pMeshComponent, i);
+		}
+	}
+	if (m_pSibling) m_pSibling->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
+	if (m_pChild) m_pChild->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
+}
+
+void GameObject::InstanceRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender)
+{
+
+	UpdateShaderVariables(pd3dCommandList);
+	if (m_pSkinnedAnimationController)
+		m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
+
+	if (m_pShaderComponent != NULL)
+	{
+		m_pShaderComponent->Render(pd3dCommandList, 0, pd3dGraphicsRootSignature, bPrerender);
+		m_pShaderComponent->UpdateShaderVariables(pd3dCommandList, &m_xmf4x4World, NULL);
+		pd3dCommandList->SetGraphicsRootDescriptorTable(0, m_pShaderComponent->GetCbvGPUDescriptorHandle());
+		if (m_pTextureComponent != NULL)
+		{
+			m_pTextureComponent->UpdateShaderVariables(pd3dCommandList);
+		}
+	}
+	if (m_pRenderComponent != NULL && m_pMeshComponent != NULL && m_ppMaterialsComponent == NULL && m_pLoadedModelComponent == NULL)
+	{
+		m_pRenderComponent->Render(pd3dCommandList, m_pMeshComponent, 0);//수정필요
+	}
+	if (m_nMaterials > 0)
+	{
+		for (int i = 0; i < m_nMaterials; i++)
+		{
+			if (m_ppMaterialsComponent[i])
+			{
+				if (m_ppMaterialsComponent[i]->m_pShader)
+				{
+					m_ppMaterialsComponent[i]->m_pShader->Render(pd3dCommandList, 0, pd3dGraphicsRootSignature, bPrerender);
+
+
 					pd3dCommandList->SetGraphicsRootDescriptorTable(0, m_ppMaterialsComponent[i]->m_pShader->GetCbvGPUDescriptorHandle());
 					m_ppMaterialsComponent[i]->m_pShader->UpdateShaderVariables(pd3dCommandList, &m_xmf4x4World, m_ppMaterialsComponent[i]);
 					//m_ppMaterialsComponent[i]->UpdateShaderVariable(pd3dCommandList);

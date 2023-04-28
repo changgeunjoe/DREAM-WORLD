@@ -27,6 +27,6 @@ void InstanceRenderComponent::Render(ID3D12GraphicsCommandList* pd3dCommandList,
 	}
 	else
 	{
-		pd3dCommandList->DrawInstanced(meshcomponent->GetVertices(), 1, meshcomponent->GetOffset(), 0);
+		pd3dCommandList->DrawInstanced(meshcomponent->GetVertices(), nInstances, meshcomponent->GetOffset(), 0);
 	}
 }
