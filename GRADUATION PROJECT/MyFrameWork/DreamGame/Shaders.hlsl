@@ -527,7 +527,7 @@ float4 PSShadowMapShadow(VS_SHADOW_MAP_OUTPUT input) : SV_TARGET
     float3 viewDir = normalize(gvCameraPosition - input.positionW);
     
     float3 RimColor = float3(-2.f, -2.f, -2.f);
-    float rimPower = 7.0; // 
+    float rimPower = 5.0; // 
     float3 normal = normalize(input.normalW); // 
     
     float rim = saturate(dot(normal, viewDir));
@@ -536,7 +536,7 @@ float4 PSShadowMapShadow(VS_SHADOW_MAP_OUTPUT input) : SV_TARGET
     float4 Rimline = float4(pow(1 - rim, rimPower) * RimColor, 0.f);
     if (bRimLight)
     {
-        cColor = cColor + Rimline;
+        cColor = cColor + Rimline; // Rimline;
     }
     if (cColor.w < 0.1f)
         return cColor;
