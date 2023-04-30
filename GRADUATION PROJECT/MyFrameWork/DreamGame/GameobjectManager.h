@@ -45,7 +45,7 @@ private: //active object
 	vector<GameObject*> m_ppGameObjects;
 	array<Projectile*, 10> m_pArrowObjects;
 	array<Projectile*, 10> m_pEnergyBallObjects;
-
+	array<GameObject*, 10> m_pBoundingBox;
 	int				m_nObjects{};
 	GameObject* m_pGameObject{ NULL };
 

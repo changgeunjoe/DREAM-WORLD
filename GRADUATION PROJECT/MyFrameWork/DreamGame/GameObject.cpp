@@ -251,13 +251,21 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		m_pUiComponent->BuildObject(pd3dDevice, pd3dCommandList, 1.0f, 1.0f, 2.0f, 2.0f);
 		m_pMeshComponent = m_pUiComponent;
 	}
+	ComponentBase* pSphereMeshComponent = GetComponent(component_id::SPHEREMESH_COMPONENT);
+	if (pSphereMeshComponent != NULL)
+	{
+		m_pSphereComponent = static_cast<SphereMeshComponent*>(pSphereMeshComponent);
+		m_pSphereComponent->BuildObject(pd3dDevice, pd3dCommandList, m_fBoundingSize, 20, 20);
+		m_pMeshComponent = m_pSphereComponent;
+	}
 
 	//->메테리얼 생성 텍스쳐와 쉐이더를 넣어야되는데 쉐이더이므로 안 넣어도 됨
 	ComponentBase* pShaderComponent = GetComponent(component_id::SHADER_COMPONENT);
 	ComponentBase* pSkyShaderComponent = GetComponent(component_id::SKYSHADER_COMPONENT);
 	ComponentBase* pUiShaderComponent = GetComponent(component_id::UISHADER_COMPONENT);
 	ComponentBase* pSpriteShaderComponent = GetComponent(component_id::SPRITESHADER_COMPONENT);
-	if (pShaderComponent != NULL || pSkyShaderComponent != NULL || pUiShaderComponent != NULL || pSpriteShaderComponent != NULL)
+	ComponentBase* pBoundingBoxShaderComponent = GetComponent(component_id::BOUNDINGBOX_COMPONENT);
+	if (pShaderComponent != NULL || pSkyShaderComponent != NULL || pUiShaderComponent != NULL || pSpriteShaderComponent != NULL || pBoundingBoxShaderComponent != NULL)
 	{
 		if (pShaderComponent != NULL)
 		{
@@ -272,12 +280,18 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		else if (pSpriteShaderComponent != NULL) {
 			m_pShaderComponent = static_cast<MultiSpriteShaderComponent*>(pSpriteShaderComponent);
 		}
+		else if (pBoundingBoxShaderComponent != NULL) {
+			m_pShaderComponent = static_cast<BoundingBoxShaderComponent*>(pBoundingBoxShaderComponent);
+		}
 		m_pShaderComponent->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
 		m_pShaderComponent->CreateCbvSrvDescriptorHeaps(pd3dDevice, 2, 2);
 		m_pShaderComponent->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 		m_pShaderComponent->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObjects, ncbElementBytes);
-		m_pShaderComponent->CreateShaderResourceViews(pd3dDevice, m_pTextureComponent, 0, m_nRootParameter, pShadowMap);//texture입력
-		m_pShaderComponent->SetCbvGPUDescriptorHandlePtr(m_pShaderComponent->GetGPUCbvDescriptorStartHandle().ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));
+		if (m_pTextureComponent)
+		{
+			m_pShaderComponent->CreateShaderResourceViews(pd3dDevice, m_pTextureComponent, 0, m_nRootParameter, pShadowMap);//texture입력
+			m_pShaderComponent->SetCbvGPUDescriptorHandlePtr(m_pShaderComponent->GetGPUCbvDescriptorStartHandle().ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));
+		}
 	}
 	ComponentBase* pLoadedmodelComponent = GetComponent(component_id::LOADEDMODEL_COMPONET);
 	if (pLoadedmodelComponent != NULL)
@@ -378,8 +392,12 @@ void GameObject::ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLis
 
 void GameObject::Animate(float fTimeElapsed)
 {
-	if (m_pSkinnedAnimationController) m_pSkinnedAnimationController->AdvanceTime(fTimeElapsed, this);
-
+	if (m_pSkinnedAnimationController)
+	{
+		m_pSkinnedAnimationController->AdvanceTime(fTimeElapsed, this);
+		m_VisualizeSPBB->SetPosition(XMFLOAT3(GetPosition().x, GetPosition().y + m_fBoundingSize, GetPosition().z));
+	}
+	
 	if (m_pSibling) m_pSibling->Animate(fTimeElapsed);
 	if (m_pChild) m_pChild->Animate(fTimeElapsed);
 }

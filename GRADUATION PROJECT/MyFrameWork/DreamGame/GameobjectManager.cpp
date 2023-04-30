@@ -129,7 +129,8 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	
 	m_pDepthShaderComponent->UpdateShaderVariables(pd3dCommandList);
 	g_Logic.m_MonsterSession.m_currentPlayGameObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-
+	for (int i = 0; i < 5; i++) 
+		m_pBoundingBox[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	for (int i = 0; i < m_pArrowObjects.size(); i++) {
 		m_pArrowObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
@@ -225,6 +226,19 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pRockObject->SetScale(30.0f, 30.0f, 30.0f);
 	m_ppGameObjects.emplace_back(m_pRockObject);
 
+	for (int i = 0; i < 4; ++i)
+	{
+		m_pBoundingBox[i] = new GameObject(SQUARE_ENTITY);
+		m_pBoundingBox[i]->InsertComponent<RenderComponent>();
+		m_pBoundingBox[i]->InsertComponent<SphereMeshComponent>();
+		m_pBoundingBox[i]->InsertComponent<BoundingBoxShaderComponent>();
+		m_pBoundingBox[i]->InsertComponent<TextureComponent>();
+		m_pBoundingBox[i]->SetTexture(L"Image/Yellow.dds", RESOURCE_TEXTURE2D, 3);
+		m_pBoundingBox[i]->SetBoundingSize(8.0f);
+		m_pBoundingBox[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		m_pBoundingBox[i]->SetScale(1.f);
+	}
+
 	m_pWarriorObject = new Warrior();//사각형 오브젝트를 만들겠다
 	m_pWarriorObject->InsertComponent<RenderComponent>();
 	m_pWarriorObject->InsertComponent<CLoadedModelInfoCompnent>();
@@ -234,6 +248,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pWarriorObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pWarriorObject->m_pSkinnedAnimationController->SetTrackAnimationSet(6);
 	m_pWarriorObject->SetScale(30.0f);
+	m_pWarriorObject->SetBoundingBox(m_pBoundingBox[0]);
 	m_ppGameObjects.emplace_back(m_pWarriorObject);
 
 	m_pArcherObject = new Archer();
@@ -245,6 +260,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pArcherObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pArcherObject->m_pSkinnedAnimationController->SetTrackAnimationSet(6);
 	m_pArcherObject->SetScale(30.0f);
+	m_pArcherObject->SetBoundingBox(m_pBoundingBox[1]);
 	m_ppGameObjects.emplace_back(m_pArcherObject);
 
 	for (int i = 0; i < 10; ++i)
@@ -271,6 +287,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pTankerObject->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_DEFENCE]->m_nType = ANIMATION_TYPE_HALF;
 	m_pTankerObject->m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_DEFENCE].m_fSpeed = 0.3f;
 	m_pTankerObject->SetScale(30.0f);
+	m_pTankerObject->SetBoundingBox(m_pBoundingBox[2]);
 	m_ppGameObjects.emplace_back(m_pTankerObject);
 
 	m_pPriestObject = new Priest();
@@ -282,14 +299,15 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPriestObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pPriestObject->m_pSkinnedAnimationController->SetTrackAnimationSet(4);
 	m_pPriestObject->SetScale(30.0f);
+	m_pPriestObject->SetBoundingBox(m_pBoundingBox[3]);
 	m_ppGameObjects.emplace_back(m_pPriestObject);
 
 	for (int i = 0; i < 10; ++i)
 	{
 		m_pEnergyBallObjects[i] = new EnergyBall();
 		m_pEnergyBallObjects[i]->InsertComponent<RenderComponent>();
-		m_pEnergyBallObjects[i]->InsertComponent<CubeMeshComponent>();
-		m_pEnergyBallObjects[i]->InsertComponent<ShaderComponent>();
+		m_pEnergyBallObjects[i]->InsertComponent<SphereMeshComponent>();
+		m_pEnergyBallObjects[i]->InsertComponent<BoundingBoxShaderComponent>();
 		m_pEnergyBallObjects[i]->InsertComponent<TextureComponent>();
 		m_pEnergyBallObjects[i]->SetPosition(XMFLOAT3(0, 0, 100));
 		m_pEnergyBallObjects[i]->SetTexture(L"Image/Yellow.dds", RESOURCE_TEXTURE2D, 3);
@@ -298,6 +316,16 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 		m_pEnergyBallObjects[i]->SetBoundingSize(0.2f);
 		static_cast<Priest*>(m_pPriestObject)->SetEnergyBall(m_pEnergyBallObjects[i]);
 	}
+
+	m_pBoundingBox[4] = new GameObject(SQUARE_ENTITY);
+	m_pBoundingBox[4]->InsertComponent<RenderComponent>();
+	m_pBoundingBox[4]->InsertComponent<SphereMeshComponent>();
+	m_pBoundingBox[4]->InsertComponent<BoundingBoxShaderComponent>();
+	m_pBoundingBox[4]->InsertComponent<TextureComponent>();
+	m_pBoundingBox[4]->SetTexture(L"Image/Yellow.dds", RESOURCE_TEXTURE2D, 3);
+	m_pBoundingBox[4]->SetBoundingSize(30.0f);
+	m_pBoundingBox[4]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pBoundingBox[4]->SetScale(1.f);
 
 	m_pMonsterObject = new Monster();
 	m_pMonsterObject->InsertComponent<RenderComponent>();
@@ -308,7 +336,8 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pMonsterObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackAnimationSet(10);
 	m_pMonsterObject->SetScale(15.0f);
-	m_pMonsterObject->SetBoundingSize(22.5f);
+	m_pMonsterObject->SetBoundingSize(30.0f);
+	m_pMonsterObject->SetBoundingBox(m_pBoundingBox[4]);
 	m_pMonsterObject->SetMoveState(false);
 	m_ppGameObjects.emplace_back(m_pMonsterObject);
 	g_Logic.m_MonsterSession.SetGameObject(m_pMonsterObject);
@@ -326,7 +355,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 #if LOCAL_TASK
 	// 플레이어가 캐릭터 선택하는 부분에 유사하게 넣을 예정
 	m_pPlayerObject = new GameObject(UNDEF_ENTITY);	//수정필요
-	memcpy(m_pPlayerObject, m_pArcherObject, sizeof(GameObject));
+	memcpy(m_pPlayerObject, m_pPriestObject, sizeof(GameObject));
 	m_pPlayerObject->SetCamera(m_pCamera);
 	m_pPlayerObject->SetCharacterType(CT_ARCHER);
 	//delete m_pArcherObject;->delete하면서 뎊스렌더 문제 발생

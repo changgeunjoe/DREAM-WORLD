@@ -346,13 +346,28 @@ VS_SKYBOX_CUBEMAP_OUTPUT VSSkyBox(VS_SKYBOX_CUBEMAP_INPUT input)
     return (output);
 }
 
-
-
 float4 PSSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
 {
     float4 cColor = SkyCubeTexture.Sample(gClampSamplerState, input.positionL);
 
     return (cColor);
+}
+
+struct VS_BOUNDING_BOX_OUTPUT
+{
+    float4 position : SV_POSITION;
+};
+
+VS_BOUNDING_BOX_OUTPUT VSBoundingBox(VS_SKYBOX_CUBEMAP_INPUT input)
+{
+    VS_BOUNDING_BOX_OUTPUT output;
+    output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+    return (output);
+}
+
+float4 PSBoundingBox(VS_BOUNDING_BOX_OUTPUT input) : SV_TARGET
+{
+    return(float4(1.0f, 1.0f, 1.0f, 1.0f));
 }
 //////////////////////////////////////////////////////////////////////////shadow
 

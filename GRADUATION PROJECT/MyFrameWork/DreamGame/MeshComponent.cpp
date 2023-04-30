@@ -537,3 +537,79 @@ void UIMeshComponent::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	m_pnIndices[6] = 0; m_pnIndices[7] = 2; m_pnIndices[8] = 4;
 	m_pnIndices[9] = 1; m_pnIndices[10] = 2; m_pnIndices[11] = 0;
 }
+
+SphereMeshComponent::SphereMeshComponent()
+{
+}
+
+SphereMeshComponent::~SphereMeshComponent()
+{
+}
+
+void SphereMeshComponent::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fRadius, UINT nSlices, UINT nStacks)
+{
+	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+
+	float fDeltaPhi = float(XM_PI / nStacks);
+	float fDeltaTheta = float((2.0f * XM_PI) / nSlices);
+	int k = 0;
+
+	m_nVertices = 2 + (nSlices * (nStacks - 1));
+
+	m_pxmf3Positions = new XMFLOAT3[m_nVertices];
+
+	m_pxmf3Positions[k] = XMFLOAT3(0.0f, +fRadius, 0.0f); k++;
+
+	float theta_i, phi_j;
+	for (UINT j = 1; j < nStacks; j++)
+	{
+		phi_j = fDeltaPhi * j;
+		for (UINT i = 0; i < nSlices; i++)
+		{
+			theta_i = fDeltaTheta * i;
+			m_pxmf3Positions[k] = XMFLOAT3(fRadius * sinf(phi_j) * cosf(theta_i), fRadius * cosf(phi_j), fRadius * sinf(phi_j) * sinf(theta_i));
+			k++;
+		}
+	}
+	m_pxmf3Positions[k] = XMFLOAT3(0.0f, -fRadius, 0.0f); k++;
+
+	m_pd3dVertexBuffer = CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf3Positions, sizeof(XMFLOAT3) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dVertexUploadBuffer);
+
+	m_d3dVertexBufferView.BufferLocation = m_pd3dVertexBuffer->GetGPUVirtualAddress();
+	m_d3dVertexBufferView.StrideInBytes = sizeof(XMFLOAT3);
+	m_d3dVertexBufferView.SizeInBytes = sizeof(XMFLOAT3) * m_nVertices;
+
+	k = 0;
+	m_nIndices = (nSlices * 3) * 2 + (nSlices * (nStacks - 2) * 3 * 2);
+	m_pnIndices = new UINT[m_nIndices];
+	for (UINT i = 0; i < nSlices; i++)
+	{
+		m_pnIndices[k++] = 0;
+		m_pnIndices[k++] = 1 + ((i + 1) % nSlices);
+		m_pnIndices[k++] = 1 + i;
+	}
+	for (UINT j = 0; j < nStacks - 2; j++)
+	{
+		for (UINT i = 0; i < nSlices; i++)
+		{
+			m_pnIndices[k++] = 1 + (i + (j * nSlices));
+			m_pnIndices[k++] = 1 + (((i + 1) % nSlices) + (j * nSlices));
+			m_pnIndices[k++] = 1 + (i + ((j + 1) * nSlices));
+			m_pnIndices[k++] = 1 + (i + ((j + 1) * nSlices));
+			m_pnIndices[k++] = 1 + (((i + 1) % nSlices) + (j * nSlices));
+			m_pnIndices[k++] = 1 + (((i + 1) % nSlices) + ((j + 1) * nSlices));
+		}
+	}
+	for (UINT i = 0; i < nSlices; i++)
+	{
+		m_pnIndices[k++] = (m_nVertices - 1);
+		m_pnIndices[k++] = ((m_nVertices - 1) - nSlices) + i;
+		m_pnIndices[k++] = ((m_nVertices - 1) - nSlices) + ((i + 1) % nSlices);
+	}
+
+	m_pd3dIndexBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pnIndices, sizeof(UINT) * m_nIndices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_INDEX_BUFFER, &m_pd3dIndexUploadBuffer);
+
+	m_d3dIndexBufferView.BufferLocation = m_pd3dIndexBuffer->GetGPUVirtualAddress();
+	m_d3dIndexBufferView.Format = DXGI_FORMAT_R32_UINT;
+	m_d3dIndexBufferView.SizeInBytes = sizeof(UINT) * m_nIndices;
+}

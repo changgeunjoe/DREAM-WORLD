@@ -19,7 +19,7 @@ public:
 	std::atomic_bool  isMove = false;
 	std::atomic_bool isAttack = false;
 	BOSS_ATTACK currentAttack = BOSS_ATTACK::ATTACK_COUNT;
-	DirectX::BoundingSphere m_SPBB = BoundingSphere(DirectX::XMFLOAT3(0.0f, 22.5f, 0.0f), 22.5f);
+	DirectX::BoundingSphere m_SPBB = BoundingSphere(DirectX::XMFLOAT3(0.0f, 30.0f, 0.0f), 30.0f);
 public:
 	std::chrono::high_resolution_clock::time_point m_lastAttackTime = std::chrono::high_resolution_clock::now();
 public:

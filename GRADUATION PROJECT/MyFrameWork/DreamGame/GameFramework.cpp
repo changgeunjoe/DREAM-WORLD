@@ -47,7 +47,7 @@ CGameFramework::CGameFramework()
 	m_nWndClientWidth = FRAME_BUFFER_WIDTH;
 	m_nWndClientHeight = FRAME_BUFFER_HEIGHT;
 
-	_tcscpy_s(m_pszFrameRate, _T("LapProject ("));
+	_tcscpy_s(m_pszFrameRate, _T("DreamWorld ("));
 
 }
 

@@ -147,12 +147,12 @@ void MaterialComponent::PrepareStandardShaders(ID3D12Device* pd3dDevice, ID3D12G
 
 void MaterialComponent::PrepareShaders(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, ID3D12Resource* m_pd3dcbGameObjects)
 {
-	int nObjects = 0;
-	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);// 삭제 예정(변경)
-	m_pBoundingBoxShader = new BoundingBoxShaderComponent();
-	m_pBoundingBoxShader->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
-	m_pBoundingBoxShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 10, 10);
-	m_pBoundingBoxShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	m_pBoundingBoxShader->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObjects, ncbElementBytes);
-	m_pBoundingBoxShader->SetCbvGPUDescriptorHandlePtr(m_pBoundingBoxShader->GetGPUCbvDescriptorStartHandle().ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));
+	//int nObjects = 0;
+	//UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);// 삭제 예정(변경)
+	//m_pBoundingBoxShader = new BoundingBoxShaderComponent();
+	//m_pBoundingBoxShader->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
+	//m_pBoundingBoxShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 10, 10);
+	//m_pBoundingBoxShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	//m_pBoundingBoxShader->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObjects, ncbElementBytes);
+	//m_pBoundingBoxShader->SetCbvGPUDescriptorHandlePtr(m_pBoundingBoxShader->GetGPUCbvDescriptorStartHandle().ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));
 }

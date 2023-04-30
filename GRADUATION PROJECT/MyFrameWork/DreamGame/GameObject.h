@@ -156,9 +156,10 @@ public:
 	char							m_pstrFrameName[64];
 
 
-	CCamera* m_pCamera = nullptr;
-	float                           m_fBoundingSize = 7.5f;
+	CCamera*						m_pCamera{ nullptr };
+	float                           m_fBoundingSize{ 8.0f };
 	BoundingSphere					m_SPBB = BoundingSphere(XMFLOAT3(0.0f, 0.0f, 0.0f), m_fBoundingSize);
+	GameObject*						m_VisualizeSPBB{ nullptr };
 
 	int                             m_iRButtionCount = 0;
 
@@ -190,6 +191,7 @@ protected:
 	CubeMeshComponent* m_pCubeComponent{ nullptr };
 	SkyBoxMeshComponent* m_pSkyboxComponent{ nullptr };
 	UIMeshComponent* m_pUiComponent{ nullptr };
+	SphereMeshComponent* m_pSphereComponent{ nullptr };
 	ShaderComponent* m_pShaderComponent{ nullptr };
 	RenderComponent* m_pRenderComponent{ nullptr };
 	CLoadedModelInfoCompnent* m_pLoadedModelComponent{ nullptr };
@@ -215,6 +217,8 @@ protected:
 	int nObjects = 0;//삭제 예정(변경)
 
 public:
+	void SetBoundingBox(GameObject* boundingbox) { m_VisualizeSPBB = boundingbox; }
+
 	void SetRButtonClicked(bool bRButtonClicked) { m_bRButtonClicked = bRButtonClicked; }
 	bool GetRButtonClicked() { return m_bRButtonClicked; }
 
@@ -300,6 +304,10 @@ inline T* GameObject::ComponentType(component_id& componentID)
 	{
 		componentID = component_id::UIMESH_COMPONENT;
 	}
+	else if (typeid(T).name() == typeid(SphereMeshComponent).name())
+	{
+		componentID = component_id::SPHEREMESH_COMPONENT;
+	}
 	else if (typeid(T).name() == typeid(ShaderComponent).name())
 	{
 		componentID = component_id::SHADER_COMPONENT;
@@ -315,6 +323,10 @@ inline T* GameObject::ComponentType(component_id& componentID)
 	else if (typeid(T).name() == typeid(MultiSpriteShaderComponent).name())
 	{
 		componentID = component_id::SPRITESHADER_COMPONENT;
+	}
+	else if (typeid(T).name() == typeid(BoundingBoxShaderComponent).name())
+	{
+		componentID = component_id::BOUNDINGBOX_COMPONENT;
 	}
 	else if (typeid(T).name() == typeid(TextureComponent).name())
 	{
