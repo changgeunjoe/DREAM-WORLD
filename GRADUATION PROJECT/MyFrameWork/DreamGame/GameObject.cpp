@@ -395,7 +395,7 @@ void GameObject::InstanceRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandL
 
 void GameObject::ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent)
 {
-	
+	UpdateShaderVariables(pd3dCommandList);
 	if (m_pSkinnedAnimationController)
 		m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
 
@@ -458,6 +458,11 @@ void GameObject::SetRimLight(bool bRimLight)
 	m_bRimLight = bRimLight;
 }
 
+void GameObject::SetCurrentHP(float fHP)
+{
+	m_fHp = fHP;
+}
+
 void GameObject::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_STAT) + 255) & ~255); //256의 배수
@@ -474,7 +479,7 @@ void GameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandLis
 {
 	if (m_pd3dcbGameObjects)
 	{
-		float mfhp;
+		float mfhp=0;
 		mfhp = (m_fHp / m_fMaxHp);//현재 체력값을 최대체력 비례로 나타낸식 23.04.18 .ccg
 		::memcpy(&m_pcbMappedGameObjects->m_xmfHP, &mfhp, sizeof(float));
 		::memcpy(&m_pcbMappedGameObjects->m_bRimLight, &m_bRimLight, sizeof(bool));

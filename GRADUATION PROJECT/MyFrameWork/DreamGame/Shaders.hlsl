@@ -147,6 +147,11 @@ float4 PSDiffused(VS_OUTPUT input) : SV_TARGET
     // return (cIllumination);
      //return (gMaterial.m_cAmbient);
      float4 cColor = shaderTexture.Sample(gWrapSamplerState, input.uv);
+    if (input.uv.x > 0.7)
+    {
+        cColor = float4(0, 0, 0, 1);
+
+    }
      return cColor;
 
  #endif

@@ -51,7 +51,8 @@ void GameobjectManager::Animate(float fTimeElapsed)
 		m_pMonsterHPBarObject->SetPosition(XMFLOAT3(m_pMonsterObject->GetPosition().x,
 			m_pMonsterObject->GetPosition().y + 70, m_pMonsterObject->GetPosition().z));
 		m_pMonsterHPBarObject->Rotate(0, 180, 0);
-		m_pMonsterHPBarObject->SetScale(10);
+		m_pMonsterHPBarObject->SetScale(10,1,1);
+		m_pMonsterHPBarObject->SetCurrentHP(70);
 	}
 
 	//m_pMonsterObject->Animate(fTimeElapsed);
@@ -181,9 +182,9 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	//	m_pTextureToViewportComponent->Render(pd3dCommandList, m_pCamera, 0, pd3dGraphicsRootSignature);
 	//}
 
-	for (int i = 0; i < m_ppCharacterUIObjects.size(); i++) {
+	/*for (int i = 0; i < m_ppCharacterUIObjects.size(); i++) {
 		m_ppCharacterUIObjects[i]->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature);
-	}
+	}*/
 	for (int i = 0; i < m_ppParticleObjects.size(); i++) {
 		m_ppParticleObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
@@ -505,15 +506,29 @@ void GameobjectManager::Build2DUI(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 
 void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
+	//m_pMonsterHPBarObject = new GameObject(UNDEF_ENTITY);
+	//m_pMonsterHPBarObject->InsertComponent<RenderComponent>();
+	//m_pMonsterHPBarObject->InsertComponent<CLoadedModelInfoCompnent>();
+	//m_pMonsterHPBarObject->SetPosition(XMFLOAT3(0, 0, 0));
+	//m_pMonsterHPBarObject->SetModel("Model/BossHp.bin");
+	//m_pMonsterHPBarObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//m_pMonsterHPBarObject->Rotate(0.0f, 0.0f, 0.0f);
+	//m_pMonsterHPBarObject->SetScale(3.0f, 3.0f, 3.0f);
+	//m_ppCharacterUIObjects.emplace_back(m_pMonsterHPBarObject);
+
+
+
 	m_pMonsterHPBarObject = new GameObject(UNDEF_ENTITY);
 	m_pMonsterHPBarObject->InsertComponent<RenderComponent>();
-	m_pMonsterHPBarObject->InsertComponent<CLoadedModelInfoCompnent>();
-	m_pMonsterHPBarObject->SetPosition(XMFLOAT3(0, 0, 0));
-	m_pMonsterHPBarObject->SetModel("Model/BossHp.bin");
+	m_pMonsterHPBarObject->InsertComponent<UIMeshComponent>();
+	m_pMonsterHPBarObject->InsertComponent<ShaderComponent>();
+	m_pMonsterHPBarObject->InsertComponent<TextureComponent>();
+	m_pMonsterHPBarObject->SetTexture(L"UI/HP.dds", RESOURCE_TEXTURE2D, 3);
+	m_pMonsterHPBarObject->SetPosition(XMFLOAT3(0, 40, 100));
+	m_pMonsterHPBarObject->SetScale(10);
 	m_pMonsterHPBarObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pMonsterHPBarObject->Rotate(0.0f, 0.0f, 0.0f);
-	m_pMonsterHPBarObject->SetScale(3.0f, 3.0f, 3.0f);
 	m_ppCharacterUIObjects.emplace_back(m_pMonsterHPBarObject);
+
 
 	m_pCharacterHPBarObject = new GameObject(UI_ENTITY);
 	m_pCharacterHPBarObject->InsertComponent<RenderComponent>();
