@@ -56,6 +56,7 @@ void LobbyCScene::UIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 
 void LobbyCScene::ReleaseUploadBuffers()
 {
+
 }
 
 ID3D12RootSignature* LobbyCScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevice)
@@ -275,6 +276,7 @@ ID3D12RootSignature* LobbyCScene::CreateGraphicsRootSignature(ID3D12Device* pd3d
 	RootSignature.TextureSamplerDescs[2].ShaderRegister = 2;
 	RootSignature.TextureSamplerDescs[2].RegisterSpace = 0;
 	RootSignature.TextureSamplerDescs[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
 #endif
 	::ZeroMemory(&RootSignature.RootSignatureDesc, sizeof(D3D12_ROOT_SIGNATURE_DESC));
 	RootSignature.RootSignatureDesc.NumParameters = RootSignature.RootParameter.size();

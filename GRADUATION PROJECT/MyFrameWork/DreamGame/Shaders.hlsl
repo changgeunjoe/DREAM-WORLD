@@ -131,10 +131,6 @@ VS_OUTPUT VSDiffused(VS_INPUT input)
     return (output);
 }
 
-
-
-
-
 float4 PSDiffused(VS_OUTPUT input) : SV_TARGET
 {
 #ifdef _WITH_VERTEX_LIGHTING
@@ -143,14 +139,29 @@ float4 PSDiffused(VS_OUTPUT input) : SV_TARGET
         return (cIllumination + float4(input.positionW, 1.0f));
 #else
     float3 normalW = normalize(input.normalW);
-    // float4 cIllumination = Lighting(input.positionW, normalW);
-    // return (cIllumination);
-     //return (gMaterial.m_cAmbient);
      float4 cColor = shaderTexture.Sample(gWrapSamplerState, input.uv);
-    if (input.uv.x > 0.7)
+    if (input.uv.y > 0.95)
     {
         cColor = float4(0, 0, 0, 1);
 
+    }
+    if (input.uv.y < 0.05)
+    {
+        cColor = float4(0, 0, 0, 1);
+    }
+    if (input.uv.x > 0.95)
+    {
+        cColor = float4(0, 0, 0, 1);
+
+    }
+    if (input.uv.x < 0.01)
+    {
+        cColor = float4(0, 0, 0, 1);
+
+    }
+    if (input.uv.x > gfCharactertHP)
+    {
+        cColor = float4(0, 0, 0, 1);
     }
      return cColor;
 
@@ -186,8 +197,6 @@ VS_TEXTURED_OUTPUT VSUITextured(VS_TEXTURED_INPUT input)
     return (output);
 }
 
-
-
 float4 PSUITextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
 {   
        // Sample the texture
@@ -205,6 +214,10 @@ float4 PSUITextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
     //{
     //    return outlineColor;
     //}
+    if (input.uv.x > gfCharactertHP)
+    {
+        cColor = float4(0, 0, 0, 1);
+    }
     return (cColor);
 }
 

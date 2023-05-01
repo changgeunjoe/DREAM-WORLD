@@ -46,7 +46,7 @@ void CLight::BuildLight()
 	m_pLights = new LIGHT[m_nLights];
 	::ZeroMemory(m_pLights, sizeof(LIGHT) * m_nLights);
 
-	m_xmf4GlobalAmbient = XMFLOAT4(0.15f, 0.15f, 0.15f, 1.0f);
+	m_xmf4GlobalAmbient = XMFLOAT4(0.4f, 0.4f, 0.4f, 1.0f);
 
 
 	m_pLights[0].m_bEnable = true;

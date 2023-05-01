@@ -40,8 +40,8 @@ void InstancingShaderComponent::CreateShaderVariables(ID3D12Device* pd3dDevice, 
 {
 
 	m_pd3dcbGameObjects = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL,
-sizeof(VS_VB_INSTANCE) * m_ppObjects.size(), D3D12_HEAP_TYPE_UPLOAD,
-		D3D12_RESOURCE_STATE_GENERIC_READ, NULL);
+			sizeof(VS_VB_INSTANCE) * m_ppObjects.size(), D3D12_HEAP_TYPE_UPLOAD,
+					D3D12_RESOURCE_STATE_GENERIC_READ, NULL);
 	m_pd3dcbGameObjects->Map(0, NULL, (void **)&m_pcbMappedInsGameObjects);
 }
 void InstancingShaderComponent::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)

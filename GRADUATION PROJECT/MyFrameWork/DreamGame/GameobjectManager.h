@@ -95,9 +95,9 @@ private: //active object
 
 	//GmaeUI-HPBAR,CharacterUI - 조창근 23.04.13
 	GameObject* m_pMonsterHPBarObject{ NULL };
-	GameObject* m_pCharacterHPBarObject{ NULL };//캐릭터 HPBAR
-	GameObject* m_pCharacterProfileObject{ NULL };//캐릭터 사진이 들어갈 UI
-	GameObject* m_pCharacterSkillBarObject{ NULL };
+	GameObject* m_pArcherHPBarObject{ NULL };//캐릭터 HPBAR
+	GameObject* m_pArcherProfileObject{ NULL };//캐릭터 사진이 들어갈 UI
+	GameObject* m_pArcherSkillBarObject{ NULL };
 	vector<GameObject*> m_ppCharacterUIObjects;
 
 	//ParticleObject-Particle -  23.04.13 .ccg

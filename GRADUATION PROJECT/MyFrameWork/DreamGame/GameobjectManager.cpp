@@ -530,38 +530,40 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_ppCharacterUIObjects.emplace_back(m_pMonsterHPBarObject);
 
 
-	m_pCharacterHPBarObject = new GameObject(UI_ENTITY);
-	m_pCharacterHPBarObject->InsertComponent<RenderComponent>();
-	m_pCharacterHPBarObject->InsertComponent<UIMeshComponent>();
-	m_pCharacterHPBarObject->InsertComponent<UiShaderComponent>();
-	m_pCharacterHPBarObject->InsertComponent<TextureComponent>();
-	m_pCharacterHPBarObject->SetTexture(L"UI/HP.dds", RESOURCE_TEXTURE2D, 3);
-	m_pCharacterHPBarObject->SetPosition(XMFLOAT3(0.1, -0.5, 1.03));
-	m_pCharacterHPBarObject->SetScale(0.1, 0.015, 1);
-	m_pCharacterHPBarObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppCharacterUIObjects.emplace_back(m_pCharacterHPBarObject);
+///////////////////////////////////////////////////////
+	m_pArcherHPBarObject = new GameObject(UI_ENTITY);
+	m_pArcherHPBarObject->InsertComponent<RenderComponent>();
+	m_pArcherHPBarObject->InsertComponent<UIMeshComponent>();
+	m_pArcherHPBarObject->InsertComponent<UiShaderComponent>();
+	m_pArcherHPBarObject->InsertComponent<TextureComponent>();
+	m_pArcherHPBarObject->SetTexture(L"UI/HP.dds", RESOURCE_TEXTURE2D, 3);
+	m_pArcherHPBarObject->SetPosition(XMFLOAT3(0.09, -0.53, 1.03));
+	m_pArcherHPBarObject->SetScale(0.13, 0.010, 1);
+	m_pArcherHPBarObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppCharacterUIObjects.emplace_back(m_pArcherHPBarObject);
 
-	m_pCharacterProfileObject = new GameObject(UI_ENTITY);
-	m_pCharacterProfileObject->InsertComponent<RenderComponent>();
-	m_pCharacterProfileObject->InsertComponent<UIMeshComponent>();
-	m_pCharacterProfileObject->InsertComponent<UiShaderComponent>();
-	m_pCharacterProfileObject->InsertComponent<TextureComponent>();
-	m_pCharacterProfileObject->SetTexture(L"UI/Archer.dds", RESOURCE_TEXTURE2D, 3);
-	m_pCharacterProfileObject->SetPosition(XMFLOAT3(-0.1, -0.5, 1.03));
-	m_pCharacterProfileObject->SetScale(0.05, 0.025, 1);
-	m_pCharacterProfileObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppCharacterUIObjects.emplace_back(m_pCharacterProfileObject);
+	m_pArcherProfileObject = new GameObject(UI_ENTITY);
+	m_pArcherProfileObject->InsertComponent<RenderComponent>();
+	m_pArcherProfileObject->InsertComponent<UIMeshComponent>();
+	m_pArcherProfileObject->InsertComponent<UiShaderComponent>();
+	m_pArcherProfileObject->InsertComponent<TextureComponent>();
+	m_pArcherProfileObject->SetTexture(L"UI/Archer.dds", RESOURCE_TEXTURE2D, 3);
+	m_pArcherProfileObject->SetPosition(XMFLOAT3(-0.4, -0.5, 1.03));
+	m_pArcherProfileObject->SetScale(0.05, 0.025, 1);
+	m_pArcherProfileObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppCharacterUIObjects.emplace_back(m_pArcherProfileObject);
 
-	m_pCharacterSkillBarObject = new GameObject(UI_ENTITY);
-	m_pCharacterSkillBarObject->InsertComponent<RenderComponent>();
-	m_pCharacterSkillBarObject->InsertComponent<UIMeshComponent>();
-	m_pCharacterSkillBarObject->InsertComponent<UiShaderComponent>();
-	m_pCharacterSkillBarObject->InsertComponent<TextureComponent>();
-	m_pCharacterSkillBarObject->SetTexture(L"UI/HP.dds", RESOURCE_TEXTURE2D, 3);
-	m_pCharacterSkillBarObject->SetPosition(XMFLOAT3(0.25, 0.5, 1.03));
-	m_pCharacterSkillBarObject->SetScale(0.05, 0.025, 1);
-	m_pCharacterSkillBarObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppCharacterUIObjects.emplace_back(m_pCharacterSkillBarObject);
+	m_pArcherSkillBarObject = new GameObject(UI_ENTITY);
+	m_pArcherSkillBarObject->InsertComponent<RenderComponent>();
+	m_pArcherSkillBarObject->InsertComponent<UIMeshComponent>();
+	m_pArcherSkillBarObject->InsertComponent<UiShaderComponent>();
+	m_pArcherSkillBarObject->InsertComponent<TextureComponent>();
+	m_pArcherSkillBarObject->SetTexture(L"UI/HP.dds", RESOURCE_TEXTURE2D, 3);
+	m_pArcherSkillBarObject->SetPosition(XMFLOAT3(0.25, 0.5, 1.03));
+	m_pArcherSkillBarObject->SetScale(0.05, 0.025, 1);
+	m_pArcherSkillBarObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppCharacterUIObjects.emplace_back(m_pArcherSkillBarObject);
+////////////////////////////////////////////////////////////////
 }
 
 void GameobjectManager::BuildInstanceObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
