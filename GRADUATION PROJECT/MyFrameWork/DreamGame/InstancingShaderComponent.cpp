@@ -66,9 +66,9 @@ void InstancingShaderComponent::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 	//±íÀÌ¹öÆÛ update
 	UpdateShaderVariables(pd3dCommandList);
 
-	//m_ppObjects[0]->
-	//for (int i = 0; i < m_ppObjects.size(); i++) {
-	//	m_ppObjects[i]->ShadowRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, true, this);
-	//}
+	
+	for (int i = 0; i < m_ppObjects.size(); i++) {
+		m_ppObjects[i]->InstanceRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, true, this);
+	}
 
 }

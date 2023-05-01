@@ -349,7 +349,7 @@ void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3
 	if (m_pChild) m_pChild->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
 }
 
-void GameObject::InstanceRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender)
+void GameObject::InstanceRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, int nObjects,bool bPrerender)
 {
 
 	UpdateShaderVariables(pd3dCommandList);
@@ -366,9 +366,9 @@ void GameObject::InstanceRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandL
 			m_pTextureComponent->UpdateShaderVariables(pd3dCommandList);
 		}
 	}
-	if (m_pRenderComponent != NULL && m_pMeshComponent != NULL && m_ppMaterialsComponent == NULL && m_pLoadedModelComponent == NULL)
+	if (m_pInstanceRenderComponent != NULL && m_pMeshComponent != NULL && m_ppMaterialsComponent == NULL && m_pLoadedModelComponent == NULL)
 	{
-		m_pRenderComponent->Render(pd3dCommandList, m_pMeshComponent, 0);//수정필요
+		m_pInstanceRenderComponent->Render(pd3dCommandList, m_pMeshComponent, 0,nObjects);//수정필요
 	}
 	if (m_nMaterials > 0)
 	{
@@ -386,11 +386,11 @@ void GameObject::InstanceRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandL
 					//m_ppMaterialsComponent[i]->UpdateShaderVariable(pd3dCommandList);
 				}
 			}
-			m_pRenderComponent->Render(pd3dCommandList, m_pMeshComponent, i);
+			m_pInstanceRenderComponent->Render(pd3dCommandList, m_pMeshComponent, i, nObjects);
 		}
 	}
-	if (m_pSibling) m_pSibling->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
-	if (m_pChild) m_pChild->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
+	if (m_pSibling) m_pSibling->InstanceRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, nObjects,bPrerender);
+	if (m_pChild) m_pChild->InstanceRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, nObjects,bPrerender);
 }
 
 void GameObject::ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent)
