@@ -125,7 +125,7 @@ void MonsterSessionObject::Move(float fDistance, float elapsedTime)
 	float distance = Vector3::Length(des);
 
 	if (ChangingAngle > 30.0f && distance < 10) {
-		OnRight ? Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime);
+		OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
 		/*if (OnRight)
 			Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime);
 		else if (!OnRight)
@@ -134,7 +134,7 @@ void MonsterSessionObject::Move(float fDistance, float elapsedTime)
 	else if (distance >= 14.0f) {
 		if (ChangingAngle > 0.5f)
 		{
-			OnRight ? Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime);
+			OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
 
 			//if (OnRight)
 			//	Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime);

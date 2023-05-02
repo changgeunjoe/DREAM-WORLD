@@ -6,6 +6,7 @@
 #include "../../GameobjectManager.h"
 #include "../../Animation.h"
 #include "../Room/RoomManger.h"
+#include "../../Character.h"
 
 extern CGameFramework gGameFramework;
 extern RoomManger g_RoomManager;
@@ -66,7 +67,7 @@ void Logic::ProcessPacket(char* p)
 		else cout << "not found array" << endl;
 #ifdef _DEBUG
 		PrintCurrentTime();
-	//	std::cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_UP - MOVE_KEY_UP ID: " << recvPacket->userId << std::endl;
+		//	std::cout << "Logic::ProcessPacket() - SERVER_PACKET::MOVE_KEY_UP - MOVE_KEY_UP ID: " << recvPacket->userId << std::endl;
 #endif
 	}
 	break;
@@ -92,8 +93,8 @@ void Logic::ProcessPacket(char* p)
 				findRes->m_ownerRotateAngle.y += recvPacket->angle;
 #ifdef _DEBUG
 				PrintCurrentTime();
-			//	std::cout << "Logic::ProcessPacket() - SERVER_PACKET::ROTATE - ROTATE ID: " << recvPacket->userId << std::endl;
-			//	cout << "Rotate axis Y angle: " << recvPacket->angle << endl;
+				//	std::cout << "Logic::ProcessPacket() - SERVER_PACKET::ROTATE - ROTATE ID: " << recvPacket->userId << std::endl;
+				//	cout << "Rotate axis Y angle: " << recvPacket->angle << endl;
 #endif
 			}
 			break;
@@ -382,8 +383,12 @@ void Logic::ProcessPacket(char* p)
 		}
 		m_MonsterSession.m_currentPlayGameObject->m_UIScale = static_cast<float>(recvPacket->bossState.hp) / 250.0f;//maxHp 2500입니다
 
+		Monster* monsterObject = dynamic_cast<Monster*>(m_MonsterSession.m_currentPlayGameObject);
+
 		utc_clock::time_point currentUTC_Time = utc_clock::now();
 		XMFLOAT3 bossPos = m_MonsterSession.m_currentPlayGameObject->GetPosition();
+		XMFLOAT3 bossLookVector = monsterObject->GetLook();
+		XMFLOAT3 bossRightVector = monsterObject->GetRight();
 		high_resolution_clock::time_point h_t = high_resolution_clock::now();
 		XMFLOAT3 bossInterpolationVector = Vector3::Subtract(recvPacket->bossState.pos, bossPos);
 
@@ -399,6 +404,41 @@ void Logic::ProcessPacket(char* p)
 		//cout << "bossPosDistance: " << bossPosDistance << endl;
 		//cout << "bossInterplationDis: " << bossInterpolationDistance << endl;
 
+		//boss Session
+
+		//rot
+		bool OnRight = (Vector3::DotProduct(bossRightVector, Vector3::Normalize(recvPacket->bossState.directionVector)) > 0) ? true : false;	// 목적지가 올느쪽 왼
+		float bossRotBetweenAngle = Vector3::Angle(Vector3::Normalize(recvPacket->bossState.directionVector), bossLookVector);
+		float bossInterpolationAngle = abs(bossRotBetweenAngle) - bosDurationTime * 90.0f;
+		cout << "bossBetweenAngle: " << bossRotBetweenAngle << endl;
+		cout << "bossBetweenAngle Interpolation: " << bossInterpolationAngle << endl;
+		if (bossInterpolationAngle < DBL_EPSILON || bossInterpolationDistance < 0)
+			m_MonsterSession.m_currentPlayGameObject->m_interpolationRotateAngleY = 0.0;
+		else if (abs(bossInterpolationAngle) > 5.0f) {
+			OnRight ? m_MonsterSession.m_currentPlayGameObject->Rotate(0, bossRotBetweenAngle, 0) :
+				m_MonsterSession.m_currentPlayGameObject->Rotate(0, -bossRotBetweenAngle, 0);
+		}
+		else {
+			OnRight ? m_MonsterSession.m_currentPlayGameObject->m_interpolationRotateAngleY = bossRotBetweenAngle :
+				m_MonsterSession.m_currentPlayGameObject->m_interpolationRotateAngleY = -bossRotBetweenAngle;
+		}
+
+
+		//float bossRotBetweenAngle = -recvPacket->bossState.rot.y - bossRot.y;
+		//cout << "recv Boss rot Y: " << -recvPacket->bossState.rot.y << endl;
+		//cout << "currentBos rot Y: " << bossRot.y << endl;
+		//cout << "bossBetweenAngle: " << bossRotBetweenAngle << endl;
+		//if (bossInterpolationAngle < DBL_EPSILON || bossInterpolationDistance < 0)
+		//	m_MonsterSession.m_currentPlayGameObject->m_interpolationRotateAngleY = 0.0;
+		//else if (abs(bossInterpolationAngle) > 5.0f) {
+		//	m_MonsterSession.m_currentPlayGameObject->Rotate(0, bossRotBetweenAngle, 0);
+		//}
+		//else {
+		//	m_MonsterSession.m_currentPlayGameObject->m_interpolationRotateAngleY = bossRotBetweenAngle;
+		//}
+
+
+		//pos
 		if (bossPosDistance < DBL_EPSILON) {
 			m_MonsterSession.m_currentPlayGameObject->m_interpolationDistance = 0.0f;
 		}
@@ -416,11 +456,13 @@ void Logic::ProcessPacket(char* p)
 			m_MonsterSession.m_currentPlayGameObject->m_interpolationDistance = abs(bossInterpolationDistance);
 			m_MonsterSession.m_currentPlayGameObject->m_interpolationVector = Vector3::Normalize(bossInterpolationVector);
 		}
-		recvPacket->bossState.rot;
+
+
+		//Player Session
 		for (int i = 0; i < 4; i++) {//그냥 4개 여서 도는 for문 주의			
 			if (-1 != recvPacket->userState[i].userId) {
-			//	std::cout << "ProcessPacket()::SERVER_PACKET::GAME_STATE - User ID: " << recvPacket->userState[i].userId << " HP: " << recvPacket->userState[i].hp << std::endl;
-				//playerSession에서 해당 플레이어 탐색
+				//	std::cout << "ProcessPacket()::SERVER_PACKET::GAME_STATE - User ID: " << recvPacket->userState[i].userId << " HP: " << recvPacket->userState[i].hp << std::endl;
+					//playerSession에서 해당 플레이어 탐색
 				auto findRes = find_if(m_inGamePlayerSession.begin(), m_inGamePlayerSession.end(), [&recvPacket, &i](auto& fObj) {
 					if (fObj.m_id == recvPacket->userState[i].userId)
 						return true;
@@ -442,8 +484,8 @@ void Logic::ProcessPacket(char* p)
 				float playerPosDistance = Vector3::Length(playerInterpolationVector);
 				float playerInterpolationDistance = playerPosDistance - (float)playerDurationTime * 50.0f;//length - v*t
 
-			//	cout << "player PosDistance: " << playerPosDistance << endl;
-			//	cout << "player InterplationDis: " << playerInterpolationDistance << endl;
+				//	cout << "player PosDistance: " << playerPosDistance << endl;
+				//	cout << "player InterplationDis: " << playerInterpolationDistance << endl;
 
 				if (playerPosDistance < DBL_EPSILON) {
 					findRes->m_currentPlayGameObject->m_interpolationDistance = 0.0f;
@@ -477,9 +519,6 @@ void Logic::ProcessPacket(char* p)
 		attckPacketRecvTime = chrono::high_resolution_clock::now();
 		cout << "Attack Packet recv ElapsedTime: " << durationTime << endl;
 		SERVER_PACKET::BossAttackPacket* recvPacket = reinterpret_cast<SERVER_PACKET::BossAttackPacket*>(p);
-		//m_MonsterSession
-		//recvPacket->bossAttackType;//이걸로 애니메이션 실행하면 됨
-		//여기에 시간 넣어서 테스트 좀 할게 ㄱㄷ
 
 		switch (recvPacket->bossAttackType)
 		{
@@ -507,6 +546,12 @@ void Logic::ProcessPacket(char* p)
 		}
 		m_MonsterSession.m_currentPlayGameObject->SetMoveState(false);
 		cout << "ProcessPacket::SERVER_PACKET::BOSS_ATTACK - recvPacket: " << (int)recvPacket->bossAttackType << endl;
+	}
+	break;
+	case SERVER_PACKET::HIT_BOSS_MAGE:
+	{
+		SERVER_PACKET::BossHitObject* recvPacket = reinterpret_cast<SERVER_PACKET::BossHitObject*>(p);
+		recvPacket->pos; // hit 된 메이지의 공격 위치
 	}
 	break;
 	default:
