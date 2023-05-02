@@ -15,6 +15,7 @@ private:
 	DirectX::XMFLOAT3 m_RestRotateAngle = { 0,0,0 };
 private:
 	int m_aggroPlayerId = -1;
+	int m_newAggroPlayerId = -1;
 public:
 	std::atomic_bool  isMove = false;
 	std::atomic_bool isAttack = false;
@@ -58,7 +59,8 @@ public:
 public:
 	DirectX::XMFLOAT3 GetLook() { return m_directionVector; }
 public:
-	void SetAggroPlayerId(int id);
+	void ReserveAggroPlayerId(int id);
+	void SetAggroPlayerId();
 	int GetAggroPlayerId() { return m_aggroPlayerId; }
 	void AttackTimer();
 	void AttackPlayer(int restCount);

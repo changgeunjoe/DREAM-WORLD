@@ -134,7 +134,7 @@ void IOCPNetwork::WorkerThread()
 #endif // ALONE_TEST
 #ifndef ALONE_TEST
 				auto playerMap = refRoom.GetInGamePlayerMap();
-				refRoom.GetBoss().SetAggroPlayerId(playerMap[(ROLE)aggroRandomPlayer(dre)]);
+				refRoom.GetBoss().ReserveAggroPlayerId(playerMap[(ROLE)aggroRandomPlayer(dre)]);
 #endif // ALONE_TEST
 			}
 			if (ex_over != nullptr)
@@ -172,7 +172,7 @@ void IOCPNetwork::WorkerThread()
 				if (key == 0 || !refRoom.GetBoss().StartAttack()) {
 					refRoom.GetBoss().isAttack = false;
 					refRoom.GetBoss().StartMove(DIRECTION::FRONT);
-
+					refRoom.GetBoss().SetAggroPlayerId();
 					if (refRoom.GetBoss().GetAggroPlayerId() != -1) {
 						XMFLOAT3 playerPos = m_session[refRoom.GetBoss().GetAggroPlayerId()].m_sessionObject->GetPosition();
 						refRoom.GetBoss().SetDestinationPos(playerPos);
