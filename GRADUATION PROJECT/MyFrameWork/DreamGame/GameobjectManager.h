@@ -10,6 +10,7 @@ class Session;
 class ShadowMapShaderComponent;
 class DepthRenderShaderComponent;
 class TextureToViewportComponent;
+class InstancingShaderComponent;
 #include"CLoadModelinfo.h"
 class GameobjectManager
 {
@@ -21,6 +22,7 @@ public:
 	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void UIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void CharacterUIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void StoryUIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 
 	virtual void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
@@ -28,6 +30,8 @@ public:
 	virtual void BuildShadow(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void Build2DUI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void BuildInstanceObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void BuildStoryUI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void PickObjectByRayIntersection(int xClient, int yClient);
 	virtual void ProcessingUI(int n);
 	
@@ -64,6 +68,7 @@ private: //active object
 	DepthRenderShaderComponent* m_pDepthShaderComponent{ NULL };
 	ShadowMapShaderComponent* m_pShadowmapShaderComponent{ NULL };
 	TextureToViewportComponent* m_pTextureToViewportComponent{ NULL };
+	InstancingShaderComponent* m_pInstancingShaderComponent{ NULL };
 
 
 	CLight* m_pLight{ NULL };
@@ -92,16 +97,25 @@ private: //active object
 
 	//GmaeUI-HPBAR,CharacterUI - 조창근 23.04.13
 	GameObject* m_pMonsterHPBarObject{ NULL };
-	GameObject* m_pCharacterHPBarObject{ NULL };//캐릭터 HPBAR
-	GameObject* m_pCharacterProfileObject{ NULL };//캐릭터 사진이 들어갈 UI
-	GameObject* m_pCharacterSkillBarObject{ NULL };
+	GameObject* m_pArcherHPBarObject{ NULL };//캐릭터 HPBAR
+	GameObject* m_pArcherProfileObject{ NULL };//캐릭터 사진이 들어갈 UI
+	GameObject* m_pArcherSkillBarObject{ NULL };
 	vector<GameObject*> m_ppCharacterUIObjects;
 
 	//ParticleObject-Particle -  23.04.13 .ccg
+
+	vector<GameObject*>  m_pFireballSpriteObjects;
 	GameObject* m_pFireballSpriteObject{ NULL };
 	GameObject* m_pFireballEmissionSpriteObject{ NULL };
+	GameObject* m_pFireball2EmissionSpriteObject{ NULL };
 	vector<GameObject*> m_ppParticleObjects;
 
+	//StoryUIObject -23.
+	GameObject* m_pStroy1Object{ NULL };
+	GameObject* m_pStory2Object{ NULL };
+	GameObject* m_pStroy3Object{ NULL };
+	GameObject* m_pStory4Object{ NULL };
+	vector<GameObject*> m_ppStoryUIObjects;
 
 	POINT						m_ptOldCursorPos;
 

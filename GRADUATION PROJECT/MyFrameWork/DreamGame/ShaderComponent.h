@@ -44,6 +44,7 @@ protected:
 
 	ID3D12Resource* m_pd3dcbGameObjects = NULL;//쉐이더를 만들 때 활용 된다.->Createshadervariables
 	CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
+	VS_VB_INSTANCE* m_pcbMappedInsGameObjects = NULL;
 
 
 

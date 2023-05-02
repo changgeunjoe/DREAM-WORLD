@@ -115,20 +115,11 @@ void ShadowMapShaderComponent::Render(ID3D12Device* pd3dDevice,ID3D12GraphicsCom
 {
 
 	ShaderComponent::Render(pd3dCommandList,nPipelineState, pd3dGraphicsRootSignature,false);
-
-	//깊이버퍼 update
 	UpdateShaderVariables(pd3dCommandList);
 
 	for (int i = 0; i < m_ppObjects.size(); i++) {
 		m_ppObjects[i]->ShadowRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, true,this);
 	}
-	
-
-
-	//m_pPlayer->UpdateShaderVariables(pd3dCommandList); // ?????
-	//m_pPlayer->UpdateShaderVariable(pd3dCommandList, &m_pPlayer->m_xmf4x4World);
-	//m_pPlayer->Render(pd3dCommandList, pCamera); //쉐이더 렌더에서 파이프라인상태 바꾸지 않기위함
-	//m_pPlayer->MeshRender(pd3dCommandList, pCamera);
 }
 
 D3D12_BLEND_DESC ShadowMapShaderComponent::CreateBlendState(int nPipelineState)

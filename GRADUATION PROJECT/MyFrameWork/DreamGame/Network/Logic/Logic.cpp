@@ -509,6 +509,12 @@ void Logic::ProcessPacket(char* p)
 		cout << "ProcessPacket::SERVER_PACKET::BOSS_ATTACK - recvPacket: " << (int)recvPacket->bossAttackType << endl;
 	}
 	break;
+	case SERVER_PACKET::HIT_BOSS_MAGE:
+	{
+		SERVER_PACKET::BossHitObject* recvPacket = reinterpret_cast<SERVER_PACKET::BossHitObject*>(p);
+		m_MonsterSession.m_currentPlayGameObject->m_xmfHitPosition = recvPacket->pos;
+	}
+	break;
 	default:
 	{
 		std::cout << "Unknown Packet Recv" << std::endl;

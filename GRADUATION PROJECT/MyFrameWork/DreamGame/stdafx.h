@@ -115,8 +115,8 @@ using Microsoft::WRL::ComPtr;
 
 //#define _WITH_SWAPCHAIN_FULLSCREEN_STATE
 #define PIXELCOUNT				257
-#define FRAME_BUFFER_WIDTH		800
-#define FRAME_BUFFER_HEIGHT		600
+#define FRAME_BUFFER_WIDTH		1280
+#define FRAME_BUFFER_HEIGHT		720
 
 
 #define _PLANE_WIDTH			300
@@ -236,6 +236,7 @@ enum component_id
 {
 	UNDEF_COMPONENT,
 	RENDER_COMPONENT,
+	INSRENDER_COMPONENT,
 	PHYSICS_COMPONENT,
 	MESH_COMPONENT,
 	CUBEMESH_COMPONENT,
@@ -280,6 +281,12 @@ enum BOSS_ATTACK : char {
 	ATTACK_SPIN,
 	ATTACK_KICK,
 	ATTACK_COUNT//0~마지막 숫자 갯수
+};
+
+struct VS_VB_INSTANCE
+{
+	XMFLOAT4X4 m_xmf4x4Transform;
+	XMFLOAT4 m_xmcColor;
 };
 
 enum Message {

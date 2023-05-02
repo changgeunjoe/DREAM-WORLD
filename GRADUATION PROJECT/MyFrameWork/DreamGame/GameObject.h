@@ -10,6 +10,7 @@
 #include"MaterialComponent.h"
 #include"UiShaderComponent.h"
 #include"MultiSpriteShaderComponent.h"
+#include"InstanceRenderComponent.h"
 //include"CLoadModelinfo.h"
 class DepthRenderShaderComponent;
 class CLoadedModelInfoCompnent;
@@ -17,6 +18,7 @@ class SkinnedMeshComponent;
 class ComponentBase;
 class CAnimationController;
 class Projectile;
+class InstanceRenderComponent;
 
 #define MATERIAL_ALBEDO_MAP				0x01
 #define MATERIAL_SPECULAR_MAP			0x02
@@ -81,13 +83,14 @@ public:
 
 	void HandleMessage(string message);
 
-	virtual void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
-	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender = false);
-	void ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent);
-	virtual void Animate(float fTimeElapsed);
-	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
-	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
-	virtual void ReleaseShaderVariables();
+    virtual void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+    virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,bool bPrerender=false);
+    virtual void InstanceRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, int nObjects,bool bPrerender = false);
+    void ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent);
+    virtual void Animate(float fTimeElapsed);
+    virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+    virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
+    virtual void ReleaseShaderVariables();
 
 
 	void SetChild(GameObject* pChild, bool bReferenceUpdate = false);
@@ -103,8 +106,8 @@ public:
 
 	void AnimateRowColumn(float fTimeElapsed);
 
-	void SetRimLight(bool bRimLight);
-
+    void SetRimLight(bool bRimLight);
+    void SetCurrentHP(float fHP);
 public:
 	static CLoadedModelInfoCompnent* LoadGeometryAndAnimationFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, ShaderComponent* pShader, bool isBinary);
 
@@ -181,23 +184,25 @@ protected:
 	//Quaternion m_orientation;
 	float                           m_nRotateAngle = 0.0f;
 
-	wchar_t* pszFileNames{};
-	char* pszModelNames{};
-
-	//////////////////////Component/////////////////////////////////
-	unordered_map<component_id, ComponentBase*> m_components;
-	MeshComponent* m_pMeshComponent{ nullptr };
-	TextureComponent* m_pTextureComponent{ nullptr };
-	CubeMeshComponent* m_pCubeComponent{ nullptr };
-	SkyBoxMeshComponent* m_pSkyboxComponent{ nullptr };
-	UIMeshComponent* m_pUiComponent{ nullptr };
+    wchar_t* pszFileNames{};
+    char* pszModelNames{};
+    
+    //////////////////////Component/////////////////////////////////
+    unordered_map<component_id, ComponentBase*> m_components;
+    MeshComponent* m_pMeshComponent{ nullptr };
+    TextureComponent* m_pTextureComponent{ nullptr };
+    CubeMeshComponent* m_pCubeComponent{ nullptr };
+    SkyBoxMeshComponent* m_pSkyboxComponent{ nullptr };
+    UIMeshComponent* m_pUiComponent{ nullptr };
+    ShaderComponent* m_pShaderComponent{ nullptr };
+    RenderComponent* m_pRenderComponent{ nullptr };
 	SphereMeshComponent* m_pSphereComponent{ nullptr };
-	ShaderComponent* m_pShaderComponent{ nullptr };
-	RenderComponent* m_pRenderComponent{ nullptr };
-	CLoadedModelInfoCompnent* m_pLoadedModelComponent{ nullptr };
-	MaterialComponent** m_ppMaterialsComponent{ nullptr };
-	DepthRenderShaderComponent* m_pDepthShaderComponent{ nullptr };
-	ShadowMapShaderComponent* m_pShadowMapShaderComponent{ nullptr };
+    InstanceRenderComponent* m_pInstanceRenderComponent{ nullptr };//인스턴스 렌더 추가 23.04.26 .ccg
+    CLoadedModelInfoCompnent* m_pLoadedModelComponent{ nullptr };
+    MaterialComponent** m_ppMaterialsComponent{ nullptr };
+    DepthRenderShaderComponent* m_pDepthShaderComponent{ nullptr };
+    ShadowMapShaderComponent* m_pShadowMapShaderComponent{ nullptr };
+
 
 protected:
 
@@ -215,6 +220,10 @@ protected:
 	ID3D12Resource* pShadowMap = nullptr;
 	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);// 삭제 예정(변경)
 	int nObjects = 0;//삭제 예정(변경)
+
+    //인스턴스 데이터를 포함하는 버퍼와 포인터이다.23.04.23 ccg
+   /* ID3D12Resource *m_pd3dcbGameObjects = NULL;
+    VS_VB_INSTANCE* m_pcbMappedGameObjects = NULL;*/
 
 public:
 	void SetBoundingBox(GameObject* boundingbox) { m_VisualizeSPBB = boundingbox; }
@@ -258,6 +267,7 @@ public:
 	float GetBoundingSize() { return m_fBoundingSize; }
 
 public:
+	XMFLOAT3						m_xmfHitPosition;
 	XMFLOAT3                        m_xmf3Destination;
 	float                           m_UIScale = 10.0f;
 public:
@@ -284,46 +294,50 @@ inline T* GameObject::InsertComponent()//컴포넌트를 게임 오브젝트에 넣는 함수
 template<typename T>
 inline T* GameObject::ComponentType(component_id& componentID)
 {
-	if (typeid(T).name() == typeid(RenderComponent).name())
-	{
-		componentID = component_id::RENDER_COMPONENT;
-	}
-	else if (typeid(T).name() == typeid(MeshComponent).name())
-	{
-		componentID = component_id::MESH_COMPONENT;
-	}
-	else if (typeid(T).name() == typeid(CubeMeshComponent).name())
-	{
-		componentID = component_id::CUBEMESH_COMPONENT;
-	}
-	else if (typeid(T).name() == typeid(SkyBoxMeshComponent).name())
-	{
-		componentID = component_id::SKYBOXMESH_COMPONENT;
-	}
-	else if (typeid(T).name() == typeid(UIMeshComponent).name())
-	{
-		componentID = component_id::UIMESH_COMPONENT;
-	}
+    if (typeid(T).name() == typeid(RenderComponent).name())
+    {
+        componentID = component_id::RENDER_COMPONENT;
+    }
+    else if (typeid(T).name() == typeid(InstanceRenderComponent).name())
+    {
+        componentID = component_id::INSRENDER_COMPONENT;
+    }
+    else if (typeid(T).name() == typeid(MeshComponent).name())
+    {
+        componentID = component_id::MESH_COMPONENT;
+    }
+    else if (typeid(T).name() == typeid(CubeMeshComponent).name())
+    {
+        componentID = component_id::CUBEMESH_COMPONENT;
+    }
+    else if (typeid(T).name() == typeid(SkyBoxMeshComponent).name())
+    {
+        componentID = component_id::SKYBOXMESH_COMPONENT;
+    }
+    else if (typeid(T).name() == typeid(UIMeshComponent).name())
+    {
+        componentID = component_id::UIMESH_COMPONENT;
+    }
 	else if (typeid(T).name() == typeid(SphereMeshComponent).name())
 	{
 		componentID = component_id::SPHEREMESH_COMPONENT;
 	}
-	else if (typeid(T).name() == typeid(ShaderComponent).name())
-	{
-		componentID = component_id::SHADER_COMPONENT;
-	}
-	else if (typeid(T).name() == typeid(SkyBoxShaderComponent).name())
-	{
-		componentID = component_id::SKYSHADER_COMPONENT;
-	}
-	else if (typeid(T).name() == typeid(UiShaderComponent).name())
-	{
-		componentID = component_id::UISHADER_COMPONENT;
-	}
-	else if (typeid(T).name() == typeid(MultiSpriteShaderComponent).name())
-	{
-		componentID = component_id::SPRITESHADER_COMPONENT;
-	}
+    else if (typeid(T).name() == typeid(ShaderComponent).name())
+    {
+        componentID = component_id::SHADER_COMPONENT;
+    }
+    else if (typeid(T).name() == typeid(SkyBoxShaderComponent).name())
+    {
+        componentID = component_id::SKYSHADER_COMPONENT;
+    }
+    else if (typeid(T).name() == typeid(UiShaderComponent).name())
+    {
+        componentID = component_id::UISHADER_COMPONENT;
+    }
+    else if (typeid(T).name() == typeid(MultiSpriteShaderComponent).name())
+    {
+        componentID = component_id::SPRITESHADER_COMPONENT;
+    }
 	else if (typeid(T).name() == typeid(BoundingBoxShaderComponent).name())
 	{
 		componentID = component_id::BOUNDINGBOX_COMPONENT;
@@ -332,17 +346,17 @@ inline T* GameObject::ComponentType(component_id& componentID)
 	{
 		componentID = component_id::SPHERE_COMPONENT;
 	}
-	else if (typeid(T).name() == typeid(TextureComponent).name())
-	{
-		componentID = component_id::TEXTURE_COMPONENT;
-	}
-	else if (typeid(T).name() == typeid(CLoadedModelInfoCompnent).name())
-	{
-		componentID = component_id::LOADEDMODEL_COMPONET;
-	}
-	else
-	{
-		componentID = component_id::UNDEF_COMPONENT;
-	}
-	return 0;
+    else if (typeid(T).name() == typeid(TextureComponent).name())
+    {
+        componentID = component_id::TEXTURE_COMPONENT;
+    }
+    else if (typeid(T).name() == typeid(CLoadedModelInfoCompnent).name())
+    {
+        componentID = component_id::LOADEDMODEL_COMPONET;
+    }
+    else
+    {
+        componentID = component_id::UNDEF_COMPONENT;
+    }
+    return 0;
 }

@@ -433,6 +433,11 @@ void Logic::AutoMoveServer()//2500Έν?
 						if (ball.DetectCollision(&room.GetBoss()) != -1) {
 							room.m_restBall.push(ball.GetId());
 							room.m_bossDamagedQueue.push(30);
+							SERVER_PACKET::BossHitObject sendPacket;
+							sendPacket.size = sizeof(SERVER_PACKET::BossHitObject);
+							sendPacket.type = SERVER_PACKET::HIT_BOSS_MAGE;
+							sendPacket.pos = ball.GetPos();
+							BroadCastInRoom(roomId, &sendPacket);
 						}
 					}
 				}
