@@ -151,6 +151,7 @@ protected:
 
 
 };
+
 class CubeMeshComponent :public MeshComponent
 {
 public:
@@ -159,6 +160,16 @@ public:
 	void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float fWidth, float fHeight, float fDepth);
 
 };
+
+class SphereMeshComponent :public MeshComponent
+{
+public:
+	SphereMeshComponent();
+	~SphereMeshComponent();
+	void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fRadius, UINT nSlices, UINT nStacks);
+
+};
+
 class SkyBoxMeshComponent : public MeshComponent
 {
 public:

@@ -44,6 +44,7 @@ protected:
 
 	ID3D12Resource* m_pd3dcbGameObjects = NULL;//쉐이더를 만들 때 활용 된다.->Createshadervariables
 	CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
+	VS_VB_INSTANCE* m_pcbMappedInsGameObjects = NULL;
 
 
 
@@ -133,4 +134,31 @@ public:
 
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader(int nPipelineState);
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader(int nPipelineState);
+};
+
+class BoundingBoxShaderComponent : public ShaderComponent
+{
+	bool m_bEnable = true;
+public:
+	BoundingBoxShaderComponent() {};
+	virtual ~BoundingBoxShaderComponent() {};
+
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout(int nPipelineState);
+
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader(int nPipelineState);
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader(int nPipelineState);
+
+	virtual D3D12_RASTERIZER_DESC CreateRasterizerState(int nPipelineState);
+};
+
+class SphereShaderComponent : public BoundingBoxShaderComponent
+{
+	bool m_bEnable = true;
+public:
+	SphereShaderComponent() {};
+	virtual ~SphereShaderComponent() {};
+
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader(int nPipelineState);
+
+	virtual D3D12_RASTERIZER_DESC CreateRasterizerState(int nPipelineState);
 };

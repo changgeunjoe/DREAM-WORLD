@@ -171,6 +171,8 @@ void IOCPNetwork::WorkerThread()
 				Room& refRoom = g_RoomManager.GetRunningRoom(roomId);
 				if (key == 0 || !refRoom.GetBoss().StartAttack()) {
 					refRoom.GetBoss().isAttack = false;
+					refRoom.GetBoss().StartMove(DIRECTION::FRONT);
+					refRoom.GetBoss().SetAggroPlayerId();
 					if (refRoom.GetBoss().GetAggroPlayerId() != -1) {
 						XMFLOAT3 playerPos = m_session[refRoom.GetBoss().GetAggroPlayerId()].m_sessionObject->GetPos();
 						refRoom.GetBoss().SetDestinationPos(playerPos);

@@ -75,15 +75,16 @@ public:
 class Projectile : public GameObject
 {
 public:
-	XMFLOAT3 m_xmf3startPosition;
-	XMFLOAT3 m_xmf3direction;
-	float m_fSpeed;
-	bool m_bActive;
-	bool m_RAttack;
-	float m_Angle;
+	XMFLOAT3	m_xmf3startPosition;
+	XMFLOAT3	m_xmf3direction;
+	float		m_fSpeed;
+	bool		m_bActive;
+	bool		m_RAttack;
+	float		m_Angle;
 public:
 	Projectile(entity_id eid = UNDEF_ENTITY);
 	virtual ~Projectile();
+	virtual void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 };
 
 class Arrow : public Projectile

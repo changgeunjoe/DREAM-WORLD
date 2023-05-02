@@ -3,6 +3,7 @@
 #include"CAnimationSets.h"
 #include "Animation.h"
 #include"DepthRenderShaderComponent.h"
+#include"InstanceRenderComponent.h"
 
 
 BYTE ReadStringFromFile(FILE* pInFile, char* pstrToken)
@@ -219,9 +220,17 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 
 	m_pd3dGraphicsRootSignature = pd3dGraphicsRootSignature;
 	ComponentBase* pComponent = GetComponent(component_id::RENDER_COMPONENT);
-	if (pComponent != NULL)
+	ComponentBase* pInsComponent = GetComponent(component_id::INSRENDER_COMPONENT);
+	if (pComponent != NULL|| pInsComponent!=NULL)
 	{
-		m_pRenderComponent = static_cast<RenderComponent*>(pComponent);
+		if (!pComponent)
+		{
+			m_pRenderComponent = static_cast<RenderComponent*>(pComponent);
+		}
+		else if (!pInsComponent)
+		{
+			m_pRenderComponent = static_cast<InstanceRenderComponent*>(pComponent);
+		}
 	}
 	ComponentBase* pTextureComponent = GetComponent(component_id::TEXTURE_COMPONENT);
 	if (pTextureComponent != NULL)
@@ -251,13 +260,21 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		m_pUiComponent->BuildObject(pd3dDevice, pd3dCommandList, 1.0f, 1.0f, 2.0f, 2.0f);
 		m_pMeshComponent = m_pUiComponent;
 	}
+	ComponentBase* pSphereMeshComponent = GetComponent(component_id::SPHEREMESH_COMPONENT);
+	if (pSphereMeshComponent != NULL)
+	{
+		m_pSphereComponent = static_cast<SphereMeshComponent*>(pSphereMeshComponent);
+		m_pSphereComponent->BuildObject(pd3dDevice, pd3dCommandList, m_fBoundingSize, 20, 20);
+		m_pMeshComponent = m_pSphereComponent;
+	}
 
 	//->메테리얼 생성 텍스쳐와 쉐이더를 넣어야되는데 쉐이더이므로 안 넣어도 됨
 	ComponentBase* pShaderComponent = GetComponent(component_id::SHADER_COMPONENT);
 	ComponentBase* pSkyShaderComponent = GetComponent(component_id::SKYSHADER_COMPONENT);
 	ComponentBase* pUiShaderComponent = GetComponent(component_id::UISHADER_COMPONENT);
 	ComponentBase* pSpriteShaderComponent = GetComponent(component_id::SPRITESHADER_COMPONENT);
-	if (pShaderComponent != NULL || pSkyShaderComponent != NULL || pUiShaderComponent != NULL || pSpriteShaderComponent != NULL)
+	ComponentBase* pBoundingBoxShaderComponent = GetComponent(component_id::BOUNDINGBOX_COMPONENT);
+	if (pShaderComponent != NULL || pSkyShaderComponent != NULL || pUiShaderComponent != NULL || pSpriteShaderComponent != NULL || pBoundingBoxShaderComponent != NULL)
 	{
 		if (pShaderComponent != NULL)
 		{
@@ -272,11 +289,17 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		else if (pSpriteShaderComponent != NULL) {
 			m_pShaderComponent = static_cast<MultiSpriteShaderComponent*>(pSpriteShaderComponent);
 		}
+		else if (pBoundingBoxShaderComponent != NULL) {
+			m_pShaderComponent = static_cast<BoundingBoxShaderComponent*>(pBoundingBoxShaderComponent);
+		}
 		m_pShaderComponent->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
 		m_pShaderComponent->CreateCbvSrvDescriptorHeaps(pd3dDevice, 2, 2);
 		m_pShaderComponent->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 		m_pShaderComponent->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObjects, ncbElementBytes);
-		m_pShaderComponent->CreateShaderResourceViews(pd3dDevice, m_pTextureComponent, 0, m_nRootParameter, pShadowMap);//texture입력
+		if (m_pTextureComponent)
+		{
+			m_pShaderComponent->CreateShaderResourceViews(pd3dDevice, m_pTextureComponent, 0, m_nRootParameter, pShadowMap);//texture입력
+		}
 		m_pShaderComponent->SetCbvGPUDescriptorHandlePtr(m_pShaderComponent->GetGPUCbvDescriptorStartHandle().ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));
 	}
 	ComponentBase* pLoadedmodelComponent = GetComponent(component_id::LOADEDMODEL_COMPONET);
@@ -340,9 +363,53 @@ void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3
 	if (m_pChild) m_pChild->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
 }
 
-void GameObject::ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent)
+void GameObject::InstanceRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, int nObjects,bool bPrerender)
 {
 
+	UpdateShaderVariables(pd3dCommandList);
+	if (m_pSkinnedAnimationController)
+		m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
+
+	if (m_pShaderComponent != NULL)
+	{
+		m_pShaderComponent->Render(pd3dCommandList, 0, pd3dGraphicsRootSignature, bPrerender);
+		m_pShaderComponent->UpdateShaderVariables(pd3dCommandList, &m_xmf4x4World, NULL);
+		pd3dCommandList->SetGraphicsRootDescriptorTable(0, m_pShaderComponent->GetCbvGPUDescriptorHandle());
+		if (m_pTextureComponent != NULL)
+		{
+			m_pTextureComponent->UpdateShaderVariables(pd3dCommandList);
+		}
+	}
+	if (m_pInstanceRenderComponent != NULL && m_pMeshComponent != NULL && m_ppMaterialsComponent == NULL && m_pLoadedModelComponent == NULL)
+	{
+		m_pInstanceRenderComponent->Render(pd3dCommandList, m_pMeshComponent, 0,nObjects);//수정필요
+	}
+	if (m_nMaterials > 0)
+	{
+		for (int i = 0; i < m_nMaterials; i++)
+		{
+			if (m_ppMaterialsComponent[i])
+			{
+				if (m_ppMaterialsComponent[i]->m_pShader)
+				{
+					m_ppMaterialsComponent[i]->m_pShader->Render(pd3dCommandList, 0, pd3dGraphicsRootSignature, bPrerender);
+
+
+					pd3dCommandList->SetGraphicsRootDescriptorTable(0, m_ppMaterialsComponent[i]->m_pShader->GetCbvGPUDescriptorHandle());
+					m_ppMaterialsComponent[i]->m_pShader->UpdateShaderVariables(pd3dCommandList, &m_xmf4x4World, m_ppMaterialsComponent[i]);
+					//m_ppMaterialsComponent[i]->UpdateShaderVariable(pd3dCommandList);
+				}
+			}
+			m_pRenderComponent->InstanceRender(pd3dCommandList, m_pMeshComponent, i, nObjects);
+		}
+	}
+	if (m_pSibling) m_pSibling->InstanceRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, nObjects,bPrerender);
+	if (m_pChild) m_pChild->InstanceRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, nObjects,bPrerender);
+}
+
+void GameObject::ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent)
+{
+	UpdateShaderVariables(pd3dCommandList);
 	if (m_pSkinnedAnimationController)
 		m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
 
@@ -378,8 +445,12 @@ void GameObject::ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLis
 
 void GameObject::Animate(float fTimeElapsed)
 {
-	if (m_pSkinnedAnimationController) m_pSkinnedAnimationController->AdvanceTime(fTimeElapsed, this);
-
+	if (m_pSkinnedAnimationController)
+	{
+		m_pSkinnedAnimationController->AdvanceTime(fTimeElapsed, this);
+		if(m_VisualizeSPBB) m_VisualizeSPBB->SetPosition(XMFLOAT3(GetPosition().x, GetPosition().y + m_fBoundingSize, GetPosition().z));
+	}
+	
 	if (m_pSibling) m_pSibling->Animate(fTimeElapsed);
 	if (m_pChild) m_pChild->Animate(fTimeElapsed);
 }
@@ -405,6 +476,11 @@ void GameObject::SetRimLight(bool bRimLight)
 	m_bRimLight = bRimLight;
 }
 
+void GameObject::SetCurrentHP(float fHP)
+{
+	m_fHp = fHP;
+}
+
 void GameObject::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_STAT) + 255) & ~255); //256의 배수
@@ -421,7 +497,7 @@ void GameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandLis
 {
 	if (m_pd3dcbGameObjects)
 	{
-		float mfhp;
+		float mfhp=0;
 		mfhp = (m_fHp / m_fMaxHp);//현재 체력값을 최대체력 비례로 나타낸식 23.04.18 .ccg
 		::memcpy(&m_pcbMappedGameObjects->m_xmfHP, &mfhp, sizeof(float));
 		::memcpy(&m_pcbMappedGameObjects->m_bRimLight, &m_bRimLight, sizeof(bool));

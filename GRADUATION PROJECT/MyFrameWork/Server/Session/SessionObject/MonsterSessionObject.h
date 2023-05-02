@@ -15,11 +15,12 @@ private:
 	DirectX::XMFLOAT3 m_RestRotateAngle = { 0,0,0 };
 private:
 	int m_aggroPlayerId = -1;
+	int m_newAggroPlayerId = -1;
 public:
 	std::atomic_bool  isMove = false;
 	std::atomic_bool isAttack = false;
 	BOSS_ATTACK currentAttack = BOSS_ATTACK::ATTACK_COUNT;
-	DirectX::BoundingSphere m_SPBB = BoundingSphere(DirectX::XMFLOAT3(0.0f, 22.5f, 0.0f), 22.5f);
+	DirectX::BoundingSphere m_SPBB = BoundingSphere(DirectX::XMFLOAT3(0.0f, 30.0f, 0.0f), 30.0f);
 public:
 	std::chrono::high_resolution_clock::time_point m_lastAttackTime = std::chrono::high_resolution_clock::now();
 public:
@@ -58,7 +59,8 @@ public:
 public:
 	DirectX::XMFLOAT3 GetLook() { return m_directionVector; }
 public:
-	void SetAggroPlayerId(int id);
+	void ReserveAggroPlayerId(int id);
+	void SetAggroPlayerId();
 	int GetAggroPlayerId() { return m_aggroPlayerId; }
 	void AttackTimer();
 	void AttackPlayer(int restCount);

@@ -47,7 +47,7 @@ CGameFramework::CGameFramework()
 	m_nWndClientWidth = FRAME_BUFFER_WIDTH;
 	m_nWndClientHeight = FRAME_BUFFER_HEIGHT;
 
-	_tcscpy_s(m_pszFrameRate, _T("LapProject ("));
+	_tcscpy_s(m_pszFrameRate, _T("DreamWorld ("));
 
 }
 
@@ -95,7 +95,6 @@ void CGameFramework::OnDestroy()
 		m_ppd3dSwapChainBackBuffers[i]->Release();//->후면 버퍼를 전부 제거
 	if (m_pd3dDepthStencilBuffer)m_pd3dDepthStencilBuffer->Release(); //rtzheap 제거
 
-	if (m_pd3dDepthStencilBuffer)m_pd3dDepthStencilBuffer->Release();//깊이-스텐실 버퍼 제거
 	if (m_pd3dDsvDescriptorHeap) m_pd3dDsvDescriptorHeap->Release();//DSVheap제거
 
 	if (m_pd3dCommandAllocator)m_pd3dCommandAllocator->Release();//->Commandlist allocator ->제거

@@ -381,7 +381,8 @@ void Logic::ProcessPacket(char* p)
 			//std::cout << "ProcessPacket()::SERVER_PACKET::GAME_STATE - Boss HP: " << recvPacket->bossState.hp << std::endl;
 
 		}
-		m_MonsterSession.m_currentPlayGameObject->m_UIScale = static_cast<float>(recvPacket->bossState.hp) / 250.0f;//maxHp 2500입니다
+		//m_MonsterSession.m_currentPlayGameObject->m_UIScale = static_cast<float>(recvPacket->bossState.hp) / 250.0f;//maxHp 2500입니다
+		m_MonsterSession.m_currentPlayGameObject->SetCurrentHP(static_cast<float>(recvPacket->bossState.hp) / 25.0f);//maxHp 2500입니다
 
 		Monster* monsterObject = dynamic_cast<Monster*>(m_MonsterSession.m_currentPlayGameObject);
 
@@ -551,7 +552,7 @@ void Logic::ProcessPacket(char* p)
 	case SERVER_PACKET::HIT_BOSS_MAGE:
 	{
 		SERVER_PACKET::BossHitObject* recvPacket = reinterpret_cast<SERVER_PACKET::BossHitObject*>(p);
-		recvPacket->pos; // hit 된 메이지의 공격 위치
+		m_MonsterSession.m_currentPlayGameObject->m_xmfHitPosition = recvPacket->pos;
 	}
 	break;
 	default:

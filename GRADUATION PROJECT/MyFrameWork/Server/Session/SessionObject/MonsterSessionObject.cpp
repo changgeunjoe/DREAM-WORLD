@@ -142,15 +142,21 @@ void MonsterSessionObject::Move(float fDistance, float elapsedTime)
 			//	Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
 		}
 		m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, fDistance));//틱마다 움직임
-		m_SPBB = BoundingSphere(DirectX::XMFLOAT3(m_position.x, m_position.y + 12.5f, m_position.z), 22.5f);
+		m_SPBB = BoundingSphere(DirectX::XMFLOAT3(m_position.x, m_position.y + 30.0f, m_position.z), 30.0f);
 	}
 	//std::cout << "BossPos: " << m_position.x << "0, " << m_position.z << std::endl;
 }
 
-void MonsterSessionObject::SetAggroPlayerId(int id)
+void MonsterSessionObject::ReserveAggroPlayerId(int id)
 {
-	m_aggroPlayerId = id;
+	m_newAggroPlayerId = id;
 }
+
+void MonsterSessionObject::SetAggroPlayerId()
+{
+	m_aggroPlayerId = m_newAggroPlayerId;
+}
+
 
 void MonsterSessionObject::AttackTimer()
 {
@@ -265,3 +271,4 @@ bool MonsterSessionObject::StartAttack()
 	}
 	return false;
 }
+

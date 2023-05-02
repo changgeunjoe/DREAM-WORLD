@@ -154,6 +154,8 @@
     <ClInclude Include="CLoadModelinfo.h" />
     <ClInclude Include="ComponentBase.h" />
     <ClInclude Include="define.h" />
+    <ClInclude Include="InstanceRenderComponent.h" />
+    <ClInclude Include="InstancingShaderComponent.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="LobbyScene.h" />
     <ClInclude Include="MultiSpriteShaderComponent.h" />
@@ -193,6 +195,8 @@
     <ClCompile Include="Character.cpp" />
     <ClCompile Include="CLoadModelinfo.cpp" />
     <ClCompile Include="ComponentBase.cpp" />
+    <ClCompile Include="InstanceRenderComponent.cpp" />
+    <ClCompile Include="InstancingShaderComponent.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="LobbyScene.cpp" />
     <ClCompile Include="MultiSpriteShaderComponent.cpp" />
