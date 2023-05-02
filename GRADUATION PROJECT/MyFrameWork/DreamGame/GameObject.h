@@ -263,6 +263,7 @@ public:
 	float GetBoundingSize() { return m_fBoundingSize; }
 
 public:
+	XMFLOAT3						m_xmfHitPosition;
 	XMFLOAT3                        m_xmf3Destination;
 	float                           m_UIScale = 10.0f;
 public:

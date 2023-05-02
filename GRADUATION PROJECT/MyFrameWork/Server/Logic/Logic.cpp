@@ -437,6 +437,7 @@ void Logic::AutoMoveServer()//2500Έν?
 							sendPacket.size = sizeof(SERVER_PACKET::BossHitObject);
 							sendPacket.type = SERVER_PACKET::HIT_BOSS_MAGE;
 							sendPacket.pos = ball.GetPos();
+							BroadCastInRoom(roomId, &sendPacket);
 						}
 					}
 				}

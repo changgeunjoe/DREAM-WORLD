@@ -512,7 +512,7 @@ void Logic::ProcessPacket(char* p)
 	case SERVER_PACKET::HIT_BOSS_MAGE:
 	{
 		SERVER_PACKET::BossHitObject* recvPacket = reinterpret_cast<SERVER_PACKET::BossHitObject*>(p);
-		recvPacket->pos;
+		m_MonsterSession.m_currentPlayGameObject->m_xmfHitPosition = recvPacket->pos;
 	}
 	break;
 	default:
