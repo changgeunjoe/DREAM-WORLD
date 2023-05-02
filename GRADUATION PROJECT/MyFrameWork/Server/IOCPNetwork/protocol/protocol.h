@@ -127,7 +127,8 @@ namespace SERVER_PACKET {
 	constexpr unsigned char SHOOTING_ARROW = 84;
 	constexpr unsigned char SHOOTING_BALL = 85;
 	constexpr unsigned char GAME_STATE = 86;
-	constexpr unsigned char BOSS_ATTACK = 87;	
+	constexpr unsigned char BOSS_ATTACK = 87;
+	constexpr unsigned char HIT_BOSS_MAGE = 88;
 
 	
 
@@ -250,6 +251,12 @@ namespace SERVER_PACKET {
 		short size;
 		char type;
 		char bossAttackType;
+	};
+
+	struct BossHitObject {
+		short size;
+		char type;
+		XMFLOAT3 pos;
 	};
 }
 
