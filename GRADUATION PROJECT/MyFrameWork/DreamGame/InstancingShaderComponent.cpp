@@ -68,7 +68,7 @@ void InstancingShaderComponent::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 
 	
 	for (int i = 0; i < m_ppObjects.size(); i++) {
-		m_ppObjects[i]->InstanceRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, true, this);
+		m_ppObjects[i]->InstanceRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,  m_ppObjects.size(), true);
 	}
 
 }

@@ -386,7 +386,7 @@ void GameObject::InstanceRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandL
 					//m_ppMaterialsComponent[i]->UpdateShaderVariable(pd3dCommandList);
 				}
 			}
-			m_pInstanceRenderComponent->Render(pd3dCommandList, m_pMeshComponent, i, nObjects);
+			m_pRenderComponent->InstanceRender(pd3dCommandList, m_pMeshComponent, i, nObjects);
 		}
 	}
 	if (m_pSibling) m_pSibling->InstanceRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, nObjects,bPrerender);

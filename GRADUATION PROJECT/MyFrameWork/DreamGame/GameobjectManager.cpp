@@ -374,15 +374,17 @@ void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	m_ppParticleObjects.emplace_back(m_pFireballEmissionSpriteObject);
 
 	m_pFireballSpriteObjects.resize(20);
+	m_pFireballSpriteObjects[0] = new GameObject(UNDEF_ENTITY);
+	m_pFireballSpriteObjects[0]->InsertComponent<RenderComponent>();
+	m_pFireballSpriteObjects[0]->InsertComponent<CLoadedModelInfoCompnent>();
+	m_pFireballSpriteObjects[0]->SetPosition(XMFLOAT3(0, 0, 0));
+	m_pFireballSpriteObjects[0]->SetModel("Model/RockSpike.bin");
+	m_pFireballSpriteObjects[0]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pFireballSpriteObjects[0]->SetScale(30.0f, 30.0f, 30.0f);
 	for (int i = 1; i < 20; i++) {
 		m_pFireballSpriteObjects[i] = new GameObject(UNDEF_ENTITY);
-		m_pFireballSpriteObjects[i]->InsertComponent<RenderComponent>();
-		m_pFireballSpriteObjects[i]->InsertComponent<CLoadedModelInfoCompnent>();
 		m_pFireballSpriteObjects[i]->SetPosition(XMFLOAT3(0, i*10, 0));
-		m_pFireballSpriteObjects[i]->SetModel("Model/RockSpike.bin");
-		m_pFireballSpriteObjects[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pFireballSpriteObjects[i]->SetScale(30.0f, 30.0f, 30.0f);
-		m_pFireballSpriteObjects[i]->SetRimLight(false);
 		m_ppParticleObjects.emplace_back(m_pFireballSpriteObjects[i]);
 	}
 }
