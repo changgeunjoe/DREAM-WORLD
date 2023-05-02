@@ -52,7 +52,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 			m_pMonsterObject->GetPosition().y + 70, m_pMonsterObject->GetPosition().z));
 		m_pMonsterHPBarObject->Rotate(0, 180, 0);
 		m_pMonsterHPBarObject->SetScale(10,1,1);
-		m_pMonsterHPBarObject->SetCurrentHP(70);
+		m_pMonsterHPBarObject->SetCurrentHP(g_Logic.m_MonsterSession.m_currentPlayGameObject->GetCurrentHP());
 	}
 	XMFLOAT3 mfHittmp= g_Logic.m_MonsterSession.m_currentPlayGameObject->m_xmfHitPosition;
 	for (int i = 0; i < m_ppParticleObjects.size(); i++) {

@@ -380,7 +380,8 @@ void Logic::ProcessPacket(char* p)
 			//std::cout << "ProcessPacket()::SERVER_PACKET::GAME_STATE - Boss HP: " << recvPacket->bossState.hp << std::endl;
 
 		}
-		m_MonsterSession.m_currentPlayGameObject->m_UIScale = static_cast<float>(recvPacket->bossState.hp) / 250.0f;//maxHp 2500입니다
+		//m_MonsterSession.m_currentPlayGameObject->m_UIScale = static_cast<float>(recvPacket->bossState.hp) / 250.0f;//maxHp 2500입니다
+		m_MonsterSession.m_currentPlayGameObject->SetCurrentHP(static_cast<float>(recvPacket->bossState.hp) / 25.0f);//maxHp 2500입니다
 
 		utc_clock::time_point currentUTC_Time = utc_clock::now();
 		XMFLOAT3 bossPos = m_MonsterSession.m_currentPlayGameObject->GetPosition();
