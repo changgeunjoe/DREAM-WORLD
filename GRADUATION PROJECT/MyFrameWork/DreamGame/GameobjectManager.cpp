@@ -689,24 +689,28 @@ void GameobjectManager::ProcessingUI(int n)
 	case UI::UI_WARRIORCHARACTER:
 	{
 		// 선택한 캐릭터 Warrior
+		g_NetworkHelper.SendMatchRequestPacket(ROLE::WARRIOR);
 		cout << "Choose Warrior Character" << endl;
 		break;
 	}
 	case UI::UI_ARCHERCHARACTER:
 	{
 		// 선택한 캐릭터 Archer
+		g_NetworkHelper.SendMatchRequestPacket(ROLE::ARCHER);
 		cout << "Choose Archer Character" << endl;
 		break;
 	}
 	case UI::UI_TANKERCHARACTER:
 	{
 		// 선택한 캐릭터 tanker
+		g_NetworkHelper.SendMatchRequestPacket(ROLE::TANKER);
 		cout << "Choose Tanker Character" << endl;
 		break;
 	}
 	case UI::UI_PRIESTCHARACTER:
 	{
 		// 선택한 캐릭터 priest
+		g_NetworkHelper.SendMatchRequestPacket(ROLE::PRIEST);
 		cout << "Choose Priest Character" << endl;
 		break;
 	}
