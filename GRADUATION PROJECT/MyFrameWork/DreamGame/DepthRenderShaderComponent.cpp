@@ -139,7 +139,7 @@ void DepthRenderShaderComponent::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 	//해줘야함????
 	m_pDepthTexture->AddRef();
 	//
-
+												
 
 	//깊이값만 써서 r32,
 	D3D12_CLEAR_VALUE d3dClearValue = { DXGI_FORMAT_R32_FLOAT, { 1.0f, 1.0f, 1.0f, 1.0f } };
@@ -256,9 +256,9 @@ void DepthRenderShaderComponent::PrepareShadowMap(ID3D12Device* pd3dDevice, ID3D
 			{
 				float fWidth = _PLANE_WIDTH, fHeight = _PLANE_HEIGHT;
 				//직교 투영
-				xmmtxProjection = XMMatrixOrthographicLH(fWidth, fHeight, fNearPlaneDistance, fFarPlaneDistance);
+				xmmtxProjection = XMMatrixOrthographicLH(fWidth*5, fHeight*5, fNearPlaneDistance*4, fFarPlaneDistance*4);
 				//float fLeft = -(_PLANE_WIDTH * 0.5f), fRight = +(_PLANE_WIDTH * 0.5f), fTop = +(_PLANE_HEIGHT * 0.5f), fBottom = -(_PLANE_HEIGHT * 0.5f);
-				//xmmtxProjection = XMMatrixOrthographicOffCenterLH(fLeft * 6.0f, fRight * 6.0f, fBottom * 6.0f, fTop * 6.0f, fBack, fFront);
+				//xmmtxProjection = XMMatrixOrthographicOffCenterLH(fLeft * 10.0f, fRight * 10.0f, fBottom * 10.0f, fTop * 6.0f, fNearPlaneDistance, fFarPlaneDistance);
 			}
 			else if (m_pLights[j].m_nType == SPOT_LIGHT)
 			{

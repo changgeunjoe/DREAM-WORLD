@@ -46,17 +46,19 @@ void CLight::BuildLight()
 	m_pLights = new LIGHT[m_nLights];
 	::ZeroMemory(m_pLights, sizeof(LIGHT) * m_nLights);
 
-	m_xmf4GlobalAmbient = XMFLOAT4(0.15f, 0.15f, 0.15f, 1.0f);
+	m_xmf4GlobalAmbient = XMFLOAT4(0.4f, 0.4f, 0.4f, 1.0f);
+
 
 	m_pLights[0].m_bEnable = true;
 	m_pLights[0].m_nType = DIRECTIONAL_LIGHT;
-	m_pLights[0].m_xmf4Ambient = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
+	m_pLights[0].m_xmf4Ambient = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
 	m_pLights[0].m_xmf4Diffuse = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
 	m_pLights[0].m_xmf4Specular = XMFLOAT4(0.1f, 0.1f, 0.1f, 0.0f);
 	m_pLights[0].m_xmf3Direction = XMFLOAT3(1.0f, -1.0f, 0.0f);
-	//m_pLights[0].m_xmf3Position = XMFLOAT3(-(_PLANE_WIDTH * 0.5f), 512.0f, 0.0f);
-	m_pLights[0].m_xmf3Position = XMFLOAT3(-100.0f, 200.0f,100.0f);
-	m_pLights[0].m_fRange = 4000.0f;
+	//m_pLights[0].m_xmf3Direction = XMFLOAT3(0.5f, -1.0f, 0.5f);
+	//m_pLights[0].m_xmf3Direction = Vector3::Normalize(m_pLights[0].m_xmf3Direction);
+	m_pLights[0].m_xmf3Position = XMFLOAT3(-(_PLANE_WIDTH * 0.5f)+100, 600.0f, (_PLANE_WIDTH * 0.5f));
+	m_pLights[0].m_fRange = 700.0f;
 
 	m_pLights[1].m_bEnable = false;
 	m_pLights[1].m_nType = SPOT_LIGHT;

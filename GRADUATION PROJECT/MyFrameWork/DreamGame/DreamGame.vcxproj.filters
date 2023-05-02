@@ -112,6 +112,9 @@
     <Filter Include="04.Component\ShaderComponent\Shader\MultySpriteShaderComponent">
       <UniqueIdentifier>{9ded933d-5c12-4738-92f7-a0fa5be3578c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="04.Component\ShaderComponent\InstancingShaderComponent">
+      <UniqueIdentifier>{d3841fa1-1d56-41ea-97c4-a1c9abf22fe3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -228,6 +231,12 @@
     <ClInclude Include="MultiSpriteShaderComponent.h">
       <Filter>04.Component\ShaderComponent\Shader\MultySpriteShaderComponent</Filter>
     </ClInclude>
+    <ClInclude Include="InstanceRenderComponent.h">
+      <Filter>04.Component\RenderComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="InstancingShaderComponent.h">
+      <Filter>04.Component\ShaderComponent\InstancingShaderComponent</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -334,6 +343,12 @@
     </ClCompile>
     <ClCompile Include="MultiSpriteShaderComponent.cpp">
       <Filter>04.Component\ShaderComponent\Shader\MultySpriteShaderComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="InstanceRenderComponent.cpp">
+      <Filter>04.Component\RenderComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="InstancingShaderComponent.cpp">
+      <Filter>04.Component\ShaderComponent\InstancingShaderComponent</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
