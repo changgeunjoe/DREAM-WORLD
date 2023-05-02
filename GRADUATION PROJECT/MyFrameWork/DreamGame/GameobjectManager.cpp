@@ -232,8 +232,6 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 		m_pBoundingBox[i]->InsertComponent<RenderComponent>();
 		m_pBoundingBox[i]->InsertComponent<SphereMeshComponent>();
 		m_pBoundingBox[i]->InsertComponent<BoundingBoxShaderComponent>();
-		m_pBoundingBox[i]->InsertComponent<TextureComponent>();
-		m_pBoundingBox[i]->SetTexture(L"Image/Yellow.dds", RESOURCE_TEXTURE2D, 3);
 		m_pBoundingBox[i]->SetBoundingSize(8.0f);
 		m_pBoundingBox[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pBoundingBox[i]->SetScale(1.f);
@@ -307,13 +305,11 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 		m_pEnergyBallObjects[i] = new EnergyBall();
 		m_pEnergyBallObjects[i]->InsertComponent<RenderComponent>();
 		m_pEnergyBallObjects[i]->InsertComponent<SphereMeshComponent>();
-		m_pEnergyBallObjects[i]->InsertComponent<BoundingBoxShaderComponent>();
-		m_pEnergyBallObjects[i]->InsertComponent<TextureComponent>();
+		m_pEnergyBallObjects[i]->InsertComponent<SphereShaderComponent>();
 		m_pEnergyBallObjects[i]->SetPosition(XMFLOAT3(0, 0, 100));
-		m_pEnergyBallObjects[i]->SetTexture(L"Image/Yellow.dds", RESOURCE_TEXTURE2D, 3);
 		m_pEnergyBallObjects[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pEnergyBallObjects[i]->SetScale(0.5f);
-		m_pEnergyBallObjects[i]->SetBoundingSize(0.2f);
+		m_pEnergyBallObjects[i]->SetBoundingSize(4);
 		static_cast<Priest*>(m_pPriestObject)->SetEnergyBall(m_pEnergyBallObjects[i]);
 	}
 
@@ -321,8 +317,6 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pBoundingBox[4]->InsertComponent<RenderComponent>();
 	m_pBoundingBox[4]->InsertComponent<SphereMeshComponent>();
 	m_pBoundingBox[4]->InsertComponent<BoundingBoxShaderComponent>();
-	m_pBoundingBox[4]->InsertComponent<TextureComponent>();
-	m_pBoundingBox[4]->SetTexture(L"Image/Yellow.dds", RESOURCE_TEXTURE2D, 3);
 	m_pBoundingBox[4]->SetBoundingSize(30.0f);
 	m_pBoundingBox[4]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pBoundingBox[4]->SetScale(1.f);

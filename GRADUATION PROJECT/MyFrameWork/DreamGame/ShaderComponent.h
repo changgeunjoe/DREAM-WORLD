@@ -149,3 +149,15 @@ public:
 
 	virtual D3D12_RASTERIZER_DESC CreateRasterizerState(int nPipelineState);
 };
+
+class SphereShaderComponent : public BoundingBoxShaderComponent
+{
+	bool m_bEnable = true;
+public:
+	SphereShaderComponent() {};
+	virtual ~SphereShaderComponent() {};
+
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader(int nPipelineState);
+
+	virtual D3D12_RASTERIZER_DESC CreateRasterizerState(int nPipelineState);
+};

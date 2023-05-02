@@ -81,7 +81,7 @@ public:
 
 	void HandleMessage(string message);
 
-	void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender = false);
 	void ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent);
 	virtual void Animate(float fTimeElapsed);
@@ -327,6 +327,10 @@ inline T* GameObject::ComponentType(component_id& componentID)
 	else if (typeid(T).name() == typeid(BoundingBoxShaderComponent).name())
 	{
 		componentID = component_id::BOUNDINGBOX_COMPONENT;
+	}
+	else if (typeid(T).name() == typeid(SphereShaderComponent).name())
+	{
+		componentID = component_id::SPHERE_COMPONENT;
 	}
 	else if (typeid(T).name() == typeid(TextureComponent).name())
 	{

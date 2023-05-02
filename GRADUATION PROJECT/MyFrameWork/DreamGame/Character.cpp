@@ -720,6 +720,7 @@ void Priest::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCom
 		if (m_pProjectiles[i]) m_pProjectiles[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
 	GameObject::Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
 }
+
 Monster::Monster() : Character()
 {
 }
@@ -772,6 +773,50 @@ Projectile::~Projectile()
 {
 }
 
+void Projectile::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+{
+
+	m_pd3dGraphicsRootSignature = pd3dGraphicsRootSignature;
+	ComponentBase* pComponent = GetComponent(component_id::RENDER_COMPONENT);
+	if (pComponent != NULL)
+	{
+		m_pRenderComponent = static_cast<RenderComponent*>(pComponent);
+	}
+	ComponentBase* pSphereMeshComponent = GetComponent(component_id::SPHEREMESH_COMPONENT);
+	if (pSphereMeshComponent != NULL)
+	{
+		m_pSphereComponent = static_cast<SphereMeshComponent*>(pSphereMeshComponent);
+		m_pSphereComponent->BuildObject(pd3dDevice, pd3dCommandList, m_fBoundingSize, 20, 20);
+		m_pMeshComponent = m_pSphereComponent;
+	}
+	ComponentBase* pSphereShaderComponent = GetComponent(component_id::SPHERE_COMPONENT);
+	if (pSphereShaderComponent != NULL)
+	{	
+		m_pShaderComponent = static_cast<SphereShaderComponent*>(pSphereShaderComponent);
+		m_pShaderComponent->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
+		m_pShaderComponent->CreateCbvSrvDescriptorHeaps(pd3dDevice, 1, 0);
+		m_pShaderComponent->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+		m_pShaderComponent->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObjects, ncbElementBytes);
+		m_pShaderComponent->SetCbvGPUDescriptorHandlePtr(m_pShaderComponent->GetGPUCbvDescriptorStartHandle().ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));
+	}
+	ComponentBase* pLoadedmodelComponent = GetComponent(component_id::LOADEDMODEL_COMPONET);
+	if (pLoadedmodelComponent != NULL)
+	{
+		//MaterialComponent::PrepareShaders(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pd3dcbGameObjects);
+		m_pLoadedModelComponent = static_cast<CLoadedModelInfoCompnent*>(pLoadedmodelComponent);
+		m_pLoadedModelComponent = LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList,
+			pd3dGraphicsRootSignature, pszModelNames, NULL, true);//NULL ->Shader
+		SetChild(m_pLoadedModelComponent->m_pModelRootObject, true);
+
+		if (m_nAnimationSets != 0)
+		{
+			m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, m_nAnimationSets, m_pLoadedModelComponent);
+		}
+	}
+
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+}
+
 Arrow::Arrow() : Projectile()
 {
 	m_fSpeed = 150.0f;
@@ -786,6 +831,7 @@ void Arrow::Animate(float fTimeElapsed)
 	SetLook(m_xmf3direction);
 	MoveForward(fTimeElapsed * m_fSpeed);
 	XMFLOAT3 xmf3CurrentPos = GetPosition();
+	if (m_VisualizeSPBB) m_VisualizeSPBB->SetPosition(XMFLOAT3(GetPosition().x, GetPosition().y, GetPosition().z));
 	if (Vector3::Length(Vector3::Subtract(xmf3CurrentPos, m_xmf3startPosition)) > 200.0f)
 	{
 		m_bActive = false;
@@ -820,6 +866,7 @@ void EnergyBall::Animate(float fTimeElapsed)
 	SetLook(rev);
 	Move(m_xmf3direction, fTimeElapsed * m_fSpeed);
 	XMFLOAT3 xmf3CurrentPos = GetPosition();
+	if (m_VisualizeSPBB) m_VisualizeSPBB->SetPosition(XMFLOAT3(GetPosition().x, GetPosition().y, GetPosition().z));
 	if (Vector3::Length(Vector3::Subtract(xmf3CurrentPos, m_xmf3startPosition)) > 200.0f)
 	{
 		m_bActive = false;

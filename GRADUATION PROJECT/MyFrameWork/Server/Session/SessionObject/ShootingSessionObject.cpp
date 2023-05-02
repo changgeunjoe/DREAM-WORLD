@@ -80,11 +80,11 @@ void ShootingSessionObject::SetStart(XMFLOAT3& dir, XMFLOAT3& srcPos, float spee
 	m_position = srcPos;
 	m_directionVector = dir;
 	m_speed = speed;
-	m_SPBB = BoundingSphere(XMFLOAT3(srcPos.x, srcPos.y + 4.0f, srcPos.z), 0.5f);
+	m_SPBB = BoundingSphere(XMFLOAT3(srcPos.x, srcPos.y + 4.0f, srcPos.z), 4.0f);
 }
 
 void ShootingSessionObject::Move(float distance)
 {
 	m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, distance));
-	m_SPBB = BoundingSphere(XMFLOAT3(m_position.x, m_position.y + 4.0f, m_position.z), 0.2f);
+	m_SPBB = BoundingSphere(XMFLOAT3(m_position.x, m_position.y + 4.0f, m_position.z), 4.0f);
 }
