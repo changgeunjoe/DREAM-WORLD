@@ -146,7 +146,7 @@ void Room::ShootBall(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 srcPos, float spee
 
 bool Room::MeleeAttack(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 pos)
 {
-	DirectX::XMFLOAT3 bossPos = GetBoss().GetPosition();
+	DirectX::XMFLOAT3 bossPos = GetBoss().GetPos();
 	DirectX::XMFLOAT3 toBoss = Vector3::Subtract(bossPos, pos);
 	if (abs(Vector3::DotProduct(dir, toBoss)) < 10.0f) {
 		if (Vector3::Length(toBoss) < 5.0f) {

@@ -130,7 +130,7 @@ void Warrior::Animate(float fTimeElapsed)
 			AfterAnimation.second = CharacterAnimation::CA_MOVE;
 		}
 	}
-	else 
+	else
 	{
 		if (m_bLButtonClicked)	// АјАн
 		{
@@ -169,7 +169,7 @@ Archer::~Archer()
 {
 	for (auto& i : m_pProjectiles)
 	{
-		if(i != nullptr)
+		if (i != nullptr)
 			delete i;
 	}
 }
@@ -345,7 +345,7 @@ void Archer::Animate(float fTimeElapsed)
 			AfterAnimation.second = CharacterAnimation::CA_MOVE;
 		}
 	}
-	else 
+	else
 	{
 		if (m_bRButtonClicked)
 		{
@@ -356,7 +356,7 @@ void Archer::Animate(float fTimeElapsed)
 		{
 			if (!UpperLock) AfterAnimation.first = CharacterAnimation::CA_ATTACK;
 			AfterAnimation.second = CharacterAnimation::CA_ATTACK;
-			
+
 		}
 		else if (!UpperLock)					// IDLE
 		{
@@ -511,7 +511,7 @@ void Tanker::Animate(float fTimeElapsed)
 			AfterAnimation.second = CharacterAnimation::CA_MOVE;
 		}
 	}
-	else if(!UpperLock)
+	else if (!UpperLock)
 	{
 		if (m_bRButtonClicked)
 		{
@@ -696,7 +696,7 @@ void Priest::Attack(float fSpeed)
 	m_pProjectiles[m_nProjectiles]->SetPosition(Vector3::Add(GetPosition(), XMFLOAT3(0.0f, 5.0f, 0.0f)));
 	m_pProjectiles[m_nProjectiles]->m_fSpeed = fSpeed;
 	m_pProjectiles[m_nProjectiles]->m_bActive = true;
-	if(m_pCamera)
+	if (m_pCamera)
 		g_NetworkHelper.SendBallAttackPacket(m_pProjectiles[m_nProjectiles]->m_xmf3startPosition, m_pProjectiles[m_nProjectiles]->m_xmf3direction, fSpeed);
 	m_nProjectiles++;
 }
@@ -737,23 +737,41 @@ void Monster::Animate(float fTimeElapsed)
 		bool OnRight = (Vector3::DotProduct(GetRight(), Vector3::Normalize(des)) > 0) ? true : false;
 		float ChangingAngle = Vector3::Angle(Vector3::Normalize(des), GetLook());
 
-		if (Vector3::Length(des) < 10.0f) {
-			//SetPosition(m_xmf3Destination);
+		float distance = Vector3::Length(des);
+
+		if (ChangingAngle > 30.0f && distance < 10) {
+			if (OnRight) {
+				Rotate(&up, 90.0f * fTimeElapsed);
+				m_xmf3rotateAngle.y += 90.0f * fTimeElapsed;
+			}
+			else {
+				Rotate(&up, -90.0f * fTimeElapsed);
+				m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
+			}
 		}
-		else
+		else if (distance >= 14.0f)
 		{
 			if (ChangingAngle > 0.5f)
 			{
-				if (OnRight)
+				if (OnRight) {
 					Rotate(&up, 90.0f * fTimeElapsed);
-				else if (!OnRight)
+					m_xmf3rotateAngle.y += 90.0f * fTimeElapsed;
+				}
+				else {
 					Rotate(&up, -90.0f * fTimeElapsed);
+					m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
+				}
 			}
 			else
 				SetLook(Vector3::Normalize(des));
 
 			MoveForward(50 * fTimeElapsed);
 		}
+		Rotate(&up, m_interpolationRotateAngleY * fTimeElapsed);
+		m_xmf3rotateAngle.y += m_interpolationRotateAngleY * fTimeElapsed;
+		//else if (Vector3::Length(des) >= 14.0f) {
+		//	//SetPosition(m_xmf3Destination);
+		//}
 	}
 	Character::Animate(fTimeElapsed);
 }

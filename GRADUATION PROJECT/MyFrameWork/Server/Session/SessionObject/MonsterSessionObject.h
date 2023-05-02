@@ -28,8 +28,8 @@ public:
 	virtual void StopMove() override;
 	virtual void ChangeDirection(DIRECTION d) override;
 public:
-	virtual const DirectX::XMFLOAT3 GetPosition() override;
-	virtual const DirectX::XMFLOAT3 GetRotation() override;
+	/*virtual const DirectX::XMFLOAT3 GetPosition() override;
+	virtual const DirectX::XMFLOAT3 GetRotation() override;*/
 public:
 	virtual void Rotate(ROTATE_AXIS axis, float angle) override;
 public:

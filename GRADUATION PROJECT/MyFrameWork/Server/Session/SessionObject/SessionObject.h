@@ -22,6 +22,8 @@ public:
 	short GetHp() { return m_hp; }
 	XMFLOAT3& GetPos() { return m_position; }
 	XMFLOAT3& GetRot() { return m_rotateAngle; }
+	XMFLOAT3& GetDirectionVector() { return m_directionVector; }
+
 	void AttackedHp(short damage) { m_hp -= damage; };
 	short GetAttackDamage() { return m_attackDamage; }
 public:
@@ -30,8 +32,6 @@ public:
 	virtual void StopMove() = 0;
 	virtual void ChangeDirection(DIRECTION d) = 0;
 public:
-	virtual const DirectX::XMFLOAT3 GetPosition() = 0;
-	virtual const DirectX::XMFLOAT3 GetRotation() = 0;
 public:
 	virtual void Rotate(ROTATE_AXIS axis, float angle) = 0;
 protected:

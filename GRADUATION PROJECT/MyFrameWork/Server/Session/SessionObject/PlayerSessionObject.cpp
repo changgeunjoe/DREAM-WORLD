@@ -192,16 +192,16 @@ void PlayerSessionObject::Rotate(ROTATE_AXIS axis, float angle)
 	//std::cout << "current direction " << m_directionVector.x << " " << m_directionVector.y << " " << m_directionVector.z << std::endl;
 	//std::cout << "rotate angle" << m_rotateAngle.x << " " << m_rotateAngle.y << " " << m_rotateAngle.z << std::endl;
 }
-
-const DirectX::XMFLOAT3 PlayerSessionObject::GetPosition()
-{
-	return m_position;
-}
-
-const DirectX::XMFLOAT3 PlayerSessionObject::GetRotation()
-{
-	return m_rotateAngle;
-}
+//
+//const DirectX::XMFLOAT3 PlayerSessionObject::GetPosition()
+//{
+//	return m_position;
+//}
+//
+//const DirectX::XMFLOAT3 PlayerSessionObject::GetRotation()
+//{
+//	return m_rotateAngle;
+//}
 
 char* PlayerSessionObject::GetPlayerInfo()
 {

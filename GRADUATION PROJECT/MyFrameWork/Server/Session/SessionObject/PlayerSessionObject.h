@@ -36,8 +36,8 @@ public:
 public:
 	virtual void Rotate(ROTATE_AXIS axis, float angle) override;
 public:
-	virtual const DirectX::XMFLOAT3 GetPosition() override;
-	virtual const DirectX::XMFLOAT3 GetRotation() override;
+	/*virtual const DirectX::XMFLOAT3 GetPosition() override;
+	virtual const DirectX::XMFLOAT3 GetRotation() override;*/
 public:
 	char* GetPlayerInfo();
 public:

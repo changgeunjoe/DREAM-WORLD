@@ -59,7 +59,7 @@ void Timer::TimerThreadFunc()
 						}
 					}*/
 				}
-				TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::seconds(2) + std::chrono::milliseconds(500), ev.roomId, -1,EV_FIND_PLAYER };
+				TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::seconds(5) + std::chrono::milliseconds(500), ev.roomId, -1,EV_FIND_PLAYER };
 				{
 					std::lock_guard<std::mutex> timer_lg{ m_TimerQueueLock };
 					m_TimerQueue.push(new_ev);

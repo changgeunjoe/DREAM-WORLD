@@ -58,15 +58,15 @@ void MonsterSessionObject::ChangeDirection(DIRECTION d)
 
 }
 
-const DirectX::XMFLOAT3 MonsterSessionObject::GetPosition()
-{
-	return m_position;
-}
+//const DirectX::XMFLOAT3 MonsterSessionObject::GetPosition()
+//{
+//	return m_position;
+//}
 
-const DirectX::XMFLOAT3 MonsterSessionObject::GetRotation()
-{
-	return m_rotateAngle;
-}
+//const DirectX::XMFLOAT3 MonsterSessionObject::GetRotation()
+//{
+//	return m_rotateAngle;
+//}
 
 void MonsterSessionObject::Rotate(ROTATE_AXIS axis, float angle)
 {
@@ -121,13 +121,25 @@ void MonsterSessionObject::Move(float fDistance, float elapsedTime)
 	//		PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, -1, &ov->m_overlap);
 	//	}
 	//}
-	if (Vector3::Length(des) >= 10.0f) {
+
+	float distance = Vector3::Length(des);
+
+	if (ChangingAngle > 30.0f && distance < 10) {
+		OnRight ? Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime);
+		/*if (OnRight)
+			Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime);
+		else if (!OnRight)
+			Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);*/
+	}
+	else if (distance >= 14.0f) {
 		if (ChangingAngle > 0.5f)
 		{
-			if (OnRight)
-				Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime);
-			else if (!OnRight)
-				Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
+			OnRight ? Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime);
+
+			//if (OnRight)
+			//	Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime);
+			//else if (!OnRight)
+			//	Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
 		}
 		m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, fDistance));//틱마다 움직임
 		m_SPBB = BoundingSphere(DirectX::XMFLOAT3(m_position.x, m_position.y + 12.5f, m_position.z), 22.5f);
@@ -145,7 +157,7 @@ void MonsterSessionObject::AttackTimer()
 
 	std::cout << "ReSet lastAttack Time Boss" << std::endl;
 
-	m_lastAttackTime = std::chrono::high_resolution_clock::now();	
+	m_lastAttackTime = std::chrono::high_resolution_clock::now();
 
 	switch (currentAttack)
 	{
@@ -153,7 +165,7 @@ void MonsterSessionObject::AttackTimer()
 	{
 		TIMER_EVENT attackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(332), m_roomId, 0,EV_BOSS_KICK };
 		g_Timer.InsertTimerQueue(attackTimer);
-		TIMER_EVENT endAttackTimer{ std::chrono::system_clock::now()+ std::chrono::milliseconds(823), m_roomId, 0, EV_BOSS_STATE };
+		TIMER_EVENT endAttackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(823), m_roomId, 0, EV_BOSS_STATE };
 		g_Timer.InsertTimerQueue(endAttackTimer);
 	}
 	break;
@@ -161,7 +173,7 @@ void MonsterSessionObject::AttackTimer()
 	{
 		TIMER_EVENT attackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(332), m_roomId, 0,EV_BOSS_PUNCH };
 		g_Timer.InsertTimerQueue(attackTimer);
-		TIMER_EVENT endAttackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(824), m_roomId, 0, EV_BOSS_STATE };		
+		TIMER_EVENT endAttackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(824), m_roomId, 0, EV_BOSS_STATE };
 		g_Timer.InsertTimerQueue(endAttackTimer);
 	}
 	break;
@@ -244,7 +256,7 @@ bool MonsterSessionObject::StartAttack()
 	CalcRightVector();
 	bool OnRight = (Vector3::DotProduct(m_rightVector, Vector3::Normalize(des)) > 0) ? true : false;	// 목적지가 올느쪽 왼
 	float ChangingAngle = Vector3::Angle(Vector3::Normalize(des), m_directionVector);
-	if (Vector3::Length(des) < 10.0f) {
+	if (Vector3::Length(des) <= 14.0f) {
 		auto durationTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - m_lastAttackTime);
 		if (durationTime > std::chrono::seconds(1) + std::chrono::milliseconds(500)) {
 			std::cout << "startAttack Return true ElapsedTime: " << durationTime << std::endl;

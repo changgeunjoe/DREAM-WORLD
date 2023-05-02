@@ -230,12 +230,14 @@ namespace SERVER_PACKET {
 		int hp;
 		XMFLOAT3 pos;
 		XMFLOAT3 rot;
+		
 	};
 
 	struct InGameBossState {
 		int hp;
 		XMFLOAT3 pos;
 		XMFLOAT3 rot;
+		XMFLOAT3 directionVector;
 	};
 
 	struct GameState {//Player State-> pos rot...추가하여 보정?

@@ -259,6 +259,8 @@ public:
 public:
 	float m_interpolationDistance = 0.0f;
 	XMFLOAT3 m_interpolationVector = XMFLOAT3{ 0,0,0 };
+	float m_interpolationRotateAngleY = 0.0f;
+	
 };
 
 template<typename T>//템플릿을 활용하는 이유-> 

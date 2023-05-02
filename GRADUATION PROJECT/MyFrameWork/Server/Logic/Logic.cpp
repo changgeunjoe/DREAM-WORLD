@@ -119,7 +119,7 @@ void Logic::ProcessPacket(int userId, char* p)
 #endif
 			bool adjustRes = g_iocpNetwork.m_session[userId].m_sessionObject->AdjustPlayerInfo(recvPacket->position); // , recvPacket->rotate
 			if (!adjustRes) {
-				sendPacket.position = g_iocpNetwork.m_session[userId].m_sessionObject->GetPosition();
+				sendPacket.position = g_iocpNetwork.m_session[userId].m_sessionObject->GetPos();
 				BroadCastInRoomByPlayer(userId, &sendPacket);
 #ifdef _DEBUG
 			//	PrintCurrentTime();
@@ -334,7 +334,7 @@ void Logic::ProcessPacket(int userId, char* p)
 	{
 		CLIENT_PACKET::MeleeAttackPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::MeleeAttackPacket*>(p);
 		bool attacking = g_iocpNetwork.m_session[userId].m_sessionObject->GetLeftAttack();
-		DirectX::XMFLOAT3 pos = g_iocpNetwork.m_session[userId].m_sessionObject->GetPosition();
+		DirectX::XMFLOAT3 pos = g_iocpNetwork.m_session[userId].m_sessionObject->GetPos();
 		if (g_RoomManager.GetRunningRoom(g_iocpNetwork.m_session[userId].GetRoomId()).MeleeAttack(recvPacket->dir, pos))
 			g_RoomManager.GetRunningRoom(g_iocpNetwork.m_session[userId].GetRoomId()).m_bossDamagedQueue.push(g_iocpNetwork.m_session[userId].m_sessionObject->GetAttackDamage());
 	}

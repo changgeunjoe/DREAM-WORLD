@@ -127,14 +127,14 @@ void IOCPNetwork::WorkerThread()
 			std::string roomId{ ex_over->m_buffer };
 			if (g_RoomManager.IsExistRunningRoom(roomId)) {
 				Room& refRoom = g_RoomManager.GetRunningRoom(roomId);
-				//#define ALONE_TEST 1
 #ifdef ALONE_TEST
 				auto playerMap = refRoom.GetInGamePlayerMap();
 				refRoom.GetBoss().SetAggroPlayerId(playerMap.begin()->second);
 #endif // ALONE_TEST
 #ifndef ALONE_TEST
 				auto playerMap = refRoom.GetInGamePlayerMap();
-				refRoom.GetBoss().SetAggroPlayerId(playerMap[(ROLE)aggroRandomPlayer(dre)]);
+				ROLE randR = (ROLE)aggroRandomPlayer(dre);
+				refRoom.GetBoss().SetAggroPlayerId(playerMap[randR]);
 #endif // ALONE_TEST
 			}
 			if (ex_over != nullptr)
@@ -171,22 +171,21 @@ void IOCPNetwork::WorkerThread()
 				Room& refRoom = g_RoomManager.GetRunningRoom(roomId);
 				if (key == 0 || !refRoom.GetBoss().StartAttack()) {
 					refRoom.GetBoss().isAttack = false;
-					refRoom.GetBoss().StartMove(DIRECTION::FRONT);
-
 					if (refRoom.GetBoss().GetAggroPlayerId() != -1) {
-						XMFLOAT3 playerPos = m_session[refRoom.GetBoss().GetAggroPlayerId()].m_sessionObject->GetPosition();
+						XMFLOAT3 playerPos = m_session[refRoom.GetBoss().GetAggroPlayerId()].m_sessionObject->GetPos();
 						refRoom.GetBoss().SetDestinationPos(playerPos);
 						SERVER_PACKET::BossChangeStateMovePacket sendPacket;
 						sendPacket.type = SERVER_PACKET::BOSS_CHANGE_STATE_MOVE_DES;
 						sendPacket.size = sizeof(SERVER_PACKET::BossChangeStateMovePacket);
 						sendPacket.desPos = playerPos;
-						sendPacket.bossPos = refRoom.GetBoss().GetPosition();
+						sendPacket.bossPos = refRoom.GetBoss().GetPos();
 						g_logic.BroadCastInRoom(roomId, &sendPacket);
+						refRoom.GetBoss().StartMove(DIRECTION::FRONT);
 					}
 					TIMER_EVENT bossStateEvent{ std::chrono::system_clock::now() + std::chrono::milliseconds(700), roomId, -1,EV_BOSS_STATE };
 					g_Timer.InsertTimerQueue(bossStateEvent);
 				}
-				else{
+				else {
 					SERVER_PACKET::BossAttackPacket sendPacket;
 					sendPacket.size = sizeof(SERVER_PACKET::BossAttackPacket);
 					int randAttackNum = bossRandAttack(dre);
@@ -197,7 +196,7 @@ void IOCPNetwork::WorkerThread()
 					g_logic.BroadCastInRoom(roomId, &sendPacket);
 					refRoom.GetBoss().isMove = false;
 					refRoom.GetBoss().isAttack = true;
-				}				
+				}
 			}
 			if (ex_over != nullptr)
 				delete ex_over;
@@ -219,6 +218,7 @@ void IOCPNetwork::WorkerThread()
 				sendPacket.bossState.hp = refRoom.GetBoss().GetHp();
 				sendPacket.bossState.pos = refRoom.GetBoss().GetPos();
 				sendPacket.bossState.rot = refRoom.GetBoss().GetRot();
+				sendPacket.bossState.directionVector = refRoom.GetBoss().GetDirectionVector();
 				int i = 0;
 				for (auto& p : refRoom.GetInGamePlayerMap()) {
 					sendPacket.userState[i].userId = p.second;
