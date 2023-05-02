@@ -206,6 +206,13 @@ void GameobjectManager::CharacterUIRender(ID3D12Device* pd3dDevice, ID3D12Graphi
 	}
 }
 
+void GameobjectManager::StoryUIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+{
+	for (int i = 0; i < m_ppStoryUIObjects.size(); i++) {
+		m_ppStoryUIObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
+}
+
 void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {//ºôµå
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -346,6 +353,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	BuildCharacterUI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildParticle(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildInstanceObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	BuildStoryUI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
 void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
@@ -572,6 +580,20 @@ void GameobjectManager::BuildInstanceObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 {
 	m_pInstancingShaderComponent = new InstancingShaderComponent;
 	m_pInstancingShaderComponent->BuildObject(pd3dDevice, pd3dCommandList, m_pFireballSpriteObjects);
+}
+
+void GameobjectManager::BuildStoryUI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+{
+	m_pStroy1Object = new GameObject(UI_ENTITY);
+	m_pStroy1Object->InsertComponent<RenderComponent>();
+	m_pStroy1Object->InsertComponent<UIMeshComponent>();
+	m_pStroy1Object->InsertComponent<UiShaderComponent>();
+	m_pStroy1Object->InsertComponent<TextureComponent>();
+	m_pStroy1Object->SetTexture(L"UI/Story.dds", RESOURCE_TEXTURE2D, 3);
+	m_pStroy1Object->SetPosition(XMFLOAT3(0.0, 0.0, 1.03));
+	m_pStroy1Object->SetScale(0.44f, 0.24f, 1.0f);
+	m_pStroy1Object->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppStoryUIObjects.emplace_back(m_pStroy1Object);
 }
 
 enum UI

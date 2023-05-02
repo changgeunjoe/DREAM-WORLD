@@ -307,6 +307,7 @@ void CScene::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCom
 
 	m_pObjectManager->Render(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 	m_pObjectManager->CharacterUIRender(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	//m_pObjectManager->StoryUIRender(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 
 }
 
