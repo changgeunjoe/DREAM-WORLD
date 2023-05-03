@@ -64,7 +64,8 @@ void GameobjectManager::Animate(float fTimeElapsed)
 
 	//m_pMonsterObject->Animate(fTimeElapsed);
 
-	g_Logic.m_MonsterSession.m_currentPlayGameObject->Animate(fTimeElapsed);
+	if (g_Logic.m_MonsterSession.m_isVisible)
+		g_Logic.m_MonsterSession.m_currentPlayGameObject->Animate(fTimeElapsed);
 	//auto pos = g_Logic.m_MonsterSession.m_currentPlayGameObject->GetPosition();
 	//cout << "GameobjectManager::Boss Position: " << pos.x << ", 0, " << pos.z << endl;
 	if (!g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject) return;
@@ -388,6 +389,17 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 }
 void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
+	//m_pParticleObject = new GameObject(MultiSPRITE_ENTITY);
+	//m_pParticleObject->InsertComponent<RenderComponent>();
+	//m_pParticleObject->InsertComponent<CLoadedModelInfoCompnent>();
+	//m_pParticleObject->SetPosition(XMFLOAT3(0, 0, 0));
+	//m_pParticleObject->SetModel("Model/BossHp.bin");
+	//m_pParticleObject->SetRowColumn(8, 8);
+	//m_pParticleObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//m_pParticleObject->SetScale(3.0f, 3.0f, 3.0f);
+	//m_pParticleObject->SetRowColumn(8.0f, 8.0f);
+	//m_ppParticleObjects.emplace_back(m_pMonsterHPBarObject);
+
 	m_pFireballSpriteObject = new GameObject(UNDEF_ENTITY);
 	m_pFireballSpriteObject->InsertComponent<RenderComponent>();
 	m_pFireballSpriteObject->InsertComponent<UIMeshComponent>();
@@ -731,7 +743,7 @@ void GameobjectManager::ProcessingUI(int n)
 	}
 	default:
 		break;
-	}
+}
 }
 void GameobjectManager::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
@@ -822,7 +834,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			break;
 		default:
 			break;
-		}
+	}
 		break;
 	case WM_KEYUP:
 	{
@@ -909,7 +921,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 	}
 	default:
 		break;
-	}
+}
 	return(false);
 }
 
