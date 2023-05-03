@@ -44,6 +44,7 @@ void MonsterSessionObject::AutoMove()
 
 void MonsterSessionObject::StartMove(DIRECTION d)
 {
+	PrintCurrentTime();
 	std::cout << "MonsterSessionObject::StartMove()" << std::endl;
 	m_lastMoveTime = std::chrono::high_resolution_clock::now();
 	isMove = true;
@@ -91,13 +92,14 @@ void MonsterSessionObject::Rotate(ROTATE_AXIS axis, float angle)
 	default:
 		break;
 	}
-	//std::cout << "Rotate angle: " << angle << std::endl;//
+	PrintCurrentTime();
+	std::cout << std::endl << "Rotate angle: " << m_rotateAngle.y << std::endl;//
 	DirectX::XMFLOAT3 xmf3Rev = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 	xmf3Rev.x = m_directionVector.x * cos(XMConvertToRadians(-angle)) - m_directionVector.z * sin(XMConvertToRadians(-angle));
 	xmf3Rev.z = m_directionVector.x * sin(XMConvertToRadians(-angle)) + m_directionVector.z * cos(XMConvertToRadians(-angle));
 	xmf3Rev = Vector3::Normalize(xmf3Rev);
 	m_directionVector = xmf3Rev;
-	//std::cout << "Boss Dir Vector" << m_directionVector.x << " " << m_directionVector.y << " " << m_directionVector.z << std::endl;
+	std::cout << "Boss Dir Vector" << m_directionVector.x << " " << m_directionVector.y << " " << m_directionVector.z << std::endl;
 }
 
 void MonsterSessionObject::SetDirection(DIRECTION d)
@@ -125,14 +127,14 @@ void MonsterSessionObject::Move(float fDistance, float elapsedTime)
 
 	float distance = Vector3::Length(des);
 
-	if (ChangingAngle > 30.0f && distance < 10) {
+	if (ChangingAngle > 15.0f && distance < 40.0f) {
 		OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
 		/*if (OnRight)
 			Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime);
 		else if (!OnRight)
 			Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);*/
 	}
-	else if (distance >= 14.0f) {
+	else if (distance >= 40.0f) {
 		if (ChangingAngle > 0.5f)
 		{
 			OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
@@ -260,14 +262,19 @@ bool MonsterSessionObject::StartAttack()
 {
 	XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f);
 	XMFLOAT3 des = Vector3::Subtract(m_DestinationPos, m_position);	// 목적지랑 위치랑 벡터	
+	float len = Vector3::Length(des);
+	des = Vector3::Normalize(des);
 	CalcRightVector();
-	bool OnRight = (Vector3::DotProduct(m_rightVector, Vector3::Normalize(des)) > 0) ? true : false;	// 목적지가 올느쪽 왼
-	float ChangingAngle = Vector3::Angle(Vector3::Normalize(des), m_directionVector);
-	if (Vector3::Length(des) <= 14.0f) {
-		auto durationTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - m_lastAttackTime);
-		if (durationTime > std::chrono::seconds(1) + std::chrono::milliseconds(500)) {
-			std::cout << "startAttack Return true ElapsedTime: " << durationTime << std::endl;
-			return true;
+
+	float lookDesDotRes = Vector3::DotProduct(m_directionVector, des);
+	bool OnRight = (Vector3::DotProduct(m_rightVector, des) > 0) ? true : false;	// 목적지가 올느쪽 왼
+	if (abs(lookDesDotRes) >= cosf(3.141592f / 12.0f)) { // 보스 look과 플레이어와의 각도가 30degree일때
+		if (len <= 42.0f) {
+			auto durationTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - m_lastAttackTime);
+			if (durationTime > std::chrono::seconds(1) + std::chrono::milliseconds(500)) {
+				std::cout << "startAttack Return true ElapsedTime: " << durationTime << std::endl;
+				return true;
+			}
 		}
 	}
 	return false;

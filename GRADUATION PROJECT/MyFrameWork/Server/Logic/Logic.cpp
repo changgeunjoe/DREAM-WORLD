@@ -512,7 +512,6 @@ void Logic::MatchMaking()
 			roomName.append(std::to_wstring(matchPlayer.begin()->second)); //
 			while (!g_RoomManager.InsertRunningRoom(roomId, roomName, matchPlayer));
 			//룸 생성 성공
-			g_RoomManager.GetRunningRoom(roomId).GameStart();
 			for (const auto& p : matchPlayer) {//플레이어 정보 세팅하고 뿌려주기
 				//send match Success Packet
 				g_iocpNetwork.m_session[p.second].SetRoomId(roomId);
@@ -526,6 +525,7 @@ void Logic::MatchMaking()
 			sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
 			sendPacket.type = SERVER_PACKET::INTO_GAME;
 			BroadCastInRoom(roomId, &sendPacket);
+			g_RoomManager.GetRunningRoom(roomId).GameStart();
 			{//매칭 끝나서 지우긴 하는데 지금 지우는게 맞을까?
 				std::lock_guard<std::mutex> lg{ m_matchPlayerLock };
 				m_matchPlayer.clear();

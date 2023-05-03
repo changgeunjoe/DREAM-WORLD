@@ -740,7 +740,7 @@ void Monster::Animate(float fTimeElapsed)
 
 		float distance = Vector3::Length(des);
 
-		if (ChangingAngle > 30.0f && distance < 10) {
+		if (ChangingAngle > 15.0f && distance < 40.0f) {
 			if (OnRight) {
 				Rotate(&up, 90.0f * fTimeElapsed);
 				m_xmf3rotateAngle.y += 90.0f * fTimeElapsed;
@@ -750,7 +750,7 @@ void Monster::Animate(float fTimeElapsed)
 				m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
 			}
 		}
-		else if (distance >= 14.0f)
+		else if (distance >= 40.0f)
 		{
 			if (ChangingAngle > 0.5f)
 			{

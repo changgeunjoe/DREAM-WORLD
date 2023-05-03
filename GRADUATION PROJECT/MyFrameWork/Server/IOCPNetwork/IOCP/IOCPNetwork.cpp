@@ -172,7 +172,6 @@ void IOCPNetwork::WorkerThread()
 				Room& refRoom = g_RoomManager.GetRunningRoom(roomId);
 				if (key == 0 || !refRoom.GetBoss().StartAttack()) {
 					refRoom.GetBoss().isAttack = false;
-					refRoom.GetBoss().StartMove(DIRECTION::FRONT);
 					refRoom.GetBoss().SetAggroPlayerId();
 					if (refRoom.GetBoss().GetAggroPlayerId() != -1) {
 						XMFLOAT3 playerPos = m_session[refRoom.GetBoss().GetAggroPlayerId()].m_sessionObject->GetPos();
@@ -183,7 +182,8 @@ void IOCPNetwork::WorkerThread()
 						sendPacket.desPos = playerPos;
 						sendPacket.bossPos = refRoom.GetBoss().GetPos();
 						g_logic.BroadCastInRoom(roomId, &sendPacket);
-						refRoom.GetBoss().StartMove(DIRECTION::FRONT);
+						if (!refRoom.GetBoss().isMove)
+							refRoom.GetBoss().StartMove(DIRECTION::FRONT);
 					}
 					TIMER_EVENT bossStateEvent{ std::chrono::system_clock::now() + std::chrono::milliseconds(700), roomId, -1,EV_BOSS_STATE };
 					g_Timer.InsertTimerQueue(bossStateEvent);
