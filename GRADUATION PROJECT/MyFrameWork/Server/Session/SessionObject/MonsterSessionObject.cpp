@@ -22,6 +22,7 @@ MonsterSessionObject::MonsterSessionObject(std::string& roomId) : SessionObject(
 {
 	m_roomId = roomId;
 	m_maxHp = m_hp = 2500;
+	m_DestinationPos = XMFLOAT3{ 0,0,0 };
 }
 
 MonsterSessionObject::~MonsterSessionObject()
