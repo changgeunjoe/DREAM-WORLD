@@ -51,13 +51,13 @@ void GameobjectManager::Animate(float fTimeElapsed)
 		m_pMonsterHPBarObject->SetPosition(XMFLOAT3(m_pMonsterObject->GetPosition().x,
 			m_pMonsterObject->GetPosition().y + 70, m_pMonsterObject->GetPosition().z));
 		m_pMonsterHPBarObject->Rotate(0, 180, 0);
-		m_pMonsterHPBarObject->SetScale(10,1,1);
+		m_pMonsterHPBarObject->SetScale(10, 1, 1);
 		m_pMonsterHPBarObject->SetCurrentHP(g_Logic.m_MonsterSession.m_currentPlayGameObject->GetCurrentHP());
 	}
-	XMFLOAT3 mfHittmp= g_Logic.m_MonsterSession.m_currentPlayGameObject->m_xmfHitPosition;
+	XMFLOAT3 mfHittmp = g_Logic.m_MonsterSession.m_currentPlayGameObject->m_xmfHitPosition;
 	for (int i = 0; i < m_ppParticleObjects.size(); i++) {
 		m_ppParticleObjects[i]->SetLookAt(m_pCamera->GetPosition());
-		m_ppParticleObjects[i]->SetPosition(XMFLOAT3(mfHittmp.x, mfHittmp.y+20, mfHittmp.z));
+		m_ppParticleObjects[i]->SetPosition(XMFLOAT3(mfHittmp.x, mfHittmp.y + 20, mfHittmp.z));
 		m_ppParticleObjects[i]->SetScale(8);
 		m_ppParticleObjects[i]->Rotate(0, 180, 0);
 	}
@@ -138,11 +138,11 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 
 	m_pDepthShaderComponent->UpdateShaderVariables(pd3dCommandList);
 	//ÀÎ½ºÅÏ½Ì ·»´õ 
-	m_pInstancingShaderComponent->Render(pd3dDevice, pd3dCommandList,0, pd3dGraphicsRootSignature);
+	m_pInstancingShaderComponent->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature);
 
 	//
 	g_Logic.m_MonsterSession.m_currentPlayGameObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	for (int i = 0; i < 5; i++) 
+	for (int i = 0; i < 5; i++)
 		m_pBoundingBox[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	for (int i = 0; i < m_pArrowObjects.size(); i++) {
 		m_pArrowObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -353,6 +353,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pMonsterObject->SetBoundingSize(30.0f);
 	m_pMonsterObject->SetBoundingBox(m_pBoundingBox[4]);
 	m_pMonsterObject->SetMoveState(false);
+	m_pMonsterObject->m_xmf3Destination = XMFLOAT3{ 0,0,0 };
 	m_ppGameObjects.emplace_back(m_pMonsterObject);
 	g_Logic.m_MonsterSession.SetGameObject(m_pMonsterObject);
 
@@ -434,7 +435,7 @@ void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	m_pFireballSpriteObjects[0]->SetScale(30.0f, 30.0f, 30.0f);
 	for (int i = 1; i < 20; i++) {
 		m_pFireballSpriteObjects[i] = new GameObject(UNDEF_ENTITY);
-		m_pFireballSpriteObjects[i]->SetPosition(XMFLOAT3(0, i*10, 0));
+		m_pFireballSpriteObjects[i]->SetPosition(XMFLOAT3(0, i * 10, 0));
 		m_pFireballSpriteObjects[i]->SetScale(30.0f, 30.0f, 30.0f);
 		m_ppParticleObjects.emplace_back(m_pFireballSpriteObjects[i]);
 	}
@@ -583,7 +584,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_ppCharacterUIObjects.emplace_back(m_pMonsterHPBarObject);
 
 
-///////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////
 	m_pArcherHPBarObject = new GameObject(UI_ENTITY);
 	m_pArcherHPBarObject->InsertComponent<RenderComponent>();
 	m_pArcherHPBarObject->InsertComponent<UIMeshComponent>();
@@ -616,7 +617,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pArcherSkillBarObject->SetScale(0.05, 0.025, 1);
 	m_pArcherSkillBarObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppCharacterUIObjects.emplace_back(m_pArcherSkillBarObject);
-////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////
 }
 
 void GameobjectManager::BuildInstanceObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)

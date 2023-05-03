@@ -410,22 +410,22 @@ void Logic::ProcessPacket(char* p)
 		//boss Session
 
 		//rot
-		//bool OnRight = (Vector3::DotProduct(bossRightVector, Vector3::Normalize(recvPacket->bossState.directionVector)) > 0) ? true : false;	// 목적지가 올느쪽 왼
-		//float bossRotBetweenAngle = Vector3::Angle(Vector3::Normalize(recvPacket->bossState.directionVector), bossLookVector);
-		//float bossInterpolationAngle = abs(bossRotBetweenAngle) - bosDurationTime * 90.0f;
-		//PrintCurrentTime();
-		//cout << endl << "bossBetweenAngle: " << bossRotBetweenAngle << endl;
-		//cout << "bossBetweenAngle Interpolation: " << bossInterpolationAngle << endl;
-		//if (bossInterpolationAngle < DBL_EPSILON || bossInterpolationDistance < 0)
-		//	m_MonsterSession.m_currentPlayGameObject->m_interpolationRotateAngleY = 0.0;
-		//else if (abs(bossInterpolationAngle) > 5.0f) {
-		//	OnRight ? m_MonsterSession.m_currentPlayGameObject->Rotate(0, bossRotBetweenAngle, 0) :
-		//		m_MonsterSession.m_currentPlayGameObject->Rotate(0, -bossRotBetweenAngle, 0);
-		//}
-		//else {
-		//	OnRight ? m_MonsterSession.m_currentPlayGameObject->m_interpolationRotateAngleY = bossRotBetweenAngle :
-		//		m_MonsterSession.m_currentPlayGameObject->m_interpolationRotateAngleY = -bossRotBetweenAngle;
-		//}
+		bool OnRight = (Vector3::DotProduct(bossRightVector, Vector3::Normalize(recvPacket->bossState.directionVector)) > 0) ? true : false;	// 목적지가 올느쪽 왼
+		float bossRotBetweenAngle = Vector3::Angle(Vector3::Normalize(recvPacket->bossState.directionVector), bossLookVector);
+		float bossInterpolationAngle = abs(bossRotBetweenAngle) - bosDurationTime * 90.0f;
+		PrintCurrentTime();
+		cout << endl << "bossBetweenAngle: " << bossRotBetweenAngle << endl;
+		cout << "bossBetweenAngle Interpolation: " << bossInterpolationAngle << endl;
+		if (bossInterpolationAngle < DBL_EPSILON || bossInterpolationDistance < 0)
+			m_MonsterSession.m_currentPlayGameObject->m_interpolationRotateAngleY = 0.0;
+		else if (abs(bossInterpolationAngle) > 5.0f) {
+			OnRight ? m_MonsterSession.m_currentPlayGameObject->Rotate(0, bossRotBetweenAngle, 0) :
+				m_MonsterSession.m_currentPlayGameObject->Rotate(0, -bossRotBetweenAngle, 0);
+		}
+		else {
+			OnRight ? m_MonsterSession.m_currentPlayGameObject->m_interpolationRotateAngleY = bossRotBetweenAngle :
+				m_MonsterSession.m_currentPlayGameObject->m_interpolationRotateAngleY = -bossRotBetweenAngle;
+		}
 
 
 		//float bossRotBetweenAngle = -recvPacket->bossState.rot.y - bossRot.y;

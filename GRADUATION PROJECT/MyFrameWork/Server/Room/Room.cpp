@@ -159,19 +159,20 @@ bool Room::MeleeAttack(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 pos)
 
 void Room::GameStart()
 {
+	PrintCurrentTime();
+	std::cout << "Room::GameStart()" << std::endl;
 	CreateBossMonster(); //임시 입니다.
-	TIMER_EVENT firstEv{ std::chrono::system_clock::now() + std::chrono::seconds(1), m_roomId, -1,EV_FIND_PLAYER };
-	g_Timer.InsertTimerQueue(firstEv);
-	TIMER_EVENT gameStateEvent{ std::chrono::system_clock::now() + std::chrono::milliseconds(10), m_roomId, -1,EV_GAME_STATE_SEND };
-	g_Timer.InsertTimerQueue(gameStateEvent);
-	TIMER_EVENT bossStateEvent{ std::chrono::system_clock::now() + std::chrono::milliseconds(20), m_roomId, -1,EV_BOSS_STATE };
+	TIMER_EVENT findEv{ std::chrono::system_clock::now() + std::chrono::milliseconds(1), m_roomId, -1,EV_FIND_PLAYER };
+	g_Timer.InsertTimerQueue(findEv);
+	//TIMER_EVENT bossStateEvent{ std::chrono::system_clock::now() + std::chrono::milliseconds(3), m_roomId, -1,EV_BOSS_STATE };
+	TIMER_EVENT bossStateEvent{ std::chrono::system_clock::now() + std::chrono::seconds(1), m_roomId, -1,EV_BOSS_STATE };
 	g_Timer.InsertTimerQueue(bossStateEvent);
+	TIMER_EVENT gameStateEvent{ std::chrono::system_clock::now() + std::chrono::seconds(1) + std::chrono::milliseconds(500), m_roomId, -1,EV_GAME_STATE_SEND };
+	g_Timer.InsertTimerQueue(gameStateEvent);
 	//ExpOver* ov = new ExpOver();
 	//ov->m_opCode = OP_BOSS_STATE;
 	//memcpy(ov->m_buffer, m_roomId.c_str(), m_roomId.size());//exOver의 cchar*버퍼에 roomId를 담는다면?
 	//ov->m_buffer[m_roomId.size()] = 0;
 	//PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, -1, &ov->m_overlap);
-	auto rot = m_boss.GetRot();
-	std::cout << "start boss rotate angle: " << rot.y << std::endl;
-	m_boss.StartMove(DIRECTION::FRONT);	
+	//m_boss.StartMove(DIRECTION::FRONT);
 }
