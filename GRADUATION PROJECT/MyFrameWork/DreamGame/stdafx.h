@@ -55,7 +55,7 @@ using namespace std;
 #endif
 
 //#ifndef LOCAL_TASK
-//#define LOCAL_TASK 1
+#define LOCAL_TASK 1
 //#endif // !LOCAL_TASK
 
 ///////////////////////////////////////
@@ -223,6 +223,11 @@ struct SHADOW_INFO
 	XMFLOAT4X4						m_xmf4x4ShadowTransform;
 	XMFLOAT3						m_xmf3CameraPosition;
 	XMFLOAT3						m_xmf3LightPosition;
+};
+
+struct CB_GAMEFRAMEWORK_INFO
+{
+	float							m_xmfTime;
 };
 enum entity_id
 {

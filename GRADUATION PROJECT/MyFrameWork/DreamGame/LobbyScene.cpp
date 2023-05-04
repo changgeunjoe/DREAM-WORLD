@@ -46,7 +46,15 @@ void LobbyCScene::AnimateObjects(float fTimeElapsed)
 
 void LobbyCScene::UIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
+	
+
 	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
+	//pCamera->GenerateProjectionMatrix(1.01f, 5000.0f, ASPECT_RATIO, 60.0f);
+	//pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
+	//pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
+	//pCamera->SetTimeLag(0.25f);
+	//pCamera->SetOffset(XMFLOAT3(0.0f, 25.0f, -50.0f));
+
 	pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
 	if (pCamera) pCamera->UpdateShaderVariables(pd3dCommandList);
 	//씬을 렌더링하는 것은 씬을 구성하는 게임 객체(셰이더를 포함하는 객체)들을 렌더링하는 것이다. 
@@ -129,7 +137,7 @@ ID3D12RootSignature* LobbyCScene::CreateGraphicsRootSignature(ID3D12Device* pd3d
 	RootSignature.Descriptorrange[11].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	//-------------------------------rootParameter----------------------------------------------------    
-	RootSignature.RootParameter.resize(20);
+	RootSignature.RootParameter.resize(21);
 	//shaderTexture (b0)Shaders.hlsl
 	RootSignature.RootParameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	RootSignature.RootParameter[0].DescriptorTable.NumDescriptorRanges = 1;
@@ -232,7 +240,11 @@ ID3D12RootSignature* LobbyCScene::CreateGraphicsRootSignature(ID3D12Device* pd3d
 	RootSignature.RootParameter[19].Descriptor.ShaderRegister = 13;
 	RootSignature.RootParameter[19].Descriptor.RegisterSpace = 0;
 	RootSignature.RootParameter[19].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
-	//textureSampler;
+	//Framework(b8) Shaders.hlsl
+	RootSignature.RootParameter[20].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	RootSignature.RootParameter[20].Descriptor.ShaderRegister = 8;
+	RootSignature.RootParameter[20].Descriptor.RegisterSpace = 0;
+	RootSignature.RootParameter[20].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	//textureSampler
 	RootSignature.TextureSamplerDescs.resize(3);
@@ -268,7 +280,7 @@ ID3D12RootSignature* LobbyCScene::CreateGraphicsRootSignature(ID3D12Device* pd3d
 	RootSignature.TextureSamplerDescs[2].AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
 	RootSignature.TextureSamplerDescs[2].MipLODBias = 0;
 	RootSignature.TextureSamplerDescs[2].MaxAnisotropy = 1;
-	//텍스처 읽은색과 현재 깊이와 비교 - 깊이보다 더 작으면 성공 ->그림자가 아님
+//텍스처 읽은색과 현재 깊이와 비교 - 깊이보다 더 작으면 성공 ->그림자가 아님
 	RootSignature.TextureSamplerDescs[2].ComparisonFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 	RootSignature.TextureSamplerDescs[2].BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
 	RootSignature.TextureSamplerDescs[2].MinLOD = 0;

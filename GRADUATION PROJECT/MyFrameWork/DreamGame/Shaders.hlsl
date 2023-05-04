@@ -58,6 +58,11 @@ cbuffer cbMultiSpriteInfo : register(b7)//멀티스프라이트인포
     bool bMultiSprite : packoffset(c4);
 
 };
+cbuffer cbFrameWorkInfo : register(b8) //멀티스프라이트인포
+{
+    float gfTime : packoffset(c0);
+
+};
 
 
 struct INSTANCEDGAMEOBJECTINFO//인스턴싱 데이터를 위한 구조체이다
@@ -195,6 +200,17 @@ VS_TEXTURED_OUTPUT VSUITextured(VS_TEXTURED_INPUT input)
     output.position = mul(mul(float4(input.position, 1.0f), gmtxGameObject),gmtxProjection);
     output.uv = input.uv;
     return (output);
+}
+
+float4 PSSpriteTextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
+{
+       // Sample the texture
+    float4 cColor = shaderTexture.Sample(gWrapSamplerState, input.uv);
+    if (cColor.x == 0 || cColor.y == 0 || cColor.z == 0)
+    {
+        cColor.w = 0;
+    }
+       return (cColor);
 }
 
 float4 PSUITextured(VS_TEXTURED_OUTPUT input) : SV_TARGET

@@ -95,7 +95,7 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	RootSignature.Descriptorrange[11].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	//-------------------------------rootParameter----------------------------------------------------    
-	RootSignature.RootParameter.resize(20);
+	RootSignature.RootParameter.resize(21);
 	//shaderTexture (b0)Shaders.hlsl
 	RootSignature.RootParameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	RootSignature.RootParameter[0].DescriptorTable.NumDescriptorRanges = 1;
@@ -198,6 +198,11 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	RootSignature.RootParameter[19].Descriptor.ShaderRegister = 13;
 	RootSignature.RootParameter[19].Descriptor.RegisterSpace = 0;
 	RootSignature.RootParameter[19].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	//Framework(b8) Shaders.hlsl
+	RootSignature.RootParameter[20].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	RootSignature.RootParameter[20].Descriptor.ShaderRegister = 8;
+	RootSignature.RootParameter[20].Descriptor.RegisterSpace = 0;
+	RootSignature.RootParameter[20].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 	//textureSampler
 	RootSignature.TextureSamplerDescs.resize(3);
 	RootSignature.TextureSamplerDescs[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
@@ -291,6 +296,7 @@ bool CScene::ProcessInput()
 
 void CScene::AnimateObjects(float fTimeElapsed)
 {
+	
 	//for (int j = 0; j < m_nObjects; j++)
 	//{
 	//	m_ppObjects[j]->Animate(fTimeElapsed);
