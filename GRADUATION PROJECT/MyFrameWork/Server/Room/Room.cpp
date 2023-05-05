@@ -161,6 +161,11 @@ void Room::GameStart()
 {
 	PrintCurrentTime();
 	std::cout << "Room::GameStart()" << std::endl;
+	std::cout << "PlayerNum: " << m_inGamePlayers.size() << std::endl;
+	for (auto& playerInfo : m_inGamePlayers) {
+		std::cout << "PlayerId: " << playerInfo.second << std::endl;
+	}
+
 	CreateBossMonster(); //임시 입니다.
 	TIMER_EVENT findEv{ std::chrono::system_clock::now() + std::chrono::milliseconds(1), m_roomId, -1,EV_FIND_PLAYER };
 	g_Timer.InsertTimerQueue(findEv);
