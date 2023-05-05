@@ -216,7 +216,7 @@ void MonsterSessionObject::AttackPlayer(int restCount)
 			auto bossToPlayerVector = Vector3::Subtract(g_iocpNetwork.m_session[playerInfo.second].m_sessionObject->GetPos(), m_position);
 			float dotProductRes = Vector3::DotProduct(bossToPlayerVector, m_directionVector);
 			float bossToPlayerDis = Vector3::Length(bossToPlayerVector);
-			if (bossToPlayerDis < 30.0f && abs(dotProductRes) < 90.0f) {
+			if (bossToPlayerDis < 45.0f && abs(dotProductRes) < 90.0f) {
 				g_iocpNetwork.m_session[playerInfo.second].m_sessionObject->AttackedHp(40);
 				//player Hit Kick
 			}
@@ -229,7 +229,7 @@ void MonsterSessionObject::AttackPlayer(int restCount)
 			auto bossToPlayerVector = Vector3::Subtract(g_iocpNetwork.m_session[playerInfo.second].m_sessionObject->GetPos(), m_position);
 			float dotProductRes = Vector3::DotProduct(bossToPlayerVector, m_directionVector);
 			float bossToPlayerDis = Vector3::Length(bossToPlayerVector);
-			if (bossToPlayerDis < 15.0f && abs(dotProductRes) < 90.0f) {
+			if (bossToPlayerDis < 45.0f && abs(dotProductRes) < 90.0f) {
 				g_iocpNetwork.m_session[playerInfo.second].m_sessionObject->AttackedHp(20);
 				//player Hit Foward
 			}
@@ -241,7 +241,7 @@ void MonsterSessionObject::AttackPlayer(int restCount)
 		for (auto& playerInfo : playerMap) {
 			auto bossToPlayerVector = Vector3::Subtract(g_iocpNetwork.m_session[playerInfo.second].m_sessionObject->GetPos(), m_position);
 			float bossToPlayerDis = Vector3::Length(bossToPlayerVector);
-			if (bossToPlayerDis < 15.0f) {
+			if (bossToPlayerDis < 45.0f) {
 				g_iocpNetwork.m_session[playerInfo.second].m_sessionObject->AttackedHp(15);
 				//player Hit spin
 			}

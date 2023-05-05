@@ -510,7 +510,8 @@ void Logic::ProcessPacket(char* p)
 					findRes->m_currentPlayGameObject->m_interpolationDistance = abs(playerInterpolationDistance);
 					findRes->m_currentPlayGameObject->m_interpolationVector = Vector3::Normalize(playerInterpolationVector);
 				}
-
+				float maxHp = findRes->m_currentPlayGameObject->GetMaxCurrentHP();
+				findRes->m_currentPlayGameObject->SetCurrentHP(recvPacket->userState[i].hp / maxHp * 100.0f);
 				//recvPacket->userState[i].hp;
 				//recvPacket->userState[i].rot;
 			}

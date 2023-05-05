@@ -30,7 +30,8 @@ void Character::RbuttonUp(const XMFLOAT3& CameraAxis)
 
 Warrior::Warrior() : Character()
 {
-	m_fHp = 200.0f;
+	m_fHp = 400.0f;
+	m_fMaxHp = 400.0f;
 	m_fSpeed = 100.0f;
 	m_fDamage = 100.0f;
 }
@@ -160,7 +161,8 @@ void Warrior::Animate(float fTimeElapsed)
 
 Archer::Archer() : Character()
 {
-	m_fHp = 150.0f;
+	m_fHp = 250.0f;
+	m_fMaxHp = 250.0f;
 	m_fSpeed = 150.0f;
 	m_fDamage = 80.0f;
 }
@@ -393,7 +395,8 @@ void Archer::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCom
 
 Tanker::Tanker() : Character()
 {
-	m_fHp = 300.0f;
+	m_fHp = 600.0f;
+	m_fMaxHp = 600.0f;
 	m_fSpeed = 75.0f;
 	m_fDamage = 50.0f;
 }
@@ -548,7 +551,8 @@ void Tanker::Animate(float fTimeElapsed)
 
 Priest::Priest() : Character()
 {
-	m_fHp = 150.0f;
+	m_fHp = 480.0f;
+	m_fMaxHp = 480.0f;
 	m_fSpeed = 150.0f;
 	m_fDamage = 80.0f;
 }

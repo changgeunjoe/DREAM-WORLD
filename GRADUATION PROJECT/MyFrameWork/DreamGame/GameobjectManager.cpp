@@ -54,6 +54,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 		m_pMonsterHPBarObject->SetScale(10, 1, 1);
 		m_pMonsterHPBarObject->SetCurrentHP(g_Logic.m_MonsterSession.m_currentPlayGameObject->GetCurrentHP());
 	}
+
 	XMFLOAT3 mfHittmp = g_Logic.m_MonsterSession.m_currentPlayGameObject->m_xmfHitPosition;
 	for (int i = 0; i < m_ppParticleObjects.size(); i++) {
 		m_ppParticleObjects[i]->SetLookAt(m_pCamera->GetPosition());
@@ -73,6 +74,9 @@ void GameobjectManager::Animate(float fTimeElapsed)
 
 	for (auto& session : g_Logic.m_inGamePlayerSession) {
 		if (-1 != session.m_id && session.m_isVisible) {
+			if (m_pArcherHPBarObject && session.m_id == g_Logic.myId)
+				m_pArcherHPBarObject->SetCurrentHP(session.m_currentPlayGameObject->GetCurrentHP());
+
 			if (session.m_currentDirection != DIRECTION::IDLE) {
 				//session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
 				session.m_currentPlayGameObject->MoveObject(session.m_currentDirection, session.m_ownerRotateAngle);
