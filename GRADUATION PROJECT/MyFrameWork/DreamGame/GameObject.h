@@ -339,6 +339,10 @@ inline T* GameObject::ComponentType(component_id& componentID)
     {
         componentID = component_id::UISHADER_COMPONENT;
     }
+	else if (typeid(T).name() == typeid(BlendingUiShaderComponent).name())
+	{
+		componentID = component_id::BLENDINGUISHADER_COMPONENT;
+	}
     else if (typeid(T).name() == typeid(MultiSpriteShaderComponent).name())
     {
         componentID = component_id::SPRITESHADER_COMPONENT;

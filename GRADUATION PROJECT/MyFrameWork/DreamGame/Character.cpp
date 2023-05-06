@@ -6,6 +6,7 @@
 
 extern Logic g_Logic;
 extern NetworkHelper g_NetworkHelper;
+extern bool GameEnd;
 
 Character::Character() : GameObject(UNDEF_ENTITY)
 {
@@ -117,7 +118,7 @@ void Warrior::Animate(float fTimeElapsed)
 		GameObject::Animate(fTimeElapsed);
 		return;
 	}
-	if (g_Logic.m_MonsterSession.m_currentPlayGameObject->GetCurrentHP() < FLT_EPSILON)
+	if (GameEnd)
 	{
 		if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CharacterAnimation::CA_VICTORY)
 		{
@@ -359,7 +360,7 @@ void Archer::Animate(float fTimeElapsed)
 		GameObject::Animate(fTimeElapsed);
 		return;
 	}
-	if (g_Logic.m_MonsterSession.m_currentPlayGameObject->GetCurrentHP() < FLT_EPSILON)
+	if (GameEnd)
 	{
 		if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CharacterAnimation::CA_VICTORY)
 		{
@@ -543,7 +544,7 @@ void Tanker::Animate(float fTimeElapsed)
 		GameObject::Animate(fTimeElapsed);
 		return;
 	}
-	if (g_Logic.m_MonsterSession.m_currentPlayGameObject->GetCurrentHP() < FLT_EPSILON)
+	if (GameEnd)
 	{
 		if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CharacterAnimation::CA_VICTORY)
 		{
@@ -704,7 +705,7 @@ void Priest::Animate(float fTimeElapsed)
 		GameObject::Animate(fTimeElapsed);
 		return;
 	}
-	if (g_Logic.m_MonsterSession.m_currentPlayGameObject->GetCurrentHP() < FLT_EPSILON)
+	if (GameEnd)
 	{
 		if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CharacterAnimation::CA_VICTORY)
 		{

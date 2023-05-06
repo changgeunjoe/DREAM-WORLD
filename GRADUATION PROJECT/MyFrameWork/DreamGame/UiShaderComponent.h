@@ -19,3 +19,11 @@ public:
 
 };
 
+class BlendingUiShaderComponent :public UiShaderComponent
+{
+public:
+	BlendingUiShaderComponent() {};
+	virtual ~BlendingUiShaderComponent() {};
+
+	virtual D3D12_BLEND_DESC CreateBlendState(int nPipelineState);
+};

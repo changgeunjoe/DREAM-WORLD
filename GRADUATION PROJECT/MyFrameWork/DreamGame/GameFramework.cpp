@@ -8,6 +8,7 @@
 
 extern Logic g_Logic;
 extern NetworkHelper g_NetworkHelper;
+extern bool GameEnd;
 
 CGameFramework::CGameFramework()
 {
@@ -625,6 +626,11 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 	case WM_LBUTTONUP:
 	case WM_RBUTTONUP:
 		::ReleaseCapture();
+		if (!m_bLobbyScene && GameEnd)
+		{
+			m_bLobbyScene = !m_bLobbyScene;
+			GameEnd = false;
+		}
 		break;
 	case WM_MOUSEMOVE:
 		if (!m_bLobbyScene) {
@@ -669,7 +675,9 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		case VK_RETURN:
 			break;
 		case VK_F2:
+#ifdef LOCAL_TASK
 			m_bLobbyScene = !m_bLobbyScene;
+#endif
 			break;
 		case VK_F8:
 			break;

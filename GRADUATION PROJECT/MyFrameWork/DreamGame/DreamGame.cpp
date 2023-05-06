@@ -21,6 +21,7 @@ CGameFramework gGameFramework;
 NetworkHelper g_NetworkHelper;
 Logic g_Logic;
 RoomManger g_RoomManager;
+bool GameEnd = false;
 
 HWND g_wnd;
 int g_cmd;

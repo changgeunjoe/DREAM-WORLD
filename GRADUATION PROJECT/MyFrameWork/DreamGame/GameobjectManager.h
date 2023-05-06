@@ -100,6 +100,8 @@ private: //active object
 	GameObject* m_pArcherHPBarObject{ NULL };//캐릭터 HPBAR
 	GameObject* m_pArcherProfileObject{ NULL };//캐릭터 사진이 들어갈 UI
 	GameObject* m_pArcherSkillBarObject{ NULL };
+	GameObject* m_pVictoryUIObject{ NULL };
+	GameObject* m_pContinueUIObject{ NULL };
 	vector<GameObject*> m_ppCharacterUIObjects;
 
 	//ParticleObject-Particle -  23.04.13 .ccg
@@ -119,8 +121,9 @@ private: //active object
 
 	POINT						m_ptOldCursorPos;
 
-	float m_fTime = 0;
+	float	m_fTime = 0;
 	bool	m_bUIScene = true;
+	bool	m_bDebugMode = false;
 
 	ID3D12Resource* m_pd3dcbGameObjects = nullptr;
 	//CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;

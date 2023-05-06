@@ -12,6 +12,7 @@
 extern CGameFramework gGameFramework;
 extern RoomManger g_RoomManager;
 extern NetworkHelper g_NetworkHelper;
+extern bool GameEnd;
 
 using namespace chrono;
 
@@ -388,6 +389,11 @@ void Logic::ProcessPacket(char* p)
 		}
 		//m_MonsterSession.m_currentPlayGameObject->m_UIScale = static_cast<float>(recvPacket->bossState.hp) / 250.0f;//maxHp 2500입니다
 		m_MonsterSession.m_currentPlayGameObject->SetCurrentHP(static_cast<float>(recvPacket->bossState.hp) / 25.0f);//maxHp 2500입니다
+		if (m_MonsterSession.m_currentPlayGameObject->GetCurrentHP() < FLT_EPSILON)
+		{
+			GameEnd = true;
+			break;
+		}
 
 		Monster* monsterObject = dynamic_cast<Monster*>(m_MonsterSession.m_currentPlayGameObject);
 
@@ -528,7 +534,7 @@ void Logic::ProcessPacket(char* p)
 		cout << "Attack Packet recv ElapsedTime: " << durationTime << endl;
 		SERVER_PACKET::BossAttackPacket* recvPacket = reinterpret_cast<SERVER_PACKET::BossAttackPacket*>(p);
 
-		if (m_MonsterSession.m_currentPlayGameObject->GetCurrentHP() > FLT_EPSILON)
+		if (!GameEnd)
 		{
 			switch (recvPacket->bossAttackType)
 			{
@@ -569,7 +575,8 @@ void Logic::ProcessPacket(char* p)
 	{
 		//게임 종료 패킷 수신
 		//지금은 바로 게임 종료 확인하는 패킷 서버로 전송하게 구현함
-		g_NetworkHelper.SendTestGameEndOKPacket();
+		m_MonsterSession.m_currentPlayGameObject->SetCurrentHP(0.0f);
+		GameEnd = true;
 
 	}
 	break;

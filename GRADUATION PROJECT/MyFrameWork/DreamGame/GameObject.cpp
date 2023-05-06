@@ -272,9 +272,10 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	ComponentBase* pShaderComponent = GetComponent(component_id::SHADER_COMPONENT);
 	ComponentBase* pSkyShaderComponent = GetComponent(component_id::SKYSHADER_COMPONENT);
 	ComponentBase* pUiShaderComponent = GetComponent(component_id::UISHADER_COMPONENT);
+	ComponentBase* pBlendingUiShaderComponent = GetComponent(component_id::BLENDINGUISHADER_COMPONENT);
 	ComponentBase* pSpriteShaderComponent = GetComponent(component_id::SPRITESHADER_COMPONENT);
 	ComponentBase* pBoundingBoxShaderComponent = GetComponent(component_id::BOUNDINGBOX_COMPONENT);
-	if (pShaderComponent != NULL || pSkyShaderComponent != NULL || pUiShaderComponent != NULL || pSpriteShaderComponent != NULL || pBoundingBoxShaderComponent != NULL)
+	if (pShaderComponent != NULL || pSkyShaderComponent != NULL || pUiShaderComponent != NULL || pSpriteShaderComponent != NULL || pBoundingBoxShaderComponent != NULL || pBlendingUiShaderComponent != NULL)
 	{
 		if (pShaderComponent != NULL)
 		{
@@ -285,6 +286,9 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		}
 		else if (pUiShaderComponent != NULL) {
 			m_pShaderComponent = static_cast<UiShaderComponent*>(pUiShaderComponent);
+		}
+		else if (pBlendingUiShaderComponent != NULL) {
+			m_pShaderComponent = static_cast<BlendingUiShaderComponent*>(pBlendingUiShaderComponent);
 		}
 		else if (pSpriteShaderComponent != NULL) {
 			m_pShaderComponent = static_cast<MultiSpriteShaderComponent*>(pSpriteShaderComponent);

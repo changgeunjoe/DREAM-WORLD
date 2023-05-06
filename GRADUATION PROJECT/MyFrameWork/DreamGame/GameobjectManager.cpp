@@ -13,7 +13,7 @@
 
 extern NetworkHelper g_NetworkHelper;
 extern Logic g_Logic;
-
+extern bool GameEnd;
 
 template<typename S>
 S* ComponentType(component_id componentID)
@@ -146,9 +146,12 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	//m_pInstancingShaderComponent->Render(pd3dDevice, pd3dCommandList,0, pd3dGraphicsRootSignature);
 
 	//
-	g_Logic.m_MonsterSession.m_currentPlayGameObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	for (int i = 0; i < 5; i++)
-		m_pBoundingBox[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//g_Logic.m_MonsterSession.m_currentPlayGameObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	if (m_bDebugMode)
+	{
+		for (int i = 0; i < 5; i++)
+			m_pBoundingBox[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
 	for (int i = 0; i < m_pArrowObjects.size(); i++) {
 		m_pArrowObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
@@ -203,6 +206,11 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	}*/
 	for (int i = 0; i < m_ppParticleObjects.size(); i++) {
 		m_ppParticleObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
+	if (GameEnd)
+	{
+		m_pVictoryUIObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		m_pContinueUIObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 }
 
@@ -631,6 +639,26 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pArcherSkillBarObject->SetScale(0.05, 0.025, 1);
 	m_pArcherSkillBarObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppCharacterUIObjects.emplace_back(m_pArcherSkillBarObject);
+
+	m_pVictoryUIObject = new GameObject(UI_ENTITY);
+	m_pVictoryUIObject->InsertComponent<RenderComponent>();
+	m_pVictoryUIObject->InsertComponent<UIMeshComponent>();
+	m_pVictoryUIObject->InsertComponent<BlendingUiShaderComponent>();
+	m_pVictoryUIObject->InsertComponent<TextureComponent>();
+	m_pVictoryUIObject->SetTexture(L"UI/Victory.dds", RESOURCE_TEXTURE2D, 3);
+	m_pVictoryUIObject->SetPosition(XMFLOAT3(0.0f, 0.0f, 1.03f));
+	m_pVictoryUIObject->SetScale(0.3, 0.1, 1);
+	m_pVictoryUIObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+
+	m_pContinueUIObject = new GameObject(UI_ENTITY);
+	m_pContinueUIObject->InsertComponent<RenderComponent>();
+	m_pContinueUIObject->InsertComponent<UIMeshComponent>();
+	m_pContinueUIObject->InsertComponent<BlendingUiShaderComponent>();
+	m_pContinueUIObject->InsertComponent<TextureComponent>();
+	m_pContinueUIObject->SetTexture(L"UI/Continue.dds", RESOURCE_TEXTURE2D, 3);
+	m_pContinueUIObject->SetPosition(XMFLOAT3(0.0f, -0.4f, 1.03f));
+	m_pContinueUIObject->SetScale(0.1, 0.01, 1);
+	m_pContinueUIObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	////////////////////////////////////////////////////////////////
 }
 
@@ -792,7 +820,15 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 {
 	static XMFLOAT3 upVec = XMFLOAT3(0, 1, 0);
 	if (nMessageID == WM_KEYDOWN && wParam == VK_F4)
-		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetCurrentHP(0.0f);
+	{
+		g_NetworkHelper.SendTestGameEndPacket();
+		g_Logic.m_MonsterSession.m_currentPlayGameObject->SetCurrentHP(0.0f);
+		GameEnd = true;
+	}
+	if (nMessageID == WM_KEYDOWN && wParam == VK_F12)
+	{
+		m_bDebugMode = !m_bDebugMode;
+	}
 	if (g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetCurrentHP() < FLT_EPSILON)
 		return false;
 	switch (nMessageID)
@@ -1074,6 +1110,17 @@ bool GameobjectManager::onProcessingKeyboardMessageUI(HWND hWnd, UINT nMessageID
 void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
 	bool SomethingChanging = false;
+
+	if (GameEnd)
+	{
+		switch (nMessageID)
+		{
+		case WM_RBUTTONUP:
+		case WM_LBUTTONUP:
+			g_NetworkHelper.SendTestGameEndOKPacket();
+			break;
+		}
+	}
 
 	switch (nMessageID)
 	{
