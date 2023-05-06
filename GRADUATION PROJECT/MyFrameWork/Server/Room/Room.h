@@ -39,6 +39,10 @@ public://Get
 		}
 		return playerMap;
 	}
+	int GetInGamePlayerNum() {
+		std::lock_guard<std::mutex> lg{ m_lockInGamePlayers };
+		return m_inGamePlayers.size();
+	}
 	const std::string& GetRoomId() { return m_roomId; }
 	const std::wstring& GetRoomName() { return m_roomName; }
 	const int roomOwner() { return m_roomOwnerId; }
@@ -63,4 +67,6 @@ public:
 	Concurrency::concurrent_queue<short> m_bossDamagedQueue;
 	bool MeleeAttack(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 pos);
 	void GameStart();
+	void GameRunningLogic();
+	void GameEnd();
 };

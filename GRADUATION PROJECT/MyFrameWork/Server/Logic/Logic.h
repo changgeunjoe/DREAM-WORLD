@@ -22,9 +22,9 @@ private:
 	Concurrency::concurrent_queue<int> randPlayerIdQueue;
 private:
 	//Concurrency::concurrent_unordered_set<int> m_matchPlayerSet;
-	std::mutex m_matchPlayerLock;
+	/*std::mutex m_matchPlayerLock;
 	std::map<ROLE, int> m_matchPlayer;
-	std::atomic_char m_MatchRole = 0x00;
+	std::atomic_char m_MatchRole = 0x00;*/
 public:
 	void AcceptPlayer(Session* session, int userId, SOCKET& sock);
 	void ProcessPacket(int userId, char* p);

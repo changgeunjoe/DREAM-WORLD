@@ -44,8 +44,8 @@ void MonsterSessionObject::AutoMove()
 
 void MonsterSessionObject::StartMove(DIRECTION d)
 {
-	PrintCurrentTime();
-	std::cout << "MonsterSessionObject::StartMove()" << std::endl;
+	//PrintCurrentTime();
+	//std::cout << "MonsterSessionObject::StartMove()" << std::endl;
 	m_lastMoveTime = std::chrono::high_resolution_clock::now();
 	isMove = true;
 }
@@ -92,14 +92,14 @@ void MonsterSessionObject::Rotate(ROTATE_AXIS axis, float angle)
 	default:
 		break;
 	}
-	PrintCurrentTime();
-	std::cout << std::endl << "Rotate angle: " << m_rotateAngle.y << std::endl;//
+	//PrintCurrentTime();
+	//std::cout << std::endl << "Rotate angle: " << m_rotateAngle.y << std::endl;//
 	DirectX::XMFLOAT3 xmf3Rev = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 	xmf3Rev.x = m_directionVector.x * cos(XMConvertToRadians(-angle)) - m_directionVector.z * sin(XMConvertToRadians(-angle));
 	xmf3Rev.z = m_directionVector.x * sin(XMConvertToRadians(-angle)) + m_directionVector.z * cos(XMConvertToRadians(-angle));
 	xmf3Rev = Vector3::Normalize(xmf3Rev);
 	m_directionVector = xmf3Rev;
-	std::cout << "Boss Dir Vector" << m_directionVector.x << " " << m_directionVector.y << " " << m_directionVector.z << std::endl;
+	//std::cout << "Boss Dir Vector" << m_directionVector.x << " " << m_directionVector.y << " " << m_directionVector.z << std::endl;
 }
 
 void MonsterSessionObject::SetDirection(DIRECTION d)
@@ -164,7 +164,7 @@ void MonsterSessionObject::SetAggroPlayerId()
 void MonsterSessionObject::AttackTimer()
 {
 
-	std::cout << "ReSet lastAttack Time Boss" << std::endl;
+	//std::cout << "ReSet lastAttack Time Boss" << std::endl;
 
 	m_lastAttackTime = std::chrono::high_resolution_clock::now();
 
@@ -272,7 +272,7 @@ bool MonsterSessionObject::StartAttack()
 		if (len <= 42.0f) {
 			auto durationTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - m_lastAttackTime);
 			if (durationTime > std::chrono::seconds(1) + std::chrono::milliseconds(500)) {
-				std::cout << "startAttack Return true ElapsedTime: " << durationTime << std::endl;
+				//std::cout << "startAttack Return true ElapsedTime: " << durationTime << std::endl;
 				return true;
 			}
 		}

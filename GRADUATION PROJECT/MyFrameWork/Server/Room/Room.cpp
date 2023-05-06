@@ -3,6 +3,8 @@
 #include "../Timer/Timer.h"
 #include "../Logic/Logic.h"
 #include "../IOCPNetwork/IOCP/IOCPNetwork.h"
+#include "../Session/SessionObject/PlayerSessionObject.h"
+#include "../IOCPNetwork/protocol/protocol.h"
 
 extern Timer g_Timer;
 extern Logic g_logic;
@@ -161,6 +163,11 @@ void Room::GameStart()
 {
 	PrintCurrentTime();
 	std::cout << "Room::GameStart()" << std::endl;
+	std::cout << "PlayerNum: " << m_inGamePlayers.size() << std::endl;
+	for (auto& playerInfo : m_inGamePlayers) {
+		std::cout << "PlayerId: " << playerInfo.second << std::endl;
+	}
+
 	CreateBossMonster(); //임시 입니다.
 	TIMER_EVENT findEv{ std::chrono::system_clock::now() + std::chrono::milliseconds(1), m_roomId, -1,EV_FIND_PLAYER };
 	g_Timer.InsertTimerQueue(findEv);
@@ -175,4 +182,50 @@ void Room::GameStart()
 	//ov->m_buffer[m_roomId.size()] = 0;
 	//PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, -1, &ov->m_overlap);
 	//m_boss.StartMove(DIRECTION::FRONT);
+}
+
+void Room::GameRunningLogic()
+{
+	if (m_boss.isMove)
+		m_boss.AutoMove();//보스 무브
+	for (auto& p : m_inGamePlayers) {//플레이어 무브
+		if (g_iocpNetwork.m_session[p.second].m_sessionObject != nullptr) {
+			if (g_iocpNetwork.m_session[p.second].m_sessionObject->m_inputDirection != DIRECTION::IDLE) {
+				g_iocpNetwork.m_session[p.second].m_sessionObject->AutoMove();
+			}
+		}
+	}
+	//여기에 화살이나 ball 오브젝트 이동 구현
+	for (auto& arrow : m_arrows)
+	{
+		if (arrow.m_active)
+		{
+			arrow.AutoMove();
+			if (arrow.DetectCollision(&m_boss) != -1) {
+				m_restArrow.push(arrow.GetId());
+				m_bossDamagedQueue.push(200);
+			}
+
+		}
+	}
+	for (auto& ball : m_balls)
+	{
+		if (ball.m_active)
+		{
+			ball.AutoMove();
+			if (ball.DetectCollision(&m_boss) != -1) {
+				m_restBall.push(ball.GetId());
+				m_bossDamagedQueue.push(30);
+				SERVER_PACKET::BossHitObject sendPacket;
+				sendPacket.size = sizeof(SERVER_PACKET::BossHitObject);
+				sendPacket.type = SERVER_PACKET::HIT_BOSS_MAGE;
+				sendPacket.pos = ball.GetPos();
+				g_logic.BroadCastInRoom(m_roomId, &sendPacket);
+			}
+		}
+	}
+}
+
+void Room::GameEnd()
+{
 }

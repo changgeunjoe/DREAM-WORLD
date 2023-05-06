@@ -1,15 +1,17 @@
 #include "stdafx.h"
 #include "Logic.h"
-#include "../../../Server/IOCPNetwork/protocol/protocol.h"
+//#include "../../../Server/IOCPNetwork/protocol/protocol.h"
 #include "../../GameFramework.h"
 #include "../../Scene.h"
 #include "../../GameobjectManager.h"
 #include "../../Animation.h"
 #include "../Room/RoomManger.h"
 #include "../../Character.h"
+#include "../NetworkHelper.h"
 
 extern CGameFramework gGameFramework;
 extern RoomManger g_RoomManager;
+extern NetworkHelper g_NetworkHelper;
 
 using namespace chrono;
 
@@ -561,6 +563,14 @@ void Logic::ProcessPacket(char* p)
 	{
 		SERVER_PACKET::BossHitObject* recvPacket = reinterpret_cast<SERVER_PACKET::BossHitObject*>(p);
 		m_MonsterSession.m_currentPlayGameObject->m_xmfHitPosition = recvPacket->pos;
+	}
+	break;
+	case SERVER_PACKET::GAME_END:
+	{
+		//게임 종료 패킷 수신
+		//지금은 바로 게임 종료 확인하는 패킷 서버로 전송하게 구현함
+		g_NetworkHelper.SendTestGameEndOKPacket();
+
 	}
 	break;
 	default:

@@ -41,6 +41,8 @@ public:
 	void SendArrowAttackPacket(const XMFLOAT3& pos, const XMFLOAT3& dir, float speed);
 	void SendBallAttackPacket(const XMFLOAT3& pos, const XMFLOAT3& dir, float speed);
 	void SendMeleeAttackPacket(const XMFLOAT3& dir);
+	void SendTestGameEndPacket();
+	void SendTestGameEndOKPacket();
 private:
 	void ConstructPacket(int ioByte);
 private:
