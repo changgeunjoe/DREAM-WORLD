@@ -546,23 +546,32 @@ void CGameFramework::BuildObjects()
 	//카메라 객체를 생성하여 뷰표트,씨저 사각형,투영 변환 행렬,카메라 변환 행렬을 생성하고 설정한다.
 	//Scene Camera 생성 
 	m_pCamera = new CCamera();
-	m_pCamera->SetViewport(0, 0, m_nWndClientWidth, m_nWndClientHeight, 0.0f, 1.0f);
-	m_pCamera->SetScissorRect(0, 0, m_nWndClientWidth, m_nWndClientHeight);
-	m_pCamera->GenerateProjectionMatrix(1.0f, 500.0f, float(m_nWndClientWidth) /
-		float(m_nWndClientHeight), 90.0f);
-	m_pCamera->GenerateViewMatrix(XMFLOAT3(0.0f, 15.0f, -25.0f), XMFLOAT3(0.0f, 0.0f, 0.0f),
-		XMFLOAT3(0.0f, 1.0f, 0.0f));
+
+	m_pCamera->GenerateProjectionMatrix(1.01f, 5000.0f, ASPECT_RATIO, 60.0f);
+	m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
+	m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
 	m_pCamera->CreateShaderVariables(m_pd3dDevice, m_pd3dCommandList);
-	//LobbyCamera 생성
-	m_pLobbyCamera = new CCamera();
-	m_pLobbyCamera->SetScissorRect(0, 0, m_nWndClientWidth, m_nWndClientHeight);
-	m_pLobbyCamera->GenerateOhortoMatrix(1.0f, 500.0f, float(m_nWndClientWidth),
-		float(m_nWndClientHeight));
-	m_pLobbyCamera->GenerateViewMatrix(XMFLOAT3(0.0f, 15.0f, -25.0f), XMFLOAT3(0.0f, 0.0f, 0.0f),
-		XMFLOAT3(0.0f, 1.0f, 0.0f));
-	m_pLobbyCamera->CreateShaderVariables(m_pd3dDevice, m_pd3dCommandList);
+
+	//m_pCamera->SetTimeLag(0.25f);
+
+	//m_pCamera->GenerateProjectionMatrix(1.01f, 5000.0f, ASPECT_RATIO, 60.0f);
+	//m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
+	//m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
+	//m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
+//	m_pCamera->CreateShaderVariables(m_pd3dDevice, m_pd3dCommandList);
+	//UI전용 Camera 생성
+	m_pUICamera = new CCamera();
+	//m_pUICamera->SetOffset(XMFLOAT3(0.0f, 0.0f, 0.0f));
+	m_pUICamera->SetViewport(0, 0, m_nWndClientWidth, m_nWndClientHeight, 0.0f, 1.0f);
+	m_pUICamera->SetScissorRect(0, 0, m_nWndClientWidth, m_nWndClientHeight);
+	m_pUICamera->GenerateProjectionMatrix(1.0f, 500.0f, float(m_nWndClientWidth) /
+		float(m_nWndClientHeight), 60.0f);
 
 
+//	m_pUICamera->SetPosition(Vector3::Add(XMFLOAT3(0.0f, 0.0f, 0.0f), m_pCamera->GetOffset()));
+
+	m_pUICamera->CreateShaderVariables(m_pd3dDevice, m_pd3dCommandList);
+	
 	//씬 객체를 생성하고 씬에 포함될 게임 객체들을 생성한다.
 	m_pScene = new CScene();
 	m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList, m_pCamera);
@@ -841,7 +850,7 @@ void CGameFramework::FrameAdvance()
 	//Render2DFont();
 	if (m_bLobbyScene)
 	{
-		if (m_pLobbyScene) m_pLobbyScene->UIRender(m_pd3dDevice, m_pd3dCommandList, m_pCamera);
+		if (m_pLobbyScene) m_pLobbyScene->UIRender(m_pd3dDevice, m_pd3dCommandList, m_pUICamera);
 	}
 	else if (!m_bLobbyScene)
 	{
@@ -850,6 +859,7 @@ void CGameFramework::FrameAdvance()
 			m_bSceneBuild = false;
 		}*/
 		if (m_pScene) m_pScene->Render(m_pd3dDevice, m_pd3dCommandList, m_pCamera);
+		if (m_pScene) m_pScene->UIRender(m_pd3dDevice, m_pd3dCommandList, m_pUICamera);
 	}
 
 

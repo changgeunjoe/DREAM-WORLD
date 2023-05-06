@@ -206,7 +206,7 @@ void UILayer::AddDamageFont(XMFLOAT3 xmf3WorldPos, wstring strText)
 
 XMFLOAT3 UILayer::WorldToScreen(XMFLOAT3& xmf3WorldPos)
 {
-    CCamera* pCamera; //= CGameMgr::GetInstance()->GetCamera();
+    CCamera* pCamera{}; //= CGameMgr::GetInstance()->GetCamera();
     XMFLOAT4X4 xmf4x4View = pCamera->GetViewMatrix();
     XMFLOAT4X4 xmf4x4Proj = pCamera->GetProjectionMatrix();
 
