@@ -2,7 +2,9 @@
 #include "Character.h"
 #include "Animation.h"
 #include "Network/NetworkHelper.h"
+#include "Network/Logic/Logic.h"
 
+extern Logic g_Logic;
 extern NetworkHelper g_NetworkHelper;
 
 Character::Character() : GameObject(UNDEF_ENTITY)
@@ -104,6 +106,28 @@ void Warrior::Move(DIRECTION direction, float fDistance)
 
 void Warrior::Animate(float fTimeElapsed)
 {
+	if (m_fHp < FLT_EPSILON)
+	{
+		if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CharacterAnimation::CA_DIE)
+		{
+			m_pSkinnedAnimationController->m_CurrentAnimations.first = CharacterAnimation::CA_DIE;
+			m_pSkinnedAnimationController->m_CurrentAnimations.second = CharacterAnimation::CA_DIE;
+			m_pSkinnedAnimationController->SetTrackEnable(m_pSkinnedAnimationController->m_CurrentAnimations);
+		}
+		GameObject::Animate(fTimeElapsed);
+		return;
+	}
+	if (g_Logic.m_MonsterSession.m_currentPlayGameObject->GetCurrentHP() < FLT_EPSILON)
+	{
+		if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CharacterAnimation::CA_VICTORY)
+		{
+			m_pSkinnedAnimationController->m_CurrentAnimations.first = CharacterAnimation::CA_VICTORY;
+			m_pSkinnedAnimationController->m_CurrentAnimations.second = CharacterAnimation::CA_VICTORY;
+			m_pSkinnedAnimationController->SetTrackEnable(m_pSkinnedAnimationController->m_CurrentAnimations);
+		}
+		GameObject::Animate(fTimeElapsed);
+		return;
+	}
 	pair<CharacterAnimation, CharacterAnimation> AfterAnimation = m_pSkinnedAnimationController->m_CurrentAnimations;
 	bool RButtonAnimation = false;
 	bool UpperLock = false;
@@ -259,9 +283,9 @@ void Archer::RbuttonUp(const XMFLOAT3& CameraAxis)
 		float arrowSpeed = pow((chargingTime / fullTime), 2);
 
 		if (m_pCamera)
-			m_pProjectiles[m_nProjectiles]->m_xmf3direction = XMFLOAT3(GetObjectLook().x, m_pCamera->GetLookVector().y, GetObjectLook().z);
+			m_pProjectiles[m_nProjectiles % 10]->m_xmf3direction = XMFLOAT3(GetObjectLook().x, m_pCamera->GetLookVector().y, GetObjectLook().z);
 		else
-			m_pProjectiles[m_nProjectiles]->m_xmf3direction = XMFLOAT3(GetObjectLook().x, -sin(m_projectilesLookY * 3.141592 / 180.0f), GetObjectLook().z);
+			m_pProjectiles[m_nProjectiles % 10]->m_xmf3direction = XMFLOAT3(GetObjectLook().x, -sin(m_projectilesLookY * 3.141592 / 180.0f), GetObjectLook().z);
 
 		m_pProjectiles[m_nProjectiles % 10]->m_fSpeed = (chargingTime / fullTime > 0.5f) ? arrowSpeed * 400.0f : -1.0f;
 		m_pProjectiles[m_nProjectiles % 10]->m_RAttack = true;
@@ -324,6 +348,28 @@ void Archer::Move(DIRECTION direction, float fDistance)
 void Archer::Animate(float fTimeElapsed)
 {
 	pair<CharacterAnimation, CharacterAnimation> AfterAnimation = m_pSkinnedAnimationController->m_CurrentAnimations;
+	if (m_fHp < FLT_EPSILON)
+	{
+		if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CharacterAnimation::CA_DIE)
+		{
+			m_pSkinnedAnimationController->m_CurrentAnimations.first = CharacterAnimation::CA_DIE;
+			m_pSkinnedAnimationController->m_CurrentAnimations.second = CharacterAnimation::CA_DIE;
+			m_pSkinnedAnimationController->SetTrackEnable(m_pSkinnedAnimationController->m_CurrentAnimations);
+		}
+		GameObject::Animate(fTimeElapsed);
+		return;
+	}
+	if (g_Logic.m_MonsterSession.m_currentPlayGameObject->GetCurrentHP() < FLT_EPSILON)
+	{
+		if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CharacterAnimation::CA_VICTORY)
+		{
+			m_pSkinnedAnimationController->m_CurrentAnimations.first = CharacterAnimation::CA_VICTORY;
+			m_pSkinnedAnimationController->m_CurrentAnimations.second = CharacterAnimation::CA_VICTORY;
+			m_pSkinnedAnimationController->SetTrackEnable(m_pSkinnedAnimationController->m_CurrentAnimations);
+		}
+		GameObject::Animate(fTimeElapsed);
+		return;
+	}
 	bool UpperLock = false;
 	switch (AfterAnimation.first)
 	{
@@ -486,6 +532,28 @@ void Tanker::Move(DIRECTION direction, float fDistance)
 
 void Tanker::Animate(float fTimeElapsed)
 {
+	if (m_fHp < FLT_EPSILON)
+	{
+		if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CharacterAnimation::CA_DIE)
+		{
+			m_pSkinnedAnimationController->m_CurrentAnimations.first = CharacterAnimation::CA_DIE;
+			m_pSkinnedAnimationController->m_CurrentAnimations.second = CharacterAnimation::CA_DIE;
+			m_pSkinnedAnimationController->SetTrackEnable(m_pSkinnedAnimationController->m_CurrentAnimations);
+		}
+		GameObject::Animate(fTimeElapsed);
+		return;
+	}
+	if (g_Logic.m_MonsterSession.m_currentPlayGameObject->GetCurrentHP() < FLT_EPSILON)
+	{
+		if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CharacterAnimation::CA_VICTORY)
+		{
+			m_pSkinnedAnimationController->m_CurrentAnimations.first = CharacterAnimation::CA_VICTORY;
+			m_pSkinnedAnimationController->m_CurrentAnimations.second = CharacterAnimation::CA_VICTORY;
+			m_pSkinnedAnimationController->SetTrackEnable(m_pSkinnedAnimationController->m_CurrentAnimations);
+		}
+		GameObject::Animate(fTimeElapsed);
+		return;
+	}
 	pair<CharacterAnimation, CharacterAnimation> AfterAnimation = m_pSkinnedAnimationController->m_CurrentAnimations;
 	bool RButtonAnimation = false;
 	bool UpperLock = false;
@@ -625,6 +693,28 @@ void Priest::Move(DIRECTION direction, float fDistance)
 
 void Priest::Animate(float fTimeElapsed)
 {
+	if (m_fHp < FLT_EPSILON)
+	{
+		if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CharacterAnimation::CA_DIE)
+		{
+			m_pSkinnedAnimationController->m_CurrentAnimations.first = CharacterAnimation::CA_DIE;
+			m_pSkinnedAnimationController->m_CurrentAnimations.second = CharacterAnimation::CA_DIE;
+			m_pSkinnedAnimationController->SetTrackEnable(m_pSkinnedAnimationController->m_CurrentAnimations);
+		}
+		GameObject::Animate(fTimeElapsed);
+		return;
+	}
+	if (g_Logic.m_MonsterSession.m_currentPlayGameObject->GetCurrentHP() < FLT_EPSILON)
+	{
+		if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CharacterAnimation::CA_VICTORY)
+		{
+			m_pSkinnedAnimationController->m_CurrentAnimations.first = CharacterAnimation::CA_VICTORY;
+			m_pSkinnedAnimationController->m_CurrentAnimations.second = CharacterAnimation::CA_VICTORY;
+			m_pSkinnedAnimationController->SetTrackEnable(m_pSkinnedAnimationController->m_CurrentAnimations);
+		}
+		GameObject::Animate(fTimeElapsed);
+		return;
+	}
 	pair<CharacterAnimation, CharacterAnimation> AfterAnimation = m_pSkinnedAnimationController->m_CurrentAnimations;
 	bool UpperLock = false;
 	switch (AfterAnimation.first)
@@ -748,6 +838,16 @@ Monster::~Monster()
 
 void Monster::Animate(float fTimeElapsed)
 {
+	if (m_fHp < FLT_EPSILON)
+	{
+		if (m_pSkinnedAnimationController->m_CurrentAnimation != 10)
+		{
+			m_pSkinnedAnimationController->m_CurrentAnimation = 10;
+			m_pSkinnedAnimationController->SetTrackEnable(10, 2);
+		}
+		Character::Animate(fTimeElapsed);
+		return;
+	}
 	if (m_bMoveState)	// 움직이는 중
 	{
 		XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f);

@@ -6,9 +6,9 @@
 #include "DepthRenderShaderComponent.h"
 #include "TextureToViewportComponent.h"
 #include "UiShaderComponent.h"
-#include"MultiSpriteShaderComponent.h"
+#include "MultiSpriteShaderComponent.h"
 #include "Character.h"
-#include"InstancingShaderComponent.h"
+#include "InstancingShaderComponent.h"
 
 
 extern NetworkHelper g_NetworkHelper;
@@ -269,9 +269,10 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pWarriorObject->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pWarriorObject->SetPosition(XMFLOAT3(0.f, 0.f, 0.f));
 	m_pWarriorObject->SetModel("Model/Warrior.bin");
-	m_pWarriorObject->SetAnimationSets(6);
+	m_pWarriorObject->SetAnimationSets(5);
 	m_pWarriorObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pWarriorObject->m_pSkinnedAnimationController->SetTrackAnimationSet(6);
+	m_pWarriorObject->m_pSkinnedAnimationController->SetTrackAnimationSet(5);
+	m_pWarriorObject->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_DIE]->m_nType = ANIMATION_TYPE_ONCE;
 	m_pWarriorObject->SetScale(30.0f);
 	m_pWarriorObject->SetBoundingBox(m_pBoundingBox[0]);
 	m_ppGameObjects.emplace_back(m_pWarriorObject);
@@ -281,9 +282,10 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pArcherObject->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pArcherObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pArcherObject->SetModel("Model/Archer.bin");
-	m_pArcherObject->SetAnimationSets(6);
+	m_pArcherObject->SetAnimationSets(5);
 	m_pArcherObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pArcherObject->m_pSkinnedAnimationController->SetTrackAnimationSet(6);
+	m_pArcherObject->m_pSkinnedAnimationController->SetTrackAnimationSet(5);
+	m_pArcherObject->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_DIE]->m_nType = ANIMATION_TYPE_ONCE;
 	m_pArcherObject->SetScale(30.0f);
 	m_pArcherObject->SetBoundingBox(m_pBoundingBox[1]);
 	m_ppGameObjects.emplace_back(m_pArcherObject);
@@ -306,10 +308,11 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pTankerObject->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pTankerObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pTankerObject->SetModel("Model/Tanker.bin");
-	m_pTankerObject->SetAnimationSets(7);
+	m_pTankerObject->SetAnimationSets(6);
 	m_pTankerObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pTankerObject->m_pSkinnedAnimationController->SetTrackAnimationSet(7);
+	m_pTankerObject->m_pSkinnedAnimationController->SetTrackAnimationSet(6);
 	m_pTankerObject->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_DEFENCE]->m_nType = ANIMATION_TYPE_HALF;
+	m_pTankerObject->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_DIE]->m_nType = ANIMATION_TYPE_ONCE;
 	m_pTankerObject->m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_DEFENCE].m_fSpeed = 0.3f;
 	m_pTankerObject->SetScale(30.0f);
 	m_pTankerObject->SetBoundingBox(m_pBoundingBox[2]);
@@ -320,9 +323,10 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPriestObject->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pPriestObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pPriestObject->SetModel("Model/Priests.bin");
-	m_pPriestObject->SetAnimationSets(4);
+	m_pPriestObject->SetAnimationSets(5);
 	m_pPriestObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pPriestObject->m_pSkinnedAnimationController->SetTrackAnimationSet(4);
+	m_pPriestObject->m_pSkinnedAnimationController->SetTrackAnimationSet(5);
+	m_pPriestObject->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_DIE]->m_nType = ANIMATION_TYPE_ONCE;
 	m_pPriestObject->SetScale(30.0f);
 	m_pPriestObject->SetBoundingBox(m_pBoundingBox[3]);
 	m_ppGameObjects.emplace_back(m_pPriestObject);
@@ -353,9 +357,10 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pMonsterObject->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pMonsterObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pMonsterObject->SetModel("Model/Boss.bin");
-	m_pMonsterObject->SetAnimationSets(10);
+	m_pMonsterObject->SetAnimationSets(11);
 	m_pMonsterObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackAnimationSet(10);
+	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackAnimationSet(11);
+	m_pMonsterObject->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[10]->m_nType = ANIMATION_TYPE_ONCE;
 	m_pMonsterObject->SetScale(15.0f);
 	m_pMonsterObject->SetBoundingSize(30.0f);
 	m_pMonsterObject->SetBoundingBox(m_pBoundingBox[4]);
@@ -786,6 +791,10 @@ void GameobjectManager::ReleaseShaderVariables()
 bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
 	static XMFLOAT3 upVec = XMFLOAT3(0, 1, 0);
+	if (nMessageID == WM_KEYDOWN && wParam == VK_F4)
+		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetCurrentHP(0.0f);
+	if (g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetCurrentHP() < FLT_EPSILON)
+		return false;
 	switch (nMessageID)
 	{
 	case WM_KEYDOWN:

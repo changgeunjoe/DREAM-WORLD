@@ -275,9 +275,8 @@ enum CharacterAnimation
 	CA_IDLE = 0,
 	CA_MOVE,
 	CA_ATTACK,
-	CA_DAMAGE,
-	CA_MOVEL,
-	CA_MOVER,
+	CA_DIE,
+	CA_VICTORY,
 	CA_DEFENCE,
 	CA_BLENDING = 99
 };
