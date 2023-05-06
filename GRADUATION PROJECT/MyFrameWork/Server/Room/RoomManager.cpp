@@ -2,7 +2,7 @@
 #include "RoomManager.h"
 
 RoomManager::RoomManager()
-{	
+{
 }
 
 RoomManager::~RoomManager()
@@ -101,12 +101,12 @@ std::vector<std::string> RoomManager::GetRecruitingRoomIdList()
 
 bool RoomManager::IsExistRecruitRoom(std::string& roomId)
 {
-	return m_RecruitingRoomList.count(roomId);	
+	return m_RecruitingRoomList.count(roomId);
 }
 
 bool RoomManager::IsExistRunningRoom(std::string& roomId)
 {
-	return m_RunningRoomList.count(roomId);	
+	return m_RunningRoomList.count(roomId);
 }
 
 Room& RoomManager::GetRunningRoom(std::string& roomId)
@@ -117,4 +117,17 @@ Room& RoomManager::GetRunningRoom(std::string& roomId)
 Room& RoomManager::GetRecuritRoom(std::string& roomId)
 {
 	return m_RecruitingRoomList[roomId];
+}
+
+void RoomManager::RunningRoomLogic()
+{
+	std::lock_guard<std::mutex> lg{ m_runningRoomListLock };
+	for (auto& room : m_RunningRoomList)
+		room.second.GameRunningLogic();
+}
+
+void RoomManager::RoomDestroy(std::string roomId)
+{
+	std::lock_guard<std::mutex> lg{ m_runningRoomListLock };
+	m_RunningRoomList.erase(roomId);
 }

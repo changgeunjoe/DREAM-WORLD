@@ -214,3 +214,19 @@ void NetworkHelper::SendMeleeAttackPacket(const XMFLOAT3& dir)
 	sendPacket.dir = dir;
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
+
+void NetworkHelper::SendTestGameEndPacket()
+{
+	CLIENT_PACKET::GameEndPacket sendPacket;
+	sendPacket.size = sizeof(CLIENT_PACKET::GameEndPacket);
+	sendPacket.type = CLIENT_PACKET::TEST_GAME_END;
+	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
+}
+
+void NetworkHelper::SendTestGameEndOKPacket()
+{
+	CLIENT_PACKET::GameEndPacket sendPacket;
+	sendPacket.size = 3;
+	sendPacket.type = CLIENT_PACKET::GAME_END_OK;
+	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
+}

@@ -17,6 +17,8 @@ namespace CLIENT_PACKET {
 	constexpr unsigned char SHOOTING_ARROW = 13;
 	constexpr unsigned char SHOOTING_BALL = 14;
 	constexpr unsigned char MELEE_ATTACK = 15;
+	constexpr unsigned char GAME_END_OK = 16;
+	constexpr unsigned char TEST_GAME_END = 17; //임시로 클라에서 전송하여 게임 끝낼 수 있게
 
 
 
@@ -101,6 +103,11 @@ namespace CLIENT_PACKET {
 		char type;
 		DirectX::XMFLOAT3 dir;
 	};
+
+	struct GameEndPacket {
+		short size;
+		char type;
+	};
 }
 
 namespace SERVER_PACKET {
@@ -129,6 +136,7 @@ namespace SERVER_PACKET {
 	constexpr unsigned char GAME_STATE = 86;
 	constexpr unsigned char BOSS_ATTACK = 87;
 	constexpr unsigned char HIT_BOSS_MAGE = 88;
+	constexpr unsigned char GAME_END = 89;
 
 	
 

@@ -339,6 +339,25 @@ void Logic::ProcessPacket(int userId, char* p)
 			g_RoomManager.GetRunningRoom(g_iocpNetwork.m_session[userId].GetRoomId()).m_bossDamagedQueue.push(g_iocpNetwork.m_session[userId].m_sessionObject->GetAttackDamage());
 	}
 	break;
+	case CLIENT_PACKET::TEST_GAME_END: // 임시로
+	{
+		SERVER_PACKET::NotifyPacket sendPacket;
+		sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
+		sendPacket.type = SERVER_PACKET::GAME_END;
+		BroadCastInRoom(g_iocpNetwork.m_session[userId].GetRoomId(), &sendPacket);
+	}
+	break;
+	case CLIENT_PACKET::GAME_END_OK:
+	{
+		std::string roomId = g_iocpNetwork.m_session[userId].GetRoomId();
+		Room& room = g_RoomManager.GetRunningRoom(g_iocpNetwork.m_session[userId].GetRoomId());
+		room.DeleteInGamePlayer(userId);
+		if (room.GetInGamePlayerNum() == 0) {
+			g_RoomManager.RoomDestroy(roomId);
+			std::cout << "Destroy Room: " << roomId << std::endl;
+		}
+	}
+	break;
 	default:
 		PrintCurrentTime();
 		std::cout << "unknown Packet" << std::endl;
@@ -396,53 +415,9 @@ void Logic::AutoMoveServer()//2500명?
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	while (m_isRunningThread)
 	{
-		if (g_iocpNetwork.GetCurrentId() == 0) continue;
+		//if (g_iocpNetwork.GetCurrentId() == 0) continue;
 		currentTime = std::chrono::high_resolution_clock::now();
-		auto RunningRooms = g_RoomManager.GetRunningRoomIdList();
-
-		for (auto roomId : RunningRooms) {
-			if (g_RoomManager.IsExistRunningRoom(roomId)) {
-				Room& room = g_RoomManager.GetRunningRoom(roomId);
-				if (room.GetBoss().isMove)
-					room.GetBoss().AutoMove();//보스 무브
-				for (auto& p : room.GetInGamePlayerMap()) {//플레이어 무브
-					if (g_iocpNetwork.m_session[p.second].m_sessionObject != nullptr) {
-						if (g_iocpNetwork.m_session[p.second].m_sessionObject->m_inputDirection != DIRECTION::IDLE) {
-							g_iocpNetwork.m_session[p.second].m_sessionObject->AutoMove();
-						}
-					}
-				}
-				//여기에 화살이나 ball 오브젝트 이동 구현
-				for (auto& arrow : room.m_arrows)
-				{
-					if (arrow.m_active)
-					{
-						arrow.AutoMove();
-						if (arrow.DetectCollision(&room.GetBoss()) != -1) {
-							room.m_restArrow.push(arrow.GetId());
-							room.m_bossDamagedQueue.push(200);
-						}
-
-					}
-				}
-				for (auto& ball : room.m_balls)
-				{
-					if (ball.m_active)
-					{
-						ball.AutoMove();
-						if (ball.DetectCollision(&room.GetBoss()) != -1) {
-							room.m_restBall.push(ball.GetId());
-							room.m_bossDamagedQueue.push(30);
-							SERVER_PACKET::BossHitObject sendPacket;
-							sendPacket.size = sizeof(SERVER_PACKET::BossHitObject);
-							sendPacket.type = SERVER_PACKET::HIT_BOSS_MAGE;
-							sendPacket.pos = ball.GetPos();
-							BroadCastInRoom(roomId, &sendPacket);
-						}
-					}
-				}
-			}
-		}
+		g_RoomManager.RunningRoomLogic();
 		//Sleep(16.6667f - std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - currentTime).count());
 		while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - currentTime).count() < 1000.0f / 60.0f) {
 		}

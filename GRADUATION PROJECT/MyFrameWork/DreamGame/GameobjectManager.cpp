@@ -910,7 +910,8 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		break;
 		case 'Q':
 		{
-			g_Logic.m_KeyInput->m_bQKey = false;
+			//g_Logic.m_KeyInput->m_bQKey = false;
+			g_NetworkHelper.SendTestGameEndPacket();
 			break;
 		}
 		case 'E':

@@ -35,6 +35,9 @@ public:
 	Room& GetRunningRoom(std::string& roomId);
 	Room& GetRecuritRoom(std::string& roomId);
 public:
+	void RunningRoomLogic();
+	void RoomDestroy(std::string roomId);
+public:
 	friend Logic;
 };
 
