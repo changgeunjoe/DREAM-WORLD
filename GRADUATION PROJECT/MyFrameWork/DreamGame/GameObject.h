@@ -253,6 +253,7 @@ protected:
 	float                           m_fMaxHp{ 100 };//캐릭터 최대 체력
 	float                           m_fSpeed;
 	float                           m_fDamage;
+	float							m_projectilesLookY;
 
 	float                           m_fTime{};
 	int                             m_nProjectiles{};
@@ -267,7 +268,7 @@ public:
 		m_SPBB = BoundingSphere(XMFLOAT3(GetPosition().x, GetPosition().y + m_fBoundingSize, GetPosition().z), m_fBoundingSize);
 	}
 	float GetBoundingSize() { return m_fBoundingSize; }
-
+	void SetProjectileY(float yLook) { m_projectilesLookY = yLook; }
 public:
 	XMFLOAT3						m_xmfHitPosition;
 	XMFLOAT3                        m_xmf3Destination;

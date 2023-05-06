@@ -182,7 +182,13 @@ void Archer::Attack(float fSpeed)
 	if (m_pProjectiles[m_nProjectiles]->m_fSpeed > 0)
 	{
 		if (!m_pProjectiles[m_nProjectiles]->m_RAttack)
-			m_pProjectiles[m_nProjectiles]->m_xmf3direction = GetObjectLook();
+		{
+			if (m_pCamera)
+				m_pProjectiles[m_nProjectiles]->m_xmf3direction = XMFLOAT3(GetObjectLook().x, m_pCamera->GetLookVector().y, GetObjectLook().z);
+			else
+				m_pProjectiles[m_nProjectiles]->m_xmf3direction = XMFLOAT3(GetObjectLook().x, -sin(m_projectilesLookY * 3.141592 / 180.0f), GetObjectLook().z);
+		}
+			
 		m_pProjectiles[m_nProjectiles]->m_xmf3startPosition = GetPosition();
 		m_pProjectiles[m_nProjectiles]->SetPosition(Vector3::Add(GetPosition(), XMFLOAT3(0.0f, 5.0f, 0.0f)));
 		m_pProjectiles[m_nProjectiles]->m_fSpeed = fSpeed;
@@ -253,9 +259,9 @@ void Archer::RbuttonUp(const XMFLOAT3& CameraAxis)
 		float arrowSpeed = pow((chargingTime / fullTime), 2);
 
 		if (m_pCamera)
-			m_pProjectiles[m_nProjectiles % 10]->m_xmf3direction = XMFLOAT3(GetObjectLook().x, 0.0f, GetObjectLook().z);
+			m_pProjectiles[m_nProjectiles]->m_xmf3direction = XMFLOAT3(GetObjectLook().x, m_pCamera->GetLookVector().y, GetObjectLook().z);
 		else
-			m_pProjectiles[m_nProjectiles % 10]->m_xmf3direction = GetObjectLook();
+			m_pProjectiles[m_nProjectiles]->m_xmf3direction = XMFLOAT3(GetObjectLook().x, -sin(m_projectilesLookY * 3.141592 / 180.0f), GetObjectLook().z);
 
 		m_pProjectiles[m_nProjectiles % 10]->m_fSpeed = (chargingTime / fullTime > 0.5f) ? arrowSpeed * 400.0f : -1.0f;
 		m_pProjectiles[m_nProjectiles % 10]->m_RAttack = true;
@@ -695,7 +701,14 @@ void Priest::RbuttonUp(const XMFLOAT3& CameraAxis)
 void Priest::Attack(float fSpeed)
 {
 	m_nProjectiles = (m_nProjectiles < 10) ? m_nProjectiles : m_nProjectiles % 10;
-	m_pProjectiles[m_nProjectiles]->m_xmf3direction = GetObjectLook();
+
+	if (m_pCamera)
+		m_pProjectiles[m_nProjectiles]->m_xmf3direction = XMFLOAT3(GetObjectLook().x, m_pCamera->GetLookVector().y, GetObjectLook().z);
+	else
+	{
+		m_pProjectiles[m_nProjectiles]->m_xmf3direction = XMFLOAT3(GetObjectLook().x, -sin(m_projectilesLookY * 3.141592 / 180.0f), GetObjectLook().z);
+	}
+
 	m_pProjectiles[m_nProjectiles]->m_xmf3startPosition = GetPosition();
 	m_pProjectiles[m_nProjectiles]->SetPosition(Vector3::Add(GetPosition(), XMFLOAT3(0.0f, 5.0f, 0.0f)));
 	m_pProjectiles[m_nProjectiles]->m_fSpeed = fSpeed;

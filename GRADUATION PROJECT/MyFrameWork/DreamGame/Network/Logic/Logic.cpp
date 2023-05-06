@@ -84,7 +84,8 @@ void Logic::ProcessPacket(char* p)
 			{
 			case ROTATE_AXIS::X:
 			{
-
+				findRes->m_ownerRotateAngle.x = recvPacket->angle;
+				findRes->m_currentPlayGameObject->SetProjectileY(findRes->m_ownerRotateAngle.x);
 			}
 			break;
 			case ROTATE_AXIS::Y:
