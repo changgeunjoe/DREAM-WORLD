@@ -55,7 +55,7 @@ using namespace std;
 #endif
 
 //#ifndef LOCAL_TASK
-//#define LOCAL_TASK 1
+#define LOCAL_TASK 1
 //#endif // !LOCAL_TASK
 
 ///////////////////////////////////////
@@ -185,6 +185,7 @@ inline bool IsEqual(float fA, float fB) { return(::IsZero(fA - fB)); }
 inline bool IsEqual(float fA, float fB, float fEpsilon) { return(::IsZero(fA - fB, fEpsilon)); }
 inline float InverseSqrt(float fValue) { return 1.0f / sqrtf(fValue); }
 inline void Swap(float* pfS, float* pfT) { float fTemp = *pfS; *pfS = *pfT; *pfT = fTemp; }
+inline float RandomValue(float a, float b) { return(a + (((float)rand() / (float)RAND_MAX) * (b - a))); }
 
 
 struct MATERIAL
@@ -223,6 +224,11 @@ struct SHADOW_INFO
 	XMFLOAT4X4						m_xmf4x4ShadowTransform;
 	XMFLOAT3						m_xmf3CameraPosition;
 	XMFLOAT3						m_xmf3LightPosition;
+};
+
+struct CB_GAMEFRAMEWORK_INFO
+{
+	float							m_xmfTime;
 };
 enum entity_id
 {

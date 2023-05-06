@@ -131,6 +131,7 @@ void IOCPNetwork::WorkerThread()
 				auto playerMap = refRoom.GetInGamePlayerMap();
 				refRoom.GetBoss().ReserveAggroPlayerId(playerMap.begin()->second);
 				refRoom.GetBoss().SetAggroPlayerId();
+				//refRoom.GetBoss().SetAggroPlayerId(playerMap.begin()->second);
 #endif // ALONE_TEST
 #ifndef ALONE_TEST
 				auto playerMap = refRoom.GetInGamePlayerMap();

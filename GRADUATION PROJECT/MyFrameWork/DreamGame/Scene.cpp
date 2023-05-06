@@ -95,7 +95,7 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	RootSignature.Descriptorrange[11].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	//-------------------------------rootParameter----------------------------------------------------    
-	RootSignature.RootParameter.resize(20);
+	RootSignature.RootParameter.resize(21);
 	//shaderTexture (b0)Shaders.hlsl
 	RootSignature.RootParameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	RootSignature.RootParameter[0].DescriptorTable.NumDescriptorRanges = 1;
@@ -198,6 +198,11 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	RootSignature.RootParameter[19].Descriptor.ShaderRegister = 13;
 	RootSignature.RootParameter[19].Descriptor.RegisterSpace = 0;
 	RootSignature.RootParameter[19].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	//Framework(b8) Shaders.hlsl
+	RootSignature.RootParameter[20].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	RootSignature.RootParameter[20].Descriptor.ShaderRegister = 8;
+	RootSignature.RootParameter[20].Descriptor.RegisterSpace = 0;
+	RootSignature.RootParameter[20].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 	//textureSampler
 	RootSignature.TextureSamplerDescs.resize(3);
 	RootSignature.TextureSamplerDescs[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
@@ -291,6 +296,7 @@ bool CScene::ProcessInput()
 
 void CScene::AnimateObjects(float fTimeElapsed)
 {
+	
 	//for (int j = 0; j < m_nObjects; j++)
 	//{
 	//	m_ppObjects[j]->Animate(fTimeElapsed);
@@ -306,9 +312,17 @@ void CScene::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCom
 	//씬을 렌더링하는 것은 씬을 구성하는 게임 객체(셰이더를 포함하는 객체)들을 렌더링하는 것이다. 
 
 	m_pObjectManager->Render(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-	m_pObjectManager->CharacterUIRender(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 	//m_pObjectManager->StoryUIRender(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+}
 
+void CScene::UIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
+{
+	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
+	pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
+	if (pCamera) pCamera->UpdateShaderVariables(pd3dCommandList);
+	//씬을 렌더링하는 것은 씬을 구성하는 게임 객체(셰이더를 포함하는 객체)들을 렌더링하는 것이다.
+
+	m_pObjectManager->CharacterUIRender(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 }
 
 void CScene::OnPreRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,CCamera* pCamera)

@@ -34,7 +34,7 @@ D3D12_SHADER_BYTECODE MultiSpriteShaderComponent::CreateVertexShader(int nPipeli
 
 D3D12_SHADER_BYTECODE MultiSpriteShaderComponent::CreatePixelShader(int nPipelineState)
 {
-	return(CompileShaderFromFile(L"Shaders.hlsl", "PSUITextured", "ps_5_1", &m_pd3dPixelShaderBlob));
+	return(CompileShaderFromFile(L"Shaders.hlsl", "PSSpriteTextured", "ps_5_1", &m_pd3dPixelShaderBlob));
 }
 
 D3D12_RASTERIZER_DESC MultiSpriteShaderComponent::CreateRasterizerState(int nPipelineState)

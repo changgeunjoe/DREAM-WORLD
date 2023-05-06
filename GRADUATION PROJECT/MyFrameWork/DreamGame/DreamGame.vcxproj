@@ -185,6 +185,7 @@
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TextureToViewportComponent.h" />
     <ClInclude Include="Timer.h" />
+    <ClInclude Include="UILayer.h" />
     <ClInclude Include="UiShaderComponent.h" />
     <ClInclude Include="WICTextureLoader12.h" />
   </ItemGroup>
@@ -228,6 +229,7 @@
     </ClCompile>
     <ClCompile Include="TextureToViewportComponent.cpp" />
     <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="UILayer.cpp" />
     <ClCompile Include="UiShaderComponent.cpp" />
     <ClCompile Include="WICTextureLoader12.cpp" />
     <ClCompile Include="GameFramework.cpp" />

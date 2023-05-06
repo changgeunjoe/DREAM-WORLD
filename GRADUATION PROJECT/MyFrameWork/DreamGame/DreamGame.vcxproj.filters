@@ -115,6 +115,9 @@
     <Filter Include="04.Component\ShaderComponent\InstancingShaderComponent">
       <UniqueIdentifier>{d3841fa1-1d56-41ea-97c4-a1c9abf22fe3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="08.UILayer">
+      <UniqueIdentifier>{65f448d8-334e-40cd-8d78-b57719efb579}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -237,6 +240,9 @@
     <ClInclude Include="InstancingShaderComponent.h">
       <Filter>04.Component\ShaderComponent\InstancingShaderComponent</Filter>
     </ClInclude>
+    <ClInclude Include="UILayer.h">
+      <Filter>08.UILayer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -349,6 +355,9 @@
     </ClCompile>
     <ClCompile Include="InstancingShaderComponent.cpp">
       <Filter>04.Component\ShaderComponent\InstancingShaderComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="UILayer.cpp">
+      <Filter>08.UILayer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -44,6 +44,7 @@ GameobjectManager::~GameobjectManager()
 
 void GameobjectManager::Animate(float fTimeElapsed)
 {
+	m_fTime = fTimeElapsed;
 	m_pSkyboxObject->SetPosition(m_pCamera->GetPosition());
 	if (m_pMonsterHPBarObject)//23.04.18 몬스터 체력바 -> 카메라를 바라 보도록 .ccg
 	{
@@ -58,7 +59,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	XMFLOAT3 mfHittmp = g_Logic.m_MonsterSession.m_currentPlayGameObject->m_xmfHitPosition;
 	for (int i = 0; i < m_ppParticleObjects.size(); i++) {
 		m_ppParticleObjects[i]->SetLookAt(m_pCamera->GetPosition());
-		m_ppParticleObjects[i]->SetPosition(XMFLOAT3(mfHittmp.x, mfHittmp.y + 20, mfHittmp.z));
+		//m_ppParticleObjects[i]->SetPosition(XMFLOAT3(mfHittmp.x, mfHittmp.y+20, mfHittmp.z));
 		m_ppParticleObjects[i]->SetScale(8);
 		m_ppParticleObjects[i]->Rotate(0, 180, 0);
 	}
@@ -142,7 +143,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 
 	m_pDepthShaderComponent->UpdateShaderVariables(pd3dCommandList);
 	//인스턴싱 렌더 
-	m_pInstancingShaderComponent->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature);
+	//m_pInstancingShaderComponent->Render(pd3dDevice, pd3dCommandList,0, pd3dGraphicsRootSignature);
 
 	//
 	g_Logic.m_MonsterSession.m_currentPlayGameObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -183,7 +184,9 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	//	m_ppUIObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//}
 
-
+	if (m_pMonsterHPBarObject) {
+		m_pMonsterHPBarObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
 
 	if (m_pShadowmapShaderComponent)
 	{
@@ -410,10 +413,10 @@ void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	m_pFireballSpriteObject->InsertComponent<UIMeshComponent>();
 	m_pFireballSpriteObject->InsertComponent<MultiSpriteShaderComponent>();
 	m_pFireballSpriteObject->InsertComponent<TextureComponent>();
-	m_pFireballSpriteObject->SetTexture(L"MagicEffect/Fireball_7x7.dds", RESOURCE_TEXTURE2D, 3);
-	m_pFireballSpriteObject->SetPosition(XMFLOAT3(0, 40, 100));
+	m_pFireballSpriteObject->SetTexture(L"MagicEffect/CandleFlame.dds", RESOURCE_TEXTURE2D, 3);
+	m_pFireballSpriteObject->SetPosition(XMFLOAT3(100, 40, 100));
 	m_pFireballSpriteObject->SetScale(10);
-	m_pFireballSpriteObject->SetRowColumn(7, 7, 0.05);
+	m_pFireballSpriteObject->SetRowColumn(16,8, 0.05);
 	m_pFireballSpriteObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppParticleObjects.emplace_back(m_pFireballSpriteObject);
 
@@ -560,6 +563,8 @@ void GameobjectManager::Build2DUI(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	m_pUIGameCreateObject->SetScale(0.05, 0.02, 1);
 	m_pUIGameCreateObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppUIObjects.emplace_back(m_pUIGameCreateObject);
+
+	//m_pPlayerObject->SetCamera(m_pCamera);
 }
 
 void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -585,7 +590,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pMonsterHPBarObject->SetPosition(XMFLOAT3(0, 40, 100));
 	m_pMonsterHPBarObject->SetScale(10);
 	m_pMonsterHPBarObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppCharacterUIObjects.emplace_back(m_pMonsterHPBarObject);
+	//m_ppCharacterUIObjects.emplace_back(m_pMonsterHPBarObject);
 
 
 	///////////////////////////////////////////////////////
@@ -626,8 +631,8 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 
 void GameobjectManager::BuildInstanceObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	m_pInstancingShaderComponent = new InstancingShaderComponent;
-	m_pInstancingShaderComponent->BuildObject(pd3dDevice, pd3dCommandList, m_pFireballSpriteObjects);
+//	m_pInstancingShaderComponent = new InstancingShaderComponent;
+//	m_pInstancingShaderComponent->BuildObject(pd3dDevice, pd3dCommandList, m_pFireballSpriteObjects);
 }
 
 void GameobjectManager::BuildStoryUI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -752,11 +757,24 @@ void GameobjectManager::ProcessingUI(int n)
 }
 void GameobjectManager::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
+	UINT ncbElementBytes = ((sizeof(CB_GAMEFRAMEWORK_INFO) + 255) & ~255); //256의 배수
+	m_pd3dcbGameObjects = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+
+	m_pd3dcbGameObjects->Map(0, NULL, (void**)&m_pcbMappedGameObjects);
+
 	if (m_pLight)
 		m_pLight->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 void GameobjectManager::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
+	if (m_pd3dcbGameObjects)
+	{
+	
+		::memcpy(&m_pcbMappedGameObjects->m_xmfTime, &m_fTime, sizeof(float));
+		D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbGameObjects->GetGPUVirtualAddress();
+		pd3dCommandList->SetGraphicsRootConstantBufferView(20, d3dGpuVirtualAddress);
+	}
+
 	if (m_pLight)
 		m_pLight->UpdateShaderVariables(pd3dCommandList);
 }

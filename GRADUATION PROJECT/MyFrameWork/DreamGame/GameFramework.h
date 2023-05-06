@@ -65,7 +65,7 @@ private:
 	bool m_bSceneBuild{false};
 
 	CCamera* m_pCamera = NULL;
-	CCamera* m_pLobbyCamera = NULL;
+	CCamera* m_pUICamera = NULL;
 
 	//다음은 게임 프레임 워크에서 사용할 타이머이다.
 	CGameTimer m_GameTimer;

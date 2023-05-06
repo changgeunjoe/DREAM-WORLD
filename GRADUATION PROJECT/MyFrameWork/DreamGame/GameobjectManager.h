@@ -119,7 +119,12 @@ private: //active object
 
 	POINT						m_ptOldCursorPos;
 
+	float m_fTime = 0;
 	bool	m_bUIScene = true;
+
+	ID3D12Resource* m_pd3dcbGameObjects = nullptr;
+	//CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
+	CB_GAMEFRAMEWORK_INFO* m_pcbMappedGameObjects = nullptr;
 public:
 	void SetPlayCharacter(Session* pSession);
 	void SetSection(int n) { m_nSection = n; }
