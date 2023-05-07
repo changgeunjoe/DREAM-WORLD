@@ -212,6 +212,17 @@ void CAnimationController::SetTrackWeight(int nAnimationTrack, float fWeight)
 	if (m_pAnimationTracks) m_pAnimationTracks[nAnimationTrack].SetWeight(fWeight);
 }
 
+void CAnimationController::ResetTrack()
+{
+	if (m_pAnimationTracks)
+	{
+		for (int i = 0; i < m_nAnimationTracks; ++i)
+		{
+			m_pAnimationTracks[i].m_fPosition = 0.0f;
+		}
+	}
+}
+
 void CAnimationController::SetCallbackKeys(int nAnimationTrack, int nCallbackKeys)
 {
 	if (m_pAnimationTracks) m_pAnimationTracks[nAnimationTrack].SetCallbackKeys(nCallbackKeys);

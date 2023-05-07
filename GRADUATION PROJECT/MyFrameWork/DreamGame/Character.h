@@ -8,6 +8,7 @@ public:
 	virtual ~Character();
 	virtual void RbuttonClicked(float fTimeElapsed);
 	virtual void RbuttonUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f });
+	virtual void Reset();
 	//virtual void Move(DIRECTION direction, float fDistance);
 };
 

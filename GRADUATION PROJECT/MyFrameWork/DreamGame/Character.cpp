@@ -31,6 +31,24 @@ void Character::RbuttonUp(const XMFLOAT3& CameraAxis)
 	m_iRButtionCount = 0;
 }
 
+void Character::Reset()
+{
+	m_fHp = m_fMaxHp;
+	m_pSkinnedAnimationController->ResetTrack();
+
+	if (m_pSkinnedAnimationController->m_CurrentAnimation != CharacterAnimation::CA_IDLE)
+	{
+		m_pSkinnedAnimationController->m_CurrentAnimation = CharacterAnimation::CA_IDLE;
+		m_pSkinnedAnimationController->SetTrackEnable(CharacterAnimation::CA_IDLE, 2);
+	}
+	if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CharacterAnimation::CA_IDLE)
+	{
+		m_pSkinnedAnimationController->m_CurrentAnimations.first = CharacterAnimation::CA_IDLE;
+		m_pSkinnedAnimationController->m_CurrentAnimations.second = CharacterAnimation::CA_IDLE;
+		m_pSkinnedAnimationController->SetTrackEnable(m_pSkinnedAnimationController->m_CurrentAnimations);
+	}
+}
+
 Warrior::Warrior() : Character()
 {
 	m_fHp = 400.0f;
@@ -831,6 +849,8 @@ void Priest::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCom
 
 Monster::Monster() : Character()
 {
+	m_fHp = 2500;
+	m_fMaxHp = 2500;
 }
 
 Monster::~Monster()
@@ -839,7 +859,7 @@ Monster::~Monster()
 
 void Monster::Animate(float fTimeElapsed)
 {
-	if (m_fHp < FLT_EPSILON)
+	if (GameEnd)
 	{
 		if (m_pSkinnedAnimationController->m_CurrentAnimation != 10)
 		{

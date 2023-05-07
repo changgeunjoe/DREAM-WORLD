@@ -1118,6 +1118,7 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 		case WM_RBUTTONUP:
 		case WM_LBUTTONUP:
 			g_NetworkHelper.SendTestGameEndOKPacket();
+			ResetObject();
 			break;
 		}
 	}
@@ -1229,4 +1230,12 @@ void GameobjectManager::SetPlayerCamera(Session& mySession)
 	cout << "visbie: " << mySession.m_isVisible << endl;
 	cout << "MyPos: " << mPos.x << ", " << mPos.y << ", " << mPos.z << endl;
 	cout << "CameraPos: " << cPos.x << ", " << cPos.y << ", " << cPos.z << endl;
+}
+
+void GameobjectManager::ResetObject()
+{
+	for (int i = 0; i < m_ppGameObjects.size(); ++i)
+	{
+		m_ppGameObjects[i]->Reset();
+	}
 }

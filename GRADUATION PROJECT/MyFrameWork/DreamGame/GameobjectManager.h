@@ -132,5 +132,6 @@ public:
 	void SetPlayCharacter(Session* pSession);
 	void SetSection(int n) { m_nSection = n; }
 	void SetPlayerCamera(Session& mySession);
+	void ResetObject();
 };
 
