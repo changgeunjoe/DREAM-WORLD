@@ -145,5 +145,6 @@ public:
 	void SetSection(int n) { m_nSection = n; }
 	void SetPlayerCamera(Session& mySession);
 	void ResetObject();
+	void SetInMatching(bool inMatching) { m_bInMatching = inMatching; }
 };
 

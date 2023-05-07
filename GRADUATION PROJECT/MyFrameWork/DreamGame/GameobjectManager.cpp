@@ -73,7 +73,6 @@ void GameobjectManager::Animate(float fTimeElapsed)
 
 	for (auto& session : g_Logic.m_inGamePlayerSession) {
 		if (-1 != session.m_id && session.m_isVisible) {
-			cout << session.GetRole() << endl;
 			switch (session.GetRole())
 			{
 			case ROLE::ARCHER:
@@ -1289,7 +1288,6 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 			for(int i = 0; i < 4; ++i)
 				g_Logic.m_inGamePlayerSession[i].Reset();
 			ResetObject();
-			m_bInMatching = false;
 			break;
 		}
 		return;
