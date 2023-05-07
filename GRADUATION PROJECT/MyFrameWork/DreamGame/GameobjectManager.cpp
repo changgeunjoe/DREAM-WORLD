@@ -44,7 +44,7 @@ GameobjectManager::~GameobjectManager()
 
 void GameobjectManager::Animate(float fTimeElapsed)
 {
-	m_fTime = fTimeElapsed;
+	m_fTime += fTimeElapsed;
 	m_pSkyboxObject->SetPosition(m_pCamera->GetPosition());
 	if (m_pMonsterHPBarObject)//23.04.18 몬스터 체력바 -> 카메라를 바라 보도록 .ccg
 	{
@@ -145,52 +145,57 @@ void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)
 {
 	if (g_Logic.m_inGamePlayerSession[0].GetRole() == ROLE::ARCHER) {
 		m_pArcherHPBarObject->SetinitScale(0.09, 0.0065, 1);
-		m_pArcherHPBarObject->SetPosition(XMFLOAT3(-0.57, 0.16, 1.00));
+		m_pArcherHPBarObject->SetPosition(XMFLOAT3(-0.57, 0.46, 1.00));
 		m_pArcherProfileObject->SetinitScale(0.04, 0.025, 1);
-		m_pArcherProfileObject->SetPosition(XMFLOAT3(-0.91, 0.2, 1.00));
-		m_pTankerHPBarObject->SetPosition(XMFLOAT3(-0.67, 0.06, 1.00));
-		m_pTankerProfileObject->SetPosition(XMFLOAT3(-0.94, 0.08, 1.00));
-		m_pPriestHPBarObject->SetPosition(XMFLOAT3(-0.67, -0.06, 1.00));
-		m_pPriestProfileObject->SetPosition(XMFLOAT3(-0.94, -0.04, 1.00));
-		m_pWarriorHPBarObject->SetPosition(XMFLOAT3(-0.67, -0.18, 1.00));
-		m_pWarriorProfileObject->SetPosition(XMFLOAT3(-0.94, -0.16, 1.00));
+		m_pArcherProfileObject->SetPosition(XMFLOAT3(-0.91, 0.5, 1.00));
+		m_pTankerHPBarObject->SetPosition(XMFLOAT3(-0.67, 0.36, 1.00));
+		m_pTankerProfileObject->SetPosition(XMFLOAT3(-0.94, 0.38, 1.00));
+		m_pPriestHPBarObject->SetPosition(XMFLOAT3(-0.67, 0.24, 1.00));
+		m_pPriestProfileObject->SetPosition(XMFLOAT3(-0.94, 0.26, 1.00));
+		m_pWarriorHPBarObject->SetPosition(XMFLOAT3(-0.67, 0.12, 1.00));
+		m_pWarriorProfileObject->SetPosition(XMFLOAT3(-0.94, 0.14, 1.00));
 	}
 	else if (g_Logic.m_inGamePlayerSession[0].GetRole() == ROLE::TANKER) {
 		m_pTankerHPBarObject->SetinitScale(0.09, 0.0065, 1);
-		m_pTankerHPBarObject->SetPosition(XMFLOAT3(-0.57, 0.16, 1.00));
+		m_pTankerHPBarObject->SetPosition(XMFLOAT3(-0.57, 0.46, 1.00));
 		m_pTankerProfileObject->SetinitScale(0.04, 0.025, 1);
-		m_pTankerProfileObject->SetPosition(XMFLOAT3(-0.91, 0.2, 1.00));
-		m_pArcherHPBarObject->SetPosition(XMFLOAT3(-0.67, 0.06, 1.00));
-		m_pArcherProfileObject->SetPosition(XMFLOAT3(-0.94, 0.08, 1.00));
-		m_pPriestHPBarObject->SetPosition(XMFLOAT3(-0.67, -0.06, 1.00));
-		m_pPriestProfileObject->SetPosition(XMFLOAT3(-0.94, -0.04, 1.00));
-		m_pWarriorHPBarObject->SetPosition(XMFLOAT3(-0.67, -0.18, 1.00));
-		m_pWarriorProfileObject->SetPosition(XMFLOAT3(-0.94, -0.16, 1.00));
+		m_pTankerProfileObject->SetPosition(XMFLOAT3(-0.91, 0.5, 1.00));
+		m_pArcherHPBarObject->SetPosition(XMFLOAT3(-0.67, 0.36, 1.00));
+		m_pArcherProfileObject->SetPosition(XMFLOAT3(-0.94, 0.38, 1.00));
+		m_pPriestHPBarObject->SetPosition(XMFLOAT3(-0.67, 0.24, 1.00));
+		m_pPriestProfileObject->SetPosition(XMFLOAT3(-0.94, 0.26, 1.00));
+		m_pWarriorHPBarObject->SetPosition(XMFLOAT3(-0.67, 0.12, 1.00));
+		m_pWarriorProfileObject->SetPosition(XMFLOAT3(-0.94, 0.14, 1.00));
 	}
 	else if (g_Logic.m_inGamePlayerSession[0].GetRole() == ROLE::PRIEST) {
 		m_pPriestHPBarObject->SetinitScale(0.09, 0.0065, 1);
-		m_pPriestHPBarObject->SetPosition(XMFLOAT3(-0.57, 0.16, 1.00));
+		m_pPriestHPBarObject->SetPosition(XMFLOAT3(-0.57, 0.46, 1.00));
 		m_pPriestProfileObject->SetinitScale(0.04, 0.025, 1);
-		m_pPriestProfileObject->SetPosition(XMFLOAT3(-0.91, 0.2, 1.00));
-		m_pTankerHPBarObject->SetPosition(XMFLOAT3(-0.67, 0.06, 1.00));
-		m_pTankerProfileObject->SetPosition(XMFLOAT3(-0.94, 0.08, 1.00));
-		m_pArcherHPBarObject->SetPosition(XMFLOAT3(-0.67, -0.06, 1.00));
-		m_pArcherProfileObject->SetPosition(XMFLOAT3(-0.94, -0.04, 1.00));
-		m_pWarriorHPBarObject->SetPosition(XMFLOAT3(-0.67, -0.18, 1.00));
-		m_pWarriorProfileObject->SetPosition(XMFLOAT3(-0.94, -0.16, 1.00));
+		m_pPriestProfileObject->SetPosition(XMFLOAT3(-0.91, 0.5, 1.00));
+		m_pTankerHPBarObject->SetPosition(XMFLOAT3(-0.67, 0.36, 1.00));
+		m_pTankerProfileObject->SetPosition(XMFLOAT3(-0.94, 0.38, 1.00));
+		m_pArcherHPBarObject->SetPosition(XMFLOAT3(-0.67, 0.24, 1.00));
+		m_pArcherProfileObject->SetPosition(XMFLOAT3(-0.94, 0.26, 1.00));
+		m_pWarriorHPBarObject->SetPosition(XMFLOAT3(-0.67, 0.12, 1.00));
+		m_pWarriorProfileObject->SetPosition(XMFLOAT3(-0.94, 0.14, 1.00));
 	}
 	else if (g_Logic.m_inGamePlayerSession[0].GetRole() == ROLE::WARRIOR) {
 		m_pWarriorHPBarObject->SetinitScale(0.09, 0.0065, 1);
-		m_pWarriorHPBarObject->SetPosition(XMFLOAT3(-0.57, 0.16, 1.00));
+		m_pWarriorHPBarObject->SetPosition(XMFLOAT3(-0.57, 0.46, 1.00));
 		m_pWarriorProfileObject->SetinitScale(0.04, 0.025, 1);
-		m_pWarriorProfileObject->SetPosition(XMFLOAT3(-0.91, 0.2, 1.00));
-		m_pTankerHPBarObject->SetPosition(XMFLOAT3(-0.67, 0.06, 1.00));
-		m_pTankerProfileObject->SetPosition(XMFLOAT3(-0.94, 0.08, 1.00));
-		m_pPriestHPBarObject->SetPosition(XMFLOAT3(-0.67, -0.06, 1.00));
-		m_pPriestProfileObject->SetPosition(XMFLOAT3(-0.94, -0.04, 1.00));
-		m_pArcherHPBarObject->SetPosition(XMFLOAT3(-0.67, -0.18, 1.00));
-		m_pArcherProfileObject->SetPosition(XMFLOAT3(-0.94, -0.16, 1.00));
+		m_pWarriorProfileObject->SetPosition(XMFLOAT3(-0.91, 0.5, 1.00));
+		m_pTankerHPBarObject->SetPosition(XMFLOAT3(-0.67, 0.36, 1.00));
+		m_pTankerProfileObject->SetPosition(XMFLOAT3(-0.94, 0.38, 1.00));
+		m_pPriestHPBarObject->SetPosition(XMFLOAT3(-0.67, 0.24, 1.00));
+		m_pPriestProfileObject->SetPosition(XMFLOAT3(-0.94, 0.26, 1.00));
+		m_pArcherHPBarObject->SetPosition(XMFLOAT3(-0.67, 0.12, 1.00));
+		m_pArcherProfileObject->SetPosition(XMFLOAT3(-0.94, 0.14, 1.00));
 	}
+}
+
+void GameobjectManager::StoryUIAnimate(float fTimeElapsed)
+{
+
 }
 
 void GameobjectManager::OnPreRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -279,17 +284,20 @@ void GameobjectManager::UIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	}
 
 }
-
+#define ScreenSTORY 10
 void GameobjectManager::CharacterUIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
 	for (int i = 0; i < m_ppCharacterUIObjects.size(); i++) {
+		if(m_fStroyTime> m_ppStoryUIObjects.size()* ScreenSTORY)
 		m_ppCharacterUIObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 }
 
-void GameobjectManager::StoryUIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+void GameobjectManager::StoryUIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float ftimeElapsed)
 {
+	m_fStroyTime += ftimeElapsed;
 	for (int i = 0; i < m_ppStoryUIObjects.size(); i++) {
+		if (m_fStroyTime < 10 * (i + 1)&& m_fStroyTime > ScreenSTORY * (i ))
 		m_ppStoryUIObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 }
