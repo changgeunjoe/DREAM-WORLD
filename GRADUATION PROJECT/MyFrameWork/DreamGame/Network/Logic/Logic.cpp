@@ -339,6 +339,8 @@ void Logic::ProcessPacket(char* p)
 		//로딩창이면 좋을듯?
 		gGameFramework.m_bLobbyScene = false;
 		gGameFramework.m_pLobbyScene->m_pObjectManager->SetInMatching(false);
+		gGameFramework.m_pLobbyScene->m_pObjectManager->SetUIActive();
+		gGameFramework.m_pScene->m_pObjectManager->SetStoryTime();
 		m_MonsterSession.m_isVisible = true;
 		cout << "start boss ratate angle: " << m_MonsterSession.m_rotateAngle.y << endl;
 		for (int i = 0; i < 4; i++) {

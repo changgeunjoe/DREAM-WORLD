@@ -924,10 +924,7 @@ void GameobjectManager::ProcessingUI(int n)
 			cout << "StartMatching" << endl;
 			g_NetworkHelper.SendMatchRequestPacket();
 			m_bInMatching = true;
-			m_pUIWarriorCharacterObject->m_bUIActive = true;
-			m_pUIArcherCharacterObject->m_bUIActive = true;
-			m_pUITankerCharacterObject->m_bUIActive = true;
-			m_pUIPriestCharacterObject->m_bUIActive = true;
+		
 			break;
 		}
 	}
@@ -1448,4 +1445,12 @@ void GameobjectManager::ResetObject()
 	{
 		m_ppGameObjects[i]->Reset();
 	}
+}
+
+void GameobjectManager::SetUIActive()
+{
+	m_pUIWarriorCharacterObject->m_bUIActive = true;
+	m_pUIArcherCharacterObject->m_bUIActive = true;
+	m_pUITankerCharacterObject->m_bUIActive = true;
+	m_pUIPriestCharacterObject->m_bUIActive = true;
 }

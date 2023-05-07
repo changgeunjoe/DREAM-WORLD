@@ -134,5 +134,7 @@ public:
 	void SetPlayerCamera(Session& mySession);
 	void ResetObject();
 	void SetInMatching(bool inMatching) { m_bInMatching = inMatching; }
+	void SetUIActive();
+	void SetStoryTime() { m_fStroyTime = 0; };
 };
 
