@@ -76,16 +76,16 @@ void GameobjectManager::Animate(float fTimeElapsed)
 			switch (session.GetRole())
 			{
 			case ROLE::ARCHER:
-				m_pArcherHPBarObject->SetCurrentHP(session.m_currentPlayGameObject->GetCurrentHP());
+				m_pArcherObject->m_pHPBarUI->SetCurrentHP(session.m_currentPlayGameObject->GetCurrentHP());
 				break;
 			case ROLE::WARRIOR:
-				m_pWarriorHPBarObject->SetCurrentHP(session.m_currentPlayGameObject->GetCurrentHP());
+				m_pWarriorObject->m_pHPBarUI->SetCurrentHP(session.m_currentPlayGameObject->GetCurrentHP());
 				break;
 			case ROLE::TANKER:
-				m_pTankerHPBarObject->SetCurrentHP(session.m_currentPlayGameObject->GetCurrentHP());
+				m_pTankerObject->m_pHPBarUI->SetCurrentHP(session.m_currentPlayGameObject->GetCurrentHP());
 				break;
 			case ROLE::PRIEST:
-				m_pPriestHPBarObject->SetCurrentHP(session.m_currentPlayGameObject->GetCurrentHP());
+				m_pPriestObject->m_pHPBarUI->SetCurrentHP(session.m_currentPlayGameObject->GetCurrentHP());
 				break;
 			}
 			if (session.m_currentDirection != DIRECTION::IDLE) {
@@ -143,52 +143,52 @@ void GameobjectManager::Animate(float fTimeElapsed)
 void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)
 {
 	if (g_Logic.m_inGamePlayerSession[0].GetRole() == ROLE::ARCHER) {
-		m_pArcherHPBarObject->SetinitScale(0.09, 0.0065, 1);
-		m_pArcherHPBarObject->SetPosition(XMFLOAT3(-0.57, 0.46, 1.00));
-		m_pArcherProfileObject->SetinitScale(0.04, 0.025, 1);
-		m_pArcherProfileObject->SetPosition(XMFLOAT3(-0.91, 0.5, 1.00));
-		m_pTankerHPBarObject->SetPosition(XMFLOAT3(-0.67, 0.36, 1.00));
-		m_pTankerProfileObject->SetPosition(XMFLOAT3(-0.94, 0.38, 1.00));
-		m_pPriestHPBarObject->SetPosition(XMFLOAT3(-0.67, 0.24, 1.00));
-		m_pPriestProfileObject->SetPosition(XMFLOAT3(-0.94, 0.26, 1.00));
-		m_pWarriorHPBarObject->SetPosition(XMFLOAT3(-0.67, 0.12, 1.00));
-		m_pWarriorProfileObject->SetPosition(XMFLOAT3(-0.94, 0.14, 1.00));
+		m_pArcherObject->m_pHPBarUI->SetinitScale(0.09, 0.0065, 1);
+		m_pArcherObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.57, 0.46, 1.00));
+		m_pArcherObject->m_pProfileUI->SetinitScale(0.04, 0.025, 1);
+		m_pArcherObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.91, 0.5, 1.00));
+		m_pTankerObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.36, 1.00));
+		m_pTankerObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.38, 1.00));
+		m_pPriestObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.24, 1.00));
+		m_pPriestObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.26, 1.00));
+		m_pWarriorObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.12, 1.00));
+		m_pWarriorObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.14, 1.00));
 	}
 	else if (g_Logic.m_inGamePlayerSession[0].GetRole() == ROLE::TANKER) {
-		m_pTankerHPBarObject->SetinitScale(0.09, 0.0065, 1);
-		m_pTankerHPBarObject->SetPosition(XMFLOAT3(-0.57, 0.46, 1.00));
-		m_pTankerProfileObject->SetinitScale(0.04, 0.025, 1);
-		m_pTankerProfileObject->SetPosition(XMFLOAT3(-0.91, 0.5, 1.00));
-		m_pArcherHPBarObject->SetPosition(XMFLOAT3(-0.67, 0.36, 1.00));
-		m_pArcherProfileObject->SetPosition(XMFLOAT3(-0.94, 0.38, 1.00));
-		m_pPriestHPBarObject->SetPosition(XMFLOAT3(-0.67, 0.24, 1.00));
-		m_pPriestProfileObject->SetPosition(XMFLOAT3(-0.94, 0.26, 1.00));
-		m_pWarriorHPBarObject->SetPosition(XMFLOAT3(-0.67, 0.12, 1.00));
-		m_pWarriorProfileObject->SetPosition(XMFLOAT3(-0.94, 0.14, 1.00));
+		m_pTankerObject->m_pHPBarUI->SetinitScale(0.09, 0.0065, 1);
+		m_pTankerObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.57, 0.46, 1.00));
+		m_pTankerObject->m_pProfileUI->SetinitScale(0.04, 0.025, 1);
+		m_pTankerObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.91, 0.5, 1.00));
+		m_pArcherObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.36, 1.00));
+		m_pArcherObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.38, 1.00));
+		m_pPriestObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.24, 1.00));
+		m_pPriestObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.26, 1.00));
+		m_pWarriorObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.12, 1.00));
+		m_pWarriorObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.14, 1.00));
 	}
 	else if (g_Logic.m_inGamePlayerSession[0].GetRole() == ROLE::PRIEST) {
-		m_pPriestHPBarObject->SetinitScale(0.09, 0.0065, 1);
-		m_pPriestHPBarObject->SetPosition(XMFLOAT3(-0.57, 0.46, 1.00));
-		m_pPriestProfileObject->SetinitScale(0.04, 0.025, 1);
-		m_pPriestProfileObject->SetPosition(XMFLOAT3(-0.91, 0.5, 1.00));
-		m_pTankerHPBarObject->SetPosition(XMFLOAT3(-0.67, 0.36, 1.00));
-		m_pTankerProfileObject->SetPosition(XMFLOAT3(-0.94, 0.38, 1.00));
-		m_pArcherHPBarObject->SetPosition(XMFLOAT3(-0.67, 0.24, 1.00));
-		m_pArcherProfileObject->SetPosition(XMFLOAT3(-0.94, 0.26, 1.00));
-		m_pWarriorHPBarObject->SetPosition(XMFLOAT3(-0.67, 0.12, 1.00));
-		m_pWarriorProfileObject->SetPosition(XMFLOAT3(-0.94, 0.14, 1.00));
+		m_pPriestObject->m_pHPBarUI->SetinitScale(0.09, 0.0065, 1);
+		m_pPriestObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.57, 0.46, 1.00));
+		m_pPriestObject->m_pProfileUI->SetinitScale(0.04, 0.025, 1);
+		m_pPriestObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.91, 0.5, 1.00));
+		m_pTankerObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.36, 1.00));
+		m_pTankerObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.38, 1.00));
+		m_pArcherObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.24, 1.00));
+		m_pArcherObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.26, 1.00));
+		m_pWarriorObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.12, 1.00));
+		m_pWarriorObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.14, 1.00));
 	}
 	else if (g_Logic.m_inGamePlayerSession[0].GetRole() == ROLE::WARRIOR) {
-		m_pWarriorHPBarObject->SetinitScale(0.09, 0.0065, 1);
-		m_pWarriorHPBarObject->SetPosition(XMFLOAT3(-0.57, 0.46, 1.00));
-		m_pWarriorProfileObject->SetinitScale(0.04, 0.025, 1);
-		m_pWarriorProfileObject->SetPosition(XMFLOAT3(-0.91, 0.5, 1.00));
-		m_pTankerHPBarObject->SetPosition(XMFLOAT3(-0.67, 0.36, 1.00));
-		m_pTankerProfileObject->SetPosition(XMFLOAT3(-0.94, 0.38, 1.00));
-		m_pPriestHPBarObject->SetPosition(XMFLOAT3(-0.67, 0.24, 1.00));
-		m_pPriestProfileObject->SetPosition(XMFLOAT3(-0.94, 0.26, 1.00));
-		m_pArcherHPBarObject->SetPosition(XMFLOAT3(-0.67, 0.12, 1.00));
-		m_pArcherProfileObject->SetPosition(XMFLOAT3(-0.94, 0.14, 1.00));
+		m_pWarriorObject->m_pHPBarUI->SetinitScale(0.09, 0.0065, 1);
+		m_pWarriorObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.57, 0.46, 1.00));
+		m_pWarriorObject->m_pProfileUI->SetinitScale(0.04, 0.025, 1);
+		m_pWarriorObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.91, 0.5, 1.00));
+		m_pTankerObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.36, 1.00));
+		m_pTankerObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.38, 1.00));
+		m_pPriestObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.24, 1.00));
+		m_pPriestObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.26, 1.00));
+		m_pArcherObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.12, 1.00));
+		m_pArcherObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.14, 1.00));
 	}
 }
 
@@ -663,139 +663,139 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 
 
 ///////////////////////////////////////////////////////
-	m_pArcherHPBarObject = new GameObject(UI_ENTITY);
-	m_pArcherHPBarObject->InsertComponent<RenderComponent>();
-	m_pArcherHPBarObject->InsertComponent<UIMeshComponent>();
-	m_pArcherHPBarObject->InsertComponent<UiShaderComponent>();
-	m_pArcherHPBarObject->InsertComponent<TextureComponent>();
-	m_pArcherHPBarObject->SetTexture(L"UI/HP.dds", RESOURCE_TEXTURE2D, 3);
-	m_pArcherHPBarObject->SetPosition(XMFLOAT3(-0.67, 0.18, 1.00));
-	m_pArcherHPBarObject->SetScale(0.07, 0.005, 1);
-	m_pArcherHPBarObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppCharacterUIObjects.emplace_back(m_pArcherHPBarObject);
+	m_pArcherObject->m_pHPBarUI = new GameObject(UI_ENTITY);
+	m_pArcherObject->m_pHPBarUI->InsertComponent<RenderComponent>();
+	m_pArcherObject->m_pHPBarUI->InsertComponent<UIMeshComponent>();
+	m_pArcherObject->m_pHPBarUI->InsertComponent<UiShaderComponent>();
+	m_pArcherObject->m_pHPBarUI->InsertComponent<TextureComponent>();
+	m_pArcherObject->m_pHPBarUI->SetTexture(L"UI/HP.dds", RESOURCE_TEXTURE2D, 3);
+	m_pArcherObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.18, 1.00));
+	m_pArcherObject->m_pHPBarUI->SetScale(0.07, 0.005, 1);
+	m_pArcherObject->m_pHPBarUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppCharacterUIObjects.emplace_back(m_pArcherObject->m_pHPBarUI);
 
-	m_pArcherProfileObject = new GameObject(UI_ENTITY);
-	m_pArcherProfileObject->InsertComponent<RenderComponent>();
-	m_pArcherProfileObject->InsertComponent<UIMeshComponent>();
-	m_pArcherProfileObject->InsertComponent<UiShaderComponent>();
-	m_pArcherProfileObject->InsertComponent<TextureComponent>();
-	m_pArcherProfileObject->SetTexture(L"UI/Archer.dds", RESOURCE_TEXTURE2D, 3);
-	m_pArcherProfileObject->SetPosition(XMFLOAT3(-0.94, 0.2, 1.00));
-	m_pArcherProfileObject->SetScale(0.03, 0.015, 1);
-	m_pArcherProfileObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppCharacterUIObjects.emplace_back(m_pArcherProfileObject);
+	m_pArcherObject->m_pProfileUI = new GameObject(UI_ENTITY);
+	m_pArcherObject->m_pProfileUI->InsertComponent<RenderComponent>();
+	m_pArcherObject->m_pProfileUI->InsertComponent<UIMeshComponent>();
+	m_pArcherObject->m_pProfileUI->InsertComponent<UiShaderComponent>();
+	m_pArcherObject->m_pProfileUI->InsertComponent<TextureComponent>();
+	m_pArcherObject->m_pProfileUI->SetTexture(L"UI/Archer.dds", RESOURCE_TEXTURE2D, 3);
+	m_pArcherObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.2, 1.00));
+	m_pArcherObject->m_pProfileUI->SetScale(0.03, 0.015, 1);
+	m_pArcherObject->m_pProfileUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppCharacterUIObjects.emplace_back(m_pArcherObject->m_pProfileUI);
 
-	m_pArcherSkillBarObject = new GameObject(UI_ENTITY);
-	m_pArcherSkillBarObject->InsertComponent<RenderComponent>();
-	m_pArcherSkillBarObject->InsertComponent<UIMeshComponent>();
-	m_pArcherSkillBarObject->InsertComponent<UiShaderComponent>();
-	m_pArcherSkillBarObject->InsertComponent<TextureComponent>();
-	m_pArcherSkillBarObject->SetTexture(L"UI/HP.dds", RESOURCE_TEXTURE2D, 3);
-	m_pArcherSkillBarObject->SetPosition(XMFLOAT3(0.25, 0.5, 1.00));
-	m_pArcherSkillBarObject->SetScale(0.05, 0.025, 1);
-	m_pArcherSkillBarObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//m_ppCharacterUIObjects.emplace_back(m_pArcherSkillBarObject);
+	m_pArcherObject->m_pSkillUI = new GameObject(UI_ENTITY);
+	m_pArcherObject->m_pSkillUI->InsertComponent<RenderComponent>();
+	m_pArcherObject->m_pSkillUI->InsertComponent<UIMeshComponent>();
+	m_pArcherObject->m_pSkillUI->InsertComponent<UiShaderComponent>();
+	m_pArcherObject->m_pSkillUI->InsertComponent<TextureComponent>();
+	m_pArcherObject->m_pSkillUI->SetTexture(L"UI/HP.dds", RESOURCE_TEXTURE2D, 3);
+	m_pArcherObject->m_pSkillUI->SetPosition(XMFLOAT3(0.25, 0.5, 1.00));
+	m_pArcherObject->m_pSkillUI->SetScale(0.05, 0.025, 1);
+	m_pArcherObject->m_pSkillUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//m_ppCharacterUIObjects.emplace_back(m_pArcherObject->m_pSkillUI);
 	////////////////////////////////////////////////////////////////
 		///////////////////////////////////////////////////////
-	m_pTankerHPBarObject = new GameObject(UI_ENTITY);
-	m_pTankerHPBarObject->InsertComponent<RenderComponent>();
-	m_pTankerHPBarObject->InsertComponent<UIMeshComponent>();
-	m_pTankerHPBarObject->InsertComponent<UiShaderComponent>();
-	m_pTankerHPBarObject->InsertComponent<TextureComponent>();
-	m_pTankerHPBarObject->SetTexture(L"UI/HP.dds", RESOURCE_TEXTURE2D, 3);
-	m_pTankerHPBarObject->SetPosition(XMFLOAT3(-0.67, 0.06, 1.00));
-	m_pTankerHPBarObject->SetScale(0.07, 0.005, 1);
-	m_pTankerHPBarObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppCharacterUIObjects.emplace_back(m_pTankerHPBarObject);
+	m_pTankerObject->m_pHPBarUI = new GameObject(UI_ENTITY);
+	m_pTankerObject->m_pHPBarUI->InsertComponent<RenderComponent>();
+	m_pTankerObject->m_pHPBarUI->InsertComponent<UIMeshComponent>();
+	m_pTankerObject->m_pHPBarUI->InsertComponent<UiShaderComponent>();
+	m_pTankerObject->m_pHPBarUI->InsertComponent<TextureComponent>();
+	m_pTankerObject->m_pHPBarUI->SetTexture(L"UI/HP.dds", RESOURCE_TEXTURE2D, 3);
+	m_pTankerObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.06, 1.00));
+	m_pTankerObject->m_pHPBarUI->SetScale(0.07, 0.005, 1);
+	m_pTankerObject->m_pHPBarUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppCharacterUIObjects.emplace_back(m_pTankerObject->m_pHPBarUI);
 
-	m_pTankerProfileObject = new GameObject(UI_ENTITY);
-	m_pTankerProfileObject->InsertComponent<RenderComponent>();
-	m_pTankerProfileObject->InsertComponent<UIMeshComponent>();
-	m_pTankerProfileObject->InsertComponent<UiShaderComponent>();
-	m_pTankerProfileObject->InsertComponent<TextureComponent>();
-	m_pTankerProfileObject->SetTexture(L"UI/Tanker.dds", RESOURCE_TEXTURE2D, 3);
-	m_pTankerProfileObject->SetPosition(XMFLOAT3(-0.94, 0.08, 1.00));
-	m_pTankerProfileObject->SetScale(0.03, 0.015, 1);
-	m_pTankerProfileObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppCharacterUIObjects.emplace_back(m_pTankerProfileObject);
+	m_pTankerObject->m_pProfileUI = new GameObject(UI_ENTITY);
+	m_pTankerObject->m_pProfileUI->InsertComponent<RenderComponent>();
+	m_pTankerObject->m_pProfileUI->InsertComponent<UIMeshComponent>();
+	m_pTankerObject->m_pProfileUI->InsertComponent<UiShaderComponent>();
+	m_pTankerObject->m_pProfileUI->InsertComponent<TextureComponent>();
+	m_pTankerObject->m_pProfileUI->SetTexture(L"UI/Tanker.dds", RESOURCE_TEXTURE2D, 3);
+	m_pTankerObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.08, 1.00));
+	m_pTankerObject->m_pProfileUI->SetScale(0.03, 0.015, 1);
+	m_pTankerObject->m_pProfileUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppCharacterUIObjects.emplace_back(m_pTankerObject->m_pProfileUI);
 
-	m_pTankerSkillBarObject = new GameObject(UI_ENTITY);
-	m_pTankerSkillBarObject->InsertComponent<RenderComponent>();
-	m_pTankerSkillBarObject->InsertComponent<UIMeshComponent>();
-	m_pTankerSkillBarObject->InsertComponent<UiShaderComponent>();
-	m_pTankerSkillBarObject->InsertComponent<TextureComponent>();
-	m_pTankerSkillBarObject->SetTexture(L"UI/HP.dds", RESOURCE_TEXTURE2D, 3);
-	m_pTankerSkillBarObject->SetPosition(XMFLOAT3(0.25, 0.5, 1.03));
-	m_pTankerSkillBarObject->SetScale(0.05, 0.025, 1);
-	m_pTankerSkillBarObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//m_ppCharacterUIObjects.emplace_back(m_pTankerSkillBarObject);
+	m_pTankerObject->m_pSkillUI = new GameObject(UI_ENTITY);
+	m_pTankerObject->m_pSkillUI->InsertComponent<RenderComponent>();
+	m_pTankerObject->m_pSkillUI->InsertComponent<UIMeshComponent>();
+	m_pTankerObject->m_pSkillUI->InsertComponent<UiShaderComponent>();
+	m_pTankerObject->m_pSkillUI->InsertComponent<TextureComponent>();
+	m_pTankerObject->m_pSkillUI->SetTexture(L"UI/HP.dds", RESOURCE_TEXTURE2D, 3);
+	m_pTankerObject->m_pSkillUI->SetPosition(XMFLOAT3(0.25, 0.5, 1.03));
+	m_pTankerObject->m_pSkillUI->SetScale(0.05, 0.025, 1);
+	m_pTankerObject->m_pSkillUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//m_ppCharacterUIObjects.emplace_back(m_pTankerObject->m_pSkillUI);
 	////////////////////////////////////////////////////////////////
-	m_pPriestHPBarObject = new GameObject(UI_ENTITY);
-	m_pPriestHPBarObject->InsertComponent<RenderComponent>();
-	m_pPriestHPBarObject->InsertComponent<UIMeshComponent>();
-	m_pPriestHPBarObject->InsertComponent<UiShaderComponent>();
-	m_pPriestHPBarObject->InsertComponent<TextureComponent>();
-	m_pPriestHPBarObject->SetTexture(L"UI/HP.dds", RESOURCE_TEXTURE2D, 3);
-	m_pPriestHPBarObject->SetPosition(XMFLOAT3(-0.67, -0.06, 1.00));
-	m_pPriestHPBarObject->SetScale(0.07, 0.005, 1);
-	m_pPriestHPBarObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppCharacterUIObjects.emplace_back(m_pPriestHPBarObject);
+	m_pPriestObject->m_pHPBarUI = new GameObject(UI_ENTITY);
+	m_pPriestObject->m_pHPBarUI->InsertComponent<RenderComponent>();
+	m_pPriestObject->m_pHPBarUI->InsertComponent<UIMeshComponent>();
+	m_pPriestObject->m_pHPBarUI->InsertComponent<UiShaderComponent>();
+	m_pPriestObject->m_pHPBarUI->InsertComponent<TextureComponent>();
+	m_pPriestObject->m_pHPBarUI->SetTexture(L"UI/HP.dds", RESOURCE_TEXTURE2D, 3);
+	m_pPriestObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, -0.06, 1.00));
+	m_pPriestObject->m_pHPBarUI->SetScale(0.07, 0.005, 1);
+	m_pPriestObject->m_pHPBarUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppCharacterUIObjects.emplace_back(m_pPriestObject->m_pHPBarUI);
 
-	m_pPriestProfileObject = new GameObject(UI_ENTITY);
-	m_pPriestProfileObject->InsertComponent<RenderComponent>();
-	m_pPriestProfileObject->InsertComponent<UIMeshComponent>();
-	m_pPriestProfileObject->InsertComponent<UiShaderComponent>();
-	m_pPriestProfileObject->InsertComponent<TextureComponent>();
-	m_pPriestProfileObject->SetTexture(L"UI/Priest.dds", RESOURCE_TEXTURE2D, 3);
-	m_pPriestProfileObject->SetPosition(XMFLOAT3(-0.94, -0.04, 1.00));
-	m_pPriestProfileObject->SetScale(0.03, 0.015, 1);
-	m_pPriestProfileObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppCharacterUIObjects.emplace_back(m_pPriestProfileObject);
+	m_pPriestObject->m_pProfileUI = new GameObject(UI_ENTITY);
+	m_pPriestObject->m_pProfileUI->InsertComponent<RenderComponent>();
+	m_pPriestObject->m_pProfileUI->InsertComponent<UIMeshComponent>();
+	m_pPriestObject->m_pProfileUI->InsertComponent<UiShaderComponent>();
+	m_pPriestObject->m_pProfileUI->InsertComponent<TextureComponent>();
+	m_pPriestObject->m_pProfileUI->SetTexture(L"UI/Priest.dds", RESOURCE_TEXTURE2D, 3);
+	m_pPriestObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, -0.04, 1.00));
+	m_pPriestObject->m_pProfileUI->SetScale(0.03, 0.015, 1);
+	m_pPriestObject->m_pProfileUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppCharacterUIObjects.emplace_back(m_pPriestObject->m_pProfileUI);
 
-	m_pPriestSkillBarObject = new GameObject(UI_ENTITY);
-	m_pPriestSkillBarObject->InsertComponent<RenderComponent>();
-	m_pPriestSkillBarObject->InsertComponent<UIMeshComponent>();
-	m_pPriestSkillBarObject->InsertComponent<UiShaderComponent>();
-	m_pPriestSkillBarObject->InsertComponent<TextureComponent>();
-	m_pPriestSkillBarObject->SetTexture(L"UI/HP.dds", RESOURCE_TEXTURE2D, 3);
-	m_pPriestSkillBarObject->SetPosition(XMFLOAT3(0.25, 0.5, 1.03));
-	m_pPriestSkillBarObject->SetScale(0.05, 0.025, 1);
-	m_pPriestSkillBarObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//m_ppCharacterUIObjects.emplace_back(m_pPriestSkillBarObject);
+	m_pPriestObject->m_pSkillUI = new GameObject(UI_ENTITY);
+	m_pPriestObject->m_pSkillUI->InsertComponent<RenderComponent>();
+	m_pPriestObject->m_pSkillUI->InsertComponent<UIMeshComponent>();
+	m_pPriestObject->m_pSkillUI->InsertComponent<UiShaderComponent>();
+	m_pPriestObject->m_pSkillUI->InsertComponent<TextureComponent>();
+	m_pPriestObject->m_pSkillUI->SetTexture(L"UI/HP.dds", RESOURCE_TEXTURE2D, 3);
+	m_pPriestObject->m_pSkillUI->SetPosition(XMFLOAT3(0.25, 0.5, 1.03));
+	m_pPriestObject->m_pSkillUI->SetScale(0.05, 0.025, 1);
+	m_pPriestObject->m_pSkillUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//m_ppCharacterUIObjects.emplace_back(m_pPriestObject->m_pSkillUI);
 	////////////////////////////////////////////////////////////////
-	m_pWarriorHPBarObject = new GameObject(UI_ENTITY);
-	m_pWarriorHPBarObject->InsertComponent<RenderComponent>();
-	m_pWarriorHPBarObject->InsertComponent<UIMeshComponent>();
-	m_pWarriorHPBarObject->InsertComponent<UiShaderComponent>();
-	m_pWarriorHPBarObject->InsertComponent<TextureComponent>();
-	m_pWarriorHPBarObject->SetTexture(L"UI/HP.dds", RESOURCE_TEXTURE2D, 3);
-	m_pWarriorHPBarObject->SetPosition(XMFLOAT3(-0.67, -0.18, 1.00));
-	m_pWarriorHPBarObject->SetScale(0.07, 0.005, 1);
-	m_pWarriorHPBarObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppCharacterUIObjects.emplace_back(m_pWarriorHPBarObject);
+	m_pWarriorObject->m_pHPBarUI = new GameObject(UI_ENTITY);
+	m_pWarriorObject->m_pHPBarUI->InsertComponent<RenderComponent>();
+	m_pWarriorObject->m_pHPBarUI->InsertComponent<UIMeshComponent>();
+	m_pWarriorObject->m_pHPBarUI->InsertComponent<UiShaderComponent>();
+	m_pWarriorObject->m_pHPBarUI->InsertComponent<TextureComponent>();
+	m_pWarriorObject->m_pHPBarUI->SetTexture(L"UI/HP.dds", RESOURCE_TEXTURE2D, 3);
+	m_pWarriorObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, -0.18, 1.00));
+	m_pWarriorObject->m_pHPBarUI->SetScale(0.07, 0.005, 1);
+	m_pWarriorObject->m_pHPBarUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppCharacterUIObjects.emplace_back(m_pWarriorObject->m_pHPBarUI);
 
-	m_pWarriorProfileObject = new GameObject(UI_ENTITY);
-	m_pWarriorProfileObject->InsertComponent<RenderComponent>();
-	m_pWarriorProfileObject->InsertComponent<UIMeshComponent>();
-	m_pWarriorProfileObject->InsertComponent<UiShaderComponent>();
-	m_pWarriorProfileObject->InsertComponent<TextureComponent>();
-	m_pWarriorProfileObject->SetTexture(L"UI/Warrior.dds", RESOURCE_TEXTURE2D, 3);
-	m_pWarriorProfileObject->SetPosition(XMFLOAT3(-0.94, -0.16, 1.00));
-	m_pWarriorProfileObject->SetScale(0.03, 0.015, 1);
-	m_pWarriorProfileObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppCharacterUIObjects.emplace_back(m_pWarriorProfileObject);
+	m_pWarriorObject->m_pProfileUI = new GameObject(UI_ENTITY);
+	m_pWarriorObject->m_pProfileUI->InsertComponent<RenderComponent>();
+	m_pWarriorObject->m_pProfileUI->InsertComponent<UIMeshComponent>();
+	m_pWarriorObject->m_pProfileUI->InsertComponent<UiShaderComponent>();
+	m_pWarriorObject->m_pProfileUI->InsertComponent<TextureComponent>();
+	m_pWarriorObject->m_pProfileUI->SetTexture(L"UI/Warrior.dds", RESOURCE_TEXTURE2D, 3);
+	m_pWarriorObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, -0.16, 1.00));
+	m_pWarriorObject->m_pProfileUI->SetScale(0.03, 0.015, 1);
+	m_pWarriorObject->m_pProfileUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppCharacterUIObjects.emplace_back(m_pWarriorObject->m_pProfileUI);
 
-	m_pWarriorSkillBarObject = new GameObject(UI_ENTITY);
-	m_pWarriorSkillBarObject->InsertComponent<RenderComponent>();
-	m_pWarriorSkillBarObject->InsertComponent<UIMeshComponent>();
-	m_pWarriorSkillBarObject->InsertComponent<UiShaderComponent>();
-	m_pWarriorSkillBarObject->InsertComponent<TextureComponent>();
-	m_pWarriorSkillBarObject->SetTexture(L"UI/HP.dds", RESOURCE_TEXTURE2D, 3);
-	m_pWarriorSkillBarObject->SetPosition(XMFLOAT3(0.25, 0.5, 1.03));
-	m_pWarriorSkillBarObject->SetScale(0.05, 0.025, 1);
-	m_pWarriorSkillBarObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//m_ppCharacterUIObjects.emplace_back(m_pWarriorSkillBarObject);
-	m_ppCharacterUIObjects.emplace_back(m_pArcherSkillBarObject);
+	m_pWarriorObject->m_pSkillUI = new GameObject(UI_ENTITY);
+	m_pWarriorObject->m_pSkillUI->InsertComponent<RenderComponent>();
+	m_pWarriorObject->m_pSkillUI->InsertComponent<UIMeshComponent>();
+	m_pWarriorObject->m_pSkillUI->InsertComponent<UiShaderComponent>();
+	m_pWarriorObject->m_pSkillUI->InsertComponent<TextureComponent>();
+	m_pWarriorObject->m_pSkillUI->SetTexture(L"UI/HP.dds", RESOURCE_TEXTURE2D, 3);
+	m_pWarriorObject->m_pSkillUI->SetPosition(XMFLOAT3(0.25, 0.5, 1.03));
+	m_pWarriorObject->m_pSkillUI->SetScale(0.05, 0.025, 1);
+	m_pWarriorObject->m_pSkillUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//m_ppCharacterUIObjects.emplace_back(m_pWarriorObject->m_pSkillUI);
+	//m_ppCharacterUIObjects.emplace_back(m_pArcherObject->m_pSkillUI);
 
 	m_pVictoryUIObject = new GameObject(UI_ENTITY);
 	m_pVictoryUIObject->InsertComponent<RenderComponent>();

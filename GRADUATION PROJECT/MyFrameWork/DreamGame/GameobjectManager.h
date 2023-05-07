@@ -99,18 +99,6 @@ private: //active object
 
 	//GmaeUI-HPBAR,CharacterUI - 조창근 23.04.13
 	GameObject* m_pMonsterHPBarObject{ NULL };
-	GameObject* m_pArcherHPBarObject{ NULL };//캐릭터 HPBAR
-	GameObject* m_pArcherProfileObject{ NULL };//캐릭터 사진이 들어갈 UI
-	GameObject* m_pArcherSkillBarObject{ NULL };
-	GameObject* m_pWarriorHPBarObject{ NULL };//워리어 HPBAR
-	GameObject* m_pWarriorProfileObject{ NULL };//워리어 사진이 들어갈 UI
-	GameObject* m_pWarriorSkillBarObject{ NULL };//워리어 스킬바
-	GameObject* m_pTankerHPBarObject{ NULL };// 탱커 HPBAR
-	GameObject* m_pTankerProfileObject{ NULL };// 탱커 사진이 들어갈 UI
-	GameObject* m_pTankerSkillBarObject{ NULL };// 탱커 스킬바
-	GameObject* m_pPriestHPBarObject{ NULL };//캐릭터 HPBAR
-	GameObject* m_pPriestProfileObject{ NULL };//캐릭터 사진이 들어갈 UI
-	GameObject* m_pPriestSkillBarObject{ NULL };
 	GameObject* m_pVictoryUIObject{ NULL };
 	GameObject* m_pContinueUIObject{ NULL };
 	vector<GameObject*> m_ppCharacterUIObjects;
