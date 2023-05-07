@@ -112,8 +112,8 @@ void Room::DeleteWaitPlayer(int playerId)
 void Room::CreateBossMonster()
 {
 	m_boss.SetRoomId(m_roomId);
-	TIMER_EVENT firstEv{ std::chrono::system_clock::now() + std::chrono::milliseconds(200), m_roomId, -1,EV_FIND_PLAYER };
-	g_Timer.InsertTimerQueue(firstEv);
+	//TIMER_EVENT firstEv{ std::chrono::system_clock::now() + std::chrono::milliseconds(200), m_roomId, -1,EV_FIND_PLAYER };
+	//g_Timer.InsertTimerQueue(firstEv);
 }
 
 MonsterSessionObject& Room::GetBoss()
@@ -172,7 +172,7 @@ void Room::GameStart()
 	TIMER_EVENT findEv{ std::chrono::system_clock::now() + std::chrono::milliseconds(1), m_roomId, -1,EV_FIND_PLAYER };
 	g_Timer.InsertTimerQueue(findEv);
 	//TIMER_EVENT bossStateEvent{ std::chrono::system_clock::now() + std::chrono::milliseconds(3), m_roomId, -1,EV_BOSS_STATE };
-	TIMER_EVENT bossStateEvent{ std::chrono::system_clock::now() + std::chrono::seconds(1), m_roomId, -1,EV_BOSS_STATE };
+	TIMER_EVENT bossStateEvent{ std::chrono::system_clock::now() + std::chrono::seconds(11), m_roomId, -1,EV_BOSS_STATE };
 	g_Timer.InsertTimerQueue(bossStateEvent);
 	TIMER_EVENT gameStateEvent{ std::chrono::system_clock::now() + std::chrono::seconds(1) + std::chrono::milliseconds(500), m_roomId, -1,EV_GAME_STATE_SEND };
 	g_Timer.InsertTimerQueue(gameStateEvent);

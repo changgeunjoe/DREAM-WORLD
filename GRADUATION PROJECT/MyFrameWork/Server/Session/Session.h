@@ -53,5 +53,6 @@ public:
 	std::wstring& GetName() { return m_playerName; }
 public:
 	PlayerSessionObject* SetPlaySessionObject(ROLE r);
+	void ResetPlayerToLobbyState();
 	friend class SessionObject;
 };
