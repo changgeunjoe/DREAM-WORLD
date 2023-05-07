@@ -50,7 +50,6 @@ cbuffer cbCharacterInfo : register(b6)//캐릭터별 체력과 림라이트 활성화 여부
 {
     float  gfCharactertHP: packoffset(c0);
     bool bRimLight : packoffset(c0.y);
-
 };
 cbuffer cbMultiSpriteInfo : register(b7)//멀티스프라이트인포
 {
@@ -61,7 +60,11 @@ cbuffer cbMultiSpriteInfo : register(b7)//멀티스프라이트인포
 cbuffer cbFrameWorkInfo : register(b8) //멀티스프라이트인포
 {
     float gfTime : packoffset(c0);
+};
 
+cbuffer cbUIInfo : register(b9) //캐릭터별 체력과 림라이트 활성화 여부 
+{
+    bool bUIActive : packoffset(c0);
 };
 
 
@@ -217,24 +220,19 @@ float4 PSUITextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
 {   
        // Sample the texture 
     float4 cColor = shaderTexture.Sample(gWrapSamplerState, input.uv);
-    //  float4 outlineColor = float4(1, 0, 0, 1);
-
-    //// Find pixels with different colors in the neighborhood
-    //float4 left = shaderTexture.Sample(gWrapSamplerState, input.uv - float2(0.99, 0));
-    //float4 right = shaderTexture.Sample(gWrapSamplerState, input.uv + float2(0.99, 0));
-    //float4 top = shaderTexture.Sample(gWrapSamplerState, input.uv - float2(0,0.99));
-    //float4 bottom = shaderTexture.Sample(gWrapSamplerState, input.uv + float2(0,0.99));
-
-    //// Set the outline color for the pixels that have different colors
-    //if (cColor.x != left.x || cColor.y != left.y || cColor.z != left.z )
-    //{
-    //    return outlineColor;
-    //}
+    //  float4 outlineColor = float4(1, 0, 0, 
     if (input.uv.x > gfCharactertHP)
     {
         cColor = float4(0, 0, 0, 1);
     }
-    return (cColor);
+   
+    if (!bUIActive)
+    {
+        float4 f = float4(0.5, 0.5, 0.5, 1);
+        return lerp(f, cColor, 0.4);
+    }
+    else
+        return (cColor);
 }
 
 struct VS_STANDARD_INPUT

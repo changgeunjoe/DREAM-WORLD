@@ -215,6 +215,10 @@ protected:
 	//CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
 	CB_GAMEOBJECT_STAT* m_pcbMappedGameObjects = nullptr;
 
+	ID3D12Resource* m_pd3dcbUIGameObjects = nullptr;
+	//CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
+	CB_UIOBJECT_INFO* m_pcbMappedUIGameObjects = nullptr;
+
 	ID3D12Resource* m_pd3dcbMultiSpriteGameObjects = NULL;
 
 	CB_GAMEOBJECT_MULTISPRITE* m_pcbMappedMultiSpriteGameObjects = NULL;
@@ -274,6 +278,7 @@ public:
 	XMFLOAT3						m_xmfHitPosition;
 	XMFLOAT3                        m_xmf3Destination;
 	float                           m_UIScale = 10.0f;
+	bool                            m_bUIActive{true};
 public:
 	float m_interpolationDistance = 0.0f;
 	XMFLOAT3 m_interpolationVector = XMFLOAT3{ 0,0,0 };
