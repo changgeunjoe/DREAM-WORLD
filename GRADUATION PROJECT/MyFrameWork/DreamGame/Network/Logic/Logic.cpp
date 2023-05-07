@@ -521,6 +521,18 @@ void Logic::ProcessPacket(char* p)
 				}
 				float maxHp = findRes->m_currentPlayGameObject->GetMaxCurrentHP();
 				findRes->m_currentPlayGameObject->SetCurrentHP(recvPacket->userState[i].hp / maxHp * 100.0f);
+				//switch (findRes->GetRole())
+				//{
+				//case ROLE::ARCHER: 
+				//{
+
+				//}
+				//break;
+				//case ROLE::PRIEST: break;
+				//case ROLE::TANKER: break;
+				//case ROLE::WARRIOR: break;
+				//}
+				
 				//recvPacket->userState[i].hp;
 				//recvPacket->userState[i].rot;
 			}

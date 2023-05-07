@@ -215,7 +215,7 @@ float4 PSSpriteTextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
 
 float4 PSUITextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
 {   
-       // Sample the texture
+       // Sample the texture 
     float4 cColor = shaderTexture.Sample(gWrapSamplerState, input.uv);
     //  float4 outlineColor = float4(1, 0, 0, 1);
 

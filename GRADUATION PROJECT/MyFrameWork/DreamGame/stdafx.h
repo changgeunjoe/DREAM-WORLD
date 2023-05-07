@@ -55,7 +55,7 @@ using namespace std;
 #endif
 
 //#ifndef LOCAL_TASK
-#define LOCAL_TASK 1
+//#define LOCAL_TASK 1
 //#endif // !LOCAL_TASK
 
 ///////////////////////////////////////

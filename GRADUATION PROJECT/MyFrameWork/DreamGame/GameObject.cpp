@@ -143,6 +143,14 @@ void GameObject::SetScale(float x, float y, float z)
 
 	UpdateTransform(NULL);
 }
+void GameObject::SetinitScale(float x, float y, float z)
+{
+	XMMATRIX mtxScale = XMMatrixScaling(x, y, z);
+	m_xmf4x4ToParent = Matrix4x4::Identity();
+	m_xmf4x4ToParent = Matrix4x4::Multiply(mtxScale, m_xmf4x4ToParent);
+
+	UpdateTransform(NULL);
+}
 
 void GameObject::SetScale(float fScale)
 {

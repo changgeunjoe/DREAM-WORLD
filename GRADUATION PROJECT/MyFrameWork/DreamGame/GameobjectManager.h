@@ -18,11 +18,13 @@ public:
 	GameobjectManager(CCamera* pCamera);
 	~GameobjectManager();
 	virtual void Animate(float fTimeElapsed);
+	virtual void CharacterUIAnimate(float fTimeElapsed);
+	virtual void StoryUIAnimate(float fTimeElapsed);
 	virtual void OnPreRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void UIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void CharacterUIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
-	virtual void StoryUIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void StoryUIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float ftimeElapsed);
 
 	virtual void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
@@ -66,9 +68,9 @@ private: //active object
 
 
 	DepthRenderShaderComponent* m_pDepthShaderComponent{ NULL };
-	ShadowMapShaderComponent* m_pShadowmapShaderComponent{ NULL };
+	ShadowMapShaderComponent*   m_pShadowmapShaderComponent{ NULL };
 	TextureToViewportComponent* m_pTextureToViewportComponent{ NULL };
-	InstancingShaderComponent* m_pInstancingShaderComponent{ NULL };
+	InstancingShaderComponent*  m_pInstancingShaderComponent{ NULL };
 
 
 	CLight* m_pLight{ NULL };
@@ -100,12 +102,21 @@ private: //active object
 	GameObject* m_pArcherHPBarObject{ NULL };//캐릭터 HPBAR
 	GameObject* m_pArcherProfileObject{ NULL };//캐릭터 사진이 들어갈 UI
 	GameObject* m_pArcherSkillBarObject{ NULL };
+	GameObject* m_pWarriorHPBarObject{ NULL };//워리어 HPBAR
+	GameObject* m_pWarriorProfileObject{ NULL };//워리어 사진이 들어갈 UI
+	GameObject* m_pWarriorSkillBarObject{ NULL };//워리어 스킬바
+	GameObject* m_pTankerHPBarObject{ NULL };// 탱커 HPBAR
+	GameObject* m_pTankerProfileObject{ NULL };// 탱커 사진이 들어갈 UI
+	GameObject* m_pTankerSkillBarObject{ NULL };// 탱커 스킬바
+	GameObject* m_pPriestHPBarObject{ NULL };//캐릭터 HPBAR
+	GameObject* m_pPriestProfileObject{ NULL };//캐릭터 사진이 들어갈 UI
+	GameObject* m_pPriestSkillBarObject{ NULL };
 	GameObject* m_pVictoryUIObject{ NULL };
 	GameObject* m_pContinueUIObject{ NULL };
 	vector<GameObject*> m_ppCharacterUIObjects;
-
+	string m_sChooseCharcater{};
 	//ParticleObject-Particle -  23.04.13 .ccg
-
+	
 	vector<GameObject*>  m_pFireballSpriteObjects;
 	GameObject* m_pFireballSpriteObject{ NULL };
 	GameObject* m_pFireballEmissionSpriteObject{ NULL };
@@ -122,6 +133,7 @@ private: //active object
 	POINT						m_ptOldCursorPos;
 
 	float	m_fTime = 0;
+	float	m_fStroyTime = 0;
 	bool	m_bUIScene = true;
 	bool	m_bDebugMode = false;
 

@@ -872,7 +872,7 @@ void CGameFramework::FrameAdvance()
 			m_bSceneBuild = false;
 		}*/
 		if (m_pScene) m_pScene->Render(m_pd3dDevice, m_pd3dCommandList, m_pCamera);
-		if (m_pScene) m_pScene->UIRender(m_pd3dDevice, m_pd3dCommandList, m_pUICamera);
+		if (m_pScene) m_pScene->UIRender(m_pd3dDevice, m_pd3dCommandList, m_pUICamera, m_GameTimer.GetTimeElapsed());
 	}
 
 
