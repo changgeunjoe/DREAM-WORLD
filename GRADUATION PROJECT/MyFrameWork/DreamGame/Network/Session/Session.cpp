@@ -14,6 +14,7 @@ void Session::Reset()
 	m_maxHp = 0;
 	m_attackDamage = 0;
 	m_currentPlayGameObject = nullptr;
+	m_id = -1;
 }
 
 void Session::SetGameObject(GameObject* gObj)

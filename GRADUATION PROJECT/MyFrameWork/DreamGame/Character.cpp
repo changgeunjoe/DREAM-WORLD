@@ -36,7 +36,8 @@ void Character::Reset()
 	m_fHp = m_fMaxHp;
 	SetPosition(XMFLOAT3(0.0f, 0.0f, 0.0f));
 	m_pSkinnedAnimationController->ResetTrack();
-
+	m_bMoveState = false;
+	SetLook(XMFLOAT3(0.0f, 0.0f, 1.0f));
 	if (m_pSkinnedAnimationController->m_CurrentAnimation != CharacterAnimation::CA_IDLE)
 	{
 		m_pSkinnedAnimationController->m_CurrentAnimation = CharacterAnimation::CA_IDLE;
@@ -232,7 +233,7 @@ void Archer::Attack(float fSpeed)
 			else
 				m_pProjectiles[m_nProjectiles]->m_xmf3direction = XMFLOAT3(GetObjectLook().x, -sin(m_projectilesLookY * 3.141592 / 180.0f), GetObjectLook().z);
 		}
-			
+
 		m_pProjectiles[m_nProjectiles]->m_xmf3startPosition = GetPosition();
 		m_pProjectiles[m_nProjectiles]->SetPosition(Vector3::Add(GetPosition(), XMFLOAT3(0.0f, 5.0f, 0.0f)));
 		m_pProjectiles[m_nProjectiles]->m_fSpeed = fSpeed;
@@ -948,7 +949,7 @@ void Projectile::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	}
 	ComponentBase* pSphereShaderComponent = GetComponent(component_id::SPHERE_COMPONENT);
 	if (pSphereShaderComponent != NULL)
-	{	
+	{
 		m_pShaderComponent = static_cast<SphereShaderComponent*>(pSphereShaderComponent);
 		m_pShaderComponent->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
 		m_pShaderComponent->CreateCbvSrvDescriptorHeaps(pd3dDevice, 1, 0);

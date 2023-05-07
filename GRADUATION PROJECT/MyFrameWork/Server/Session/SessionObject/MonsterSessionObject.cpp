@@ -205,7 +205,7 @@ void MonsterSessionObject::AttackTimer()
 }
 
 void MonsterSessionObject::AttackPlayer(int restCount)
-{	
+{
 	if (m_hp <= 0) return;
 	Room& room = g_RoomManager.GetRunningRoom(m_roomId);
 	auto& playerMap = room.GetInGamePlayerMap();
@@ -272,7 +272,7 @@ bool MonsterSessionObject::StartAttack()
 
 	float lookDesDotRes = Vector3::DotProduct(m_directionVector, des);
 	bool OnRight = (Vector3::DotProduct(m_rightVector, des) > 0) ? true : false;	// 목적지가 올느쪽 왼
-	if (abs(lookDesDotRes) >= cosf(3.141592f / 12.0f)) { // 보스 look과 플레이어와의 각도가 30degree일때
+	if (lookDesDotRes >= cosf(3.141592f / 12.0f)) { // 보스 look과 플레이어와의 각도가 30degree일때
 		if (len <= 42.0f) {
 			auto durationTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - m_lastAttackTime);
 			if (durationTime > std::chrono::seconds(1) + std::chrono::milliseconds(500)) {

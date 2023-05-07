@@ -342,7 +342,9 @@ void Logic::ProcessPacket(int userId, char* p)
 	case CLIENT_PACKET::TEST_GAME_END: // 임시로
 	{
 		Room& room = g_RoomManager.GetRunningRoom(g_iocpNetwork.m_session[userId].GetRoomId());
-		room.GetBoss().isBossDie = true;		
+		room.GetBoss().isBossDie = true;
+		room.GetBoss().isMove = false;
+		room.GetBoss().isAttack = false;
 	}
 	break;
 	case CLIENT_PACKET::GAME_END_OK:
@@ -350,11 +352,11 @@ void Logic::ProcessPacket(int userId, char* p)
 		std::string roomId = g_iocpNetwork.m_session[userId].GetRoomId();
 		Room& room = g_RoomManager.GetRunningRoom(g_iocpNetwork.m_session[userId].GetRoomId());
 		room.DeleteInGamePlayer(userId);
+		g_iocpNetwork.m_session[userId].ResetPlayerToLobbyState();
 		if (room.GetInGamePlayerNum() == 0) {
 			g_RoomManager.RoomDestroy(roomId);
 			std::cout << "Destroy Room: " << roomId << std::endl;
 		}
-		g_iocpNetwork.m_session[userId].ResetPlayerToLobbyState();
 	}
 	break;
 	default:
@@ -521,7 +523,7 @@ void Logic::MatchMaking()
 		}
 
 		//모두가 Role을 가지고 돌렸을때
-		else if (restRole.size() == 2) {
+		else if (restRole.size() == 0) {
 			std::map<ROLE, int> matchPlayer;
 
 			if (warriorPlayerIdQueue.unsafe_size() > 0) {

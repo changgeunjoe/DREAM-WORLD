@@ -348,10 +348,11 @@ void Logic::ProcessPacket(char* p)
 	break;
 	case SERVER_PACKET::BOSS_CHANGE_STATE_MOVE_DES:
 	{
+		std::cout << "ProcessPacket()::SERVER_PACKET::BOSS_CHANGE_STATE_MOVE_DES" << std::endl;
 		SERVER_PACKET::BossChangeStateMovePacket* recvPacket = reinterpret_cast<SERVER_PACKET::BossChangeStateMovePacket*>(p);
 		auto durationTime = chrono::duration_cast<milliseconds>(chrono::high_resolution_clock::now() - attckPacketRecvTime);
 		//attckPacketRecvTime = chrono::high_resolution_clock::now();		
-		cout << "boss Move Packet Recv ElapsedTime: " << durationTime << endl;
+		//cout << "boss Move Packet Recv ElapsedTime: " << durationTime << endl;
 		recvPacket->desPos; //여기 목적지 까지 보스 몬스터 이동 시키면 됩니다
 		recvPacket->bossPos;
 		recvPacket->t;
@@ -382,8 +383,8 @@ void Logic::ProcessPacket(char* p)
 	break;
 	case SERVER_PACKET::GAME_STATE:
 	{
+		//std::cout << "ProcessPacket()::SERVER_PACKET::GAME_STATE" << std::endl;
 		SERVER_PACKET::GameState* recvPacket = reinterpret_cast<SERVER_PACKET::GameState*>(p);
-		//std::cout << "ProcessPacket()::SERVER_PACKET::GAME_STATE - Boss HP: " << recvPacket->bossState.hp << std::endl;
 		if (recvPacket->bossState.hp != 2500) {
 			//std::cout << "ProcessPacket()::SERVER_PACKET::GAME_STATE - Boss HP: " << recvPacket->bossState.hp << std::endl;
 
@@ -423,9 +424,9 @@ void Logic::ProcessPacket(char* p)
 		bool OnRight = (Vector3::DotProduct(bossRightVector, Vector3::Normalize(recvPacket->bossState.directionVector)) > 0) ? true : false;	// 목적지가 올느쪽 왼
 		float bossRotBetweenAngle = Vector3::Angle(Vector3::Normalize(recvPacket->bossState.directionVector), bossLookVector);
 		float bossInterpolationAngle = abs(bossRotBetweenAngle) - bosDurationTime * 90.0f;
-		PrintCurrentTime();
-		cout << endl << "bossBetweenAngle: " << bossRotBetweenAngle << endl;
-		cout << "bossBetweenAngle Interpolation: " << bossInterpolationAngle << endl;
+		//PrintCurrentTime();
+		//cout << endl << "bossBetweenAngle: " << bossRotBetweenAngle << endl;
+		//cout << "bossBetweenAngle Interpolation: " << bossInterpolationAngle << endl;
 		if (bossInterpolationAngle < DBL_EPSILON || bossInterpolationDistance < 0)
 			m_MonsterSession.m_currentPlayGameObject->m_interpolationRotateAngleY = 0.0;
 		else if (abs(bossInterpolationAngle) > 5.0f) {
@@ -533,7 +534,7 @@ void Logic::ProcessPacket(char* p)
 				//case ROLE::TANKER: break;
 				//case ROLE::WARRIOR: break;
 				//}
-				
+
 				//recvPacket->userState[i].hp;
 				//recvPacket->userState[i].rot;
 			}
@@ -573,8 +574,8 @@ void Logic::ProcessPacket(char* p)
 				}
 				break;
 			}
-		m_MonsterSession.m_currentPlayGameObject->SetMoveState(false);
-		cout << "ProcessPacket::SERVER_PACKET::BOSS_ATTACK - recvPacket: " << (int)recvPacket->bossAttackType << endl;
+			m_MonsterSession.m_currentPlayGameObject->SetMoveState(false);
+			cout << "ProcessPacket::SERVER_PACKET::BOSS_ATTACK - recvPacket: " << (int)recvPacket->bossAttackType << endl;
 		}
 	}
 	break;

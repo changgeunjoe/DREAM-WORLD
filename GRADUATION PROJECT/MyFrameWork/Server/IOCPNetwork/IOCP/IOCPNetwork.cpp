@@ -139,6 +139,10 @@ void IOCPNetwork::WorkerThread()
 					ROLE randR = (ROLE)aggroRandomPlayer(dre);
 					refRoom.GetBoss().ReserveAggroPlayerId(playerMap[randR]);
 				}
+				else {
+					TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::seconds(5) + std::chrono::milliseconds(500), roomId, -1,EV_FIND_PLAYER };
+					g_Timer.InsertTimerQueue(new_ev);
+				}
 #endif // ALONE_TEST
 			}
 			if (ex_over != nullptr)
@@ -218,6 +222,7 @@ void IOCPNetwork::WorkerThread()
 				while (refRoom.m_bossDamagedQueue.try_pop(damage)) {
 					refRoom.GetBoss().AttackedHp(damage);
 				}
+				if (refRoom.GetBoss().GetHp() <= 0)refRoom.GetBoss().isBossDie = true;
 				if (refRoom.GetBoss().isBossDie) {
 					refRoom.GetBoss().SetZeroHp();
 					SERVER_PACKET::NotifyPacket sendPacket;

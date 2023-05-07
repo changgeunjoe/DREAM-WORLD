@@ -150,8 +150,10 @@ bool Room::MeleeAttack(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 pos)
 {
 	DirectX::XMFLOAT3 bossPos = GetBoss().GetPos();
 	DirectX::XMFLOAT3 toBoss = Vector3::Subtract(bossPos, pos);
-	if (abs(Vector3::DotProduct(dir, toBoss)) < 10.0f) {
-		if (Vector3::Length(toBoss) < 5.0f) {
+	toBoss = Vector3::Normalize(toBoss);
+	dir = Vector3::Normalize(dir);
+	if (Vector3::DotProduct(dir, toBoss) > cosf(3.141592f / 12.0f)) {
+		if (Vector3::Length(toBoss) < 45.0f) {
 			std::cout << "데미지 입히기" << std::endl;
 			return true;
 		}
@@ -162,7 +164,7 @@ bool Room::MeleeAttack(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 pos)
 void Room::GameStart()
 {
 	PrintCurrentTime();
-	std::cout << "Room::GameStart()" << std::endl;
+	std::cout << "Room::GameStart() - RoomId: " << m_roomId << std::endl;
 	std::cout << "PlayerNum: " << m_inGamePlayers.size() << std::endl;
 	for (auto& playerInfo : m_inGamePlayers) {
 		std::cout << "PlayerId: " << playerInfo.second << std::endl;
