@@ -138,15 +138,30 @@ bool DBObject::GetPlayerInfo(std::wstring PlayerLoginId, std::wstring pw, std::w
 			int fRes = outputPlayerName.find(32, 0);
 			outputPlayerName.erase(fRes);
 		}
-		if (retcode == SQL_SUCCESS_WITH_INFO) {
+		else if (retcode == SQL_SUCCESS_WITH_INFO) {
 			outputPlayerName.append(szName);
 			print_error(m_henv, m_hdbc, m_hstmt);
 			int fRes = outputPlayerName.find(32, 0);
 			outputPlayerName.erase(fRes);
 		}
+		else if (retcode == SQL_NO_DATA) {
+			print_error(m_henv, m_hdbc, m_hstmt);
+			SQLCancel(m_hstmt);///종료
+			SQLFreeHandle(SQL_HANDLE_STMT, m_hstmt);//리소스 해제
+			return false;
+		}
 	}
 	if (retcode == SQL_ERROR) {
 		print_error(m_henv, m_hdbc, m_hstmt);
+		SQLCancel(m_hstmt);///종료
+		SQLFreeHandle(SQL_HANDLE_STMT, m_hstmt);//리소스 해제
+		return false;
+	}
+	else if (retcode == SQL_NO_DATA) {
+		print_error(m_henv, m_hdbc, m_hstmt);
+		SQLCancel(m_hstmt);///종료
+		SQLFreeHandle(SQL_HANDLE_STMT, m_hstmt);//리소스 해제
+		return false;
 	}
 
 	SQLCancel(m_hstmt);///종료

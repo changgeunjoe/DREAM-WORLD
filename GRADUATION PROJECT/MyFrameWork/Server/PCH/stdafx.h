@@ -1,7 +1,7 @@
 #pragma once
 
 #define _WINSOCK_DEPRECATED_NO_WARNINGS 1
-#define MAX_USER 10
+#define MAX_USER 100
 //#define ALONE_TEST 1
 #pragma comment(lib, "mswsock.lib")
 #pragma comment(lib, "WS2_32.lib")
