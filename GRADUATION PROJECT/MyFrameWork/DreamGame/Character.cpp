@@ -996,7 +996,7 @@ void Arrow::Animate(float fTimeElapsed)
 	MoveForward(fTimeElapsed * m_fSpeed);
 	XMFLOAT3 xmf3CurrentPos = GetPosition();
 	if (m_VisualizeSPBB) m_VisualizeSPBB->SetPosition(XMFLOAT3(GetPosition().x, GetPosition().y, GetPosition().z));
-	if (Vector3::Length(xmf3CurrentPos) >= 350.0f)
+	if (Vector3::Length(xmf3CurrentPos) >= 345.0f)
 	{
 		m_bActive = false;
 		m_RAttack = false;
@@ -1036,7 +1036,7 @@ void EnergyBall::Animate(float fTimeElapsed)
 	Move(m_xmf3direction, fTimeElapsed * m_fSpeed);
 	XMFLOAT3 xmf3CurrentPos = GetPosition();
 	if (m_VisualizeSPBB) m_VisualizeSPBB->SetPosition(XMFLOAT3(GetPosition().x, GetPosition().y, GetPosition().z));
-	if (Vector3::Length(xmf3CurrentPos) >= 350.0f) m_bActive = false;
+	if (Vector3::Length(xmf3CurrentPos) >= 345.0f) m_bActive = false;
 	if (Vector3::Length(Vector3::Subtract(xmf3CurrentPos, m_xmf3startPosition)) > 200.0f)
 	{
 		m_bActive = false;

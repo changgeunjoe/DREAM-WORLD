@@ -133,6 +133,11 @@ using Microsoft::WRL::ComPtr;
 #define ANIMATION_TYPE_LOOP				1
 #define ANIMATION_TYPE_HALF				2
 
+#define DEFAULT_MODE			0
+#define CARTOON_MODE			1
+#define OUTLINE_MODE			2
+#define CELLSHADING_MODE		3
+
 #define ANIMATION_CALLBACK_EPSILON		0.0165f
 //#define _WITH_CB_GAMEOBJECT_32BIT_CONSTANTS
 //#define _WITH_CB_GAMEOBJECT_ROOT_DESCRIPTOR
@@ -233,6 +238,7 @@ struct SHADOW_INFO
 struct CB_GAMEFRAMEWORK_INFO
 {
 	float							m_xmfTime;
+	float							m_xmfMode;
 };
 enum entity_id
 {

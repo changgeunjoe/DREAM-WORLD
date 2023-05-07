@@ -298,7 +298,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_ppCharacterUIObjects[i]->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature);
 	}*/
 	for (int i = 0; i < m_ppParticleObjects.size(); i++) {
-		m_ppParticleObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		//m_ppParticleObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);ÆÄÆ¼Å¬
 	}
 	if (GameEnd)
 	{
@@ -577,7 +577,7 @@ void GameobjectManager::Build2DUI(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	m_pUIGameSearchObject->InsertComponent<UiShaderComponent>();
 	m_pUIGameSearchObject->InsertComponent<TextureComponent>();
 	m_pUIGameSearchObject->SetTexture(L"UI/SearchingRoom.dds", RESOURCE_TEXTURE2D, 3);
-	m_pUIGameSearchObject->SetPosition(XMFLOAT3(0.25, 0.5, 1.03));
+	m_pUIGameSearchObject->SetPosition(XMFLOAT3(0.25, 0.5, 1.00));
 	m_pUIGameSearchObject->SetScale(0.05, 0.025, 1);
 	m_pUIGameSearchObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppUIObjects.emplace_back(m_pUIGameSearchObject);
@@ -588,7 +588,7 @@ void GameobjectManager::Build2DUI(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	m_pUIGameMathchingObject->InsertComponent<UiShaderComponent>();
 	m_pUIGameMathchingObject->InsertComponent<TextureComponent>();
 	m_pUIGameMathchingObject->SetTexture(L"UI/Matching.dds", RESOURCE_TEXTURE2D, 3);
-	m_pUIGameMathchingObject->SetPosition(XMFLOAT3(-0.25, 0.5, 1.03));
+	m_pUIGameMathchingObject->SetPosition(XMFLOAT3(-0.25, 0.5, 1.00));
 	m_pUIGameMathchingObject->SetScale(0.05, 0.02, 1);
 	m_pUIGameMathchingObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppUIObjects.emplace_back(m_pUIGameMathchingObject);
@@ -599,7 +599,7 @@ void GameobjectManager::Build2DUI(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	m_pUIWarriorCharacterObject->InsertComponent<UiShaderComponent>();
 	m_pUIWarriorCharacterObject->InsertComponent<TextureComponent>();
 	m_pUIWarriorCharacterObject->SetTexture(L"UI/Warrior.dds", RESOURCE_TEXTURE2D, 3);
-	m_pUIWarriorCharacterObject->SetPosition(XMFLOAT3(-0.3, 0.2, 1.03));
+	m_pUIWarriorCharacterObject->SetPosition(XMFLOAT3(-0.3, 0.2, 1.00));
 	m_pUIWarriorCharacterObject->SetScale(0.08, 0.08, 1);
 	m_pUIWarriorCharacterObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppUIObjects.emplace_back(m_pUIWarriorCharacterObject);
@@ -610,7 +610,7 @@ void GameobjectManager::Build2DUI(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	m_pUIArcherCharacterObject->InsertComponent<UiShaderComponent>();
 	m_pUIArcherCharacterObject->InsertComponent<TextureComponent>();
 	m_pUIArcherCharacterObject->SetTexture(L"UI/Archer.dds", RESOURCE_TEXTURE2D, 3);
-	m_pUIArcherCharacterObject->SetPosition(XMFLOAT3(0.3, 0.2, 1.03));
+	m_pUIArcherCharacterObject->SetPosition(XMFLOAT3(0.3, 0.2, 1.00));
 	m_pUIArcherCharacterObject->SetScale(0.08, 0.08, 1);
 	m_pUIArcherCharacterObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppUIObjects.emplace_back(m_pUIArcherCharacterObject);
@@ -621,7 +621,7 @@ void GameobjectManager::Build2DUI(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	m_pUITankerCharacterObject->InsertComponent<UiShaderComponent>();
 	m_pUITankerCharacterObject->InsertComponent<TextureComponent>();
 	m_pUITankerCharacterObject->SetTexture(L"UI/Tanker.dds", RESOURCE_TEXTURE2D, 3);
-	m_pUITankerCharacterObject->SetPosition(XMFLOAT3(-0.3, -0.2, 1.03));
+	m_pUITankerCharacterObject->SetPosition(XMFLOAT3(-0.3, -0.2, 1.00));
 	m_pUITankerCharacterObject->SetScale(0.08, 0.08, 1);
 	m_pUITankerCharacterObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppUIObjects.emplace_back(m_pUITankerCharacterObject);
@@ -632,7 +632,7 @@ void GameobjectManager::Build2DUI(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	m_pUIPriestCharacterObject->InsertComponent<UiShaderComponent>();
 	m_pUIPriestCharacterObject->InsertComponent<TextureComponent>();
 	m_pUIPriestCharacterObject->SetTexture(L"UI/Priest.dds", RESOURCE_TEXTURE2D, 3);
-	m_pUIPriestCharacterObject->SetPosition(XMFLOAT3(0.3, -0.2, 1.03));
+	m_pUIPriestCharacterObject->SetPosition(XMFLOAT3(0.3, -0.2, 1.00));
 	m_pUIPriestCharacterObject->SetScale(0.08, 0.08, 1);
 	m_pUIPriestCharacterObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppUIObjects.emplace_back(m_pUIPriestCharacterObject);
@@ -644,7 +644,7 @@ void GameobjectManager::Build2DUI(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	m_pUIEnterRoomObject->InsertComponent<UiShaderComponent>();
 	m_pUIEnterRoomObject->InsertComponent<TextureComponent>();
 	m_pUIEnterRoomObject->SetTexture(L"UI/PlayerApply.dds", RESOURCE_TEXTURE2D, 3);
-	m_pUIEnterRoomObject->SetPosition(XMFLOAT3(0.15, -0.5, 1.03));
+	m_pUIEnterRoomObject->SetPosition(XMFLOAT3(0.15, -0.5, 1.00));
 	m_pUIEnterRoomObject->SetScale(0.05, 0.02, 1);
 	m_pUIEnterRoomObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppUIObjects.emplace_back(m_pUIEnterRoomObject);
@@ -655,7 +655,7 @@ void GameobjectManager::Build2DUI(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	m_pUIGameCreateObject->InsertComponent<UiShaderComponent>();
 	m_pUIGameCreateObject->InsertComponent<TextureComponent>();
 	m_pUIGameCreateObject->SetTexture(L"UI/CreateRoom.dds", RESOURCE_TEXTURE2D, 3);
-	m_pUIGameCreateObject->SetPosition(XMFLOAT3(0.45, -0.5, 1.03));
+	m_pUIGameCreateObject->SetPosition(XMFLOAT3(0.45, -0.5, 1.00));
 	m_pUIGameCreateObject->SetScale(0.05, 0.02, 1);
 	m_pUIGameCreateObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppUIObjects.emplace_back(m_pUIGameCreateObject);
@@ -749,7 +749,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pTankerObject->m_pSkillUI->InsertComponent<UiShaderComponent>();
 	m_pTankerObject->m_pSkillUI->InsertComponent<TextureComponent>();
 	m_pTankerObject->m_pSkillUI->SetTexture(L"UI/HP.dds", RESOURCE_TEXTURE2D, 3);
-	m_pTankerObject->m_pSkillUI->SetPosition(XMFLOAT3(0.25, 0.5, 1.03));
+	m_pTankerObject->m_pSkillUI->SetPosition(XMFLOAT3(0.25, 0.5, 1.00));
 	m_pTankerObject->m_pSkillUI->SetScale(0.05, 0.025, 1);
 	m_pTankerObject->m_pSkillUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//m_ppCharacterUIObjects.emplace_back(m_pTankerObject->m_pSkillUI);
@@ -782,7 +782,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pPriestObject->m_pSkillUI->InsertComponent<UiShaderComponent>();
 	m_pPriestObject->m_pSkillUI->InsertComponent<TextureComponent>();
 	m_pPriestObject->m_pSkillUI->SetTexture(L"UI/HP.dds", RESOURCE_TEXTURE2D, 3);
-	m_pPriestObject->m_pSkillUI->SetPosition(XMFLOAT3(0.25, 0.5, 1.03));
+	m_pPriestObject->m_pSkillUI->SetPosition(XMFLOAT3(0.25, 0.5, 1.00));
 	m_pPriestObject->m_pSkillUI->SetScale(0.05, 0.025, 1);
 	m_pPriestObject->m_pSkillUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//m_ppCharacterUIObjects.emplace_back(m_pPriestObject->m_pSkillUI);
@@ -815,7 +815,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pWarriorObject->m_pSkillUI->InsertComponent<UiShaderComponent>();
 	m_pWarriorObject->m_pSkillUI->InsertComponent<TextureComponent>();
 	m_pWarriorObject->m_pSkillUI->SetTexture(L"UI/HP.dds", RESOURCE_TEXTURE2D, 3);
-	m_pWarriorObject->m_pSkillUI->SetPosition(XMFLOAT3(0.25, 0.5, 1.03));
+	m_pWarriorObject->m_pSkillUI->SetPosition(XMFLOAT3(0.25, 0.5, 1.00));
 	m_pWarriorObject->m_pSkillUI->SetScale(0.05, 0.025, 1);
 	m_pWarriorObject->m_pSkillUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//m_ppCharacterUIObjects.emplace_back(m_pWarriorObject->m_pSkillUI);
@@ -827,7 +827,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pVictoryUIObject->InsertComponent<BlendingUiShaderComponent>();
 	m_pVictoryUIObject->InsertComponent<TextureComponent>();
 	m_pVictoryUIObject->SetTexture(L"UI/Victory.dds", RESOURCE_TEXTURE2D, 3);
-	m_pVictoryUIObject->SetPosition(XMFLOAT3(0.0f, 0.0f, 1.03f));
+	m_pVictoryUIObject->SetPosition(XMFLOAT3(0.0f, 0.0f, 1.00f));
 	m_pVictoryUIObject->SetScale(0.3, 0.1, 1);
 	m_pVictoryUIObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
@@ -837,7 +837,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pContinueUIObject->InsertComponent<BlendingUiShaderComponent>();
 	m_pContinueUIObject->InsertComponent<TextureComponent>();
 	m_pContinueUIObject->SetTexture(L"UI/Continue.dds", RESOURCE_TEXTURE2D, 3);
-	m_pContinueUIObject->SetPosition(XMFLOAT3(0.0f, -0.4f, 1.03f));
+	m_pContinueUIObject->SetPosition(XMFLOAT3(0.0f, -0.4f, 1.00f));
 	m_pContinueUIObject->SetScale(0.1, 0.01, 1);
 	m_pContinueUIObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	////////////////////////////////////////////////////////////////
@@ -857,7 +857,7 @@ void GameobjectManager::BuildStoryUI(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 	m_pStroy1Object->InsertComponent<UiShaderComponent>();
 	m_pStroy1Object->InsertComponent<TextureComponent>();
 	m_pStroy1Object->SetTexture(L"UI/Story.dds", RESOURCE_TEXTURE2D, 3);
-	m_pStroy1Object->SetPosition(XMFLOAT3(0.0, 0.0, 1.03));
+	m_pStroy1Object->SetPosition(XMFLOAT3(0.0, 0.0, 1.00));
 	m_pStroy1Object->SetScale(0.44f, 0.24f, 1.0f);
 	m_pStroy1Object->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppStoryUIObjects.emplace_back(m_pStroy1Object);
@@ -1007,6 +1007,7 @@ void GameobjectManager::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCom
 	{
 
 		::memcpy(&m_pcbMappedGameObjects->m_xmfTime, &m_fTime, sizeof(float));
+		::memcpy(&m_pcbMappedGameObjects->m_xmfMode, &m_xmfMode, sizeof(float));
 		D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbGameObjects->GetGPUVirtualAddress();
 		pd3dCommandList->SetGraphicsRootConstantBufferView(20, d3dGpuVirtualAddress);
 	}
@@ -1031,6 +1032,23 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 	if (nMessageID == WM_KEYDOWN && wParam == VK_F12)
 	{
 		m_bDebugMode = !m_bDebugMode;
+	}
+
+	if (nMessageID == WM_KEYDOWN && wParam == VK_F5)
+	{
+		m_xmfMode = DEFAULT_MODE;
+	}
+	if (nMessageID == WM_KEYDOWN && wParam == VK_F6)
+	{
+		m_xmfMode = CARTOON_MODE;
+	}
+	if (nMessageID == WM_KEYDOWN && wParam == VK_F7)
+	{
+		m_xmfMode = OUTLINE_MODE;
+	}
+	if (nMessageID == WM_KEYDOWN && wParam == VK_F8)
+	{
+		m_xmfMode = CELLSHADING_MODE;
 	}
 	if (g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetCurrentHP() < FLT_EPSILON)
 		return false;

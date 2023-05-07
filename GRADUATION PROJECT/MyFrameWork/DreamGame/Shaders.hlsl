@@ -10,6 +10,11 @@
 #define MAX_VERTEX_INFLUENCES			4
 #define SKINNED_ANIMATION_BONES			256
 
+#define DEFAULT_MODE			0
+#define CARTOON_MODE			1
+#define OUTLINE_MODE			2
+#define CELLSHADING_MODE		3
+
 struct MATERIAL
 {
     float4 m_cAmbient;
@@ -57,9 +62,10 @@ cbuffer cbMultiSpriteInfo : register(b7)//멀티스프라이트인포
     bool bMultiSprite : packoffset(c4);
 
 };
-cbuffer cbFrameWorkInfo : register(b8) //멀티스프라이트인포
+cbuffer cbFrameWorkInfo : register(b8) //게임프레임워크인포
 {
     float gfTime : packoffset(c0);
+    float gfMode : packoffset(c0.y);
 };
 
 cbuffer cbUIInfo : register(b9) //캐릭터별 체력과 림라이트 활성화 여부 
@@ -400,7 +406,6 @@ VS_SKYBOX_CUBEMAP_OUTPUT VSSkyBox(VS_SKYBOX_CUBEMAP_INPUT input)
 float4 PSSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
 {
     float4 cColor = SkyCubeTexture.Sample(gClampSamplerState, input.positionL);
-
     return (cColor);
 }
 
@@ -566,9 +571,17 @@ float4 PSShadowMapShadow(VS_SHADOW_MAP_OUTPUT input) : SV_TARGET
         cAlbedoColor = gtxtAlbedoTexture.Sample(gWrapSamplerState, input.uv);
     else
         cAlbedoColor = gMaterial.m_cDiffuse;
+    
+    if (gfMode == DEFAULT_MODE)
+    {
+        return cAlbedoColor;
 
-    cAlbedoColor = round(cAlbedoColor * 8.0f) / 8.0f; // 등급을 16단계로 나누어 반올림합니다.
-
+    }
+    if (gfMode == CELLSHADING_MODE || gfMode == CARTOON_MODE)
+    {
+           cAlbedoColor = round(cAlbedoColor * 8.0f) / 8.0f; // 등급을 16단계로 나누어 반올림합니다.
+    }
+    
     float4 cIllumination = Lighting(input.positionW, normalize(input.normalW), true, input.uvs);
 
     float4 cColor = cAlbedoColor;
@@ -588,6 +601,7 @@ float4 PSShadowMapShadow(VS_SHADOW_MAP_OUTPUT input) : SV_TARGET
     float4 Rimline = float4(pow(1 - rim, rimPower) * RimColor, 0.f);
     if (bRimLight)
     {
+        if (gfMode == CELLSHADING_MODE || gfMode == OUTLINE_MODE)
         cColor = cColor + Rimline; // Rimline;
     }
     if (cColor.w < 0.1f)

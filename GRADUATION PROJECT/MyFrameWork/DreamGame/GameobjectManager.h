@@ -122,6 +122,7 @@ private: //active object
 
 	float	m_fTime = 0;
 	float	m_fStroyTime = 0;
+	float	m_xmfMode = 3;
 	bool	m_bUIScene = true;
 	bool	m_bDebugMode = false;
 	bool	m_bInMatching{ false };
