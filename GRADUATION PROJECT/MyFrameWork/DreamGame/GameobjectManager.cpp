@@ -1287,6 +1287,7 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 			ResetObject();
 			break;
 		}
+		return;
 	}
 
 	switch (nMessageID)
