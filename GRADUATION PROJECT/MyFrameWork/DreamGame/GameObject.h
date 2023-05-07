@@ -43,6 +43,7 @@ public:
 	const XMFLOAT3& GetPosition() const;
 
 	void SetScale(float x, float y, float z);
+	void SetinitScale(float x, float y, float z);
 	void SetScale(float fScale);
 	void SetTexture(wchar_t* pszFileName, int nSamplers, int nRootParameter);
 	void SetModel(char* pszModelName);
