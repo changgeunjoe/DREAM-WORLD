@@ -55,7 +55,7 @@ using namespace std;
 #endif
 
 //#ifndef LOCAL_TASK
-//#define LOCAL_TASK 1
+#define LOCAL_TASK 1
 //#endif // !LOCAL_TASK
 
 ///////////////////////////////////////
@@ -209,6 +209,10 @@ struct CB_GAMEOBJECT_STAT
 {
 	float							m_xmfHP;
 	bool							m_bRimLight;
+};
+struct CB_UIOBJECT_INFO
+{
+	bool							m_bUIActive;
 };
 struct CB_GAMEOBJECT_MULTISPRITE
 {
