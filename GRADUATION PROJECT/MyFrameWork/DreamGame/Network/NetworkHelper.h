@@ -20,6 +20,7 @@ private:
 private:
 	bool m_bIsRunnung = false;
 	std::thread m_runThread;
+	char m_currentRole = ROLE::NONE_SELECT;
 public:
 	NetworkHelper();
 	~NetworkHelper();
@@ -37,7 +38,7 @@ public:
 	void SendMouseStatePacket(bool LClickedButton, bool RClickedButton);
 	void SendCreateRoomPacket(ROLE r, wstring roomName);
 	void SendRequestRoomList();
-	void SendMatchRequestPacket(ROLE r);
+	void SendMatchRequestPacket();
 	void SendArrowAttackPacket(const XMFLOAT3& pos, const XMFLOAT3& dir, float speed);
 	void SendBallAttackPacket(const XMFLOAT3& pos, const XMFLOAT3& dir, float speed);
 	void SendMeleeAttackPacket(const XMFLOAT3& dir);
@@ -45,4 +46,7 @@ private:
 	void ConstructPacket(int ioByte);
 private:
 	void Destroy();
+public:
+	void SetRole(ROLE r) { m_currentRole = r; }
+	CHAR GetRole() { return m_currentRole; }
 };

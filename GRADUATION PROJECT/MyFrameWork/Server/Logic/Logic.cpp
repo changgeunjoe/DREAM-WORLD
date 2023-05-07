@@ -505,7 +505,7 @@ void Logic::MatchMaking()
 		}
 
 		//모두가 Role을 가지고 돌렸을때
-		else if (restRole.size() == 0) {
+		else if (restRole.size() == 2) {
 			std::string roomId = MakeRoomId();
 			roomId.append(std::to_string(matchPlayer.begin()->second));
 			std::wstring roomName{ L"RandMatchingRoom" };

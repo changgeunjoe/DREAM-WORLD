@@ -175,12 +175,12 @@ void NetworkHelper::SendRequestRoomList()
 	}
 }
 
-void NetworkHelper::SendMatchRequestPacket(ROLE r)
+void NetworkHelper::SendMatchRequestPacket()
 {
 	CLIENT_PACKET::MatchPacket sendPacket;
 	sendPacket.size = sizeof(CLIENT_PACKET::MatchPacket);
 	sendPacket.type = CLIENT_PACKET::MATCH;
-	sendPacket.Role = (char)r;
+	sendPacket.Role = (char)m_currentRole;
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 

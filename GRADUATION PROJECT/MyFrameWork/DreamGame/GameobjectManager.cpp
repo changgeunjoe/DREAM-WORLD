@@ -52,10 +52,10 @@ void GameobjectManager::Animate(float fTimeElapsed)
 		m_pMonsterHPBarObject->SetPosition(XMFLOAT3(m_pMonsterObject->GetPosition().x,
 			m_pMonsterObject->GetPosition().y + 70, m_pMonsterObject->GetPosition().z));
 		m_pMonsterHPBarObject->Rotate(0, 180, 0);
-		m_pMonsterHPBarObject->SetScale(10,1,1);
+		m_pMonsterHPBarObject->SetScale(10, 1, 1);
 		m_pMonsterHPBarObject->SetCurrentHP(g_Logic.m_MonsterSession.m_currentPlayGameObject->GetCurrentHP());
 	}
-	XMFLOAT3 mfHittmp= g_Logic.m_MonsterSession.m_currentPlayGameObject->m_xmfHitPosition;
+	XMFLOAT3 mfHittmp = g_Logic.m_MonsterSession.m_currentPlayGameObject->m_xmfHitPosition;
 	for (int i = 0; i < m_ppParticleObjects.size(); i++) {
 		m_ppParticleObjects[i]->SetLookAt(m_pCamera->GetPosition());
 		//m_ppParticleObjects[i]->SetPosition(XMFLOAT3(mfHittmp.x, mfHittmp.y+20, mfHittmp.z));
@@ -73,7 +73,24 @@ void GameobjectManager::Animate(float fTimeElapsed)
 
 	for (auto& session : g_Logic.m_inGamePlayerSession) {
 		if (-1 != session.m_id && session.m_isVisible) {
+			cout << session.GetRole() << endl;
+			switch (session.GetRole())
+			{
+			case ROLE::ARCHER:
+				m_pArcherHPBarObject->SetCurrentHP(session.m_currentPlayGameObject->GetCurrentHP());
+				break;
+			case ROLE::WARRIOR:
+				m_pWarriorHPBarObject->SetCurrentHP(session.m_currentPlayGameObject->GetCurrentHP());
+				break;
+			case ROLE::TANKER:
+				m_pTankerHPBarObject->SetCurrentHP(session.m_currentPlayGameObject->GetCurrentHP());
+				break;
+			case ROLE::PRIEST:
+				m_pPriestHPBarObject->SetCurrentHP(session.m_currentPlayGameObject->GetCurrentHP());
+				break;
+			}
 			if (session.m_currentDirection != DIRECTION::IDLE) {
+
 				//session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
 				session.m_currentPlayGameObject->MoveObject(session.m_currentDirection, session.m_ownerRotateAngle);
 				session.m_currentPlayGameObject->Move(session.m_currentDirection, 50 * fTimeElapsed);
@@ -126,7 +143,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 
 void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)
 {
-	if (m_sChooseCharcater== "Archer") {
+	if (g_Logic.m_inGamePlayerSession[0].GetRole() == ROLE::ARCHER) {
 		m_pArcherHPBarObject->SetinitScale(0.09, 0.0065, 1);
 		m_pArcherHPBarObject->SetPosition(XMFLOAT3(-0.57, 0.16, 1.00));
 		m_pArcherProfileObject->SetinitScale(0.04, 0.025, 1);
@@ -138,11 +155,11 @@ void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)
 		m_pWarriorHPBarObject->SetPosition(XMFLOAT3(-0.67, -0.18, 1.00));
 		m_pWarriorProfileObject->SetPosition(XMFLOAT3(-0.94, -0.16, 1.00));
 	}
-	else if (m_sChooseCharcater== "Tanker") {
+	else if (g_Logic.m_inGamePlayerSession[0].GetRole() == ROLE::TANKER) {
 		m_pTankerHPBarObject->SetinitScale(0.09, 0.0065, 1);
-		m_pTankerHPBarObject->SetPosition(XMFLOAT3(-0.67, 0.18, 1.00));
+		m_pTankerHPBarObject->SetPosition(XMFLOAT3(-0.57, 0.16, 1.00));
 		m_pTankerProfileObject->SetinitScale(0.04, 0.025, 1);
-		m_pTankerProfileObject->SetPosition(XMFLOAT3(-0.94, 0.2, 1.00));
+		m_pTankerProfileObject->SetPosition(XMFLOAT3(-0.91, 0.2, 1.00));
 		m_pArcherHPBarObject->SetPosition(XMFLOAT3(-0.67, 0.06, 1.00));
 		m_pArcherProfileObject->SetPosition(XMFLOAT3(-0.94, 0.08, 1.00));
 		m_pPriestHPBarObject->SetPosition(XMFLOAT3(-0.67, -0.06, 1.00));
@@ -150,11 +167,11 @@ void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)
 		m_pWarriorHPBarObject->SetPosition(XMFLOAT3(-0.67, -0.18, 1.00));
 		m_pWarriorProfileObject->SetPosition(XMFLOAT3(-0.94, -0.16, 1.00));
 	}
-	else if (m_sChooseCharcater== "Priest") {
-		m_pPriestHPBarObject->SetScale(0.09, 0.0065, 1);
-		m_pPriestHPBarObject->SetPosition(XMFLOAT3(-0.67, 0.18, 1.00));
-		m_pPriestProfileObject->SetScale(0.04, 0.025, 1);
-		m_pPriestProfileObject->SetPosition(XMFLOAT3(-0.94, 0.2, 1.00));
+	else if (g_Logic.m_inGamePlayerSession[0].GetRole() == ROLE::PRIEST) {
+		m_pPriestHPBarObject->SetinitScale(0.09, 0.0065, 1);
+		m_pPriestHPBarObject->SetPosition(XMFLOAT3(-0.57, 0.16, 1.00));
+		m_pPriestProfileObject->SetinitScale(0.04, 0.025, 1);
+		m_pPriestProfileObject->SetPosition(XMFLOAT3(-0.91, 0.2, 1.00));
 		m_pTankerHPBarObject->SetPosition(XMFLOAT3(-0.67, 0.06, 1.00));
 		m_pTankerProfileObject->SetPosition(XMFLOAT3(-0.94, 0.08, 1.00));
 		m_pArcherHPBarObject->SetPosition(XMFLOAT3(-0.67, -0.06, 1.00));
@@ -162,11 +179,11 @@ void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)
 		m_pWarriorHPBarObject->SetPosition(XMFLOAT3(-0.67, -0.18, 1.00));
 		m_pWarriorProfileObject->SetPosition(XMFLOAT3(-0.94, -0.16, 1.00));
 	}
-	else if (m_sChooseCharcater== "Warrior") {
-		m_pWarriorHPBarObject->SetScale(0.09, 0.0065, 1);
-		m_pWarriorHPBarObject->SetPosition(XMFLOAT3(-0.67, 0.18, 1.00));
-		m_pWarriorProfileObject->SetScale(0.04, 0.025, 1);
-		m_pWarriorProfileObject->SetPosition(XMFLOAT3(-0.94, 0.2, 1.00));
+	else if (g_Logic.m_inGamePlayerSession[0].GetRole() == ROLE::WARRIOR) {
+		m_pWarriorHPBarObject->SetinitScale(0.09, 0.0065, 1);
+		m_pWarriorHPBarObject->SetPosition(XMFLOAT3(-0.57, 0.16, 1.00));
+		m_pWarriorProfileObject->SetinitScale(0.04, 0.025, 1);
+		m_pWarriorProfileObject->SetPosition(XMFLOAT3(-0.91, 0.2, 1.00));
 		m_pTankerHPBarObject->SetPosition(XMFLOAT3(-0.67, 0.06, 1.00));
 		m_pTankerProfileObject->SetPosition(XMFLOAT3(-0.94, 0.08, 1.00));
 		m_pPriestHPBarObject->SetPosition(XMFLOAT3(-0.67, -0.06, 1.00));
@@ -191,11 +208,11 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 
 	m_pDepthShaderComponent->UpdateShaderVariables(pd3dCommandList);
 	//인스턴싱 렌더 
-	m_pInstancingShaderComponent->Render(pd3dDevice, pd3dCommandList,0, pd3dGraphicsRootSignature);
+	m_pInstancingShaderComponent->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature);
 
 	//
 	g_Logic.m_MonsterSession.m_currentPlayGameObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	for (int i = 0; i < 5; i++) 
+	for (int i = 0; i < 5; i++)
 		m_pBoundingBox[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	for (int i = 0; i < m_pArrowObjects.size(); i++) {
 		m_pArrowObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -233,7 +250,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	//}
 
 	if (m_pMonsterHPBarObject) {
-		//m_pMonsterHPBarObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		m_pMonsterHPBarObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 
 	if (m_pShadowmapShaderComponent)
@@ -456,7 +473,7 @@ void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	m_pFireballSpriteObject->SetTexture(L"MagicEffect/CandleFlame.dds", RESOURCE_TEXTURE2D, 3);
 	m_pFireballSpriteObject->SetPosition(XMFLOAT3(100, 40, 100));
 	m_pFireballSpriteObject->SetScale(10);
-	m_pFireballSpriteObject->SetRowColumn(16,8, 0.05);
+	m_pFireballSpriteObject->SetRowColumn(16, 8, 0.05);
 	m_pFireballSpriteObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppParticleObjects.emplace_back(m_pFireballSpriteObject);
 
@@ -482,7 +499,7 @@ void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	m_pFireballSpriteObjects[0]->SetScale(30.0f, 30.0f, 30.0f);
 	for (int i = 1; i < 20; i++) {
 		m_pFireballSpriteObjects[i] = new GameObject(UNDEF_ENTITY);
-		m_pFireballSpriteObjects[i]->SetPosition(XMFLOAT3(0, i*10, 0));
+		m_pFireballSpriteObjects[i]->SetPosition(XMFLOAT3(0, i * 10, 0));
 		m_pFireballSpriteObjects[i]->SetScale(30.0f, 30.0f, 30.0f);
 		m_ppParticleObjects.emplace_back(m_pFireballSpriteObjects[i]);
 	}
@@ -662,9 +679,9 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pArcherSkillBarObject->SetPosition(XMFLOAT3(0.25, 0.5, 1.00));
 	m_pArcherSkillBarObject->SetScale(0.05, 0.025, 1);
 	m_pArcherSkillBarObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppCharacterUIObjects.emplace_back(m_pArcherSkillBarObject);
-////////////////////////////////////////////////////////////////
-	///////////////////////////////////////////////////////
+	//m_ppCharacterUIObjects.emplace_back(m_pArcherSkillBarObject);
+	////////////////////////////////////////////////////////////////
+		///////////////////////////////////////////////////////
 	m_pTankerHPBarObject = new GameObject(UI_ENTITY);
 	m_pTankerHPBarObject->InsertComponent<RenderComponent>();
 	m_pTankerHPBarObject->InsertComponent<UIMeshComponent>();
@@ -696,7 +713,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pTankerSkillBarObject->SetPosition(XMFLOAT3(0.25, 0.5, 1.03));
 	m_pTankerSkillBarObject->SetScale(0.05, 0.025, 1);
 	m_pTankerSkillBarObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppCharacterUIObjects.emplace_back(m_pTankerSkillBarObject);
+	//m_ppCharacterUIObjects.emplace_back(m_pTankerSkillBarObject);
 	////////////////////////////////////////////////////////////////
 	m_pPriestHPBarObject = new GameObject(UI_ENTITY);
 	m_pPriestHPBarObject->InsertComponent<RenderComponent>();
@@ -729,7 +746,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pPriestSkillBarObject->SetPosition(XMFLOAT3(0.25, 0.5, 1.03));
 	m_pPriestSkillBarObject->SetScale(0.05, 0.025, 1);
 	m_pPriestSkillBarObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppCharacterUIObjects.emplace_back(m_pPriestSkillBarObject);
+	//m_ppCharacterUIObjects.emplace_back(m_pPriestSkillBarObject);
 	////////////////////////////////////////////////////////////////
 	m_pWarriorHPBarObject = new GameObject(UI_ENTITY);
 	m_pWarriorHPBarObject->InsertComponent<RenderComponent>();
@@ -762,7 +779,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pWarriorSkillBarObject->SetPosition(XMFLOAT3(0.25, 0.5, 1.03));
 	m_pWarriorSkillBarObject->SetScale(0.05, 0.025, 1);
 	m_pWarriorSkillBarObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppCharacterUIObjects.emplace_back(m_pWarriorSkillBarObject);
+	//m_ppCharacterUIObjects.emplace_back(m_pWarriorSkillBarObject);
 	////////////////////////////////////////////////////////////////
 }
 
@@ -848,7 +865,8 @@ void GameobjectManager::ProcessingUI(int n)
 	case UI::UI_WARRIORCHARACTER:
 	{
 		// 선택한 캐릭터 Warrior
-		g_NetworkHelper.SendMatchRequestPacket(ROLE::WARRIOR);
+		g_NetworkHelper.SetRole(ROLE::WARRIOR);
+		g_NetworkHelper.SendMatchRequestPacket();
 		m_sChooseCharcater = "Warrior";
 		cout << "Choose Warrior Character" << endl;
 		break;
@@ -856,7 +874,8 @@ void GameobjectManager::ProcessingUI(int n)
 	case UI::UI_ARCHERCHARACTER:
 	{
 		// 선택한 캐릭터 Archer
-		g_NetworkHelper.SendMatchRequestPacket(ROLE::ARCHER);
+		g_NetworkHelper.SetRole(ROLE::ARCHER);
+		g_NetworkHelper.SendMatchRequestPacket();
 		m_sChooseCharcater = "Archer";
 		cout << "Choose Archer Character" << endl;
 		break;
@@ -864,7 +883,8 @@ void GameobjectManager::ProcessingUI(int n)
 	case UI::UI_TANKERCHARACTER:
 	{
 		// 선택한 캐릭터 tanker
-		g_NetworkHelper.SendMatchRequestPacket(ROLE::TANKER);
+		g_NetworkHelper.SetRole(ROLE::TANKER);
+		g_NetworkHelper.SendMatchRequestPacket();
 		m_sChooseCharcater = "Tanker";
 		cout << "Choose Tanker Character" << endl;
 		break;
@@ -872,7 +892,8 @@ void GameobjectManager::ProcessingUI(int n)
 	case UI::UI_PRIESTCHARACTER:
 	{
 		// 선택한 캐릭터 priest
-		g_NetworkHelper.SendMatchRequestPacket(ROLE::PRIEST);
+		g_NetworkHelper.SetRole(ROLE::PRIEST);
+		g_NetworkHelper.SendMatchRequestPacket();
 		m_sChooseCharcater = "Priest";
 		cout << "Choose Priest Character" << endl;
 		break;
@@ -910,7 +931,7 @@ void GameobjectManager::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCom
 {
 	if (m_pd3dcbGameObjects)
 	{
-	
+
 		::memcpy(&m_pcbMappedGameObjects->m_xmfTime, &m_fTime, sizeof(float));
 		D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbGameObjects->GetGPUVirtualAddress();
 		pd3dCommandList->SetGraphicsRootConstantBufferView(20, d3dGpuVirtualAddress);
@@ -1170,31 +1191,31 @@ bool GameobjectManager::onProcessingKeyboardMessageUI(HWND hWnd, UINT nMessageID
 		case 'r':
 		case 'R':
 		{
-			g_NetworkHelper.SendMatchRequestPacket(ROLE::RAND);
+			//g_NetworkHelper.SendMatchRequestPacket(ROLE::RAND);
 		}
 		break;
 		case 'z':
 		case 'Z': //탱커
 		{
-			g_NetworkHelper.SendMatchRequestPacket(ROLE::TANKER);
+			//g_NetworkHelper.SendMatchRequestPacket(ROLE::TANKER);
 		}
 		break;
 		case 'x':
 		case 'X': // 전사
 		{
-			g_NetworkHelper.SendMatchRequestPacket(ROLE::WARRIOR);
+			//g_NetworkHelper.SendMatchRequestPacket(ROLE::WARRIOR);
 		}
 		break;
 		case 'c':
 		case 'C': //프리스트
 		{
-			g_NetworkHelper.SendMatchRequestPacket(ROLE::PRIEST);
+			//g_NetworkHelper.SendMatchRequestPacket(ROLE::PRIEST);
 		}
 		break;
 		case 'v':
 		case 'V': // 궁수
 		{
-			g_NetworkHelper.SendMatchRequestPacket(ROLE::ARCHER);
+			//g_NetworkHelper.SendMatchRequestPacket(ROLE::ARCHER);
 		}
 		break;
 		break;
@@ -1251,7 +1272,7 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 			, g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_RMouseInput);
 #endif
 
-}
+	}
 
 void GameobjectManager::onProcessingMouseMessageUI(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
