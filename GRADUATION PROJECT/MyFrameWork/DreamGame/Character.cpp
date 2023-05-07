@@ -34,6 +34,7 @@ void Character::RbuttonUp(const XMFLOAT3& CameraAxis)
 void Character::Reset()
 {
 	m_fHp = m_fMaxHp;
+	SetPosition(XMFLOAT3(0.0f, 0.0f, 0.0f));
 	m_pSkinnedAnimationController->ResetTrack();
 
 	if (m_pSkinnedAnimationController->m_CurrentAnimation != CharacterAnimation::CA_IDLE)

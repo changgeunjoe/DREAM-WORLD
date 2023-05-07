@@ -26,6 +26,7 @@ private:
 public:
 	GameObject* m_currentPlayGameObject = nullptr;
 public:
+	void Reset();
 	void SetGameObject(GameObject* gObj);
 	void UnuseGameObject()
 	{

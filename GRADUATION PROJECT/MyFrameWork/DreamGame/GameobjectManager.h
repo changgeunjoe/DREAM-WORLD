@@ -136,7 +136,7 @@ private: //active object
 	float	m_fStroyTime = 0;
 	bool	m_bUIScene = true;
 	bool	m_bDebugMode = false;
-
+	bool	m_bInMatching{ false };
 	ID3D12Resource* m_pd3dcbGameObjects = nullptr;
 	//CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
 	CB_GAMEFRAMEWORK_INFO* m_pcbMappedGameObjects = nullptr;

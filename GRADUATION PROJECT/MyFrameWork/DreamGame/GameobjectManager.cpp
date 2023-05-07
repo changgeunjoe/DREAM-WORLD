@@ -896,14 +896,18 @@ void GameobjectManager::ProcessingUI(int n)
 	}
 	case UI::UI_GAMEMATCHING:
 	{
-		cout << "StartMatching" << endl;
-		break;
+		if (!m_bInMatching)
+		{
+			cout << "StartMatching" << endl;
+			g_NetworkHelper.SendMatchRequestPacket();
+			m_bInMatching = true;
+			break;
+		}
 	}
 	case UI::UI_WARRIORCHARACTER:
 	{
 		// 선택한 캐릭터 Warrior
 		g_NetworkHelper.SetRole(ROLE::WARRIOR);
-		g_NetworkHelper.SendMatchRequestPacket();
 		m_sChooseCharcater = "Warrior";
 		cout << "Choose Warrior Character" << endl;
 		break;
@@ -912,7 +916,6 @@ void GameobjectManager::ProcessingUI(int n)
 	{
 		// 선택한 캐릭터 Archer
 		g_NetworkHelper.SetRole(ROLE::ARCHER);
-		g_NetworkHelper.SendMatchRequestPacket();
 		m_sChooseCharcater = "Archer";
 		cout << "Choose Archer Character" << endl;
 		break;
@@ -921,7 +924,6 @@ void GameobjectManager::ProcessingUI(int n)
 	{
 		// 선택한 캐릭터 tanker
 		g_NetworkHelper.SetRole(ROLE::TANKER);
-		g_NetworkHelper.SendMatchRequestPacket();
 		m_sChooseCharcater = "Tanker";
 		cout << "Choose Tanker Character" << endl;
 		break;
@@ -930,7 +932,6 @@ void GameobjectManager::ProcessingUI(int n)
 	{
 		// 선택한 캐릭터 priest
 		g_NetworkHelper.SetRole(ROLE::PRIEST);
-		g_NetworkHelper.SendMatchRequestPacket();
 		m_sChooseCharcater = "Priest";
 		cout << "Choose Priest Character" << endl;
 		break;
@@ -1284,9 +1285,14 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 		case WM_RBUTTONUP:
 		case WM_LBUTTONUP:
 			g_NetworkHelper.SendTestGameEndOKPacket();
+			g_NetworkHelper.SetRole(ROLE::NONE_SELECT);
+			for(int i = 0; i < 4; ++i)
+				g_Logic.m_inGamePlayerSession[i].Reset();
 			ResetObject();
+			m_bInMatching = false;
 			break;
 		}
+		return;
 	}
 
 	switch (nMessageID)
