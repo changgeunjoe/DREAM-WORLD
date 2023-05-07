@@ -827,7 +827,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pVictoryUIObject->InsertComponent<BlendingUiShaderComponent>();
 	m_pVictoryUIObject->InsertComponent<TextureComponent>();
 	m_pVictoryUIObject->SetTexture(L"UI/Victory.dds", RESOURCE_TEXTURE2D, 3);
-	m_pVictoryUIObject->SetPosition(XMFLOAT3(0.0f, 0.0f, 1.00f));
+	m_pVictoryUIObject->SetPosition(XMFLOAT3(0.0f, 0.0f, 1.01f));
 	m_pVictoryUIObject->SetScale(0.3, 0.1, 1);
 	m_pVictoryUIObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
@@ -837,7 +837,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pContinueUIObject->InsertComponent<BlendingUiShaderComponent>();
 	m_pContinueUIObject->InsertComponent<TextureComponent>();
 	m_pContinueUIObject->SetTexture(L"UI/Continue.dds", RESOURCE_TEXTURE2D, 3);
-	m_pContinueUIObject->SetPosition(XMFLOAT3(0.0f, -0.4f, 1.00f));
+	m_pContinueUIObject->SetPosition(XMFLOAT3(0.0f, -0.4f, 1.01f));
 	m_pContinueUIObject->SetScale(0.1, 0.01, 1);
 	m_pContinueUIObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	////////////////////////////////////////////////////////////////
