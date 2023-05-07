@@ -205,7 +205,8 @@ void MonsterSessionObject::AttackTimer()
 }
 
 void MonsterSessionObject::AttackPlayer(int restCount)
-{
+{	
+	if (m_hp <= 0) return;
 	Room& room = g_RoomManager.GetRunningRoom(m_roomId);
 	auto& playerMap = room.GetInGamePlayerMap();
 	switch (currentAttack)
@@ -213,6 +214,7 @@ void MonsterSessionObject::AttackPlayer(int restCount)
 	case ATTACK_KICK:
 	{
 		for (auto& playerInfo : playerMap) {
+			if (g_iocpNetwork.m_session[playerInfo.second].m_sessionObject == nullptr)continue;
 			auto bossToPlayerVector = Vector3::Subtract(g_iocpNetwork.m_session[playerInfo.second].m_sessionObject->GetPos(), m_position);
 			float dotProductRes = Vector3::DotProduct(bossToPlayerVector, m_directionVector);
 			float bossToPlayerDis = Vector3::Length(bossToPlayerVector);
@@ -226,6 +228,7 @@ void MonsterSessionObject::AttackPlayer(int restCount)
 	case ATTACK_PUNCH:
 	{
 		for (auto& playerInfo : playerMap) {
+			if (g_iocpNetwork.m_session[playerInfo.second].m_sessionObject == nullptr)continue;
 			auto bossToPlayerVector = Vector3::Subtract(g_iocpNetwork.m_session[playerInfo.second].m_sessionObject->GetPos(), m_position);
 			float dotProductRes = Vector3::DotProduct(bossToPlayerVector, m_directionVector);
 			float bossToPlayerDis = Vector3::Length(bossToPlayerVector);
@@ -239,6 +242,7 @@ void MonsterSessionObject::AttackPlayer(int restCount)
 	case ATTACK_SPIN:
 	{
 		for (auto& playerInfo : playerMap) {
+			if (g_iocpNetwork.m_session[playerInfo.second].m_sessionObject == nullptr)continue;
 			auto bossToPlayerVector = Vector3::Subtract(g_iocpNetwork.m_session[playerInfo.second].m_sessionObject->GetPos(), m_position);
 			float bossToPlayerDis = Vector3::Length(bossToPlayerVector);
 			if (bossToPlayerDis < 45.0f) {

@@ -134,9 +134,11 @@ void IOCPNetwork::WorkerThread()
 				//refRoom.GetBoss().SetAggroPlayerId(playerMap.begin()->second);
 #endif // ALONE_TEST
 #ifndef ALONE_TEST
-				auto playerMap = refRoom.GetInGamePlayerMap();
-				ROLE randR = (ROLE)aggroRandomPlayer(dre);
-				refRoom.GetBoss().ReserveAggroPlayerId(playerMap[randR]);
+				if (!refRoom.GetBoss().isBossDie) {
+					auto playerMap = refRoom.GetInGamePlayerMap();
+					ROLE randR = (ROLE)aggroRandomPlayer(dre);
+					refRoom.GetBoss().ReserveAggroPlayerId(playerMap[randR]);
+				}
 #endif // ALONE_TEST
 			}
 			if (ex_over != nullptr)
@@ -171,7 +173,8 @@ void IOCPNetwork::WorkerThread()
 			std::string roomId{ ex_over->m_buffer };
 			if (g_RoomManager.IsExistRunningRoom(roomId)) {
 				Room& refRoom = g_RoomManager.GetRunningRoom(roomId);
-				if (key == 0 || !refRoom.GetBoss().StartAttack()) {
+				if (refRoom.GetBoss().isBossDie) {}
+				else if (key == 0 || !refRoom.GetBoss().StartAttack()) {
 					refRoom.GetBoss().isAttack = false;
 					refRoom.GetBoss().SetAggroPlayerId();
 					if (refRoom.GetBoss().GetAggroPlayerId() != -1) {
