@@ -263,7 +263,7 @@ protected:
 	float                           m_fTime{};
 	int                             m_nProjectiles{};
 public:
-	array<Projectile*, 10>               m_pProjectiles;
+	array<Projectile*, 10>          m_pProjectiles;
 	void SetCharacterType(CharacterType type) { m_characterType = type; }
 	CharacterType GetCharacterType() { return m_characterType; }
 

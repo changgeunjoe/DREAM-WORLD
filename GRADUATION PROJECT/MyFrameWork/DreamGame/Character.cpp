@@ -38,6 +38,12 @@ void Character::Reset()
 	m_pSkinnedAnimationController->ResetTrack();
 	m_bMoveState = false;
 	SetLook(XMFLOAT3(0.0f, 0.0f, 1.0f));
+	m_bLButtonClicked = false;
+	m_bRButtonClicked = false;
+	m_projectilesLookY = 0;
+	for (int i = 0; i < m_pProjectiles.size(); ++i)
+		if (m_pProjectiles[i]) m_pProjectiles[i]->m_bActive = false;
+
 	if (m_pSkinnedAnimationController->m_CurrentAnimation != CharacterAnimation::CA_IDLE)
 	{
 		m_pSkinnedAnimationController->m_CurrentAnimation = CharacterAnimation::CA_IDLE;
@@ -990,6 +996,11 @@ void Arrow::Animate(float fTimeElapsed)
 	MoveForward(fTimeElapsed * m_fSpeed);
 	XMFLOAT3 xmf3CurrentPos = GetPosition();
 	if (m_VisualizeSPBB) m_VisualizeSPBB->SetPosition(XMFLOAT3(GetPosition().x, GetPosition().y, GetPosition().z));
+	if (Vector3::Length(xmf3CurrentPos) >= 350.0f)
+	{
+		m_bActive = false;
+		m_RAttack = false;
+	}
 	if (Vector3::Length(Vector3::Subtract(xmf3CurrentPos, m_xmf3startPosition)) > 200.0f)
 	{
 		m_bActive = false;
@@ -1025,6 +1036,7 @@ void EnergyBall::Animate(float fTimeElapsed)
 	Move(m_xmf3direction, fTimeElapsed * m_fSpeed);
 	XMFLOAT3 xmf3CurrentPos = GetPosition();
 	if (m_VisualizeSPBB) m_VisualizeSPBB->SetPosition(XMFLOAT3(GetPosition().x, GetPosition().y, GetPosition().z));
+	if (Vector3::Length(xmf3CurrentPos) >= 350.0f) m_bActive = false;
 	if (Vector3::Length(Vector3::Subtract(xmf3CurrentPos, m_xmf3startPosition)) > 200.0f)
 	{
 		m_bActive = false;

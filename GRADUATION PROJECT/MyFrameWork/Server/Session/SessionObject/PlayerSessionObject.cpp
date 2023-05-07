@@ -149,7 +149,8 @@ void PlayerSessionObject::Move(float fDistance)
 		case DIRECTION::BACK | DIRECTION::LEFT:
 		case DIRECTION::LEFT:
 		case DIRECTION::FRONT | DIRECTION::LEFT:
-			m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, fDistance));
+			DirectX::XMFLOAT3 tempPos = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, fDistance));
+			if (Vector3::Length(tempPos) < 350.0f) m_position = tempPos;
 		default: break;
 		}
 	}
