@@ -65,4 +65,9 @@ public:
 	void AttackTimer();
 	void AttackPlayer(int restCount);
 	bool StartAttack();
+	///////////////
+public:
+	bool isBossDie = false;
+	void SetZeroHp() { m_hp = 0; }
+
 };

@@ -341,10 +341,8 @@ void Logic::ProcessPacket(int userId, char* p)
 	break;
 	case CLIENT_PACKET::TEST_GAME_END: // 임시로
 	{
-		SERVER_PACKET::NotifyPacket sendPacket;
-		sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
-		sendPacket.type = SERVER_PACKET::GAME_END;
-		BroadCastInRoom(g_iocpNetwork.m_session[userId].GetRoomId(), &sendPacket);
+		Room& room = g_RoomManager.GetRunningRoom(g_iocpNetwork.m_session[userId].GetRoomId());
+		room.GetBoss().isBossDie = true;		
 	}
 	break;
 	case CLIENT_PACKET::GAME_END_OK:
@@ -356,6 +354,7 @@ void Logic::ProcessPacket(int userId, char* p)
 			g_RoomManager.RoomDestroy(roomId);
 			std::cout << "Destroy Room: " << roomId << std::endl;
 		}
+		g_iocpNetwork.m_session[userId].ResetPlayerToLobbyState();
 	}
 	break;
 	default:
@@ -558,8 +557,8 @@ void Logic::MatchMaking()
 			//룸 생성 성공
 			for (const auto& p : matchPlayer) {//플레이어 정보 세팅하고 뿌려주기
 				//send match Success Packet
-				g_iocpNetwork.m_session[p.second].SetRoomId(roomId);
-				g_iocpNetwork.m_session[p.second].SetPlaySessionObject(p.first);
+				g_iocpNetwork.m_session[p.second].SetRoomId(roomId);//roomId to Player
+				g_iocpNetwork.m_session[p.second].SetPlaySessionObject(p.first);//possess to player
 				char* sendAddPlayerPacket = g_iocpNetwork.m_session[p.second].m_sessionObject->GetPlayerInfo();
 				BroadCastInRoomByPlayer(p.second, sendAddPlayerPacket);
 				delete sendAddPlayerPacket;

@@ -215,24 +215,35 @@ void IOCPNetwork::WorkerThread()
 				while (refRoom.m_bossDamagedQueue.try_pop(damage)) {
 					refRoom.GetBoss().AttackedHp(damage);
 				}
-				//std::cout << "bossHp : " << refRoom.GetBoss().GetHp() << std::endl;
-				SERVER_PACKET::GameState sendPacket;
-				sendPacket.type = SERVER_PACKET::GAME_STATE;
-				sendPacket.size = sizeof(SERVER_PACKET::GameState);
-				sendPacket.bossState.hp = refRoom.GetBoss().GetHp();
-				sendPacket.bossState.pos = refRoom.GetBoss().GetPos();
-				sendPacket.bossState.rot = refRoom.GetBoss().GetRot();
-				sendPacket.bossState.directionVector = refRoom.GetBoss().GetDirectionVector();
-				int i = 0;
-				for (auto& p : refRoom.GetInGamePlayerMap()) {
-					sendPacket.userState[i].userId = p.second;
-					sendPacket.userState[i].hp = m_session[p.second].m_sessionObject->GetHp();
-					sendPacket.userState[i].pos = m_session[p.second].m_sessionObject->GetPos();
-					sendPacket.userState[i].rot = m_session[p.second].m_sessionObject->GetRot();
-					++i;
+				if (refRoom.GetBoss().isBossDie) {
+					refRoom.GetBoss().SetZeroHp();
+					SERVER_PACKET::NotifyPacket sendPacket;
+					sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
+					sendPacket.type = SERVER_PACKET::GAME_END;
+					g_logic.BroadCastInRoom(roomId, &sendPacket);
 				}
-				sendPacket.time = std::chrono::utc_clock::now();
-				g_logic.BroadCastInRoom(roomId, &sendPacket);
+				else {
+					//std::cout << "bossHp : " << refRoom.GetBoss().GetHp() << std::endl;
+					SERVER_PACKET::GameState sendPacket;
+					sendPacket.type = SERVER_PACKET::GAME_STATE;
+					sendPacket.size = sizeof(SERVER_PACKET::GameState);
+					sendPacket.bossState.hp = refRoom.GetBoss().GetHp();
+					sendPacket.bossState.pos = refRoom.GetBoss().GetPos();
+					sendPacket.bossState.rot = refRoom.GetBoss().GetRot();
+					sendPacket.bossState.directionVector = refRoom.GetBoss().GetDirectionVector();
+					int i = 0;
+					for (auto& p : refRoom.GetInGamePlayerMap()) {
+						sendPacket.userState[i].userId = p.second;
+						sendPacket.userState[i].hp = m_session[p.second].m_sessionObject->GetHp();
+						sendPacket.userState[i].pos = m_session[p.second].m_sessionObject->GetPos();
+						sendPacket.userState[i].rot = m_session[p.second].m_sessionObject->GetRot();
+						++i;
+					}
+					sendPacket.time = std::chrono::utc_clock::now();
+					g_logic.BroadCastInRoom(roomId, &sendPacket);
+					TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::milliseconds(300), roomId, -1,EV_GAME_STATE_SEND };//GameState 300ms마다 전송하게 수정
+					g_Timer.InsertTimerQueue(new_ev);
+				}
 			}
 			if (ex_over != nullptr)
 				delete ex_over;

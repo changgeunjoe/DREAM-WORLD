@@ -98,11 +98,11 @@ void Timer::TimerThreadFunc()
 				memcpy(ov->m_buffer, ev.roomId.c_str(), ev.roomId.size());//exOver의 cchar*버퍼에 roomId를 담는다면?
 				ov->m_buffer[ev.roomId.size()] = 0;
 				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, -1, &ov->m_overlap);
-				TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::milliseconds(500), ev.roomId, -1,EV_GAME_STATE_SEND };
-				{
-					std::lock_guard<std::mutex> timer_lg{ m_TimerQueueLock };
-					m_TimerQueue.push(new_ev);
-				}
+				//TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::milliseconds(500), ev.roomId, -1,EV_GAME_STATE_SEND };
+				//{
+				//	std::lock_guard<std::mutex> timer_lg{ m_TimerQueueLock };
+				//	m_TimerQueue.push(new_ev);
+				//}
 			}
 			break;
 			//case EV_BOSS_STATE_CHANGE_ATTACK_TO_FIND:
