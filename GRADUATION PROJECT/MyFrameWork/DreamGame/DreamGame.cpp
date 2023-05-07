@@ -227,7 +227,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 	case WM_COMMAND:
 		if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
-		{			
+		{
 			EndDialog(hDlg, LOWORD(wParam));
 			return (INT_PTR)TRUE;
 		}
@@ -245,6 +245,7 @@ char userPW[g_MaximumPwLength] = { 0 };
 INT_PTR CALLBACK IPProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	static int i = 0;
+	g_Logic.loginWnd = hDlg;
 	switch (uMsg) {
 	case WM_INITDIALOG:
 		return TRUE;
@@ -263,14 +264,16 @@ INT_PTR CALLBACK IPProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			g_NetworkHelper.SendLoginData(userID, userPW);
 			cout << "ID : " << userID << endl;
 			cout << "PW : " << userPW << endl;
-			ShowWindow(g_wnd, g_cmd);
-			UpdateWindow(g_wnd);
-			EndDialog(hDlg, IDCANCEL);
+		
+			//EndDialog(hDlg, IDCANCEL);
+			return TRUE;
 		}
+		break;
 		case IDCANCEL: // X버튼 누르면 끄는 작업.
 			EndDialog(hDlg, IDCANCEL);
 			return TRUE;
 		}
+		break;
 	}
 	return FALSE;
 }

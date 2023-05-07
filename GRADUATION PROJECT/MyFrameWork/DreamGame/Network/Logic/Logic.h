@@ -35,4 +35,7 @@ public:
 	friend class CGameFramework;
 private:
 	chrono::high_resolution_clock::time_point attckPacketRecvTime;
+
+public:
+	HWND loginWnd;
 };

@@ -14,6 +14,9 @@ extern RoomManger g_RoomManager;
 extern NetworkHelper g_NetworkHelper;
 extern bool GameEnd;
 
+extern HWND g_wnd;
+extern int g_cmd;
+
 using namespace chrono;
 
 Logic::Logic()
@@ -153,6 +156,9 @@ void Logic::ProcessPacket(char* p)
 		m_inGamePlayerSession[0].m_id = myId = recvPacket->userID;
 		m_inGamePlayerSession[0].SetName(wst_name);
 		//gGameFramework.m_pScene->m_pObjectManager->SetPlayCharacter(&m_inGamePlayerSession[0]);
+		EndDialog(loginWnd, IDCANCEL);
+		ShowWindow(g_wnd, g_cmd);
+		UpdateWindow(g_wnd);
 #ifdef _DEBUG
 		PrintCurrentTime();
 		std::wcout << "Logic::ProcessPacket() - SERVER_PACKET::LOGIN_OK - " << "user Name: " << wst_name << std::endl;
