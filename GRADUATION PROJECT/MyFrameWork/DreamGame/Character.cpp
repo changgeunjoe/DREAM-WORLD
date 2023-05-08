@@ -55,6 +55,10 @@ void Character::Reset()
 		m_pSkinnedAnimationController->m_CurrentAnimations.second = CharacterAnimation::CA_IDLE;
 		m_pSkinnedAnimationController->SetTrackEnable(m_pSkinnedAnimationController->m_CurrentAnimations);
 	}
+	if (m_pCamera)
+	{
+		m_pCamera = nullptr;
+	}
 }
 
 Warrior::Warrior() : Character()
