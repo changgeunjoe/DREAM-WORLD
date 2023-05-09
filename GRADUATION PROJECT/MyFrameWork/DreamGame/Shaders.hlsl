@@ -211,6 +211,14 @@ VS_TEXTURED_OUTPUT VSUITextured(VS_TEXTURED_INPUT input)
     return (output);
 }
 
+VS_TEXTURED_OUTPUT VSTrailTextured(VS_TEXTURED_INPUT input)
+{
+    VS_TEXTURED_OUTPUT output;
+    output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+    output.uv = input.uv;
+    return (output);
+}
+
 float4 PSSpriteTextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
 {
        // Sample the texture

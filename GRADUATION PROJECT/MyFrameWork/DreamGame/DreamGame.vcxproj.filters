@@ -109,14 +109,20 @@
     <Filter Include="04.Component\ShaderComponent\UIShaderComponent">
       <UniqueIdentifier>{651c96ef-c392-4d99-b51e-e774e79f159b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="04.Component\ShaderComponent\Shader\MultySpriteShaderComponent">
-      <UniqueIdentifier>{9ded933d-5c12-4738-92f7-a0fa5be3578c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="04.Component\ShaderComponent\InstancingShaderComponent">
       <UniqueIdentifier>{d3841fa1-1d56-41ea-97c4-a1c9abf22fe3}</UniqueIdentifier>
     </Filter>
     <Filter Include="08.UILayer">
       <UniqueIdentifier>{65f448d8-334e-40cd-8d78-b57719efb579}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="04.Component\TrailComponent">
+      <UniqueIdentifier>{3c93a4c1-7627-44e2-9fe8-b349040f1242}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="04.Component\ShaderComponent\TrailShaderComponent">
+      <UniqueIdentifier>{d8a28c97-c5bc-4e94-9841-7fbb7afe8f67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="04.Component\ShaderComponent\MultySpriteShaderComponent">
+      <UniqueIdentifier>{9ded933d-5c12-4738-92f7-a0fa5be3578c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -232,7 +238,7 @@
       <Filter>04.Component\ShaderComponent\SkinnedShaderComponent</Filter>
     </ClInclude>
     <ClInclude Include="MultiSpriteShaderComponent.h">
-      <Filter>04.Component\ShaderComponent\Shader\MultySpriteShaderComponent</Filter>
+      <Filter>04.Component\ShaderComponent\MultySpriteShaderComponent</Filter>
     </ClInclude>
     <ClInclude Include="InstanceRenderComponent.h">
       <Filter>04.Component\RenderComponent</Filter>
@@ -242,6 +248,12 @@
     </ClInclude>
     <ClInclude Include="UILayer.h">
       <Filter>08.UILayer</Filter>
+    </ClInclude>
+    <ClInclude Include="TrailComponent.h">
+      <Filter>04.Component\TrailComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="TrailShaderComponent.h">
+      <Filter>04.Component\ShaderComponent\TrailShaderComponent</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -348,7 +360,7 @@
       <Filter>04.Component\ShaderComponent\StandardShaderComponent</Filter>
     </ClCompile>
     <ClCompile Include="MultiSpriteShaderComponent.cpp">
-      <Filter>04.Component\ShaderComponent\Shader\MultySpriteShaderComponent</Filter>
+      <Filter>04.Component\ShaderComponent\MultySpriteShaderComponent</Filter>
     </ClCompile>
     <ClCompile Include="InstanceRenderComponent.cpp">
       <Filter>04.Component\RenderComponent</Filter>
@@ -358,6 +370,12 @@
     </ClCompile>
     <ClCompile Include="UILayer.cpp">
       <Filter>08.UILayer</Filter>
+    </ClCompile>
+    <ClCompile Include="TrailComponent.cpp">
+      <Filter>04.Component\TrailComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="TrailShaderComponent.cpp">
+      <Filter>04.Component\ShaderComponent\TrailShaderComponent</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

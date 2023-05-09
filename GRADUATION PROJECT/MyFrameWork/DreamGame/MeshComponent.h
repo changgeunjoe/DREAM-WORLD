@@ -179,6 +179,20 @@ public:
 	void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fWidth = 20.0f, float fHeight = 20.0f, float fDepth = 20.0f);
 };
 
+class TrailMeshComponent : public MeshComponent
+{
+public:
+	TrailMeshComponent();
+	virtual ~TrailMeshComponent();
+
+	void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, int iMaxVertexCount);
+
+	void		SetPosition(XMFLOAT3& xmf3Top1, XMFLOAT3& xmf3Bottom1, XMFLOAT3& xmf3Top2, XMFLOAT3& xmf3Bottom2);
+	void		SetVertices(Textured2DUIVertex* pVertices, size_t iVertexCount);
+private:
+	UINT8* m_pBufferDataBegin = NULL;
+
+};
 class UIMeshComponent : public MeshComponent
 {
 public:
@@ -187,7 +201,6 @@ public:
 
 	void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fWidth, float fHeight, float fxPosition, float fyPosition);
 };
-
 class StandardMeshComponent :public MeshComponent
 
 {

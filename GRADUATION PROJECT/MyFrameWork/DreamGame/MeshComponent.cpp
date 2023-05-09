@@ -613,3 +613,42 @@ void SphereMeshComponent::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	m_d3dIndexBufferView.Format = DXGI_FORMAT_R32_UINT;
 	m_d3dIndexBufferView.SizeInBytes = sizeof(UINT) * m_nIndices;
 }
+
+TrailMeshComponent::TrailMeshComponent()
+{
+}
+
+TrailMeshComponent::~TrailMeshComponent()
+{
+}
+
+void TrailMeshComponent::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, int iMaxVertexCount)
+{
+	//m_nVertices = 1000;
+	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+
+	Textured2DUIVertex pVertices[6];
+
+	//Á¤Á¡ ÃÖ´ë°¹¼ö °öÇØÁà¾ßÇÔ
+	UINT ncbElementBytes = ((sizeof(Textured2DUIVertex) * iMaxVertexCount + 255) & ~255); //256ÀÇ ¹è¼ö
+	m_pd3dVertexBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD,
+		D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+	m_pd3dVertexBuffer->Map(0, NULL, (void**)&m_pBufferDataBegin);
+
+	m_d3dVertexBufferView.BufferLocation = m_pd3dVertexBuffer->GetGPUVirtualAddress();
+	m_d3dVertexBufferView.StrideInBytes = sizeof(Textured2DUIVertex);
+	m_d3dVertexBufferView.SizeInBytes = sizeof(Textured2DUIVertex) * m_nVertices;
+
+}
+
+void TrailMeshComponent::SetPosition(XMFLOAT3& xmf3Top1, XMFLOAT3& xmf3Bottom1, XMFLOAT3& xmf3Top2, XMFLOAT3& xmf3Bottom2)
+{
+}
+
+void TrailMeshComponent::SetVertices(Textured2DUIVertex* pVertices, size_t iVertexCount)
+{
+	m_nVertices = (int)iVertexCount;
+
+	m_d3dVertexBufferView.SizeInBytes = sizeof(Textured2DUIVertex) * m_nVertices;
+	memcpy(m_pBufferDataBegin, pVertices, sizeof(Textured2DUIVertex) * iVertexCount);
+}
