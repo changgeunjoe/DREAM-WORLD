@@ -158,15 +158,14 @@ void Logic::ProcessPacket(int userId, char* p)
 	{
 #ifdef ALONE_TEST
 		CLIENT_PACKET::MatchPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::MatchPacket*>(p);
-		std::map<ROLE, int> testMap;
-		testMap.insert(std::make_pair((ROLE)recvPacket->Role, userId));
-		std::string id = "BossTestRoom";
-		std::wstring name = L"BossTestRoom";
-		g_RoomManager.InsertRunningRoom(id, name, testMap);
-		g_RoomManager.GetRunningRoom(id).GameStart();
+		std::map<ROLE, int> alonePlayerMap;
+		alonePlayerMap.insert(std::make_pair((ROLE)recvPacket->Role, userId));
+		int newRoomId = g_RoomManager.GetRoomId();//새로운 룸 오브젝트 가져오기
+		Room& room = g_RoomManager.GetRunningRoomRef(newRoomId);
+		room.InsertInGamePlayer(alonePlayerMap);
+		g_iocpNetwork.m_session[userId].SetRoomId(newRoomId);
 		g_iocpNetwork.m_session[userId].SetPlaySessionObject((ROLE)recvPacket->Role);
-		g_iocpNetwork.m_session[userId].SetRoomId(id);
-		g_iocpNetwork.m_session[userId].m_sessionObject->SetRoomId(id);
+		g_iocpNetwork.m_session[userId].m_sessionObject->SetRoomId(newRoomId);
 		g_iocpNetwork.m_session[userId].m_sessionObject->SetRole((ROLE)recvPacket->Role);
 		char* sendAddPlayerPacket = g_iocpNetwork.m_session[userId].m_sessionObject->GetPlayerInfo();
 		g_iocpNetwork.m_session[userId].Send(sendAddPlayerPacket);
@@ -384,7 +383,7 @@ void Logic::MultiCastOtherPlayer(int userId, void* p)
 
 void Logic::MultiCastOtherPlayerInRoom(int userId, void* p)
 {
-	PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);	
+	PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
 	auto roomPlayermap = g_RoomManager.GetRunningRoomRef(g_iocpNetwork.m_session[userId].GetRoomId()).GetPlayerMap();
 	for (auto& cli : roomPlayermap) {
 		if (cli.second == userId) continue;//자기 자신을 제외한 플레이어들에게 전송
@@ -425,9 +424,6 @@ void Logic::AutoMoveServer()//2500명?
 void Logic::MatchMaking()
 {
 	while (true) {
-
-
-
 		//if (r != ROLE::RAND && (m_MatchRole.load() ^ r) && !(m_MatchRole.load() & r)) { // &연산시 0이 나와야 현재 비어있는 칸에 넣을 수 있고, ^때 1이 나오면 됨
 		//	m_MatchRole |= r;
 		//	{
@@ -486,43 +482,42 @@ void Logic::MatchMaking()
 
 		//아무도 없을 때, 
 		if (restRole.size() == 4) {
-			if (randPlayerIdQueue.unsafe_size() >= 4) {
-				std::map<ROLE, int> randMatchPlayer;
-				for (int i = 0; i < 4; i++) {
-					int randUserId = -1;
-					if (randPlayerIdQueue.try_pop(randUserId)) {
-						ROLE r = (ROLE)pow(2, i);
-						randMatchPlayer.emplace(r, randUserId); // 어쨌든 랜덤처럼 보이지 않을까 싶음
-					}
-				}
-				std::string roomId = MakeRoomId();
-				roomId.append(std::to_string(randMatchPlayer[ROLE::WARRIOR]));
-				std::wstring roomName{ L"RandMatchingRoom" };
-				roomName.append(std::to_wstring(randMatchPlayer.begin()->second));
-				while (!g_RoomManager.InsertRunningRoom(roomId, roomName, randMatchPlayer));
-				//룸 생성 성공
-
-				for (const auto& p : randMatchPlayer) {//각각의 플레이어들에게 자기 자신 포함하여 정보를 전송
-					//send match Success Packet
-					g_iocpNetwork.m_session[p.second].SetRoomId(roomId);
-					g_iocpNetwork.m_session[p.second].SetPlaySessionObject(p.first);
-					char* sendAddPlayerPacket = g_iocpNetwork.m_session[p.second].m_sessionObject->GetPlayerInfo();
-					g_iocpNetwork.m_session[p.second].Send(sendAddPlayerPacket);
-					BroadCastInRoomByPlayer(p.second, sendAddPlayerPacket);
-					delete sendAddPlayerPacket;
-				}
-				//UI -> InGame 넘어가는 패킷
-				SERVER_PACKET::NotifyPacket sendPacket;
-				sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
-				sendPacket.type = SERVER_PACKET::INTO_GAME;
-				BroadCastInRoom(roomId, &sendPacket);
-			}
+			//if (randPlayerIdQueue.unsafe_size() >= 4) {
+			//	std::map<ROLE, int> randMatchPlayer;
+			//	for (int i = 0; i < 4; i++) {
+			//		int randUserId = -1;
+			//		if (randPlayerIdQueue.try_pop(randUserId)) {
+			//			ROLE r = (ROLE)pow(2, i);
+			//			randMatchPlayer.emplace(r, randUserId); // 어쨌든 랜덤처럼 보이지 않을까 싶음
+			//		}
+			//	}
+			//	std::string roomId = MakeRoomId();
+			//	roomId.append(std::to_string(randMatchPlayer[ROLE::WARRIOR]));
+			//	std::wstring roomName{ L"RandMatchingRoom" };
+			//	roomName.append(std::to_wstring(randMatchPlayer.begin()->second));
+			//	while (!g_RoomManager.InsertRunningRoom(roomId, roomName, randMatchPlayer));
+			//	//룸 생성 성공
+			//
+			//	for (const auto& p : randMatchPlayer) {//각각의 플레이어들에게 자기 자신 포함하여 정보를 전송
+			//		//send match Success Packet
+			//		g_iocpNetwork.m_session[p.second].SetRoomId(roomId);
+			//		g_iocpNetwork.m_session[p.second].SetPlaySessionObject(p.first);
+			//		char* sendAddPlayerPacket = g_iocpNetwork.m_session[p.second].m_sessionObject->GetPlayerInfo();
+			//		g_iocpNetwork.m_session[p.second].Send(sendAddPlayerPacket);
+			//		BroadCastInRoomByPlayer(p.second, sendAddPlayerPacket);
+			//		delete sendAddPlayerPacket;
+			//	}
+			//	//UI -> InGame 넘어가는 패킷
+			//	SERVER_PACKET::NotifyPacket sendPacket;
+			//	sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
+			//	sendPacket.type = SERVER_PACKET::INTO_GAME;
+			//	BroadCastInRoom(roomId, &sendPacket);
+			//}
 		}
 
 		//모두가 Role을 가지고 돌렸을때
 		else if (restRole.size() == 0) {
 			std::map<ROLE, int> matchPlayer;
-
 			if (warriorPlayerIdQueue.unsafe_size() > 0) {
 				int playerId = -1;
 				if (warriorPlayerIdQueue.try_pop(playerId)) {
@@ -552,11 +547,15 @@ void Logic::MatchMaking()
 			roomId.append(std::to_string(matchPlayer.begin()->second));
 			std::wstring roomName{ L"RandMatchingRoom" };
 			roomName.append(std::to_wstring(matchPlayer.begin()->second)); //
-			while (!g_RoomManager.InsertRunningRoom(roomId, roomName, matchPlayer));
+
+			int newRoomId = g_RoomManager.GetRoomId();
+
+			//while (!g_RoomManager.InsertRunningRoom(roomId, roomName, matchPlayer));
 			//룸 생성 성공
+
 			for (const auto& p : matchPlayer) {//플레이어 정보 세팅하고 뿌려주기
 				//send match Success Packet
-				g_iocpNetwork.m_session[p.second].SetRoomId(roomId);//roomId to Player
+				g_iocpNetwork.m_session[p.second].SetRoomId(newRoomId);//roomId to Player
 				g_iocpNetwork.m_session[p.second].SetPlaySessionObject(p.first);//possess to player
 				char* sendAddPlayerPacket = g_iocpNetwork.m_session[p.second].m_sessionObject->GetPlayerInfo();
 				BroadCastInRoomByPlayer(p.second, sendAddPlayerPacket);

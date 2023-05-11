@@ -1,6 +1,6 @@
 #pragma once
 #ifdef _DEBUG
-#include "../../PCH/stdafx.h"
+#include "../../Server/PCH/stdafx.h"
 #endif
 #include "Room.h"
 
@@ -22,6 +22,8 @@ public:
 	int GetRoomId();
 	Room& GetRunningRoomRef(int id);
 	void RoomDestroy(int roomId);
+public:
+	void RunningRoomLogic();
 public:
 	friend Logic;
 };
