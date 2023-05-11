@@ -1,7 +1,9 @@
 #pragma once
+#ifdef _DEBUG
+#include "../../PCH/stdafx.h"
+#endif
 #include "SessionObject.h"
 
-#include "../../PCH/stdafx.h"
 
 class PlayerSessionObject : public SessionObject
 {

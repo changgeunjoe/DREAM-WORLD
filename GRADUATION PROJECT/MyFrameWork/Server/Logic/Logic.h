@@ -33,7 +33,7 @@ public:
 	void MultiCastOtherPlayerInRoom(int userId, void* p);
 	void BroadCastInRoomByPlayer(int userId, void* p);
 	//Boss Broad Cast
-	void BroadCastInRoom(std::string& roomId, void* p);
+	void BroadCastInRoom(int roomId, void* p);
 
 public:
 	void AutoMoveServer();

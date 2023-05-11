@@ -1,5 +1,7 @@
 #pragma once
-#include "../PCH/stdafx.h"
+#ifdef _DEBUG
+#include "../../PCH/stdafx.h"
+#endif
 #include "Room.h"
 
 class Logic;
@@ -8,35 +10,18 @@ class RoomManager
 public:
 	RoomManager();
 	~RoomManager();
-private:
-	std::mutex m_RecruitRoomListLock;
-	std::mutex m_runningRoomListLock;
-	// string: ¹æ ID(°íÀ¯¼º °¡Á®¾ß µÊ), Room: ·ë Á¤º¸¸¦ °¡Áü
-	std::unordered_map<std::string, Room> m_RecruitingRoomList;
-	std::unordered_map<std::string, Room> m_RunningRoomList;
-private:
-	Room InvalidRoom;
+private:	
+	std::array<Room, MAX_USER / 4> m_roomArr;
+	std::mutex m_currentLastRoomIdLock;
+	Concurrency::concurrent_queue<int> m_restRoomId;
+	int m_currentLastRoomId = 0;
+private:	
+	std::mutex m_runningRoomSetLock;
+	std::set<int> m_runningRoomIdSet;
 public:
-	void InsertRunningRoom(Room& recruitRoom);
-	bool InsertRunningRoom(std::string& roomId, int player1, int player2, int player3, int player4);
-	bool InsertRunningRoom(std::string& roomId, std::wstring& roomName, std::map<ROLE, int>& PlayerInfo);
-	bool InsertRecruitingRoom(std::string& roomId, std::wstring& roomName, int createPlayerId, ROLE r);
-	void ChangeRecruitToRunning(std::string& roomId);
-public:
-	std::vector<Room> GetRecruitingRoomList();
-	std::vector<Room> GetRunningRoomList();
-public:
-	std::vector<std::string> GetRunningRoomIdList();
-	std::vector<std::string> GetRecruitingRoomIdList();
-
-public:
-	bool IsExistRecruitRoom(std::string& roomId);
-	bool IsExistRunningRoom(std::string& roomId);
-	Room& GetRunningRoom(std::string& roomId);
-	Room& GetRecuritRoom(std::string& roomId);
-public:
-	void RunningRoomLogic();
-	void RoomDestroy(std::string roomId);
+	int GetRoomId();
+	Room& GetRunningRoomRef(int id);
+	void RoomDestroy(int roomId);
 public:
 	friend Logic;
 };

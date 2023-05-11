@@ -18,9 +18,8 @@ MonsterSessionObject::MonsterSessionObject() : SessionObject()
 	m_maxHp = m_hp = 2500;
 }
 
-MonsterSessionObject::MonsterSessionObject(std::string& roomId) : SessionObject()
-{
-	m_roomId = roomId;
+MonsterSessionObject::MonsterSessionObject(int& roomId) : SessionObject(roomId)
+{	
 	m_maxHp = m_hp = 2500;
 	m_DestinationPos = XMFLOAT3{ 0,0,0 };
 }
@@ -172,30 +171,30 @@ void MonsterSessionObject::AttackTimer()
 	{
 	case ATTACK_KICK:
 	{
-		TIMER_EVENT attackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(332), m_roomId, 0,EV_BOSS_KICK };
-		g_Timer.InsertTimerQueue(attackTimer);
-		TIMER_EVENT endAttackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(823), m_roomId, 0, EV_BOSS_STATE };
-		g_Timer.InsertTimerQueue(endAttackTimer);
+		//TIMER_EVENT attackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(332), m_roomId, 0,EV_BOSS_KICK };
+		//g_Timer.InsertTimerQueue(attackTimer);
+		//TIMER_EVENT endAttackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(823), m_roomId, 0, EV_BOSS_STATE };
+		//g_Timer.InsertTimerQueue(endAttackTimer);
 	}
 	break;
 	case ATTACK_PUNCH:
 	{
-		TIMER_EVENT attackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(332), m_roomId, 0,EV_BOSS_PUNCH };
-		g_Timer.InsertTimerQueue(attackTimer);
-		TIMER_EVENT endAttackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(824), m_roomId, 0, EV_BOSS_STATE };
-		g_Timer.InsertTimerQueue(endAttackTimer);
+		//TIMER_EVENT attackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(332), m_roomId, 0,EV_BOSS_PUNCH };
+		//g_Timer.InsertTimerQueue(attackTimer);
+		//TIMER_EVENT endAttackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(824), m_roomId, 0, EV_BOSS_STATE };
+		//g_Timer.InsertTimerQueue(endAttackTimer);
 	}
 	break;
 	case ATTACK_SPIN:
 	{
-		TIMER_EVENT attackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(300), m_roomId, 2,EV_BOSS_SPIN };
-		g_Timer.InsertTimerQueue(attackTimer);
-		attackTimer.wakeupTime += std::chrono::milliseconds(300);
-		g_Timer.InsertTimerQueue(attackTimer);
-		attackTimer.wakeupTime += std::chrono::milliseconds(300);
-		g_Timer.InsertTimerQueue(attackTimer);
-		TIMER_EVENT endAttackTimer{ std::chrono::system_clock::now() + std::chrono::seconds(1), m_roomId, 0, EV_BOSS_STATE };
-		g_Timer.InsertTimerQueue(endAttackTimer);
+		//TIMER_EVENT attackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(300), m_roomId, 2,EV_BOSS_SPIN };
+		//g_Timer.InsertTimerQueue(attackTimer);
+		//attackTimer.wakeupTime += std::chrono::milliseconds(300);
+		//g_Timer.InsertTimerQueue(attackTimer);
+		//attackTimer.wakeupTime += std::chrono::milliseconds(300);
+		//g_Timer.InsertTimerQueue(attackTimer);
+		//TIMER_EVENT endAttackTimer{ std::chrono::system_clock::now() + std::chrono::seconds(1), m_roomId, 0, EV_BOSS_STATE };
+		//g_Timer.InsertTimerQueue(endAttackTimer);
 	}
 	break;
 	default:
@@ -207,8 +206,8 @@ void MonsterSessionObject::AttackTimer()
 void MonsterSessionObject::AttackPlayer(int restCount)
 {
 	if (m_hp <= 0) return;
-	Room& room = g_RoomManager.GetRunningRoom(m_roomId);
-	auto& playerMap = room.GetInGamePlayerMap();
+	Room& room = g_RoomManager.GetRunningRoomRef(m_roomId);
+	auto& playerMap = room.GetPlayerMap();
 	switch (currentAttack)
 	{
 	case ATTACK_KICK:
@@ -218,7 +217,7 @@ void MonsterSessionObject::AttackPlayer(int restCount)
 			auto bossToPlayerVector = Vector3::Subtract(g_iocpNetwork.m_session[playerInfo.second].m_sessionObject->GetPos(), m_position);
 			float dotProductRes = Vector3::DotProduct(bossToPlayerVector, m_directionVector);
 			float bossToPlayerDis = Vector3::Length(bossToPlayerVector);
-			if (bossToPlayerDis < 45.0f && abs(dotProductRes) < 90.0f) {
+			if (bossToPlayerDis < 50.0f && abs(dotProductRes) < cosf(3.141592f / 12.0f)) {// 15 + 15 도 총 30도 내에 있다면
 				g_iocpNetwork.m_session[playerInfo.second].m_sessionObject->AttackedHp(40);
 				//player Hit Kick
 			}
@@ -232,7 +231,7 @@ void MonsterSessionObject::AttackPlayer(int restCount)
 			auto bossToPlayerVector = Vector3::Subtract(g_iocpNetwork.m_session[playerInfo.second].m_sessionObject->GetPos(), m_position);
 			float dotProductRes = Vector3::DotProduct(bossToPlayerVector, m_directionVector);
 			float bossToPlayerDis = Vector3::Length(bossToPlayerVector);
-			if (bossToPlayerDis < 45.0f && abs(dotProductRes) < 90.0f) {
+			if (bossToPlayerDis < 45.0f && abs(dotProductRes) < cosf(3.141592f / 12.0f) ) { // 15 + 15 도 총 30도 내에 있다면
 				g_iocpNetwork.m_session[playerInfo.second].m_sessionObject->AttackedHp(20);
 				//player Hit Foward
 			}

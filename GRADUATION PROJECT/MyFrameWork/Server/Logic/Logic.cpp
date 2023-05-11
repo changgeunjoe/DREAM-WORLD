@@ -321,13 +321,13 @@ void Logic::ProcessPacket(int userId, char* p)
 	case CLIENT_PACKET::SHOOTING_ARROW:
 	{
 		CLIENT_PACKET::ShootingObject* recvPacket = reinterpret_cast<CLIENT_PACKET::ShootingObject*>(p);
-		g_RoomManager.GetRunningRoom(g_iocpNetwork.m_session[userId].GetRoomId()).ShootArrow(recvPacket->dir, recvPacket->pos, recvPacket->speed);
+		g_RoomManager.GetRunningRoomRef(g_iocpNetwork.m_session[userId].GetRoomId()).ShootArrow(recvPacket->dir, recvPacket->pos, recvPacket->speed);
 	}
 	break;
 	case CLIENT_PACKET::SHOOTING_BALL:
 	{
 		CLIENT_PACKET::ShootingObject* recvPacket = reinterpret_cast<CLIENT_PACKET::ShootingObject*>(p);
-		g_RoomManager.GetRunningRoom(g_iocpNetwork.m_session[userId].GetRoomId()).ShootBall(recvPacket->dir, recvPacket->pos, recvPacket->speed);
+		g_RoomManager.GetRunningRoomRef(g_iocpNetwork.m_session[userId].GetRoomId()).ShootBall(recvPacket->dir, recvPacket->pos, recvPacket->speed);
 	}
 	break;
 	case CLIENT_PACKET::MELEE_ATTACK:
@@ -335,13 +335,13 @@ void Logic::ProcessPacket(int userId, char* p)
 		CLIENT_PACKET::MeleeAttackPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::MeleeAttackPacket*>(p);
 		bool attacking = g_iocpNetwork.m_session[userId].m_sessionObject->GetLeftAttack();
 		DirectX::XMFLOAT3 pos = g_iocpNetwork.m_session[userId].m_sessionObject->GetPos();
-		if (g_RoomManager.GetRunningRoom(g_iocpNetwork.m_session[userId].GetRoomId()).MeleeAttack(recvPacket->dir, pos))
-			g_RoomManager.GetRunningRoom(g_iocpNetwork.m_session[userId].GetRoomId()).m_bossDamagedQueue.push(g_iocpNetwork.m_session[userId].m_sessionObject->GetAttackDamage());
+		if (g_RoomManager.GetRunningRoomRef(g_iocpNetwork.m_session[userId].GetRoomId()).MeleeAttack(recvPacket->dir, pos))
+			g_RoomManager.GetRunningRoomRef(g_iocpNetwork.m_session[userId].GetRoomId()).m_bossDamagedQueue.push(g_iocpNetwork.m_session[userId].m_sessionObject->GetAttackDamage());
 	}
 	break;
 	case CLIENT_PACKET::TEST_GAME_END: // 임시로
 	{
-		Room& room = g_RoomManager.GetRunningRoom(g_iocpNetwork.m_session[userId].GetRoomId());
+		Room& room = g_RoomManager.GetRunningRoomRef(g_iocpNetwork.m_session[userId].GetRoomId());
 		room.GetBoss().isBossDie = true;
 		room.GetBoss().isMove = false;
 		room.GetBoss().isAttack = false;
@@ -349,11 +349,11 @@ void Logic::ProcessPacket(int userId, char* p)
 	break;
 	case CLIENT_PACKET::GAME_END_OK:
 	{
-		std::string roomId = g_iocpNetwork.m_session[userId].GetRoomId();
-		Room& room = g_RoomManager.GetRunningRoom(g_iocpNetwork.m_session[userId].GetRoomId());
+		int roomId = g_iocpNetwork.m_session[userId].GetRoomId();
+		Room& room = g_RoomManager.GetRunningRoomRef(g_iocpNetwork.m_session[userId].GetRoomId());
 		room.DeleteInGamePlayer(userId);
 		g_iocpNetwork.m_session[userId].ResetPlayerToLobbyState();
-		if (room.GetInGamePlayerNum() == 0) {
+		if (room.GetPlayerNum() == 0) {
 			g_RoomManager.RoomDestroy(roomId);
 			std::cout << "Destroy Room: " << roomId << std::endl;
 		}
@@ -384,9 +384,8 @@ void Logic::MultiCastOtherPlayer(int userId, void* p)
 
 void Logic::MultiCastOtherPlayerInRoom(int userId, void* p)
 {
-	PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);
-	if (!g_RoomManager.IsExistRunningRoom(g_iocpNetwork.m_session[userId].GetRoomId())) return;
-	auto roomPlayermap = g_RoomManager.GetRunningRoom(g_iocpNetwork.m_session[userId].GetRoomId()).GetInGamePlayerMap();
+	PlayerSessionObject* pSessionObj = dynamic_cast<PlayerSessionObject*>(g_iocpNetwork.m_session[userId].m_sessionObject);	
+	auto roomPlayermap = g_RoomManager.GetRunningRoomRef(g_iocpNetwork.m_session[userId].GetRoomId()).GetPlayerMap();
 	for (auto& cli : roomPlayermap) {
 		if (cli.second == userId) continue;//자기 자신을 제외한 플레이어들에게 전송
 		g_iocpNetwork.m_session[cli.second].Send(p);
@@ -395,17 +394,15 @@ void Logic::MultiCastOtherPlayerInRoom(int userId, void* p)
 
 void Logic::BroadCastInRoomByPlayer(int userId, void* p)
 {
-	if (!g_RoomManager.IsExistRunningRoom(g_iocpNetwork.m_session[userId].GetRoomId())) return;
-	auto roomPlayermap = g_RoomManager.GetRunningRoom(g_iocpNetwork.m_session[userId].GetRoomId()).GetInGamePlayerMap();
+	auto roomPlayermap = g_RoomManager.GetRunningRoomRef(g_iocpNetwork.m_session[userId].GetRoomId()).GetPlayerMap();
 	for (auto& cli : roomPlayermap) {
 		g_iocpNetwork.m_session[cli.second].Send(p);
 	}
 }
 
-void Logic::BroadCastInRoom(std::string& roomId, void* p)
+void Logic::BroadCastInRoom(int roomId, void* p)
 {
-	if (!g_RoomManager.IsExistRunningRoom(roomId)) return;
-	auto roomPlayermap = g_RoomManager.GetRunningRoom(roomId).GetInGamePlayerMap();
+	auto roomPlayermap = g_RoomManager.GetRunningRoomRef(roomId).GetPlayerMap();
 	for (auto& cli : roomPlayermap) {
 		g_iocpNetwork.m_session[cli.second].Send(p);
 	}

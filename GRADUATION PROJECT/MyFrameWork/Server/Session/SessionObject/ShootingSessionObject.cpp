@@ -8,7 +8,7 @@ ShootingSessionObject::ShootingSessionObject() : SessionObject()
 
 }
 
-ShootingSessionObject::ShootingSessionObject(std::string& roomId) : m_roomId(roomId)
+ShootingSessionObject::ShootingSessionObject(int& roomId) : SessionObject(roomId)
 {
 
 }

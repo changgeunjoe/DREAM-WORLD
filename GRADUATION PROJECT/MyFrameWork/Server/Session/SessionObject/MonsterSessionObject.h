@@ -6,7 +6,7 @@ class MonsterSessionObject : public SessionObject
 {
 public:
 	MonsterSessionObject();
-	MonsterSessionObject(std::string& roomId);
+	MonsterSessionObject(int& roomId);
 	virtual ~MonsterSessionObject();
 
 private:

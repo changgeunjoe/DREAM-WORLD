@@ -81,7 +81,7 @@ PlayerSessionObject* Session::SetPlaySessionObject(ROLE r)
 
 void Session::ResetPlayerToLobbyState()
 {
-	m_roomId.clear();
+	//m_roomId.clear();
 	{
 		std::lock_guard < std::mutex>lg{ m_playerStateLock };
 		m_playerState = PLAYER_STATE::IN_GAME;

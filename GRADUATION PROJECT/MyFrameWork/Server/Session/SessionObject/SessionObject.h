@@ -1,12 +1,14 @@
 #pragma once
-
+#ifdef _DEBUG
+#include "../../PCH/stdafx.h"
+#endif
 class SessionObject
 {
 protected:
 	short	m_hp;
 	short	m_maxHp;
 	short	m_attackDamage;
-	std::string m_roomId;
+	int		m_roomId;
 protected:
 	DirectX::XMFLOAT3 m_position;
 	DirectX::XMFLOAT3 m_rotateAngle = { 0,0,0 };
@@ -17,6 +19,7 @@ protected:
 	std::chrono::high_resolution_clock::time_point m_lastMoveTime;
 public:
 	SessionObject();
+	SessionObject(int roomId) : m_roomId(roomId) {};
 	virtual ~SessionObject();
 public:
 	short GetHp() { return m_hp; }
@@ -42,9 +45,9 @@ protected:
 protected:
 	void SetPosition(DirectX::XMFLOAT3 pos) { m_position = pos; }
 public:
-	void SetRoomId(std::string& roomId)
+	void SetRoomId(int& roomId)
 	{
 		m_roomId = roomId;
 	}
-	std::string& GetRoomId() { return m_roomId; }
+	int GetRoomId() { return m_roomId; }
 };

@@ -126,7 +126,7 @@ void IOCPNetwork::WorkerThread()
 		{
 			std::string roomId{ ex_over->m_buffer };
 			if (g_RoomManager.IsExistRunningRoom(roomId)) {
-				Room& refRoom = g_RoomManager.GetRunningRoom(roomId);
+				Room& refRoom = g_RoomManager.GetRunningRoomRef(roomId);
 #ifdef ALONE_TEST
 				auto playerMap = refRoom.GetInGamePlayerMap();
 				refRoom.GetBoss().ReserveAggroPlayerId(playerMap.begin()->second);
@@ -135,7 +135,7 @@ void IOCPNetwork::WorkerThread()
 #endif // ALONE_TEST
 #ifndef ALONE_TEST
 				if (!refRoom.GetBoss().isBossDie) {
-					auto playerMap = refRoom.GetInGamePlayerMap();
+					auto playerMap = refRoom.GetPlayerMap();
 					ROLE randR = (ROLE)aggroRandomPlayer(dre);
 					refRoom.GetBoss().ReserveAggroPlayerId(playerMap[randR]);
 				}
@@ -240,7 +240,7 @@ void IOCPNetwork::WorkerThread()
 					sendPacket.bossState.rot = refRoom.GetBoss().GetRot();
 					sendPacket.bossState.directionVector = refRoom.GetBoss().GetDirectionVector();
 					int i = 0;
-					for (auto& p : refRoom.GetInGamePlayerMap()) {
+					for (auto& p : refRoom.GetPlayerMap()) {
 						sendPacket.userState[i].userId = p.second;
 						sendPacket.userState[i].hp = m_session[p.second].m_sessionObject->GetHp();
 						sendPacket.userState[i].pos = m_session[p.second].m_sessionObject->GetPos();
