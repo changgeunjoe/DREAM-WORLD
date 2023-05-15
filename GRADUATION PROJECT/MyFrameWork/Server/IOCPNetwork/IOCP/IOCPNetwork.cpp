@@ -124,166 +124,28 @@ void IOCPNetwork::WorkerThread()
 
 		case OP_FIND_PLAYER:
 		{
-			std::string roomId{ ex_over->m_buffer };
-			if (g_RoomManager.IsExistRunningRoom(roomId)) {
-				Room& refRoom = g_RoomManager.GetRunningRoomRef(roomId);
-#ifdef ALONE_TEST
-				auto playerMap = refRoom.GetInGamePlayerMap();
-				refRoom.GetBoss().ReserveAggroPlayerId(playerMap.begin()->second);
-				refRoom.GetBoss().SetAggroPlayerId();
-				//refRoom.GetBoss().SetAggroPlayerId(playerMap.begin()->second);
-#endif // ALONE_TEST
-#ifndef ALONE_TEST
-				if (!refRoom.GetBoss().isBossDie) {
-					auto playerMap = refRoom.GetPlayerMap();
-					ROLE randR = (ROLE)aggroRandomPlayer(dre);
-					refRoom.GetBoss().ReserveAggroPlayerId(playerMap[randR]);
-				}
-				else {
-					TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::seconds(5) + std::chrono::milliseconds(500), roomId, -1,EV_FIND_PLAYER };
-					g_Timer.InsertTimerQueue(new_ev);
-				}
-#endif // ALONE_TEST
-			}
+			g_RoomManager.BossFindPlayer(key);
 			if (ex_over != nullptr)
 				delete ex_over;
 		}
 		break;
-		//case OP_MOVE_BOSS:
-		//{
-		//	std::string roomId{ ex_over->m_buffer };
-		//	if (g_RoomManager.IsExistRunningRoom(roomId)) {
-		//		Room& refRoom = g_RoomManager.GetRunningRoom(roomId);
-		//		if (refRoom.GetBoss().isAttack) continue;
-		//		else if (refRoom.GetBoss().GetAggroPlayerId() != -1 && refRoom.GetBoss().isMove) {
-		//			std::cout << "last attack to send Boss Move: " << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - refRoom.GetBoss().m_lastAttackTime).count() 
-		//				<< std::endl;
-		//			XMFLOAT3 playerPos = m_session[refRoom.GetBoss().GetAggroPlayerId()].m_sessionObject->GetPosition();
-		//			refRoom.GetBoss().SetDestinationPos(playerPos);
-		//			SERVER_PACKET::BossChangeStateMovePacket sendPacket;
-		//			sendPacket.type = SERVER_PACKET::BOSS_CHANGE_STATE_MOVE_DES;
-		//			sendPacket.size = sizeof(SERVER_PACKET::BossChangeStateMovePacket);
-		//			sendPacket.desPos = playerPos;
-		//			sendPacket.bossPos = refRoom.GetBoss().GetPosition();
-		//			g_logic.BroadCastInRoom(roomId, &sendPacket);
-		//		}
-		//	}
-		//	if (ex_over != nullptr)
-		//		delete ex_over;
-		//}
-		//break;
 		case OP_BOSS_STATE:
 		{
-			std::string roomId{ ex_over->m_buffer };
-			if (g_RoomManager.IsExistRunningRoom(roomId)) {
-				Room& refRoom = g_RoomManager.GetRunningRoom(roomId);
-				if (refRoom.GetBoss().isBossDie) {}
-				else if (key == 0 || !refRoom.GetBoss().StartAttack()) {
-					refRoom.GetBoss().isAttack = false;
-					refRoom.GetBoss().SetAggroPlayerId();
-					if (refRoom.GetBoss().GetAggroPlayerId() != -1) {
-						XMFLOAT3 playerPos = m_session[refRoom.GetBoss().GetAggroPlayerId()].m_sessionObject->GetPos();
-						refRoom.GetBoss().SetDestinationPos(playerPos);
-						SERVER_PACKET::BossChangeStateMovePacket sendPacket;
-						sendPacket.type = SERVER_PACKET::BOSS_CHANGE_STATE_MOVE_DES;
-						sendPacket.size = sizeof(SERVER_PACKET::BossChangeStateMovePacket);
-						sendPacket.desPos = playerPos;
-						sendPacket.bossPos = refRoom.GetBoss().GetPos();
-						g_logic.BroadCastInRoom(roomId, &sendPacket);
-						if (!refRoom.GetBoss().isMove)
-							refRoom.GetBoss().StartMove(DIRECTION::FRONT);
-					}
-					TIMER_EVENT bossStateEvent{ std::chrono::system_clock::now() + std::chrono::milliseconds(700), roomId, -1,EV_BOSS_STATE };
-					g_Timer.InsertTimerQueue(bossStateEvent);
-				}
-				else {
-					SERVER_PACKET::BossAttackPacket sendPacket;
-					sendPacket.size = sizeof(SERVER_PACKET::BossAttackPacket);
-					int randAttackNum = bossRandAttack(dre);
-					sendPacket.type = SERVER_PACKET::BOSS_ATTACK;
-					sendPacket.bossAttackType = (BOSS_ATTACK)randAttackNum;
-					refRoom.GetBoss().currentAttack = (BOSS_ATTACK)randAttackNum;
-					refRoom.GetBoss().AttackTimer();
-					g_logic.BroadCastInRoom(roomId, &sendPacket);
-					refRoom.GetBoss().isMove = false;
-					refRoom.GetBoss().isAttack = true;
-				}
-			}
+			g_RoomManager.ChangeBossState(key);
 			if (ex_over != nullptr)
 				delete ex_over;
 		}
 		break;
 		case OP_GAME_STATE_SEND:
 		{
-			std::string roomId{ ex_over->m_buffer };
-			if (g_RoomManager.IsExistRunningRoom(roomId)) {
-				Room& refRoom = g_RoomManager.GetRunningRoom(roomId);
-				short damage = -1;
-				while (refRoom.m_bossDamagedQueue.try_pop(damage)) {
-					refRoom.GetBoss().AttackedHp(damage);
-				}
-				if (refRoom.GetBoss().GetHp() <= 0)refRoom.GetBoss().isBossDie = true;
-				if (refRoom.GetBoss().isBossDie) {
-					refRoom.GetBoss().SetZeroHp();
-					SERVER_PACKET::NotifyPacket sendPacket;
-					sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
-					sendPacket.type = SERVER_PACKET::GAME_END;
-					g_logic.BroadCastInRoom(roomId, &sendPacket);
-				}
-				else {
-					//std::cout << "bossHp : " << refRoom.GetBoss().GetHp() << std::endl;
-					SERVER_PACKET::GameState sendPacket;
-					sendPacket.type = SERVER_PACKET::GAME_STATE;
-					sendPacket.size = sizeof(SERVER_PACKET::GameState);
-					sendPacket.bossState.hp = refRoom.GetBoss().GetHp();
-					sendPacket.bossState.pos = refRoom.GetBoss().GetPos();
-					sendPacket.bossState.rot = refRoom.GetBoss().GetRot();
-					sendPacket.bossState.directionVector = refRoom.GetBoss().GetDirectionVector();
-					int i = 0;
-					for (auto& p : refRoom.GetPlayerMap()) {
-						sendPacket.userState[i].userId = p.second;
-						sendPacket.userState[i].hp = m_session[p.second].m_sessionObject->GetHp();
-						sendPacket.userState[i].pos = m_session[p.second].m_sessionObject->GetPos();
-						sendPacket.userState[i].rot = m_session[p.second].m_sessionObject->GetRot();
-						++i;
-					}
-					sendPacket.time = std::chrono::utc_clock::now();
-					g_logic.BroadCastInRoom(roomId, &sendPacket);
-					TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::milliseconds(300), roomId, -1,EV_GAME_STATE_SEND };//GameState 300ms마다 전송하게 수정
-					g_Timer.InsertTimerQueue(new_ev);
-				}
-			}
+			g_RoomManager.UpdateGameStateForPlayer(key);
 			if (ex_over != nullptr)
 				delete ex_over;
 		}
 		break;
-		//case OP_BOSS_ATTACK_SELECT:
-		//{
-		//	std::string roomId{ ex_over->m_buffer };
-		//	if (g_RoomManager.IsExistRunningRoom(roomId)) {
-		//		Room& refRoom = g_RoomManager.GetRunningRoom(roomId);
-		//		SERVER_PACKET::BossAttackPacket sendPacket;
-		//		sendPacket.size = sizeof(SERVER_PACKET::BossAttackPacket);
-		//		int randAttackNum = bossRandAttack(dre);
-		//		sendPacket.type = SERVER_PACKET::BOSS_ATTACK;
-		//		sendPacket.bossAttackType = (BOSS_ATTACK)randAttackNum;
-		//		refRoom.GetBoss().currentAttack = (BOSS_ATTACK)randAttackNum;
-		//		refRoom.GetBoss().AttackTimer();
-		//		g_logic.BroadCastInRoom(roomId, &sendPacket);
-		//		refRoom.GetBoss().isMove = false;
-		//		refRoom.GetBoss().isAttack = true;
-		//	}
-		//	if (ex_over != nullptr)
-		//		delete ex_over;
-		//}
-		//break;
 		case OP_BOSS_ATTACK_EXECUTE:
 		{
-			std::string roomId{ ex_over->m_buffer };
-			if (g_RoomManager.IsExistRunningRoom(roomId)) {
-				Room& refRoom = g_RoomManager.GetRunningRoom(roomId);
-				refRoom.GetBoss().AttackPlayer(key);
-			}
+			g_RoomManager.BossAttackExecute(key);
 			if (ex_over != nullptr)
 				delete ex_over;
 		}

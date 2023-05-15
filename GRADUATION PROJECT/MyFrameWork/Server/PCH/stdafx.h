@@ -2,7 +2,7 @@
 
 #define _WINSOCK_DEPRECATED_NO_WARNINGS 1
 #define MAX_USER 100
-//#define ALONE_TEST 1
+#define ALONE_TEST 1
 #pragma comment(lib, "mswsock.lib")
 #pragma comment(lib, "WS2_32.lib")
 #pragma comment(lib, "lua54.lib")
@@ -98,11 +98,10 @@ enum BOSS_ATTACK : char {
 
 enum EVENT_TYPE {
 	EV_NONE,
-	EV_FIND_PLAYER, 
-	//EV_BOSS_MOVE_SEND,
+	EV_FIND_PLAYER,
 	EV_BOSS_STATE,
 	EV_GAME_STATE_SEND,
-	EV_BOSS_ATTACK_ORDER,	
+	EV_BOSS_ATTACK_ORDER,
 	EV_BOSS_KICK,
 	EV_BOSS_SPIN,
 	EV_BOSS_PUNCH
@@ -111,8 +110,7 @@ enum EVENT_TYPE {
 struct TIMER_EVENT
 {
 	std::chrono::system_clock::time_point wakeupTime;
-	std::string roomId; // 보스 일때
-	int playerId; // 플레이어 일때
+	int targetId;
 	EVENT_TYPE eventId = EV_NONE;
 	constexpr bool operator < (const TIMER_EVENT& L) const
 	{

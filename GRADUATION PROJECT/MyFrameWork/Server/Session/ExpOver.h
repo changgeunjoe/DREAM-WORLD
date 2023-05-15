@@ -5,7 +5,7 @@ class ExpOver
 public:
 	WSAOVERLAPPED	m_overlap;
 	IOCP_OP_CODE	m_opCode;
-	char			m_buffer[MAX_BUF_SIZE] = { 0 };//여기에 roomId를 담자
+	char			m_buffer[MAX_BUF_SIZE] = { 0 };
 	WSABUF			m_wsaBuf;
 public:
 	ExpOver()

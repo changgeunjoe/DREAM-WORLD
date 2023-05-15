@@ -15,10 +15,13 @@ public:
 	Room& operator=(Room& rhs);
 private:
 	bool m_isAlive = false;
+	int m_roomId = -1;
 	std::wstring m_roomName;
 	int m_roomOwnerId = -1;// 룸 생성한 자의 ID
+public:
+	void SetRoomId(int roomId) { m_roomId = roomId; }
 
-//Player Session	
+	//Player Session
 private:
 	std::mutex m_lockInGamePlayers;
 	std::map<ROLE, int> m_inGamePlayers;
@@ -29,7 +32,7 @@ public:
 	std::map<ROLE, int> GetPlayerMap();
 	int GetPlayerNum() { return m_inGamePlayers.size(); }
 
-//Monster Session
+	//Monster Session
 private:
 	MonsterSessionObject m_boss;
 public:
@@ -48,9 +51,13 @@ public:
 	Concurrency::concurrent_queue<short> m_bossDamagedQueue;
 	bool MeleeAttack(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 pos);
 
-//Game Session
+	//Game Session
 public:
 	void GameStart();
 	void GameRunningLogic();
 	void GameEnd();
+	void BossFindPlayer();
+	void ChangeBossState();
+	void UpdateGameStateForPlayer();
+	void BossAttackExecute();
 };

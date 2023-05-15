@@ -163,6 +163,7 @@ void Logic::ProcessPacket(int userId, char* p)
 		int newRoomId = g_RoomManager.GetRoomId();//새로운 룸 오브젝트 가져오기
 		Room& room = g_RoomManager.GetRunningRoomRef(newRoomId);
 		room.InsertInGamePlayer(alonePlayerMap);
+		room.GameStart();
 		g_iocpNetwork.m_session[userId].SetRoomId(newRoomId);
 		g_iocpNetwork.m_session[userId].SetPlaySessionObject((ROLE)recvPacket->Role);
 		g_iocpNetwork.m_session[userId].m_sessionObject->SetRoomId(newRoomId);
@@ -543,10 +544,10 @@ void Logic::MatchMaking()
 				}
 			}
 
-			std::string roomId = MakeRoomId();
-			roomId.append(std::to_string(matchPlayer.begin()->second));
-			std::wstring roomName{ L"RandMatchingRoom" };
-			roomName.append(std::to_wstring(matchPlayer.begin()->second)); //
+			//std::string roomId = MakeRoomId();
+			//roomId.append(std::to_string(matchPlayer.begin()->second));
+			//std::wstring roomName{ L"RandMatchingRoom" };
+			//roomName.append(std::to_wstring(matchPlayer.begin()->second)); //
 
 			int newRoomId = g_RoomManager.GetRoomId();
 
@@ -565,8 +566,8 @@ void Logic::MatchMaking()
 			SERVER_PACKET::NotifyPacket sendPacket;
 			sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
 			sendPacket.type = SERVER_PACKET::INTO_GAME;
-			BroadCastInRoom(roomId, &sendPacket);
-			g_RoomManager.GetRunningRoom(roomId).GameStart();
+			BroadCastInRoom(newRoomId, &sendPacket);
+			g_RoomManager.GetRunningRoomRef(newRoomId).GameStart();
 			//{//매칭 끝나서 지우긴 하는데 지금 지우는게 맞을까?
 			//	std::lock_guard<std::mutex> lg{ m_matchPlayerLock };
 			//	m_matchPlayer.clear();

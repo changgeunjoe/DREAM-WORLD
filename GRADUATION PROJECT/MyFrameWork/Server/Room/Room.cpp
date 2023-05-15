@@ -68,7 +68,7 @@ std::map<ROLE, int> Room::GetPlayerMap()
 
 void Room::CreateBossMonster()
 {
-	//m_boss.SetRoomId(m_roomId);
+	m_boss.SetRoomId(m_roomId);
 	//TIMER_EVENT firstEv{ std::chrono::system_clock::now() + std::chrono::milliseconds(200), m_roomId, -1,EV_FIND_PLAYER };
 	//g_Timer.InsertTimerQueue(firstEv);
 }
@@ -128,13 +128,13 @@ void Room::GameStart()
 	//}
 
 	CreateBossMonster(); //임시 입니다.
-	//TIMER_EVENT findEv{ std::chrono::system_clock::now() + std::chrono::milliseconds(1), m_roomId, -1,EV_FIND_PLAYER };
-	//g_Timer.InsertTimerQueue(findEv);
-	////TIMER_EVENT bossStateEvent{ std::chrono::system_clock::now() + std::chrono::milliseconds(3), m_roomId, -1,EV_BOSS_STATE };
-	//TIMER_EVENT bossStateEvent{ std::chrono::system_clock::now() + std::chrono::seconds(11), m_roomId, -1,EV_BOSS_STATE };
-	//g_Timer.InsertTimerQueue(bossStateEvent);
-	//TIMER_EVENT gameStateEvent{ std::chrono::system_clock::now() + std::chrono::seconds(1) + std::chrono::milliseconds(500), m_roomId, -1,EV_GAME_STATE_SEND };
-	//g_Timer.InsertTimerQueue(gameStateEvent);
+	TIMER_EVENT findEv{ std::chrono::system_clock::now() + std::chrono::milliseconds(1), m_roomId ,EV_FIND_PLAYER };
+	g_Timer.InsertTimerQueue(findEv);
+	//TIMER_EVENT bossStateEvent{ std::chrono::system_clock::now() + std::chrono::milliseconds(3), m_roomId, -1,EV_BOSS_STATE };
+	TIMER_EVENT bossStateEvent{ std::chrono::system_clock::now() + std::chrono::seconds(11), m_roomId ,EV_BOSS_STATE };
+	g_Timer.InsertTimerQueue(bossStateEvent);
+	TIMER_EVENT gameStateEvent{ std::chrono::system_clock::now() + std::chrono::seconds(1) + std::chrono::milliseconds(500), m_roomId ,EV_GAME_STATE_SEND };
+	g_Timer.InsertTimerQueue(gameStateEvent);
 }
 
 void Room::GameRunningLogic()
@@ -173,7 +173,7 @@ void Room::GameRunningLogic()
 				sendPacket.size = sizeof(SERVER_PACKET::BossHitObject);
 				sendPacket.type = SERVER_PACKET::HIT_BOSS_MAGE;
 				sendPacket.pos = ball.GetPos();
-				//g_logic.BroadCastInRoom(m_roomId, &sendPacket);
+				g_logic.BroadCastInRoom(m_roomId, &sendPacket);
 			}
 		}
 	}
@@ -182,4 +182,110 @@ void Room::GameRunningLogic()
 void Room::GameEnd()
 {
 	m_isAlive = false;
+}
+
+void Room::BossFindPlayer()
+{
+	std::map<ROLE, int> playerMap;
+	{
+		std::lock_guard<std::mutex> lg{ m_lockInGamePlayers };
+		playerMap = m_inGamePlayers;
+	}
+#ifdef ALONE_TEST	
+	m_boss.ReserveAggroPlayerId(playerMap.begin()->second);
+	m_boss.SetAggroPlayerId();
+#endif // ALONE_TEST
+#ifndef ALONE_TEST
+	if (m_boss.isBossDie) {
+		ROLE randR = (ROLE)aggroRandomPlayer(dre);
+		m_boss.ReserveAggroPlayerId(playerMap[randR]);
+	}
+	else {
+		TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::seconds(5) + std::chrono::milliseconds(500), m_roomId ,EV_FIND_PLAYER };
+		g_Timer.InsertTimerQueue(new_ev);
+	}
+#endif // ALONE_TEST
+}
+
+void Room::ChangeBossState()
+{
+	if (m_boss.isBossDie) {}
+	else if (!m_boss.StartAttack()) {
+		m_boss.isAttack = false;
+		m_boss.SetAggroPlayerId();
+		if (m_boss.GetAggroPlayerId() != -1) {
+			XMFLOAT3 playerPos = g_iocpNetwork.m_session[m_boss.GetAggroPlayerId()].m_sessionObject->GetPos();
+			m_boss.SetDestinationPos(playerPos);
+			SERVER_PACKET::BossChangeStateMovePacket sendPacket;
+			sendPacket.type = SERVER_PACKET::BOSS_CHANGE_STATE_MOVE_DES;
+			sendPacket.size = sizeof(SERVER_PACKET::BossChangeStateMovePacket);
+			sendPacket.desPos = playerPos;
+			sendPacket.bossPos = m_boss.GetPos();
+			g_logic.BroadCastInRoom(m_roomId, &sendPacket);
+			if (!m_boss.isMove)
+				m_boss.StartMove(DIRECTION::FRONT);
+		}
+		TIMER_EVENT bossStateEvent{ std::chrono::system_clock::now() + std::chrono::milliseconds(700), m_roomId ,EV_BOSS_STATE };
+		g_Timer.InsertTimerQueue(bossStateEvent);
+	}
+	else {
+		SERVER_PACKET::BossAttackPacket sendPacket;
+		sendPacket.size = sizeof(SERVER_PACKET::BossAttackPacket);
+		int randAttackNum = bossRandAttack(dre);
+		sendPacket.type = SERVER_PACKET::BOSS_ATTACK;
+		sendPacket.bossAttackType = (BOSS_ATTACK)randAttackNum;
+		m_boss.currentAttack = (BOSS_ATTACK)randAttackNum;
+		m_boss.AttackTimer();
+		g_logic.BroadCastInRoom(m_roomId, &sendPacket);
+		m_boss.isMove = false;
+		m_boss.isAttack = true;
+	}
+}
+
+void Room::UpdateGameStateForPlayer()
+{
+	std::map<ROLE, int> playerMap;
+	{
+		std::lock_guard<std::mutex> lg{ m_lockInGamePlayers };
+		playerMap = m_inGamePlayers;
+	}
+	short damage = -1;
+	while (m_bossDamagedQueue.try_pop(damage)) {
+		m_boss.AttackedHp(damage);
+	}
+	if (m_boss.GetHp() <= 0)m_boss.isBossDie = true;
+	if (m_boss.isBossDie) {
+		m_boss.SetZeroHp();
+		SERVER_PACKET::NotifyPacket sendPacket;
+		sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
+		sendPacket.type = SERVER_PACKET::GAME_END;
+		g_logic.BroadCastInRoom(m_roomId, &sendPacket);
+	}
+	else {
+		//std::cout << "bossHp : " << refRoom.GetBoss().GetHp() << std::endl;
+		SERVER_PACKET::GameState sendPacket;
+		sendPacket.type = SERVER_PACKET::GAME_STATE;
+		sendPacket.size = sizeof(SERVER_PACKET::GameState);
+		sendPacket.bossState.hp = m_boss.GetHp();
+		sendPacket.bossState.pos = m_boss.GetPos();
+		sendPacket.bossState.rot = m_boss.GetRot();
+		sendPacket.bossState.directionVector = m_boss.GetDirectionVector();
+		int i = 0;
+		for (auto& p : playerMap) {
+			sendPacket.userState[i].userId = p.second;
+			sendPacket.userState[i].hp = g_iocpNetwork.m_session[p.second].m_sessionObject->GetHp();
+			sendPacket.userState[i].pos = g_iocpNetwork.m_session[p.second].m_sessionObject->GetPos();
+			sendPacket.userState[i].rot = g_iocpNetwork.m_session[p.second].m_sessionObject->GetRot();
+			++i;
+		}
+		sendPacket.time = std::chrono::utc_clock::now();
+		g_logic.BroadCastInRoom(m_roomId, &sendPacket);
+		TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::milliseconds(30), m_roomId ,EV_GAME_STATE_SEND };//GameState 300ms마다 전송하게 수정
+		g_Timer.InsertTimerQueue(new_ev);
+	}
+}
+
+void Room::BossAttackExecute()
+{
+	//m_boss.AttackPlayer();
 }
