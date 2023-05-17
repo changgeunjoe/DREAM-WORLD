@@ -36,6 +36,8 @@ Room& RoomManager::GetRunningRoomRef(int id)
 void RoomManager::RoomDestroy(int roomId)
 {
 	m_roomArr[roomId].GameEnd();
+	std::lock_guard<std::mutex> lg{ m_runningRoomSetLock };
+	m_runningRoomIdSet.erase(roomId);
 }
 
 void RoomManager::RunningRoomLogic()

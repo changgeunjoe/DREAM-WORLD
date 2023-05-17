@@ -63,7 +63,7 @@ public:
 	void SetAggroPlayerId();
 	int GetAggroPlayerId() { return m_aggroPlayerId; }
 	void AttackTimer();
-	void AttackPlayer(int restCount);
+	void AttackPlayer();
 	bool StartAttack();
 	///////////////
 public:

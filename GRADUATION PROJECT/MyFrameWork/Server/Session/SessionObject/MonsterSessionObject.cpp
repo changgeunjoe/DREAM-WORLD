@@ -203,7 +203,7 @@ void MonsterSessionObject::AttackTimer()
 
 }
 
-void MonsterSessionObject::AttackPlayer(int restCount)
+void MonsterSessionObject::AttackPlayer()
 {
 	if (m_hp <= 0) return;
 	Room& room = g_RoomManager.GetRunningRoomRef(m_roomId);

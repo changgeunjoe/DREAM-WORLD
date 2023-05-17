@@ -80,6 +80,7 @@ MonsterSessionObject& Room::GetBoss()
 
 void Room::ShootArrow(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 srcPos, float speed)
 {
+	if (!m_isAlive)return;
 	int arrowIndex = -1;
 	if (m_restArrow.try_pop(arrowIndex)) {
 		std::cout << arrowIndex << std::endl;
@@ -95,6 +96,7 @@ void Room::ShootArrow(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 srcPos, float spe
 
 void Room::ShootBall(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 srcPos, float speed)
 {
+	if (!m_isAlive)return;
 	int ballIndex = -1;
 	if (m_restBall.try_pop(ballIndex)) {
 		//발사체 발사했다는 패킷보내기
@@ -107,9 +109,8 @@ bool Room::MeleeAttack(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 pos)
 {
 	DirectX::XMFLOAT3 bossPos = GetBoss().GetPos();
 	DirectX::XMFLOAT3 toBoss = Vector3::Subtract(bossPos, pos);
-	toBoss = Vector3::Normalize(toBoss);
 	dir = Vector3::Normalize(dir);
-	if (Vector3::DotProduct(dir, toBoss) > cosf(3.141592f / 12.0f)) {
+	if (Vector3::DotProduct(dir, Vector3::Normalize(toBoss)) > cosf(3.141592f / 12.0f)) {
 		if (Vector3::Length(toBoss) < 45.0f) {
 			std::cout << "데미지 입히기" << std::endl;
 			return true;
@@ -122,6 +123,7 @@ void Room::GameStart()
 {
 	m_isAlive = true;
 	PrintCurrentTime();
+	
 	//std::cout << "PlayerNum: " << m_inGamePlayers.size() << std::endl;
 	//for (auto& playerInfo : m_inGamePlayers) {
 	//	std::cout << "PlayerId: " << playerInfo.second << std::endl;
@@ -186,6 +188,7 @@ void Room::GameEnd()
 
 void Room::BossFindPlayer()
 {
+	if (!m_isAlive) return;
 	std::map<ROLE, int> playerMap;
 	{
 		std::lock_guard<std::mutex> lg{ m_lockInGamePlayers };
@@ -209,6 +212,7 @@ void Room::BossFindPlayer()
 
 void Room::ChangeBossState()
 {
+	if (!m_isAlive) return;
 	if (m_boss.isBossDie) {}
 	else if (!m_boss.StartAttack()) {
 		m_boss.isAttack = false;
@@ -244,6 +248,7 @@ void Room::ChangeBossState()
 
 void Room::UpdateGameStateForPlayer()
 {
+	if (!m_isAlive) return;
 	std::map<ROLE, int> playerMap;
 	{
 		std::lock_guard<std::mutex> lg{ m_lockInGamePlayers };
@@ -280,12 +285,12 @@ void Room::UpdateGameStateForPlayer()
 		}
 		sendPacket.time = std::chrono::utc_clock::now();
 		g_logic.BroadCastInRoom(m_roomId, &sendPacket);
-		TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::milliseconds(30), m_roomId ,EV_GAME_STATE_SEND };//GameState 300ms마다 전송하게 수정
+		TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::milliseconds(30), m_roomId ,EV_GAME_STATE_SEND };//GameState 30ms마다 전송하게 수정
 		g_Timer.InsertTimerQueue(new_ev);
 	}
 }
 
 void Room::BossAttackExecute()
 {
-	//m_boss.AttackPlayer();
+	m_boss.AttackPlayer();
 }
