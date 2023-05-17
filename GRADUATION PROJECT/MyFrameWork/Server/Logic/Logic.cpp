@@ -177,6 +177,7 @@ void Logic::ProcessPacket(int userId, char* p)
 		sendPacket.type = SERVER_PACKET::INTO_GAME;
 		g_iocpNetwork.m_session[userId].Send(&sendPacket);
 #else
+		std::cout << "match: " << userId << std::endl;
 		CLIENT_PACKET::MatchPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::MatchPacket*>(p);
 		InsertMatchQueue((ROLE)recvPacket->Role, userId);
 #endif // ALONE_TEST
@@ -402,7 +403,7 @@ void Logic::BroadCastInRoomByPlayer(int userId, void* p)
 
 void Logic::BroadCastInRoom(int roomId, void* p)
 {
-	auto roomPlayermap = g_RoomManager.GetRunningRoomRef(roomId).GetPlayerMap();
+	auto roomPlayermap = g_RoomManager.GetRunningRoomRef(roomId).GetPlayerMap();	
 	for (auto& cli : roomPlayermap) {
 		g_iocpNetwork.m_session[cli.second].Send(p);
 	}
@@ -550,82 +551,85 @@ void Logic::MatchMaking()
 			//roomName.append(std::to_wstring(matchPlayer.begin()->second)); //
 
 			int newRoomId = g_RoomManager.GetRoomId();
+			g_RoomManager.GetRunningRoomRef(newRoomId).InsertInGamePlayer(matchPlayer);
+			if (newRoomId != -1) {
+				for (const auto& p : matchPlayer) {//플레이어 정보 세팅하고 뿌려주기
+					//send match Success Packet
+					g_iocpNetwork.m_session[p.second].SetRoomId(newRoomId);//roomId to Player
+					g_iocpNetwork.m_session[p.second].SetPlaySessionObject(p.first);//possess to player
+					char* sendAddPlayerPacket = g_iocpNetwork.m_session[p.second].m_sessionObject->GetPlayerInfo();
+					BroadCastInRoomByPlayer(p.second, sendAddPlayerPacket);
+					delete sendAddPlayerPacket;
+				}
 
-			//while (!g_RoomManager.InsertRunningRoom(roomId, roomName, matchPlayer));
-			//룸 생성 성공
-
-			for (const auto& p : matchPlayer) {//플레이어 정보 세팅하고 뿌려주기
-				//send match Success Packet
-				g_iocpNetwork.m_session[p.second].SetRoomId(newRoomId);//roomId to Player
-				g_iocpNetwork.m_session[p.second].SetPlaySessionObject(p.first);//possess to player
-				char* sendAddPlayerPacket = g_iocpNetwork.m_session[p.second].m_sessionObject->GetPlayerInfo();
-				BroadCastInRoomByPlayer(p.second, sendAddPlayerPacket);
-				delete sendAddPlayerPacket;
+				SERVER_PACKET::NotifyPacket sendPacket;
+				sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
+				sendPacket.type = SERVER_PACKET::INTO_GAME;
+				BroadCastInRoom(newRoomId, &sendPacket);
+				g_RoomManager.GetRunningRoomRef(newRoomId).GameStart();
+				//{//매칭 끝나서 지우긴 하는데 지금 지우는게 맞을까?
+				//	std::lock_guard<std::mutex> lg{ m_matchPlayerLock };
+				//	m_matchPlayer.clear();
+				//}
 			}
-
-			SERVER_PACKET::NotifyPacket sendPacket;
-			sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
-			sendPacket.type = SERVER_PACKET::INTO_GAME;
-			BroadCastInRoom(newRoomId, &sendPacket);
-			g_RoomManager.GetRunningRoomRef(newRoomId).GameStart();
-			//{//매칭 끝나서 지우긴 하는데 지금 지우는게 맞을까?
-			//	std::lock_guard<std::mutex> lg{ m_matchPlayerLock };
-			//	m_matchPlayer.clear();
-			//}
 		}
+		//while (!g_RoomManager.InsertRunningRoom(roomId, roomName, matchPlayer));
+		//룸 생성 성공
 
-		//일부만 Role가지고 나머지는 Rand가 존재할때
-		//else if (restRole.size() <= randPlayerIdQueue.unsafe_size()) {
-		//	//없는 역할 넣어주기 추가하자
-		//	for (int i = 0; i < restRole.size(); i++) {
-		//		int randUserId = -1;
-		//		if (randPlayerIdQueue.try_pop(randUserId)) {
-		//			ROLE r = restRole[i];
-		//			matchPlayer.emplace((ROLE)r, randUserId);
-		//			g_iocpNetwork.m_session[randUserId].m_sessionObject->SetRole((ROLE)r);
-		//			//
-		//			//m_matchPlayer에 안넣었음
-		//			//pop success
-		//			matchPlayer.emplace(r, randUserId);
-		//		}
-		//		else {
-		//			//error
-		//		}
-		//	}
-		//	std::string roomId;
-		//	auto now = std::chrono::system_clock::now();
-		//	auto in_time_t = std::chrono::system_clock::to_time_t(now);
-		//	roomId.append(std::to_string(std::localtime(&in_time_t)->tm_year % 100));
-		//	roomId.append(std::to_string(std::localtime(&in_time_t)->tm_mon + 1));
-		//	roomId.append(std::to_string(std::localtime(&in_time_t)->tm_mday));
-		//	roomId.append(std::to_string(std::localtime(&in_time_t)->tm_hour));
-		//	roomId.append(std::to_string(std::localtime(&in_time_t)->tm_min));
-		//	roomId.append(std::to_string(std::localtime(&in_time_t)->tm_sec));
-		//	roomId.append("Matching_");
-		//
-		//	std::wstring roomName{ L"RandMatchingRoom" };
-		//	roomName.append(std::to_wstring(matchPlayer.begin()->second));
-		//	while (!g_RoomManager.InsertRunningRoom(roomId, roomName, matchPlayer));
-		//	//룸 생성 성공
-		//	for (const auto& p : matchPlayer) {
-		//		g_iocpNetwork.m_session[p.second].SetRoomId(roomId);
-		//	}
-		//
-		//	for (const auto& p : matchPlayer) {
-		//		g_iocpNetwork.m_session[p.second].m_sessionObject->SetRole(p.first);
-		//		char* sendAddPlayerPacket = g_iocpNetwork.m_session[p.second].m_sessionObject->GetPlayerInfo();
-		//		BroadCastInRoomByPlayer(p.second, sendAddPlayerPacket);
-		//		delete sendAddPlayerPacket;
-		//	}
-		//	SERVER_PACKET::NotifyPacket sendPacket;
-		//	sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
-		//	sendPacket.type = SERVER_PACKET::INTO_GAME;
-		//	BroadCastInRoom(roomId, &sendPacket);
-		//	//{
-		//	//	std::lock_guard<std::mutex> lg{ m_matchPlayerLock };
-		//	//	m_matchPlayer.clear();
-		//	//}
-		//}
+
+
+	//일부만 Role가지고 나머지는 Rand가 존재할때
+	//else if (restRole.size() <= randPlayerIdQueue.unsafe_size()) {
+	//	//없는 역할 넣어주기 추가하자
+	//	for (int i = 0; i < restRole.size(); i++) {
+	//		int randUserId = -1;
+	//		if (randPlayerIdQueue.try_pop(randUserId)) {
+	//			ROLE r = restRole[i];
+	//			matchPlayer.emplace((ROLE)r, randUserId);
+	//			g_iocpNetwork.m_session[randUserId].m_sessionObject->SetRole((ROLE)r);
+	//			//
+	//			//m_matchPlayer에 안넣었음
+	//			//pop success
+	//			matchPlayer.emplace(r, randUserId);
+	//		}
+	//		else {
+	//			//error
+	//		}
+	//	}
+	//	std::string roomId;
+	//	auto now = std::chrono::system_clock::now();
+	//	auto in_time_t = std::chrono::system_clock::to_time_t(now);
+	//	roomId.append(std::to_string(std::localtime(&in_time_t)->tm_year % 100));
+	//	roomId.append(std::to_string(std::localtime(&in_time_t)->tm_mon + 1));
+	//	roomId.append(std::to_string(std::localtime(&in_time_t)->tm_mday));
+	//	roomId.append(std::to_string(std::localtime(&in_time_t)->tm_hour));
+	//	roomId.append(std::to_string(std::localtime(&in_time_t)->tm_min));
+	//	roomId.append(std::to_string(std::localtime(&in_time_t)->tm_sec));
+	//	roomId.append("Matching_");
+	//
+	//	std::wstring roomName{ L"RandMatchingRoom" };
+	//	roomName.append(std::to_wstring(matchPlayer.begin()->second));
+	//	while (!g_RoomManager.InsertRunningRoom(roomId, roomName, matchPlayer));
+	//	//룸 생성 성공
+	//	for (const auto& p : matchPlayer) {
+	//		g_iocpNetwork.m_session[p.second].SetRoomId(roomId);
+	//	}
+	//
+	//	for (const auto& p : matchPlayer) {
+	//		g_iocpNetwork.m_session[p.second].m_sessionObject->SetRole(p.first);
+	//		char* sendAddPlayerPacket = g_iocpNetwork.m_session[p.second].m_sessionObject->GetPlayerInfo();
+	//		BroadCastInRoomByPlayer(p.second, sendAddPlayerPacket);
+	//		delete sendAddPlayerPacket;
+	//	}
+	//	SERVER_PACKET::NotifyPacket sendPacket;
+	//	sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
+	//	sendPacket.type = SERVER_PACKET::INTO_GAME;
+	//	BroadCastInRoom(roomId, &sendPacket);
+	//	//{
+	//	//	std::lock_guard<std::mutex> lg{ m_matchPlayerLock };
+	//	//	m_matchPlayer.clear();
+	//	//}
+	//}
 	}
 }
 

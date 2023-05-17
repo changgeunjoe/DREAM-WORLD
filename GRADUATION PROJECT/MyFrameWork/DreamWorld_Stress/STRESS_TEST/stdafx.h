@@ -1,48 +1,40 @@
 #pragma once
 
-#define _WINSOCK_DEPRECATED_NO_WARNINGS 1
-#define MAX_USER 20000
-//#define ALONE_TEST 1
-#pragma comment(lib, "mswsock.lib")
-#pragma comment(lib, "WS2_32.lib")
-#pragma comment(lib, "lua54.lib")
 
-#include <WS2tcpip.h>
-#include <MSWSock.h>
-
+#include <WinSock2.h>
+#include <winsock.h>
 #include <Windows.h>
-#include <wchar.h>
-
-#include <chrono>
-
-#include <mutex>
-
-#include <queue>
-#include <vector>
-#include <unordered_map>
-#include <array>
-#include <set>
-#include <map>
-#include <thread>
-#include <utility>
-
-#include <concurrent_queue.h>
-#include <concurrent_priority_queue.h>
-#include <concurrent_unordered_set.h>
-#include <atomic>
-
 #include <iostream>
-#include <math.h>
-#include <random>
+#include <thread>
+#include <vector>
+#include <unordered_set>
+#include <mutex>
+#include <atomic>
+#include <chrono>
+#include <queue>
+#include <array>
+#include <memory>
+
+
+#include <windows.h>		// Header File For Windows
+#include <math.h>			// Header File For Windows Math Library
+#include <stdio.h>			// Header File For Standard Input/Output
+#include <stdarg.h>			// Header File For Variable Argument Routines
+#include <gl\gl.h>			// Header File For The OpenGL32 Library
+#include <gl\glu.h>			// Header File For The GLu32 Library
+#include <atomic>
+#include <memory>
+//#include <gl\glaux.h>		// Header File For The Glaux Library
+
+#pragma comment (lib, "opengl32.lib")
+#pragma comment (lib, "glu32.lib")
+//#pragma warning(disable: 4996)
+//#define _CRT_SECURE_NO_WARNINGS
+//#define _WINSOCK_DEPRECATED_NO_WARNINGS
+
 #include <DirectXMath.h>
 #include <DirectXCollision.h>
-
-extern "C"
-{
-#include "../lua/include/lua.h"
-#include "../lua/include/lauxlib.h"
-#include "../lua/include/lualib.h"
-}
+using namespace DirectX;
 
 enum PLAYER_STATE
 {
@@ -52,19 +44,7 @@ enum PLAYER_STATE
 	IN_GAME_ROOM
 };
 
-enum IOCP_OP_CODE
-{
-	OP_NONE,
-	OP_ACCEPT,
-	OP_RECV,
-	OP_SEND,
-	OP_FIND_PLAYER,
-	OP_BOSS_STATE,
-	//OP_MOVE_BOSS,
-	OP_GAME_STATE_SEND,
-	OP_BOSS_ATTACK_SELECT,
-	OP_BOSS_ATTACK_EXECUTE
-};
+enum OPTYPE { OP_SEND, OP_RECV, OP_DO_MOVE };
 
 enum DIRECTION : char
 {
@@ -107,18 +87,6 @@ enum EVENT_TYPE {
 	EV_BOSS_PUNCH
 };
 
-struct TIMER_EVENT
-{
-	std::chrono::system_clock::time_point wakeupTime;
-	int targetId;
-	EVENT_TYPE eventId = EV_NONE;
-	constexpr bool operator < (const TIMER_EVENT& L) const
-	{
-		return (wakeupTime > L.wakeupTime);
-	}
-};
-constexpr int MAX_BUF_SIZE = 1024;
-using namespace DirectX;
 
 namespace Vector3
 {
