@@ -122,7 +122,7 @@ bool Room::MeleeAttack(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 pos)
 void Room::GameStart()
 {
 	m_isAlive = true;
-	PrintCurrentTime();
+	//PrintCurrentTime();
 	
 	//std::cout << "PlayerNum: " << m_inGamePlayers.size() << std::endl;
 	//for (auto& playerInfo : m_inGamePlayers) {

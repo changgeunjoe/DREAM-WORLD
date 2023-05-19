@@ -16,7 +16,7 @@ public:
 	}
 	ExpOver(char* p)
 	{
-		ZeroMemory(&m_overlap, sizeof(m_overlap));
+		ZeroMemory(&m_overlap, sizeof(WSAOVERLAPPED));
 		short size = 0;
 		memcpy(&size, p, 2);
 		m_wsaBuf.len = size;

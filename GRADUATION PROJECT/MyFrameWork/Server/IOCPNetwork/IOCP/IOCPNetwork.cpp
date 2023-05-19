@@ -100,7 +100,7 @@ void IOCPNetwork::WorkerThread()
 				std::cout << "Max user" << std::endl;
 			}
 			else {
-				std::cout << "Accept User" << std::endl;
+				std::cout << "Accept User[" << userId << "]" << std::endl;
 				CreateIoCompletionPort(reinterpret_cast<HANDLE>(m_clientSocket), m_hIocp, userId, 0);
 				g_logic.AcceptPlayer(&m_session[userId], userId, m_clientSocket);
 				m_clientSocket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
