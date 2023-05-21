@@ -44,9 +44,10 @@ void Session::Send(void* p)
 	DWORD sendByte = 0;
 	ExpOver* sendOverlap = new ExpOver(reinterpret_cast<char*>(p));
 	//std::cout << "send: " << (int)sendOverlap->m_buffer[2] << std::endl;
-	int resRet = WSASend(m_socket, &sendOverlap->m_wsaBuf, 1, &sendByte, 0, &sendOverlap->m_overlap, 0);
+	int resRet = WSASend(m_socket, &(sendOverlap->m_wsaBuf), 1, &sendByte, 0, &(sendOverlap->m_overlap), 0);
 	if (resRet)
 		DisplayWsaGetLastError(WSAGetLastError());
+	//std::cout << "sendByte: " << sendByte << std::endl;
 }
 
 void Session::ConstructPacket(int ioByte)
