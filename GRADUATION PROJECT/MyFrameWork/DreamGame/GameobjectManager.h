@@ -11,6 +11,7 @@ class ShadowMapShaderComponent;
 class DepthRenderShaderComponent;
 class TextureToViewportComponent;
 class InstancingShaderComponent;
+class TrailComponent;
 #include"CLoadModelinfo.h"
 class GameobjectManager
 {
@@ -28,6 +29,7 @@ public:
 
 	virtual void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void BuildTrail(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void BuildLight();
 	virtual void BuildShadow(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void Build2DUI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
@@ -118,6 +120,10 @@ private: //active object
 	GameObject* m_pStroy3Object{ NULL };
 	GameObject* m_pStory4Object{ NULL };
 	vector<GameObject*> m_ppStoryUIObjects;
+	
+	TrailComponent* m_pTrailComponent;
+	
+	//
 
 	POINT						m_ptOldCursorPos;
 

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "TrailComponent.h"
 #include "MeshComponent.h"
+#include "GameObject.h"
 
 TrailComponent::TrailComponent()
 {
@@ -10,7 +11,7 @@ TrailComponent::~TrailComponent()
 {
 }
 
-void TrailComponent::ReadyComponent(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+void TrailComponent::ReadyComponent(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,GameObject* mpTrailObject)
 {
 	m_fCreateTime = 0.001f;
 
@@ -20,7 +21,7 @@ void TrailComponent::ReadyComponent(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_fTime = m_fCreateTime + 1.f;
 
 	//사각형 하나당 6개 * Divide(캣멀롬)
-	//m_pTrailObject = new CTrailObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, (m_iMaxCount - 1) * m_iDivide * 6);
+	m_pTrailObject = mpTrailObject;
 
 }
 
@@ -86,7 +87,7 @@ void TrailComponent::AddTrail(XMFLOAT3& xmf3Top, XMFLOAT3& xmf3Bottom)
 	}
 }
 
-void TrailComponent::RenderTrail(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
+void TrailComponent::RenderTrail(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CCamera* pCamera)
 {
 	//나중에 렌더링을 끊기 보다는 자연스럽게 사라지도록 할 것.
 	if (!m_bRender)
@@ -138,7 +139,7 @@ void TrailComponent::RenderTrail(ID3D12GraphicsCommandList* pd3dCommandList, CCa
 	}
 
 	//m_pTrailObject->m_pTrailMesh->SetVertices(pVertices, iVertexCount);
-	//m_pTrailObject->Render(pd3dCommandList, pCamera); //렌더링은 한번만
+	m_pTrailObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature); //렌더링은 한번만
 
 	delete[] pVertices;
 }

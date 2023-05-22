@@ -557,6 +557,10 @@ void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 		m_ppParticleObjects.emplace_back(m_pFireballSpriteObjects[i]);
 	}
 }
+void GameobjectManager::BuildTrail(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+{
+
+}
 void GameobjectManager::BuildLight()
 {
 	m_pLight->BuildLight();

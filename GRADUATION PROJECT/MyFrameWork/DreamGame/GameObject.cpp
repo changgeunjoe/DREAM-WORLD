@@ -227,7 +227,6 @@ void GameObject::HandleMessage(string message)
 
 void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-
 	m_pd3dGraphicsRootSignature = pd3dGraphicsRootSignature;
 	ComponentBase* pComponent = GetComponent(component_id::RENDER_COMPONENT);
 	ComponentBase* pInsComponent = GetComponent(component_id::INSRENDER_COMPONENT);
@@ -250,45 +249,7 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		m_pTextureComponent->LoadTextureFromFile(pd3dDevice, pd3dCommandList, pszFileNames, m_nSamplers, 0);
 	}
 	BuildMesh(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-
-	//->메테리얼 생성 텍스쳐와 쉐이더를 넣어야되는데 쉐이더이므로 안 넣어도 됨
-	ComponentBase* pShaderComponent = GetComponent(component_id::SHADER_COMPONENT);
-	ComponentBase* pSkyShaderComponent = GetComponent(component_id::SKYSHADER_COMPONENT);
-	ComponentBase* pUiShaderComponent = GetComponent(component_id::UISHADER_COMPONENT);
-	ComponentBase* pBlendingUiShaderComponent = GetComponent(component_id::BLENDINGUISHADER_COMPONENT);
-	ComponentBase* pSpriteShaderComponent = GetComponent(component_id::SPRITESHADER_COMPONENT);
-	ComponentBase* pBoundingBoxShaderComponent = GetComponent(component_id::BOUNDINGBOX_COMPONENT);
-	if (pShaderComponent != NULL || pSkyShaderComponent != NULL || pUiShaderComponent != NULL || pSpriteShaderComponent != NULL || pBoundingBoxShaderComponent != NULL || pBlendingUiShaderComponent != NULL)
-	{
-		if (pShaderComponent != NULL)
-		{
-			m_pShaderComponent = static_cast<ShaderComponent*>(pShaderComponent);
-		}
-		else if (pSkyShaderComponent != NULL) {
-			m_pShaderComponent = static_cast<SkyBoxShaderComponent*>(pSkyShaderComponent);
-		}
-		else if (pUiShaderComponent != NULL) {
-			m_pShaderComponent = static_cast<UiShaderComponent*>(pUiShaderComponent);
-		}
-		else if (pBlendingUiShaderComponent != NULL) {
-			m_pShaderComponent = static_cast<BlendingUiShaderComponent*>(pBlendingUiShaderComponent);
-		}
-		else if (pSpriteShaderComponent != NULL) {
-			m_pShaderComponent = static_cast<MultiSpriteShaderComponent*>(pSpriteShaderComponent);
-		}
-		else if (pBoundingBoxShaderComponent != NULL) {
-			m_pShaderComponent = static_cast<BoundingBoxShaderComponent*>(pBoundingBoxShaderComponent);
-		}
-		m_pShaderComponent->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
-		m_pShaderComponent->CreateCbvSrvDescriptorHeaps(pd3dDevice, 2, 2);
-		m_pShaderComponent->CreateShaderVariables(pd3dDevice, pd3dCommandList);
-		m_pShaderComponent->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObjects, ncbElementBytes);
-		if (m_pTextureComponent)
-		{
-			m_pShaderComponent->CreateShaderResourceViews(pd3dDevice, m_pTextureComponent, 0, m_nRootParameter, pShadowMap);//texture입력
-		}
-		m_pShaderComponent->SetCbvGPUDescriptorHandlePtr(m_pShaderComponent->GetGPUCbvDescriptorStartHandle().ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));
-	}
+	BuildShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	ComponentBase* pLoadedmodelComponent = GetComponent(component_id::LOADEDMODEL_COMPONET);
 	if (pLoadedmodelComponent != NULL)
 	{
@@ -343,6 +304,53 @@ void GameObject::BuildMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 		m_pTrailMeshComponent = static_cast<TrailMeshComponent*>(pTrailMeshComponent);
 		m_pTrailMeshComponent->BuildObject(pd3dDevice, pd3dCommandList, m_iVertexCount);
 		m_pMeshComponent = m_pTrailMeshComponent;
+	}
+}
+
+void GameObject::BuildShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+{
+	//->메테리얼 생성 텍스쳐와 쉐이더를 넣어야되는데 쉐이더이므로 안 넣어도 됨
+	ComponentBase* pShaderComponent = GetComponent(component_id::SHADER_COMPONENT);
+	ComponentBase* pSkyShaderComponent = GetComponent(component_id::SKYSHADER_COMPONENT);
+	ComponentBase* pUiShaderComponent = GetComponent(component_id::UISHADER_COMPONENT);
+	ComponentBase* pBlendingUiShaderComponent = GetComponent(component_id::BLENDINGUISHADER_COMPONENT);
+	ComponentBase* pSpriteShaderComponent = GetComponent(component_id::SPRITESHADER_COMPONENT);
+	ComponentBase* pBoundingBoxShaderComponent = GetComponent(component_id::BOUNDINGBOX_COMPONENT);
+	ComponentBase* pTrailShaderComponent = GetComponent(component_id::TRAILSHADER_COMPONENT);
+	if (pShaderComponent != NULL || pSkyShaderComponent != NULL || pUiShaderComponent != NULL || pSpriteShaderComponent != NULL 
+		|| pBoundingBoxShaderComponent != NULL || pBlendingUiShaderComponent != NULL|| pTrailShaderComponent!=NULL)
+	{
+		if (pShaderComponent != NULL)
+		{
+			m_pShaderComponent = static_cast<ShaderComponent*>(pShaderComponent);
+		}
+		else if (pSkyShaderComponent != NULL) {
+			m_pShaderComponent = static_cast<SkyBoxShaderComponent*>(pSkyShaderComponent);
+		}
+		else if (pUiShaderComponent != NULL) {
+			m_pShaderComponent = static_cast<UiShaderComponent*>(pUiShaderComponent);
+		}
+		else if (pBlendingUiShaderComponent != NULL) {
+			m_pShaderComponent = static_cast<BlendingUiShaderComponent*>(pBlendingUiShaderComponent);
+		}
+		else if (pSpriteShaderComponent != NULL) {
+			m_pShaderComponent = static_cast<MultiSpriteShaderComponent*>(pSpriteShaderComponent);
+		}
+		else if (pBoundingBoxShaderComponent != NULL) {
+			m_pShaderComponent = static_cast<BoundingBoxShaderComponent*>(pBoundingBoxShaderComponent);
+		}
+		else if (pTrailShaderComponent != NULL) {
+			//m_pShaderComponent = static_cast<BoundingBoxShaderComponent*>(pTrailShaderComponent);
+		}
+		m_pShaderComponent->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
+		m_pShaderComponent->CreateCbvSrvDescriptorHeaps(pd3dDevice, 2, 2);
+		m_pShaderComponent->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+		m_pShaderComponent->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObjects, ncbElementBytes);
+		if (m_pTextureComponent)
+		{
+			m_pShaderComponent->CreateShaderResourceViews(pd3dDevice, m_pTextureComponent, 0, m_nRootParameter, pShadowMap);//texture입력
+		}
+		m_pShaderComponent->SetCbvGPUDescriptorHandlePtr(m_pShaderComponent->GetGPUCbvDescriptorStartHandle().ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));
 	}
 }
 
