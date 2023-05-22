@@ -105,3 +105,14 @@ public:
 	virtual void Animate(float fTimeElapsed);
 	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender = false);
 };
+
+class TrailObject : public GameObject
+{
+public:
+	
+	float		m_Angle;
+public:
+	TrailObject(entity_id eid = UNDEF_ENTITY);
+	virtual ~TrailObject();
+	virtual void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+};

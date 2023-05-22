@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "GameObject.h"
-#include"CAnimationSets.h"
+#include "CAnimationSets.h"
 #include "Animation.h"
-#include"DepthRenderShaderComponent.h"
-#include"InstanceRenderComponent.h"
+#include "DepthRenderShaderComponent.h"
+#include "InstanceRenderComponent.h"
 
 
 BYTE ReadStringFromFile(FILE* pInFile, char* pstrToken)
@@ -223,6 +223,8 @@ void GameObject::HandleMessage(string message)
 {
 }
 
+
+
 void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
 
@@ -247,34 +249,7 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		m_pTextureComponent->BuildTexture(1, m_nSamplers, 0, 1);
 		m_pTextureComponent->LoadTextureFromFile(pd3dDevice, pd3dCommandList, pszFileNames, m_nSamplers, 0);
 	}
-	ComponentBase* pCubeMeshComponent = GetComponent(component_id::CUBEMESH_COMPONENT);
-	if (pCubeMeshComponent != NULL)
-	{
-		m_pCubeComponent = static_cast<CubeMeshComponent*>(pCubeMeshComponent);
-		m_pCubeComponent->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, 10, 10, 10);
-		m_pMeshComponent = m_pCubeComponent;
-	}
-	ComponentBase* pSkyMeshComponent = GetComponent(component_id::SKYBOXMESH_COMPONENT);
-	if (pSkyMeshComponent != NULL)
-	{
-		m_pSkyboxComponent = static_cast<SkyBoxMeshComponent*>(pSkyMeshComponent);
-		m_pSkyboxComponent->BuildObject(pd3dDevice, pd3dCommandList, 200.0f, 200.0f, 200.0f);
-		m_pMeshComponent = m_pSkyboxComponent;
-	}
-	ComponentBase* pUIMeshComponent = GetComponent(component_id::UIMESH_COMPONENT);
-	if (pUIMeshComponent != NULL)
-	{
-		m_pUiComponent = static_cast<UIMeshComponent*>(pUIMeshComponent);
-		m_pUiComponent->BuildObject(pd3dDevice, pd3dCommandList, 1.0f, 1.0f, 2.0f, 2.0f);
-		m_pMeshComponent = m_pUiComponent;
-	}
-	ComponentBase* pSphereMeshComponent = GetComponent(component_id::SPHEREMESH_COMPONENT);
-	if (pSphereMeshComponent != NULL)
-	{
-		m_pSphereComponent = static_cast<SphereMeshComponent*>(pSphereMeshComponent);
-		m_pSphereComponent->BuildObject(pd3dDevice, pd3dCommandList, m_fBoundingSize, 20, 20);
-		m_pMeshComponent = m_pSphereComponent;
-	}
+	BuildMesh(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 	//->메테리얼 생성 텍스쳐와 쉐이더를 넣어야되는데 쉐이더이므로 안 넣어도 됨
 	ComponentBase* pShaderComponent = GetComponent(component_id::SHADER_COMPONENT);
@@ -332,6 +307,45 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
+void GameObject::BuildMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+{
+	ComponentBase* pCubeMeshComponent = GetComponent(component_id::CUBEMESH_COMPONENT);
+	if (pCubeMeshComponent != NULL)
+	{
+		m_pCubeComponent = static_cast<CubeMeshComponent*>(pCubeMeshComponent);
+		m_pCubeComponent->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, 10, 10, 10);
+		m_pMeshComponent = m_pCubeComponent;
+	}
+	ComponentBase* pSkyMeshComponent = GetComponent(component_id::SKYBOXMESH_COMPONENT);
+	if (pSkyMeshComponent != NULL)
+	{
+		m_pSkyboxComponent = static_cast<SkyBoxMeshComponent*>(pSkyMeshComponent);
+		m_pSkyboxComponent->BuildObject(pd3dDevice, pd3dCommandList, 200.0f, 200.0f, 200.0f);
+		m_pMeshComponent = m_pSkyboxComponent;
+	}
+	ComponentBase* pUIMeshComponent = GetComponent(component_id::UIMESH_COMPONENT);
+	if (pUIMeshComponent != NULL)
+	{
+		m_pUiComponent = static_cast<UIMeshComponent*>(pUIMeshComponent);
+		m_pUiComponent->BuildObject(pd3dDevice, pd3dCommandList, 1.0f, 1.0f, 2.0f, 2.0f);
+		m_pMeshComponent = m_pUiComponent;
+	}
+	ComponentBase* pSphereMeshComponent = GetComponent(component_id::SPHEREMESH_COMPONENT);
+	if (pSphereMeshComponent != NULL)
+	{
+		m_pSphereComponent = static_cast<SphereMeshComponent*>(pSphereMeshComponent);
+		m_pSphereComponent->BuildObject(pd3dDevice, pd3dCommandList, m_fBoundingSize, 20, 20);
+		m_pMeshComponent = m_pSphereComponent;
+	}
+	ComponentBase* pTrailMeshComponent = GetComponent(component_id::TRAILMESH_COMPONENT);
+	if (pTrailMeshComponent != NULL)
+	{
+		m_pTrailMeshComponent = static_cast<TrailMeshComponent*>(pTrailMeshComponent);
+		m_pTrailMeshComponent->BuildObject(pd3dDevice, pd3dCommandList, m_iVertexCount);
+		m_pMeshComponent = m_pTrailMeshComponent;
+	}
+}
+
 void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender)
 {
 	UpdateShaderVariables(pd3dCommandList);
@@ -361,8 +375,6 @@ void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3
 				if (m_ppMaterialsComponent[i]->m_pShader)
 				{
 					m_ppMaterialsComponent[i]->m_pShader->Render(pd3dCommandList, 0, pd3dGraphicsRootSignature, bPrerender);
-
-
 					pd3dCommandList->SetGraphicsRootDescriptorTable(0, m_ppMaterialsComponent[i]->m_pShader->GetCbvGPUDescriptorHandle());
 					m_ppMaterialsComponent[i]->m_pShader->UpdateShaderVariables(pd3dCommandList, &m_xmf4x4World, m_ppMaterialsComponent[i]);
 					//m_ppMaterialsComponent[i]->UpdateShaderVariable(pd3dCommandList);
@@ -405,8 +417,6 @@ void GameObject::InstanceRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandL
 				if (m_ppMaterialsComponent[i]->m_pShader)
 				{
 					m_ppMaterialsComponent[i]->m_pShader->Render(pd3dCommandList, 0, pd3dGraphicsRootSignature, bPrerender);
-
-
 					pd3dCommandList->SetGraphicsRootDescriptorTable(0, m_ppMaterialsComponent[i]->m_pShader->GetCbvGPUDescriptorHandle());
 					m_ppMaterialsComponent[i]->m_pShader->UpdateShaderVariables(pd3dCommandList, &m_xmf4x4World, m_ppMaterialsComponent[i]);
 					//m_ppMaterialsComponent[i]->UpdateShaderVariable(pd3dCommandList);

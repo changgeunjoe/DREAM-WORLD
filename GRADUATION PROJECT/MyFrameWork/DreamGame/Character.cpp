@@ -1054,3 +1054,16 @@ void EnergyBall::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3
 		GameObject::Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
 	}
 }
+
+TrailObject::TrailObject(entity_id eid) : GameObject(eid)
+{
+
+}
+
+TrailObject::~TrailObject()
+{
+}
+
+void TrailObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+{
+}

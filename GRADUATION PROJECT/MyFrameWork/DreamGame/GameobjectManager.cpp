@@ -234,10 +234,15 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	UpdateShaderVariables(pd3dCommandList);
 	m_pSkyboxObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
-	m_pDepthShaderComponent->UpdateShaderVariables(pd3dCommandList);
+	if (m_pDepthShaderComponent) {
+		m_pDepthShaderComponent->UpdateShaderVariables(pd3dCommandList);
+	}
 	//ÀÎ½ºÅÏ½Ì ·»´õ 
-	m_pInstancingShaderComponent->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature);
+	if (m_pInstancingShaderComponent) {
+		m_pInstancingShaderComponent->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature);
+	}
 
+	//m_pFireballSpriteObjects[0]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//
 	//g_Logic.m_MonsterSession.m_currentPlayGameObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	if (m_bDebugMode)
@@ -281,7 +286,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	//}
 
 	if (m_pMonsterHPBarObject) {
-		m_pMonsterHPBarObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		//m_pMonsterHPBarObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 
 	if (m_pShadowmapShaderComponent)
@@ -447,6 +452,15 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 		static_cast<Priest*>(m_pPriestObject)->SetEnergyBall(m_pEnergyBallObjects[i]);
 	}
 
+	m_pEnergyBallObject=new EnergyBall();
+	m_pEnergyBallObject->InsertComponent<RenderComponent>();
+	m_pEnergyBallObject->InsertComponent<SphereMeshComponent>();
+	m_pEnergyBallObject->InsertComponent<SphereShaderComponent>();
+	m_pEnergyBallObject->SetPosition(XMFLOAT3(0, 0, 100));
+	m_pEnergyBallObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pEnergyBallObject->SetScale(0.5f);
+	m_pEnergyBallObject->SetBoundingSize(4);
+
 	m_pBoundingBox[4] = new GameObject(SQUARE_ENTITY);
 	m_pBoundingBox[4]->InsertComponent<RenderComponent>();
 	m_pBoundingBox[4]->InsertComponent<SphereMeshComponent>();
@@ -532,7 +546,7 @@ void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	m_pFireballSpriteObjects[0] = new GameObject(UNDEF_ENTITY);
 	m_pFireballSpriteObjects[0]->InsertComponent<RenderComponent>();
 	m_pFireballSpriteObjects[0]->InsertComponent<CLoadedModelInfoCompnent>();
-	m_pFireballSpriteObjects[0]->SetPosition(XMFLOAT3(0, 0, 0));
+	m_pFireballSpriteObjects[0]->SetPosition(XMFLOAT3(100, 0, 0));
 	m_pFireballSpriteObjects[0]->SetModel("Model/RockSpike.bin");
 	m_pFireballSpriteObjects[0]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pFireballSpriteObjects[0]->SetScale(30.0f, 30.0f, 30.0f);

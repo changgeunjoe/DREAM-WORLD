@@ -11,7 +11,7 @@ InstancingShaderComponent::~InstancingShaderComponent()
 
 D3D12_INPUT_LAYOUT_DESC InstancingShaderComponent::CreateInputLayout(int nPipelineState)
 {
-	UINT nInputElementDescs = 5;
+	UINT nInputElementDescs = 7;
 	D3D12_INPUT_ELEMENT_DESC* pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
 
 	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
@@ -19,6 +19,8 @@ D3D12_INPUT_LAYOUT_DESC InstancingShaderComponent::CreateInputLayout(int nPipeli
 	pd3dInputElementDescs[2] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 2, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 	pd3dInputElementDescs[3] = { "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 3, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 	pd3dInputElementDescs[4] = { "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 4, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[5] = { "BONEINDEX", 0, DXGI_FORMAT_R32G32B32A32_SINT, 5, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[6] = { "BONEWEIGHT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 6, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 
 	D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
 	d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
@@ -68,7 +70,8 @@ void InstancingShaderComponent::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 
 	
 	for (int i = 0; i < m_ppObjects.size(); i++) {
-		m_ppObjects[i]->InstanceRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,  m_ppObjects.size(), true);
+		//m_ppObjects[i]->InstanceRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,  m_ppObjects.size(), true);
+		m_ppObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, true);
 	}
 
 }

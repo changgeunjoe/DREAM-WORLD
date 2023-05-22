@@ -85,6 +85,7 @@ public:
 	void HandleMessage(string message);
 
     virtual void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void BuildMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
     virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,bool bPrerender=false);
     virtual void InstanceRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, int nObjects,bool bPrerender = false);
     void ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent);
@@ -182,6 +183,8 @@ protected:
 	int                             m_nSamplers = 1;
 	int                             m_nRootParameter = 1;
 	float                           m_fScale = 0.0f;
+
+	int								m_iVertexCount = 0;
 	entity_id m_entityID{};//object id 
 	XMFLOAT3 m_position{};
 	//Quaternion m_orientation;
@@ -200,6 +203,7 @@ protected:
     ShaderComponent* m_pShaderComponent{ nullptr };
     RenderComponent* m_pRenderComponent{ nullptr };
 	SphereMeshComponent* m_pSphereComponent{ nullptr };
+	TrailMeshComponent* m_pTrailMeshComponent{ nullptr };
     InstanceRenderComponent* m_pInstanceRenderComponent{ nullptr };//인스턴스 렌더 추가 23.04.26 .ccg
     CLoadedModelInfoCompnent* m_pLoadedModelComponent{ nullptr };
     MaterialComponent** m_ppMaterialsComponent{ nullptr };

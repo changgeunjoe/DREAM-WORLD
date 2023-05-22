@@ -65,6 +65,7 @@ private: //active object
 	GameObject* m_pAnimationObject{ NULL };
 	GameObject* m_pMonsterObject{ NULL };
 	GameObject* m_pPlayerObject{ NULL };
+	GameObject* m_pEnergyBallObject{ NULL };
 
 
 	DepthRenderShaderComponent* m_pDepthShaderComponent{ NULL };
