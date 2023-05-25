@@ -33,9 +33,9 @@ void TrailComponent::Update_Component(const float& fTimeDelta)
 	m_fTime -= fTimeDelta;
 }
 
-void TrailComponent::AddTrail(XMFLOAT3& xmf3Top, XMFLOAT3& xmf3Bottom)
+void TrailComponent::AddTrail(const XMFLOAT3& xmf3Top, XMFLOAT3& xmf3Bottom)
 {
-	if (m_fTime < 0.f)
+	if (m_fTime > 0.f)
 	{
 		m_fTime = m_fCreateTime;
 
@@ -64,7 +64,6 @@ void TrailComponent::AddTrail(XMFLOAT3& xmf3Top, XMFLOAT3& xmf3Bottom)
 			m_listRomPos.emplace_back(make_pair(xmf3Top, xmf3Bottom));
 			return;
 		}
-
 		auto iter = m_listPos.end();
 		XMFLOAT3 xmf3TopPos[4], xmf3BottomPos[4];
 		//최신 점 4개
@@ -82,16 +81,15 @@ void TrailComponent::AddTrail(XMFLOAT3& xmf3Top, XMFLOAT3& xmf3Bottom)
 
 			m_listRomPos.emplace_back(make_pair(xmf3RomTopPos, xmf3RomBottomPos));
 		}
-
-		//cout << m_listPos.size() << ", " << m_listRomPos.size() << endl;
+		cout << m_listPos.size() << ", " << m_listRomPos.size() << endl;
 	}
 }
 
-void TrailComponent::RenderTrail(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CCamera* pCamera)
+void TrailComponent::RenderTrail(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
 	//나중에 렌더링을 끊기 보다는 자연스럽게 사라지도록 할 것.
-	if (!m_bRender)
-		return;
+	//if (!m_bRender)
+	//	return;
 
 	size_t iCount = m_listRomPos.size();
 	if (iCount <= 1)
@@ -128,17 +126,21 @@ void TrailComponent::RenderTrail(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 		xmf2UV[2] = { fNextRatio / 1.f, (fNextRatio / 1.f) };
 		xmf2UV[3] = { fNextRatio / 1.f, 0.f };
 
-		pVertices[i++] = Textured2DUIVertex(xmf3Pos[2], xmf2UV[2]);	//xmf3Bottom2,
-		pVertices[i++] = Textured2DUIVertex(xmf3Pos[3], xmf2UV[3]);	//xmf3Top2,	
-		pVertices[i++] = Textured2DUIVertex(xmf3Pos[0], xmf2UV[0]);	//xmf3Top1,	
-		pVertices[i++] = Textured2DUIVertex(xmf3Pos[0], xmf2UV[0]);	//xmf3Top1,	
-		pVertices[i++] = Textured2DUIVertex(xmf3Pos[1], xmf2UV[1]);	//xmf3Bottom1,
-		pVertices[i++] = Textured2DUIVertex(xmf3Pos[2], xmf2UV[2]);	//xmf3Bottom2,
+		//cout << "x = "<<xmf3Pos[2].x << "y = " << xmf3Pos[2].y<< "z = " << xmf3Pos[2].z<<endl;
+		//cout << "x = " << xmf3Pos[3].x << "y = " << xmf3Pos[3].y << "z = " << xmf3Pos[3].z << endl;
+		//cout << "x = " << xmf3Pos[0].x << "y = " << xmf3Pos[0].y << "z = " << xmf3Pos[0].z << endl;
+		//cout << "x = " << xmf3Pos[1].x << "y = " << xmf3Pos[1].y << "z = " << xmf3Pos[1].z << endl;
+		pVertices[i++] = Textured2DUIVertex(xmf3Pos[2], xmf2UV[2]);//xmf3Bottom2,
+		pVertices[i++] = Textured2DUIVertex(xmf3Pos[3], xmf2UV[3]);//xmf3Top2,	
+		pVertices[i++] = Textured2DUIVertex(xmf3Pos[0], xmf2UV[0]);//xmf3Top1,	
+		pVertices[i++] = Textured2DUIVertex(xmf3Pos[0], xmf2UV[0]);//xmf3Top1,	
+		pVertices[i++] = Textured2DUIVertex(xmf3Pos[1], xmf2UV[1]);//xmf3Bottom1,
+		pVertices[i++] = Textured2DUIVertex(xmf3Pos[2], xmf2UV[2]);//xmf3Bottom2,
 
 		iLineIndex++;
 	}
-
-	//m_pTrailObject->m_pTrailMesh->SetVertices(pVertices, iVertexCount);
+	
+	m_pTrailObject->GetMesh()->SetVertices(pVertices, iVertexCount);
 	m_pTrailObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature); //렌더링은 한번만
 
 	delete[] pVertices;

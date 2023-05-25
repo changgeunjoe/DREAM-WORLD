@@ -19,6 +19,7 @@ class ComponentBase;
 class CAnimationController;
 class Projectile;
 class InstanceRenderComponent;
+class TrailShaderComponent;
 
 #define MATERIAL_ALBEDO_MAP				0x01
 #define MATERIAL_SPECULAR_MAP			0x02
@@ -113,6 +114,7 @@ public:
     void SetCurrentHP(float fHP);
 	float GetCurrentHP() { return m_fHp; }
 	float GetMaxCurrentHP() { return m_fMaxHp; }
+	MeshComponent* GetMesh() { return m_pMeshComponent; };
 public:
 	static CLoadedModelInfoCompnent* LoadGeometryAndAnimationFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, ShaderComponent* pShader, bool isBinary);
 
@@ -369,6 +371,14 @@ inline T* GameObject::ComponentType(component_id& componentID)
 	{
 		componentID = component_id::SPHERE_COMPONENT;
 	}
+	else if (typeid(T).name() == typeid(TrailShaderComponent).name())
+	{
+		componentID = component_id::TRAILSHADER_COMPONENT;
+	}
+	else if (typeid(T).name() == typeid(TrailMeshComponent).name())
+	{
+		componentID = component_id::TRAILMESH_COMPONENT;
+	}
     else if (typeid(T).name() == typeid(TextureComponent).name())
     {
         componentID = component_id::TEXTURE_COMPONENT;
@@ -377,6 +387,7 @@ inline T* GameObject::ComponentType(component_id& componentID)
     {
         componentID = component_id::LOADEDMODEL_COMPONET;
     }
+
     else
     {
         componentID = component_id::UNDEF_COMPONENT;

@@ -219,6 +219,13 @@ VS_TEXTURED_OUTPUT VSTrailTextured(VS_TEXTURED_INPUT input)
     return (output);
 }
 
+float4 PSTexturedTrail(VS_TEXTURED_OUTPUT input) : SV_TARGET
+{
+       // Sample the texture
+    float4 cColor = shaderTexture.Sample(gWrapSamplerState, input.uv);
+    return (cColor);
+}
+
 float4 PSSpriteTextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
 {
        // Sample the texture

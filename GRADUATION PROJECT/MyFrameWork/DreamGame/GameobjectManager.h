@@ -20,6 +20,7 @@ public:
 	~GameobjectManager();
 	virtual void Animate(float fTimeElapsed);
 	virtual void CharacterUIAnimate(float fTimeElapsed);
+	virtual void TrailAnimate(float fTimeElapsed);
 	virtual void StoryUIAnimate(float fTimeElapsed);
 	virtual void OnPreRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
@@ -121,7 +122,9 @@ private: //active object
 	GameObject* m_pStory4Object{ NULL };
 	vector<GameObject*> m_ppStoryUIObjects;
 	
-	TrailComponent* m_pTrailComponent;
+	//TrailObject
+	GameObject* m_pTrailObject{ NULL };
+	TrailComponent* m_pTrailComponent{ NULL };
 	
 	//
 

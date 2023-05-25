@@ -4,6 +4,7 @@
 #include "Animation.h"
 #include "DepthRenderShaderComponent.h"
 #include "InstanceRenderComponent.h"
+#include "TrailShaderComponent.h"
 
 
 BYTE ReadStringFromFile(FILE* pInFile, char* pstrToken)
@@ -302,7 +303,7 @@ void GameObject::BuildMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 	if (pTrailMeshComponent != NULL)
 	{
 		m_pTrailMeshComponent = static_cast<TrailMeshComponent*>(pTrailMeshComponent);
-		m_pTrailMeshComponent->BuildObject(pd3dDevice, pd3dCommandList, m_iVertexCount);
+		m_pTrailMeshComponent->BuildObject(pd3dDevice, pd3dCommandList, 24*8*6);
 		m_pMeshComponent = m_pTrailMeshComponent;
 	}
 }
@@ -340,7 +341,7 @@ void GameObject::BuildShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 			m_pShaderComponent = static_cast<BoundingBoxShaderComponent*>(pBoundingBoxShaderComponent);
 		}
 		else if (pTrailShaderComponent != NULL) {
-			//m_pShaderComponent = static_cast<BoundingBoxShaderComponent*>(pTrailShaderComponent);
+			m_pShaderComponent = static_cast<TrailShaderComponent*>(pTrailShaderComponent);
 		}
 		m_pShaderComponent->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
 		m_pShaderComponent->CreateCbvSrvDescriptorHeaps(pd3dDevice, 2, 2);

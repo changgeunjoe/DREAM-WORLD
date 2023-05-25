@@ -198,6 +198,18 @@ int MeshComponent::CheckRayIntersection(XMFLOAT3& xmf3RayOrigin, XMFLOAT3& xmf3R
 	return(nIntersections);
 }
 
+void MeshComponent::SetPosition(XMFLOAT3& xmf3Top1, XMFLOAT3& xmf3Bottom1, XMFLOAT3& xmf3Top2, XMFLOAT3& xmf3Bottom2)
+{
+}
+
+void MeshComponent::SetVertices(Textured2DUIVertex* pVertices, size_t iVertexCount)
+{
+	m_nVertices = (int)iVertexCount;
+
+	m_d3dVertexBufferView.SizeInBytes = sizeof(Textured2DUIVertex) * m_nVertices;
+	memcpy(m_pBufferDataBegin, pVertices, sizeof(Textured2DUIVertex) * iVertexCount);
+}
+
 
 
 StandardMeshComponent::StandardMeshComponent()
@@ -629,6 +641,14 @@ void TrailMeshComponent::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 
 	Textured2DUIVertex pVertices[6];
 
+		//pVertices[0] = CTexturedVertex(XMFLOAT3(+1.f, +1.f, +0.f), XMFLOAT2(1.0f, 0.0f));
+	//pVertices[1] = CTexturedVertex(XMFLOAT3(-1.f, +1.f, +0.f), XMFLOAT2(0.0f, 0.0f));
+	//pVertices[2] = CTexturedVertex(XMFLOAT3(-1.f, -1.f, +0.f), XMFLOAT2(0.0f, 1.0f));
+	//pVertices[3] = CTexturedVertex(XMFLOAT3(-1.f, -1.f, +0.f), XMFLOAT2(0.0f, 1.0f));
+	//pVertices[4] = CTexturedVertex(XMFLOAT3(+1.f, -1.f, +0.f), XMFLOAT2(1.0f, 1.0f));
+	//pVertices[5] = CTexturedVertex(XMFLOAT3(+1.f, +1.f, +0.f), XMFLOAT2(1.0f, 0.0f));
+	//m_pd3dPositionBuffer = CreateBufferResource(pd3dDevice, pd3dCommandList, pVertices, sizeof(CTexturedVertex) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dPositionUploadBuffer);
+	// 
 	//Á¤Á¡ ÃÖ´ë°¹¼ö °öÇØÁà¾ßÇÔ
 	UINT ncbElementBytes = ((sizeof(Textured2DUIVertex) * iMaxVertexCount + 255) & ~255); //256ÀÇ ¹è¼ö
 	m_pd3dVertexBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD,
@@ -641,14 +661,3 @@ void TrailMeshComponent::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 
 }
 
-void TrailMeshComponent::SetPosition(XMFLOAT3& xmf3Top1, XMFLOAT3& xmf3Bottom1, XMFLOAT3& xmf3Top2, XMFLOAT3& xmf3Bottom2)
-{
-}
-
-void TrailMeshComponent::SetVertices(Textured2DUIVertex* pVertices, size_t iVertexCount)
-{
-	m_nVertices = (int)iVertexCount;
-
-	m_d3dVertexBufferView.SizeInBytes = sizeof(Textured2DUIVertex) * m_nVertices;
-	memcpy(m_pBufferDataBegin, pVertices, sizeof(Textured2DUIVertex) * iVertexCount);
-}

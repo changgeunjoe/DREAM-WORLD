@@ -9,6 +9,8 @@
 #include "MultiSpriteShaderComponent.h"
 #include "Character.h"
 #include "InstancingShaderComponent.h"
+#include "TrailShaderComponent.h"
+#include "TrailComponent.h"
 
 
 extern NetworkHelper g_NetworkHelper;
@@ -138,6 +140,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 		m_ppParticleObjects[i]->AnimateRowColumn(fTimeElapsed);
 	}
 	CharacterUIAnimate(fTimeElapsed);
+	TrailAnimate(fTimeElapsed);
 }
 
 void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)
@@ -216,6 +219,13 @@ void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)
 	}
 }
 
+void GameobjectManager::TrailAnimate(float fTimeElapsed)
+{
+	m_pTrailComponent->AddTrail(XMFLOAT3(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition().x,
+		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition().y+5, g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition().z), XMFLOAT3(0, 0, 0));
+
+}
+
 void GameobjectManager::StoryUIAnimate(float fTimeElapsed)
 {
 
@@ -288,7 +298,12 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	if (m_pMonsterHPBarObject) {
 		//m_pMonsterHPBarObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
-
+	//if (m_pTrailObject) {
+	//	m_pTrailObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//}
+	if (m_pTrailComponent) {
+		m_pTrailComponent->RenderTrail(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
 	if (m_pShadowmapShaderComponent)
 	{
 		m_pShadowmapShaderComponent->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature);
@@ -515,6 +530,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	BuildParticle(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildInstanceObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildStoryUI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	BuildTrail(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
 void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
@@ -559,7 +575,17 @@ void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 }
 void GameobjectManager::BuildTrail(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-
+	m_pTrailObject = new GameObject(UNDEF_ENTITY);
+	m_pTrailObject->InsertComponent<RenderComponent>();
+	m_pTrailObject->InsertComponent<TrailMeshComponent>();
+	m_pTrailObject->InsertComponent<TrailShaderComponent>();
+	m_pTrailObject->InsertComponent<TextureComponent>();
+	m_pTrailObject->SetTexture(L"Trail/Trail.dds", RESOURCE_TEXTURE2D, 3);
+	m_pTrailObject->SetPosition(XMFLOAT3(0, 40, 100));
+	m_pTrailObject->SetScale(10);
+	m_pTrailObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pTrailComponent = new TrailComponent();
+	m_pTrailComponent->ReadyComponent(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pTrailObject);
 }
 void GameobjectManager::BuildLight()
 {

@@ -103,6 +103,8 @@ public:
 	virtual void						ReleaseUploadBuffers();
 	virtual void						UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList) {};
 	virtual void OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList, void* pContext);
+	void		SetPosition(XMFLOAT3& xmf3Top1, XMFLOAT3& xmf3Bottom1, XMFLOAT3& xmf3Top2, XMFLOAT3& xmf3Bottom2);
+	void		SetVertices(Textured2DUIVertex* pVertices, size_t iVertexCount);
 	int CheckRayIntersection(XMFLOAT3& xmRayPosition, XMFLOAT3& xmRayDirection, float* pfNearHitDistance);
 	void AddRef() { m_nReferences++; }
 	void Release() { if (--m_nReferences <= 0) delete this; }
@@ -149,6 +151,9 @@ protected:
 
 
 
+protected:
+	UINT8* m_pBufferDataBegin = NULL;
+
 
 };
 
@@ -187,10 +192,8 @@ public:
 
 	void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, int iMaxVertexCount);
 
-	void		SetPosition(XMFLOAT3& xmf3Top1, XMFLOAT3& xmf3Bottom1, XMFLOAT3& xmf3Top2, XMFLOAT3& xmf3Bottom2);
-	void		SetVertices(Textured2DUIVertex* pVertices, size_t iVertexCount);
-private:
-	UINT8* m_pBufferDataBegin = NULL;
+
+
 
 };
 class UIMeshComponent : public MeshComponent
