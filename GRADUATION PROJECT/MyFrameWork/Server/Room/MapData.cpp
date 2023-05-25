@@ -26,8 +26,10 @@ void MapData::GetReadMapData()
 	copy(istream_iterator<char>(inFile), {}, back_inserter(fileDataString));
 	const string verticesStr = "<Vertices>:";
 	const string indicesStr = "<Indices>:";
+	const string relationStr = "<Relay>:";
 	auto vertexPos = fileDataString.find(verticesStr);
-	auto indezxPos = fileDataString.find(indicesStr);
+	auto indexPos = fileDataString.find(indicesStr);
+	auto relationxPos = fileDataString.find(relationStr);
 	inFile.clear();
 
 	//vertex data Read
@@ -47,7 +49,7 @@ void MapData::GetReadMapData()
 	//index data Read
 	inFile.clear();
 	inFile >> std::noskipws;
-	inFile.seekg(indezxPos + indicesStr.size() + 1 , std::ios::beg);
+	inFile.seekg(indexPos + indicesStr.size() + 1, std::ios::beg);
 	cout << "index pos: " << inFile.tellg() << endl;
 	inFile >> std::skipws;
 
@@ -63,41 +65,44 @@ void MapData::GetReadMapData()
 		indexCnt--;
 	}
 
-	
+	//Relay Data Read
+	inFile.clear();
+	inFile >> std::noskipws;
+	inFile.seekg(relationxPos + relationStr.size() + 2, std::ios::beg);
+	cout << "relation pos: " << inFile.tellg() << endl;
+	inFile >> std::skipws;
 
 	for (auto indexIter = index.begin(); indexIter != index.end(); indexIter += 3) {
 		m_triangleMesh.emplace_back(vertex[*indexIter], vertex[*(indexIter + 1)], vertex[*(indexIter + 2)]);
-
 	}
 
+	while (true)
+	{
+		int relationvertex = -1;
+		inFile >> relationvertex;
 
-
-	std::unordered_map<int, std::vector<int>> triangleNeighbors;
-
-	// 인덱스를 이용하여 삼각형들을 연결
-	for (int i = 0; i < index.size(); i += 3) {
-		int triangleIndex = i / 3;
-		int vertexA = index[i];
-		int vertexB = index[i + 1];
-		int vertexC = index[i + 2];
-
-		// 삼각형별 이웃 정보 추가
-		triangleNeighbors[triangleIndex].push_back(vertexA);
-		triangleNeighbors[triangleIndex].push_back(vertexB);
-		triangleNeighbors[triangleIndex].push_back(vertexC);
-	}
-
-	// 이웃 관계 출력
-	for (const auto& entry : triangleNeighbors) {
-		int triangleIndex = entry.first;
-		const std::vector<int>& vertices = entry.second;
-
-		std::cout << "Triangle " << triangleIndex << "의 이웃: ";
-		for (int vertex : vertices) {
-			std::cout << vertex << " ";
+		int relationCnt = -1;
+		inFile >> relationCnt;
+		vector<int> siblingNodeIndex;
+		if (relationCnt < 0)break;
+		siblingNodeIndex.reserve(relationCnt);//형제 노드들 인덱스 저장
+		for (int relationIdx = 0; relationIdx < relationCnt; relationIdx++) {
+			int idx = -1;
+			inFile >> idx;
+			siblingNodeIndex.emplace_back(idx);
 		}
-		std::cout << std::endl;
+		for (auto& currentIdx : siblingNodeIndex) {
+			for (auto& sibIdx : siblingNodeIndex) {
+				if (sibIdx != currentIdx) {
+					if (m_triangleMesh[currentIdx].m_relationMesh.count(sibIdx) == 0)
+						m_triangleMesh[currentIdx].m_relationMesh.try_emplace(sibIdx, m_triangleMesh[currentIdx].GetDistance(m_triangleMesh[sibIdx]));//center 거리까지 emplac_back해야됨
+				}
+			}
+		}
+		if (inFile.eof())break;
 	}
+
+
 
 	std::cout << "map load end" << std::endl;
 }

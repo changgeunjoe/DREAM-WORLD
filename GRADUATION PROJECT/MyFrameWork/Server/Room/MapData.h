@@ -10,6 +10,8 @@ private:
 	XMFLOAT3 m_vertex2;
 	XMFLOAT3 m_vertex3;
 	XMFLOAT3 m_center;
+public:
+	std::map<int, float> m_relationMesh;	
 
 public:
 	TrinangleMesh(XMFLOAT3& v1, XMFLOAT3& v2, XMFLOAT3& v3) :m_vertex1(v1), m_vertex2(v2), m_vertex3(v3)
@@ -22,7 +24,10 @@ public:
 		m_vertex3 = rhs.m_vertex3;
 		m_center = rhs.m_center;
 	}
-
+	float GetDistance(TrinangleMesh& other)
+	{
+		return Vector3::Length(Vector3::Subtract(m_center, other.m_center));
+	}
 };
 
 class MapData
