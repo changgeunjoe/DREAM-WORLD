@@ -318,9 +318,12 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	if (pLoadedmodelComponent != NULL)
 	{
 		//MaterialComponent::PrepareShaders(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pd3dcbGameObjects);
-		m_pLoadedModelComponent = static_cast<CLoadedModelInfoCompnent*>(pLoadedmodelComponent);
-		m_pLoadedModelComponent = LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList,
-			pd3dGraphicsRootSignature, pszModelNames, NULL, true);//NULL ->Shader
+		if (m_pLoadedModelComponent == nullptr)
+		{
+			m_pLoadedModelComponent = static_cast<CLoadedModelInfoCompnent*>(pLoadedmodelComponent);
+			m_pLoadedModelComponent = LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList,
+				pd3dGraphicsRootSignature, pszModelNames, NULL, true);//NULL ->Shader
+		}
 		SetChild(m_pLoadedModelComponent->m_pModelRootObject, true);
 
 		if (m_nAnimationSets != 0)

@@ -47,6 +47,7 @@ public:
 	void SetScale(float fScale);
 	void SetTexture(wchar_t* pszFileName, int nSamplers, int nRootParameter);
 	void SetModel(char* pszModelName);
+	void SetModel(CLoadedModelInfoCompnent* pModel) { m_pLoadedModelComponent = pModel; }
 	void SetAnimationSets(int nAnimationSets);
 	void SetMesh(MeshComponent* pMesh);
 	void SetCamera(CCamera* pCamera);
