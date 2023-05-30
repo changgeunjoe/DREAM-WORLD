@@ -7,7 +7,7 @@
 #include "../../Room/RoomManager.h"
 #include "../../Room/MapData.h"
 #include "PlayerSessionObject.h"
-
+#include "../../IOCPNetwork/protocol/protocol.h"
 
 extern Logic g_logic;
 extern Timer g_Timer;
@@ -186,7 +186,17 @@ void MonsterSessionObject::SetDestinationPos(DirectX::XMFLOAT3 des)
 	//장애물이 있기때문에 목적지가 아닌, Road를 저장하여 움직이자
 	// 서버에서는 계산을 해서 움직이고, 클라에서는 서버에서 계산된 값을 가지고 자동으로 움직이자.
 	//m_DestinationPos = des;
-	m_ReserveRoad = g_bossMapData.AStarLoad(0, des.x, des.z);
+	m_ReserveRoad = g_bossMapData.AStarLoad(81, des.x, des.z);
+	SERVER_PACKET::BossMoveNodePacket sendPacket;
+	sendPacket.nodeCnt = m_ReserveRoad.size() > 40 ? 40 : m_ReserveRoad.size();
+	auto iter = m_ReserveRoad.begin();
+	for (int i = 0; i < sendPacket.nodeCnt; i++) {
+		sendPacket.node[i] = *(iter++);
+	}
+	sendPacket.type = SERVER_PACKET::BOSS_MOVE_NODE;
+	sendPacket.size = sizeof(SERVER_PACKET::BossMoveNodePacket);
+	sendPacket.bossPos = m_position;
+	g_logic.BroadCastInRoom(m_roomId, &sendPacket);
 	//이미 점 데이터 계산할때 가질 수 있는데 굳이 여기서 해야할까? 또는 방향 벡터 계산을 이제 클라에서 어떻게 맞춰줄까??
 
 

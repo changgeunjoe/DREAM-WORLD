@@ -273,6 +273,7 @@ namespace SERVER_PACKET {
 		short size;
 		char type;
 		int nodeCnt;
+		DirectX::XMFLOAT3 bossPos;
 		int node[40];
 	};
 
