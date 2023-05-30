@@ -26,7 +26,7 @@ struct MATERIAL
 
 cbuffer cbGameObjectInfo : register(b0)
 {
-    matrix gmtxGameObject : packoffset(c0);
+    matrix gmtxGameObject: packoffset(c0);
     MATERIAL gMaterial : packoffset(c4);
     uint gnTexturesMask : packoffset(c8);
     bool bAnimationShader : packoffset(c8.y);
@@ -73,7 +73,10 @@ cbuffer cbUIInfo : register(b9) //캐릭터별 체력과 림라이트 활성화 여부
     bool bUIActive : packoffset(c0);
 };
 
-
+cbuffer cbGameObjectWorld : register(b) //캐릭터별 체력과 림라이트 활성화 여부 
+{
+    matrix gmtxGameObjectWorld : packoffset(c0);
+};
 struct INSTANCEDGAMEOBJECTINFO//인스턴싱 데이터를 위한 구조체이다
 {
     matrix m_mtxGameObject;
@@ -131,9 +134,9 @@ VS_OUTPUT VSDiffused(VS_INPUT input)
 {
     VS_OUTPUT output;
 
-    output.positionW = mul(float4(input.position, 1.0f), gmtxGameObject).xyz;
+    output.positionW = mul(float4(input.position, 1.0f), gmtxGameObjectWorld).xyz;
     output.positionH = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
-    float3 normalW = mul(input.normal, (float3x3) gmtxGameObject);
+    float3 normalW = mul(input.normal, (float3x3) gmtxGameObjectWorld);
 #ifdef _WITH_VERTEX_LIGHTING
     output.color = Lighting(output.positionW, normalize(normalW));
     output.color = float4(0.5f * normalize(gvCameraPosition - output.positionW) + 0.5f, 1.0f);
@@ -198,7 +201,7 @@ VS_TEXTURED_OUTPUT VSSpriteAnimation(VS_TEXTURED_INPUT input)
 {
     VS_TEXTURED_OUTPUT output;
 
-    output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+    output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObjectWorld), gmtxView), gmtxProjection);
     output.uv = mul(float3(input.uv, 1.0f), (float3x3) (gmtxTextureview)).xy;
     return (output);
 }
@@ -206,7 +209,7 @@ VS_TEXTURED_OUTPUT VSUITextured(VS_TEXTURED_INPUT input)
 {
     VS_TEXTURED_OUTPUT output;
 
-    output.position = mul(mul(float4(input.position, 1.0f), gmtxGameObject),gmtxProjection);
+    output.position = mul(mul(float4(input.position, 1.0f), gmtxGameObjectWorld),gmtxProjection);
     output.uv = input.uv;
     return (output);
 }
@@ -285,11 +288,11 @@ VS_STANDARD_OUTPUT VSStandard(VS_STANDARD_INPUT input)
 {
     VS_STANDARD_OUTPUT output;
 
-    float4 positionW = mul(float4(input.position, 1.0f), gmtxGameObject);
+    float4 positionW = mul(float4(input.position, 1.0f), gmtxGameObjectWorld);
     output.positionW = positionW.xyz;
-    output.normalW = mul(input.normal, (float3x3) gmtxGameObject);
-    output.tangentW = mul(input.tangent, (float3x3) gmtxGameObject);
-    output.bitangentW = mul(input.bitangent, (float3x3) gmtxGameObject);
+    output.normalW = mul(input.normal, (float3x3) gmtxGameObjectWorld);
+    output.tangentW = mul(input.tangent, (float3x3) gmtxGameObjectWorld);
+    output.bitangentW = mul(input.bitangent, (float3x3) gmtxGameObjectWorld);
     output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
     output.uv = input.uv;
     for (int i = 0; i < MAX_LIGHTS; i++)
@@ -397,7 +400,7 @@ VS_SKYBOX_CUBEMAP_OUTPUT VSSkyBox(VS_SKYBOX_CUBEMAP_INPUT input)
 {
     VS_SKYBOX_CUBEMAP_OUTPUT output;
 
-    output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+    output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObjectWorld), gmtxView), gmtxProjection);
     output.positionL = input.position;
 
     return (output);
@@ -417,7 +420,7 @@ struct VS_BOUNDING_BOX_OUTPUT
 VS_BOUNDING_BOX_OUTPUT VSBoundingBox(VS_SKYBOX_CUBEMAP_INPUT input)
 {
     VS_BOUNDING_BOX_OUTPUT output;
-    output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+    output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObjectWorld), gmtxView), gmtxProjection);
     return (output);
 }
 
@@ -530,13 +533,13 @@ VS_SHADOW_MAP_OUTPUT VSShadowMapShadow(VS_LIGHTING_INPUT input)
     float4 positionW = (float4) 0.0f;
     if (!bAnimationShader)
     {
-        positionW = mul(float4(input.position, 1.0f), gmtxGameObject);
+        positionW = mul(float4(input.position, 1.0f), gmtxGameObjectWorld);
         output.positionW = positionW.xyz;
         output.position = mul(mul(positionW, gmtxView), gmtxProjection);
-        output.normalW = mul(float4(input.normal, 0.0f), gmtxGameObject).xyz;
+        output.normalW = mul(float4(input.normal, 0.0f), gmtxGameObjectWorld).xyz;
         output.uv = input.uv;
-        output.tangentW = mul(input.tangent, (float3x3) gmtxGameObject);
-        output.bitangentW = mul(input.bitangent, (float3x3) gmtxGameObject);
+        output.tangentW = mul(input.tangent, (float3x3) gmtxGameObjectWorld);
+        output.bitangentW = mul(input.bitangent, (float3x3) gmtxGameObjectWorld);
     }
     else if (bAnimationShader)
     {

@@ -92,6 +92,7 @@ public:
     virtual void Animate(float fTimeElapsed);
     virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
     virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList, XMFLOAT4X4* pxmf4x4World, MaterialComponent* ppMaterialsComponent);
     virtual void ReleaseShaderVariables();
 	virtual void Reset() {};
 
@@ -221,7 +222,8 @@ protected:
 	CB_UIOBJECT_INFO* m_pcbMappedUIGameObjects = nullptr;
 
 	ID3D12Resource* m_pd3dcbMultiSpriteGameObjects = NULL;
-
+	ID3D12Resource* m_pd3dcbGameObjectsWorld = NULL;
+	CB_GAMEOBJECTWORLD_INFO* m_pcbMappedGameObjectsWorld = NULL;
 	CB_GAMEOBJECT_MULTISPRITE* m_pcbMappedMultiSpriteGameObjects = NULL;
 	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dCbvGPUDescriptorHandle;
 

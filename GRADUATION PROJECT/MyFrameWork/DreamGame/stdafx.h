@@ -55,7 +55,7 @@ using namespace std;
 #endif
 
 //#ifndef LOCAL_TASK
-//#define LOCAL_TASK 1
+#define LOCAL_TASK 1
 //#endif // !LOCAL_TASK
 
 ///////////////////////////////////////
@@ -208,6 +208,11 @@ struct CB_GAMEOBJECT_INFO
 	UINT							m_nType;
 	bool							m_bAnimateshader;
 	
+};
+
+struct CB_GAMEOBJECTWORLD_INFO
+{
+	XMFLOAT4X4						m_xmf4x4World;
 };
 
 struct CB_GAMEOBJECT_STAT
