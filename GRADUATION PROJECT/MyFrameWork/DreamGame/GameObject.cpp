@@ -549,12 +549,9 @@ void GameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandLis
 }
 void GameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList, XMFLOAT4X4* pxmf4x4World, MaterialComponent* ppMaterialsComponent)
 {
-	if (m_pd3dcbGameObjectsWorld)
-	{
-		XMStoreFloat4x4(&m_pcbMappedGameObjectsWorld->m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(pxmf4x4World)));
-		D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbGameObjectsWorld->GetGPUVirtualAddress();
-		pd3dCommandList->SetGraphicsRootConstantBufferView(22, d3dGpuVirtualAddress);
-	}
+	XMFLOAT4X4 xmf4x4World;
+	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(pxmf4x4World)));
+	pd3dCommandList->SetGraphicsRoot32BitConstants(22, 16, &xmf4x4World, 0);
 }
 void GameObject::ReleaseShaderVariables()
 {

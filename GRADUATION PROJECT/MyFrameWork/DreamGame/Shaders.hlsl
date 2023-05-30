@@ -73,7 +73,7 @@ cbuffer cbUIInfo : register(b9) //캐릭터별 체력과 림라이트 활성화 여부
     bool bUIActive : packoffset(c0);
 };
 
-cbuffer cbGameObjectWorld : register(b) //캐릭터별 체력과 림라이트 활성화 여부 
+cbuffer cbGameObjectWorld : register(b10) //캐릭터별 체력과 림라이트 활성화 여부 
 {
     matrix gmtxGameObjectWorld : packoffset(c0);
 };
@@ -104,7 +104,7 @@ struct CB_TOOBJECTSPACE
 {
     matrix mtxToTexture;
     float4 f4Position;
-};
+}; 
 
 cbuffer cbToLightSpace : register(b3)
 {
