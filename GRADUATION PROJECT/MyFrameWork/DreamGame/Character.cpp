@@ -3,10 +3,12 @@
 #include "Animation.h"
 #include "Network/NetworkHelper.h"
 #include "Network/Logic/Logic.h"
+#include "Network/MapData/MapData.h"
 
 extern Logic g_Logic;
 extern NetworkHelper g_NetworkHelper;
 extern bool GameEnd;
+extern MapData g_bossMapData;
 
 Character::Character() : GameObject(UNDEF_ENTITY)
 {
@@ -883,6 +885,16 @@ void Monster::Animate(float fTimeElapsed)
 	}
 	if (m_bMoveState)	// 움직이는 중
 	{
+		if (!m_BossRoute.empty())
+		{
+			if (Vector3::Length(Vector3::Subtract(m_xmf3Destination, GetPosition())) < 40.0f)
+			{
+				cout << "현재 보스 이동 인덱스 : " << m_BossRoute.front() << endl;
+				TrinangleMesh tempTriangle = g_bossMapData.GetTriangleMesh(m_BossRoute.front());
+				m_xmf3Destination = tempTriangle.GetCenter();
+				m_BossRoute.pop();
+			}
+		}
 		XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f);
 		XMFLOAT3 des = Vector3::Subtract(m_xmf3Destination, GetPosition());
 		bool OnRight = (Vector3::DotProduct(GetRight(), Vector3::Normalize(des)) > 0) ? true : false;

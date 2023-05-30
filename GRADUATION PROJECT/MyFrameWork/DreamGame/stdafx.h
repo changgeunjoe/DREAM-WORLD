@@ -27,6 +27,7 @@
 #include <fstream>
 #include <array>
 #include <vector>
+#include <queue>
 #include<iostream>
 #include <chrono>
 #include <filesystem>
