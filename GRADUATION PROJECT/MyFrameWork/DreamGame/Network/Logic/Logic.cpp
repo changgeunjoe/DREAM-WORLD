@@ -9,6 +9,7 @@
 #include "../../Character.h"
 #include "../NetworkHelper.h"
 
+
 extern CGameFramework gGameFramework;
 extern RoomManger g_RoomManager;
 extern NetworkHelper g_NetworkHelper;
@@ -599,16 +600,26 @@ void Logic::ProcessPacket(char* p)
 		//지금은 바로 게임 종료 확인하는 패킷 서버로 전송하게 구현함
 		m_MonsterSession.m_currentPlayGameObject->SetCurrentHP(0.0f);
 		GameEnd = true;
-
+		
 	}
 	break;
 	case SERVER_PACKET::BOSS_MOVE_NODE:
 	{
+		// 현재 시점에서 경로 Clear
+		std::queue<int> emptyQueue;
+		std::swap(m_MonsterSession.m_currentPlayGameObject->m_BossRoute, emptyQueue);
+
+
 		SERVER_PACKET::BossMoveNodePacket* recvPacket = reinterpret_cast<SERVER_PACKET::BossMoveNodePacket*>(p);
+		cout << "보스 이동 인덱스 : ";
 		if (recvPacket->nodeCnt > -1)
 			for (int i = 0; i < recvPacket->nodeCnt; i++) {
-				recvPacket->node[i];//보스가 이동할 노드 데이터
+				//보스가 이동할 노드 데이터
+				// 받아온 노드들 벡터에 새로 넣기
+				cout << recvPacket->node[i]<< ", " << endl;
+				m_MonsterSession.m_currentPlayGameObject->m_BossRoute.push(recvPacket->node[i]);
 			}
+		cout << endl;
 	}
 	break;
 	default:
