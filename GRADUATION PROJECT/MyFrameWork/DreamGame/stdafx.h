@@ -29,6 +29,7 @@
 #include <vector>
 #include<iostream>
 #include <chrono>
+#include <filesystem>
 using namespace std;
 
 #include <d3d12.h>
@@ -558,5 +559,102 @@ namespace Plane
 #define RESOURCE_TEXTURE2DARRAY		0x04
 #define RESOURCE_TEXTURE_CUBE		0x05
 #define RESOURCE_BUFFER				0x06
+
+
+class TrinangleMesh
+{
+private:
+	XMFLOAT3 m_vertex1;
+	XMFLOAT3 m_vertex2;
+	XMFLOAT3 m_vertex3;
+	XMFLOAT3 m_center;
+public:
+	std::map<int, float> m_relationMesh;
+
+public:
+	TrinangleMesh(XMFLOAT3& v1, XMFLOAT3& v2, XMFLOAT3& v3) :m_vertex1(v1), m_vertex2(v2), m_vertex3(v3)
+	{
+		m_center = Vector3::ScalarProduct(Vector3::Add(m_vertex1, Vector3::Add(m_vertex2, m_vertex3)), 1.0f / 3.0f, false);
+	}
+	TrinangleMesh& operator=(const TrinangleMesh& rhs) {
+		m_vertex1 = rhs.m_vertex1;
+		m_vertex2 = rhs.m_vertex2;
+		m_vertex3 = rhs.m_vertex3;
+		m_center = rhs.m_center;
+	}
+	float GetDistance(TrinangleMesh& other)
+	{
+		return Vector3::Length(Vector3::Subtract(m_center, other.m_center));
+	}
+	float GetDistance(float x, float y, float z)
+	{
+		return Vector3::Length(Vector3::Subtract(m_center, XMFLOAT3(x, y, z)));
+	}
+	XMFLOAT3 const GetCenter() { return m_center; }
+};
+
+class AstarNode {
+private:
+	int m_nodeIdx = -1;
+	float m_cost = 0.0f;
+	float m_dis = 0.0f;
+	float m_res = 0.0f;
+	int m_parentNodeIdx = -1;
+
+public:
+	AstarNode() {}
+	AstarNode(int nodeIdx, float cost, float dis, float res, int parentNodeIdx) : m_nodeIdx(nodeIdx), m_cost(cost), m_dis(dis), m_res(res), m_parentNodeIdx(parentNodeIdx) {}
+	AstarNode(AstarNode& other)
+	{
+		m_nodeIdx = other.m_nodeIdx;
+		m_cost = other.m_cost;
+		m_dis = other.m_dis;
+		m_res = other.m_res;
+		m_parentNodeIdx = other.m_parentNodeIdx;
+	}
+	AstarNode(AstarNode&& other)
+	{
+		m_nodeIdx = other.m_nodeIdx;
+		m_cost = other.m_cost;
+		m_dis = other.m_dis;
+		m_res = other.m_res;
+		m_parentNodeIdx = other.m_parentNodeIdx;
+	}
+	~AstarNode() {}
+public:
+	void RefreshNodeData(int nodeIdx, float cost, float dis, float res, int parentNodeIdx)
+	{
+		m_nodeIdx = nodeIdx;
+		m_cost = cost;
+		m_dis = dis;
+		m_res = res;
+		m_parentNodeIdx = parentNodeIdx;
+	}
+	float GetResValue() { return m_res; }
+	int GetIdx() { return m_nodeIdx; }
+	int GetParentIdx() { return m_parentNodeIdx; }
+
+public:
+	constexpr bool operator< (const AstarNode& other)const {
+		return m_res < other.m_res;
+	}
+	AstarNode& operator= (const AstarNode& other) {
+		m_nodeIdx = other.m_nodeIdx;
+		m_cost = other.m_cost;
+		m_dis = other.m_dis;
+		m_res = other.m_res;
+		m_parentNodeIdx = other.m_parentNodeIdx;
+		return *this;
+	}
+
+	AstarNode& operator= (const AstarNode&& other) noexcept {
+		m_nodeIdx = other.m_nodeIdx;
+		m_cost = other.m_cost;
+		m_dis = other.m_dis;
+		m_res = other.m_res;
+		m_parentNodeIdx = other.m_parentNodeIdx;
+		return *this;
+	}
+};
 
 void PrintCurrentTime();

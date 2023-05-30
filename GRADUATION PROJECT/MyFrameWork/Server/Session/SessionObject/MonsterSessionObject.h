@@ -16,6 +16,7 @@ private:
 private:
 	int m_aggroPlayerId = -1;
 	int m_newAggroPlayerId = -1;
+	std::list<int> m_ReserveRoad;
 public:
 	std::atomic_bool  isMove = false;
 	std::atomic_bool isAttack = false;
@@ -37,9 +38,7 @@ public:
 	void SetDirection(DIRECTION d);
 	void Move(float fDistance, float elapsedTime);
 public:
-	void SetDestinationPos(DirectX::XMFLOAT3 des) {
-		m_DestinationPos = des;
-	}
+	void SetDestinationPos(DirectX::XMFLOAT3 des);
 	void SetRestRotateAngle(ROTATE_AXIS axis, float angle) {
 		switch (axis)
 		{

@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "MapData.h"
-#include <fstream>
-#include <filesystem>
+
 
 void MapData::GetReadMapData()
 {
@@ -148,7 +147,7 @@ std::list<int> MapData::AStarLoad(int myTriangleIdx, float desX, float desZ)
 				if (currentIdx == myTriangleIdx) return resList;
 				resList.emplace_front(currentIdx);
 				currentIdx = currentNode.GetParentIdx();
-			}			
+			}
 		}
 	}
 }

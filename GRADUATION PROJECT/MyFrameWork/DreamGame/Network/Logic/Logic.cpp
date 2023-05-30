@@ -602,6 +602,15 @@ void Logic::ProcessPacket(char* p)
 
 	}
 	break;
+	case SERVER_PACKET::BOSS_MOVE_NODE:
+	{
+		SERVER_PACKET::BossMoveNodePacket* recvPacket = reinterpret_cast<SERVER_PACKET::BossMoveNodePacket*>(p);
+		if (recvPacket->nodeCnt > -1)
+			for (int i = 0; i < recvPacket->nodeCnt; i++) {
+				recvPacket->node[i];//보스가 이동할 노드 데이터
+			}
+	}
+	break;
 	default:
 	{
 		std::cout << "Unknown Packet Recv" << std::endl;

@@ -1,5 +1,5 @@
 #pragma once
-#include"../PCH/stdafx.h"
+#include "../../stdafx.h"
 
 using namespace DirectX;
 
@@ -20,3 +20,5 @@ public:
 	std::list<int> AStarLoad(int myTriangleIdx, float desX, float desZ);
 	TrinangleMesh& const GetTriangleMesh(int idx) { return m_triangleMesh[idx]; };
 };
+
+
