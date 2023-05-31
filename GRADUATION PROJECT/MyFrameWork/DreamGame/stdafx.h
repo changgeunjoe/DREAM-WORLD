@@ -210,6 +210,11 @@ struct CB_GAMEOBJECT_INFO
 	
 };
 
+struct CB_GAMEOBJECTWORLD_INFO
+{
+	XMFLOAT4X4						m_xmf4x4World;
+};
+
 struct CB_GAMEOBJECT_STAT
 {
 	float							m_xmfHP;
