@@ -255,11 +255,13 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	if (pLoadedmodelComponent != NULL)
 	{
 		//MaterialComponent::PrepareShaders(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pd3dcbGameObjects);
-		m_pLoadedModelComponent = static_cast<CLoadedModelInfoCompnent*>(pLoadedmodelComponent);
-		m_pLoadedModelComponent = LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList,
-			pd3dGraphicsRootSignature, pszModelNames, NULL, true);//NULL ->Shader
-		SetChild(m_pLoadedModelComponent->m_pModelRootObject, true);
-
+		if (m_pLoadedModelComponent == nullptr)
+		{
+			m_pLoadedModelComponent = static_cast<CLoadedModelInfoCompnent*>(pLoadedmodelComponent);
+			m_pLoadedModelComponent = LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList,
+				pd3dGraphicsRootSignature, pszModelNames, NULL, true);//NULL ->Shader
+			SetChild(m_pLoadedModelComponent->m_pModelRootObject, true);
+		}
 		if (m_nAnimationSets != 0)
 		{
 			m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, m_nAnimationSets, m_pLoadedModelComponent);
@@ -1038,7 +1040,8 @@ void GameObject::MoveForward(float fDistance)
 	XMFLOAT3 xmf3Look = GetLook();
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, fDistance);
 	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * fDistance / 50.0f);
-	if (Vector3::Length(xmf3Position) < 350.0f)	GameObject::SetPosition(xmf3Position);
+	//if (Vector3::Length(xmf3Position) < 350.0f)	
+	GameObject::SetPosition(xmf3Position);
 }
 
 void GameObject::Rotate(float fPitch, float fYaw, float fRoll)

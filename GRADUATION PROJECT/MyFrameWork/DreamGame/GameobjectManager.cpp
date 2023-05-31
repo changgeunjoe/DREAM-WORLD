@@ -304,10 +304,10 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	if (m_pTrailComponent) {
 		m_pTrailComponent->RenderTrail(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
-	/*if (m_pShadowmapShaderComponent)
+	if (m_pShadowmapShaderComponent)
 	{
 		m_pShadowmapShaderComponent->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature);
-	}*/
+	}
 
 	//if (m_pTextureToViewportComponent)
 	//{
@@ -373,14 +373,14 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPlaneObject->SetRimLight(false);
 	m_ppGameObjects.emplace_back(m_pPlaneObject);
 
-	m_pRockObject = new GameObject(UNDEF_ENTITY);
+	/*m_pRockObject = new GameObject(UNDEF_ENTITY);
 	m_pRockObject->InsertComponent<RenderComponent>();
 	m_pRockObject->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pRockObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pRockObject->SetModel("Model/OutLineRock.bin");
 	m_pRockObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pRockObject->SetScale(30.0f, 30.0f, 30.0f);
-	m_ppGameObjects.emplace_back(m_pRockObject);
+	m_ppGameObjects.emplace_back(m_pRockObject);*/
 
 	for (int i = 0; i < 4; ++i)
 	{
@@ -536,7 +536,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	BuildInstanceObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildStoryUI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildTrail(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	BuildStage1(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//BuildStage1(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
 void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
