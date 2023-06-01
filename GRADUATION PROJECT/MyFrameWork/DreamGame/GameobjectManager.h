@@ -128,7 +128,8 @@ private: //active object
 	TrailComponent* m_pTrailComponent{ NULL };
 	
 	//
-	GameObject* m_pStage1Object{ NULL };
+	array<GameObject*, 10> m_pStage1Objects{ NULL };
+	
 
 	POINT						m_ptOldCursorPos;
 
