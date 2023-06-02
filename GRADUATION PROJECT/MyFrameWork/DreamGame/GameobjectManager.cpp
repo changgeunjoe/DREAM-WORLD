@@ -47,6 +47,7 @@ GameobjectManager::~GameobjectManager()
 void GameobjectManager::Animate(float fTimeElapsed)
 {
 	m_fTime += fTimeElapsed;
+	m_fTimeElapsed = fTimeElapsed;
 	m_pSkyboxObject->SetPosition(m_pCamera->GetPosition());
 	if (m_pMonsterHPBarObject)//23.04.18 몬스터 체력바 -> 카메라를 바라 보도록 .ccg
 	{
@@ -67,7 +68,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 
 	//m_pMonsterObject->Animate(fTimeElapsed);
 
-	g_Logic.m_MonsterSession.m_currentPlayGameObject->Animate(fTimeElapsed);
+	//g_Logic.m_MonsterSession.m_currentPlayGameObject->Animate(fTimeElapsed);
 	//auto pos = g_Logic.m_MonsterSession.m_currentPlayGameObject->GetPosition();
 	//cout << "GameobjectManager::Boss Position: " << pos.x << ", 0, " << pos.z << endl;
 	if (!g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject) return;
@@ -111,7 +112,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 			}
 			if (session.m_currentPlayGameObject->GetRButtonClicked())
 				session.m_currentPlayGameObject->RbuttonClicked(fTimeElapsed);
-			session.m_currentPlayGameObject->Animate(fTimeElapsed);
+			//session.m_currentPlayGameObject->Animate(fTimeElapsed);
 		}
 	}
 
@@ -131,7 +132,6 @@ void GameobjectManager::Animate(float fTimeElapsed)
 			if (Vector3::Length(XMFLOAT3(x, y, z)) < 350.0f)
 				break;
 		}
-		cout << "x : " << x << ", y : " << y << ", z : " << z << endl;
 		g_Logic.m_MonsterSession.m_currentPlayGameObject->m_xmf3Destination = XMFLOAT3(x, y, z);
 	}
 	tempcount++;
@@ -261,7 +261,14 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 			m_pBoundingBox[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 	for (int i = 0; i < m_pArrowObjects.size(); i++) {
-		m_pArrowObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		if (m_pArrowObjects[i])
+		{
+			if (m_pArrowObjects[i]->m_bActive)
+			{
+				m_pArrowObjects[i]->Animate(m_fTimeElapsed);
+				m_pArrowObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+			}
+		}
 	}
 	for (int i = 0; i < m_pEnergyBallObjects.size(); i++) {
 		m_pEnergyBallObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -306,7 +313,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	}
 	if (m_pShadowmapShaderComponent)
 	{
-		m_pShadowmapShaderComponent->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature);
+		m_pShadowmapShaderComponent->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature, m_fTimeElapsed);
 	}
 
 	//if (m_pTextureToViewportComponent)
@@ -341,19 +348,19 @@ void GameobjectManager::UIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 #define ScreenSTORY 10
 void GameobjectManager::CharacterUIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	for (int i = 0; i < m_ppCharacterUIObjects.size(); i++) {
-		if(m_fStroyTime> m_ppStoryUIObjects.size()* ScreenSTORY)
-		m_ppCharacterUIObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	}
+	//for (int i = 0; i < m_ppCharacterUIObjects.size(); i++) {
+	//	if(m_fStroyTime> m_ppStoryUIObjects.size()* ScreenSTORY)
+	//	m_ppCharacterUIObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//}
 }
 
 void GameobjectManager::StoryUIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float ftimeElapsed)
 {
-	m_fStroyTime += ftimeElapsed;
-	for (int i = 0; i < m_ppStoryUIObjects.size(); i++) {
-		if (m_fStroyTime < 10 * (i + 1)&& m_fStroyTime > ScreenSTORY * (i ))
-		m_ppStoryUIObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	}
+	//m_fStroyTime += ftimeElapsed;
+	//for (int i = 0; i < m_ppStoryUIObjects.size(); i++) {
+	//	if (m_fStroyTime < 10 * (i + 1)&& m_fStroyTime > ScreenSTORY * (i ))
+	//	m_ppStoryUIObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//}
 }
 
 void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -361,7 +368,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	BuildLight();
 
-	CLoadedModelInfoCompnent* WarriorModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Warrior.bin", NULL, true);
+	CLoadedModelInfoCompnent* ArrowModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Arrow.bin", NULL, true);
 
 	m_pPlaneObject = new GameObject(UNDEF_ENTITY);
 	m_pPlaneObject->InsertComponent<RenderComponent>();
@@ -395,8 +402,8 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pWarriorObject = new Warrior();//사각형 오브젝트를 만들겠다
 	m_pWarriorObject->InsertComponent<RenderComponent>();
 	m_pWarriorObject->InsertComponent<CLoadedModelInfoCompnent>();
-	m_pWarriorObject->SetPosition(XMFLOAT3(0.f, 0.f, 0.f));
-	m_pWarriorObject->SetModel(WarriorModel);
+	m_pWarriorObject->SetPosition(XMFLOAT3(100.f, 0.f, 0.f));
+	m_pWarriorObject->SetModel("Model/Warrior.bin");
 	m_pWarriorObject->SetAnimationSets(5);
 	m_pWarriorObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pWarriorObject->m_pSkinnedAnimationController->SetTrackAnimationSet(5);
@@ -409,7 +416,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pArcherObject->InsertComponent<RenderComponent>();
 	m_pArcherObject->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pArcherObject->SetPosition(XMFLOAT3(20, 0, 0));
-	m_pArcherObject->SetModel(WarriorModel);
+	m_pArcherObject->SetModel("Model/Archer.bin");
 	m_pArcherObject->SetAnimationSets(5);
 	m_pArcherObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pArcherObject->m_pSkinnedAnimationController->SetTrackAnimationSet(5);
@@ -424,7 +431,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 		m_pArrowObjects[i]->InsertComponent<RenderComponent>();
 		m_pArrowObjects[i]->InsertComponent<CLoadedModelInfoCompnent>();
 		m_pArrowObjects[i]->SetPosition(XMFLOAT3(0, 0, 0));
-		m_pArrowObjects[i]->SetModel("Model/Arrow.bin");
+		m_pArrowObjects[i]->SetModel(ArrowModel);
 		m_pArrowObjects[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pArrowObjects[i]->SetScale(30.0f);
 		m_pArrowObjects[i]->SetBoundingSize(0.2f);
@@ -518,12 +525,11 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 #if LOCAL_TASK
 	// 플레이어가 캐릭터 선택하는 부분에 유사하게 넣을 예정
 	m_pPlayerObject = new GameObject(UNDEF_ENTITY);	//수정필요
-	memcpy(m_pPlayerObject, m_pPriestObject, sizeof(GameObject));
-	m_pPlayerObject->SetCamera(m_pCamera);
-	m_pPlayerObject->SetCharacterType(CT_ARCHER);
+	memcpy(m_pPlayerObject, m_pArcherObject, sizeof(GameObject));
+	m_pArcherObject->SetCamera(m_pCamera);
 	//delete m_pArcherObject;->delete하면서 뎊스렌더 문제 발생
 
-	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject = m_pPlayerObject;
+	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject = m_pArcherObject;
 	g_Logic.m_inGamePlayerSession[0].m_isVisible = true;
 	g_Logic.m_inGamePlayerSession[0].m_id = 0;
 #endif // LOCAL_TASK

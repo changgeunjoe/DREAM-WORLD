@@ -133,6 +133,7 @@ private: //active object
 	POINT						m_ptOldCursorPos;
 
 	float	m_fTime = 0;
+	float	m_fTimeElapsed = 0;
 	float	m_fStroyTime = 0;
 	float	m_xmfMode = 3;
 	bool	m_bUIScene = true;

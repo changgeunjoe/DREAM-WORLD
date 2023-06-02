@@ -111,13 +111,15 @@ void ShadowMapShaderComponent::Animate(float fTimeElapsed)
 
 }
 
-void ShadowMapShaderComponent::Render(ID3D12Device* pd3dDevice,ID3D12GraphicsCommandList* pd3dCommandList, int nPipelineState, ID3D12RootSignature* pd3dGraphicsRootSignature)
+void ShadowMapShaderComponent::Render(ID3D12Device* pd3dDevice,ID3D12GraphicsCommandList* pd3dCommandList, int nPipelineState, ID3D12RootSignature* pd3dGraphicsRootSignature, float fTimeElapsed)
 {
 
 	ShaderComponent::Render(pd3dCommandList,nPipelineState, pd3dGraphicsRootSignature,false);
 	UpdateShaderVariables(pd3dCommandList);
 
 	for (int i = 0; i < m_ppObjects.size(); i++) {
+
+		m_ppObjects[i]->Animate(fTimeElapsed);
 		m_ppObjects[i]->ShadowRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, true,this);
 	}
 }

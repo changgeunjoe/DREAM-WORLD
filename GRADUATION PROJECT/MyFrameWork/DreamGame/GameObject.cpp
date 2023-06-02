@@ -380,6 +380,10 @@ void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3
 {
 	UpdateShaderVariables(pd3dCommandList);
 	UpdateShaderVariables(pd3dCommandList, &m_xmf4x4World, NULL);
+	if (m_pTempWorld != nullptr)
+	{
+		UpdateShaderVariables(pd3dCommandList, m_pTempWorld, NULL);
+	}
 	if (m_pSkinnedAnimationController)
 		m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
 
@@ -589,6 +593,10 @@ void GameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandLis
 	XMFLOAT4X4 xmf4x4World;
 	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(pxmf4x4World)));
 	pd3dCommandList->SetGraphicsRoot32BitConstants(22, 16, &xmf4x4World, 0);
+}
+void GameObject::UpdateObjectVarialbes(XMFLOAT4X4* pxmf4x4World)
+{
+	XMStoreFloat4x4(&m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(pxmf4x4World)));
 }
 void GameObject::ReleaseShaderVariables()
 {
@@ -1071,7 +1079,7 @@ void GameObject::Rotate(XMFLOAT4* pxmf4Quaternion)
 
 void GameObject::UpdateTransform(XMFLOAT4X4* pxmf4x4Parent)
 {
-	m_xmf4x4World = Matrix4x4::Identity();
+	// m_xmf4x4World = Matrix4x4::Identity();
 	m_xmf4x4World = (pxmf4x4Parent) ? Matrix4x4::Multiply(m_xmf4x4ToParent, *pxmf4x4Parent) : m_xmf4x4ToParent;
 
 	if (m_pSibling) m_pSibling->UpdateTransform(pxmf4x4Parent);

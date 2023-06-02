@@ -96,6 +96,7 @@ public:
     virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
     virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList, XMFLOAT4X4* pxmf4x4World, MaterialComponent* ppMaterialsComponent);
+	virtual void UpdateObjectVarialbes(XMFLOAT4X4* pxmf4x4World);
     virtual void ReleaseShaderVariables();
 	virtual void Reset() {};
 
@@ -149,6 +150,7 @@ public:
 	XMFLOAT4X4						m_xmf4x4ToParent;
 	XMFLOAT4X4						m_xmf4x4Transform;//변환 행렬
 	XMFLOAT4X4						m_xmf4x4World; //월드 행렬
+	XMFLOAT4X4						*m_pTempWorld{ nullptr }; //월드 행렬
 
 	GameObject* m_pParent = nullptr;
 	GameObject* m_pChild = nullptr;
@@ -271,6 +273,7 @@ protected:
 	float							m_projectilesLookY;
 	
 	float                           m_fTime{};
+	float                           m_fTimeElapsed{};
 	int                             m_nProjectiles{};
 public:
 	array<Projectile*, 10>          m_pProjectiles;

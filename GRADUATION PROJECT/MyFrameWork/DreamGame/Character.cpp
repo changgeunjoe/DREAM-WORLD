@@ -462,17 +462,11 @@ void Archer::Animate(float fTimeElapsed)
 		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd = false;
 	}
 
-	for (int i = 0; i < m_pProjectiles.size(); ++i)
-		if (m_pProjectiles[i]->m_bActive)
-			m_pProjectiles[i]->Animate(fTimeElapsed);
-
 	GameObject::Animate(fTimeElapsed);
 }
 
 void Archer::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender)
 {
-	for (int i = 0; i < m_pProjectiles.size(); ++i)
-		if (m_pProjectiles[i]) m_pProjectiles[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
 	GameObject::Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
 }
 
@@ -931,6 +925,7 @@ Projectile::Projectile(entity_id eid) : GameObject(eid)
 {
 	m_xmf3startPosition = XMFLOAT3(-1.0f, -1.0f, -1.0f);
 	m_xmf3direction = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	m_xmf4x4Transform = Matrix4x4::Identity();
 	m_fSpeed = 0.0f;
 	m_bActive = false;
 	m_RAttack = false;
@@ -983,13 +978,13 @@ void Projectile::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 			pModel = m_pLoadedModelComponent;
 		}
 		SetChild(pModel->m_pModelRootObject, true);
-
-		if (m_nAnimationSets != 0)
-		{
-			m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, m_nAnimationSets, pModel);
-		}
 	}
 
+	if (m_pChild)
+	{
+		m_pChild->m_pTempWorld = new XMFLOAT4X4;
+		*m_pChild->m_pTempWorld = Matrix4x4::Identity();
+	}
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
@@ -1018,14 +1013,18 @@ void Arrow::Animate(float fTimeElapsed)
 		m_bActive = false;
 		m_RAttack = false;
 	}
+	this->UpdateTransform(NULL);
+	if (m_pChild) 
+	{ 
+		*m_pChild->m_pTempWorld = m_pChild->m_xmf4x4World;
+	}
 }
 
 void Arrow::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender)
 {
-	if (m_bActive)
-	{
-		GameObject::Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
-	}
+	UpdateShaderVariables(pd3dCommandList);
+	if (m_pChild) 
+		m_pChild->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
 }
 
 EnergyBall::EnergyBall() : Projectile(SQUARE_ENTITY)

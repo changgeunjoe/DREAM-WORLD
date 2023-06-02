@@ -81,7 +81,7 @@ void TrailComponent::AddTrail(const XMFLOAT3& xmf3Top, XMFLOAT3& xmf3Bottom)
 
 			m_listRomPos.emplace_back(make_pair(xmf3RomTopPos, xmf3RomBottomPos));
 		}
-		cout << m_listPos.size() << ", " << m_listRomPos.size() << endl;
+		//cout << m_listPos.size() << ", " << m_listRomPos.size() << endl;
 	}
 }
 
