@@ -367,6 +367,10 @@ inline T* GameObject::ComponentType(component_id& componentID)
 	{
 		componentID = component_id::SPHERE_COMPONENT;
 	}
+	else if (typeid(T).name() == typeid(NaviMeshShaderComponent).name())
+	{
+		componentID = component_id::NAVIMESHSHADER_COMPONENT;
+	}
     else if (typeid(T).name() == typeid(TextureComponent).name())
     {
         componentID = component_id::TEXTURE_COMPONENT;

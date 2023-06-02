@@ -271,7 +271,8 @@ enum component_id
 	BLENDINGUISHADER_COMPONENT,
 	SPRITESHADER_COMPONENT,
 	BOUNDINGBOX_COMPONENT,
-	SPHERE_COMPONENT
+	SPHERE_COMPONENT,
+	NAVIMESHSHADER_COMPONENT
 };
 //mean about component_id;
 enum CharacterType
@@ -592,6 +593,9 @@ public:
 		return Vector3::Length(Vector3::Subtract(m_center, XMFLOAT3(x, y, z)));
 	}
 	XMFLOAT3 const GetCenter() { return m_center; }
+	XMFLOAT3 const GetVertex1() { return m_vertex1; }
+	XMFLOAT3 const GetVertex2() { return m_vertex2; }
+	XMFLOAT3 const GetVertex3() { return m_vertex3; }
 };
 
 class AstarNode {
