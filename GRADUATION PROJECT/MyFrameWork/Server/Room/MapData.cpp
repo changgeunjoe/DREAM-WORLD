@@ -105,15 +105,28 @@ void MapData::GetReadMapData()
 	}
 	float fltMx = FLT_MAX;
 	int idxM = -1;
+	int inIdx = -1;
+	int zeroIdx = -1;
+	vector<int> zeroIdxs;
 	for (int i = 0; i < index.size() / 3; i++) {
-		float dis = m_triangleMesh[i].GetDistance(270.0f, 0.0f, 80.0f);
+		float dis = m_triangleMesh[i].GetDistance(300.0f, 0.0f, 100.0f);
 		if (fltMx > dis) {
 			fltMx = dis;
 			idxM = i;
 		}
+		if (m_triangleMesh[i].IsOnTriangleMesh(300.0f, 0.0f, 100.0f))
+			inIdx = i;
+		if (m_triangleMesh[i].IsOnTriangleMesh(0.0f, 0.0f, 0.0f))
+			zeroIdxs.emplace_back(i);
+		//zeroIdx = i;
 	}
 	std::cout << "dis Min: " << idxM << "dis: " << fltMx << std::endl;
-
+	std::cout << "On idx: " << inIdx << std::endl;
+	//std::cout << "On ZeroIdx: " << zeroIdx << std::endl;
+	std::cout << "ZeroIdxs: ";
+	for (auto& i : zeroIdxs)
+		std::cout << i << " ";
+	std::cout << std::endl;
 	std::cout << "map load end" << std::endl;
 }
 
@@ -143,23 +156,38 @@ std::list<int> MapData::AStarLoad(int myTriangleIdx, float desX, float desZ)
 			}
 		}
 
-		AstarNode minNode = AstarNode(-1, -1, -1, FLT_MAX, -1);
+		AstarNode minNode = AstarNode(-1, FLT_MAX, FLT_MAX, FLT_MAX, -1);
 		for (auto& openNode : openList) {
 			if (openNode.second < minNode)
 				minNode = openNode.second;
 		}
-
+		if (minNode.GetIdx() == -1) {
+			std::cout << "last Index: ";
+			for (auto& triangle : relationTriangleIdx) {
+				std::cout << triangle.first << " ";
+			}
+		}
+		std::cout << std::endl;
 		currentTriangleIdx = minNode.GetIdx();
 		closeList.try_emplace(currentTriangleIdx, minNode);
 		openList.erase(currentTriangleIdx);
-		std::cout << "ID: " << minNode.GetIdx() << "Parent: " << minNode.GetParentIdx() << "Res: " << minNode.GetResValue() << std::endl;
-		if (m_triangleMesh[currentTriangleIdx].GetDistance(desX, 0.0f, desZ) < 80.0f) {
+#ifdef _DEBUG
+		std::cout << "ID: " << minNode.GetIdx() << " Parent: " << minNode.GetParentIdx() << " Res: " << minNode.GetResValue() << "Dis: " << minNode.GetDistance() << std::endl;
+#endif
+		//if (m_triangleMesh[currentTriangleIdx].GetDistance(desX, 0.0f, desZ) < 80.0f) {
+		if (closeList[currentTriangleIdx].GetDistance() < 150.0f) {
+#ifdef _DEBUG
+			std::cout << "currentIdx: " << currentTriangleIdx;
+#endif
 			if (m_triangleMesh[currentTriangleIdx].IsOnTriangleMesh(desX, 0.0f, desZ)) {
 				std::list<int> resList;
 				int currentIdx = currentTriangleIdx;
 				while (true) {
 					AstarNode currentNode = closeList[currentIdx];
 					if (currentIdx == myTriangleIdx) {
+#ifdef _DEBUG
+						std::cout << std::endl << std::endl;
+#endif
 						return resList;
 					}
 					resList.emplace_front(currentIdx);

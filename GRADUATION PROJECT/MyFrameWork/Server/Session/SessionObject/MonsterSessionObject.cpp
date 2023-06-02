@@ -186,7 +186,7 @@ void MonsterSessionObject::SetDestinationPos(DirectX::XMFLOAT3 des)
 	//장애물이 있기때문에 목적지가 아닌, Road를 저장하여 움직이자
 	// 서버에서는 계산을 해서 움직이고, 클라에서는 서버에서 계산된 값을 가지고 자동으로 움직이자.
 	//m_DestinationPos = des;
-	m_ReserveRoad = g_bossMapData.AStarLoad(81, des.x, des.z);
+	m_ReserveRoad = g_bossMapData.AStarLoad(754, des.x, des.z);
 	SERVER_PACKET::BossMoveNodePacket sendPacket;
 	sendPacket.nodeCnt = m_ReserveRoad.size() > 40 ? 40 : m_ReserveRoad.size();
 	auto iter = m_ReserveRoad.begin();

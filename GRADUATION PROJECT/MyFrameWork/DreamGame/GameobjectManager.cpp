@@ -344,7 +344,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPlaneObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pPlaneObject->SetModel("Model/Floor.bin");
 	m_pPlaneObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pPlaneObject->SetScale(30.0f, 30.0f, 30.0f);
+	m_pPlaneObject->SetScale(1.0f, 1.0f, 1.0f);
 	m_pPlaneObject->SetRimLight(false);
 	m_ppGameObjects.emplace_back(m_pPlaneObject);
 
@@ -354,7 +354,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pRockObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pRockObject->SetModel("Model/OutLineRock.bin");
 	m_pRockObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pRockObject->SetScale(30.0f, 30.0f, 30.0f);
+	m_pRockObject->SetScale(1.0f, 1.0f, 1.0f);
 	m_ppGameObjects.emplace_back(m_pRockObject);
 
 	for (int i = 0; i < 4; ++i)
@@ -1418,25 +1418,25 @@ void GameobjectManager::SetPlayCharacter(Session* pSession) // 임시 함수
 	case ROLE::ARCHER:
 	{
 		cliSession->SetGameObject(m_pArcherObject);
-		cliSession->m_currentPlayGameObject->SetPosition(XMFLOAT3(200, 0, 40));
+		cliSession->m_currentPlayGameObject->SetPosition(XMFLOAT3(-200, 0, -40));
 	}
 	break;
 	case ROLE::PRIEST:
 	{
 		cliSession->SetGameObject(m_pPriestObject);
-		cliSession->m_currentPlayGameObject->SetPosition(XMFLOAT3(270, 0, 80));
+		cliSession->m_currentPlayGameObject->SetPosition(XMFLOAT3(-270, 0, 40));
 	}
 	break;
 	case ROLE::TANKER:
 	{
 		cliSession->SetGameObject(m_pTankerObject);
-		cliSession->m_currentPlayGameObject->SetPosition(XMFLOAT3(230, 0, 60));
+		cliSession->m_currentPlayGameObject->SetPosition(XMFLOAT3(150, 0, -60));
 	}
 	break;
 	case ROLE::WARRIOR:
 	{
 		cliSession->SetGameObject(m_pWarriorObject);
-		cliSession->m_currentPlayGameObject->SetPosition(XMFLOAT3(300, 0, 100));
+		cliSession->m_currentPlayGameObject->SetPosition(XMFLOAT3(260, 0, 50));
 	}
 	break;
 	default:

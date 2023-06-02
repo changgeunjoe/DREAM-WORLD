@@ -366,6 +366,10 @@ public:
 		//2 - 3
 		res += Vector3::Length(Vector3::CrossProduct(triVec2, triVec3, false));
 		res /= 2.0f;
+		float retVal = res - m_areaSize;
+#ifdef _DEBUG
+		std::cout << "TriangleMesh::retval: " << retVal << std::endl;
+#endif
 		return abs(m_areaSize - res) < 0.1f;
 	}
 	XMFLOAT3 const GetCenter() { return m_center; }
@@ -411,10 +415,11 @@ public:
 	float GetResValue() { return m_res; }
 	int GetIdx() { return m_nodeIdx; }
 	int GetParentIdx() { return m_parentNodeIdx; }
+	float GetDistance() { return m_dis; }
 
 public:
 	constexpr bool operator< (const AstarNode& other)const {
-		return m_res < other.m_res;
+		return m_dis < other.m_dis;
 	}
 	AstarNode& operator= (const AstarNode& other) {
 		m_nodeIdx = other.m_nodeIdx;

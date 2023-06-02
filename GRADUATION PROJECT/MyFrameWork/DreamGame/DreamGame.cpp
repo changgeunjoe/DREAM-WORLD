@@ -53,7 +53,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	// TODO: 여기에 코드를 입력합니다.
 	g_bossMapData.SetFileName(std::filesystem::current_path().string().append("\\\Network\\\MapData\\\BossRoom.txt"));
-
+	g_bossMapData.GetReadMapData();
 #ifndef LOCAL_TASK
 	while (!g_NetworkHelper.TryConnect());
 	g_NetworkHelper.Start();
