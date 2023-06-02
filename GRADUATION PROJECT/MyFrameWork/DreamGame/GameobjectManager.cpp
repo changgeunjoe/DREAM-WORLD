@@ -9,11 +9,13 @@
 #include "MultiSpriteShaderComponent.h"
 #include "Character.h"
 #include "InstancingShaderComponent.h"
-
+#include "./Network/MapData/MapData.h"
 
 extern NetworkHelper g_NetworkHelper;
 extern Logic g_Logic;
 extern bool GameEnd;
+extern MapData g_bossMapData;
+
 
 template<typename S>
 S* ComponentType(component_id componentID)
@@ -280,15 +282,16 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	//	m_ppUIObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//}
 
-	if (m_pMonsterHPBarObject) {
-		m_pMonsterHPBarObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	}
+	//if (m_pMonsterHPBarObject) {
+	//	m_pMonsterHPBarObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//}
 
 	if (m_pShadowmapShaderComponent)
 	{
 		m_pShadowmapShaderComponent->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature);
 	}
 
+	m_pNaviMeshObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//if (m_pTextureToViewportComponent)
 	//{
 	//	m_pTextureToViewportComponent->Render(pd3dCommandList, m_pCamera, 0, pd3dGraphicsRootSignature);
@@ -305,6 +308,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pVictoryUIObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pContinueUIObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
+
 }
 
 void GameobjectManager::UIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -315,22 +319,22 @@ void GameobjectManager::UIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	}
 
 }
-#define ScreenSTORY 10
+#define ScreenSTORY 0
 void GameobjectManager::CharacterUIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	for (int i = 0; i < m_ppCharacterUIObjects.size(); i++) {
-		if(m_fStroyTime> m_ppStoryUIObjects.size()* ScreenSTORY)
-		m_ppCharacterUIObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	}
+	//for (int i = 0; i < m_ppCharacterUIObjects.size(); i++) {
+	//	if(m_fStroyTime> m_ppStoryUIObjects.size()* ScreenSTORY)
+	//	m_ppCharacterUIObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//}
 }
 
 void GameobjectManager::StoryUIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float ftimeElapsed)
 {
-	m_fStroyTime += ftimeElapsed;
-	for (int i = 0; i < m_ppStoryUIObjects.size(); i++) {
-		if (m_fStroyTime < 10 * (i + 1)&& m_fStroyTime > ScreenSTORY * (i ))
-		m_ppStoryUIObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	}
+	//m_fStroyTime += ftimeElapsed;
+	//for (int i = 0; i < m_ppStoryUIObjects.size(); i++) {
+	//	if (m_fStroyTime < 10 * (i + 1)&& m_fStroyTime > ScreenSTORY * (i ))
+	//	m_ppStoryUIObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//}
 }
 
 void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -344,7 +348,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPlaneObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pPlaneObject->SetModel("Model/Floor.bin");
 	m_pPlaneObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pPlaneObject->SetScale(30.0f, 30.0f, 30.0f);
+	m_pPlaneObject->SetScale(1.f);
 	m_pPlaneObject->SetRimLight(false);
 	m_ppGameObjects.emplace_back(m_pPlaneObject);
 
@@ -354,7 +358,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pRockObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pRockObject->SetModel("Model/OutLineRock.bin");
 	m_pRockObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pRockObject->SetScale(30.0f, 30.0f, 30.0f);
+	m_pRockObject->SetScale(1.f);
 	m_ppGameObjects.emplace_back(m_pRockObject);
 
 	for (int i = 0; i < 4; ++i)
@@ -480,6 +484,15 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pSkyboxObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pSkyboxObject->SetScale(1, 1, 1);
 	m_pSkyboxObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+
+	m_pNaviMeshObject = new GameObject(SQUARE_ENTITY);
+	m_pNaviMeshObject->InsertComponent<RenderComponent>();
+	m_pNaviMeshObject->InsertComponent<CubeMeshComponent>();
+	m_pNaviMeshObject->InsertComponent<NaviMeshShaderComponent>();
+	m_pNaviMeshObject->SetPosition(XMFLOAT3(0, 1.0f, 0));
+	m_pNaviMeshObject->SetScale(1, 1, 1);
+	m_pNaviMeshObject->SetTexture(L"Model/Textures/1K_Mi24_TXTR.dds", RESOURCE_TEXTURE2D, 6);
+	m_pNaviMeshObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 #if LOCAL_TASK
 	// 플레이어가 캐릭터 선택하는 부분에 유사하게 넣을 예정

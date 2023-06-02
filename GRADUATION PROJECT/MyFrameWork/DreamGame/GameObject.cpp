@@ -4,7 +4,9 @@
 #include "Animation.h"
 #include"DepthRenderShaderComponent.h"
 #include"InstanceRenderComponent.h"
+#include "Network/MapData/MapData.h"
 
+extern MapData g_bossMapData;
 
 BYTE ReadStringFromFile(FILE* pInFile, char* pstrToken)
 {
@@ -251,7 +253,8 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	if (pCubeMeshComponent != NULL)
 	{
 		m_pCubeComponent = static_cast<CubeMeshComponent*>(pCubeMeshComponent);
-		m_pCubeComponent->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, 10, 10, 10);
+		//m_pCubeComponent->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, 10, 10, 10);
+		m_pCubeComponent->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, g_bossMapData.GetTriangleMesh());
 		m_pMeshComponent = m_pCubeComponent;
 	}
 	ComponentBase* pSkyMeshComponent = GetComponent(component_id::SKYBOXMESH_COMPONENT);
@@ -275,7 +278,16 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		m_pSphereComponent->BuildObject(pd3dDevice, pd3dCommandList, m_fBoundingSize, 20, 20);
 		m_pMeshComponent = m_pSphereComponent;
 	}
-
+	ComponentBase* pNaviMeshShaderComponent = GetComponent(component_id::NAVIMESHSHADER_COMPONENT);
+	if (pNaviMeshShaderComponent != NULL)
+	{
+		m_pShaderComponent = static_cast<SphereShaderComponent*>(pNaviMeshShaderComponent);
+		m_pShaderComponent->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
+		m_pShaderComponent->CreateCbvSrvDescriptorHeaps(pd3dDevice, 1, 0);
+		m_pShaderComponent->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+		m_pShaderComponent->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObjects, ncbElementBytes);
+		m_pShaderComponent->SetCbvGPUDescriptorHandlePtr(m_pShaderComponent->GetGPUCbvDescriptorStartHandle().ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));
+	}
 	//->메테리얼 생성 텍스쳐와 쉐이더를 넣어야되는데 쉐이더이므로 안 넣어도 됨
 	ComponentBase* pShaderComponent = GetComponent(component_id::SHADER_COMPONENT);
 	ComponentBase* pSkyShaderComponent = GetComponent(component_id::SKYSHADER_COMPONENT);

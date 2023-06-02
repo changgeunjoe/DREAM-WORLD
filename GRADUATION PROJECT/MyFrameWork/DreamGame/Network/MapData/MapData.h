@@ -19,6 +19,7 @@ public:
 	void GetReadMapData();
 	std::list<int> AStarLoad(int myTriangleIdx, float desX, float desZ);
 	TrinangleMesh& const GetTriangleMesh(int idx) { return m_triangleMesh[idx]; };
+	std::vector<TrinangleMesh>& GetTriangleMesh() { return m_triangleMesh; }
 };
 
 
