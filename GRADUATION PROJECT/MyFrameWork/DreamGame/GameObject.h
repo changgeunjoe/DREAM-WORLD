@@ -11,6 +11,7 @@
 #include"UiShaderComponent.h"
 #include"MultiSpriteShaderComponent.h"
 #include"InstanceRenderComponent.h"
+#include"TerrainShaderComponent.h"
 //include"CLoadModelinfo.h"
 class DepthRenderShaderComponent;
 class CLoadedModelInfoCompnent;
@@ -20,6 +21,7 @@ class CAnimationController;
 class Projectile;
 class InstanceRenderComponent;
 class TrailShaderComponent;
+class TerrainShaderComponent;
 
 #define MATERIAL_ALBEDO_MAP				0x01
 #define MATERIAL_SPECULAR_MAP			0x02
@@ -197,6 +199,7 @@ protected:
 
     wchar_t* pszFileNames{};
     char* pszModelNames{};
+	LPCTSTR m_pFileName{};
     
     //////////////////////Component/////////////////////////////////
     unordered_map<component_id, ComponentBase*> m_components;
@@ -209,6 +212,7 @@ protected:
     RenderComponent* m_pRenderComponent{ nullptr };
 	SphereMeshComponent* m_pSphereComponent{ nullptr };
 	TrailMeshComponent* m_pTrailMeshComponent{ nullptr };
+	HeihtMapMeshComponent* m_pHeihtMapMeshComponent{ nullptr };
     InstanceRenderComponent* m_pInstanceRenderComponent{ nullptr };//인스턴스 렌더 추가 23.04.26 .ccg
     CLoadedModelInfoCompnent* m_pLoadedModelComponent{ nullptr };
     MaterialComponent** m_ppMaterialsComponent{ nullptr };
@@ -257,6 +261,8 @@ public:
 	virtual void RbuttonClicked(float fTimeElapsed) {};
 	virtual void RbuttonUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f }) {};
 
+	void SetFileName(LPCTSTR pFileName);
+
 protected:
 	bool                            m_bLButtonClicked = false;
 	bool                            m_bRButtonClicked = false;
@@ -272,6 +278,8 @@ protected:
 	
 	float                           m_fTime{};
 	int                             m_nProjectiles{};
+
+	CHeightMapImage* m_pHeightMapImage;
 public:
 	array<Projectile*, 10>          m_pProjectiles;
 	void SetCharacterType(CharacterType type) { m_characterType = type; }
@@ -378,9 +386,17 @@ inline T* GameObject::ComponentType(component_id& componentID)
 	{
 		componentID = component_id::TRAILSHADER_COMPONENT;
 	}
+	else if (typeid(T).name() == typeid(TerrainShaderComponent).name())
+	{
+		componentID = component_id::TERRAINSHADER_COMPONENT;
+	}
 	else if (typeid(T).name() == typeid(TrailMeshComponent).name())
 	{
 		componentID = component_id::TRAILMESH_COMPONENT;
+	}
+	else if (typeid(T).name() == typeid(HeihtMapMeshComponent).name())
+	{
+		componentID = component_id::HEIGHTMESH_COMPONENT;
 	}
     else if (typeid(T).name() == typeid(TextureComponent).name())
     {

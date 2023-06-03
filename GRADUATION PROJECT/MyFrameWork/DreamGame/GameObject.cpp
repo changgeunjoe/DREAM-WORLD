@@ -5,7 +5,7 @@
 #include "DepthRenderShaderComponent.h"
 #include "InstanceRenderComponent.h"
 #include "TrailShaderComponent.h"
-
+#include"TerrainShaderComponent.h"
 
 BYTE ReadStringFromFile(FILE* pInFile, char* pstrToken)
 {
@@ -308,6 +308,16 @@ void GameObject::BuildMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 		m_pTrailMeshComponent->BuildObject(pd3dDevice, pd3dCommandList, 24*8*6);
 		m_pMeshComponent = m_pTrailMeshComponent;
 	}
+	ComponentBase* pHeightMapMeshComponent = GetComponent(component_id::HEIGHTMESH_COMPONENT);
+	if (pHeightMapMeshComponent != NULL)
+	{
+		m_pHeihtMapMeshComponent = static_cast<HeihtMapMeshComponent*>(pHeightMapMeshComponent);
+		XMFLOAT3 xmf3Scale(1.0f, 1.0f, 1.0f);
+		XMFLOAT4 xmf4Color(0.3f, 1.0f, 0.0f, 0.0f);
+		m_pHeightMapImage = new CHeightMapImage(m_pFileName, 257, 257, xmf3Scale);
+		m_pHeihtMapMeshComponent->BuildObject(pd3dDevice, pd3dCommandList,0,0, 257, 257, xmf3Scale, xmf4Color, m_pHeightMapImage);
+		m_pMeshComponent = m_pHeihtMapMeshComponent;
+	}
 }
 
 void GameObject::BuildShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -320,8 +330,10 @@ void GameObject::BuildShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	ComponentBase* pSpriteShaderComponent = GetComponent(component_id::SPRITESHADER_COMPONENT);
 	ComponentBase* pBoundingBoxShaderComponent = GetComponent(component_id::BOUNDINGBOX_COMPONENT);
 	ComponentBase* pTrailShaderComponent = GetComponent(component_id::TRAILSHADER_COMPONENT);
+	ComponentBase* pTerrainShaderComponent = GetComponent(component_id::TERRAINSHADER_COMPONENT);
 	if (pShaderComponent != NULL || pSkyShaderComponent != NULL || pUiShaderComponent != NULL || pSpriteShaderComponent != NULL 
-		|| pBoundingBoxShaderComponent != NULL || pBlendingUiShaderComponent != NULL|| pTrailShaderComponent!=NULL)
+		|| pBoundingBoxShaderComponent != NULL || pBlendingUiShaderComponent != NULL|| pTrailShaderComponent!=NULL
+		|| pTerrainShaderComponent!=NULL)
 	{
 		if (pShaderComponent != NULL)
 		{
@@ -344,6 +356,9 @@ void GameObject::BuildShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		}
 		else if (pTrailShaderComponent != NULL) {
 			m_pShaderComponent = static_cast<TrailShaderComponent*>(pTrailShaderComponent);
+		}
+		else if (pTerrainShaderComponent != NULL) {
+			m_pShaderComponent = static_cast<TrailShaderComponent*>(pTerrainShaderComponent);
 		}
 		m_pShaderComponent->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
 		m_pShaderComponent->CreateCbvSrvDescriptorHeaps(pd3dDevice, 2, 2);
@@ -1015,6 +1030,13 @@ int GameObject::PickObjectByRayIntersection(XMFLOAT3& xmf3PickPosition, XMFLOAT4
 	}
 	return(nIntersected);
 }
+
+void GameObject::SetFileName(LPCTSTR pFileName)
+{
+	m_pFileName = pFileName;
+}
+
+
 
 
 void GameObject::MoveStrafe(float fDistance)

@@ -170,6 +170,7 @@
     <ClInclude Include="SkinnedMeshComponent.h" />
     <ClInclude Include="SkinnedShaderComponent.h" />
     <ClInclude Include="StandardShaderComponent.h" />
+    <ClInclude Include="TerrainShaderComponent.h" />
     <ClInclude Include="TextureComponent.h" />
     <ClInclude Include="DDSTextureLoader12.h" />
     <ClInclude Include="DreamGame.h" />
@@ -214,6 +215,7 @@
     <ClCompile Include="SkinnedMeshComponent.cpp" />
     <ClCompile Include="SkinnedShaderComponent.cpp" />
     <ClCompile Include="StandardShaderComponent.cpp" />
+    <ClCompile Include="TerrainShaderComponent.cpp" />
     <ClCompile Include="TextureComponent.cpp" />
     <ClCompile Include="DDSTextureLoader12.cpp" />
     <ClCompile Include="DreamGame.cpp" />

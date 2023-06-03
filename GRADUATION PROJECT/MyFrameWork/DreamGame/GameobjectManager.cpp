@@ -11,6 +11,7 @@
 #include "InstancingShaderComponent.h"
 #include "TrailShaderComponent.h"
 #include "TrailComponent.h"
+#include"TerrainShaderComponent.h"
 
 
 extern NetworkHelper g_NetworkHelper;
@@ -326,7 +327,11 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pContinueUIObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 	for (int i = 0; i < 6; i++) {
+		if(m_pStage1Objects[i])
 		m_pStage1Objects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
+	if (m_pStage1TerrainObject) {
+		m_pStage1TerrainObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 }
 
@@ -515,6 +520,8 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pSkyboxObject->SetScale(1, 1, 1);
 	m_pSkyboxObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
+
+
 #if LOCAL_TASK
 	// 플레이어가 캐릭터 선택하는 부분에 유사하게 넣을 예정
 	m_pPlayerObject = new GameObject(UNDEF_ENTITY);	//수정필요
@@ -595,23 +602,23 @@ void GameobjectManager::BuildTrail(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 }
 void GameobjectManager::BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	m_pStage1Objects[0] = new GameObject(UNDEF_ENTITY);
+	/*m_pStage1Objects[0] = new GameObject(UNDEF_ENTITY);
 	m_pStage1Objects[0]->InsertComponent<RenderComponent>();
 	m_pStage1Objects[0]->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pStage1Objects[0]->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pStage1Objects[0]->SetModel("Model/Tree.bin");
 	m_pStage1Objects[0]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pStage1Objects[0]->SetScale(30.0f, 30.0f, 30.0f);
-	m_pStage1Objects[0]->SetRimLight(false);
+	m_pStage1Objects[0]->SetRimLight(false);*/
 	m_pStage1Objects[1] = new GameObject(UNDEF_ENTITY);
 	m_pStage1Objects[1]->InsertComponent<RenderComponent>();
 	m_pStage1Objects[1]->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pStage1Objects[1]->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pStage1Objects[1]->SetModel("Model/Fence.bin");
 	m_pStage1Objects[1]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pStage1Objects[1]->SetScale(30.0f, 30.0f, 30.0f);
+	m_pStage1Objects[1]->SetScale(1.0f, 1.0f, 1.0f);
 	m_pStage1Objects[1]->SetRimLight(false);
-	m_pStage1Objects[2] = new GameObject(UNDEF_ENTITY);
+	/*m_pStage1Objects[2] = new GameObject(UNDEF_ENTITY);
 	m_pStage1Objects[2]->InsertComponent<RenderComponent>();
 	m_pStage1Objects[2]->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pStage1Objects[2]->SetPosition(XMFLOAT3(0, 0, 0));
@@ -642,8 +649,20 @@ void GameobjectManager::BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pStage1Objects[5]->SetModel("Model/Street.bin");
 	m_pStage1Objects[5]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pStage1Objects[5]->SetScale(30.0f, 30.0f, 30.0f);
-	m_pStage1Objects[5]->SetRimLight(false);
+	m_pStage1Objects[5]->SetRimLight(false);*/
 	
+
+	m_pStage1TerrainObject = new GameObject(UNDEF_ENTITY);
+	m_pStage1TerrainObject->InsertComponent<RenderComponent>();
+	m_pStage1TerrainObject->InsertComponent<HeihtMapMeshComponent>();
+	m_pStage1TerrainObject->InsertComponent<TerrainShaderComponent>();
+	m_pStage1TerrainObject->InsertComponent<TextureComponent>();
+	m_pStage1TerrainObject->SetTexture(L"Terrain/Base_Texture.dds", RESOURCE_TEXTURE2D, 3);
+	m_pStage1TerrainObject->SetFileName(_T("Terrain/terrain.raw"));
+	m_pStage1TerrainObject->SetPosition(XMFLOAT3(0, 0, 0));
+	m_pStage1TerrainObject->Rotate(0, 180, 0);
+	m_pStage1TerrainObject->SetScale(1, 1, 1);
+	m_pStage1TerrainObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
 void GameobjectManager::BuildLight()
 {

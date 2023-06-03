@@ -72,6 +72,7 @@ private: //active object
 	GameObject* m_pEnergyBallObject{ NULL };
 
 
+
 	DepthRenderShaderComponent* m_pDepthShaderComponent{ NULL };
 	ShadowMapShaderComponent*   m_pShadowmapShaderComponent{ NULL };
 	TextureToViewportComponent* m_pTextureToViewportComponent{ NULL };
@@ -129,6 +130,7 @@ private: //active object
 	
 	//
 	array<GameObject*, 10> m_pStage1Objects{ NULL };
+	GameObject* m_pStage1TerrainObject{ NULL };
 	
 
 	POINT						m_ptOldCursorPos;
