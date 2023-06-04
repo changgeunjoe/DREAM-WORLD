@@ -167,7 +167,7 @@ public:
 
 
 	UINT							m_nType = 0x00;
-	char							m_pstrFrameName[64];
+	char							m_pstrFrameName[64]{};
 
 
 	CCamera*						m_pCamera{ nullptr };
@@ -305,6 +305,8 @@ public:
 	GameObject* m_pHPBarUI{ NULL };
 	GameObject* m_pProfileUI{ NULL };
 	GameObject* m_pSkillUI{ NULL };
+	GameObject* m_pTrailStart{ NULL };
+	GameObject* m_pTrailEnd{ NULL };
 };
 
 template<typename T>//템플릿을 활용하는 이유-> 

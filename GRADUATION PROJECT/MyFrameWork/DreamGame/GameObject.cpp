@@ -261,6 +261,8 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 			m_pLoadedModelComponent = LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList,
 				pd3dGraphicsRootSignature, pszModelNames, NULL, true);//NULL ->Shader
 			SetChild(m_pLoadedModelComponent->m_pModelRootObject, true);
+			m_pTrailStart = FindFrame("WeaponPositionStart");
+			m_pTrailEnd = FindFrame("WeaponPositionEnd");
 		}
 		if (m_nAnimationSets != 0)
 		{
@@ -692,6 +694,8 @@ CLoadedModelInfoCompnent* GameObject::LoadGeometryAndAnimationFromFile(ID3D12Dev
 			{
 				pLoadedModel->m_pModelRootObject = GameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, NULL, pInFile, pShader, &pLoadedModel->m_nSkinnedMeshes);
 				::ReadStringFromFile(pInFile, pstrToken); //"</Hierarchy>"
+
+				
 			}
 			else if (!strcmp(pstrToken, "<Animation>:"))
 			{
@@ -841,7 +845,7 @@ void GameObject::LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfoCompnent* 
 	UINT nReads = 0;
 
 	int nAnimationSets = 0;
-
+	
 	for (; ; )
 	{
 		::ReadStringFromFile(pInFile, pstrToken);
