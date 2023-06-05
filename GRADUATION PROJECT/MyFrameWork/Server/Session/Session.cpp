@@ -86,11 +86,33 @@ PlayerSessionObject* Session::SetPlaySessionObject(ROLE r)
 
 void Session::ResetPlayerToLobbyState()
 {
-	//m_roomId.clear();
+	m_roomId = -1;
 	{
 		std::lock_guard < std::mutex>lg{ m_playerStateLock };
 		m_playerState = PLAYER_STATE::IN_GAME;
 	}
 	delete m_sessionObject;
 	m_sessionObject = nullptr;
+}
+
+void Session::ResetSession()
+{
+	{
+		std::lock_guard < std::mutex>lg{ m_playerStateLock };
+		m_playerState = PLAYER_STATE::FREE;
+	}
+	//play Character Session
+	if (m_sessionObject != nullptr)
+		delete m_sessionObject;
+	m_sessionObject = nullptr;
+	//player Info
+	m_id = -1;
+	m_roomId = -1;
+	m_playerName.clear();
+	//buffer
+	m_prevBufferSize = 0;
+	ZeroMemory(m_exOver.m_buffer, MAX_BUF_SIZE);	
+	//socket
+	closesocket(m_socket);
+	m_socket = NULL;
 }

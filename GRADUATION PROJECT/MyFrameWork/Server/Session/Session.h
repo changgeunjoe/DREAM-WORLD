@@ -13,7 +13,7 @@ private:
 	ExpOver				m_exOver;
 	SOCKET				m_socket;
 	int					m_prevBufferSize;
-	std::wstring m_playerName;
+	std::wstring		m_playerName;
 
 public:
 	PlayerSessionObject* m_sessionObject;
@@ -54,5 +54,7 @@ public:
 public:
 	PlayerSessionObject* SetPlaySessionObject(ROLE r);
 	void ResetPlayerToLobbyState();
+public:
+	void ResetSession();
 	friend class SessionObject;
 };

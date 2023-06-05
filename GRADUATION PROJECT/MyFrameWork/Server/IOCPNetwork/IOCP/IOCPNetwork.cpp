@@ -85,7 +85,7 @@ void IOCPNetwork::WorkerThread()
 			}
 			else {
 				std::cout << "GQCS Error on client[" << key << "]" << std::endl;
-				//disconnect(static_cast<int>(key));
+				DisconnectClient(static_cast<int>(key));
 				if (ex_over->m_opCode == OP_SEND) delete ex_over;
 				continue;
 			}
@@ -104,6 +104,7 @@ void IOCPNetwork::WorkerThread()
 				CreateIoCompletionPort(reinterpret_cast<HANDLE>(m_clientSocket), m_hIocp, userId, 0);
 				g_logic.AcceptPlayer(&m_session[userId], userId, m_clientSocket);
 				m_clientSocket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
+				//중복 로그인 확인 - logic::ProcessPacket::Login 부분에서 처리함
 				ZeroMemory(&m_acceptOver->m_overlap, sizeof(m_acceptOver->m_overlap));
 				AcceptEx(m_listenSocket, m_clientSocket, m_acceptOver->m_buffer, 0, addr_size + 16, addr_size + 16, 0, &m_acceptOver->m_overlap);
 			}
@@ -158,5 +159,21 @@ void IOCPNetwork::WorkerThread()
 int IOCPNetwork::GetUserId()
 {
 	if (m_currentClientId < MAX_USER) return m_currentClientId++;
+	else {
+		int restIdx = -1;
+		if (m_restClientId.try_pop(restIdx))
+			return restIdx;
+	}
 	return -1;
+}
+
+void IOCPNetwork::DisconnectClient(int id)
+{
+	//만약 인게임 중에 disconnect 된다면.
+	if (m_session[id].GetPlayerState() == PLAYER_STATE::IN_GAME_ROOM) {
+		Room& room = g_RoomManager.GetRunningRoomRef(m_session[id].GetRoomId());
+		//room.
+	}
+	m_session[id].ResetSession();
+	m_restClientId.push(id);
 }

@@ -74,7 +74,6 @@ void Logic::ProcessPacket(int userId, char* p)
 			g_iocpNetwork.m_session[userId].m_sessionObject->Rotate(recvPacket->axis, recvPacket->angle);
 #ifdef _DEBUG
 			//std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::ROTATE - MultiCastOtherPlayer" << std::endl;
-
 #endif
 			MultiCastOtherPlayerInRoom(userId, &sendPacket);
 		}
@@ -139,17 +138,48 @@ void Logic::ProcessPacket(int userId, char* p)
 	case CLIENT_PACKET::LOGIN:
 	{
 		CLIENT_PACKET::LoginPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::LoginPacket*>(p);
-		DB_STRUCT::PlayerInfo* pInfo = new DB_STRUCT::PlayerInfo;
-		std::string tempId = recvPacket->id;
-		pInfo->PlayerLoginId.assign(tempId.begin(), tempId.end());
-		std::string tempPw = recvPacket->pw;
-		pInfo->pw.assign(tempPw.begin(), tempPw.end());
-		DB_EVENT newEvent;
-		newEvent.op = DB_OP_GET_PLAYER_INFO;
-		newEvent.userId = userId;
-		newEvent.Data = pInfo;
-		g_DBObj.m_workQueue.push(newEvent);
+		DB_STRUCT::PlayerInfo* pInfo = new DB_STRUCT::PlayerInfo(recvPacket->id, recvPacket->pw);
+		//std::string tempId = recvPacket->id;
+		std::map<std::wstring, int>::iterator playerMapFindRes = m_inGameUser.end();
+		{
+			std::lock_guard<std::mutex>ll{ m_inGameUserLock };
+			playerMapFindRes = m_inGameUser.find(pInfo->PlayerLoginId);
+		}
+		if (playerMapFindRes != m_inGameUser.end()) {//이미 플레이어가 존재
+			//둘 다 접속 해제하게 만들기
 
+			//이미 존재하기때문에 지금 들어온 플레이어 접속 해제 패킷 전송
+			SERVER_PACKET::NotifyPacket preExistPacket;
+			preExistPacket.type = SERVER_PACKET::PRE_EXIST_LOGIN;
+			preExistPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
+			g_iocpNetwork.m_session[userId].Send(&preExistPacket);//pre_exist notify
+
+
+			//이미 존재하는 플레이어에게 중복로그인 패킷 전송
+			SERVER_PACKET::NotifyPacket duplicateLoginPacket;
+			duplicateLoginPacket.type = SERVER_PACKET::DUPLICATED_LOGIN;
+			duplicateLoginPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
+			g_iocpNetwork.m_session[playerMapFindRes->second].Send(&duplicateLoginPacket);//duplicate notify
+
+			DeleteInGameUserMap((*playerMapFindRes).first);
+			g_iocpNetwork.DisconnectClient(playerMapFindRes->second);
+
+			//{
+			//	//접속 해제 시킨 후, map에서 제거
+			//	std::lock_guard<std::mutex>ll{ m_inGameUserLock };
+			//	m_inGameUser.erase(playerMapFindRes->first);
+			//}
+		}
+		else {
+			/*pInfo->PlayerLoginId.assign(tempId.begin(), tempId.end());
+			std::string tempPw = recvPacket->pw;
+			pInfo->pw.assign(tempPw.begin(), tempPw.end());*/
+			DB_EVENT newEvent;
+			newEvent.op = DB_OP_GET_PLAYER_INFO;
+			newEvent.userId = userId;
+			newEvent.Data = pInfo;
+			g_DBObj.m_workQueue.push(newEvent);
+		}
 		/////////////////////////////////////////////////////////////////
 		//여기다가 동접 테스트 하기위한 객체 생성하기 **
 	}
@@ -364,7 +394,7 @@ void Logic::ProcessPacket(int userId, char* p)
 		PrintCurrentTime();
 		std::cout << "unknown Packet" << std::endl;
 		break;
-	}
+}
 }
 
 void Logic::BroadCastPacket(void* p)
@@ -403,7 +433,7 @@ void Logic::BroadCastInRoomByPlayer(int userId, void* p)
 
 void Logic::BroadCastInRoom(int roomId, void* p)
 {
-	auto roomPlayermap = g_RoomManager.GetRunningRoomRef(roomId).GetPlayerMap();	
+	auto roomPlayermap = g_RoomManager.GetRunningRoomRef(roomId).GetPlayerMap();
 	for (auto& cli : roomPlayermap) {
 		g_iocpNetwork.m_session[cli.second].Send(p);
 	}
@@ -672,6 +702,18 @@ std::string Logic::MakeRoomId()
 	roomId.append(std::to_string(std::localtime(&in_time_t)->tm_sec));
 	roomId.append("Matching_");
 	return roomId;
+}
+
+void Logic::InsertInGameUserMap(std::wstring& id, int userId)
+{
+	std::lock_guard<std::mutex>ll{ m_inGameUserLock };
+	m_inGameUser.try_emplace(id, userId);
+}
+
+void Logic::DeleteInGameUserMap(std::wstring& id)
+{
+	std::lock_guard<std::mutex>ll{ m_inGameUserLock };
+	m_inGameUser.erase(id);
 }
 
 //std::chrono::utc_clock::time_point t = std::chrono::utc_clock::now();//latency 체크

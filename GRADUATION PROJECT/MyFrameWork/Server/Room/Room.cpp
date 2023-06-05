@@ -66,6 +66,45 @@ std::map<ROLE, int> Room::GetPlayerMap()
 	return m_inGamePlayers;
 }
 
+void Room::InsertDisconnectedPlayer(int id)
+{
+	std::map<ROLE, int>::iterator findPlayer;
+	{// playerId find
+		std::lock_guard<std::mutex> lg{ m_lockInGamePlayers };
+		findPlayer = std::find_if(m_inGamePlayers.begin(), m_inGamePlayers.end(), [&id](std::pair<ROLE, int> p)
+			{
+				return p.second == id;
+			}
+		);
+	}
+	if (findPlayer == m_inGamePlayers.end()) return;
+	{//desconneced Player insert
+		std::lock_guard<std::mutex> lg{ m_lockdisconnectedPlayer };
+		m_disconnectedPlayers.try_emplace(g_iocpNetwork.m_session[id].GetName(), findPlayer->first);
+	}
+	//ingame Player erase
+	std::lock_guard<std::mutex> lg{ m_lockInGamePlayers };
+	m_inGamePlayers.erase(findPlayer);
+}
+
+bool Room::CheckDisconnectedPlayer(std::wstring& name)
+{
+	{	//desconneced Player find
+		std::lock_guard<std::mutex> lg{ m_lockdisconnectedPlayer };
+		if (m_disconnectedPlayers.count(name) == 1) {
+			return true;
+		}
+	}
+	return false;
+}
+
+void Room::DeleteDisconnectedPlayer(int playerId, std::wstring& name)
+{
+	if (CheckDisconnectedPlayer(name)) {//disconnected Player find
+
+	}
+}
+
 void Room::CreateBossMonster()
 {
 	m_boss.SetRoomId(m_roomId);
@@ -123,13 +162,14 @@ void Room::GameStart()
 {
 	m_isAlive = true;
 	//PrintCurrentTime();
-	
+
 	//std::cout << "PlayerNum: " << m_inGamePlayers.size() << std::endl;
 	//for (auto& playerInfo : m_inGamePlayers) {
 	//	std::cout << "PlayerId: " << playerInfo.second << std::endl;
 	//}
 
 	CreateBossMonster(); //임시 입니다.
+
 	TIMER_EVENT findEv{ std::chrono::system_clock::now() + std::chrono::milliseconds(1), m_roomId ,EV_FIND_PLAYER };
 	g_Timer.InsertTimerQueue(findEv);
 	//TIMER_EVENT bossStateEvent{ std::chrono::system_clock::now() + std::chrono::milliseconds(3), m_roomId, -1,EV_BOSS_STATE };
@@ -194,7 +234,7 @@ void Room::BossFindPlayer()
 		std::lock_guard<std::mutex> lg{ m_lockInGamePlayers };
 		playerMap = m_inGamePlayers;
 	}
-#ifdef ALONE_TEST	
+#ifdef ALONE_TEST
 	m_boss.ReserveAggroPlayerId(playerMap.begin()->second);
 	m_boss.SetAggroPlayerId();
 #endif // ALONE_TEST
@@ -249,17 +289,17 @@ void Room::ChangeBossState()
 void Room::UpdateGameStateForPlayer()
 {
 	if (!m_isAlive) return;
-	std::map<ROLE, int> playerMap;
-	{
-		std::lock_guard<std::mutex> lg{ m_lockInGamePlayers };
-		playerMap = m_inGamePlayers;
-	}
 	short damage = -1;
 	while (m_bossDamagedQueue.try_pop(damage)) {
 		m_boss.AttackedHp(damage);
 	}
 	if (m_boss.GetHp() <= 0)m_boss.isBossDie = true;
 	if (m_boss.isBossDie) {
+		//disconnect Player Set Clear
+		{
+			std::lock_guard<std::mutex>disconnectedPlayerLock{ m_lockdisconnectedPlayer };
+			m_disconnectedPlayers.clear();
+		}
 		m_boss.SetZeroHp();
 		SERVER_PACKET::NotifyPacket sendPacket;
 		sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
@@ -276,6 +316,11 @@ void Room::UpdateGameStateForPlayer()
 		sendPacket.bossState.rot = m_boss.GetRot();
 		sendPacket.bossState.directionVector = m_boss.GetDirectionVector();
 		int i = 0;
+		std::map<ROLE, int> playerMap;
+		{
+			std::lock_guard<std::mutex> lg{ m_lockInGamePlayers };
+			playerMap = m_inGamePlayers;
+		}
 		for (auto& p : playerMap) {
 			sendPacket.userState[i].userId = p.second;
 			sendPacket.userState[i].hp = g_iocpNetwork.m_session[p.second].m_sessionObject->GetHp();

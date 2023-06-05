@@ -599,6 +599,20 @@ void Logic::ProcessPacket(char* p)
 		//지금은 바로 게임 종료 확인하는 패킷 서버로 전송하게 구현함
 		m_MonsterSession.m_currentPlayGameObject->SetCurrentHP(0.0f);
 		GameEnd = true;
+			
+	}
+	break;
+	case SERVER_PACKET::PRE_EXIST_LOGIN://이미 존재하는 플레이어가 있기 때문에, 지금 들어온 플레이어(내 클라이언트는) 접속 해제 패킷을 수신
+	{
+		//알림 메세지 띄우고, 다시 접속은 해야하네...;;
+		EndDialog(loginWnd, IDCANCEL);
+		//ShowWindow(g_wnd, g_cmd);//이 윈도우가 아닌 로그인 중복 확인창 띄워야 됨
+		//UpdateWindow(g_wnd);
+	}
+	break;
+	case SERVER_PACKET::DUPLICATED_LOGIN://접속해 있었지만(내 클라이언트) 중복로그인을 함
+	{
+		EndDialog(g_wnd, IDCANCEL);
 
 	}
 	break;

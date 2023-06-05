@@ -16,9 +16,29 @@ struct DB_EVENT {
 
 namespace DB_STRUCT {
 
-	struct PlayerInfo {
+	class PlayerInfo {
+	public:
 		std::wstring PlayerLoginId;
 		std::wstring pw;
+	public:
+		PlayerInfo() {};
+		PlayerInfo(std::wstring loginId, std::wstring password)
+		{
+			PlayerLoginId = loginId;
+			pw = password;
+		}
+		PlayerInfo(std::string loginId, std::string password)
+		{
+			PlayerLoginId.assign(loginId.begin(), loginId.end());
+			pw.assign(password.begin(), password.end());
+		}
+		PlayerInfo(char* loginId, char* password)
+		{
+			std::string id{ loginId };
+			std::string passWord{ password };
+			PlayerLoginId.assign(id.begin(), id.end());
+			pw.assign(passWord.begin(), passWord.end());
+		}
 	};
 
 }

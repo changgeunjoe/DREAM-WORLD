@@ -35,7 +35,7 @@ void DBObject::RunDBThread()
 					sendPacket.name[wst_nickName.size()] = 0;
 					g_iocpNetwork.m_session[currentEvent.userId].Send(&sendPacket);
 				}
-				else if (GetPlayerInfo(pInfo->PlayerLoginId, pInfo->pw, wst_nickName)) {					
+				else if (GetPlayerInfo(pInfo->PlayerLoginId, pInfo->pw, wst_nickName)) {
 					g_iocpNetwork.m_session[currentEvent.userId].SetInGameState();
 					g_iocpNetwork.m_session[currentEvent.userId].SetName(wst_nickName);
 					SERVER_PACKET::LoginPacket sendPacket;
@@ -44,7 +44,11 @@ void DBObject::RunDBThread()
 					sendPacket.userID = currentEvent.userId;
 					memcpy(sendPacket.name, wst_nickName.c_str(), wst_nickName.size() * 2);
 					sendPacket.name[wst_nickName.size()] = 0;
+					/*std::string strId;
+					strId.assign(pInfo->PlayerLoginId.begin(), pInfo->PlayerLoginId.end());*/
+					g_logic.InsertInGameUserMap(pInfo->PlayerLoginId, currentEvent.userId);//로그인 성공 시 등록
 					g_iocpNetwork.m_session[currentEvent.userId].Send(&sendPacket);
+
 
 					//SERVER_PACKET::AddPlayerPacket myInfoPacket;
 					//memcpy(myInfoPacket.name, wst_nickName.c_str(), wst_nickName.size() * 2);
