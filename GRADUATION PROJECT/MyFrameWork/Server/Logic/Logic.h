@@ -52,4 +52,5 @@ private:
 public://save InGamePlayerMap for db
 	void InsertInGameUserMap(std::wstring& id, int userId);
 	void DeleteInGameUserMap(std::wstring& id);
+	void DeleteInGameUserMap(const std::wstring id);
 };

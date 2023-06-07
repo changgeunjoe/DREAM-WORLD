@@ -161,7 +161,7 @@ void Logic::ProcessPacket(int userId, char* p)
 			duplicateLoginPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
 			g_iocpNetwork.m_session[playerMapFindRes->second].Send(&duplicateLoginPacket);//duplicate notify
 
-			DeleteInGameUserMap((*playerMapFindRes).first);
+			DeleteInGameUserMap(playerMapFindRes->first);
 			g_iocpNetwork.DisconnectClient(playerMapFindRes->second);
 
 			//{
@@ -711,6 +711,12 @@ void Logic::InsertInGameUserMap(std::wstring& id, int userId)
 }
 
 void Logic::DeleteInGameUserMap(std::wstring& id)
+{
+	std::lock_guard<std::mutex>ll{ m_inGameUserLock };
+	m_inGameUser.erase(id);
+}
+
+void Logic::DeleteInGameUserMap(const std::wstring id)
 {
 	std::lock_guard<std::mutex>ll{ m_inGameUserLock };
 	m_inGameUser.erase(id);
