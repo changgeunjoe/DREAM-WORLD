@@ -107,7 +107,7 @@ void MapData::GetReadMapData()
 	int idxM = -1;
 	int inIdx = -1;
 	int zeroIdx = -1;
-	vector<int> zeroIdxs;
+	//vector<int> m_zeroVertexIdxs;
 	for (int i = 0; i < index.size() / 3; i++) {
 		float dis = m_triangleMesh[i].GetDistance(300.0f, 0.0f, 100.0f);
 		if (fltMx > dis) {
@@ -117,14 +117,14 @@ void MapData::GetReadMapData()
 		if (m_triangleMesh[i].IsOnTriangleMesh(300.0f, 0.0f, 100.0f))
 			inIdx = i;
 		if (m_triangleMesh[i].IsOnTriangleMesh(0.0f, 0.0f, 0.0f))
-			zeroIdxs.emplace_back(i);
+			m_zeroVertexIdxs.emplace_back(i);
 		//zeroIdx = i;
 	}
 	std::cout << "dis Min: " << idxM << "dis: " << fltMx << std::endl;
 	std::cout << "On idx: " << inIdx << std::endl;
 	//std::cout << "On ZeroIdx: " << zeroIdx << std::endl;
 	std::cout << "ZeroIdxs: ";
-	for (auto& i : zeroIdxs)
+	for (auto& i : m_zeroVertexIdxs)
 		std::cout << i << " ";
 	std::cout << std::endl;
 	std::cout << "map load end" << std::endl;
@@ -132,6 +132,9 @@ void MapData::GetReadMapData()
 
 std::list<int> MapData::AStarLoad(int myTriangleIdx, float desX, float desZ)
 {
+	if (m_triangleMesh[myTriangleIdx].IsOnTriangleMesh(desX, 0.0f, desZ)) {
+		return std::list<int>{myTriangleIdx};
+	}
 	std::map<int, AstarNode> openList;
 	std::map<int, AstarNode> closeList;
 

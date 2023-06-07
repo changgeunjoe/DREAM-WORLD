@@ -274,8 +274,9 @@ namespace SERVER_PACKET {
 	struct BossMoveNodePacket {
 		short size;
 		char type;
-		int nodeCnt;
 		DirectX::XMFLOAT3 bossPos;
+		DirectX::XMFLOAT3 desPos;
+		int nodeCnt;
 		int node[40];
 	};
 

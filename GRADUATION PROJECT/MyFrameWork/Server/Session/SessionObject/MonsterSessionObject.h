@@ -17,6 +17,7 @@ private:
 	int m_aggroPlayerId = -1;
 	int m_newAggroPlayerId = -1;
 	std::list<int> m_ReserveRoad;
+	int m_onIdx = -1;
 public:
 	std::atomic_bool  isMove = false;
 	std::atomic_bool isAttack = false;

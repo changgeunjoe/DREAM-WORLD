@@ -583,7 +583,7 @@ void Logic::ProcessPacket(char* p)
 				}
 				break;
 			}
-			m_MonsterSession.m_currentPlayGameObject->SetMoveState(false);
+			m_MonsterSession.m_currentPlayGameObject->SetMoveState(false);			
 			cout << "ProcessPacket::SERVER_PACKET::BOSS_ATTACK - recvPacket: " << (int)recvPacket->bossAttackType << endl;
 		}
 	}
@@ -606,19 +606,31 @@ void Logic::ProcessPacket(char* p)
 	case SERVER_PACKET::BOSS_MOVE_NODE:
 	{
 		// 현재 시점에서 경로 Clear
-		std::queue<int> emptyQueue;
-		std::swap(m_MonsterSession.m_currentPlayGameObject->m_BossRoute, emptyQueue);
+		//std::queue<int> emptyQueue;
+		//std::swap(m_MonsterSession.m_currentPlayGameObject->m_BossRoute, emptyQueue);
 
 
 		SERVER_PACKET::BossMoveNodePacket* recvPacket = reinterpret_cast<SERVER_PACKET::BossMoveNodePacket*>(p);
+		std::queue<int> recvNodeQueue;
 		cout << "보스 이동 인덱스 : ";
-		if (recvPacket->nodeCnt > -1)
+		if (recvPacket->nodeCnt == -1) {
+			m_MonsterSession.m_currentPlayGameObject->m_lockBossRoute.lock();
+			m_MonsterSession.m_currentPlayGameObject->m_BossRoute.swap(recvNodeQueue);
+			m_MonsterSession.m_currentPlayGameObject->m_lockBossRoute.unlock();
+			m_MonsterSession.m_currentPlayGameObject->m_xmf3Destination = recvPacket->desPos;
+		}
+		else if (recvPacket->nodeCnt > -1) {
 			for (int i = 0; i < recvPacket->nodeCnt; i++) {
 				//보스가 이동할 노드 데이터
 				// 받아온 노드들 벡터에 새로 넣기
-				cout << recvPacket->node[i]<< ", " << endl;
-				m_MonsterSession.m_currentPlayGameObject->m_BossRoute.push(recvPacket->node[i]);
+				cout << recvPacket->node[i] << ", " << endl;
+				recvNodeQueue.push(recvPacket->node[i]);
 			}
+			m_MonsterSession.m_currentPlayGameObject->m_lockBossRoute.lock();
+			m_MonsterSession.m_currentPlayGameObject->m_BossRoute.swap(recvNodeQueue);
+			m_MonsterSession.m_currentPlayGameObject->m_lockBossRoute.unlock();
+		}
+		m_MonsterSession.m_currentPlayGameObject->SetMoveState(true);
 		cout << endl;
 	}
 	break;

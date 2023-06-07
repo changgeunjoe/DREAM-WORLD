@@ -885,6 +885,7 @@ void Monster::Animate(float fTimeElapsed)
 	}
 	if (m_bMoveState)	// 움직이는 중
 	{
+		m_lockBossRoute.lock();
 		if (!m_BossRoute.empty())
 		{
 			if (Vector3::Length(Vector3::Subtract(m_xmf3Destination, GetPosition())) < 40.0f)
@@ -894,6 +895,10 @@ void Monster::Animate(float fTimeElapsed)
 				m_xmf3Destination = tempTriangle.GetCenter();
 				m_BossRoute.pop();
 			}
+			m_lockBossRoute.unlock();
+		}
+		else {
+			m_lockBossRoute.unlock();			
 		}
 		XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f);
 		XMFLOAT3 des = Vector3::Subtract(m_xmf3Destination, GetPosition());

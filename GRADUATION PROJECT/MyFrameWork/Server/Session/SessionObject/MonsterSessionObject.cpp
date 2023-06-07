@@ -18,12 +18,14 @@ extern MapData g_bossMapData;
 MonsterSessionObject::MonsterSessionObject() : SessionObject()
 {
 	m_maxHp = m_hp = 2500;
+	m_onIdx = g_bossMapData.GetFirstIdxs();
 }
 
 MonsterSessionObject::MonsterSessionObject(int& roomId) : SessionObject(roomId)
 {
 	m_maxHp = m_hp = 2500;
 	m_DestinationPos = XMFLOAT3{ 0,0,0 };
+	m_onIdx = g_bossMapData.GetFirstIdxs();
 }
 
 MonsterSessionObject::~MonsterSessionObject()
@@ -111,24 +113,20 @@ void MonsterSessionObject::SetDirection(DIRECTION d)
 void MonsterSessionObject::Move(float fDistance, float elapsedTime)
 {
 	XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f);
-
 	//new - Astar
-
 	if (m_ReserveRoad.size() > 0) {
-
-		DirectX::XMFLOAT3 center = g_bossMapData.GetTriangleMesh(*m_ReserveRoad.begin()).GetCenter();
-
-		if (Vector3::Length(Vector3::Subtract(m_position, center)) > 1.0f) {
-
+		DirectX::XMFLOAT3 destinationCenter = g_bossMapData.GetTriangleMesh(*m_ReserveRoad.begin()).GetCenter();
+		m_DestinationPos = destinationCenter;
+		if (Vector3::Length(Vector3::Subtract(m_position, destinationCenter)) > 4.0f) {
 			auto lookV = Vector3::Subtract(m_DestinationPos, m_position);//방향 벡터
-			auto distance = Vector3::Length(lookV); // 거리			
+			auto distance = Vector3::Length(lookV); // 거리
 
 			CalcRightVector();
-			bool OnRight = (Vector3::DotProduct(m_rightVector, Vector3::Normalize(lookV)) > 0) ? true : false;	// 목적지가 올느쪽 왼
+			bool OnRight = (Vector3::DotProduct(m_rightVector, Vector3::Normalize(lookV)) > 0) ? true : false;	// 목적지가 오른쪽 왼
 			float ChangingAngle = Vector3::Angle(Vector3::Normalize(lookV), m_directionVector);
 
 			//old - No_Astar
-			//XMFLOAT3 des = Vector3::Subtract(m_DestinationPos, m_position);	// 목적지랑 위치랑 벡터	
+			//XMFLOAT3 des = Vector3::Subtract(m_DestinationPos, m_position);	// 목적지랑 위치랑 벡터
 			//CalcRightVector();
 			//bool OnRight = (Vector3::DotProduct(m_rightVector, Vector3::Normalize(des)) > 0) ? true : false;	// 목적지가 올느쪽 왼
 			//float ChangingAngle = Vector3::Angle(Vector3::Normalize(des), m_directionVector);
@@ -154,7 +152,7 @@ void MonsterSessionObject::Move(float fDistance, float elapsedTime)
 				else if (!OnRight)
 					Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);*/
 			}
-			else if (distance >= 40.0f) {
+			else {
 				if (ChangingAngle > 0.5f)
 				{
 					OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
@@ -170,6 +168,7 @@ void MonsterSessionObject::Move(float fDistance, float elapsedTime)
 			//std::cout << "BossPos: " << m_position.x << "0, " << m_position.z << std::endl;
 		}
 		else {
+			m_onIdx = *m_ReserveRoad.begin();
 			m_ReserveRoad.erase(m_ReserveRoad.begin());
 			if (m_ReserveRoad.size() != 0) {
 				DirectX::XMFLOAT3 center = g_bossMapData.GetTriangleMesh(*m_ReserveRoad.begin()).GetCenter();
@@ -186,20 +185,24 @@ void MonsterSessionObject::SetDestinationPos(DirectX::XMFLOAT3 des)
 	//장애물이 있기때문에 목적지가 아닌, Road를 저장하여 움직이자
 	// 서버에서는 계산을 해서 움직이고, 클라에서는 서버에서 계산된 값을 가지고 자동으로 움직이자.
 	//m_DestinationPos = des;
-	m_ReserveRoad = g_bossMapData.AStarLoad(754, des.x, des.z);
+	m_ReserveRoad = g_bossMapData.AStarLoad(m_onIdx, des.x, des.z);
 	SERVER_PACKET::BossMoveNodePacket sendPacket;
-	sendPacket.nodeCnt = m_ReserveRoad.size() > 40 ? 40 : m_ReserveRoad.size();
-	auto iter = m_ReserveRoad.begin();
-	for (int i = 0; i < sendPacket.nodeCnt; i++) {
-		sendPacket.node[i] = *(iter++);
+	if (m_ReserveRoad.front() == m_onIdx) {
+		sendPacket.nodeCnt = -1;
+		sendPacket.desPos = XMFLOAT3(des.x, 0, des.z);
+	}
+	else {
+		sendPacket.nodeCnt = m_ReserveRoad.size() > 40 ? 40 : m_ReserveRoad.size();
+		auto iter = m_ReserveRoad.begin();
+		for (int i = 0; i < sendPacket.nodeCnt; i++) {
+			sendPacket.node[i] = *(iter++);
+		}
 	}
 	sendPacket.type = SERVER_PACKET::BOSS_MOVE_NODE;
 	sendPacket.size = sizeof(SERVER_PACKET::BossMoveNodePacket);
 	sendPacket.bossPos = m_position;
 	g_logic.BroadCastInRoom(m_roomId, &sendPacket);
 	//이미 점 데이터 계산할때 가질 수 있는데 굳이 여기서 해야할까? 또는 방향 벡터 계산을 이제 클라에서 어떻게 맞춰줄까??
-
-
 }
 
 void MonsterSessionObject::ReserveAggroPlayerId(int id)
@@ -215,9 +218,7 @@ void MonsterSessionObject::SetAggroPlayerId()
 
 void MonsterSessionObject::AttackTimer()
 {
-
 	//std::cout << "ReSet lastAttack Time Boss" << std::endl;
-
 	m_lastAttackTime = std::chrono::high_resolution_clock::now();
 
 	switch (currentAttack)
@@ -317,7 +318,8 @@ void MonsterSessionObject::AttackPlayer()
 bool MonsterSessionObject::StartAttack()
 {
 	XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f);
-	XMFLOAT3 des = Vector3::Subtract(m_DestinationPos, m_position);	// 목적지랑 위치랑 벡터	
+	auto pPos = g_iocpNetwork.m_session[m_aggroPlayerId].m_sessionObject->GetPos();
+	XMFLOAT3 des = Vector3::Subtract(pPos, m_position);	// 목적지랑 위치랑 벡터	
 	float len = Vector3::Length(des);
 	des = Vector3::Normalize(des);
 	CalcRightVector();
