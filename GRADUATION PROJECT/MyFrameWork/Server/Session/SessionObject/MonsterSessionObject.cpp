@@ -5,13 +5,15 @@
 #include "../../Logic/Logic.h"
 #include "../../Timer/Timer.h"
 #include "../../Room/RoomManager.h"
+#include "../../Room/MapData.h"
 #include "PlayerSessionObject.h"
-
+#include "../../IOCPNetwork/protocol/protocol.h"
 
 extern Logic g_logic;
 extern Timer g_Timer;
 extern IOCPNetwork g_iocpNetwork;
 extern RoomManager g_RoomManager;
+extern MapData g_bossMapData;
 
 MonsterSessionObject::MonsterSessionObject() : SessionObject()
 {
@@ -109,44 +111,95 @@ void MonsterSessionObject::SetDirection(DIRECTION d)
 void MonsterSessionObject::Move(float fDistance, float elapsedTime)
 {
 	XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f);
-	XMFLOAT3 des = Vector3::Subtract(m_DestinationPos, m_position);	// 목적지랑 위치랑 벡터	
-	CalcRightVector();
-	bool OnRight = (Vector3::DotProduct(m_rightVector, Vector3::Normalize(des)) > 0) ? true : false;	// 목적지가 올느쪽 왼
-	float ChangingAngle = Vector3::Angle(Vector3::Normalize(des), m_directionVector);
-	//if (Vector3::Length(des) < 10.0f) {
-	//	auto durationTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - m_lastAttackTime);
-	//	if (durationTime > std::chrono::seconds(1) + std::chrono::milliseconds(500)) {
-	//		ExpOver* ov = new ExpOver();
-	//		ov->m_opCode = OP_BOSS_ATTACK_SELECT;
-	//		memcpy(ov->m_buffer, m_roomId.c_str(), m_roomId.size());
-	//		ov->m_buffer[m_roomId.size()] = 0;
-	//		PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, -1, &ov->m_overlap);
-	//	}
-	//}
 
-	float distance = Vector3::Length(des);
+	//new - Astar
 
-	if (ChangingAngle > 15.0f && distance < 40.0f) {
-		OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
-		/*if (OnRight)
-			Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime);
-		else if (!OnRight)
-			Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);*/
-	}
-	else if (distance >= 40.0f) {
-		if (ChangingAngle > 0.5f)
-		{
-			OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
+	if (m_ReserveRoad.size() > 0) {
 
-			//if (OnRight)
-			//	Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime);
-			//else if (!OnRight)
-			//	Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
+		DirectX::XMFLOAT3 center = g_bossMapData.GetTriangleMesh(*m_ReserveRoad.begin()).GetCenter();
+
+		if (Vector3::Length(Vector3::Subtract(m_position, center)) > 1.0f) {
+
+			auto lookV = Vector3::Subtract(m_DestinationPos, m_position);//방향 벡터
+			auto distance = Vector3::Length(lookV); // 거리			
+
+			CalcRightVector();
+			bool OnRight = (Vector3::DotProduct(m_rightVector, Vector3::Normalize(lookV)) > 0) ? true : false;	// 목적지가 올느쪽 왼
+			float ChangingAngle = Vector3::Angle(Vector3::Normalize(lookV), m_directionVector);
+
+			//old - No_Astar
+			//XMFLOAT3 des = Vector3::Subtract(m_DestinationPos, m_position);	// 목적지랑 위치랑 벡터	
+			//CalcRightVector();
+			//bool OnRight = (Vector3::DotProduct(m_rightVector, Vector3::Normalize(des)) > 0) ? true : false;	// 목적지가 올느쪽 왼
+			//float ChangingAngle = Vector3::Angle(Vector3::Normalize(des), m_directionVector);
+			//
+
+			//if (Vector3::Length(des) < 10.0f) {
+			//	auto durationTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - m_lastAttackTime);
+			//	if (durationTime > std::chrono::seconds(1) + std::chrono::milliseconds(500)) {
+			//		ExpOver* ov = new ExpOver();
+			//		ov->m_opCode = OP_BOSS_ATTACK_SELECT;
+			//		memcpy(ov->m_buffer, m_roomId.c_str(), m_roomId.size());
+			//		ov->m_buffer[m_roomId.size()] = 0;
+			//		PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, -1, &ov->m_overlap);
+			//	}
+			//}
+
+			//float distance = Vector3::Length(des);
+
+			if (ChangingAngle > 15.0f && distance < 40.0f) {
+				OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
+				/*if (OnRight)
+					Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime);
+				else if (!OnRight)
+					Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);*/
+			}
+			else if (distance >= 40.0f) {
+				if (ChangingAngle > 0.5f)
+				{
+					OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
+
+					//if (OnRight)
+					//	Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime);
+					//else if (!OnRight)
+					//	Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
+				}
+				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, fDistance));//틱마다 움직임
+				m_SPBB = BoundingSphere(DirectX::XMFLOAT3(m_position.x, m_position.y + 30.0f, m_position.z), 30.0f);
+			}
+			//std::cout << "BossPos: " << m_position.x << "0, " << m_position.z << std::endl;
 		}
-		m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, fDistance));//틱마다 움직임
-		m_SPBB = BoundingSphere(DirectX::XMFLOAT3(m_position.x, m_position.y + 30.0f, m_position.z), 30.0f);
+		else {
+			m_ReserveRoad.erase(m_ReserveRoad.begin());
+			if (m_ReserveRoad.size() != 0) {
+				DirectX::XMFLOAT3 center = g_bossMapData.GetTriangleMesh(*m_ReserveRoad.begin()).GetCenter();
+				m_DestinationPos = center;//목적지 다음 노드의 센터
+			}
+		}
 	}
-	//std::cout << "BossPos: " << m_position.x << "0, " << m_position.z << std::endl;
+
+}
+
+
+void MonsterSessionObject::SetDestinationPos(DirectX::XMFLOAT3 des)
+{
+	//장애물이 있기때문에 목적지가 아닌, Road를 저장하여 움직이자
+	// 서버에서는 계산을 해서 움직이고, 클라에서는 서버에서 계산된 값을 가지고 자동으로 움직이자.
+	//m_DestinationPos = des;
+	m_ReserveRoad = g_bossMapData.AStarLoad(754, des.x, des.z);
+	SERVER_PACKET::BossMoveNodePacket sendPacket;
+	sendPacket.nodeCnt = m_ReserveRoad.size() > 40 ? 40 : m_ReserveRoad.size();
+	auto iter = m_ReserveRoad.begin();
+	for (int i = 0; i < sendPacket.nodeCnt; i++) {
+		sendPacket.node[i] = *(iter++);
+	}
+	sendPacket.type = SERVER_PACKET::BOSS_MOVE_NODE;
+	sendPacket.size = sizeof(SERVER_PACKET::BossMoveNodePacket);
+	sendPacket.bossPos = m_position;
+	g_logic.BroadCastInRoom(m_roomId, &sendPacket);
+	//이미 점 데이터 계산할때 가질 수 있는데 굳이 여기서 해야할까? 또는 방향 벡터 계산을 이제 클라에서 어떻게 맞춰줄까??
+
+
 }
 
 void MonsterSessionObject::ReserveAggroPlayerId(int id)

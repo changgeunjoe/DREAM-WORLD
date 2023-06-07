@@ -243,6 +243,9 @@
     <ClInclude Include="UILayer.h">
       <Filter>08.UILayer</Filter>
     </ClInclude>
+    <ClInclude Include="Network\MapData\MapData.h">
+      <Filter>10.NetworkHelper\Room</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -358,6 +361,9 @@
     </ClCompile>
     <ClCompile Include="UILayer.cpp">
       <Filter>08.UILayer</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\MapData\MapData.cpp">
+      <Filter>10.NetworkHelper\Room</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

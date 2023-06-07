@@ -260,12 +260,14 @@ void Room::ChangeBossState()
 		if (m_boss.GetAggroPlayerId() != -1) {
 			XMFLOAT3 playerPos = g_iocpNetwork.m_session[m_boss.GetAggroPlayerId()].m_sessionObject->GetPos();
 			m_boss.SetDestinationPos(playerPos);
-			SERVER_PACKET::BossChangeStateMovePacket sendPacket;
+			//NodePacket이랑 BossChangeStateMovePacket 통합하여 수정해야할듯?
+			/*SERVER_PACKET::BossChangeStateMovePacket sendPacket;
 			sendPacket.type = SERVER_PACKET::BOSS_CHANGE_STATE_MOVE_DES;
 			sendPacket.size = sizeof(SERVER_PACKET::BossChangeStateMovePacket);
 			sendPacket.desPos = playerPos;
 			sendPacket.bossPos = m_boss.GetPos();
-			g_logic.BroadCastInRoom(m_roomId, &sendPacket);
+
+			g_logic.BroadCastInRoom(m_roomId, &sendPacket);*/
 			if (!m_boss.isMove)
 				m_boss.StartMove(DIRECTION::FRONT);
 		}

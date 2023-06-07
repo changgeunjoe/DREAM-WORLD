@@ -42,7 +42,9 @@ void MapData::GetReadMapData()
 	{
 		XMFLOAT3 v;
 		inFile >> v.x >> v.y >> v.z;
-		vertex.emplace_back(v.x, v.y, v.z);
+		/*v.x *= 30.0f;
+		v.z *= 30.0f;*/
+		vertex.emplace_back(v.x, 0.0f, v.z);
 		vertexCnt--;
 	}
 
@@ -101,10 +103,99 @@ void MapData::GetReadMapData()
 		}
 		if (inFile.eof())break;
 	}
-
-
-
+	float fltMx = FLT_MAX;
+	int idxM = -1;
+	int inIdx = -1;
+	int zeroIdx = -1;
+	vector<int> zeroIdxs;
+	for (int i = 0; i < index.size() / 3; i++) {
+		float dis = m_triangleMesh[i].GetDistance(300.0f, 0.0f, 100.0f);
+		if (fltMx > dis) {
+			fltMx = dis;
+			idxM = i;
+		}
+		if (m_triangleMesh[i].IsOnTriangleMesh(300.0f, 0.0f, 100.0f))
+			inIdx = i;
+		if (m_triangleMesh[i].IsOnTriangleMesh(0.0f, 0.0f, 0.0f))
+			zeroIdxs.emplace_back(i);
+		//zeroIdx = i;
+	}
+	std::cout << "dis Min: " << idxM << "dis: " << fltMx << std::endl;
+	std::cout << "On idx: " << inIdx << std::endl;
+	//std::cout << "On ZeroIdx: " << zeroIdx << std::endl;
+	std::cout << "ZeroIdxs: ";
+	for (auto& i : zeroIdxs)
+		std::cout << i << " ";
+	std::cout << std::endl;
 	std::cout << "map load end" << std::endl;
+}
+
+std::list<int> MapData::AStarLoad(int myTriangleIdx, float desX, float desZ)
+{
+	std::map<int, AstarNode> openList;
+	std::map<int, AstarNode> closeList;
+
+	openList.clear();
+	closeList.clear();
+	//nodeIdx cost dist res parent
+	closeList.try_emplace(myTriangleIdx, myTriangleIdx, 0, 0, 0, -1);
+	int currentTriangleIdx = myTriangleIdx;
+	while (true) {
+		auto relationTriangleIdx = m_triangleMesh[currentTriangleIdx].m_relationMesh;
+		//openList update
+		for (auto& triangle : relationTriangleIdx) {
+			if (closeList.count(triangle.first) == 1) continue;
+			float dis = m_triangleMesh[triangle.first].GetDistance(desX, 0.0f, desZ);
+			if (openList.count(triangle.first) == 0) {
+				openList.try_emplace(triangle.first, triangle.first, triangle.second, dis, triangle.second + dis, currentTriangleIdx);
+			}
+			else {
+				if (openList[triangle.first].GetResValue() > dis + triangle.second) {
+					openList[triangle.first].RefreshNodeData(triangle.first, triangle.second, dis, triangle.second + dis, currentTriangleIdx);
+				}
+			}
+		}
+
+		AstarNode minNode = AstarNode(-1, FLT_MAX, FLT_MAX, FLT_MAX, -1);
+		for (auto& openNode : openList) {
+			if (openNode.second < minNode)
+				minNode = openNode.second;
+		}
+		if (minNode.GetIdx() == -1) {
+			std::cout << "last Index: ";
+			for (auto& triangle : relationTriangleIdx) {
+				std::cout << triangle.first << " ";
+			}
+		}
+		std::cout << std::endl;
+		currentTriangleIdx = minNode.GetIdx();
+		closeList.try_emplace(currentTriangleIdx, minNode);
+		openList.erase(currentTriangleIdx);
+#ifdef _DEBUG
+		std::cout << "ID: " << minNode.GetIdx() << " Parent: " << minNode.GetParentIdx() << " Res: " << minNode.GetResValue() << "Dis: " << minNode.GetDistance() << std::endl;
+#endif
+		//if (m_triangleMesh[currentTriangleIdx].GetDistance(desX, 0.0f, desZ) < 80.0f) {
+		if (closeList[currentTriangleIdx].GetDistance() < 150.0f) {
+#ifdef _DEBUG
+			std::cout << "currentIdx: " << currentTriangleIdx;
+#endif
+			if (m_triangleMesh[currentTriangleIdx].IsOnTriangleMesh(desX, 0.0f, desZ)) {
+				std::list<int> resList;
+				int currentIdx = currentTriangleIdx;
+				while (true) {
+					AstarNode currentNode = closeList[currentIdx];
+					if (currentIdx == myTriangleIdx) {
+#ifdef _DEBUG
+						std::cout << std::endl << std::endl;
+#endif
+						return resList;
+					}
+					resList.emplace_front(currentIdx);
+					currentIdx = currentNode.GetParentIdx();
+				}
+			}
+		}
+	}
 }
 
 MapData::MapData(std::string fileName) : m_fileName(fileName)

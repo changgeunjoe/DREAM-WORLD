@@ -80,6 +80,31 @@ void CubeMeshComponent::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	//m_xmOOBB = BoundingOrientedBox(XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(fx, fy, fz), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
 }
 
+void CubeMeshComponent::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, vector<TrinangleMesh>& meshData)
+{
+	int size = meshData.size();
+	m_nVertices = size * 3;
+	m_nStride = sizeof(XMFLOAT4);
+	m_nOffset = 0;
+	m_nSlot = 0;
+	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+
+	XMFLOAT4* pVertices = new XMFLOAT4[m_nVertices];
+	int i = 0;
+	for (int j = 0; j < size; ++j)
+	{
+		pVertices[3 * j + 0] = XMFLOAT4(meshData[j].GetVertex1().x, meshData[j].GetVertex1().y, meshData[j].GetVertex1().z, 0.3f);
+		pVertices[3 * j + 1] = XMFLOAT4(meshData[j].GetVertex2().x, meshData[j].GetVertex2().y, meshData[j].GetVertex2().z, 0.3f);
+		pVertices[3 * j + 2] = XMFLOAT4(meshData[j].GetVertex3().x, meshData[j].GetVertex3().y, meshData[j].GetVertex3().z, 0.3f);
+	}
+
+	m_pd3dVertexBuffer = CreateBufferResource(pd3dDevice, pd3dCommandList, pVertices, m_nStride * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dVertexUploadBuffer);
+
+	m_d3dVertexBufferView.BufferLocation = m_pd3dVertexBuffer->GetGPUVirtualAddress();
+	m_d3dVertexBufferView.StrideInBytes = m_nStride;
+	m_d3dVertexBufferView.SizeInBytes = m_nStride * m_nVertices;
+}
+
 D3D12_VERTEX_BUFFER_VIEW MeshComponent::GetVertexBufferView()
 {
 	return m_d3dVertexBufferView;

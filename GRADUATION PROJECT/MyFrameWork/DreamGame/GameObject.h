@@ -287,6 +287,9 @@ public:
 	GameObject* m_pHPBarUI{ NULL };
 	GameObject* m_pProfileUI{ NULL };
 	GameObject* m_pSkillUI{ NULL };
+
+public:
+	std::queue<int> m_BossRoute;
 };
 
 template<typename T>//템플릿을 활용하는 이유-> 
@@ -363,6 +366,10 @@ inline T* GameObject::ComponentType(component_id& componentID)
 	else if (typeid(T).name() == typeid(SphereShaderComponent).name())
 	{
 		componentID = component_id::SPHERE_COMPONENT;
+	}
+	else if (typeid(T).name() == typeid(NaviMeshShaderComponent).name())
+	{
+		componentID = component_id::NAVIMESHSHADER_COMPONENT;
 	}
     else if (typeid(T).name() == typeid(TextureComponent).name())
     {

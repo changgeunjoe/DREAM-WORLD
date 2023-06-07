@@ -62,6 +62,7 @@ private: //active object
 	GameObject* m_pPlaneObject{ NULL };
 	GameObject* m_pRockObject{ NULL };
 	GameObject* m_pSkyboxObject{ NULL };
+	GameObject* m_pNaviMeshObject{ NULL };
 	GameObject* m_pAnimationObject{ NULL };
 	GameObject* m_pMonsterObject{ NULL };
 	GameObject* m_pPlayerObject{ NULL };
