@@ -980,7 +980,7 @@ void GameObject::MoveStrafe(float fDistance)
 	XMFLOAT3 xmf3Position = GetPosition();
 	XMFLOAT3 xmf3Right = GetRight();
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Right, fDistance);
-	if (Vector3::Length(xmf3Position) < 350.0f)	GameObject::SetPosition(xmf3Position);
+	if (Vector3::Length(xmf3Position) < PLAYER_MAX_RANGE)	GameObject::SetPosition(xmf3Position);
 
 }
 
@@ -998,7 +998,7 @@ void GameObject::MoveForward(float fDistance)
 	XMFLOAT3 xmf3Look = GetLook();
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, fDistance);
 	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * fDistance / 50.0f);
-	if (Vector3::Length(xmf3Position) < 350.0f)	GameObject::SetPosition(xmf3Position);
+	if (Vector3::Length(xmf3Position) < PLAYER_MAX_RANGE)	GameObject::SetPosition(xmf3Position);
 }
 
 void GameObject::Rotate(float fPitch, float fYaw, float fRoll)
@@ -1043,7 +1043,7 @@ void GameObject::Move(XMFLOAT3 direction, float fDistance)
 {
 	XMFLOAT3 xmf3Position = GetPosition();
 	xmf3Position = Vector3::Add(xmf3Position, direction, fDistance);
-	if (Vector3::Length(xmf3Position) < 350.0f)	GameObject::SetPosition(xmf3Position);
+	if (Vector3::Length(xmf3Position) < PLAYER_MAX_RANGE)	GameObject::SetPosition(xmf3Position);
 }
 
 void GameObject::MoveDiagonal(int fowardDirection, int rightDirection, float distance)
@@ -1058,7 +1058,7 @@ void GameObject::MoveDiagonal(int fowardDirection, int rightDirection, float dis
 	resDirection = Vector3::Normalize(resDirection);
 	xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(resDirection, distance));
 	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * distance / 50.0f);
-	if (Vector3::Length(xmf3Position) < 350.0f)
+	if (Vector3::Length(xmf3Position) < PLAYER_MAX_RANGE)
 	{
 		GameObject::SetPosition(xmf3Position);
 		if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(xmf3Position, m_pCamera->GetOffset()));
