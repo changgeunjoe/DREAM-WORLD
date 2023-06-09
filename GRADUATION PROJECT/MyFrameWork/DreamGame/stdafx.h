@@ -55,7 +55,7 @@ using namespace std;
 #ifdef _DEBUG
 #include <dxgidebug.h>
 #endif
-
+#define PLAYER_MAX_RANGE 288.0f
 //#ifndef LOCAL_TASK
 //#define LOCAL_TASK 1
 //#endif // !LOCAL_TASK

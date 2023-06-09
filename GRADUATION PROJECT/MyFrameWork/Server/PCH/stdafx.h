@@ -367,12 +367,13 @@ public:
 		res += Vector3::Length(Vector3::CrossProduct(triVec2, triVec3, false));
 		res /= 2.0f;
 		float retVal = res - m_areaSize;
-#ifdef _DEBUG
-		std::cout << "TriangleMesh::retval: " << retVal << std::endl;
-#endif
+		//#ifdef _DEBUG
+		//		std::cout << "TriangleMesh::retval: " << retVal << std::endl;
+		//#endif
 		return abs(m_areaSize - res) < 0.1f;
 	}
 	XMFLOAT3 const GetCenter() { return m_center; }
+	float GetAreaSize() { return m_areaSize; }
 };
 
 class AstarNode {
