@@ -175,6 +175,8 @@ public:
 	BoundingSphere					m_SPBB = BoundingSphere(XMFLOAT3(0.0f, 0.0f, 0.0f), m_fBoundingSize);
 	GameObject*						m_VisualizeSPBB{ nullptr };
 
+	
+
 	int                             m_iRButtionCount = 0;
 
 	DIRECTION                       m_prevDirection = DIRECTION::IDLE;
@@ -214,12 +216,12 @@ protected:
 	TrailMeshComponent* m_pTrailMeshComponent{ nullptr };
 	HeihtMapMeshComponent* m_pHeihtMapMeshComponent{ nullptr };
     InstanceRenderComponent* m_pInstanceRenderComponent{ nullptr };//인스턴스 렌더 추가 23.04.26 .ccg
-    CLoadedModelInfoCompnent* m_pLoadedModelComponent{ nullptr };
+    
     MaterialComponent** m_ppMaterialsComponent{ nullptr };
     DepthRenderShaderComponent* m_pDepthShaderComponent{ nullptr };
     ShadowMapShaderComponent* m_pShadowMapShaderComponent{ nullptr };
-
-
+public:
+	CLoadedModelInfoCompnent* m_pLoadedModelComponent{ nullptr };
 protected:
 
 	ID3D12RootSignature* m_pd3dGraphicsRootSignature;

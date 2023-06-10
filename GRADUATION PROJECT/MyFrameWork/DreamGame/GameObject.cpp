@@ -233,11 +233,11 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	ComponentBase* pInsComponent = GetComponent(component_id::INSRENDER_COMPONENT);
 	if (pComponent != NULL|| pInsComponent!=NULL)
 	{
-		if (!pComponent)
+		if (pComponent)
 		{
 			m_pRenderComponent = static_cast<RenderComponent*>(pComponent);
 		}
-		else if (!pInsComponent)
+		else if (pInsComponent)
 		{
 			m_pRenderComponent = static_cast<InstanceRenderComponent*>(pComponent);
 		}
@@ -372,25 +372,6 @@ void GameObject::BuildShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		}
 		m_pShaderComponent->SetCbvGPUDescriptorHandlePtr(m_pShaderComponent->GetGPUCbvDescriptorStartHandle().ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));
 	}
-	ComponentBase* pLoadedmodelComponent = GetComponent(component_id::LOADEDMODEL_COMPONET);
-	if (pLoadedmodelComponent != NULL)
-	{
-		//MaterialComponent::PrepareShaders(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pd3dcbGameObjects);
-		if (m_pLoadedModelComponent == nullptr)
-		{
-			m_pLoadedModelComponent = static_cast<CLoadedModelInfoCompnent*>(pLoadedmodelComponent);
-			m_pLoadedModelComponent = LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList,
-				pd3dGraphicsRootSignature, pszModelNames, NULL, true);//NULL ->Shader
-		}
-		SetChild(m_pLoadedModelComponent->m_pModelRootObject, true);
-
-		if (m_nAnimationSets != 0)
-		{
-			m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, m_nAnimationSets, m_pLoadedModelComponent);
-		}
-	}
-
-	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
 void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender)
@@ -858,12 +839,13 @@ void GameObject::LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfoCompnent* 
 		{
 			pLoadedModel->m_pAnimationSets->m_nAnimatedBoneFrames = ::ReadIntegerFromFile(pInFile);
 			pLoadedModel->m_pAnimationSets->m_ppAnimatedBoneFrameCaches = new GameObject * [pLoadedModel->m_pAnimationSets->m_nAnimatedBoneFrames];
-
+			pLoadedModel->m_pWeaponStart = pLoadedModel->m_pModelRootObject->FindFrame("WeaponPositionStart");
+			pLoadedModel->m_pWeaponEnd = pLoadedModel->m_pModelRootObject->FindFrame("WeaponPositionEnd");
 			for (int j = 0; j < pLoadedModel->m_pAnimationSets->m_nAnimatedBoneFrames; j++)
 			{
 				::ReadStringFromFile(pInFile, pstrToken);
 				pLoadedModel->m_pAnimationSets->m_ppAnimatedBoneFrameCaches[j] = pLoadedModel->m_pModelRootObject->FindFrame(pstrToken);
-
+				
 #ifdef _WITH_DEBUG_SKINNING_BONE
 				TCHAR pstrDebug[256] = { 0 };
 				TCHAR pwstrAnimationBoneName[64] = { 0 };

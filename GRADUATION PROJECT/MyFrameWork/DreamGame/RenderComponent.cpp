@@ -23,7 +23,7 @@ void RenderComponent::Render(ID3D12GraphicsCommandList* pd3dCommandList, MeshCom
 	}
 	else if ((meshcomponent->GetSubMeshes() > 0) && (nSubSet < meshcomponent->GetSubMeshes()))
 	{
-		if (meshcomponent->GetSubsetIndexBufferView(nSubSet).Format == DXGI_FORMAT_R32_UINT) {
+		if (meshcomponent->GetSubsetIndexBufferView(nSubSet).Format >=0) {
 			pd3dCommandList->IASetIndexBuffer(&meshcomponent->GetSubsetIndexBufferView(nSubSet));
 			pd3dCommandList->DrawIndexedInstanced(meshcomponent->GetSubsetIndices(nSubSet), 1, 0, 0, 0);
 		}

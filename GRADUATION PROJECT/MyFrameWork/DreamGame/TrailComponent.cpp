@@ -33,7 +33,7 @@ void TrailComponent::Update_Component(const float& fTimeDelta)
 	m_fTime -= fTimeDelta;
 }
 
-void TrailComponent::AddTrail(const XMFLOAT3& xmf3Top, XMFLOAT3& xmf3Bottom)
+void TrailComponent::AddTrail( const XMFLOAT3& xmf3Top,const XMFLOAT3& xmf3Bottom)
 {
 	if (m_fTime > 0.f)
 	{

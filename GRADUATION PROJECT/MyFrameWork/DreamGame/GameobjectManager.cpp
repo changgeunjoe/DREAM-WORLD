@@ -222,8 +222,8 @@ void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)
 
 void GameobjectManager::TrailAnimate(float fTimeElapsed)
 {
-	m_pTrailComponent->AddTrail(XMFLOAT3(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition().x,
-		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition().y+5, g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition().z), XMFLOAT3(0, 0, 0));
+	m_pTrailComponent->AddTrail(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition(), XMFLOAT3(m_pWarriorObject->m_pLoadedModelComponent->m_pWeaponEnd->GetPosition().x,
+		m_pWarriorObject->m_pLoadedModelComponent->m_pWeaponEnd->GetPosition().y, m_pWarriorObject->m_pLoadedModelComponent->m_pWeaponEnd->GetPosition().z));
 
 }
 
@@ -299,9 +299,9 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	if (m_pMonsterHPBarObject) {
 		//m_pMonsterHPBarObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
-	//if (m_pTrailObject) {
-	//	m_pTrailObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//}
+	if (m_pTrailObject) {
+		m_pTrailObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
 	if (m_pTrailComponent) {
 		m_pTrailComponent->RenderTrail(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
@@ -326,7 +326,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pVictoryUIObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pContinueUIObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < 6; i++) {
 		if(m_pStage1Objects[i])
 		m_pStage1Objects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
@@ -374,7 +374,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPlaneObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pPlaneObject->SetModel("Model/Floor.bin");
 	m_pPlaneObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pPlaneObject->SetScale(1000.0f, 30.0f, 1000.0f);
+	m_pPlaneObject->SetScale(30.0f, 30.0f, 30.0f);
 	m_pPlaneObject->SetRimLight(false);
 	m_ppGameObjects.emplace_back(m_pPlaneObject);
 
@@ -401,21 +401,20 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pWarriorObject->InsertComponent<RenderComponent>();
 	m_pWarriorObject->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pWarriorObject->SetPosition(XMFLOAT3(0.f, 0.f, 0.f));
-	m_pWarriorObject->SetModel(WarriorModel);
+	m_pWarriorObject->SetModel("Model/Warrior.bin");
 	m_pWarriorObject->SetAnimationSets(5);
 	m_pWarriorObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pWarriorObject->m_pSkinnedAnimationController->SetTrackAnimationSet(5);
 	m_pWarriorObject->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_DIE]->m_nType = ANIMATION_TYPE_ONCE;
 	m_pWarriorObject->SetScale(30.0f);
 	m_pWarriorObject->SetBoundingBox(m_pBoundingBox[0]);
-
 	m_ppGameObjects.emplace_back(m_pWarriorObject);
 
 	m_pArcherObject = new Archer();
 	m_pArcherObject->InsertComponent<RenderComponent>();
 	m_pArcherObject->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pArcherObject->SetPosition(XMFLOAT3(20, 0, 0));
-	m_pArcherObject->SetModel(WarriorModel);
+	m_pArcherObject->SetModel("Model/Archer.bin");
 	m_pArcherObject->SetAnimationSets(5);
 	m_pArcherObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pArcherObject->m_pSkinnedAnimationController->SetTrackAnimationSet(5);
@@ -526,7 +525,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 #if LOCAL_TASK
 	// 플레이어가 캐릭터 선택하는 부분에 유사하게 넣을 예정
 	m_pPlayerObject = new GameObject(UNDEF_ENTITY);	//수정필요
-	memcpy(m_pPlayerObject, m_pPriestObject, sizeof(GameObject));
+	memcpy(m_pPlayerObject, m_pWarriorObject, sizeof(GameObject));
 	m_pPlayerObject->SetCamera(m_pCamera);
 	m_pPlayerObject->SetCharacterType(CT_ARCHER);
 	//delete m_pArcherObject;->delete하면서 뎊스렌더 문제 발생
@@ -536,7 +535,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	g_Logic.m_inGamePlayerSession[0].m_id = 0;
 #endif // LOCAL_TASK
 
-	BuildStage1(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+
 	BuildShadow(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//무조건 마지막에 해줘야된다.
 //	Build2DUI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//BuildCharacterUI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -544,7 +543,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	//BuildInstanceObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildStoryUI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildTrail(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	
+	BuildStage1(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
 void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
@@ -603,82 +602,67 @@ void GameobjectManager::BuildTrail(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 }
 void GameobjectManager::BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	m_pStage1Objects[0] = new GameObject(UNDEF_ENTITY);
+	/*m_pStage1Objects[0] = new GameObject(UNDEF_ENTITY);
 	m_pStage1Objects[0]->InsertComponent<RenderComponent>();
 	m_pStage1Objects[0]->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pStage1Objects[0]->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pStage1Objects[0]->SetModel("Model/Tree.bin");
 	m_pStage1Objects[0]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pStage1Objects[0]->SetScale(10.0f, 10.0f, 10.0f);
-	m_pStage1Objects[0]->SetRimLight(false);
-	m_ppGameObjects.emplace_back(m_pStage1Objects[0]);
-	m_pStage1Objects[1] = new GameObject(UNDEF_ENTITY);
-	m_pStage1Objects[1]->InsertComponent<RenderComponent>();
-	m_pStage1Objects[1]->InsertComponent<CLoadedModelInfoCompnent>();
-	m_pStage1Objects[1]->SetPosition(XMFLOAT3(0, 0, 0));
-	m_pStage1Objects[1]->SetModel("Model/New_Terrain.bin");
-	m_pStage1Objects[1]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pStage1Objects[1]->SetScale(10.0f, 10.0f, 10.0f);
-	m_pStage1Objects[1]->SetRimLight(false);
-	m_ppGameObjects.emplace_back(m_pStage1Objects[1]);
-	//m_pStage1Objects[2] = new GameObject(UNDEF_ENTITY);
-	//m_pStage1Objects[2]->InsertComponent<RenderComponent>();
-	//m_pStage1Objects[2]->InsertComponent<CLoadedModelInfoCompnent>();
-	//m_pStage1Objects[2]->SetPosition(XMFLOAT3(0, 0, 0));
-	//m_pStage1Objects[2]->SetModel("Model/Rock.bin");
-	//m_pStage1Objects[2]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//m_pStage1Objects[2]->SetScale(10.0f, 10.0f, 10.0f);
-	//m_pStage1Objects[2]->SetRimLight(false);
-	//m_ppGameObjects.emplace_back(m_pStage1Objects[2]);
-	//m_pStage1Objects[3] = new GameObject(UNDEF_ENTITY);
-	//m_pStage1Objects[3]->InsertComponent<RenderComponent>();
-	//m_pStage1Objects[3]->InsertComponent<CLoadedModelInfoCompnent>();
-	//m_pStage1Objects[3]->SetPosition(XMFLOAT3(0, 0, 0));
-	//m_pStage1Objects[3]->SetModel("Model/Rock2.bin");
-	//m_pStage1Objects[3]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//m_pStage1Objects[3]->SetScale(10.0f, 10.0f, 10.0f);
-	//m_pStage1Objects[3]->SetRimLight(false);
-	//m_ppGameObjects.emplace_back(m_pStage1Objects[3]);
-	//m_pStage1Objects[4] = new GameObject(UNDEF_ENTITY);
-	//m_pStage1Objects[4]->InsertComponent<RenderComponent>();
-	//m_pStage1Objects[4]->InsertComponent<CLoadedModelInfoCompnent>();
-	//m_pStage1Objects[4]->SetPosition(XMFLOAT3(0, 0, 0));
-	//m_pStage1Objects[4]->SetModel("Model/Mushroom.bin");
-	//m_pStage1Objects[4]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//m_pStage1Objects[4]->SetScale(10.0f, 10.0f, 10.0f);
-	//m_pStage1Objects[4]->SetRimLight(false);
-	//m_ppGameObjects.emplace_back(m_pStage1Objects[4]);
-	//m_pStage1Objects[5] = new GameObject(UNDEF_ENTITY);
-	//m_pStage1Objects[5]->InsertComponent<RenderComponent>();
-	//m_pStage1Objects[5]->InsertComponent<CLoadedModelInfoCompnent>();
-	//m_pStage1Objects[5]->SetPosition(XMFLOAT3(0, 0, 0));
-	//m_pStage1Objects[5]->SetModel("Model/Street.bin");
-	//m_pStage1Objects[5]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//m_pStage1Objects[5]->SetScale(10.0f, 10.0f, 10.0f);
-	//m_pStage1Objects[5]->SetRimLight(false);
-	//m_ppGameObjects.emplace_back(m_pStage1Objects[5]);
-	//m_pStage1Objects[6] = new GameObject(UNDEF_ENTITY);
-	//m_pStage1Objects[6]->InsertComponent<RenderComponent>();
-	//m_pStage1Objects[6]->InsertComponent<CLoadedModelInfoCompnent>();
-	//m_pStage1Objects[6]->SetPosition(XMFLOAT3(0, 0, 0));
-	//m_pStage1Objects[6]->SetModel("Model/Fence.bin");
-	//m_pStage1Objects[6]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//m_pStage1Objects[6]->SetScale(10.0f, 10.0f, 10.0f);
-	//m_pStage1Objects[6]->SetRimLight(false); 
-	//m_ppGameObjects.emplace_back(m_pStage1Objects[6]);
-	//
+	m_pStage1Objects[0]->SetScale(30.0f, 30.0f, 30.0f);
+	m_pStage1Objects[0]->SetRimLight(false);*/
+	//m_pStage1Objects[1] = new GameObject(UNDEF_ENTITY);
+	//m_pStage1Objects[1]->InsertComponent<RenderComponent>();
+	//m_pStage1Objects[1]->InsertComponent<CLoadedModelInfoCompnent>();
+	//m_pStage1Objects[1]->SetPosition(XMFLOAT3(0, 0, 0));
+	//m_pStage1Objects[1]->SetModel("Model/Fence.bin");
+	//m_pStage1Objects[1]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//m_pStage1Objects[1]->SetScale(1.0f, 1.0f, 1.0f);
+	//m_pStage1Objects[1]->SetRimLight(false);
+	/*m_pStage1Objects[2] = new GameObject(UNDEF_ENTITY);
+	m_pStage1Objects[2]->InsertComponent<RenderComponent>();
+	m_pStage1Objects[2]->InsertComponent<CLoadedModelInfoCompnent>();
+	m_pStage1Objects[2]->SetPosition(XMFLOAT3(0, 0, 0));
+	m_pStage1Objects[2]->SetModel("Model/Rock.bin");
+	m_pStage1Objects[2]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pStage1Objects[2]->SetScale(30.0f, 30.0f, 30.0f);
+	m_pStage1Objects[2]->SetRimLight(false);
+	m_pStage1Objects[3] = new GameObject(UNDEF_ENTITY);
+	m_pStage1Objects[3]->InsertComponent<RenderComponent>();
+	m_pStage1Objects[3]->InsertComponent<CLoadedModelInfoCompnent>();
+	m_pStage1Objects[3]->SetPosition(XMFLOAT3(0, 0, 0));
+	m_pStage1Objects[3]->SetModel("Model/Rock2.bin");
+	m_pStage1Objects[3]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pStage1Objects[3]->SetScale(30.0f, 30.0f, 30.0f);
+	m_pStage1Objects[3]->SetRimLight(false);
+	m_pStage1Objects[4] = new GameObject(UNDEF_ENTITY);
+	m_pStage1Objects[4]->InsertComponent<RenderComponent>();
+	m_pStage1Objects[4]->InsertComponent<CLoadedModelInfoCompnent>();
+	m_pStage1Objects[4]->SetPosition(XMFLOAT3(0, 0, 0));
+	m_pStage1Objects[4]->SetModel("Model/Mushroom.bin");
+	m_pStage1Objects[4]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pStage1Objects[4]->SetScale(30.0f, 30.0f, 30.0f);
+	m_pStage1Objects[4]->SetRimLight(false);
+	m_pStage1Objects[5] = new GameObject(UNDEF_ENTITY);
+	m_pStage1Objects[5]->InsertComponent<RenderComponent>();
+	m_pStage1Objects[5]->InsertComponent<CLoadedModelInfoCompnent>();
+	m_pStage1Objects[5]->SetPosition(XMFLOAT3(0, 0, 0));
+	m_pStage1Objects[5]->SetModel("Model/Street.bin");
+	m_pStage1Objects[5]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pStage1Objects[5]->SetScale(30.0f, 30.0f, 30.0f);
+	m_pStage1Objects[5]->SetRimLight(false);*/
+	
 
-	/*m_pStage1TerrainObject = new GameObject(UNDEF_ENTITY);
+	m_pStage1TerrainObject = new GameObject(UNDEF_ENTITY);
 	m_pStage1TerrainObject->InsertComponent<RenderComponent>();
 	m_pStage1TerrainObject->InsertComponent<HeihtMapMeshComponent>();
-	m_pStage1TerrainObject->InsertComponent<TerrainShaderComponent>();
+	m_pStage1TerrainObject->InsertComponent<ShaderComponent>();
 	m_pStage1TerrainObject->InsertComponent<TextureComponent>();
-	m_pStage1TerrainObject->SetTexture(L"Terrain/Base_Texture.dds", RESOURCE_TEXTURE2D, 3);
+	m_pStage1TerrainObject->SetTexture(L"MagicEffect/FireballEmission_7x7.dds", RESOURCE_TEXTURE2D, 3);
 	m_pStage1TerrainObject->SetFileName(_T("Terrain/terrain.raw"));
 	m_pStage1TerrainObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pStage1TerrainObject->Rotate(0, 180, 0);
 	m_pStage1TerrainObject->SetScale(1, 1, 1);
-	m_pStage1TerrainObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);*/
+	m_pStage1TerrainObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
 void GameobjectManager::BuildLight()
 {
@@ -739,8 +723,6 @@ void GameobjectManager::Build2DUI(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	m_pUIWarriorCharacterObject->SetPosition(XMFLOAT3(-0.3, 0.2, 1.00));
 	m_pUIWarriorCharacterObject->SetScale(0.08, 0.08, 1);
 	m_pUIWarriorCharacterObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-
-
 	m_ppUIObjects.emplace_back(m_pUIWarriorCharacterObject);
 
 	m_pUIArcherCharacterObject = new GameObject(UI_ENTITY);
