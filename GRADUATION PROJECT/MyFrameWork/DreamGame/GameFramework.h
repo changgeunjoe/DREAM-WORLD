@@ -5,7 +5,7 @@
 #include"LobbyScene.h"
 
 
-
+class UILayer;
 class CCamera;
 class CGameFramework
 {
@@ -73,6 +73,7 @@ private:
 	//다음은 프레임 레이트를 주 윈도우의 캡션에 출력하기 위한 문자열이다.
 	_TCHAR m_pszFrameRate[50];
 
+	UILayer* m_pUILayer = NULL;
 
 	//2d ui리소스를 띄우는 
 	ID2D1Factory* pD2DFactory = nullptr;

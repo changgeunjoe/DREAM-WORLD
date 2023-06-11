@@ -5,10 +5,11 @@
 #include "GameObject.h"
 #include "Network/Logic/Logic.h"
 #include "Network/NetworkHelper.h"
-
+#include "UILayer.h"
 extern Logic g_Logic;
 extern NetworkHelper g_NetworkHelper;
 extern bool GameEnd;
+
 
 CGameFramework::CGameFramework()
 {
@@ -543,6 +544,10 @@ void CGameFramework::CreateDirect2D()
 
 void CGameFramework::BuildObjects()
 {
+
+	m_pUILayer = new UILayer(m_nSwapChainBuffers, m_pd3dDevice, m_pd3dCommandQueue);
+	m_pUILayer->Resize(m_ppd3dSwapChainBackBuffers, m_nWndClientWidth, m_nWndClientHeight);
+
 	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 	//카메라 객체를 생성하여 뷰표트,씨저 사각형,투영 변환 행렬,카메라 변환 행렬을 생성하고 설정한다.
 	//Scene Camera 생성 
@@ -595,6 +600,9 @@ void CGameFramework::BuildObjects()
 
 void CGameFramework::ReleaseObjects()
 {
+	if (m_pUILayer) m_pUILayer->ReleaseResources();
+	if (m_pUILayer) delete m_pUILayer;
+
 	if (m_pScene) m_pScene->ReleaseObjects();
 	if (m_pScene) delete m_pScene;
 
@@ -786,7 +794,9 @@ void CGameFramework::ProcessInput()
 
 void CGameFramework::AnimateObjects()
 {
+	float fTimeElapsed = m_GameTimer.GetTimeElapsed();
 	if (m_pScene) m_pScene->AnimateObjects(m_GameTimer.GetTimeElapsed());
+	m_pUILayer->Update(fTimeElapsed);
 }
 
 void CGameFramework::WaitForGpuComplete()
@@ -918,6 +928,7 @@ void CGameFramework::FrameAdvance()
 
 	m_pd3d11DeviceContext->Flush();
 #endif
+	m_pUILayer->Render(m_nSwapChainBufferIndex);
 	//명령 리스트를 명령 큐에 추가하여 실행한다. 
 	WaitForGpuComplete();
 	//GPU가 모든 명령 리스트를 실행할 때 까지 기다린다.

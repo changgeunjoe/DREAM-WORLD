@@ -222,7 +222,7 @@ void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)
 
 void GameobjectManager::TrailAnimate(float fTimeElapsed)
 {
-	m_pTrailComponent->AddTrail(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition(), XMFLOAT3(m_pWarriorObject->m_pLoadedModelComponent->m_pWeaponEnd->GetPosition().x,
+	m_pTrailComponent->AddTrail(m_pWarriorObject->m_pLoadedModelComponent->m_pWeaponStart->GetPosition(), XMFLOAT3(m_pWarriorObject->m_pLoadedModelComponent->m_pWeaponEnd->GetPosition().x,
 		m_pWarriorObject->m_pLoadedModelComponent->m_pWeaponEnd->GetPosition().y, m_pWarriorObject->m_pLoadedModelComponent->m_pWeaponEnd->GetPosition().z));
 
 }
@@ -267,6 +267,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	for (int i = 0; i < m_pEnergyBallObjects.size(); i++) {
 		m_pEnergyBallObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
+	m_pMonsterCubeObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//for (auto& session : g_Logic.m_inGamePlayerSession) {
 	//	if (-1 != session.m_id && session.m_isVisible) {
 	//		session.m_currentPlayGameObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -510,6 +511,25 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_ppGameObjects.emplace_back(m_pMonsterObject);
 	g_Logic.m_MonsterSession.SetGameObject(m_pMonsterObject);
 
+	m_pEnergyBallObject = new GameObject(SQUARE_ENTITY);
+	m_pEnergyBallObject->InsertComponent<RenderComponent>();
+	m_pEnergyBallObject->InsertComponent<CubeMeshComponent>();
+	m_pEnergyBallObject->InsertComponent<SphereShaderComponent>();
+	m_pEnergyBallObject->SetPosition(XMFLOAT3(0, 0, 100));
+	m_pEnergyBallObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pEnergyBallObject->SetScale(0.5f);
+	
+
+	m_pMonsterCubeObject = new GameObject(SQUARE_ENTITY);
+	m_pMonsterCubeObject->InsertComponent<RenderComponent>();
+	m_pMonsterCubeObject->InsertComponent<SkyBoxMeshComponent>();
+	m_pMonsterCubeObject->InsertComponent<SkyBoxShaderComponent>();
+	m_pMonsterCubeObject->InsertComponent<TextureComponent>();
+	m_pMonsterCubeObject->SetTexture(L"DreamWorld/DreamWorld.dds", RESOURCE_TEXTURE_CUBE, 12);
+	m_pMonsterCubeObject->SetPosition(XMFLOAT3(0, 0, 0));
+	m_pMonsterCubeObject->SetScale(10);
+	m_pMonsterCubeObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+
 	m_pSkyboxObject = new GameObject(SQUARE_ENTITY);
 	m_pSkyboxObject->InsertComponent<RenderComponent>();
 	m_pSkyboxObject->InsertComponent<SkyBoxMeshComponent>();
@@ -594,22 +614,22 @@ void GameobjectManager::BuildTrail(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	m_pTrailObject->InsertComponent<TrailShaderComponent>();
 	m_pTrailObject->InsertComponent<TextureComponent>();
 	m_pTrailObject->SetTexture(L"Trail/Trail.dds", RESOURCE_TEXTURE2D, 3);
-	m_pTrailObject->SetPosition(XMFLOAT3(0, 40, 100));
-	m_pTrailObject->SetScale(10);
+	m_pTrailObject->SetPosition(XMFLOAT3(0, 0, 0));
+	m_pTrailObject->SetScale(1);
 	m_pTrailObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pTrailComponent = new TrailComponent();
 	m_pTrailComponent->ReadyComponent(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pTrailObject);
 }
 void GameobjectManager::BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	/*m_pStage1Objects[0] = new GameObject(UNDEF_ENTITY);
+	m_pStage1Objects[0] = new GameObject(UNDEF_ENTITY);
 	m_pStage1Objects[0]->InsertComponent<RenderComponent>();
 	m_pStage1Objects[0]->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pStage1Objects[0]->SetPosition(XMFLOAT3(0, 0, 0));
-	m_pStage1Objects[0]->SetModel("Model/Tree.bin");
+	m_pStage1Objects[0]->SetModel("Model/New_Terrain.bin");
 	m_pStage1Objects[0]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pStage1Objects[0]->SetScale(30.0f, 30.0f, 30.0f);
-	m_pStage1Objects[0]->SetRimLight(false);*/
+	m_pStage1Objects[0]->SetScale(1.0f, 1.0f, 1.0f);
+	m_pStage1Objects[0]->SetRimLight(false);
 	//m_pStage1Objects[1] = new GameObject(UNDEF_ENTITY);
 	//m_pStage1Objects[1]->InsertComponent<RenderComponent>();
 	//m_pStage1Objects[1]->InsertComponent<CLoadedModelInfoCompnent>();
