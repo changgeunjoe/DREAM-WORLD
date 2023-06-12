@@ -1,9 +1,11 @@
 #include "stdafx.h"
 #include "GameObject.h"
-#include"CAnimationSets.h"
+#include "CAnimationSets.h"
 #include "Animation.h"
-#include"DepthRenderShaderComponent.h"
-#include"InstanceRenderComponent.h"
+#include "DepthRenderShaderComponent.h"
+#include "InstanceRenderComponent.h"
+#include "TrailShaderComponent.h"
+#include"TerrainShaderComponent.h"
 #include "Network/MapData/MapData.h"
 
 extern MapData g_bossMapData;
@@ -225,19 +227,20 @@ void GameObject::HandleMessage(string message)
 {
 }
 
+
+
 void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-
 	m_pd3dGraphicsRootSignature = pd3dGraphicsRootSignature;
 	ComponentBase* pComponent = GetComponent(component_id::RENDER_COMPONENT);
 	ComponentBase* pInsComponent = GetComponent(component_id::INSRENDER_COMPONENT);
 	if (pComponent != NULL|| pInsComponent!=NULL)
 	{
-		if (!pComponent)
+		if (pComponent)
 		{
 			m_pRenderComponent = static_cast<RenderComponent*>(pComponent);
 		}
-		else if (!pInsComponent)
+		else if (pInsComponent)
 		{
 			m_pRenderComponent = static_cast<InstanceRenderComponent*>(pComponent);
 		}
@@ -249,6 +252,32 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		m_pTextureComponent->BuildTexture(1, m_nSamplers, 0, 1);
 		m_pTextureComponent->LoadTextureFromFile(pd3dDevice, pd3dCommandList, pszFileNames, m_nSamplers, 0);
 	}
+	BuildMesh(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	BuildShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	ComponentBase* pLoadedmodelComponent = GetComponent(component_id::LOADEDMODEL_COMPONET);
+	if (pLoadedmodelComponent != NULL)
+	{
+		//MaterialComponent::PrepareShaders(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pd3dcbGameObjects);
+		if (m_pLoadedModelComponent == nullptr)
+		{
+			m_pLoadedModelComponent = static_cast<CLoadedModelInfoCompnent*>(pLoadedmodelComponent);
+			m_pLoadedModelComponent = LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList,
+				pd3dGraphicsRootSignature, pszModelNames, NULL, true);//NULL ->Shader
+			SetChild(m_pLoadedModelComponent->m_pModelRootObject, true);
+			m_pTrailStart = FindFrame("WeaponPositionStart");
+			m_pTrailEnd = FindFrame("WeaponPositionEnd");
+		}
+		if (m_nAnimationSets != 0)
+		{
+			m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, m_nAnimationSets, m_pLoadedModelComponent);
+		}
+	}
+
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+}
+
+void GameObject::BuildMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+{
 	ComponentBase* pCubeMeshComponent = GetComponent(component_id::CUBEMESH_COMPONENT);
 	if (pCubeMeshComponent != NULL)
 	{
@@ -278,16 +307,27 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		m_pSphereComponent->BuildObject(pd3dDevice, pd3dCommandList, m_fBoundingSize, 20, 20);
 		m_pMeshComponent = m_pSphereComponent;
 	}
-	ComponentBase* pNaviMeshShaderComponent = GetComponent(component_id::NAVIMESHSHADER_COMPONENT);
-	if (pNaviMeshShaderComponent != NULL)
+	ComponentBase* pTrailMeshComponent = GetComponent(component_id::TRAILMESH_COMPONENT);
+	if (pTrailMeshComponent != NULL)
 	{
-		m_pShaderComponent = static_cast<SphereShaderComponent*>(pNaviMeshShaderComponent);
-		m_pShaderComponent->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
-		m_pShaderComponent->CreateCbvSrvDescriptorHeaps(pd3dDevice, 1, 0);
-		m_pShaderComponent->CreateShaderVariables(pd3dDevice, pd3dCommandList);
-		m_pShaderComponent->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObjects, ncbElementBytes);
-		m_pShaderComponent->SetCbvGPUDescriptorHandlePtr(m_pShaderComponent->GetGPUCbvDescriptorStartHandle().ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));
+		m_pTrailMeshComponent = static_cast<TrailMeshComponent*>(pTrailMeshComponent);
+		m_pTrailMeshComponent->BuildObject(pd3dDevice, pd3dCommandList, 24*8*6);
+		m_pMeshComponent = m_pTrailMeshComponent;
 	}
+	ComponentBase* pHeightMapMeshComponent = GetComponent(component_id::HEIGHTMESH_COMPONENT);
+	if (pHeightMapMeshComponent != NULL)
+	{
+		m_pHeihtMapMeshComponent = static_cast<HeihtMapMeshComponent*>(pHeightMapMeshComponent);
+		XMFLOAT3 xmf3Scale(1.0f, 1.0f, 1.0f);
+		XMFLOAT4 xmf4Color(0.3f, 1.0f, 0.0f, 0.0f);
+		m_pHeightMapImage = new CHeightMapImage(m_pFileName, 257, 257, xmf3Scale);
+		m_pHeihtMapMeshComponent->BuildObject(pd3dDevice, pd3dCommandList,0,0, 257, 257, xmf3Scale, xmf4Color, m_pHeightMapImage);
+		m_pMeshComponent = m_pHeihtMapMeshComponent;
+	}
+}
+
+void GameObject::BuildShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+{
 	//->메테리얼 생성 텍스쳐와 쉐이더를 넣어야되는데 쉐이더이므로 안 넣어도 됨
 	ComponentBase* pShaderComponent = GetComponent(component_id::SHADER_COMPONENT);
 	ComponentBase* pSkyShaderComponent = GetComponent(component_id::SKYSHADER_COMPONENT);
@@ -295,7 +335,12 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	ComponentBase* pBlendingUiShaderComponent = GetComponent(component_id::BLENDINGUISHADER_COMPONENT);
 	ComponentBase* pSpriteShaderComponent = GetComponent(component_id::SPRITESHADER_COMPONENT);
 	ComponentBase* pBoundingBoxShaderComponent = GetComponent(component_id::BOUNDINGBOX_COMPONENT);
-	if (pShaderComponent != NULL || pSkyShaderComponent != NULL || pUiShaderComponent != NULL || pSpriteShaderComponent != NULL || pBoundingBoxShaderComponent != NULL || pBlendingUiShaderComponent != NULL)
+	ComponentBase* pNaviMeshShaderComponent = GetComponent(component_id::NAVIMESHSHADER_COMPONENT);
+	ComponentBase* pTrailShaderComponent = GetComponent(component_id::TRAILSHADER_COMPONENT);
+	ComponentBase* pTerrainShaderComponent = GetComponent(component_id::TERRAINSHADER_COMPONENT);
+	if (pShaderComponent != NULL || pSkyShaderComponent != NULL || pUiShaderComponent != NULL || pSpriteShaderComponent != NULL 
+		|| pBoundingBoxShaderComponent != NULL || pBlendingUiShaderComponent != NULL|| pTrailShaderComponent!=NULL
+		|| pTerrainShaderComponent!=NULL)
 	{
 		if (pShaderComponent != NULL)
 		{
@@ -316,6 +361,21 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		else if (pBoundingBoxShaderComponent != NULL) {
 			m_pShaderComponent = static_cast<BoundingBoxShaderComponent*>(pBoundingBoxShaderComponent);
 		}
+		else if (pTrailShaderComponent != NULL) {
+			m_pShaderComponent = static_cast<TrailShaderComponent*>(pTrailShaderComponent);
+		}
+		else if (pTerrainShaderComponent != NULL) {
+			m_pShaderComponent = static_cast<TrailShaderComponent*>(pTerrainShaderComponent);
+		}
+		else if (pNaviMeshShaderComponent != NULL)
+		{
+			m_pShaderComponent = static_cast<SphereShaderComponent*>(pNaviMeshShaderComponent);
+			m_pShaderComponent->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
+			m_pShaderComponent->CreateCbvSrvDescriptorHeaps(pd3dDevice, 1, 0);
+			m_pShaderComponent->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+			m_pShaderComponent->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObjects, ncbElementBytes);
+			m_pShaderComponent->SetCbvGPUDescriptorHandlePtr(m_pShaderComponent->GetGPUCbvDescriptorStartHandle().ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));
+		}
 		m_pShaderComponent->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
 		m_pShaderComponent->CreateCbvSrvDescriptorHeaps(pd3dDevice, 2, 2);
 		m_pShaderComponent->CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -326,27 +386,12 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		}
 		m_pShaderComponent->SetCbvGPUDescriptorHandlePtr(m_pShaderComponent->GetGPUCbvDescriptorStartHandle().ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));
 	}
-	ComponentBase* pLoadedmodelComponent = GetComponent(component_id::LOADEDMODEL_COMPONET);
-	if (pLoadedmodelComponent != NULL)
-	{
-		//MaterialComponent::PrepareShaders(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pd3dcbGameObjects);
-		m_pLoadedModelComponent = static_cast<CLoadedModelInfoCompnent*>(pLoadedmodelComponent);
-		m_pLoadedModelComponent = LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList,
-			pd3dGraphicsRootSignature, pszModelNames, NULL, true);//NULL ->Shader
-		SetChild(m_pLoadedModelComponent->m_pModelRootObject, true);
-
-		if (m_nAnimationSets != 0)
-		{
-			m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, m_nAnimationSets, m_pLoadedModelComponent);
-		}
-	}
-
-	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
 void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender)
 {
 	UpdateShaderVariables(pd3dCommandList);
+	UpdateShaderVariables(pd3dCommandList, &m_xmf4x4World, NULL);
 	if (m_pSkinnedAnimationController)
 		m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
 
@@ -373,8 +418,6 @@ void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3
 				if (m_ppMaterialsComponent[i]->m_pShader)
 				{
 					m_ppMaterialsComponent[i]->m_pShader->Render(pd3dCommandList, 0, pd3dGraphicsRootSignature, bPrerender);
-
-
 					pd3dCommandList->SetGraphicsRootDescriptorTable(0, m_ppMaterialsComponent[i]->m_pShader->GetCbvGPUDescriptorHandle());
 					m_ppMaterialsComponent[i]->m_pShader->UpdateShaderVariables(pd3dCommandList, &m_xmf4x4World, m_ppMaterialsComponent[i]);
 					//m_ppMaterialsComponent[i]->UpdateShaderVariable(pd3dCommandList);
@@ -391,6 +434,7 @@ void GameObject::InstanceRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandL
 {
 
 	UpdateShaderVariables(pd3dCommandList);
+	UpdateShaderVariables(pd3dCommandList, &m_xmf4x4World, NULL);
 	if (m_pSkinnedAnimationController)
 		m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
 
@@ -417,8 +461,6 @@ void GameObject::InstanceRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandL
 				if (m_ppMaterialsComponent[i]->m_pShader)
 				{
 					m_ppMaterialsComponent[i]->m_pShader->Render(pd3dCommandList, 0, pd3dGraphicsRootSignature, bPrerender);
-
-
 					pd3dCommandList->SetGraphicsRootDescriptorTable(0, m_ppMaterialsComponent[i]->m_pShader->GetCbvGPUDescriptorHandle());
 					m_ppMaterialsComponent[i]->m_pShader->UpdateShaderVariables(pd3dCommandList, &m_xmf4x4World, m_ppMaterialsComponent[i]);
 					//m_ppMaterialsComponent[i]->UpdateShaderVariable(pd3dCommandList);
@@ -434,6 +476,7 @@ void GameObject::InstanceRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandL
 void GameObject::ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent)
 {
 	UpdateShaderVariables(pd3dCommandList);
+	UpdateShaderVariables(pd3dCommandList, &m_xmf4x4World, NULL);
 	if (m_pSkinnedAnimationController)
 		m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
 
@@ -521,6 +564,12 @@ void GameObject::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 	m_pd3dcbMultiSpriteGameObjects = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes2, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 
 	m_pd3dcbMultiSpriteGameObjects->Map(0, NULL, (void**)&m_pcbMappedMultiSpriteGameObjects);
+	
+
+	UINT ncbElementBytes4 = ((sizeof(CB_GAMEOBJECTWORLD_INFO) + 255) & ~255); //256의 배수
+	m_pd3dcbGameObjectsWorld = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes4, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+
+	m_pd3dcbGameObjectsWorld->Map(0, NULL, (void**)&m_pcbMappedGameObjectsWorld);
 }
 void GameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
@@ -530,7 +579,6 @@ void GameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandLis
 		mfhp = (m_fHp / m_fMaxHp);//현재 체력값을 최대체력 비례로 나타낸식 23.04.18 .ccg
 		::memcpy(&m_pcbMappedGameObjects->m_xmfHP, &mfhp, sizeof(float));
 		::memcpy(&m_pcbMappedGameObjects->m_bRimLight, &m_bRimLight, sizeof(bool));
-	
 		D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbGameObjects->GetGPUVirtualAddress();
 		pd3dCommandList->SetGraphicsRootConstantBufferView(17, d3dGpuVirtualAddress);
 	}
@@ -547,6 +595,12 @@ void GameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandLis
 		D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress2 = m_pd3dcbMultiSpriteGameObjects->GetGPUVirtualAddress();
 		pd3dCommandList->SetGraphicsRootConstantBufferView(18, d3dGpuVirtualAddress2);
 	}
+}
+void GameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList, XMFLOAT4X4* pxmf4x4World, MaterialComponent* ppMaterialsComponent)
+{
+	XMFLOAT4X4 xmf4x4World;
+	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(pxmf4x4World)));
+	pd3dCommandList->SetGraphicsRoot32BitConstants(22, 16, &xmf4x4World, 0);
 }
 void GameObject::ReleaseShaderVariables()
 {
@@ -635,6 +689,8 @@ CLoadedModelInfoCompnent* GameObject::LoadGeometryAndAnimationFromFile(ID3D12Dev
 			{
 				pLoadedModel->m_pModelRootObject = GameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, NULL, pInFile, pShader, &pLoadedModel->m_nSkinnedMeshes);
 				::ReadStringFromFile(pInFile, pstrToken); //"</Hierarchy>"
+
+				
 			}
 			else if (!strcmp(pstrToken, "<Animation>:"))
 			{
@@ -784,7 +840,7 @@ void GameObject::LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfoCompnent* 
 	UINT nReads = 0;
 
 	int nAnimationSets = 0;
-
+	
 	for (; ; )
 	{
 		::ReadStringFromFile(pInFile, pstrToken);
@@ -797,12 +853,13 @@ void GameObject::LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfoCompnent* 
 		{
 			pLoadedModel->m_pAnimationSets->m_nAnimatedBoneFrames = ::ReadIntegerFromFile(pInFile);
 			pLoadedModel->m_pAnimationSets->m_ppAnimatedBoneFrameCaches = new GameObject * [pLoadedModel->m_pAnimationSets->m_nAnimatedBoneFrames];
-
+			pLoadedModel->m_pWeaponStart = pLoadedModel->m_pModelRootObject->FindFrame("WeaponPositionStart");
+			pLoadedModel->m_pWeaponEnd = pLoadedModel->m_pModelRootObject->FindFrame("WeaponPositionEnd");
 			for (int j = 0; j < pLoadedModel->m_pAnimationSets->m_nAnimatedBoneFrames; j++)
 			{
 				::ReadStringFromFile(pInFile, pstrToken);
 				pLoadedModel->m_pAnimationSets->m_ppAnimatedBoneFrameCaches[j] = pLoadedModel->m_pModelRootObject->FindFrame(pstrToken);
-
+				
 #ifdef _WITH_DEBUG_SKINNING_BONE
 				TCHAR pstrDebug[256] = { 0 };
 				TCHAR pwstrAnimationBoneName[64] = { 0 };
@@ -973,6 +1030,13 @@ int GameObject::PickObjectByRayIntersection(XMFLOAT3& xmf3PickPosition, XMFLOAT4
 	}
 	return(nIntersected);
 }
+
+void GameObject::SetFileName(LPCTSTR pFileName)
+{
+	m_pFileName = pFileName;
+}
+
+
 
 
 void GameObject::MoveStrafe(float fDistance)

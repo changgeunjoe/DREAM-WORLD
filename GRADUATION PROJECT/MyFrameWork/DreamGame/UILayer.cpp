@@ -300,7 +300,7 @@ void CDamageTextBlock::Update(const float& fTimeElapsed)
 CNPCTextBlock::CNPCTextBlock(IDWriteTextFormat* pdwFormat, D2D1_RECT_F& d2dLayoutRect, wstring& strText)
     :CTextBlock(pdwFormat, d2dLayoutRect, strText)
 {
-    m_strTotalText = L"안녕. 나는 NPC야. 이건 Test글씨야 123412341234 ㅋㅋㅋㅋㅋ";
+    m_strTotalText = L"승붕게이야 카톡읽으면 답장해라...";
 
     m_d2dLayoutRect.left = FRAME_BUFFER_WIDTH * 0.5f;
     m_d2dLayoutRect.top = FRAME_BUFFER_HEIGHT * 0.5f;

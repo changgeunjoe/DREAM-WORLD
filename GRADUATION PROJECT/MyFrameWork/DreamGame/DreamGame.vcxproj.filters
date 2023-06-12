@@ -73,9 +73,6 @@
     <Filter Include="03.GameObject">
       <UniqueIdentifier>{17df3cf6-eb98-427d-8b51-f2470adea1d4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="03.GameObject\Light">
-      <UniqueIdentifier>{9b6c0702-22de-46fd-aece-29beee9dd564}</UniqueIdentifier>
-    </Filter>
     <Filter Include="03.GameObject\Camera">
       <UniqueIdentifier>{a2cbdec2-2b33-4aa5-a878-b8e7f2354141}</UniqueIdentifier>
     </Filter>
@@ -109,14 +106,26 @@
     <Filter Include="04.Component\ShaderComponent\UIShaderComponent">
       <UniqueIdentifier>{651c96ef-c392-4d99-b51e-e774e79f159b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="04.Component\ShaderComponent\Shader\MultySpriteShaderComponent">
-      <UniqueIdentifier>{9ded933d-5c12-4738-92f7-a0fa5be3578c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="04.Component\ShaderComponent\InstancingShaderComponent">
       <UniqueIdentifier>{d3841fa1-1d56-41ea-97c4-a1c9abf22fe3}</UniqueIdentifier>
     </Filter>
     <Filter Include="08.UILayer">
       <UniqueIdentifier>{65f448d8-334e-40cd-8d78-b57719efb579}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="04.Component\TrailComponent">
+      <UniqueIdentifier>{3c93a4c1-7627-44e2-9fe8-b349040f1242}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="04.Component\ShaderComponent\TrailShaderComponent">
+      <UniqueIdentifier>{d8a28c97-c5bc-4e94-9841-7fbb7afe8f67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="04.Component\ShaderComponent\MultySpriteShaderComponent">
+      <UniqueIdentifier>{9ded933d-5c12-4738-92f7-a0fa5be3578c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="04.Component\ShaderComponent\TerrainShaderComponent">
+      <UniqueIdentifier>{bd4b3a56-2756-4a76-8d2b-479540699d3e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.GameObject\Camera\Light">
+      <UniqueIdentifier>{9b6c0702-22de-46fd-aece-29beee9dd564}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -169,7 +178,7 @@
       <Filter>03.GameObject</Filter>
     </ClInclude>
     <ClInclude Include="Light.h">
-      <Filter>03.GameObject\Light</Filter>
+      <Filter>03.GameObject\Camera\Light</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
       <Filter>03.GameObject\Camera</Filter>
@@ -232,7 +241,7 @@
       <Filter>04.Component\ShaderComponent\SkinnedShaderComponent</Filter>
     </ClInclude>
     <ClInclude Include="MultiSpriteShaderComponent.h">
-      <Filter>04.Component\ShaderComponent\Shader\MultySpriteShaderComponent</Filter>
+      <Filter>04.Component\ShaderComponent\MultySpriteShaderComponent</Filter>
     </ClInclude>
     <ClInclude Include="InstanceRenderComponent.h">
       <Filter>04.Component\RenderComponent</Filter>
@@ -242,6 +251,15 @@
     </ClInclude>
     <ClInclude Include="UILayer.h">
       <Filter>08.UILayer</Filter>
+    </ClInclude>
+    <ClInclude Include="TrailComponent.h">
+      <Filter>04.Component\TrailComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="TrailShaderComponent.h">
+      <Filter>04.Component\ShaderComponent\TrailShaderComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainShaderComponent.h">
+      <Filter>04.Component\ShaderComponent\TerrainShaderComponent</Filter>
     </ClInclude>
     <ClInclude Include="Network\MapData\MapData.h">
       <Filter>10.NetworkHelper\Room</Filter>
@@ -291,7 +309,7 @@
       <Filter>03.GameObject</Filter>
     </ClCompile>
     <ClCompile Include="Light.cpp">
-      <Filter>03.GameObject\Light</Filter>
+      <Filter>03.GameObject\Camera\Light</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>03.GameObject\Camera</Filter>
@@ -351,7 +369,7 @@
       <Filter>04.Component\ShaderComponent\StandardShaderComponent</Filter>
     </ClCompile>
     <ClCompile Include="MultiSpriteShaderComponent.cpp">
-      <Filter>04.Component\ShaderComponent\Shader\MultySpriteShaderComponent</Filter>
+      <Filter>04.Component\ShaderComponent\MultySpriteShaderComponent</Filter>
     </ClCompile>
     <ClCompile Include="InstanceRenderComponent.cpp">
       <Filter>04.Component\RenderComponent</Filter>
@@ -361,6 +379,15 @@
     </ClCompile>
     <ClCompile Include="UILayer.cpp">
       <Filter>08.UILayer</Filter>
+    </ClCompile>
+    <ClCompile Include="TrailComponent.cpp">
+      <Filter>04.Component\TrailComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="TrailShaderComponent.cpp">
+      <Filter>04.Component\ShaderComponent\TrailShaderComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainShaderComponent.cpp">
+      <Filter>04.Component\ShaderComponent\TerrainShaderComponent</Filter>
     </ClCompile>
     <ClCompile Include="Network\MapData\MapData.cpp">
       <Filter>10.NetworkHelper\Room</Filter>

@@ -103,6 +103,8 @@ public:
 	virtual void						ReleaseUploadBuffers();
 	virtual void						UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList) {};
 	virtual void OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList, void* pContext);
+	void		SetPosition(XMFLOAT3& xmf3Top1, XMFLOAT3& xmf3Bottom1, XMFLOAT3& xmf3Top2, XMFLOAT3& xmf3Bottom2);
+	void		SetVertices(Textured2DUIVertex* pVertices, size_t iVertexCount);
 	int CheckRayIntersection(XMFLOAT3& xmRayPosition, XMFLOAT3& xmRayDirection, float* pfNearHitDistance);
 	void AddRef() { m_nReferences++; }
 	void Release() { if (--m_nReferences <= 0) delete this; }
@@ -149,6 +151,9 @@ protected:
 
 
 
+protected:
+	UINT8* m_pBufferDataBegin = NULL;
+
 
 };
 
@@ -180,6 +185,74 @@ public:
 	void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fWidth = 20.0f, float fHeight = 20.0f, float fDepth = 20.0f);
 };
 
+class TrailMeshComponent : public MeshComponent
+{
+public:
+	TrailMeshComponent();
+	virtual ~TrailMeshComponent();
+
+	void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, int iMaxVertexCount);
+
+};
+class CHeightMapImage
+{
+private:
+	BYTE* m_pHeightMapPixels;
+
+	int								m_nWidth;
+	int								m_nLength;
+	XMFLOAT3						m_xmf3Scale;
+
+public:
+	CHeightMapImage(LPCTSTR pFileName, int nWidth, int nLength, XMFLOAT3 xmf3Scale);
+	~CHeightMapImage(void);
+
+	float GetHeight(float x, float z, bool bReverseQuad = false);
+	XMFLOAT3 GetHeightMapNormal(int x, int z);
+	XMFLOAT3 GetScale() { return(m_xmf3Scale); }
+
+	BYTE* GetHeightMapPixels() { return(m_pHeightMapPixels); }
+	int GetHeightMapWidth() { return(m_nWidth); }
+	int GetHeightMapLength() { return(m_nLength); }
+};
+class HeihtMapMeshComponent : public MeshComponent
+{
+public:
+	HeihtMapMeshComponent();
+	virtual ~HeihtMapMeshComponent();
+
+	void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, int xStart, int zStart, int nWidth, int nLength, XMFLOAT3 xmf3Scale, XMFLOAT4 xmf4Color, void* pContext);
+
+	XMFLOAT3 GetScale() { return(m_xmf3Scale); }
+	int GetWidth() { return(m_nWidth); }
+	int GetLength() { return(m_nLength); }
+
+	virtual float OnGetHeight(int x, int z, void* pContext);
+	virtual XMFLOAT4 OnGetColor(int x, int z, void* pContext);
+protected:
+	int								m_nWidth;
+	int								m_nLength;
+	XMFLOAT3						m_xmf3Scale;
+
+protected:
+	XMFLOAT4* m_pxmf4Colors = NULL;
+	XMFLOAT2* m_pxmf2TextureCoords0 = NULL;
+	XMFLOAT2* m_pxmf2TextureCoords1 = NULL;
+
+	ID3D12Resource* m_pd3dColorBuffer = NULL;
+	ID3D12Resource* m_pd3dColorUploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		m_d3dColorBufferView;
+
+	ID3D12Resource* m_pd3dTextureCoord0Buffer = NULL;
+	ID3D12Resource* m_pd3dTextureCoord0UploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		m_d3dTextureCoord0BufferView;
+
+	ID3D12Resource* m_pd3dTextureCoord1Buffer = NULL;
+	ID3D12Resource* m_pd3dTextureCoord1UploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		m_d3dTextureCoord1BufferView;
+
+
+};
 class UIMeshComponent : public MeshComponent
 {
 public:
@@ -188,7 +261,6 @@ public:
 
 	void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fWidth, float fHeight, float fxPosition, float fyPosition);
 };
-
 class StandardMeshComponent :public MeshComponent
 
 {

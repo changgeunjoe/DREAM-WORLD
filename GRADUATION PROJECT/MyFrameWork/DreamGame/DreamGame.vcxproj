@@ -171,6 +171,7 @@
     <ClInclude Include="SkinnedMeshComponent.h" />
     <ClInclude Include="SkinnedShaderComponent.h" />
     <ClInclude Include="StandardShaderComponent.h" />
+    <ClInclude Include="TerrainShaderComponent.h" />
     <ClInclude Include="TextureComponent.h" />
     <ClInclude Include="DDSTextureLoader12.h" />
     <ClInclude Include="DreamGame.h" />
@@ -186,6 +187,8 @@
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TextureToViewportComponent.h" />
     <ClInclude Include="Timer.h" />
+    <ClInclude Include="TrailComponent.h" />
+    <ClInclude Include="TrailShaderComponent.h" />
     <ClInclude Include="UILayer.h" />
     <ClInclude Include="UiShaderComponent.h" />
     <ClInclude Include="WICTextureLoader12.h" />
@@ -214,6 +217,7 @@
     <ClCompile Include="SkinnedMeshComponent.cpp" />
     <ClCompile Include="SkinnedShaderComponent.cpp" />
     <ClCompile Include="StandardShaderComponent.cpp" />
+    <ClCompile Include="TerrainShaderComponent.cpp" />
     <ClCompile Include="TextureComponent.cpp" />
     <ClCompile Include="DDSTextureLoader12.cpp" />
     <ClCompile Include="DreamGame.cpp" />
@@ -231,6 +235,8 @@
     </ClCompile>
     <ClCompile Include="TextureToViewportComponent.cpp" />
     <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="TrailComponent.cpp" />
+    <ClCompile Include="TrailShaderComponent.cpp" />
     <ClCompile Include="UILayer.cpp" />
     <ClCompile Include="UiShaderComponent.cpp" />
     <ClCompile Include="WICTextureLoader12.cpp" />

@@ -13,6 +13,8 @@ public:
 
 	GameObject* m_pModelRootObject = NULL;
 
+	GameObject* m_pWeaponStart;
+	GameObject* m_pWeaponEnd;
 	int 							m_nSkinnedMeshes = 0;
 	SkinnedMeshComponent** m_ppSkinnedMeshes = NULL; //[SkinnedMeshes], Skinned Mesh Cache
 

@@ -987,15 +987,23 @@ void Projectile::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	ComponentBase* pLoadedmodelComponent = GetComponent(component_id::LOADEDMODEL_COMPONET);
 	if (pLoadedmodelComponent != NULL)
 	{
+		CLoadedModelInfoCompnent* pModel = nullptr;
 		//MaterialComponent::PrepareShaders(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pd3dcbGameObjects);
-		m_pLoadedModelComponent = static_cast<CLoadedModelInfoCompnent*>(pLoadedmodelComponent);
-		m_pLoadedModelComponent = LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList,
-			pd3dGraphicsRootSignature, pszModelNames, NULL, true);//NULL ->Shader
-		SetChild(m_pLoadedModelComponent->m_pModelRootObject, true);
+		if (m_pLoadedModelComponent == nullptr)
+		{
+			pModel = static_cast<CLoadedModelInfoCompnent*>(pLoadedmodelComponent);
+			pModel = LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList,
+				pd3dGraphicsRootSignature, pszModelNames, NULL, true);//NULL ->Shader
+		}
+		else
+		{
+			pModel = m_pLoadedModelComponent;
+		}
+		SetChild(pModel->m_pModelRootObject, true);
 
 		if (m_nAnimationSets != 0)
 		{
-			m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, m_nAnimationSets, m_pLoadedModelComponent);
+			m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, m_nAnimationSets, pModel);
 		}
 	}
 
@@ -1070,4 +1078,17 @@ void EnergyBall::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3
 	{
 		GameObject::Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
 	}
+}
+
+TrailObject::TrailObject(entity_id eid) : GameObject(eid)
+{
+
+}
+
+TrailObject::~TrailObject()
+{
+}
+
+void TrailObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+{
 }

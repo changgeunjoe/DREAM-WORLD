@@ -11,6 +11,7 @@ class ShadowMapShaderComponent;
 class DepthRenderShaderComponent;
 class TextureToViewportComponent;
 class InstancingShaderComponent;
+class TrailComponent;
 #include"CLoadModelinfo.h"
 class GameobjectManager
 {
@@ -19,6 +20,7 @@ public:
 	~GameobjectManager();
 	virtual void Animate(float fTimeElapsed);
 	virtual void CharacterUIAnimate(float fTimeElapsed);
+	virtual void TrailAnimate(float fTimeElapsed);
 	virtual void StoryUIAnimate(float fTimeElapsed);
 	virtual void OnPreRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
@@ -28,6 +30,8 @@ public:
 
 	virtual void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void BuildTrail(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void BuildLight();
 	virtual void BuildShadow(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void Build2DUI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
@@ -65,7 +69,10 @@ private: //active object
 	GameObject* m_pNaviMeshObject{ NULL };
 	GameObject* m_pAnimationObject{ NULL };
 	GameObject* m_pMonsterObject{ NULL };
+	GameObject* m_pMonsterCubeObject{ NULL };
 	GameObject* m_pPlayerObject{ NULL };
+	GameObject* m_pEnergyBallObject{ NULL };
+
 
 
 	DepthRenderShaderComponent* m_pDepthShaderComponent{ NULL };
@@ -118,6 +125,15 @@ private: //active object
 	GameObject* m_pStroy3Object{ NULL };
 	GameObject* m_pStory4Object{ NULL };
 	vector<GameObject*> m_ppStoryUIObjects;
+	
+	//TrailObject
+	GameObject* m_pTrailObject{ NULL };
+	TrailComponent* m_pTrailComponent{ NULL };
+	
+	//
+	array<GameObject*, 10> m_pStage1Objects{ NULL };
+	GameObject* m_pStage1TerrainObject{ NULL };
+	
 
 	POINT						m_ptOldCursorPos;
 

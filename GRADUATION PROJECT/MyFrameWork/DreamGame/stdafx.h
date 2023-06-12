@@ -57,7 +57,7 @@ using namespace std;
 #endif
 #define PLAYER_MAX_RANGE 288.0f
 //#ifndef LOCAL_TASK
-//#define LOCAL_TASK 1
+#define LOCAL_TASK 1
 //#endif // !LOCAL_TASK
 
 ///////////////////////////////////////
@@ -212,6 +212,11 @@ struct CB_GAMEOBJECT_INFO
 	
 };
 
+struct CB_GAMEOBJECTWORLD_INFO
+{
+	XMFLOAT4X4						m_xmf4x4World;
+};
+
 struct CB_GAMEOBJECT_STAT
 {
 	float							m_xmfHP;
@@ -272,6 +277,10 @@ enum component_id
 	SPRITESHADER_COMPONENT,
 	BOUNDINGBOX_COMPONENT,
 	SPHERE_COMPONENT,
+	TRAILMESH_COMPONENT,
+	TRAILSHADER_COMPONENT,
+	HEIGHTMESH_COMPONENT,
+	TERRAINSHADER_COMPONENT,	
 	NAVIMESHSHADER_COMPONENT
 };
 //mean about component_id;
@@ -305,7 +314,6 @@ enum BOSS_ATTACK : char {
 struct VS_VB_INSTANCE
 {
 	XMFLOAT4X4 m_xmf4x4Transform;
-	XMFLOAT4 m_xmcColor;
 };
 
 enum Message {
@@ -410,6 +418,21 @@ namespace Vector3
 	inline XMFLOAT3 TransformCoord(XMFLOAT3& xmf3Vector, XMFLOAT4X4& xmmtx4x4Matrix)
 	{
 		return(TransformCoord(xmf3Vector, XMLoadFloat4x4(&xmmtx4x4Matrix)));
+	}
+	inline XMFLOAT3 CatmullRom(XMFLOAT3& xmf3Vector1, XMFLOAT3& xmf3Vector2, XMFLOAT3& xmf3Vector3, XMFLOAT3& xmf3Vector4, float t)
+	{
+		XMFLOAT3 xmf3Result;
+		XMStoreFloat3(&xmf3Result, XMVectorCatmullRom(XMLoadFloat3(&xmf3Vector1), XMLoadFloat3(&xmf3Vector2),
+			XMLoadFloat3(&xmf3Vector3), XMLoadFloat3(&xmf3Vector4), t));
+		return(xmf3Result);
+	}
+
+	inline XMFLOAT3 CatmullRom(XMFLOAT3* xmf3Vector, float t)
+	{
+		XMFLOAT3 xmf3Result;
+		XMStoreFloat3(&xmf3Result, XMVectorCatmullRom(XMLoadFloat3(&xmf3Vector[0]), XMLoadFloat3(&xmf3Vector[1]),
+			XMLoadFloat3(&xmf3Vector[2]), XMLoadFloat3(&xmf3Vector[3]), t));
+		return(xmf3Result);
 	}
 }
 
