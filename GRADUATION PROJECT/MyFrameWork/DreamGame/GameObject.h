@@ -412,7 +412,10 @@ inline T* GameObject::ComponentType(component_id& componentID)
     {
         componentID = component_id::LOADEDMODEL_COMPONET;
     }
-
+	else if (typeid(T).name() == typeid(NaviMeshShaderComponent).name())
+	{
+		componentID = component_id::NAVIMESHSHADER_COMPONENT;
+	}
     else
     {
         componentID = component_id::UNDEF_COMPONENT;
