@@ -152,7 +152,8 @@ private: //active object
 	ID3D12Resource* m_pd3dcbGameObjects = nullptr;
 	//CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
 	CB_GAMEFRAMEWORK_INFO* m_pcbMappedGameObjects = nullptr;
-	std::queue<int> m_qrecvNodeQueue;
+public:
+	std::vector<int> m_VecNodeQueue;
 	std::mutex m_nodeLock;
 public:
 	void SetPlayCharacter(Session* pSession);
@@ -162,10 +163,6 @@ public:
 	void SetInMatching(bool inMatching) { m_bInMatching = inMatching; }
 	void SetUIActive();
 	void SetStoryTime() { m_fStroyTime = 0; };
-	void SetBossAstar(queue<int>& qrecvNodeQueue) {
-		m_nodeLock.lock();
-		m_qrecvNodeQueue.swap(qrecvNodeQueue);
-		m_nodeLock.unlock();
-	};
+
 };
 

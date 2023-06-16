@@ -583,7 +583,7 @@ void Logic::ProcessPacket(char* p)
 				}
 				break;
 			}
-			m_MonsterSession.m_currentPlayGameObject->SetMoveState(false);			
+			m_MonsterSession.m_currentPlayGameObject->SetMoveState(false);
 			cout << "ProcessPacket::SERVER_PACKET::BOSS_ATTACK - recvPacket: " << (int)recvPacket->bossAttackType << endl;
 		}
 	}
@@ -612,6 +612,9 @@ void Logic::ProcessPacket(char* p)
 
 		SERVER_PACKET::BossMoveNodePacket* recvPacket = reinterpret_cast<SERVER_PACKET::BossMoveNodePacket*>(p);
 		std::queue<int> recvNodeQueue;
+		gGameFramework.m_pScene->m_pObjectManager->m_nodeLock.lock();
+		gGameFramework.m_pScene->m_pObjectManager->m_VecNodeQueue.clear();
+		gGameFramework.m_pScene->m_pObjectManager->m_nodeLock.unlock();
 		cout << "보스 이동 인덱스 : ";
 		if (recvPacket->nodeCnt == -1) {
 			m_MonsterSession.m_currentPlayGameObject->m_lockBossRoute.lock();
@@ -620,13 +623,15 @@ void Logic::ProcessPacket(char* p)
 			m_MonsterSession.m_currentPlayGameObject->m_xmf3Destination = recvPacket->desPos;
 		}
 		else if (recvPacket->nodeCnt > -1) {
+			gGameFramework.m_pScene->m_pObjectManager->m_nodeLock.lock();
 			for (int i = 0; i < recvPacket->nodeCnt; i++) {
 				//보스가 이동할 노드 데이터
 				// 받아온 노드들 벡터에 새로 넣기
 				cout << recvPacket->node[i] << ", " << endl;
 				recvNodeQueue.push(recvPacket->node[i]);
+				gGameFramework.m_pScene->m_pObjectManager->m_VecNodeQueue.push_back(recvPacket->node[i]);
 			}
-			gGameFramework.m_pScene->m_pObjectManager->SetBossAstar(recvNodeQueue);
+			gGameFramework.m_pScene->m_pObjectManager->m_nodeLock.unlock();
 			m_MonsterSession.m_currentPlayGameObject->m_lockBossRoute.lock();
 			m_MonsterSession.m_currentPlayGameObject->m_BossRoute.swap(recvNodeQueue);
 			m_MonsterSession.m_currentPlayGameObject->m_lockBossRoute.unlock();

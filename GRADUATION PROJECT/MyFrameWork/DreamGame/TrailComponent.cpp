@@ -148,14 +148,17 @@ void TrailComponent::RenderTrail(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	delete[] pVertices;
 }
 
-void TrailComponent::RenderAstar(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, queue<int> qrecvNodeQueue)
+void TrailComponent::RenderAstar(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, vector<int> vecNodeQueue)
 {
 
 	vector<XMFLOAT3> xmf3Pos;
-	while (!qrecvNodeQueue.empty()) {
-		xmf3Pos.push_back(g_bossMapData.GetTriangleMesh(qrecvNodeQueue.front()).GetCenter());
-		qrecvNodeQueue.pop();
+	for (auto iter = vecNodeQueue.begin(); iter != vecNodeQueue.end(); iter++) {
+		xmf3Pos.push_back(g_bossMapData.GetTriangleMesh(*iter).GetCenter());
 	}
+	//while (!qrecvNodeQueue.empty()) {
+	//	xmf3Pos.push_back(g_bossMapData.GetTriangleMesh(qrecvNodeQueue.front()).GetCenter());
+	//	qrecvNodeQueue.pop();
+	//}
 	size_t iVertexCount = xmf3Pos.size();//사각형 당 정점 6개
 	Textured2DUIVertex* pVertices = new Textured2DUIVertex[iVertexCount];
 	for (int i = 0; i < xmf3Pos.size(); i++) {
