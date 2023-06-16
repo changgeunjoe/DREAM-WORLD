@@ -150,6 +150,7 @@ void TrailComponent::RenderTrail(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 
 void TrailComponent::RenderAstar(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, queue<int> qrecvNodeQueue)
 {
+
 	vector<XMFLOAT3> xmf3Pos;
 	while (!qrecvNodeQueue.empty()) {
 		xmf3Pos.push_back(g_bossMapData.GetTriangleMesh(qrecvNodeQueue.front()).GetCenter());

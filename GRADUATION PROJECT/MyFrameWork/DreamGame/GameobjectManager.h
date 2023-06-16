@@ -153,6 +153,7 @@ private: //active object
 	//CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
 	CB_GAMEFRAMEWORK_INFO* m_pcbMappedGameObjects = nullptr;
 	std::queue<int> m_qrecvNodeQueue;
+	std::mutex m_nodeLock;
 public:
 	void SetPlayCharacter(Session* pSession);
 	void SetSection(int n) { m_nSection = n; }
@@ -161,6 +162,10 @@ public:
 	void SetInMatching(bool inMatching) { m_bInMatching = inMatching; }
 	void SetUIActive();
 	void SetStoryTime() { m_fStroyTime = 0; };
-	void SetBossAstar(queue<int> qrecvNodeQueue) { m_qrecvNodeQueue = qrecvNodeQueue; };
+	void SetBossAstar(queue<int>& qrecvNodeQueue) {
+		m_nodeLock.lock();
+		m_qrecvNodeQueue.swap(qrecvNodeQueue);
+		m_nodeLock.unlock();
+	};
 };
 

@@ -57,7 +57,7 @@ using namespace std;
 #endif
 #define PLAYER_MAX_RANGE 288.0f
 //#ifndef LOCAL_TASK
-#define LOCAL_TASK 1
+//#define LOCAL_TASK 1
 //#endif // !LOCAL_TASK
 
 ///////////////////////////////////////
