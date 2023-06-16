@@ -626,6 +626,7 @@ void Logic::ProcessPacket(char* p)
 				cout << recvPacket->node[i] << ", " << endl;
 				recvNodeQueue.push(recvPacket->node[i]);
 			}
+			gGameFramework.m_pScene->m_pObjectManager->SetBossAstar(recvNodeQueue);
 			m_MonsterSession.m_currentPlayGameObject->m_lockBossRoute.lock();
 			m_MonsterSession.m_currentPlayGameObject->m_BossRoute.swap(recvNodeQueue);
 			m_MonsterSession.m_currentPlayGameObject->m_lockBossRoute.unlock();

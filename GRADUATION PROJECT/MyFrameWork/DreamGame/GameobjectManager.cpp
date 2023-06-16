@@ -248,7 +248,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	m_pSkyboxObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 	if (m_pDepthShaderComponent) {
-		m_pDepthShaderComponent->UpdateShaderVariables(pd3dCommandList);
+		m_pDepthShaderComponent->UpdateShaderVariables(pd3dCommandList);//오브젝트의 깊이값의 렌더입니다.
 	}
 	//인스턴싱 렌더 
 	/*if (m_pInstancingShaderComponent) {
@@ -302,12 +302,6 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	if (m_pMonsterHPBarObject) {
 		//m_pMonsterHPBarObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
-	if (m_pTrailObject) {
-		m_pTrailObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	}
-	if (m_pTrailComponent) {
-		m_pTrailComponent->RenderTrail(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	}
 	if (m_pShadowmapShaderComponent)
 	{
 		m_pShadowmapShaderComponent->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature);
@@ -336,6 +330,26 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	}
 	if (m_pStage1TerrainObject) {
 		m_pStage1TerrainObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
+}
+
+void GameobjectManager::TrailRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+{//트레일 오브젝트 렌더입니다.
+	if (m_pTrailObject) {
+		m_pTrailObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
+	if (m_pTrailComponent) {
+		m_pTrailComponent->RenderTrail(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
+}
+
+void GameobjectManager::AstarRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+{//에이스타 오브젝트 렌더입니다.
+	if (m_pAstarObject) {
+		m_pAstarObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
+	if (m_pAstarComponent) {
+		m_pAstarComponent->RenderAstar(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_qrecvNodeQueue);
 	}
 }
 
@@ -629,6 +643,20 @@ void GameobjectManager::BuildTrail(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	m_pTrailObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pTrailComponent = new TrailComponent();
 	m_pTrailComponent->ReadyComponent(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pTrailObject);
+}
+void GameobjectManager::BuildAstar(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+{
+	m_pAstarObject = new GameObject(UNDEF_ENTITY);
+	m_pAstarObject->InsertComponent<RenderComponent>();
+	m_pAstarObject->InsertComponent<TrailMeshComponent>();
+	m_pAstarObject->InsertComponent<TrailShaderComponent>();
+	m_pAstarObject->InsertComponent<TextureComponent>();
+	m_pAstarObject->SetTexture(L"Trail/Trail.dds", RESOURCE_TEXTURE2D, 3);
+	m_pAstarObject->SetPosition(XMFLOAT3(0, 0, 0));
+	m_pAstarObject->SetScale(1);
+	m_pAstarObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pAstarComponent = new TrailComponent();
+	m_pAstarComponent->ReadyComponent(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pAstarObject);
 }
 void GameobjectManager::BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {

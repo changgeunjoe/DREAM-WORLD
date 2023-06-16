@@ -2,6 +2,8 @@
 #include "TrailComponent.h"
 #include "MeshComponent.h"
 #include "GameObject.h"
+#include "./Network/MapData/MapData.h"
+extern MapData g_bossMapData;
 
 TrailComponent::TrailComponent()
 {
@@ -81,7 +83,7 @@ void TrailComponent::AddTrail( const XMFLOAT3& xmf3Top,const XMFLOAT3& xmf3Botto
 
 			m_listRomPos.emplace_back(make_pair(xmf3RomTopPos, xmf3RomBottomPos));
 		}
-		cout << m_listPos.size() << ", " << m_listRomPos.size() << endl;
+	//	cout << m_listPos.size() << ", " << m_listRomPos.size() << endl;
 	}
 }
 
@@ -122,7 +124,7 @@ void TrailComponent::RenderTrail(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 		xmf2UV[0] = { fRatio,			0.f };
 		//xmf2UV[1] = { fRatio,			1.f };
 		//xmf2UV[2] = { fNextRatio / 1.f, 1.f };
-		xmf2UV[1] = { fRatio,			(fRatio / 1.f) };
+		xmf2UV[1] = { fRatio,			(fRatio / 1.f) }; 
 		xmf2UV[2] = { fNextRatio / 1.f, (fNextRatio / 1.f) };
 		xmf2UV[3] = { fNextRatio / 1.f, 0.f };
 
@@ -144,6 +146,27 @@ void TrailComponent::RenderTrail(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	m_pTrailObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature); //렌더링은 한번만
 
 	delete[] pVertices;
+}
+
+void TrailComponent::RenderAstar(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, queue<int> qrecvNodeQueue)
+{
+	vector<XMFLOAT3> xmf3Pos;
+	while (!qrecvNodeQueue.empty()) {
+		xmf3Pos.push_back(g_bossMapData.GetTriangleMesh(qrecvNodeQueue.front()).GetCenter());
+		qrecvNodeQueue.pop();
+	}
+	size_t iVertexCount = xmf3Pos.size();//사각형 당 정점 6개
+	Textured2DUIVertex* pVertices = new Textured2DUIVertex[iVertexCount];
+	for (int i = 0; i < xmf3Pos.size(); i++) {
+			pVertices[i] = Textured2DUIVertex(xmf3Pos[i], XMFLOAT2(0,0));//
+	}
+
+	m_pTrailObject->GetMesh()->SetVertices(pVertices, iVertexCount);
+	m_pTrailObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature); //렌더링은 한번만
+
+	delete[] pVertices;
+
+
 }
 
 void TrailComponent::SetRenderingTrail(bool isOn)
