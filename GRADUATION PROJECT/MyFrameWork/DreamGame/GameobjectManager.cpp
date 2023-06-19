@@ -13,6 +13,7 @@
 #include "TrailComponent.h"
 #include"TerrainShaderComponent.h"
 #include "./Network/MapData/MapData.h"
+#include"EffectObject.h"
 
 extern NetworkHelper g_NetworkHelper;
 extern Logic g_Logic;
@@ -67,6 +68,9 @@ void GameobjectManager::Animate(float fTimeElapsed)
 		m_ppParticleObjects[i]->SetScale(8);
 		m_ppParticleObjects[i]->Rotate(0, 180, 0);
 	}
+
+	//Effect
+	m_pEffectObject->AnimateEffect(m_pCamera, g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition(), fTimeElapsed,m_fTime * 10);
 
 	//m_pMonsterObject->Animate(fTimeElapsed);
 
@@ -143,7 +147,9 @@ void GameobjectManager::Animate(float fTimeElapsed)
 		m_ppParticleObjects[i]->AnimateRowColumn(fTimeElapsed);
 	}
 	CharacterUIAnimate(fTimeElapsed);
+	if (m_pTrailComponent) {
 	TrailAnimate(fTimeElapsed);
+	}
 }
 
 void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)
@@ -304,7 +310,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	}
 	if (m_pShadowmapShaderComponent)
 	{
-		m_pShadowmapShaderComponent->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature);
+	//	m_pShadowmapShaderComponent->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature);
 	}
 
 	m_pNaviMeshObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -316,8 +322,11 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	/*for (int i = 0; i < m_ppCharacterUIObjects.size(); i++) {
 		m_ppCharacterUIObjects[i]->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature);
 	}*/
+	if (m_pEffectObject) {
+		m_pEffectObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
 	for (int i = 0; i < m_ppParticleObjects.size(); i++) {
-		//m_ppParticleObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);파티클
+		m_ppParticleObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//파티클
 	}
 	if (GameEnd)
 	{
@@ -331,8 +340,9 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	if (m_pStage1TerrainObject) {
 		m_pStage1TerrainObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
-	TrailRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	AstarRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	
+	//TrailRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//AstarRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
 
 void GameobjectManager::TrailRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -382,6 +392,11 @@ void GameobjectManager::StoryUIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	//	if (m_fStroyTime < 10 * (i + 1)&& m_fStroyTime > ScreenSTORY * (i ))
 	//	m_ppStoryUIObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//}
+}
+
+void GameobjectManager::EffectRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float ftimeElapsed)
+{
+	m_pEffectObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
 
 void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -588,24 +603,25 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	BuildShadow(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//무조건 마지막에 해줘야된다.
 //	Build2DUI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildCharacterUI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//BuildParticle(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	BuildParticle(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//BuildInstanceObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildStoryUI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	BuildTrail(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	BuildStage1(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//BuildTrail(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//BuildStage1(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildAstar(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
 void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
 	m_pFireballSpriteObject = new GameObject(UNDEF_ENTITY);
 	m_pFireballSpriteObject->InsertComponent<RenderComponent>();
 	m_pFireballSpriteObject->InsertComponent<UIMeshComponent>();
-	m_pFireballSpriteObject->InsertComponent<MultiSpriteShaderComponent>();
+	m_pFireballSpriteObject->InsertComponent<ShaderComponent>();
 	m_pFireballSpriteObject->InsertComponent<TextureComponent>();
 	m_pFireballSpriteObject->SetTexture(L"MagicEffect/CandleFlame.dds", RESOURCE_TEXTURE2D, 3);
 	m_pFireballSpriteObject->SetPosition(XMFLOAT3(100, 40, 100));
 	m_pFireballSpriteObject->SetScale(10);
-	m_pFireballSpriteObject->SetRowColumn(16, 8, 0.05);
+	m_pFireballSpriteObject->SetRowColumn(16, 8, 0);
 	m_pFireballSpriteObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppParticleObjects.emplace_back(m_pFireballSpriteObject);
 
@@ -1046,6 +1062,12 @@ void GameobjectManager::BuildStoryUI(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 	m_pStroy1Object->SetScale(0.44f, 0.24f, 1.0f);
 	m_pStroy1Object->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppStoryUIObjects.emplace_back(m_pStroy1Object);
+}
+
+void GameobjectManager::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+{
+	m_pEffectObject = new EffectObject;
+	m_pEffectObject->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
 
 enum UI

@@ -12,6 +12,7 @@
 #include"MultiSpriteShaderComponent.h"
 #include"InstanceRenderComponent.h"
 #include"TerrainShaderComponent.h"
+#include"TrailShaderComponent.h"
 //include"CLoadModelinfo.h"
 class DepthRenderShaderComponent;
 class CLoadedModelInfoCompnent;
@@ -42,6 +43,8 @@ public:
 	entity_id GetEntityID() const;
 
 	void SetPosition(const XMFLOAT3& position);
+	void SetAddPosition(XMFLOAT3 position) { m_AddPosition = position; }
+	XMFLOAT3 GetAddPosition() { return m_AddPosition; }
 	void UpdateCameraPosition();
 	const XMFLOAT3& GetPosition() const;
 
@@ -185,6 +188,10 @@ public:
 
 	bool                            m_bRimLight = true;
 
+	XMFLOAT4						m_xmf4Color{};
+
+	float                           m_fTime{};
+
 protected:
 
 	int								m_nReferences = 0;
@@ -240,6 +247,9 @@ protected:
 	CB_GAMEOBJECT_MULTISPRITE* m_pcbMappedMultiSpriteGameObjects = NULL;
 	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dCbvGPUDescriptorHandle;
 
+	ID3D12Resource* m_pd3dcbGameObjectColor = NULL;
+	CB_GAMEOBJECTCOLOR_INFO* m_pcbMappedGameObjectsColor = NULL;
+
 	ID3D12Resource* pShadowMap = nullptr;
 	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);// 삭제 예정(변경)
 	int nObjects = 0;//삭제 예정(변경)
@@ -265,6 +275,8 @@ public:
 
 	void SetFileName(LPCTSTR pFileName);
 
+	void SetColor(XMFLOAT4 xmf4Color) { m_xmf4Color = xmf4Color; }
+
 protected:
 	bool                            m_bLButtonClicked = false;
 	bool                            m_bRButtonClicked = false;
@@ -274,11 +286,12 @@ protected:
 	CharacterType                   m_characterType = CharacterType::CT_NONE;
 	float                           m_fHp{ 100 };//캐릭터 현재 체력
 	float                           m_fMaxHp{ 100 };//캐릭터 최대 체력
-	float                           m_fSpeed;
-	float                           m_fDamage;
-	float							m_projectilesLookY;
+	float                           m_fSpeed{};
+	float                           m_fDamage{};
+	float							m_projectilesLookY{};
+	XMFLOAT3						m_AddPosition{};
 
-	float                           m_fTime{};
+
 	int                             m_nProjectiles{};
 
 	CHeightMapImage* m_pHeightMapImage;

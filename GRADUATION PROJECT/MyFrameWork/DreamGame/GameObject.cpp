@@ -570,6 +570,11 @@ void GameObject::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 	m_pd3dcbGameObjectsWorld = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes4, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 
 	m_pd3dcbGameObjectsWorld->Map(0, NULL, (void**)&m_pcbMappedGameObjectsWorld);
+
+	UINT ncbElementBytes5 = ((sizeof(CB_GAMEOBJECTCOLOR_INFO) + 255) & ~255); //256ÀÇ ¹è¼ö
+	m_pd3dcbGameObjectColor = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes5, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+
+	m_pd3dcbGameObjectColor->Map(0, NULL, (void**)&m_pcbMappedGameObjectsColor);
 }
 void GameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
@@ -581,6 +586,12 @@ void GameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandLis
 		::memcpy(&m_pcbMappedGameObjects->m_bRimLight, &m_bRimLight, sizeof(bool));
 		D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbGameObjects->GetGPUVirtualAddress();
 		pd3dCommandList->SetGraphicsRootConstantBufferView(17, d3dGpuVirtualAddress);
+	}
+	if (m_pd3dcbGameObjectColor)
+	{
+		::memcpy(&m_pcbMappedGameObjectsColor->m_xmf4Color, &m_xmf4Color, sizeof(XMFLOAT4));
+		D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbGameObjectColor->GetGPUVirtualAddress();
+		pd3dCommandList->SetGraphicsRootConstantBufferView(22, d3dGpuVirtualAddress);
 	}
 	if (m_pd3dcbUIGameObjects)
 	{
@@ -600,7 +611,7 @@ void GameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandLis
 {
 	XMFLOAT4X4 xmf4x4World;
 	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(pxmf4x4World)));
-	pd3dCommandList->SetGraphicsRoot32BitConstants(22, 16, &xmf4x4World, 0);
+	pd3dCommandList->SetGraphicsRoot32BitConstants(23, 16, &xmf4x4World, 0);
 }
 void GameObject::ReleaseShaderVariables()
 {
