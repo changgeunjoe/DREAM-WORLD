@@ -928,7 +928,7 @@ void CGameFramework::FrameAdvance()
 
 	m_pd3d11DeviceContext->Flush();
 #endif
-	m_pUILayer->Render(m_nSwapChainBufferIndex);
+	//m_pUILayer->Render(m_nSwapChainBufferIndex);
 	//명령 리스트를 명령 큐에 추가하여 실행한다. 
 	WaitForGpuComplete();
 	//GPU가 모든 명령 리스트를 실행할 때 까지 기다린다.

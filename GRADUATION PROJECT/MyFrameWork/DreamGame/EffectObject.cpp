@@ -24,6 +24,7 @@ void EffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pSmokeObject[i]->SetColor(XMFLOAT4(1.0f, 0.7843f, 0.1568f, 0));
 		m_pSmokeObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pSmokeObject[i]->m_fTime = RandF(0, 10);
+		m_pEffectObjects.push_back(m_pSmokeObject[i]);
 	}
 	for (int i = 0; i < m_pPointObject.size(); i++) {
 		m_pPointObject[i] = new GameObject(UNDEF_ENTITY);
@@ -37,6 +38,7 @@ void EffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pPointObject[i]->SetColor(XMFLOAT4(1.0f, 0.7843f, 0.1568f, 0));
 		m_pPointObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pPointObject[i]->m_fTime = RandF(0, 10);
+		m_pEffectObjects.push_back(m_pPointObject[i]);
 	}
 	for (int i = 0; i < m_pArrowObject.size(); i++) {
 		m_pArrowObject[i] = new GameObject(UNDEF_ENTITY);
@@ -51,6 +53,7 @@ void EffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pArrowObject[i]->SetColor(XMFLOAT4(1.0f, 0.7843f, 0.1568f, 0));
 		m_pArrowObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pArrowObject[i]->m_fTime = RandF(0, 10);
+		m_pEffectObjects.push_back(m_pArrowObject[i]);
 	}
 	for (int i = 0; i < m_pFlareObject.size(); i++) {
 		m_pFlareObject[i] = new GameObject(UNDEF_ENTITY);
@@ -64,42 +67,55 @@ void EffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pFlareObject[i]->SetColor(XMFLOAT4(1.0f, 0.7843f, 0.1568f, 0));
 		m_pFlareObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pFlareObject[i]->m_fTime = RandF(0, 10);
+		m_pEffectObjects.push_back(m_pFlareObject[i]);
 	}
 }
 
 void EffectObject::RenderEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
+	SortEffect();//카메라 거리별로 Sort후 렌더
 
+	for (int i = 0; i < m_pEffectObjects.size(); i++) {
+		cout << m_pEffectObjects[i]->GetDistance()<<" ";
 
-	for (int i = m_pSmokeObject.size() - 1; i >= 0; i--) {
+		m_pEffectObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
+	cout << endl;
+	/*for (int i = m_pSmokeObject.size() - 1; i >= 0; i--) {
 		m_pSmokeObject[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	}
-	for (int i = m_pPointObject.size() - 1; i >= 0; i--) {
-		m_pPointObject[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	}
-	for (int i = 0; i < m_pArrowObject.size(); i++) {
-		m_pArrowObject[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	}
-	for (int i = 0; i < m_pFlareObject.size(); i++) {
-		m_pFlareObject[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	}
+	}*/
+	//for (int i = m_pPointObject.size() - 1; i >= 0; i--) {
+	//	m_pPointObject[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//}
+	//for (int i = 0; i < m_pArrowObject.size(); i++) {
+	//	m_pArrowObject[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//}
+	//for (int i = 0; i < m_pFlareObject.size(); i++) {
+	//	m_pFlareObject[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//}
 
 
 }
 
 void EffectObject::AnimateEffect(CCamera* pCamera,XMFLOAT3 xm3position,float ftimeelapsed, float fTime)
 {
+
+
+
+
+
 	for (int i = 0; i < m_pSmokeObject.size(); i++) {
 		if (m_pSmokeObject[i]->m_fTime < 10) {
 			m_pSmokeObject[i]->m_fTime = m_pSmokeObject[i]->m_fTime + ftimeelapsed * 6;
 		}
 		else {
 			m_pSmokeObject[i]->m_fTime = 0;
-			m_pSmokeObject[i]->SetAddPosition(XMFLOAT3(RandF(-7, 7), RandF(-0, 10), RandF(-7, 7)));
+			m_pSmokeObject[i]->SetAddPosition(XMFLOAT3(RandF(-8, 8), RandF(4, 20), RandF(-8, 8)));
 		}
+		
 		m_pSmokeObject[i]->SetLookAt(pCamera->GetPosition());
 		m_pSmokeObject[i]->SetScale(2);
-		m_pSmokeObject[i]->Rotate(0, 180, fTime);
+		m_pSmokeObject[i]->Rotate(0, 180, fTime*5);
 		m_pSmokeObject[i]->SetPosition(XMFLOAT3(
 			xm3position.x + m_pSmokeObject[i]->GetAddPosition().x,
 			xm3position.y + m_pSmokeObject[i]->GetAddPosition().y ,
@@ -157,4 +173,19 @@ void EffectObject::AnimateEffect(CCamera* pCamera,XMFLOAT3 xm3position,float fti
 			xm3position.y + m_pFlareObject[i]->GetAddPosition().y + m_pFlareObject[i]->m_fTime + i,
 			xm3position.z + m_pFlareObject[i]->GetAddPosition().z));
 	}
+	for (int i = 0; i < m_pEffectObjects.size(); i++) {
+		m_pEffectObjects[i]->CalculateDistance(pCamera->GetPosition());
+	}
+
+}
+
+void EffectObject::SortEffect()
+{
+	std::sort(m_pEffectObjects.begin(), m_pEffectObjects.end(), CompareGameObjects);
+}
+
+
+bool CompareGameObjects(const GameObject* obj1, const GameObject* obj2)
+{
+	return obj1->GetDistance() > obj2->GetDistance();
 }

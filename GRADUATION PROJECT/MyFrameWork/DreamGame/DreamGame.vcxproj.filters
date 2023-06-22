@@ -270,6 +270,9 @@
     <ClInclude Include="EffectObject.h">
       <Filter>03.GameObject\Effect</Filter>
     </ClInclude>
+    <ClInclude Include="DebuffObject.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -400,6 +403,9 @@
     </ClCompile>
     <ClCompile Include="EffectObject.cpp">
       <Filter>03.GameObject\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="DebuffObject.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

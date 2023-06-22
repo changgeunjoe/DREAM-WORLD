@@ -112,7 +112,7 @@ public:
 
 	CAnimationController* m_pSkinnedAnimationController = NULL;
 
-	UINT GetMeshType() { return((m_pMeshComponent) ? m_pMeshComponent->GetType() : 0x00); };
+	UINT GetMeshType() { return((m_pMeshComponent) ? m_pMeshComponent->GetType() : 0x00); }
 	void SetMaterialType(UINT nType) { m_nType |= nType; }
 
 	void AnimateRowColumn(float fTimeElapsed);
@@ -121,7 +121,9 @@ public:
 	void SetCurrentHP(float fHP);
 	float GetCurrentHP() { return m_fHp; }
 	float GetMaxCurrentHP() { return m_fMaxHp; }
-	MeshComponent* GetMesh() { return m_pMeshComponent; };
+	MeshComponent* GetMesh() { return m_pMeshComponent; }
+
+	float GetDistance() const { return m_fDistance; } //카메라와 오브젝트의 거리
 public:
 	static CLoadedModelInfoCompnent* LoadGeometryAndAnimationFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, ShaderComponent* pShader, bool isBinary);
 
@@ -205,7 +207,7 @@ protected:
 	XMFLOAT3 m_position{};
 	//Quaternion m_orientation;
 	float                           m_nRotateAngle = 0.0f;
-
+	float							m_fDistance = 0.0f;
     wchar_t* pszFileNames{};
     char* pszModelNames{};
 	LPCTSTR m_pFileName{};
@@ -276,6 +278,8 @@ public:
 	void SetFileName(LPCTSTR pFileName);
 
 	void SetColor(XMFLOAT4 xmf4Color) { m_xmf4Color = xmf4Color; }
+
+	void CalculateDistance(const XMFLOAT3& xmf3CameramPosition);
 
 protected:
 	bool                            m_bLButtonClicked = false;

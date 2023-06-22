@@ -310,10 +310,10 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	}
 	if (m_pShadowmapShaderComponent)
 	{
-	//	m_pShadowmapShaderComponent->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature);
+		m_pShadowmapShaderComponent->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature);
 	}
 
-	m_pNaviMeshObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//m_pNaviMeshObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//if (m_pTextureToViewportComponent)
 	//{
 	//	m_pTextureToViewportComponent->Render(pd3dCommandList, m_pCamera, 0, pd3dGraphicsRootSignature);
@@ -325,20 +325,20 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	if (m_pEffectObject) {
 		m_pEffectObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
-	for (int i = 0; i < m_ppParticleObjects.size(); i++) {
-		m_ppParticleObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//파티클
-	}
+	//for (int i = 0; i < m_ppParticleObjects.size(); i++) {
+	//	m_ppParticleObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//파티클
+	//}
 	if (GameEnd)
 	{
 		m_pVictoryUIObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pContinueUIObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
-	for (int i = 0; i < 6; i++) {
-		if(m_pStage1Objects[i])
-		m_pStage1Objects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	}
+	//for (int i = 0; i < 6; i++) {
+	//	if(m_pStage1Objects[i])
+	//	m_pStage1Objects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//}
 	if (m_pStage1TerrainObject) {
-		m_pStage1TerrainObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		//m_pStage1TerrainObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 	
 	//TrailRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -607,7 +607,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	//BuildInstanceObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildStoryUI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//BuildTrail(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//BuildStage1(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	BuildStage1(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildAstar(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
@@ -682,22 +682,23 @@ void GameobjectManager::BuildAstar(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 }
 void GameobjectManager::BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	/*m_pStage1Objects[0] = new GameObject(UNDEF_ENTITY);
+	m_pStage1Objects[0] = new GameObject(UNDEF_ENTITY);
 	m_pStage1Objects[0]->InsertComponent<RenderComponent>();
 	m_pStage1Objects[0]->InsertComponent<CLoadedModelInfoCompnent>();
-	m_pStage1Objects[0]->SetPosition(XMFLOAT3(0, 0, 0));
+	m_pStage1Objects[0]->SetPosition(XMFLOAT3(0, -5, 0));
 	m_pStage1Objects[0]->SetModel("Model/New_Terrain.bin");
 	m_pStage1Objects[0]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pStage1Objects[0]->SetScale(1.0f, 1.0f, 1.0f);
 	m_pStage1Objects[0]->SetRimLight(false);
-	m_pStage1Objects[1] = new GameObject(UNDEF_ENTITY);
-	m_pStage1Objects[1]->InsertComponent<RenderComponent>();
-	m_pStage1Objects[1]->InsertComponent<CLoadedModelInfoCompnent>();
-	m_pStage1Objects[1]->SetPosition(XMFLOAT3(0, 0, 0));
-	m_pStage1Objects[1]->SetModel("Model/Fence.bin");
-	m_pStage1Objects[1]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pStage1Objects[1]->SetScale(1.0f, 1.0f, 1.0f);
-	m_pStage1Objects[1]->SetRimLight(false);*/
+	m_ppGameObjects.emplace_back(m_pStage1Objects[0]);
+	//m_pStage1Objects[1] = new GameObject(UNDEF_ENTITY);
+	//m_pStage1Objects[1]->InsertComponent<RenderComponent>();
+	//m_pStage1Objects[1]->InsertComponent<CLoadedModelInfoCompnent>();
+	//m_pStage1Objects[1]->SetPosition(XMFLOAT3(0, 0, 0));
+	//m_pStage1Objects[1]->SetModel("Model/New_Terrain.bin");
+	//m_pStage1Objects[1]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//m_pStage1Objects[1]->SetScale(30.0f, 30.0f, 30.0f);
+	//m_pStage1Objects[1]->SetRimLight(false);
 	/*m_pStage1Objects[2] = new GameObject(UNDEF_ENTITY);
 	m_pStage1Objects[2]->InsertComponent<RenderComponent>();
 	m_pStage1Objects[2]->InsertComponent<CLoadedModelInfoCompnent>();
@@ -1614,6 +1615,20 @@ void GameobjectManager::onProcessingMouseMessageUI(HWND hWnd, UINT nMessageID, W
 	default:
 		break;
 	}
+}
+
+float GameobjectManager::CalculateDistance(const XMFLOAT3& firstPosition, const XMFLOAT3& lastPosition)
+{
+	XMVECTOR firstVec = XMLoadFloat3(&firstPosition);
+	XMVECTOR lastVec = XMLoadFloat3(&lastPosition);
+
+	XMVECTOR diffVec = XMVectorSubtract(lastVec, firstVec);
+	XMVECTOR distanceVec = XMVector3Length(diffVec);
+
+	float distance;
+	XMStoreFloat(&distance, distanceVec);
+
+	return distance;
 }
 
 void GameobjectManager::SetPlayCharacter(Session* pSession) // 임시 함수

@@ -1047,6 +1047,19 @@ void GameObject::SetFileName(LPCTSTR pFileName)
 	m_pFileName = pFileName;
 }
 
+void GameObject::CalculateDistance(const XMFLOAT3& xmf3CameramPosition)
+{
+	XMVECTOR firstVec = XMLoadFloat3(&GetPosition());
+	XMVECTOR lastVec = XMLoadFloat3(&xmf3CameramPosition);
+
+	XMVECTOR diffVec = XMVectorSubtract(lastVec, firstVec);
+	XMVECTOR distanceVec = XMVector3Length(diffVec);
+
+
+	XMStoreFloat(&m_fDistance, distanceVec);
+
+}
+
 
 
 

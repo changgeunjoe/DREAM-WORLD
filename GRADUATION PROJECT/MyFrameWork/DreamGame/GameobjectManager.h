@@ -60,6 +60,8 @@ public:
 	virtual void onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	virtual void onProcessingMouseMessageUI(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
+	float CalculateDistance(const XMFLOAT3& firstPosition, const XMFLOAT3& lastPosition);
+
 private: //active object 
 	vector<GameObject*> m_ppGameObjects;
 	array<Projectile*, 10> m_pArrowObjects;
