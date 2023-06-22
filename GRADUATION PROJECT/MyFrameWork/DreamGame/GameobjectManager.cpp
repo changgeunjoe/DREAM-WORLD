@@ -1109,9 +1109,8 @@ void GameobjectManager::ProcessingUI(int n)
 			cout << "StartMatching" << endl;
 			g_NetworkHelper.SendMatchRequestPacket();
 			m_bInMatching = true;
-		
-			break;
 		}
+		break;
 	}
 	case UI::UI_WARRIORCHARACTER:
 	{
