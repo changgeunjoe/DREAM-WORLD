@@ -32,7 +32,7 @@ class TrailShaderComponent;
 class GameObject
 {
 public:
-	GameObject(entity_id entityID);
+	GameObject(entity_id entityID = UNDEF_ENTITY);
 	~GameObject();
 
 	void Update(float elapsedTime);

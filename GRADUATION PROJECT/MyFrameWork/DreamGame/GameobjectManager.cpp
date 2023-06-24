@@ -363,12 +363,62 @@ void GameobjectManager::StoryUIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	//}
 }
 
+void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, const char* fileName, CLoadedModelInfoCompnent* pModel, int type)
+{
+	ifstream objectFile(fileName);
+	
+	int objCount = 0;
+	vector<XMFLOAT3> tempPos;
+	vector<XMFLOAT3> tempExtentPos;
+	vector<XMFLOAT4> quaternion;
+
+	vector<XMFLOAT3> tempScale;
+	vector<XMFLOAT3> tempRotate;
+
+	while (!objectFile.eof())
+	{
+		// Position
+		// Scale
+		// Rotation
+		objCount++;
+		//BoundingOrientedBox a = BoundingOrientedBox(tempPos[0], tempExtentPos[0], quaternion[0]);
+	}
+
+
+	GameObject** tempObject = new GameObject * [objCount];	// 멤버 변수로 교체 예정
+	for (int i = 0; i < objCount; ++i)
+	{
+		tempObject[i]->InsertComponent<RenderComponent>();
+		tempObject[i]->InsertComponent<CLoadedModelInfoCompnent>();
+		tempObject[i]->SetPosition(tempPos[i]);
+		tempObject[i]->SetModel(pModel);
+		tempObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		tempObject[i]->Rotate(tempRotate[i].x, tempRotate[i].y, tempRotate[i].z);
+		tempObject[i]->SetScale(tempScale[i].x, tempScale[i].y, tempScale[i].z);
+		tempObject[i]->SetBoundingSize(0.2f);
+		m_ppGameObjects.emplace_back(tempObject[i]);
+	}
+
+	if (tempObject) delete[] tempObject;
+}
+
+
 void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {//빌드
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	BuildLight();
 
 	CLoadedModelInfoCompnent* ArrowModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Arrow.bin", NULL, true);
+	//CLoadedModelInfoCompnent* BossRockModel01 = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/BossRock01.bin", NULL, true);
+	//CLoadedModelInfoCompnent* BossRockModel02 = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/BossRock02.bin", NULL, true);
+	//CLoadedModelInfoCompnent* BossRockModel03 = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/BossRock03.bin", NULL, true);
+	//CLoadedModelInfoCompnent* TreeModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/TreeModel.bin", NULL, true);
+	//CLoadedModelInfoCompnent* MushroomModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/MushroomModel.bin", NULL, true);
+	//CLoadedModelInfoCompnent* BigMushroomModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/BigMushroomModel.bin", NULL, true);
+	//CLoadedModelInfoCompnent* FenceModel01 = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/FenceModel01.bin", NULL, true);
+	//CLoadedModelInfoCompnent* FenceModel02 = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/FenceModel02.bin", NULL, true);
+	//CLoadedModelInfoCompnent* FenceModel03 = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/FenceModel03.bin", NULL, true);
+	//CLoadedModelInfoCompnent* FenceModel04 = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/FenceModel04.bin", NULL, true);
 
 	m_pPlaneObject = new GameObject(UNDEF_ENTITY);
 	m_pPlaneObject->InsertComponent<RenderComponent>();
@@ -521,6 +571,8 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pSkyboxObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pSkyboxObject->SetScale(1, 1, 1);
 	m_pSkyboxObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+
+	if (ArrowModel) delete ArrowModel;
 
 #if LOCAL_TASK
 	// 플레이어가 캐릭터 선택하는 부분에 유사하게 넣을 예정
