@@ -12,8 +12,9 @@ public:
     void	ReadyComponent(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, GameObject* mpTrailObject);
     void	Update_Component(const float& fTimeDelta);
 
-    void			AddTrail(const XMFLOAT3& xmf3Top, XMFLOAT3& xmf3Bottom);
+    void			AddTrail( const XMFLOAT3& xmf3Top, const XMFLOAT3& xmf3Bottom);
     void			RenderTrail(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+    void			RenderAstar(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, vector<int>& vecNodeQueue);
     void			SetRenderingTrail(bool isOn);
 public:
     static TrailComponent* Create(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);

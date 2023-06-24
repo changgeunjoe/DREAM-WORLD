@@ -34,14 +34,19 @@ void Session::Recv()
 	memset(&m_exOver.m_overlap, 0, sizeof(m_exOver.m_overlap));
 	m_exOver.m_wsaBuf.len = MAX_BUF_SIZE - m_prevBufferSize;
 	m_exOver.m_wsaBuf.buf = m_exOver.m_buffer + m_prevBufferSize;
-	WSARecv(m_socket, &m_exOver.m_wsaBuf, 1, 0, &recv_flag, &m_exOver.m_overlap, 0);
+	int resRet = WSARecv(m_socket, &m_exOver.m_wsaBuf, 1, 0, &recv_flag, &m_exOver.m_overlap, 0);
+	if (resRet)
+		DisplayWsaGetLastError(WSAGetLastError());
 }
 
 void Session::Send(void* p)
 {
 	DWORD sendByte = 0;
 	ExpOver* sendOverlap = new ExpOver(reinterpret_cast<char*>(p));
-	WSASend(m_socket, &sendOverlap->m_wsaBuf, 1, &sendByte, 0, &sendOverlap->m_overlap, 0);
+	//std::cout << "send: " << (int)sendOverlap->m_buffer[2] << std::endl;
+	int resRet = WSASend(m_socket, &(sendOverlap->m_wsaBuf), 1, &sendByte, 0, &(sendOverlap->m_overlap), 0);
+	if (resRet)
+		DisplayWsaGetLastError(WSAGetLastError());
 	//std::cout << "sendByte: " << sendByte << std::endl;
 }
 
@@ -81,11 +86,33 @@ PlayerSessionObject* Session::SetPlaySessionObject(ROLE r)
 
 void Session::ResetPlayerToLobbyState()
 {
-	m_roomId.clear();
+	m_roomId = -1;
 	{
 		std::lock_guard < std::mutex>lg{ m_playerStateLock };
 		m_playerState = PLAYER_STATE::IN_GAME;
 	}
 	delete m_sessionObject;
 	m_sessionObject = nullptr;
+}
+
+void Session::ResetSession()
+{
+	{
+		std::lock_guard < std::mutex>lg{ m_playerStateLock };
+		m_playerState = PLAYER_STATE::FREE;
+	}
+	//play Character Session
+	if (m_sessionObject != nullptr)
+		delete m_sessionObject;
+	m_sessionObject = nullptr;
+	//player Info
+	m_id = -1;
+	m_roomId = -1;
+	m_playerName.clear();
+	//buffer
+	m_prevBufferSize = 0;
+	ZeroMemory(m_exOver.m_buffer, MAX_BUF_SIZE);	
+	//socket
+	closesocket(m_socket);
+	m_socket = NULL;
 }

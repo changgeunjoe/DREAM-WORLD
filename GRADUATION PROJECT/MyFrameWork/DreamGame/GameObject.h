@@ -11,6 +11,7 @@
 #include"UiShaderComponent.h"
 #include"MultiSpriteShaderComponent.h"
 #include"InstanceRenderComponent.h"
+#include"TerrainShaderComponent.h"
 //include"CLoadModelinfo.h"
 class DepthRenderShaderComponent;
 class CLoadedModelInfoCompnent;
@@ -20,6 +21,7 @@ class CAnimationController;
 class Projectile;
 class InstanceRenderComponent;
 class TrailShaderComponent;
+class TerrainShaderComponent;
 
 #define MATERIAL_ALBEDO_MAP				0x01
 #define MATERIAL_SPECULAR_MAP			0x02
@@ -113,8 +115,8 @@ public:
 
 	void AnimateRowColumn(float fTimeElapsed);
 
-    void SetRimLight(bool bRimLight);
-    void SetCurrentHP(float fHP);
+	void SetRimLight(bool bRimLight);
+	void SetCurrentHP(float fHP);
 	float GetCurrentHP() { return m_fHp; }
 	float GetMaxCurrentHP() { return m_fMaxHp; }
 	MeshComponent* GetMesh() { return m_pMeshComponent; };
@@ -167,13 +169,15 @@ public:
 
 
 	UINT							m_nType = 0x00;
-	char							m_pstrFrameName[64];
+	char							m_pstrFrameName[64]{};
 
 
-	CCamera*						m_pCamera{ nullptr };
+	CCamera* m_pCamera{ nullptr };
 	float                           m_fBoundingSize{ 8.0f };
 	BoundingSphere					m_SPBB = BoundingSphere(XMFLOAT3(0.0f, 0.0f, 0.0f), m_fBoundingSize);
-	GameObject*						m_VisualizeSPBB{ nullptr };
+	GameObject* m_VisualizeSPBB{ nullptr };
+
+	
 
 	int                             m_iRButtionCount = 0;
 
@@ -199,6 +203,7 @@ protected:
 
     wchar_t* pszFileNames{};
     char* pszModelNames{};
+	LPCTSTR m_pFileName{};
     
     //////////////////////Component/////////////////////////////////
     unordered_map<component_id, ComponentBase*> m_components;
@@ -211,13 +216,14 @@ protected:
     RenderComponent* m_pRenderComponent{ nullptr };
 	SphereMeshComponent* m_pSphereComponent{ nullptr };
 	TrailMeshComponent* m_pTrailMeshComponent{ nullptr };
+	HeihtMapMeshComponent* m_pHeihtMapMeshComponent{ nullptr };
     InstanceRenderComponent* m_pInstanceRenderComponent{ nullptr };//인스턴스 렌더 추가 23.04.26 .ccg
-    CLoadedModelInfoCompnent* m_pLoadedModelComponent{ nullptr };
+    
     MaterialComponent** m_ppMaterialsComponent{ nullptr };
     DepthRenderShaderComponent* m_pDepthShaderComponent{ nullptr };
     ShadowMapShaderComponent* m_pShadowMapShaderComponent{ nullptr };
-
-
+public:
+	CLoadedModelInfoCompnent* m_pLoadedModelComponent{ nullptr };
 protected:
 
 	ID3D12RootSignature* m_pd3dGraphicsRootSignature;
@@ -240,9 +246,9 @@ protected:
 	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);// 삭제 예정(변경)
 	int nObjects = 0;//삭제 예정(변경)
 
-    //인스턴스 데이터를 포함하는 버퍼와 포인터이다.23.04.23 ccg
+	//인스턴스 데이터를 포함하는 버퍼와 포인터이다.23.04.23 ccg
    /* ID3D12Resource *m_pd3dcbGameObjects = NULL;
-    VS_VB_INSTANCE* m_pcbMappedGameObjects = NULL;*/
+	VS_VB_INSTANCE* m_pcbMappedGameObjects = NULL;*/
 
 public:
 	void SetBoundingBox(GameObject* boundingbox) { m_VisualizeSPBB = boundingbox; }
@@ -259,10 +265,12 @@ public:
 	virtual void RbuttonClicked(float fTimeElapsed) {};
 	virtual void RbuttonUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f }) {};
 
+	void SetFileName(LPCTSTR pFileName);
+
 protected:
 	bool                            m_bLButtonClicked = false;
 	bool                            m_bRButtonClicked = false;
-	bool                            m_bMoveState = false;
+	atomic_bool                     m_bMoveState = false;
 
 protected:
 	CharacterType                   m_characterType = CharacterType::CT_NONE;
@@ -271,10 +279,12 @@ protected:
 	float                           m_fSpeed;
 	float                           m_fDamage;
 	float							m_projectilesLookY;
-	
+
 	float                           m_fTime{};
 	float                           m_fTimeElapsed{};
 	int                             m_nProjectiles{};
+
+	CHeightMapImage* m_pHeightMapImage;
 public:
 	array<Projectile*, 10>          m_pProjectiles;
 	void SetCharacterType(CharacterType type) { m_characterType = type; }
@@ -291,7 +301,7 @@ public:
 	XMFLOAT3						m_xmfHitPosition;
 	XMFLOAT3                        m_xmf3Destination;
 	float                           m_UIScale = 10.0f;
-	bool                            m_bUIActive{true};
+	bool                            m_bUIActive{ true };
 public:
 	float m_interpolationDistance = 0.0f;
 	XMFLOAT3 m_interpolationVector = XMFLOAT3{ 0,0,0 };
@@ -300,6 +310,10 @@ public:
 	GameObject* m_pHPBarUI{ NULL };
 	GameObject* m_pProfileUI{ NULL };
 	GameObject* m_pSkillUI{ NULL };
+	GameObject* m_pTrailStart{ NULL };
+	GameObject* m_pTrailEnd{ NULL };
+	std::queue<int> m_BossRoute;
+	std::mutex m_lockBossRoute;
 };
 
 template<typename T>//템플릿을 활용하는 이유-> 
@@ -321,54 +335,54 @@ inline T* GameObject::InsertComponent()//컴포넌트를 게임 오브젝트에 넣는 함수
 template<typename T>
 inline T* GameObject::ComponentType(component_id& componentID)
 {
-    if (typeid(T).name() == typeid(RenderComponent).name())
-    {
-        componentID = component_id::RENDER_COMPONENT;
-    }
-    else if (typeid(T).name() == typeid(InstanceRenderComponent).name())
-    {
-        componentID = component_id::INSRENDER_COMPONENT;
-    }
-    else if (typeid(T).name() == typeid(MeshComponent).name())
-    {
-        componentID = component_id::MESH_COMPONENT;
-    }
-    else if (typeid(T).name() == typeid(CubeMeshComponent).name())
-    {
-        componentID = component_id::CUBEMESH_COMPONENT;
-    }
-    else if (typeid(T).name() == typeid(SkyBoxMeshComponent).name())
-    {
-        componentID = component_id::SKYBOXMESH_COMPONENT;
-    }
-    else if (typeid(T).name() == typeid(UIMeshComponent).name())
-    {
-        componentID = component_id::UIMESH_COMPONENT;
-    }
+	if (typeid(T).name() == typeid(RenderComponent).name())
+	{
+		componentID = component_id::RENDER_COMPONENT;
+	}
+	else if (typeid(T).name() == typeid(InstanceRenderComponent).name())
+	{
+		componentID = component_id::INSRENDER_COMPONENT;
+	}
+	else if (typeid(T).name() == typeid(MeshComponent).name())
+	{
+		componentID = component_id::MESH_COMPONENT;
+	}
+	else if (typeid(T).name() == typeid(CubeMeshComponent).name())
+	{
+		componentID = component_id::CUBEMESH_COMPONENT;
+	}
+	else if (typeid(T).name() == typeid(SkyBoxMeshComponent).name())
+	{
+		componentID = component_id::SKYBOXMESH_COMPONENT;
+	}
+	else if (typeid(T).name() == typeid(UIMeshComponent).name())
+	{
+		componentID = component_id::UIMESH_COMPONENT;
+	}
 	else if (typeid(T).name() == typeid(SphereMeshComponent).name())
 	{
 		componentID = component_id::SPHEREMESH_COMPONENT;
 	}
-    else if (typeid(T).name() == typeid(ShaderComponent).name())
-    {
-        componentID = component_id::SHADER_COMPONENT;
-    }
-    else if (typeid(T).name() == typeid(SkyBoxShaderComponent).name())
-    {
-        componentID = component_id::SKYSHADER_COMPONENT;
-    }
-    else if (typeid(T).name() == typeid(UiShaderComponent).name())
-    {
-        componentID = component_id::UISHADER_COMPONENT;
-    }
+	else if (typeid(T).name() == typeid(ShaderComponent).name())
+	{
+		componentID = component_id::SHADER_COMPONENT;
+	}
+	else if (typeid(T).name() == typeid(SkyBoxShaderComponent).name())
+	{
+		componentID = component_id::SKYSHADER_COMPONENT;
+	}
+	else if (typeid(T).name() == typeid(UiShaderComponent).name())
+	{
+		componentID = component_id::UISHADER_COMPONENT;
+	}
 	else if (typeid(T).name() == typeid(BlendingUiShaderComponent).name())
 	{
 		componentID = component_id::BLENDINGUISHADER_COMPONENT;
 	}
-    else if (typeid(T).name() == typeid(MultiSpriteShaderComponent).name())
-    {
-        componentID = component_id::SPRITESHADER_COMPONENT;
-    }
+	else if (typeid(T).name() == typeid(MultiSpriteShaderComponent).name())
+	{
+		componentID = component_id::SPRITESHADER_COMPONENT;
+	}
 	else if (typeid(T).name() == typeid(BoundingBoxShaderComponent).name())
 	{
 		componentID = component_id::BOUNDINGBOX_COMPONENT;
@@ -381,9 +395,17 @@ inline T* GameObject::ComponentType(component_id& componentID)
 	{
 		componentID = component_id::TRAILSHADER_COMPONENT;
 	}
+	else if (typeid(T).name() == typeid(TerrainShaderComponent).name())
+	{
+		componentID = component_id::TERRAINSHADER_COMPONENT;
+	}
 	else if (typeid(T).name() == typeid(TrailMeshComponent).name())
 	{
 		componentID = component_id::TRAILMESH_COMPONENT;
+	}
+	else if (typeid(T).name() == typeid(HeihtMapMeshComponent).name())
+	{
+		componentID = component_id::HEIGHTMESH_COMPONENT;
 	}
     else if (typeid(T).name() == typeid(TextureComponent).name())
     {
@@ -393,7 +415,10 @@ inline T* GameObject::ComponentType(component_id& componentID)
     {
         componentID = component_id::LOADEDMODEL_COMPONET;
     }
-
+	else if (typeid(T).name() == typeid(NaviMeshShaderComponent).name())
+	{
+		componentID = component_id::NAVIMESHSHADER_COMPONENT;
+	}
     else
     {
         componentID = component_id::UNDEF_COMPONENT;

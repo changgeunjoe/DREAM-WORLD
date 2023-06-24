@@ -137,8 +137,10 @@ namespace SERVER_PACKET {
 	constexpr unsigned char BOSS_ATTACK = 87;
 	constexpr unsigned char HIT_BOSS_MAGE = 88;
 	constexpr unsigned char GAME_END = 89;
+	constexpr unsigned char BOSS_MOVE_NODE = 90;
+	constexpr unsigned char DUPLICATED_LOGIN = 91;//중복된 로그인이 들어왔다
+	constexpr unsigned char PRE_EXIST_LOGIN = 92; //이미 로그인된 아이디다
 
-	
 
 	struct MovePacket
 	{
@@ -218,7 +220,7 @@ namespace SERVER_PACKET {
 		bool RClickedButton;
 	};
 
-	struct BossChangeStateMovePacket {
+	struct BossChangeStateMovePacket {//이걸 수정해야할듯?
 		short size;
 		char type;
 		DirectX::XMFLOAT3 desPos;
@@ -268,6 +270,16 @@ namespace SERVER_PACKET {
 		char type;
 		XMFLOAT3 pos;
 	};
+
+	struct BossMoveNodePacket {
+		short size;
+		char type;
+		DirectX::XMFLOAT3 bossPos;
+		DirectX::XMFLOAT3 desPos;
+		int nodeCnt;
+		int node[40];
+	};
+
 }
 
 #pragma pack (pop)

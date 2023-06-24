@@ -8,6 +8,8 @@
 #include "Network/NetworkHelper.h"
 #include "Network/Logic/Logic.h"
 #include "Network/Room/RoomManger.h"
+#include "Network/MapData/MapData.h"
+
 
 #ifdef _DEBUG
 #ifdef UNICODE
@@ -21,6 +23,8 @@ CGameFramework gGameFramework;
 NetworkHelper g_NetworkHelper;
 Logic g_Logic;
 RoomManger g_RoomManager;
+MapData g_bossMapData;
+
 bool GameEnd = false;
 
 HWND g_wnd;
@@ -48,7 +52,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
 	// TODO: 여기에 코드를 입력합니다.
-
+	g_bossMapData.SetFileName(std::filesystem::current_path().string().append("\\\Network\\\MapData\\\BossRoom.txt"));
+	g_bossMapData.GetReadMapData();
 #ifndef LOCAL_TASK
 	while (!g_NetworkHelper.TryConnect());
 	g_NetworkHelper.Start();

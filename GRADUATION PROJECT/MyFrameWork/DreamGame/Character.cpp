@@ -3,10 +3,12 @@
 #include "Animation.h"
 #include "Network/NetworkHelper.h"
 #include "Network/Logic/Logic.h"
+#include "Network/MapData/MapData.h"
 
 extern Logic g_Logic;
 extern NetworkHelper g_NetworkHelper;
 extern bool GameEnd;
+extern MapData g_bossMapData;
 
 Character::Character() : GameObject(UNDEF_ENTITY)
 {
@@ -877,6 +879,21 @@ void Monster::Animate(float fTimeElapsed)
 	}
 	if (m_bMoveState)	// 움직이는 중
 	{
+		m_lockBossRoute.lock();
+		if (!m_BossRoute.empty())
+		{
+			if (Vector3::Length(Vector3::Subtract(m_xmf3Destination, GetPosition())) < 40.0f)
+			{
+				cout << "현재 보스 이동 인덱스 : " << m_BossRoute.front() << endl;
+				TrinangleMesh tempTriangle = g_bossMapData.GetTriangleMesh(m_BossRoute.front());
+				m_xmf3Destination = tempTriangle.GetCenter();
+				m_BossRoute.pop();
+			}
+			m_lockBossRoute.unlock();
+		}
+		else {
+			m_lockBossRoute.unlock();			
+		}
 		XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f);
 		XMFLOAT3 des = Vector3::Subtract(m_xmf3Destination, GetPosition());
 		bool OnRight = (Vector3::DotProduct(GetRight(), Vector3::Normalize(des)) > 0) ? true : false;
@@ -1003,7 +1020,7 @@ void Arrow::Animate(float fTimeElapsed)
 	MoveForward(fTimeElapsed * m_fSpeed);
 	XMFLOAT3 xmf3CurrentPos = GetPosition();
 	if (m_VisualizeSPBB) m_VisualizeSPBB->SetPosition(XMFLOAT3(GetPosition().x, GetPosition().y, GetPosition().z));
-	if (Vector3::Length(xmf3CurrentPos) >= 345.0f)
+	if (Vector3::Length(xmf3CurrentPos) >= PLAYER_MAX_RANGE)
 	{
 		m_bActive = false;
 		m_RAttack = false;
@@ -1047,7 +1064,7 @@ void EnergyBall::Animate(float fTimeElapsed)
 	Move(m_xmf3direction, fTimeElapsed * m_fSpeed);
 	XMFLOAT3 xmf3CurrentPos = GetPosition();
 	if (m_VisualizeSPBB) m_VisualizeSPBB->SetPosition(XMFLOAT3(GetPosition().x, GetPosition().y, GetPosition().z));
-	if (Vector3::Length(xmf3CurrentPos) >= 345.0f) m_bActive = false;
+	if (Vector3::Length(xmf3CurrentPos) >= PLAYER_MAX_RANGE) m_bActive = false;
 	if (Vector3::Length(Vector3::Subtract(xmf3CurrentPos, m_xmf3startPosition)) > 200.0f)
 	{
 		m_bActive = false;

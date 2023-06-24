@@ -3,131 +3,87 @@
 
 RoomManager::RoomManager()
 {
+	for (int i = 0; i < m_roomArr.size(); i++)
+		m_roomArr[i].SetRoomId(i);
 }
 
 RoomManager::~RoomManager()
 {
 }
 
-bool RoomManager::InsertRecruitingRoom(std::string& roomId, std::wstring& roomName, int createPlayerId, ROLE r)
+int RoomManager::GetRoomId()
 {
-	std::lock_guard<std::mutex> lg{ m_RecruitRoomListLock };
-	if (m_RecruitingRoomList.count(roomId) > 0)return false;
-	m_RecruitingRoomList.try_emplace(roomId, roomId, roomName, createPlayerId, r);
-	return true;
-}
-
-void RoomManager::ChangeRecruitToRunning(std::string& roomId)
-{
-	Room changeRoom;
 	{
-		std::lock_guard<std::mutex> lg{ m_RecruitRoomListLock };
-		changeRoom = m_RecruitingRoomList[roomId];
-		m_RecruitingRoomList.erase(roomId);
-	}
-	InsertRunningRoom(changeRoom);
-}
-
-void RoomManager::InsertRunningRoom(Room& recruitRoom)
-{
-	std::lock_guard<std::mutex> lg{ m_runningRoomListLock };
-	m_RunningRoomList.emplace(recruitRoom.GetRoomId(), recruitRoom);
-}
-
-bool RoomManager::InsertRunningRoom(std::string& roomId, int player1, int player2, int player3, int player4)
-{
-	std::lock_guard<std::mutex> lg{ m_runningRoomListLock };
-	if (m_RunningRoomList.count(roomId) > 0)return false;
-	m_RunningRoomList.try_emplace(roomId, roomId, player1, player2, player3, player4);
-	return true;
-}
-
-bool RoomManager::InsertRunningRoom(std::string& roomId, std::wstring& roomName, std::map<ROLE, int>& PlayerInfo)
-{
-	std::lock_guard<std::mutex> lg{ m_runningRoomListLock };
-	if (m_RunningRoomList.count(roomId) > 0)return false;
-	m_RunningRoomList.try_emplace(roomId, roomId, roomName);
-	m_RunningRoomList[roomId].InsertInGamePlayer(PlayerInfo);
-	return true;
-}
-
-std::vector<Room> RoomManager::GetRecruitingRoomList()
-{
-	std::vector<Room> resRoom;
-	{
-		std::lock_guard<std::mutex> lg{ m_RecruitRoomListLock };
-		for (const auto& r : m_RecruitingRoomList) {
-			resRoom.push_back(r.second);
+		std::lock_guard<std::mutex> lg{ m_currentLastRoomIdLock };
+		if (m_currentLastRoomId < MAX_USER / 4) {
+			std::lock_guard<std::mutex> lg{ m_runningRoomSetLock };
+			m_runningRoomIdSet.insert(m_currentLastRoomId);
+			return m_currentLastRoomId++;
 		}
 	}
-	return resRoom;
+	int restRoomId = -1;
+	m_restRoomId.try_pop(restRoomId);
+	std::lock_guard<std::mutex> lg{ m_runningRoomSetLock };
+	m_runningRoomIdSet.insert(restRoomId);
+	return restRoomId;
 }
 
-std::vector<Room> RoomManager::GetRunningRoomList()
+Room& RoomManager::GetRunningRoomRef(int id)
 {
-	std::vector<Room> resRoom;
-	{
-		std::lock_guard<std::mutex> lg{ m_runningRoomListLock };
-		for (const auto& r : m_RunningRoomList) {
-			resRoom.push_back(r.second);
-		}
-	}
-	return resRoom;
-}
+	return m_roomArr[id];
+};
 
-std::vector<std::string> RoomManager::GetRunningRoomIdList()
+void RoomManager::RoomDestroy(int roomId)
 {
-	std::vector<std::string> resRoom;
-	{
-		std::lock_guard<std::mutex> lg{ m_runningRoomListLock };
-		for (const auto& r : m_RunningRoomList) {
-			resRoom.push_back(r.first);
-		}
-	}
-	return resRoom;
-}
-
-std::vector<std::string> RoomManager::GetRecruitingRoomIdList()
-{
-	std::vector<std::string> resRoom;
-	{
-		std::lock_guard<std::mutex> lg{ m_RecruitRoomListLock };
-		for (const auto& r : m_RecruitingRoomList) {
-			resRoom.push_back(r.first);
-		}
-	}
-	return resRoom;
-}
-
-bool RoomManager::IsExistRecruitRoom(std::string& roomId)
-{
-	return m_RecruitingRoomList.count(roomId);
-}
-
-bool RoomManager::IsExistRunningRoom(std::string& roomId)
-{
-	return m_RunningRoomList.count(roomId);
-}
-
-Room& RoomManager::GetRunningRoom(std::string& roomId)
-{
-	return m_RunningRoomList[roomId];
-}
-
-Room& RoomManager::GetRecuritRoom(std::string& roomId)
-{
-	return m_RecruitingRoomList[roomId];
+	m_roomArr[roomId].GameEnd();
+	std::lock_guard<std::mutex> lg{ m_runningRoomSetLock };
+	m_runningRoomIdSet.erase(roomId);
 }
 
 void RoomManager::RunningRoomLogic()
 {
-	std::lock_guard<std::mutex> lg{ m_runningRoomListLock };
-	for (auto& room : m_RunningRoomList)
-		room.second.GameRunningLogic();
+	std::set<int> runningRoomSet;
+	{
+		std::lock_guard<std::mutex> lg{ m_runningRoomSetLock };
+		runningRoomSet = m_runningRoomIdSet;
+	}
+	for (auto a : runningRoomSet) {
+		m_roomArr[a].GameRunningLogic();
+	}
 }
 
-void RoomManager::RoomDestroy(std::string roomId)
+void RoomManager::BossFindPlayer(int roomId)
 {
-	std::lock_guard<std::mutex> lg{ m_runningRoomListLock };
-	m_RunningRoomList.erase(roomId);
+	{
+		std::lock_guard<std::mutex> lg{ m_runningRoomSetLock };
+		if (!m_runningRoomIdSet.count(roomId)) return;
+	}
+	m_roomArr[roomId].BossFindPlayer();
+}
+
+void RoomManager::ChangeBossState(int roomId)
+{
+	{
+		std::lock_guard<std::mutex> lg{ m_runningRoomSetLock };
+		if (!m_runningRoomIdSet.count(roomId)) return;
+	}
+	m_roomArr[roomId].ChangeBossState();
+}
+
+void RoomManager::UpdateGameStateForPlayer(int roomId)
+{
+	{
+		std::lock_guard<std::mutex> lg{ m_runningRoomSetLock };
+		if (!m_runningRoomIdSet.count(roomId)) return;
+	}
+	m_roomArr[roomId].UpdateGameStateForPlayer();
+}
+
+void RoomManager::BossAttackExecute(int roomId)
+{
+	{
+		std::lock_guard<std::mutex> lg{ m_runningRoomSetLock };
+		if (!m_runningRoomIdSet.count(roomId)) return;
+	}
+	m_roomArr[roomId].BossAttackExecute();
 }

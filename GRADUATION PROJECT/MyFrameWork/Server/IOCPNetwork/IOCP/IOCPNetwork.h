@@ -25,7 +25,7 @@ private:
 	volatile bool b_isRunning;
 private:
 	int		m_currentClientId;
-
+	concurrency::concurrent_queue<int> m_restClientId;
 public:
 	std::array<Session, MAX_USER> m_session;
 public:
@@ -40,7 +40,8 @@ private:
 	void Initialize();
 	void WorkerThread();
 	int GetUserId();
-
+public:
+	void DisconnectClient(int id);
 public:
 	int GetCurrentId() { return m_currentClientId; };
 	HANDLE& GetIocpHandle() {

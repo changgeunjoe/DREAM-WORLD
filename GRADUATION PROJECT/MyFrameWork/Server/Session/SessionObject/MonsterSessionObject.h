@@ -6,7 +6,7 @@ class MonsterSessionObject : public SessionObject
 {
 public:
 	MonsterSessionObject();
-	MonsterSessionObject(std::string& roomId);
+	MonsterSessionObject(int& roomId);
 	virtual ~MonsterSessionObject();
 
 private:
@@ -16,6 +16,9 @@ private:
 private:
 	int m_aggroPlayerId = -1;
 	int m_newAggroPlayerId = -1;
+	std::mutex m_reserveRoadLock;
+	std::list<int> m_ReserveRoad;
+	int m_onIdx = -1;
 public:
 	std::atomic_bool  isMove = false;
 	std::atomic_bool isAttack = false;
@@ -37,9 +40,7 @@ public:
 	void SetDirection(DIRECTION d);
 	void Move(float fDistance, float elapsedTime);
 public:
-	void SetDestinationPos(DirectX::XMFLOAT3 des) {
-		m_DestinationPos = des;
-	}
+	void SetDestinationPos(DirectX::XMFLOAT3 des);
 	void SetRestRotateAngle(ROTATE_AXIS axis, float angle) {
 		switch (axis)
 		{
@@ -63,7 +64,7 @@ public:
 	void SetAggroPlayerId();
 	int GetAggroPlayerId() { return m_aggroPlayerId; }
 	void AttackTimer();
-	void AttackPlayer(int restCount);
+	void AttackPlayer();
 	bool StartAttack();
 	///////////////
 public:

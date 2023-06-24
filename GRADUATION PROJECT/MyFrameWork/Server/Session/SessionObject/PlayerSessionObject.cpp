@@ -38,7 +38,7 @@ void PlayerSessionObject::AutoMove()
 	CalcRightVector();
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	double durationTime = std::chrono::duration_cast<std::chrono::microseconds>(currentTime - m_lastMoveTime).count();
-	durationTime = (double)durationTime / 1000.0f;	
+	durationTime = (double)durationTime / 1000.0f;
 	Move(((float)durationTime / 1000.0f) * 50.0f);
 	m_lastMoveTime = currentTime;
 	// std::cout << "current Position " << m_position.x << " " << m_position.y << " " << m_position.z << std::endl;	
@@ -150,7 +150,7 @@ void PlayerSessionObject::Move(float fDistance)
 		case DIRECTION::LEFT:
 		case DIRECTION::FRONT | DIRECTION::LEFT:
 			DirectX::XMFLOAT3 tempPos = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, fDistance));
-			if (Vector3::Length(tempPos) < 350.0f) m_position = tempPos;
+			if (Vector3::Length(tempPos) < 288.0f) m_position = tempPos;
 		default: break;
 		}
 	}

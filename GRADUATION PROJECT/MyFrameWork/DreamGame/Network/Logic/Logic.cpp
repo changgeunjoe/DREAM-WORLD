@@ -9,6 +9,7 @@
 #include "../../Character.h"
 #include "../NetworkHelper.h"
 
+
 extern CGameFramework gGameFramework;
 extern RoomManger g_RoomManager;
 extern NetworkHelper g_NetworkHelper;
@@ -412,6 +413,10 @@ void Logic::ProcessPacket(char* p)
 		XMFLOAT3 bossLookVector = monsterObject->GetLook();
 		XMFLOAT3 bossRightVector = monsterObject->GetRight();
 		high_resolution_clock::time_point h_t = high_resolution_clock::now();
+
+		std::cout << "local boss Dir: : " << bossLookVector.x << ", " << bossLookVector.y << ", " << bossLookVector.z << endl;
+		std::cout << "server boss Dir: : " << recvPacket->bossState.directionVector.x << ", " << recvPacket->bossState.directionVector.y << ", " << recvPacket->bossState.directionVector.z << endl;
+
 		XMFLOAT3 bossInterpolationVector = Vector3::Subtract(recvPacket->bossState.pos, bossPos);
 
 		double bosDurationTime = duration_cast<microseconds>(currentUTC_Time - recvPacket->time).count();
@@ -430,20 +435,24 @@ void Logic::ProcessPacket(char* p)
 
 		//rot
 		bool OnRight = (Vector3::DotProduct(bossRightVector, Vector3::Normalize(recvPacket->bossState.directionVector)) > 0) ? true : false;	// 목적지가 올느쪽 왼
+
 		float bossRotBetweenAngle = Vector3::Angle(Vector3::Normalize(recvPacket->bossState.directionVector), bossLookVector);
-		float bossInterpolationAngle = abs(bossRotBetweenAngle) - bosDurationTime * 90.0f;
+		cout << "boss Rot Between Angle: " << bossRotBetweenAngle << " Degree" << endl;
+		float bossInterpolationAngle = bossRotBetweenAngle - bosDurationTime * 90.0f;
 		//PrintCurrentTime();
 		//cout << endl << "bossBetweenAngle: " << bossRotBetweenAngle << endl;
-		//cout << "bossBetweenAngle Interpolation: " << bossInterpolationAngle << endl;
-		if (bossInterpolationAngle < DBL_EPSILON || bossInterpolationDistance < 0)
+		//cout << "bossBetweenAngle Interpolation: " << bossInterpolationAngle << endl;		
+		if (bossInterpolationAngle < 0) {
 			m_MonsterSession.m_currentPlayGameObject->m_interpolationRotateAngleY = 0.0;
-		else if (abs(bossInterpolationAngle) > 5.0f) {
-			OnRight ? m_MonsterSession.m_currentPlayGameObject->Rotate(0, bossRotBetweenAngle, 0) :
-				m_MonsterSession.m_currentPlayGameObject->Rotate(0, -bossRotBetweenAngle, 0);
 		}
+		//else if (abs(bossInterpolationAngle) < 5.0f) {
+		//	OnRight ? m_MonsterSession.m_currentPlayGameObject->Rotate(0, bossRotBetweenAngle, 0) :
+		//		m_MonsterSession.m_currentPlayGameObject->Rotate(0, -bossRotBetweenAngle, 0);
+		//}
 		else {
-			OnRight ? m_MonsterSession.m_currentPlayGameObject->m_interpolationRotateAngleY = bossRotBetweenAngle :
-				m_MonsterSession.m_currentPlayGameObject->m_interpolationRotateAngleY = -bossRotBetweenAngle;
+			std::cout << "force Set Interpolation Rotate: " << bossInterpolationAngle << endl;
+			OnRight ? m_MonsterSession.m_currentPlayGameObject->m_interpolationRotateAngleY = bossInterpolationAngle :
+				m_MonsterSession.m_currentPlayGameObject->m_interpolationRotateAngleY = -bossInterpolationAngle;
 		}
 
 
@@ -462,23 +471,26 @@ void Logic::ProcessPacket(char* p)
 
 
 		//pos
-		if (bossPosDistance < DBL_EPSILON) {
-			m_MonsterSession.m_currentPlayGameObject->m_interpolationDistance = 0.0f;
-		}
-		else if (bossInterpolationDistance < 0) {
+		//if (bossPosDistance < DBL_EPSILON) {
+		//	m_MonsterSession.m_currentPlayGameObject->m_interpolationDistance = 0.0f;
+		//	m_MonsterSession.m_currentPlayGameObject->m_interpolationVector = XMFLOAT3{ 0,0,0 };
+		//}
+		if (bossInterpolationDistance < DBL_EPSILON) {
 			m_MonsterSession.m_currentPlayGameObject->m_interpolationDistance = 0.0f;
 			m_MonsterSession.m_currentPlayGameObject->m_interpolationVector = XMFLOAT3{ 0,0,0 };
 		}
-		else if (abs(bossInterpolationDistance) > 10.0f) {
+		else if (abs(bossInterpolationDistance) > 50.0f) {
+			std::cout << "force Set Position" << endl;
 			m_MonsterSession.m_currentPlayGameObject->SetPosition(recvPacket->bossState.pos);
 		}
-		else if (abs(bossInterpolationDistance) < 5.0f) {
-			m_MonsterSession.m_currentPlayGameObject->m_interpolationDistance = 0.0f;
-		}
 		else {
+			std::cout << "force Set Interpolation Position: " << bossInterpolationDistance << endl;
 			m_MonsterSession.m_currentPlayGameObject->m_interpolationDistance = abs(bossInterpolationDistance);
 			m_MonsterSession.m_currentPlayGameObject->m_interpolationVector = Vector3::Normalize(bossInterpolationVector);
 		}
+		//else if (abs(bossInterpolationDistance) < 5.0f) {
+		//	m_MonsterSession.m_currentPlayGameObject->m_interpolationDistance = 0.0f;
+		//}
 
 
 		//Player Session
@@ -553,7 +565,7 @@ void Logic::ProcessPacket(char* p)
 	{
 		auto durationTime = chrono::duration_cast<milliseconds>(chrono::high_resolution_clock::now() - attckPacketRecvTime);
 		attckPacketRecvTime = chrono::high_resolution_clock::now();
-		cout << "Attack Packet recv ElapsedTime: " << durationTime << endl;
+		std::cout << "Attack Packet recv ElapsedTime: " << durationTime << endl;
 		SERVER_PACKET::BossAttackPacket* recvPacket = reinterpret_cast<SERVER_PACKET::BossAttackPacket*>(p);
 
 		if (!GameEnd)
@@ -599,6 +611,62 @@ void Logic::ProcessPacket(char* p)
 		//지금은 바로 게임 종료 확인하는 패킷 서버로 전송하게 구현함
 		m_MonsterSession.m_currentPlayGameObject->SetCurrentHP(0.0f);
 		GameEnd = true;
+
+	}
+	break;
+	case SERVER_PACKET::BOSS_MOVE_NODE:
+	{
+		// 현재 시점에서 경로 Clear
+		//std::queue<int> emptyQueue;
+		//std::swap(m_MonsterSession.m_currentPlayGameObject->m_BossRoute, emptyQueue);
+
+
+		SERVER_PACKET::BossMoveNodePacket* recvPacket = reinterpret_cast<SERVER_PACKET::BossMoveNodePacket*>(p);
+		std::queue<int> recvNodeQueue;
+		gGameFramework.m_pScene->m_pObjectManager->m_nodeLock.lock();
+		gGameFramework.m_pScene->m_pObjectManager->m_VecNodeQueue.clear();
+		gGameFramework.m_pScene->m_pObjectManager->m_nodeLock.unlock();
+		cout << "보스 이동 인덱스 : ";
+		if (recvPacket->nodeCnt == -1) {
+			m_MonsterSession.m_currentPlayGameObject->m_lockBossRoute.lock();
+			m_MonsterSession.m_currentPlayGameObject->m_BossRoute.swap(recvNodeQueue);
+			m_MonsterSession.m_currentPlayGameObject->m_lockBossRoute.unlock();
+			m_MonsterSession.m_currentPlayGameObject->m_xmf3Destination = recvPacket->desPos;
+		}
+		else if (recvPacket->nodeCnt > -1) {
+			vector<int> triangleIdxVec;
+			for (int i = 0; i < recvPacket->nodeCnt; i++) {
+				//보스가 이동할 노드 데이터
+				// 받아온 노드들 벡터에 새로 넣기
+				cout << recvPacket->node[i] << ", " << endl;
+				recvNodeQueue.push(recvPacket->node[i]);
+				triangleIdxVec.push_back(recvPacket->node[i]);
+			}
+			//gGameFramework.m_pScene->m_pObjectManager->m_VecNodeQueue.push_back(recvPacket->node[i]);				
+			gGameFramework.m_pScene->m_pObjectManager->m_nodeLock.lock();
+			gGameFramework.m_pScene->m_pObjectManager->m_VecNodeQueue.swap(triangleIdxVec);
+			gGameFramework.m_pScene->m_pObjectManager->m_nodeLock.unlock();
+
+			m_MonsterSession.m_currentPlayGameObject->m_lockBossRoute.lock();
+			m_MonsterSession.m_currentPlayGameObject->m_BossRoute.swap(recvNodeQueue);
+			m_MonsterSession.m_currentPlayGameObject->m_lockBossRoute.unlock();
+		}
+
+		m_MonsterSession.m_currentPlayGameObject->SetMoveState(true);
+		cout << endl;
+	}
+	break;
+	case SERVER_PACKET::PRE_EXIST_LOGIN://이미 존재하는 플레이어가 있기 때문에, 지금 들어온 플레이어(내 클라이언트는) 접속 해제 패킷을 수신
+	{
+		//알림 메세지 띄우고, 다시 접속은 해야하네...;;
+		EndDialog(loginWnd, IDCANCEL);
+		//ShowWindow(g_wnd, g_cmd);//이 윈도우가 아닌 로그인 중복 확인창 띄워야 됨
+		//UpdateWindow(g_wnd);
+	}
+	break;
+	case SERVER_PACKET::DUPLICATED_LOGIN://접속해 있었지만(내 클라이언트) 중복로그인을 함
+	{
+		EndDialog(g_wnd, IDCANCEL);
 
 	}
 	break;

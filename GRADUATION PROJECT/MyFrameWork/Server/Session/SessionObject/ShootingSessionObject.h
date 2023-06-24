@@ -1,6 +1,8 @@
 #pragma once
-#include "SessionObject.h"
+#ifdef _DEBUG
 #include "../../PCH/stdafx.h"
+#endif
+#include "SessionObject.h"
 
 class Session;
 class MonsterSessionObject;
@@ -14,10 +16,9 @@ private:
 public:
 	bool m_active = false;
 	ShootingSessionObject();
-	ShootingSessionObject(std::string& roomId);
+	ShootingSessionObject(int& roomId);
 	virtual ~ShootingSessionObject();
-private:
-	std::string m_roomId;
+private:	
 	float m_speed;
 public:
 	virtual void AutoMove();
@@ -33,7 +34,7 @@ public:
 	void SetStart(XMFLOAT3& dir, XMFLOAT3& srcPos, float speed);
 	void Move(float distance);
 public:
-	void SetInfo(std::string& roomId, int idx)
+	void SetInfo(int& roomId, int idx)
 	{
 		m_id = idx;
 		m_roomId = roomId;

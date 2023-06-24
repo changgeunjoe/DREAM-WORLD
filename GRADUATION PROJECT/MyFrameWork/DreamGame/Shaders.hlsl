@@ -448,6 +448,11 @@ float4 PSSphere(VS_BOUNDING_BOX_OUTPUT input) : SV_TARGET
 {
     return(float4(0.97f, 0.99f, 0.73f, 1.0f));
 }
+
+float4 PSNaviMesh(VS_BOUNDING_BOX_OUTPUT input) : SV_TARGET
+{
+    return(float4(1.0f, 0.6f, 0.0f, 0.3f));
+}
 //////////////////////////////////////////////////////////////////////////shadow
 
 
@@ -678,6 +683,47 @@ float4 PSTextureToViewport(VS_TEXTURED_OUTPUT input) : SV_Target
 
     return ((float4) (fDepthFromLight0 * 0.8f));
 }
+
+
+struct VS_TERRAIN_INPUT
+{
+    float3 position : POSITION;
+    float4 color : COLOR;
+    float2 uv0 : TEXCOORD0;
+    float2 uv1 : TEXCOORD1;
+};
+
+struct VS_TERRAIN_OUTPUT
+{
+    float4 position : SV_POSITION;
+    float4 color : COLOR;
+    float2 uv0 : TEXCOORD0;
+    float2 uv1 : TEXCOORD1;
+};
+
+VS_TERRAIN_OUTPUT VSTerrain(VS_TERRAIN_INPUT input)
+{
+    VS_TERRAIN_OUTPUT output;
+
+    output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+    output.color = input.color;
+    
+    output.uv0 = float2(0, 1);
+    output.uv1 = input.uv1;
+
+    return (output);
+}
+
+float4 PSTerrain(VS_TERRAIN_OUTPUT input) : SV_TARGET
+{
+    float4 cColor = shaderTexture.Sample(gWrapSamplerState, input.uv0);
+    //float4 cDetailTexColor = gtxtTerrainDetailTexture.Sample(gssWrap, input.uv1);
+//	float4 cColor = saturate((cBaseTexColor * 0.5f) + (cDetailTexColor * 0.5f));
+  //  float4 cColor = input.color * saturate((cBaseTexColor * 0.5f) + (cDetailTexColor * 0.5f));
+
+    return (cColor);
+}
+
 
 
 

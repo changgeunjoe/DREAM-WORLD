@@ -13,11 +13,11 @@ private:
 	ExpOver				m_exOver;
 	SOCKET				m_socket;
 	int					m_prevBufferSize;
-	std::wstring m_playerName;
+	std::wstring		m_playerName;
 
 public:
 	PlayerSessionObject* m_sessionObject;
-	std::string m_roomId;
+	int m_roomId;
 public:
 	Session();
 	~Session();
@@ -37,12 +37,12 @@ public:
 	const int GetId() { return m_id; }
 	const PLAYER_STATE GetPlayerState() { return m_playerState; };
 public:
-	void SetRoomId(std::string& roomId) {
+	void SetRoomId(int roomId) {
 		std::lock_guard<std::mutex> psLock(m_playerStateLock);
 		m_playerState = PLAYER_STATE::IN_GAME_ROOM;
 		m_roomId = roomId;
 	}
-	std::string GetRoomId() { return m_roomId; }
+	int GetRoomId() { return m_roomId; }
 	void RegistPlayer(SOCKET& sock, int id);
 
 public:
@@ -54,5 +54,7 @@ public:
 public:
 	PlayerSessionObject* SetPlaySessionObject(ROLE r);
 	void ResetPlayerToLobbyState();
+public:
+	void ResetSession();
 	friend class SessionObject;
 };

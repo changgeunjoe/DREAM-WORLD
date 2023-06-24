@@ -73,9 +73,6 @@
     <Filter Include="03.GameObject">
       <UniqueIdentifier>{17df3cf6-eb98-427d-8b51-f2470adea1d4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="03.GameObject\Light">
-      <UniqueIdentifier>{9b6c0702-22de-46fd-aece-29beee9dd564}</UniqueIdentifier>
-    </Filter>
     <Filter Include="03.GameObject\Camera">
       <UniqueIdentifier>{a2cbdec2-2b33-4aa5-a878-b8e7f2354141}</UniqueIdentifier>
     </Filter>
@@ -123,6 +120,12 @@
     </Filter>
     <Filter Include="04.Component\ShaderComponent\MultySpriteShaderComponent">
       <UniqueIdentifier>{9ded933d-5c12-4738-92f7-a0fa5be3578c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="04.Component\ShaderComponent\TerrainShaderComponent">
+      <UniqueIdentifier>{bd4b3a56-2756-4a76-8d2b-479540699d3e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.GameObject\Camera\Light">
+      <UniqueIdentifier>{9b6c0702-22de-46fd-aece-29beee9dd564}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -175,7 +178,7 @@
       <Filter>03.GameObject</Filter>
     </ClInclude>
     <ClInclude Include="Light.h">
-      <Filter>03.GameObject\Light</Filter>
+      <Filter>03.GameObject\Camera\Light</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
       <Filter>03.GameObject\Camera</Filter>
@@ -255,6 +258,12 @@
     <ClInclude Include="TrailShaderComponent.h">
       <Filter>04.Component\ShaderComponent\TrailShaderComponent</Filter>
     </ClInclude>
+    <ClInclude Include="TerrainShaderComponent.h">
+      <Filter>04.Component\ShaderComponent\TerrainShaderComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\MapData\MapData.h">
+      <Filter>10.NetworkHelper\Room</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -300,7 +309,7 @@
       <Filter>03.GameObject</Filter>
     </ClCompile>
     <ClCompile Include="Light.cpp">
-      <Filter>03.GameObject\Light</Filter>
+      <Filter>03.GameObject\Camera\Light</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>03.GameObject\Camera</Filter>
@@ -376,6 +385,12 @@
     </ClCompile>
     <ClCompile Include="TrailShaderComponent.cpp">
       <Filter>04.Component\ShaderComponent\TrailShaderComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainShaderComponent.cpp">
+      <Filter>04.Component\ShaderComponent\TerrainShaderComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\MapData\MapData.cpp">
+      <Filter>10.NetworkHelper\Room</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

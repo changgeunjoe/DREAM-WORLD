@@ -160,6 +160,7 @@
     <ClInclude Include="LobbyScene.h" />
     <ClInclude Include="MultiSpriteShaderComponent.h" />
     <ClInclude Include="Network\Logic\Logic.h" />
+    <ClInclude Include="Network\MapData\MapData.h" />
     <ClInclude Include="Network\NetworkHelper.h" />
     <ClInclude Include="MaterialComponent.h" />
     <ClInclude Include="Network\Room\Room.h" />
@@ -170,6 +171,7 @@
     <ClInclude Include="SkinnedMeshComponent.h" />
     <ClInclude Include="SkinnedShaderComponent.h" />
     <ClInclude Include="StandardShaderComponent.h" />
+    <ClInclude Include="TerrainShaderComponent.h" />
     <ClInclude Include="TextureComponent.h" />
     <ClInclude Include="DDSTextureLoader12.h" />
     <ClInclude Include="DreamGame.h" />
@@ -204,6 +206,7 @@
     <ClCompile Include="LobbyScene.cpp" />
     <ClCompile Include="MultiSpriteShaderComponent.cpp" />
     <ClCompile Include="Network\Logic\Logic.cpp" />
+    <ClCompile Include="Network\MapData\MapData.cpp" />
     <ClCompile Include="Network\NetworkHelper.cpp" />
     <ClCompile Include="MaterialComponent.cpp" />
     <ClCompile Include="Network\Room\Room.cpp" />
@@ -214,6 +217,7 @@
     <ClCompile Include="SkinnedMeshComponent.cpp" />
     <ClCompile Include="SkinnedShaderComponent.cpp" />
     <ClCompile Include="StandardShaderComponent.cpp" />
+    <ClCompile Include="TerrainShaderComponent.cpp" />
     <ClCompile Include="TextureComponent.cpp" />
     <ClCompile Include="DDSTextureLoader12.cpp" />
     <ClCompile Include="DreamGame.cpp" />

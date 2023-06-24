@@ -76,6 +76,9 @@
     <ClCompile Include="Session\SessionObject\ShootingSessionObject.cpp">
       <Filter>Session\SessionObject</Filter>
     </ClCompile>
+    <ClCompile Include="Room\MapData.cpp">
+      <Filter>Room</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Session\ExpOver.h">
@@ -119,6 +122,9 @@
     </ClInclude>
     <ClInclude Include="Session\SessionObject\ShootingSessionObject.h">
       <Filter>Session\SessionObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Room\MapData.h">
+      <Filter>Room</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

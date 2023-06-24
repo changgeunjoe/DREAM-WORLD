@@ -1,7 +1,9 @@
 #pragma once
+#ifdef _DEBUG
+#include "../../PCH/stdafx.h"
+#endif
 #include "SessionObject.h"
 
-#include "../../PCH/stdafx.h"
 
 class PlayerSessionObject : public SessionObject
 {
@@ -47,28 +49,28 @@ public:
 		{
 		case WARRIOR:
 		{
-			SetPosition(XMFLOAT3(300, 0, 100));
+			SetPosition(XMFLOAT3(260, 0, 50));
 			m_maxHp = m_hp = 400;
 			m_attackDamage = 150;
 		}
 		break;
 		case PRIEST:
 		{
-			SetPosition(XMFLOAT3(270, 0, 80));
+			SetPosition(XMFLOAT3(-270, 0, 40));
 			m_maxHp = m_hp = 480;
 			m_attackDamage = 30;
 		}
 		break;
 		case TANKER:
 		{
-			SetPosition(XMFLOAT3(230, 0, 60));
+			SetPosition(XMFLOAT3(150, 0, -60));
 			m_maxHp = m_hp = 600;
 			m_attackDamage = 60;
 		}
 		break;
 		case ARCHER:
 		{
-			SetPosition(XMFLOAT3(200, 0, 40));
+			SetPosition(XMFLOAT3(-200, 0, -40));
 			m_maxHp = m_hp = 250;
 			m_attackDamage = 200;
 		}
