@@ -13,6 +13,7 @@ class TextureToViewportComponent;
 class InstancingShaderComponent;
 class TrailComponent;
 class EffectObject;
+class DebuffObject;
 #include"CLoadModelinfo.h"
 class GameobjectManager
 {
@@ -149,6 +150,7 @@ private: //active object
 	GameObject* m_pStage1TerrainObject{ NULL };
 	
 	EffectObject* m_pEffectObject{NULL};
+	EffectObject* m_pDebuffObject{ NULL };
 
 	POINT						m_ptOldCursorPos;
 

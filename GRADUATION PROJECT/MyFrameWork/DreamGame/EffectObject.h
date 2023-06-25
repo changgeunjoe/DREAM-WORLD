@@ -21,7 +21,7 @@ public:
 	array<GameObject*, 10> m_pPointObject;
 	array<GameObject*, 10> m_pArrowObject;
 	array<GameObject*, 10> m_pFlareObject;
-
+	GameObject* m_pAttackObject;
 	
 
 };

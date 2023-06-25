@@ -14,6 +14,7 @@
 #include"TerrainShaderComponent.h"
 #include "./Network/MapData/MapData.h"
 #include"EffectObject.h"
+#include"DebuffObject.h"
 
 extern NetworkHelper g_NetworkHelper;
 extern Logic g_Logic;
@@ -71,7 +72,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 
 	//Effect
 	m_pEffectObject->AnimateEffect(m_pCamera, g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition(), fTimeElapsed,m_fTime * 10);
-
+	m_pDebuffObject->AnimateEffect(m_pCamera, g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition(), fTimeElapsed, m_fTime * 10);
 	//m_pMonsterObject->Animate(fTimeElapsed);
 
 	g_Logic.m_MonsterSession.m_currentPlayGameObject->Animate(fTimeElapsed);
@@ -230,8 +231,12 @@ void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)
 
 void GameobjectManager::TrailAnimate(float fTimeElapsed)
 {
-	m_pTrailComponent->AddTrail(m_pWarriorObject->m_pLoadedModelComponent->m_pWeaponStart->GetPosition(), XMFLOAT3(m_pWarriorObject->m_pLoadedModelComponent->m_pWeaponEnd->GetPosition().x,
-		m_pWarriorObject->m_pLoadedModelComponent->m_pWeaponEnd->GetPosition().y, m_pWarriorObject->m_pLoadedModelComponent->m_pWeaponEnd->GetPosition().z));
+	m_pTrailComponent->AddTrail(XMFLOAT3(m_pWarriorObject->m_pLoadedModelComponent->m_pWeaponStart->GetPosition().x,
+		m_pWarriorObject->m_pLoadedModelComponent->m_pWeaponStart->GetPosition().y,
+		m_pWarriorObject->m_pLoadedModelComponent->m_pWeaponStart->GetPosition().z),
+		XMFLOAT3(m_pWarriorObject->m_pLoadedModelComponent->m_pWeaponEnd->GetPosition().x,
+			m_pWarriorObject->m_pLoadedModelComponent->m_pWeaponEnd->GetPosition().y,
+			m_pWarriorObject->m_pLoadedModelComponent->m_pWeaponEnd->GetPosition().z) );
 
 }
 
@@ -312,6 +317,8 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	{
 		m_pShadowmapShaderComponent->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature);
 	}
+	TrailRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	EffectRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,m_fTime);
 
 	//m_pNaviMeshObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//if (m_pTextureToViewportComponent)
@@ -322,9 +329,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	/*for (int i = 0; i < m_ppCharacterUIObjects.size(); i++) {
 		m_ppCharacterUIObjects[i]->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature);
 	}*/
-	if (m_pEffectObject) {
-		m_pEffectObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	}
+
 	//for (int i = 0; i < m_ppParticleObjects.size(); i++) {
 	//	m_ppParticleObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//ÆÄÆ¼Å¬
 	//}
@@ -341,7 +346,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		//m_pStage1TerrainObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 	
-	//TrailRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	
 	//AstarRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
 
@@ -396,7 +401,12 @@ void GameobjectManager::StoryUIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 
 void GameobjectManager::EffectRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float ftimeElapsed)
 {
-	m_pEffectObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	if (m_pEffectObject) {
+			m_pEffectObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
+	if (m_pDebuffObject) {
+		//m_pDebuffObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
 }
 
 void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -606,7 +616,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	BuildParticle(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//BuildInstanceObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildStoryUI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//BuildTrail(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	BuildTrail(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildStage1(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildAstar(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -661,6 +671,7 @@ void GameobjectManager::BuildTrail(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	m_pTrailObject->InsertComponent<TextureComponent>();
 	m_pTrailObject->SetTexture(L"Trail/Trail.dds", RESOURCE_TEXTURE2D, 3);
 	m_pTrailObject->SetPosition(XMFLOAT3(0, 0, 0));
+	m_pTrailObject->SetColor(XMFLOAT4(1.0f, 0.3f, 0.0f, 0.0f));
 	m_pTrailObject->SetScale(1);
 	m_pTrailObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pTrailComponent = new TrailComponent();
@@ -691,14 +702,14 @@ void GameobjectManager::BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pStage1Objects[0]->SetScale(1.0f, 1.0f, 1.0f);
 	m_pStage1Objects[0]->SetRimLight(false);
 	m_ppGameObjects.emplace_back(m_pStage1Objects[0]);
-	//m_pStage1Objects[1] = new GameObject(UNDEF_ENTITY);
-	//m_pStage1Objects[1]->InsertComponent<RenderComponent>();
-	//m_pStage1Objects[1]->InsertComponent<CLoadedModelInfoCompnent>();
-	//m_pStage1Objects[1]->SetPosition(XMFLOAT3(0, 0, 0));
-	//m_pStage1Objects[1]->SetModel("Model/New_Terrain.bin");
-	//m_pStage1Objects[1]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//m_pStage1Objects[1]->SetScale(30.0f, 30.0f, 30.0f);
-	//m_pStage1Objects[1]->SetRimLight(false);
+	/*m_pStage1Objects[1] = new GameObject(UNDEF_ENTITY);
+	m_pStage1Objects[1]->InsertComponent<RenderComponent>();
+	m_pStage1Objects[1]->InsertComponent<CLoadedModelInfoCompnent>();
+	m_pStage1Objects[1]->SetPosition(XMFLOAT3(0, 0, 0));
+	m_pStage1Objects[1]->SetModel("Model/New_Terrain.bin");
+	m_pStage1Objects[1]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pStage1Objects[1]->SetScale(30.0f, 30.0f, 30.0f);
+	m_pStage1Objects[1]->SetRimLight(false);*/
 	/*m_pStage1Objects[2] = new GameObject(UNDEF_ENTITY);
 	m_pStage1Objects[2]->InsertComponent<RenderComponent>();
 	m_pStage1Objects[2]->InsertComponent<CLoadedModelInfoCompnent>();
@@ -1069,6 +1080,10 @@ void GameobjectManager::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 {
 	m_pEffectObject = new EffectObject;
 	m_pEffectObject->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+
+	m_pDebuffObject = new DebuffObject;
+	m_pDebuffObject->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	
 }
 
 enum UI

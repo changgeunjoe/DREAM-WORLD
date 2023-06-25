@@ -244,18 +244,21 @@ float4 PSTexturedTrail(VS_TEXTURED_OUTPUT input) : SV_TARGET
 {
        // Sample the texture
     float4 cColor = shaderTexture.Sample(gWrapSamplerState, input.uv);
+    cColor += gmtxGameObjectColor;
+    cColor.w = 0.4;
     return (cColor);
 }
 
 float4 PSSpriteTextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
 {
-       // Sample the texture
+    // Sample the texture
     float4 cColor = shaderTexture.Sample(gWrapSamplerState, input.uv);
     if (cColor.x == 0 || cColor.y == 0 || cColor.z == 0)
     {
         cColor.w = 0;
     }
-       return (cColor);
+  
+    return (cColor);
 }
 
 float4 PSUITextured(VS_TEXTURED_OUTPUT input) : SV_TARGET

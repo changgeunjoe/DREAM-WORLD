@@ -69,6 +69,18 @@ void EffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pFlareObject[i]->m_fTime = RandF(0, 10);
 		m_pEffectObjects.push_back(m_pFlareObject[i]);
 	}
+	m_pAttackObject = new GameObject(UNDEF_ENTITY);
+	m_pAttackObject->InsertComponent<RenderComponent>();
+	m_pAttackObject->InsertComponent<UIMeshComponent>();
+	m_pAttackObject->InsertComponent<ShaderComponent>();
+	m_pAttackObject->InsertComponent<TextureComponent>();
+	m_pAttackObject->SetTexture(L"MagicEffect/Attack.dds", RESOURCE_TEXTURE2D, 3);
+	m_pAttackObject->SetPosition(XMFLOAT3(0, 0, 0));
+	m_pAttackObject->SetAddPosition(XMFLOAT3(RandF(-5, 5), RandF(-5, 5), RandF(-5, 5)));
+	m_pAttackObject->SetColor(XMFLOAT4(0.0f, 0.0f, 0.0f, 0));
+	m_pAttackObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pAttackObject->m_fTime = RandF(0, 10);
+	m_pEffectObjects.push_back(m_pAttackObject);
 }
 
 void EffectObject::RenderEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -76,11 +88,10 @@ void EffectObject::RenderEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandL
 	SortEffect();//카메라 거리별로 Sort후 렌더
 
 	for (int i = 0; i < m_pEffectObjects.size(); i++) {
-		cout << m_pEffectObjects[i]->GetDistance()<<" ";
-
+		//cout << m_pEffectObjects[i]->GetDistance()<<" ";
 		m_pEffectObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
-	cout << endl;
+	//cout << endl;
 	/*for (int i = m_pSmokeObject.size() - 1; i >= 0; i--) {
 		m_pSmokeObject[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}*/
@@ -99,11 +110,6 @@ void EffectObject::RenderEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandL
 
 void EffectObject::AnimateEffect(CCamera* pCamera,XMFLOAT3 xm3position,float ftimeelapsed, float fTime)
 {
-
-
-
-
-
 	for (int i = 0; i < m_pSmokeObject.size(); i++) {
 		if (m_pSmokeObject[i]->m_fTime < 10) {
 			m_pSmokeObject[i]->m_fTime = m_pSmokeObject[i]->m_fTime + ftimeelapsed * 6;
@@ -151,7 +157,7 @@ void EffectObject::AnimateEffect(CCamera* pCamera,XMFLOAT3 xm3position,float fti
 			m_pArrowObject[i]->SetScale(sin(fTime / 5 + i));
 		}
 		m_pArrowObject[i]->Rotate(0, 180, -90);
-		m_pArrowObject[i]->SetColor(XMFLOAT4(1.0f, 0.7843f, 0.1568f, sin(fTime /5 + i) ));
+		m_pArrowObject[i]->SetColor(XMFLOAT4(0.0f, 1.0f, 0.2568f, sin(fTime /5 + i) ));
 		m_pArrowObject[i]->SetPosition(XMFLOAT3(
 			xm3position.x + m_pArrowObject[i]->GetAddPosition().x,
 			xm3position.y + m_pArrowObject[i]->GetAddPosition().y + m_pArrowObject[i]->m_fTime+i,
@@ -173,10 +179,15 @@ void EffectObject::AnimateEffect(CCamera* pCamera,XMFLOAT3 xm3position,float fti
 			xm3position.y + m_pFlareObject[i]->GetAddPosition().y + m_pFlareObject[i]->m_fTime + i,
 			xm3position.z + m_pFlareObject[i]->GetAddPosition().z));
 	}
+	m_pAttackObject->SetLookAt(pCamera->GetPosition());
+	m_pAttackObject->SetScale(1);
+	m_pAttackObject->Rotate(0, 180, 0);
+	m_pAttackObject->SetPosition(XMFLOAT3(xm3position.x,xm3position.y+10,xm3position.z ));
+
+
 	for (int i = 0; i < m_pEffectObjects.size(); i++) {
 		m_pEffectObjects[i]->CalculateDistance(pCamera->GetPosition());
 	}
-
 }
 
 void EffectObject::SortEffect()
