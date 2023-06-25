@@ -1031,10 +1031,6 @@ void Arrow::Animate(float fTimeElapsed)
 		m_RAttack = false;
 	}
 	this->UpdateTransform(NULL);
-	if (m_pChild) 
-	{ 
-		*m_pChild->m_pTempWorld = m_pChild->m_xmf4x4World;
-	}
 }
 
 void Arrow::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender)

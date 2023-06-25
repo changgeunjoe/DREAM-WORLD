@@ -118,8 +118,9 @@ void ShadowMapShaderComponent::Render(ID3D12Device* pd3dDevice,ID3D12GraphicsCom
 	UpdateShaderVariables(pd3dCommandList);
 
 	for (int i = 0; i < m_ppObjects.size(); i++) {
-
 		m_ppObjects[i]->Animate(fTimeElapsed);
+		if(!m_ppObjects[i]->m_pSkinnedAnimationController)
+			m_ppObjects[i]->UpdateTransform(NULL);
 		m_ppObjects[i]->ShadowRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, true,this);
 	}
 }

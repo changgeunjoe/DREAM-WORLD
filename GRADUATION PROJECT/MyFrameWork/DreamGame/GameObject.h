@@ -273,7 +273,6 @@ protected:
 	atomic_bool                     m_bMoveState = false;
 
 protected:
-	CharacterType                   m_characterType = CharacterType::CT_NONE;
 	float                           m_fHp{ 100 };//캐릭터 현재 체력
 	float                           m_fMaxHp{ 100 };//캐릭터 최대 체력
 	float                           m_fSpeed;
@@ -287,8 +286,6 @@ protected:
 	CHeightMapImage* m_pHeightMapImage;
 public:
 	array<Projectile*, 10>          m_pProjectiles;
-	void SetCharacterType(CharacterType type) { m_characterType = type; }
-	CharacterType GetCharacterType() { return m_characterType; }
 
 	void SetBoundingSize(float size)
 	{

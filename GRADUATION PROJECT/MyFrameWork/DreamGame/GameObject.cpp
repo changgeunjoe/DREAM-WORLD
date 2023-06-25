@@ -257,16 +257,26 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	ComponentBase* pLoadedmodelComponent = GetComponent(component_id::LOADEDMODEL_COMPONET);
 	if (pLoadedmodelComponent != NULL)
 	{
+		////MaterialComponent::PrepareShaders(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pd3dcbGameObjects);
+		//if (m_pLoadedModelComponent == nullptr)
+		//{
+		//	m_pLoadedModelComponent = static_cast<CLoadedModelInfoCompnent*>(pLoadedmodelComponent);
+		//	m_pLoadedModelComponent = LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList,
+		//		pd3dGraphicsRootSignature, pszModelNames, NULL, true);//NULL ->Shader
+		//	SetChild(m_pLoadedModelComponent->m_pModelRootObject, true);
+		//	m_pTrailStart = FindFrame("WeaponPositionStart");
+		//	m_pTrailEnd = FindFrame("WeaponPositionEnd");
+		//}
 		//MaterialComponent::PrepareShaders(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pd3dcbGameObjects);
 		if (m_pLoadedModelComponent == nullptr)
 		{
 			m_pLoadedModelComponent = static_cast<CLoadedModelInfoCompnent*>(pLoadedmodelComponent);
 			m_pLoadedModelComponent = LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList,
 				pd3dGraphicsRootSignature, pszModelNames, NULL, true);//NULL ->Shader
-			SetChild(m_pLoadedModelComponent->m_pModelRootObject, true);
 			m_pTrailStart = FindFrame("WeaponPositionStart");
 			m_pTrailEnd = FindFrame("WeaponPositionEnd");
 		}
+		SetChild(m_pLoadedModelComponent->m_pModelRootObject, true);
 		if (m_nAnimationSets != 0)
 		{
 			m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, m_nAnimationSets, m_pLoadedModelComponent);
@@ -392,10 +402,12 @@ void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3
 {
 	UpdateShaderVariables(pd3dCommandList);
 	UpdateShaderVariables(pd3dCommandList, &m_xmf4x4World, NULL);
-	if (m_pTempWorld != nullptr)
+
+	if (m_pTempWorld)
 	{
 		UpdateShaderVariables(pd3dCommandList, m_pTempWorld, NULL);
 	}
+
 	if (m_pSkinnedAnimationController)
 		m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
 
@@ -516,6 +528,7 @@ void GameObject::ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLis
 
 void GameObject::Animate(float fTimeElapsed)
 {
+	if(m_pCamera) UpdateCameraPosition();
 	if (m_pSkinnedAnimationController)
 	{
 		m_pSkinnedAnimationController->AdvanceTime(fTimeElapsed, this);
