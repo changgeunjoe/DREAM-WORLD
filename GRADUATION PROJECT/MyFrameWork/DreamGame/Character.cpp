@@ -895,11 +895,8 @@ void Monster::Animate(float fTimeElapsed)
 				m_xmf3Destination = tempTriangle.GetCenter();
 				m_BossRoute.pop();
 			}
-			m_lockBossRoute.unlock();
 		}
-		else {
-			m_lockBossRoute.unlock();			
-		}
+		m_lockBossRoute.unlock();
 		XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f);
 		XMFLOAT3 des = Vector3::Subtract(m_xmf3Destination, GetPosition());
 		bool OnRight = (Vector3::DotProduct(GetRight(), Vector3::Normalize(des)) > 0) ? true : false;

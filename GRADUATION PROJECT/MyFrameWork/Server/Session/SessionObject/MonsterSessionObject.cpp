@@ -123,7 +123,7 @@ void MonsterSessionObject::Move(float fDistance, float elapsedTime)
 		m_DestinationPos = destinationCenter;
 		auto lookV = Vector3::Subtract(m_DestinationPos, m_position);//방향 벡터
 		auto distance = Vector3::Length(lookV); // 거리
-		if (distance > 4.0f) {
+		if (distance > 40.0f) {
 			lookV = Vector3::Normalize(lookV);
 			CalcRightVector();
 			bool OnRight = (Vector3::DotProduct(m_rightVector, lookV) > 0) ? true : false;	// 목적지가 오른쪽 왼
