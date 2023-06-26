@@ -147,6 +147,8 @@ public:
 		LPARAM lParam);//LRESULT CALLBACK OnProcessingWindowMessage->CALLBACK이 안되는 이유를 모르겠음
 
 
+	CScene* GetScene() { return m_pScene; }
+
 	//윈도우의 메시지(키보드, 마우스 입력)를 처리하는 함수이다.
 
 	void MoveToNextFrame();

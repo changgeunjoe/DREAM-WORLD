@@ -7,8 +7,12 @@
 #include "TrailShaderComponent.h"
 #include"TerrainShaderComponent.h"
 #include "Network/MapData/MapData.h"
+#include "GameFramework.h"
+#include "GameobjectManager.h"
 
 extern MapData g_bossMapData;
+extern CGameFramework gGameFramework;
+
 
 BYTE ReadStringFromFile(FILE* pInFile, char* pstrToken)
 {
@@ -292,8 +296,8 @@ void GameObject::BuildMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 	if (pCubeMeshComponent != NULL)
 	{
 		m_pCubeComponent = static_cast<CubeMeshComponent*>(pCubeMeshComponent);
-		//m_pCubeComponent->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, 10, 10, 10);
-		m_pCubeComponent->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, g_bossMapData.GetTriangleMesh());
+		m_pCubeComponent->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, 1, 1, 1);
+		//m_pCubeComponent->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, g_bossMapData.GetTriangleMesh());
 		m_pMeshComponent = m_pCubeComponent;
 	}
 	ComponentBase* pSkyMeshComponent = GetComponent(component_id::SKYBOXMESH_COMPONENT);
@@ -402,11 +406,6 @@ void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3
 {
 	UpdateShaderVariables(pd3dCommandList);
 	UpdateShaderVariables(pd3dCommandList, &m_xmf4x4World, NULL);
-
-	if (m_pTempWorld)
-	{
-		UpdateShaderVariables(pd3dCommandList, m_pTempWorld, NULL);
-	}
 
 	if (m_pSkinnedAnimationController)
 		m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
@@ -1083,7 +1082,20 @@ void GameObject::MoveForward(float fDistance)
 	XMFLOAT3 xmf3Look = GetLook();
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, fDistance);
 	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * fDistance / 50.0f);
-	if (Vector3::Length(xmf3Position) < PLAYER_MAX_RANGE)	GameObject::SetPosition(xmf3Position);
+	//if (Vector3::Length(xmf3Position) < PLAYER_MAX_RANGE)	GameObject::SetPosition(xmf3Position);
+	vector<GameObject*> tempVector = gGameFramework.GetScene()->GetObjectManager()->GetObstacle();
+	XMVECTOR tempPoint = XMVectorSet(xmf3Position.x, xmf3Position.y, xmf3Position.z, 0.0f);
+	for (int i = 0; i < tempVector.size(); ++i)
+	{
+		if (tempVector[i]->m_OBB.Contains(tempPoint))
+		{
+			// cout << "충돌 발생 : " << i << "번째 바위와 충돌하였습니다." << endl;
+			// cout << "바위 Center Position : " << tempVector[i]->GetPosition().x <<", " << tempVector[i]->GetPosition().y << ", " << tempVector[i]->GetPosition().z << " )" << endl;
+			// cout << "충돌 포지션 : ( "<< xmf3Position.x <<", " << xmf3Position.y << ", " << xmf3Position.z << " )" << endl;
+			return;
+		}
+	}
+	GameObject::SetPosition(xmf3Position);
 }
 
 void GameObject::Rotate(float fPitch, float fYaw, float fRoll)

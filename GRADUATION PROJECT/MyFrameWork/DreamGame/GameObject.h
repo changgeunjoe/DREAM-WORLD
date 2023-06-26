@@ -152,7 +152,6 @@ public:
 	XMFLOAT4X4						m_xmf4x4ToParent;
 	XMFLOAT4X4						m_xmf4x4Transform;//변환 행렬
 	XMFLOAT4X4						m_xmf4x4World; //월드 행렬
-	XMFLOAT4X4						*m_pTempWorld{ nullptr }; //월드 행렬
 
 	GameObject* m_pParent = nullptr;
 	GameObject* m_pChild = nullptr;
@@ -175,6 +174,7 @@ public:
 	CCamera* m_pCamera{ nullptr };
 	float                           m_fBoundingSize{ 8.0f };
 	BoundingSphere					m_SPBB = BoundingSphere(XMFLOAT3(0.0f, 0.0f, 0.0f), m_fBoundingSize);
+	BoundingOrientedBox				m_OBB;
 	GameObject* m_VisualizeSPBB{ nullptr };
 
 	

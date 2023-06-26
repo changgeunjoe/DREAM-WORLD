@@ -997,11 +997,6 @@ void Projectile::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		SetChild(pModel->m_pModelRootObject, true);
 	}
 
-	if (m_pChild)
-	{
-		m_pChild->m_pTempWorld = new XMFLOAT4X4;
-		*m_pChild->m_pTempWorld = Matrix4x4::Identity();
-	}
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
@@ -1030,14 +1025,11 @@ void Arrow::Animate(float fTimeElapsed)
 		m_bActive = false;
 		m_RAttack = false;
 	}
-	this->UpdateTransform(NULL);
 }
 
 void Arrow::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender)
 {
-	UpdateShaderVariables(pd3dCommandList);
-	if (m_pChild) 
-		m_pChild->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
+	GameObject::Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
 }
 
 EnergyBall::EnergyBall() : Projectile(SQUARE_ENTITY)

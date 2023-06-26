@@ -238,17 +238,12 @@ void GameobjectManager::OnPreRender(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	//Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
 
-
 void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {//렌더
 
 	UpdateShaderVariables(pd3dCommandList);
 	m_pSkyboxObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	
-#ifdef LOCAL_TASK
-	m_pPlayerObject->Animate(m_fTimeElapsed);
-	m_pPlayerObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-#endif
 	if (m_pDepthShaderComponent) {
 		m_pDepthShaderComponent->UpdateShaderVariables(pd3dCommandList);//오브젝트의 깊이값의 렌더입니다.
 	}
@@ -264,6 +259,10 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	{
 		for (int i = 0; i < 5; i++)
 			m_pBoundingBox[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
+	for (auto& p : m_pObstacleBoundingBox)
+	{
+		p->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 	for (int i = 0; i < m_pArrowObjects.size(); i++) {
 		if (m_pArrowObjects[i])
@@ -334,8 +333,8 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pContinueUIObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 	for (int i = 0; i < 6; i++) {
-		//if(m_pStage1Objects[i])
-		//m_pStage1Objects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		if(m_pStage1Objects[i])
+			m_pStage1Objects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 	if (m_pStage1TerrainObject) {
 		//m_pStage1TerrainObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -393,34 +392,34 @@ void GameobjectManager::StoryUIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	//}
 }
 
-XMFLOAT4 GetQuaternion(float x, float y, float z)
-{
-	float x_half = x / 2;
-	float y_half = y / 2;
-	float z_half = z / 2;
-
-	float sin_x = sin(x_half);
-	float cos_x = cos(x_half);
-
-	float sin_y = sin(y_half);
-	float cos_y = cos(y_half);
-
-	float sin_z = sin(z_half);
-	float cos_z = cos(z_half);
-
-	float revW = cos_x * cos_y * cos_z + sin_x * sin_y * sin_z;
-	float revX = sin_x * cos_y * cos_z - cos_x * sin_y * sin_z;
-	float revY = cos_x * sin_y * cos_z + sin_x * cos_y * sin_z;
-	float revZ = cos_x * cos_y * sin_z - sin_x * sin_y * cos_z;
-
-	float magnitude = sqrt(revW * revW + revX * revX + revY * revY + revZ * revZ);
-	revW /= magnitude;
-	revX /= magnitude;
-	revY /= magnitude;
-	revZ /= magnitude;
-
-	return XMFLOAT4(revW, revX, revY, revZ);
-}
+//XMFLOAT4 GetQuaternion(float x, float y, float z)
+//{
+//	float x_half = x / 2;
+//	float y_half = y / 2;
+//	float z_half = z / 2;
+//
+//	float sin_x = sin(x_half);
+//	float cos_x = cos(x_half);
+//
+//	float sin_y = sin(y_half);
+//	float cos_y = cos(y_half);
+//
+//	float sin_z = sin(z_half);
+//	float cos_z = cos(z_half);
+//
+//	float revW = cos_x * cos_y * cos_z + sin_x * sin_y * sin_z;
+//	float revX = sin_x * cos_y * cos_z - cos_x * sin_y * sin_z;
+//	float revY = cos_x * sin_y * cos_z + sin_x * cos_y * sin_z;
+//	float revZ = cos_x * cos_y * sin_z - sin_x * sin_y * cos_z;
+//
+//	float magnitude = sqrt(revW * revW + revX * revX + revY * revY + revZ * revZ);
+//	revW /= magnitude;
+//	revX /= magnitude;
+//	revY /= magnitude;
+//	revZ /= magnitude;
+//
+//	return XMFLOAT4(revW, revX, revY, revZ);
+//}
 
 void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, const char* fileName, char* modelName, int type)
 {
@@ -429,14 +428,18 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 
 	int objCount = -1;
 	vector<XMFLOAT3> tempPos;
-	vector<XMFLOAT3> tempExtentPos;
 	vector<XMFLOAT4> quaternion;
 
 	vector<XMFLOAT3> tempScale;
 	vector<XMFLOAT3> tempRotate;
 
+	vector<XMFLOAT3> tempCenterPos;
+	vector<XMFLOAT3> tempLocalCenterPos;
+	vector<XMFLOAT3> tempExtentScale;
+
 	string temp;
 	float number[3] = {};
+	float qnumber[4] = {};
 	while (!objectFile.eof())
 	{
 		objectFile >> temp;
@@ -451,12 +454,22 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 		}
 		else if (temp == "<quaternion>:")
 		{
-			for (int i = 0; i < 3; ++i)
+			if (type == 0)
 			{
-				objectFile >> temp;
-				number[i] = stof(temp);
+				for (int i = 0; i < 3; ++i)
+				{
+					objectFile >> temp;
+				}
 			}
-			quaternion.emplace_back(GetQuaternion(number[0], number[1], number[2]));
+			else
+			{
+				for (int i = 0; i < 4; ++i)
+				{
+					objectFile >> temp;
+					qnumber[i] = stof(temp);
+				}
+				quaternion.emplace_back(qnumber[0], qnumber[1], qnumber[2], qnumber[3]);
+			}
 		}
 		else if (temp == "<rotation>:")
 		{
@@ -476,15 +489,53 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 			}
 			tempScale.emplace_back(number[0], number[1], number[2]);
 		}
+		else if (temp == "<BoxCollider>")
+		{
+			for (int j = 0; j < 4; ++j)
+			{
+				objectFile >> temp;
+				if (temp == "<center>:")
+				{
+					for (int i = 0; i < 3; ++i)
+					{
+						objectFile >> temp;
+						number[i] = stof(temp);
+					}
+					tempCenterPos.emplace_back(number[0], number[1], number[2]);
+				}
+				else if (temp == "<size>:")
+				{
+					for (int i = 0; i < 3; ++i)
+					{
+						objectFile >> temp;
+					}
+				}
+				else if (temp == "<localCenter>:")
+				{
+					for (int i = 0; i < 3; ++i)
+					{
+						objectFile >> temp;
+						number[i] = stof(temp);
+					}
+					tempLocalCenterPos.emplace_back(number[0], number[1], number[2]);
+				}
+				else if (temp == "<localSize>:")
+				{
+					for (int i = 0; i < 3; ++i)
+					{
+						objectFile >> temp;
+						number[i] = stof(temp);
+					}
+					tempExtentScale.emplace_back(number[0], number[1], number[2]);
+				}
+			}
+		}
 		else
 		{
 			if(type == 0)
 				objectFile >> temp;
 			objCount++;
 		}
-		// Position
-		// Scale
-		// Rotation
 	}
 
 	GameObject** tempObject = new GameObject * [objCount];	// 멤버 변수로 교체 예정
@@ -502,9 +553,33 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 		tempObject[i]->Rotate(&Axis, tempRotate[i].y);
 		Axis = tempObject[i]->GetUp();
 		tempObject[i]->Rotate(&Axis, tempRotate[i].z);
-		// tempObject[i]->SetScale(tempScale[i].x * 30.0f, tempScale[i].y * 30.0f, tempScale[i].z * 30.0f);
 		tempObject[i]->SetScale(tempScale[i].x, tempScale[i].y, tempScale[i].z);
+		if (type == 0)
+		{
+			// XMFLOAT3 tempEPos = Vector3::Add(tempPos[i], tempScale[i]);
+			// tempObject[i]->m_OBB = BoundingOrientedBox(tempPos[i], tempEPos, quaternion[i]);
+		}
+		else
+		{
+			XMFLOAT3 extentPos = XMFLOAT3(tempScale[i].x * tempExtentScale[i].x,
+				tempScale[i].y * tempExtentScale[i].y, tempScale[i].z * tempExtentScale[i].z);
+			XMFLOAT3 centerPos = Vector3::Add(tempCenterPos[i], tempLocalCenterPos[i]);
+			extentPos = XMFLOAT3(extentPos.x * 0.5f, extentPos.y * 0.5f, extentPos.z * 0.5f);
+			tempObject[i]->m_OBB = BoundingOrientedBox(centerPos, extentPos, quaternion[i]);
+			m_ppObstacleObjects.emplace_back(tempObject[i]);
+
+			GameObject* tempBoundingBox = new GameObject(SQUARE_ENTITY);
+			tempBoundingBox->InsertComponent<RenderComponent>();
+			tempBoundingBox->InsertComponent<CubeMeshComponent>();
+			tempBoundingBox->InsertComponent<BoundingBoxShaderComponent>();
+			tempBoundingBox->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+			tempBoundingBox->SetScale(extentPos.x * 2, extentPos.y * 2, extentPos.z * 2);
+			tempBoundingBox->Rotate(&quaternion[i]);
+			tempBoundingBox->SetPosition(centerPos);
+			m_pObstacleBoundingBox.emplace_back(tempBoundingBox);
+		}
 		m_ppGameObjects.emplace_back(tempObject[i]);
+
 	}
 
 	if (tempObject) delete[] tempObject;
@@ -517,23 +592,16 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	BuildLight();
 
-	CLoadedModelInfoCompnent* ArrowModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/BigMushroom.bin", NULL, true);
-	//CLoadedModelInfoCompnent* BossRockModel01 = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/BossRock01.bin", NULL, true);
-	//CLoadedModelInfoCompnent* BossRockModel02 = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/BossRock02.bin", NULL, true);
-	//CLoadedModelInfoCompnent* BossRockModel03 = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/BossRock03.bin", NULL, true);
-	//CLoadedModelInfoCompnent* TreeModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/TreeModel.bin", NULL, true);
-	//CLoadedModelInfoCompnent* MushroomModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/MushroomModel.bin", NULL, true);
-	//CLoadedModelInfoCompnent* BigMushroomModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/BigMushroomModel.bin", NULL, true);
-	//CLoadedModelInfoCompnent* FenceModel01 = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/FenceModel01.bin", NULL, true);
-	//CLoadedModelInfoCompnent* FenceModel02 = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/FenceModel02.bin", NULL, true);
-	//CLoadedModelInfoCompnent* FenceModel03 = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/FenceModel03.bin", NULL, true);
-	//CLoadedModelInfoCompnent* FenceModel04 = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/FenceModel04.bin", NULL, true);
+	CLoadedModelInfoCompnent* ArrowModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Arrow.bin", NULL, true);
 
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/BigMushroom.txt", "Model/BigMushroom.bin", 0);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Mushroom.txt", "Model/Mushroom.bin", 0);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/LongFence.txt", "Model/LongFence.bin", 0);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence01.txt", "Model/ShortFence01.bin", 0);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence02.txt", "Model/ShortFence02.bin", 0);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence03.txt", "Model/ShortFence03.bin", 0);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Tree.txt", "Model/Tree.bin", 0);
+
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock1.txt", "Model/Rock1.bin", 1);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock2.txt", "Model/Rock2.bin", 1);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock3.txt", "Model/Rock3.bin", 1);
@@ -680,15 +748,6 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_ppGameObjects.emplace_back(m_pMonsterObject);
 	g_Logic.m_MonsterSession.SetGameObject(m_pMonsterObject);
 
-	m_pEnergyBallObject = new GameObject(SQUARE_ENTITY);
-	m_pEnergyBallObject->InsertComponent<RenderComponent>();
-	m_pEnergyBallObject->InsertComponent<CubeMeshComponent>();
-	m_pEnergyBallObject->InsertComponent<SphereShaderComponent>();
-	m_pEnergyBallObject->SetPosition(XMFLOAT3(0, 0, 100));
-	m_pEnergyBallObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pEnergyBallObject->SetScale(0.5f);
-	
-
 	m_pMonsterCubeObject = new GameObject(SQUARE_ENTITY);
 	m_pMonsterCubeObject->InsertComponent<RenderComponent>();
 	m_pMonsterCubeObject->InsertComponent<SkyBoxMeshComponent>();
@@ -719,14 +778,12 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pNaviMeshObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 	if (ArrowModel) delete ArrowModel;
-
 #if LOCAL_TASK
 	// 플레이어가 캐릭터 선택하는 부분에 유사하게 넣을 예정
 	m_pPlayerObject = new GameObject(UNDEF_ENTITY);
-	memcpy(m_pPlayerObject, m_pArcherObject, sizeof(GameObject));
-	m_pPlayerObject->SetCamera(m_pCamera);
-
-	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject = m_pPlayerObject;
+	memcpy(m_pPlayerObject, m_pTankerObject, sizeof(Archer));
+	m_pTankerObject->SetCamera(m_pCamera);
+	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject = m_pTankerObject;
 	g_Logic.m_inGamePlayerSession[0].m_isVisible = true;
 	g_Logic.m_inGamePlayerSession[0].m_id = 0;
 #endif // LOCAL_TASK
@@ -813,15 +870,16 @@ void GameobjectManager::BuildAstar(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 }
 void GameobjectManager::BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	/*m_pStage1Objects[0] = new GameObject(UNDEF_ENTITY);
-	m_pStage1Objects[0]->InsertComponent<RenderComponent>();
-	m_pStage1Objects[0]->InsertComponent<CLoadedModelInfoCompnent>();
-	m_pStage1Objects[0]->SetPosition(XMFLOAT3(0, 0, 0));
-	m_pStage1Objects[0]->SetModel("Model/New_Terrain.bin");
-	m_pStage1Objects[0]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pStage1Objects[0]->SetScale(1.0f, 1.0f, 1.0f);
-	m_pStage1Objects[0]->SetRimLight(false);
-	m_pStage1Objects[1] = new GameObject(UNDEF_ENTITY);
+	//m_pStage1Objects[0] = new GameObject(UNDEF_ENTITY);
+	//m_pStage1Objects[0]->InsertComponent<RenderComponent>();
+	//m_pStage1Objects[0]->InsertComponent<CLoadedModelInfoCompnent>();
+	//m_pStage1Objects[0]->SetPosition(XMFLOAT3(0, 0, 0));
+	//m_pStage1Objects[0]->SetModel("Model/New_Terrain.bin");
+	//m_pStage1Objects[0]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//m_pStage1Objects[0]->SetScale(10.0f, 10.0f, 10.0f);
+	//m_pStage1Objects[0]->SetRimLight(false);
+
+	/*m_pStage1Objects[1] = new GameObject(UNDEF_ENTITY);
 	m_pStage1Objects[1]->InsertComponent<RenderComponent>();
 	m_pStage1Objects[1]->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pStage1Objects[1]->SetPosition(XMFLOAT3(0, 0, 0));
