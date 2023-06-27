@@ -548,22 +548,11 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 		}
 		else
 		{
-			if(type == 0)
+			if (type == 0)
 				objectFile >> temp;
 			objCount++;
 		}
 	}
-
-void GameobjectManager::EffectRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float ftimeElapsed)
-{
-	if (m_pEffectObject) {
-			m_pEffectObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	}
-	if (m_pDebuffObject) {
-		//m_pDebuffObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	}
-}
-
 	GameObject** tempObject = new GameObject * [objCount];	// 멤버 변수로 교체 예정
 	for (int i = 0; i < objCount; ++i)
 	{
@@ -611,6 +600,17 @@ void GameobjectManager::EffectRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 	if (tempObject) delete[] tempObject;
 	if (tempModel) delete tempModel;
 }
+
+void GameobjectManager::EffectRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float ftimeElapsed)
+{
+	if (m_pEffectObject) {
+			m_pEffectObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
+	if (m_pDebuffObject) {
+		//m_pDebuffObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
+}
+
 
 
 void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)

@@ -182,7 +182,8 @@ public:
 	BoundingOrientedBox				m_OBB;
 	GameObject* m_VisualizeSPBB{ nullptr };
 
-	
+
+	float                           m_fTime{};
 
 	int                             m_iRButtionCount = 0;
 
@@ -193,8 +194,6 @@ public:
 	bool                            m_bRimLight = true;
 
 	XMFLOAT4						m_xmf4Color{};
-
-	float                           m_fTime{};
 
 protected:
 
@@ -297,7 +296,6 @@ protected:
 	XMFLOAT3						m_AddPosition{};
 
 
-	float                           m_fTime{};
 	float                           m_fTimeElapsed{};
 	int                             m_nProjectiles{};
 
