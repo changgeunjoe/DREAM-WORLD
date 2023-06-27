@@ -78,6 +78,7 @@ class Projectile : public GameObject
 public:
 	XMFLOAT3	m_xmf3startPosition;
 	XMFLOAT3	m_xmf3direction;
+	XMFLOAT4X4	m_xmf4x4Transform;
 	float		m_fSpeed;
 	bool		m_bActive;
 	bool		m_RAttack;

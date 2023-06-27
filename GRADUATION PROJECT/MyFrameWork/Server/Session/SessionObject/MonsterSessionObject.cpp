@@ -98,8 +98,10 @@ void MonsterSessionObject::Rotate(ROTATE_AXIS axis, float angle)
 	//PrintCurrentTime();
 	//std::cout << std::endl << "Rotate angle: " << m_rotateAngle.y << std::endl;//
 	DirectX::XMFLOAT3 xmf3Rev = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-	xmf3Rev.x = m_directionVector.x * cos(XMConvertToRadians(-angle)) - m_directionVector.z * sin(XMConvertToRadians(-angle));
-	xmf3Rev.z = m_directionVector.x * sin(XMConvertToRadians(-angle)) + m_directionVector.z * cos(XMConvertToRadians(-angle));
+	DirectX::XMFLOAT3 currentVector = m_directionVector;
+	xmf3Rev.x = currentVector.x * cos(XMConvertToRadians(-angle)) - currentVector.z * sin(XMConvertToRadians(-angle));
+	xmf3Rev.z = currentVector.x * sin(XMConvertToRadians(-angle)) + currentVector.z * cos(XMConvertToRadians(-angle));
+	xmf3Rev.y = 0;
 	xmf3Rev = Vector3::Normalize(xmf3Rev);
 	m_directionVector = xmf3Rev;
 	//std::cout << "Boss Dir Vector" << m_directionVector.x << " " << m_directionVector.y << " " << m_directionVector.z << std::endl;
@@ -114,16 +116,18 @@ void MonsterSessionObject::Move(float fDistance, float elapsedTime)
 {
 	XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f);
 	//new - Astar
+	m_reserveRoadLock.lock();
 	if (m_ReserveRoad.size() > 0) {
 		DirectX::XMFLOAT3 destinationCenter = g_bossMapData.GetTriangleMesh(*m_ReserveRoad.begin()).GetCenter();
+		m_reserveRoadLock.unlock();
 		m_DestinationPos = destinationCenter;
-		if (Vector3::Length(Vector3::Subtract(m_position, destinationCenter)) > 4.0f) {
-			auto lookV = Vector3::Subtract(m_DestinationPos, m_position);//방향 벡터
-			auto distance = Vector3::Length(lookV); // 거리
-
+		auto lookV = Vector3::Subtract(m_DestinationPos, m_position);//방향 벡터
+		auto distance = Vector3::Length(lookV); // 거리
+		if (distance > 40.0f) {
+			lookV = Vector3::Normalize(lookV);
 			CalcRightVector();
-			bool OnRight = (Vector3::DotProduct(m_rightVector, Vector3::Normalize(lookV)) > 0) ? true : false;	// 목적지가 오른쪽 왼
-			float ChangingAngle = Vector3::Angle(Vector3::Normalize(lookV), m_directionVector);
+			bool OnRight = (Vector3::DotProduct(m_rightVector, lookV) > 0) ? true : false;	// 목적지가 오른쪽 왼
+			float ChangingAngle = Vector3::Angle(lookV, m_directionVector);
 
 			//old - No_Astar
 			//XMFLOAT3 des = Vector3::Subtract(m_DestinationPos, m_position);	// 목적지랑 위치랑 벡터
@@ -147,36 +151,48 @@ void MonsterSessionObject::Move(float fDistance, float elapsedTime)
 
 			if (ChangingAngle > 15.0f && distance < 40.0f) {
 				OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
-				/*if (OnRight)
-					Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime);
-				else if (!OnRight)
-					Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);*/
 			}
 			else {
 				if (ChangingAngle > 0.5f)
 				{
 					OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
-
-					//if (OnRight)
-					//	Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime);
-					//else if (!OnRight)
-					//	Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
 				}
-				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, fDistance));//틱마다 움직임
+				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, fDistance, false));//틱마다 움직임
 				m_SPBB = BoundingSphere(DirectX::XMFLOAT3(m_position.x, m_position.y + 30.0f, m_position.z), 30.0f);
 			}
 			//std::cout << "BossPos: " << m_position.x << "0, " << m_position.z << std::endl;
 		}
 		else {
+			m_reserveRoadLock.lock();
 			m_onIdx = *m_ReserveRoad.begin();
 			m_ReserveRoad.erase(m_ReserveRoad.begin());
 			if (m_ReserveRoad.size() != 0) {
 				DirectX::XMFLOAT3 center = g_bossMapData.GetTriangleMesh(*m_ReserveRoad.begin()).GetCenter();
 				m_DestinationPos = center;//목적지 다음 노드의 센터
 			}
+			m_reserveRoadLock.unlock();
 		}
 	}
+	else {
+		m_reserveRoadLock.unlock();
+		XMFLOAT3 desPlayerPos = g_iocpNetwork.m_session[m_aggroPlayerId].m_sessionObject->GetPos();
+		XMFLOAT3 desVector = Vector3::Subtract(desPlayerPos, m_position);
+		float dis = Vector3::Length(Vector3::Subtract(m_position, desPlayerPos));
+		desVector = Vector3::Normalize(desVector);
+		CalcRightVector();
+		bool OnRight = (Vector3::DotProduct(m_rightVector, desVector) > 0) ? true : false;	// 목적지가 오른쪽 왼
+		float ChangingAngle = Vector3::Angle(desVector, m_directionVector);
+		if (ChangingAngle > 15.0f && dis < 40.0f) {
+			OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
+		}
+		else {
+			if (ChangingAngle > 0.5f)
+			{
+				OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
+			}
+		}
 
+	}
 }
 
 
@@ -185,9 +201,13 @@ void MonsterSessionObject::SetDestinationPos(DirectX::XMFLOAT3 des)
 	//장애물이 있기때문에 목적지가 아닌, Road를 저장하여 움직이자
 	// 서버에서는 계산을 해서 움직이고, 클라에서는 서버에서 계산된 값을 가지고 자동으로 움직이자.
 	//m_DestinationPos = des;
+	m_reserveRoadLock.lock();
 	m_ReserveRoad = g_bossMapData.AStarLoad(m_onIdx, des.x, des.z);
+	m_reserveRoadLock.unlock();
 	SERVER_PACKET::BossMoveNodePacket sendPacket;
+	m_reserveRoadLock.lock();
 	if (m_ReserveRoad.front() == m_onIdx) {
+		m_reserveRoadLock.unlock();
 		sendPacket.nodeCnt = -1;
 		sendPacket.desPos = XMFLOAT3(des.x, 0, des.z);
 	}
@@ -197,6 +217,7 @@ void MonsterSessionObject::SetDestinationPos(DirectX::XMFLOAT3 des)
 		for (int i = 0; i < sendPacket.nodeCnt; i++) {
 			sendPacket.node[i] = *(iter++);
 		}
+		m_reserveRoadLock.unlock();
 	}
 	sendPacket.type = SERVER_PACKET::BOSS_MOVE_NODE;
 	sendPacket.size = sizeof(SERVER_PACKET::BossMoveNodePacket);
@@ -338,3 +359,4 @@ bool MonsterSessionObject::StartAttack()
 	return false;
 }
 
+;

@@ -16,7 +16,7 @@ private:
 
 	int m_nWndClientWidth;
 	int m_nWndClientHeight;
-
+	bool m_bMouseCaptured;
 	IDXGIFactory4* m_pdxgiFactory;//DXGI 팩토리 인터페이스에 대한 포인터이다.//
 	//IDXGIFactory는 어뎁터(그래픽카드)(adaptor),출력장치(모니터),(output),디바이스를 포함하고 있는 컴객체이다.
 	IDXGISwapChain3* m_pdxgiSwapChain;
@@ -146,6 +146,9 @@ public:
 	LRESULT OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,
 		LPARAM lParam);//LRESULT CALLBACK OnProcessingWindowMessage->CALLBACK이 안되는 이유를 모르겠음
 
+	void SetMouseCapture(bool capture) { m_bMouseCaptured = capture; }
+
+	CScene* GetScene() { return m_pScene; }
 
 	//윈도우의 메시지(키보드, 마우스 입력)를 처리하는 함수이다.
 

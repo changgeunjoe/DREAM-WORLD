@@ -148,17 +148,18 @@ void TrailComponent::RenderTrail(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	delete[] pVertices;
 }
 
-void TrailComponent::RenderAstar(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, vector<int> vecNodeQueue)
+void TrailComponent::RenderAstar(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, vector<int>& vecNodeQueue)
 {
 
 	vector<XMFLOAT3> xmf3Pos;
 	for (auto iter = vecNodeQueue.begin(); iter != vecNodeQueue.end(); iter++) {
-		xmf3Pos.push_back(g_bossMapData.GetTriangleMesh(*iter).GetCenter());
+		/*g_bossMapData.GetTriangleMesh(*iter).GetVertex1();
+		g_bossMapData.GetTriangleMesh(*iter).GetVertex2();
+		g_bossMapData.GetTriangleMesh(*iter).GetVertex3();*/
+		xmf3Pos.push_back(g_bossMapData.GetTriangleMesh(*iter).GetVertex1());
+		xmf3Pos.push_back(g_bossMapData.GetTriangleMesh(*iter).GetVertex2());
+		xmf3Pos.push_back(g_bossMapData.GetTriangleMesh(*iter).GetVertex3());
 	}
-	//while (!qrecvNodeQueue.empty()) {
-	//	xmf3Pos.push_back(g_bossMapData.GetTriangleMesh(qrecvNodeQueue.front()).GetCenter());
-	//	qrecvNodeQueue.pop();
-	//}
 	size_t iVertexCount = xmf3Pos.size();//사각형 당 정점 6개
 	Textured2DUIVertex* pVertices = new Textured2DUIVertex[iVertexCount];
 	for (int i = 0; i < xmf3Pos.size(); i++) {

@@ -35,7 +35,7 @@ class TerrainShaderComponent;
 class GameObject
 {
 public:
-	GameObject(entity_id entityID);
+	GameObject(entity_id entityID = UNDEF_ENTITY);
 	~GameObject();
 
 	void Update(float elapsedTime);
@@ -101,6 +101,7 @@ public:
     virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
     virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList, XMFLOAT4X4* pxmf4x4World, MaterialComponent* ppMaterialsComponent);
+	virtual void UpdateObjectVarialbes(XMFLOAT4X4* pxmf4x4World);
     virtual void ReleaseShaderVariables();
 	virtual void Reset() {};
 
@@ -178,6 +179,7 @@ public:
 	CCamera* m_pCamera{ nullptr };
 	float                           m_fBoundingSize{ 8.0f };
 	BoundingSphere					m_SPBB = BoundingSphere(XMFLOAT3(0.0f, 0.0f, 0.0f), m_fBoundingSize);
+	BoundingOrientedBox				m_OBB;
 	GameObject* m_VisualizeSPBB{ nullptr };
 
 	
@@ -287,7 +289,6 @@ protected:
 	atomic_bool                     m_bMoveState = false;
 
 protected:
-	CharacterType                   m_characterType = CharacterType::CT_NONE;
 	float                           m_fHp{ 100 };//캐릭터 현재 체력
 	float                           m_fMaxHp{ 100 };//캐릭터 최대 체력
 	float                           m_fSpeed{};
@@ -296,13 +297,13 @@ protected:
 	XMFLOAT3						m_AddPosition{};
 
 
+	float                           m_fTime{};
+	float                           m_fTimeElapsed{};
 	int                             m_nProjectiles{};
 
 	CHeightMapImage* m_pHeightMapImage;
 public:
 	array<Projectile*, 10>          m_pProjectiles;
-	void SetCharacterType(CharacterType type) { m_characterType = type; }
-	CharacterType GetCharacterType() { return m_characterType; }
 
 	void SetBoundingSize(float size)
 	{
@@ -313,7 +314,7 @@ public:
 	void SetProjectileY(float yLook) { m_projectilesLookY = yLook; }
 public:
 	XMFLOAT3						m_xmfHitPosition;
-	XMFLOAT3                        m_xmf3Destination;
+	XMFLOAT3                        m_xmf3Destination = XMFLOAT3{ 0,0,0 };
 	float                           m_UIScale = 10.0f;
 	bool                            m_bUIActive{ true };
 public:

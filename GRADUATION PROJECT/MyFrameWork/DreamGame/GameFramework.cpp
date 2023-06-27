@@ -76,8 +76,17 @@ bool CGameFramework::onCreate(HINSTANCE hinstance, HWND hmainwnd)
 #ifdef _WITH_DIRECT2D
 	CreateDirect2DDevice();
 #endif
+	HWND windowHandle = GetForegroundWindow(); // Get the handle of the foreground window
 
+	RECT windowRect;
+	GetWindowRect(windowHandle, &windowRect);
 
+	int windowX = windowRect.left;
+	int windowY = windowRect.top;
+
+	m_ptOldCursorPos.x = windowX + FRAME_BUFFER_WIDTH / 2;
+	m_ptOldCursorPos.y = windowY + FRAME_BUFFER_HEIGHT / 2;
+	m_bMouseCaptured = false;
 
 	BuildObjects();
 	//랜더링할 게임 객체를 생성한다.
@@ -625,14 +634,39 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 	}
 	switch (nMessageID)
 	{
+	case HTCAPTION:
+	{
+		POINT tempPoint;
+		::GetCursorPos(&tempPoint);
+		cout << "Clicked Position : " << tempPoint.x << ", " << tempPoint.y << endl;
+	}
 	case WM_LBUTTONDOWN:
 	case WM_RBUTTONDOWN:
-		if (m_bLobbyScene)
+	{
+		RECT windowRect;
+		GetWindowRect(hWnd, &windowRect);
+		int captionHeight = GetSystemMetrics(SM_CYCAPTION);
+		POINT tempPoint;
+		::GetCursorPos(&tempPoint);
+
+		if (tempPoint.x >= windowRect.left && tempPoint.x <= windowRect.right &&
+			tempPoint.y >= windowRect.top + GetSystemMetrics(SM_CYCAPTION) && tempPoint.y <= windowRect.bottom) 
 		{
-			::SetCapture(hWnd);
-			::GetCursorPos(&m_ptOldCursorPos);
+			if (m_bMouseCaptured == false)
+			{
+				m_bMouseCaptured = true;
+				m_ptOldCursorPos.x = windowRect.left + FRAME_BUFFER_WIDTH / 2;
+				m_ptOldCursorPos.y = windowRect.top + FRAME_BUFFER_HEIGHT / 2;
+				::SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
+			}
+			if (m_bLobbyScene)
+			{
+				::SetCapture(hWnd);
+				m_ptOldCursorPos = tempPoint;
+			}
 		}
 		break;
+	}
 	case WM_LBUTTONUP:
 	case WM_RBUTTONUP:
 		::ReleaseCapture();
@@ -643,6 +677,8 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 		}
 		break;
 	case WM_MOUSEMOVE:
+		if (m_bMouseCaptured == false)
+			break;
 		if (!m_bLobbyScene) {
 			::SetCapture(hWnd);
 			POINT ptCursor;
@@ -683,6 +719,9 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			::PostQuitMessage(0);
 			break;
 		case VK_RETURN:
+			break;
+		case VK_F1:
+			m_bMouseCaptured = false;
 			break;
 		case VK_F2:
 #ifdef LOCAL_TASK
@@ -732,11 +771,14 @@ LRESULT CGameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WP
 
 void CGameFramework::ProcessInput()
 {
+	if (!m_bMouseCaptured) 
+		return;
+
 	static UCHAR pKeysBuffer[256];
 	bool bProcessedByScene = false;
 	GetKeyboardState(pKeysBuffer);
 	//if&& m_pScene) bProcessedByScene = m_pScene->ProcessInput(pKeysBuffer);
-	if (!bProcessedByScene && !pKeysBuffer[VK_F1])
+	if (!bProcessedByScene)
 	{
 		DWORD dwDirection = 0;
 		if (pKeysBuffer[VK_UP] & 0xF0) dwDirection |= DIR_FORWARD;

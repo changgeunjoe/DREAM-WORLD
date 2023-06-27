@@ -67,9 +67,11 @@ public:
 
 private: //active object 
 	vector<GameObject*> m_ppGameObjects;
+	vector<GameObject*> m_ppObstacleObjects;
 	array<Projectile*, 10> m_pArrowObjects;
 	array<Projectile*, 10> m_pEnergyBallObjects;
 	array<GameObject*, 10> m_pBoundingBox;
+	vector<GameObject*> m_pObstacleBoundingBox;
 	int				m_nObjects{};
 	GameObject* m_pGameObject{ NULL };
 
@@ -157,6 +159,7 @@ private: //active object
 	POINT						m_ptOldCursorPos;
 
 	float	m_fTime = 0;
+	float	m_fTimeElapsed = 0;
 	float	m_fStroyTime = 0;
 	float	m_xmfMode = 3;
 	bool	m_bUIScene = true;
@@ -179,6 +182,7 @@ public:
 	void SetInMatching(bool inMatching) { m_bInMatching = inMatching; }
 	void SetUIActive();
 	void SetStoryTime() { m_fStroyTime = 0; };
-
+	void ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, const char* fileName, char* modelName, int type);
+	vector<GameObject*>& GetObstacle() { return m_ppObstacleObjects; }
 };
 

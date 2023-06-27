@@ -7,8 +7,12 @@
 #include "TrailShaderComponent.h"
 #include"TerrainShaderComponent.h"
 #include "Network/MapData/MapData.h"
+#include "GameFramework.h"
+#include "GameobjectManager.h"
 
 extern MapData g_bossMapData;
+extern CGameFramework gGameFramework;
+
 
 BYTE ReadStringFromFile(FILE* pInFile, char* pstrToken)
 {
@@ -257,16 +261,26 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	ComponentBase* pLoadedmodelComponent = GetComponent(component_id::LOADEDMODEL_COMPONET);
 	if (pLoadedmodelComponent != NULL)
 	{
+		////MaterialComponent::PrepareShaders(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pd3dcbGameObjects);
+		//if (m_pLoadedModelComponent == nullptr)
+		//{
+		//	m_pLoadedModelComponent = static_cast<CLoadedModelInfoCompnent*>(pLoadedmodelComponent);
+		//	m_pLoadedModelComponent = LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList,
+		//		pd3dGraphicsRootSignature, pszModelNames, NULL, true);//NULL ->Shader
+		//	SetChild(m_pLoadedModelComponent->m_pModelRootObject, true);
+		//	m_pTrailStart = FindFrame("WeaponPositionStart");
+		//	m_pTrailEnd = FindFrame("WeaponPositionEnd");
+		//}
 		//MaterialComponent::PrepareShaders(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pd3dcbGameObjects);
 		if (m_pLoadedModelComponent == nullptr)
 		{
 			m_pLoadedModelComponent = static_cast<CLoadedModelInfoCompnent*>(pLoadedmodelComponent);
 			m_pLoadedModelComponent = LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList,
 				pd3dGraphicsRootSignature, pszModelNames, NULL, true);//NULL ->Shader
-			SetChild(m_pLoadedModelComponent->m_pModelRootObject, true);
 			m_pTrailStart = FindFrame("WeaponPositionStart");
 			m_pTrailEnd = FindFrame("WeaponPositionEnd");
 		}
+		SetChild(m_pLoadedModelComponent->m_pModelRootObject, true);
 		if (m_nAnimationSets != 0)
 		{
 			m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, m_nAnimationSets, m_pLoadedModelComponent);
@@ -282,8 +296,8 @@ void GameObject::BuildMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 	if (pCubeMeshComponent != NULL)
 	{
 		m_pCubeComponent = static_cast<CubeMeshComponent*>(pCubeMeshComponent);
-		//m_pCubeComponent->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, 10, 10, 10);
-		m_pCubeComponent->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, g_bossMapData.GetTriangleMesh());
+		m_pCubeComponent->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, 1, 1, 1);
+		//m_pCubeComponent->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, g_bossMapData.GetTriangleMesh());
 		m_pMeshComponent = m_pCubeComponent;
 	}
 	ComponentBase* pSkyMeshComponent = GetComponent(component_id::SKYBOXMESH_COMPONENT);
@@ -392,6 +406,7 @@ void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3
 {
 	UpdateShaderVariables(pd3dCommandList);
 	UpdateShaderVariables(pd3dCommandList, &m_xmf4x4World, NULL);
+
 	if (m_pSkinnedAnimationController)
 		m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
 
@@ -512,6 +527,7 @@ void GameObject::ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLis
 
 void GameObject::Animate(float fTimeElapsed)
 {
+	if(m_pCamera) UpdateCameraPosition();
 	if (m_pSkinnedAnimationController)
 	{
 		m_pSkinnedAnimationController->AdvanceTime(fTimeElapsed, this);
@@ -612,6 +628,10 @@ void GameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandLis
 	XMFLOAT4X4 xmf4x4World;
 	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(pxmf4x4World)));
 	pd3dCommandList->SetGraphicsRoot32BitConstants(23, 16, &xmf4x4World, 0);
+}
+void GameObject::UpdateObjectVarialbes(XMFLOAT4X4* pxmf4x4World)
+{
+	XMStoreFloat4x4(&m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(pxmf4x4World)));
 }
 void GameObject::ReleaseShaderVariables()
 {
@@ -1086,7 +1106,20 @@ void GameObject::MoveForward(float fDistance)
 	XMFLOAT3 xmf3Look = GetLook();
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, fDistance);
 	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * fDistance / 50.0f);
-	if (Vector3::Length(xmf3Position) < PLAYER_MAX_RANGE)	GameObject::SetPosition(xmf3Position);
+	//if (Vector3::Length(xmf3Position) < PLAYER_MAX_RANGE)	GameObject::SetPosition(xmf3Position);
+	vector<GameObject*> tempVector = gGameFramework.GetScene()->GetObjectManager()->GetObstacle();
+	XMVECTOR tempPoint = XMVectorSet(xmf3Position.x, xmf3Position.y, xmf3Position.z, 0.0f);
+	for (int i = 0; i < tempVector.size(); ++i)
+	{
+		if (tempVector[i]->m_OBB.Contains(tempPoint))
+		{
+			// cout << "충돌 발생 : " << i << "번째 바위와 충돌하였습니다." << endl;
+			// cout << "바위 Center Position : " << tempVector[i]->GetPosition().x <<", " << tempVector[i]->GetPosition().y << ", " << tempVector[i]->GetPosition().z << " )" << endl;
+			// cout << "충돌 포지션 : ( "<< xmf3Position.x <<", " << xmf3Position.y << ", " << xmf3Position.z << " )" << endl;
+			return;
+		}
+	}
+	GameObject::SetPosition(xmf3Position);
 }
 
 void GameObject::Rotate(float fPitch, float fYaw, float fRoll)
@@ -1116,7 +1149,7 @@ void GameObject::Rotate(XMFLOAT4* pxmf4Quaternion)
 
 void GameObject::UpdateTransform(XMFLOAT4X4* pxmf4x4Parent)
 {
-	m_xmf4x4World = Matrix4x4::Identity();
+	// m_xmf4x4World = Matrix4x4::Identity();
 	m_xmf4x4World = (pxmf4x4Parent) ? Matrix4x4::Multiply(m_xmf4x4ToParent, *pxmf4x4Parent) : m_xmf4x4ToParent;
 
 	if (m_pSibling) m_pSibling->UpdateTransform(pxmf4x4Parent);
