@@ -259,10 +259,10 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	{
 		for (int i = 0; i < 5; i++)
 			m_pBoundingBox[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	}
-	for (auto& p : m_pObstacleBoundingBox)
-	{
-		p->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		for (auto& p : m_pObstacleBoundingBox)
+		{
+			p->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		}
 	}
 	for (int i = 0; i < m_pArrowObjects.size(); i++) {
 		if (m_pArrowObjects[i])
@@ -298,7 +298,6 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	//		//}
 	//	}
 	//}
-	m_pPlaneObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//m_pMonsterObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 	//m_pUIGameSearchObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -341,7 +340,6 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	}
 	//TrailRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//ÀÓ½Ã
-	m_pRockObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	AstarRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
 
@@ -618,15 +616,15 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPlaneObject->SetRimLight(false);
 	m_ppGameObjects.emplace_back(m_pPlaneObject);
 
-	//ÀÓ½Ã µ¹´óÀÌ ·»´õ
-	m_pRockObject = new GameObject(UNDEF_ENTITY);
-	m_pRockObject->InsertComponent<RenderComponent>();
-	m_pRockObject->InsertComponent<CLoadedModelInfoCompnent>();
-	m_pRockObject->SetPosition(XMFLOAT3(0, 0, 0));
-	m_pRockObject->SetModel("Model/OutLineRock.bin");
-	m_pRockObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pRockObject->SetScale(1.0f, 1.0f, 1.0f);
-	m_ppGameObjects.emplace_back(m_pRockObject);
+	////ÀÓ½Ã µ¹´óÀÌ ·»´õ
+	//m_pRockObject = new GameObject(UNDEF_ENTITY);
+	//m_pRockObject->InsertComponent<RenderComponent>();
+	//m_pRockObject->InsertComponent<CLoadedModelInfoCompnent>();
+	//m_pRockObject->SetPosition(XMFLOAT3(0, 0, 0));
+	//m_pRockObject->SetModel("Model/OutLineRock.bin");
+	//m_pRockObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//m_pRockObject->SetScale(1.0f, 1.0f, 1.0f);
+	//m_ppGameObjects.emplace_back(m_pRockObject);
 
 	for (int i = 0; i < 4; ++i)
 	{
