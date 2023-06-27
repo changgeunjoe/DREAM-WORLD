@@ -291,7 +291,9 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 {
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 	m_pObjectManager = new GameobjectManager(pCamera);
+	m_pObjectManager->m_pUILayer = m_pUILayer;
 	m_pObjectManager->BuildObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	
 }
 
 

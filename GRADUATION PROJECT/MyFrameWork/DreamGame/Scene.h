@@ -5,6 +5,7 @@
 
 
 
+class UILayer;
 class GameobjectManager;
 class CCamera;
 struct RootSignatureDesc
@@ -61,6 +62,7 @@ protected:
 	RootSignatureDesc RootSignature;
 
 	CCamera* m_pCamera{ NULL };
+	//2dpont ui
 
 
 
@@ -70,6 +72,8 @@ protected:
 
 	float m_fTime{};
 	friend class Logic;
+public:
+	UILayer* m_pUILayer = NULL;
 };
 
 

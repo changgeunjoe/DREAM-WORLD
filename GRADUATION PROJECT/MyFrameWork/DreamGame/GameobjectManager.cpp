@@ -15,6 +15,7 @@
 #include "./Network/MapData/MapData.h"
 #include"EffectObject.h"
 #include"DebuffObject.h"
+#include"UILayer.h"
 
 extern NetworkHelper g_NetworkHelper;
 extern Logic g_Logic;
@@ -151,6 +152,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	if (m_pTrailComponent) {
 	TrailAnimate(fTimeElapsed);
 	}
+	AddTextToUILayer(0);
 }
 
 void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)
@@ -318,7 +320,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pShadowmapShaderComponent->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature);
 	}
 	TrailRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	EffectRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,m_fTime);
+//	EffectRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,m_fTime);
 
 	//m_pNaviMeshObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//if (m_pTextureToViewportComponent)
@@ -1630,6 +1632,36 @@ void GameobjectManager::onProcessingMouseMessageUI(HWND hWnd, UINT nMessageID, W
 	default:
 		break;
 	}
+}
+
+void GameobjectManager::AddTextToUILayer(int iIndex)
+{
+	//CGameObject* pObj = m_pUIObjectShader->GetObjectList(L"UI_Quest").front();
+	//pObj->SetActiveState(true);
+
+	queue<wstring> queueStr;
+	/*if (iIndex == NPC_TEXT)
+	{*/
+		queueStr.emplace(L"용사님들 드디어 오셧군요");
+		queueStr.emplace(L"저희 꿈마을을 지켜주세요!");
+	//}
+	//else if (iIndex == GOLEM_TEXT) //돌덩이 죽을때
+	//{
+	//	queueStr.emplace(L"전리품? 나한텐 그런거 없다..");
+	//	queueStr.emplace(L"선인장에게 힌트를 얻을수도...");
+	//}
+	//else if (iIndex == CACTUS_TEXT) //선인장 죽을때
+	//{
+	//	queueStr.emplace(L"너가 나보다 강해도 과연 우리 아빠보다 강할까?!");
+	//	queueStr.emplace(L"넌 이제 죽은 목숨이라고!!!");
+	//}
+	//else if (iIndex == BOSS_TEXT) //보스 죽을때
+	//{
+	//	queueStr.emplace(L"강하구나 용사여...");
+	//	queueStr.emplace(L"강자는 전리품을 얻을수 있는 자격이 있다..");
+	//	queueStr.emplace(L"받고 떠나라");
+	//}
+	m_pUILayer->AddTextFont(queueStr);
 }
 
 float GameobjectManager::CalculateDistance(const XMFLOAT3& firstPosition, const XMFLOAT3& lastPosition)

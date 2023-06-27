@@ -14,6 +14,7 @@ class InstancingShaderComponent;
 class TrailComponent;
 class EffectObject;
 class DebuffObject;
+class UILayer;
 #include"CLoadModelinfo.h"
 class GameobjectManager
 {
@@ -61,6 +62,7 @@ public:
 	virtual void onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	virtual void onProcessingMouseMessageUI(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
+	void AddTextToUILayer(int index);
 	float CalculateDistance(const XMFLOAT3& firstPosition, const XMFLOAT3& lastPosition);
 
 private: //active object 
@@ -163,9 +165,12 @@ private: //active object
 	ID3D12Resource* m_pd3dcbGameObjects = nullptr;
 	//CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
 	CB_GAMEFRAMEWORK_INFO* m_pcbMappedGameObjects = nullptr;
+
+	
 public:
 	std::vector<int> m_VecNodeQueue;
 	std::mutex m_nodeLock;
+	UILayer* m_pUILayer = NULL;
 public:
 	void SetPlayCharacter(Session* pSession);
 	void SetSection(int n) { m_nSection = n; }
