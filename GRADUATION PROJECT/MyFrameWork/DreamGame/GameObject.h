@@ -296,7 +296,7 @@ public:
 	void SetProjectileY(float yLook) { m_projectilesLookY = yLook; }
 public:
 	XMFLOAT3						m_xmfHitPosition;
-	XMFLOAT3                        m_xmf3Destination;
+	XMFLOAT3                        m_xmf3Destination = XMFLOAT3{ 0,0,0 };
 	float                           m_UIScale = 10.0f;
 	bool                            m_bUIActive{ true };
 public:

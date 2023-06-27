@@ -298,7 +298,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	//		//}
 	//	}
 	//}
-	//m_pPlaneObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pPlaneObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//m_pMonsterObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 	//m_pUIGameSearchObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -339,7 +339,9 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	if (m_pStage1TerrainObject) {
 		//m_pStage1TerrainObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
-	TrailRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//TrailRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//ÀÓ½Ã
+	m_pRockObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	AstarRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
 
@@ -616,14 +618,15 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPlaneObject->SetRimLight(false);
 	m_ppGameObjects.emplace_back(m_pPlaneObject);
 
-	//m_pRockObject = new GameObject(UNDEF_ENTITY);
-	//m_pRockObject->InsertComponent<RenderComponent>();
-	//m_pRockObject->InsertComponent<CLoadedModelInfoCompnent>();
-	//m_pRockObject->SetPosition(XMFLOAT3(0, 0, 0));
-	//m_pRockObject->SetModel("Model/OutLineRock.bin");
-	//m_pRockObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//m_pRockObject->SetScale(1.0f, 1.0f, 1.0f);
-	//m_ppGameObjects.emplace_back(m_pRockObject);
+	//ÀÓ½Ã µ¹´óÀÌ ·»´õ
+	m_pRockObject = new GameObject(UNDEF_ENTITY);
+	m_pRockObject->InsertComponent<RenderComponent>();
+	m_pRockObject->InsertComponent<CLoadedModelInfoCompnent>();
+	m_pRockObject->SetPosition(XMFLOAT3(0, 0, 0));
+	m_pRockObject->SetModel("Model/OutLineRock.bin");
+	m_pRockObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pRockObject->SetScale(1.0f, 1.0f, 1.0f);
+	m_ppGameObjects.emplace_back(m_pRockObject);
 
 	for (int i = 0; i < 4; ++i)
 	{
@@ -1314,9 +1317,8 @@ void GameobjectManager::ProcessingUI(int n)
 			cout << "StartMatching" << endl;
 			g_NetworkHelper.SendMatchRequestPacket();
 			m_bInMatching = true;
-		
-			break;
 		}
+		break;
 	}
 	case UI::UI_WARRIORCHARACTER:
 	{
@@ -1839,6 +1841,7 @@ void GameobjectManager::SetPlayerCamera(Session& mySession)
 	mySession.m_currentPlayGameObject->SetCamera(m_pCamera);
 	mySession.m_currentPlayGameObject->m_pCamera->ReInitCamrea();
 	mySession.m_currentPlayGameObject->SetCamera(m_pCamera);
+	mySession.m_currentPlayGameObject->SetLookAt(XMFLOAT3(0, 0, 0));
 	auto mPos = mySession.m_currentPlayGameObject->GetPosition();
 	auto cPos = mySession.m_currentPlayGameObject->m_pCamera->GetPosition();
 	boolalpha(cout);
