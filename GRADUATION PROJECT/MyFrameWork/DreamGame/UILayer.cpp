@@ -238,7 +238,7 @@ void UILayer::AddTextFont(queue<wstring>& queueStr)
 	if (!m_vecTextBlocks[TEXT_NPC].empty()) //NPC Text´Â 1°³ ¾¿
 		m_vecTextBlocks[TEXT_NPC].front()->m_isDead = true;
 
-	CTextBlock* pTb = new CNPCTextBlock(m_pdwTextFormat, D2D1::RectF(0.f, 0.f, m_fWidth, m_fHeight-200), queueStr);
+	CTextBlock* pTb = new CNPCTextBlock(m_pdwTextFormat, D2D1::RectF(0.f, 0.f, m_fWidth, m_fHeight), queueStr);
 	m_vecTextBlocks[TEXT_NPC].emplace_back(pTb);
 
 }

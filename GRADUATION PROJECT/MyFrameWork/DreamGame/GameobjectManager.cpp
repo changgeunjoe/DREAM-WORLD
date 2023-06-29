@@ -152,7 +152,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	}
 	//TextUI Update
 	m_pUILayer->Update(fTimeElapsed,m_bNPCinteraction);
-
+	AddTextToUILayer(m_iTEXTiIndex);
 	
 }
 
@@ -620,7 +620,6 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 {//빌드
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	BuildLight();
-	AddTextToUILayer(NPC_TEXT);
 	CLoadedModelInfoCompnent* ArrowModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Arrow.bin", NULL, true);
 
 	/*ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/BigMushroom.txt", "Model/BigMushroom.bin", 0);
@@ -1863,7 +1862,7 @@ void GameobjectManager::onProcessingMouseMessageUI(HWND hWnd, UINT nMessageID, W
 	}
 }
 
-void GameobjectManager::AddTextToUILayer(int iIndex)
+void GameobjectManager::AddTextToUILayer(int &iIndex)
 {
 	//CGameObject* pObj = m_pUIObjectShader->GetObjectList(L"UI_Quest").front();
 	//pObj->SetActiveState(true);
@@ -1876,23 +1875,11 @@ void GameobjectManager::AddTextToUILayer(int iIndex)
 		queueStr.emplace(L"앞에 있는 악몽들을 처치해주세요!");
 
 	}
-	//else if (iIndex == GOLEM_TEXT) //돌덩이 죽을때
-	//{
-	//	queueStr.emplace(L"전리품? 나한텐 그런거 없다..");
-	//	queueStr.emplace(L"선인장에게 힌트를 얻을수도...");
-	//}
-	//else if (iIndex == CACTUS_TEXT) //선인장 죽을때
-	//{
-	//	queueStr.emplace(L"너가 나보다 강해도 과연 우리 아빠보다 강할까?!");
-	//	queueStr.emplace(L"넌 이제 죽은 목숨이라고!!!");
-	//}
-	//else if (iIndex == BOSS_TEXT) //보스 죽을때
-	//{
-	//	queueStr.emplace(L"강하구나 용사여...");
-	//	queueStr.emplace(L"강자는 전리품을 얻을수 있는 자격이 있다..");
-	//	queueStr.emplace(L"받고 떠나라");
-	//}
-	m_pUILayer->AddTextFont(queueStr);
+	if (iIndex != -1) {
+		m_pUILayer->AddTextFont(queueStr);
+	}
+	iIndex = -1;
+
 }
 
 float GameobjectManager::CalculateDistance(const XMFLOAT3& firstPosition, const XMFLOAT3& lastPosition)

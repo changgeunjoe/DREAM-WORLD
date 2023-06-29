@@ -63,7 +63,7 @@ public:
 	virtual void onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	virtual void onProcessingMouseMessageUI(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
-	void AddTextToUILayer(int index);
+	void AddTextToUILayer(int &index);
 	float CalculateDistance(const XMFLOAT3& firstPosition, const XMFLOAT3& lastPosition);
 
 private: //active object 
@@ -180,6 +180,7 @@ public:
 	std::mutex m_nodeLock;
 	UILayer* m_pUILayer{ NULL };
 	bool m_bNPCinteraction{false};
+	int m_iTEXTiIndex{ 0 };
 public:
 	void SetPlayCharacter(Session* pSession);
 	void SetSection(int n) { m_nSection = n; }
