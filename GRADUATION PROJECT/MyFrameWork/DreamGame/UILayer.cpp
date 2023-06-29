@@ -200,27 +200,25 @@ void UILayer::Resize(ID3D12Resource** ppd3dRenderTargets, UINT nWidth, UINT nHei
 	m_pdwDamageFontFormat->SetTextAlignment(/*DWRITE_TEXT_ALIGNMENT_CENTER*/DWRITE_TEXT_ALIGNMENT_LEADING);
 	m_pdwDamageFontFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR);
 	//    m_pd2dWriteFactory->CreateTextFormat(L"Arial", nullptr, DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, fSmallFontSize, L"en-us", &m_pdwTextFormat);
-
-
 		/////////////
 		//wstring str = L"";
 		//CTextBlock* pTb = new CNPCTextBlock(m_pdwTextFormat, D2D1::RectF(0.f, 0.f, (float)FRAME_BUFFER_WIDTH, (float)FRAME_BUFFER_HEIGHT), str);
 		//m_vecTextBlocks[TEXT_NPC].emplace_back(pTb);
 }
 
-void UILayer::Update(const float& fTimeElapsed)
+void UILayer::Update(const float& fTimeElapsed,bool& binteraction)
 {
 	for (int j = 0; j < TEXT_TYPE::TEXT_END; ++j)
 	{
 		auto it = m_vecTextBlocks[j].begin();
-		while (it != m_vecTextBlocks[j].end())
+		while (it != m_vecTextBlocks[j].end()&& binteraction)
 		{
-			(*it)->Update(fTimeElapsed);
+			(*it)->Update(fTimeElapsed, binteraction);
 
 			if ((*it)->m_isDead)
 			{
-				delete (*it);
-				it = m_vecTextBlocks[j].erase(it);
+				delete (*it); 
+				it=m_vecTextBlocks[j].erase(it);
 			}
 			else
 				++it;
@@ -238,9 +236,9 @@ void UILayer::AddDamageFont(XMFLOAT3 xmf3WorldPos, wstring strText)
 void UILayer::AddTextFont(queue<wstring>& queueStr)
 {
 	if (!m_vecTextBlocks[TEXT_NPC].empty()) //NPC Text는 1개 씩
-	    m_vecTextBlocks[TEXT_NPC].front()->m_isDead = true;
+		m_vecTextBlocks[TEXT_NPC].front()->m_isDead = true;
 
-	CTextBlock* pTb = new CNPCTextBlock(m_pdwTextFormat, D2D1::RectF(0.f, 0.f, m_fWidth, m_fHeight), queueStr);
+	CTextBlock* pTb = new CNPCTextBlock(m_pdwTextFormat, D2D1::RectF(0.f, 0.f, m_fWidth, m_fHeight-200), queueStr);
 	m_vecTextBlocks[TEXT_NPC].emplace_back(pTb);
 
 }
@@ -314,7 +312,7 @@ CDamageTextBlock::~CDamageTextBlock()
 {
 }
 
-void CDamageTextBlock::Update(const float& fTimeElapsed)
+void CDamageTextBlock::Update(const float& fTimeElapsed, bool& bInteraction)
 {
 	m_fLifeTime -= fTimeElapsed;
 	if (m_fLifeTime < 0.f)
@@ -346,8 +344,8 @@ CNPCTextBlock::CNPCTextBlock(IDWriteTextFormat* pdwFormat, D2D1_RECT_F& d2dLayou
 	m_qTotalText = queueStr;
 	//m_strTotalText = L"승붕게이야 카톡읽으면 답장해라...";
 
-	m_d2dLayoutRect.left = FRAME_BUFFER_WIDTH * 0.5f;
-	m_d2dLayoutRect.top = FRAME_BUFFER_HEIGHT * 0.5f;
+	m_d2dLayoutRect.left = FRAME_BUFFER_WIDTH * 0.2f;
+	m_d2dLayoutRect.top = FRAME_BUFFER_HEIGHT * 0.8f;
 }
 
 CNPCTextBlock::~CNPCTextBlock()
@@ -355,20 +353,34 @@ CNPCTextBlock::~CNPCTextBlock()
 }
 #define CHARACTHER_DELAY 0.1f
 #define SENTENCE_DELAY 1.5f
-void CNPCTextBlock::Update(const float& fTimeElapsed)
+void CNPCTextBlock::Update(const float& fTimeElapsed,bool& bInteraction)
 {
+	
 	m_fTime += fTimeElapsed;
 	if (m_fTime > CHARACTHER_DELAY && !m_qTotalText.empty())
 	{
 		wstring curTotalStr = m_qTotalText.front();
 		//m_strText.assign(m_strTotalText, 0, ++m_iIndex);
-		m_strText.append(curTotalStr, m_iIndex++, 1);
-
+		if (!m_bInitSentences) {
+			m_strText.append(curTotalStr, m_iIndex++, 1);
+		}
 		if (m_iIndex > curTotalStr.size()) //한 문장 끝나면
 		{
-			m_qTotalText.pop();
+			bInteraction = false;
+			//m_strText.erase();
+			//m_strText.clear(); // 
+			//m_isDead = true;
+			//m_qTotalText.pop();
+
 			m_iIndex = 0;
+			m_bInitSentences = true;
 			//m_isSentenceEnd = true;
+		}
+		if (bInteraction && m_bInitSentences) {
+			m_strText.clear();
+			m_qTotalText.pop();
+			m_bInitSentences = false;
+			
 		}
 		m_fTime = 0.f;
 

@@ -310,6 +310,13 @@ enum CharacterAnimation
 	CA_BLENDING = 99
 };
 
+//NPCText
+enum TEXT
+{
+	NPC_TEXT=0
+};
+
+
 enum BOSS_ATTACK : char {
 	ATTACK_PUNCH,
 	ATTACK_SPIN,

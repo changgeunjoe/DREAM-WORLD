@@ -48,6 +48,7 @@ public:
 	virtual void BuildInstanceObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void BuildStoryUI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void BuildNPC(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	
 	virtual void PickObjectByRayIntersection(int xClient, int yClient);
 	virtual void ProcessingUI(int n);
@@ -149,12 +150,16 @@ private: //active object
 	//AstarObject
 	GameObject* m_pAstarObject{ NULL };
 	TrailComponent* m_pAstarComponent{ NULL };
-	//
+	//Effect
 	array<GameObject*, 10> m_pStage1Objects{ NULL };
 	GameObject* m_pStage1TerrainObject{ NULL };
 	
 	EffectObject* m_pEffectObject{NULL};
 	EffectObject* m_pDebuffObject{ NULL };
+
+	//NPC Object 
+	GameObject* m_pAngelNPCObject{ NULL };
+	GameObject* m_pAngelMageNPCObject{ NULL };
 
 	POINT						m_ptOldCursorPos;
 
@@ -173,7 +178,8 @@ private: //active object
 public:
 	std::vector<int> m_VecNodeQueue;
 	std::mutex m_nodeLock;
-	UILayer* m_pUILayer = NULL;
+	UILayer* m_pUILayer{ NULL };
+	bool m_bNPCinteraction{false};
 public:
 	void SetPlayCharacter(Session* pSession);
 	void SetSection(int n) { m_nSection = n; }

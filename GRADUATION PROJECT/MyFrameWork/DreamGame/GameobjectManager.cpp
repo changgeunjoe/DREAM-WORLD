@@ -150,7 +150,10 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	if (m_pTrailComponent) {
 	TrailAnimate(fTimeElapsed);
 	}
-	AddTextToUILayer(0);
+	//TextUI Update
+	m_pUILayer->Update(fTimeElapsed,m_bNPCinteraction);
+
+	
 }
 
 void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)
@@ -327,7 +330,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pShadowmapShaderComponent->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature, m_fTimeElapsed);
 	}
 	TrailRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-//	EffectRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,m_fTime);
+	EffectRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,m_fTime);
 
 	//m_pNaviMeshObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//if (m_pTextureToViewportComponent)
@@ -617,22 +620,22 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 {//빌드
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	BuildLight();
-
+	AddTextToUILayer(NPC_TEXT);
 	CLoadedModelInfoCompnent* ArrowModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Arrow.bin", NULL, true);
 
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/BigMushroom.txt", "Model/BigMushroom.bin", 0);
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Mushroom.txt", "Model/Mushroom.bin", 0);
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/LongFence.txt", "Model/LongFence.bin", 0);
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence01.txt", "Model/ShortFence01.bin", 0);
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence02.txt", "Model/ShortFence02.bin", 0);
+	/*ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/BigMushroom.txt", "Model/BigMushroom.bin", 0);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Mushroom.txt", "Model/Mushroom.bin", 0);*/
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/LongFence.txt", "Model/P_Fence_06.bin", 0);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence01.txt", "Model/P_Fence_01.bin", 0);
+	/*ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence02.txt", "Model/ShortFence02.bin", 0);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence03.txt", "Model/ShortFence03.bin", 0);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Tree.txt", "Model/Tree.bin", 0);
 
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock1.txt", "Model/Rock1.bin", 1);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock2.txt", "Model/Rock2.bin", 1);
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock3.txt", "Model/Rock3.bin", 1);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock3.txt", "Model/Rock3.bin", 1);*/
 
-	m_pPlaneObject = new GameObject(UNDEF_ENTITY);
+	/*m_pPlaneObject = new GameObject(UNDEF_ENTITY);
 	m_pPlaneObject->InsertComponent<RenderComponent>();
 	m_pPlaneObject->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pPlaneObject->SetPosition(XMFLOAT3(0, 0, 0));
@@ -640,7 +643,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPlaneObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pPlaneObject->SetScale(1.0f, 1.0f, 1.0f);
 	m_pPlaneObject->SetRimLight(false);
-	m_ppGameObjects.emplace_back(m_pPlaneObject);
+	m_ppGameObjects.emplace_back(m_pPlaneObject);*/
 
 	////임시 돌댕이 렌더
 	//m_pRockObject = new GameObject(UNDEF_ENTITY);
@@ -662,7 +665,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 		m_pBoundingBox[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pBoundingBox[i]->SetScale(1.f);
 	}
-	m_pWarriorObject = new Warrior();//사각형 오브젝트를 만들겠다
+	m_pWarriorObject = new Warrior();
 	m_pWarriorObject->InsertComponent<RenderComponent>();
 	m_pWarriorObject->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pWarriorObject->SetPosition(XMFLOAT3(100.f, 0.f, 0.f));
@@ -819,13 +822,14 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	BuildShadow(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//무조건 마지막에 해줘야된다.
 //	Build2DUI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildCharacterUI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	BuildParticle(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//BuildParticle(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//BuildInstanceObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	BuildStoryUI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	BuildTrail(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	BuildStage1(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	BuildAstar(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+//	BuildStoryUI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//BuildTrail(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//BuildStage1(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+//	BuildAstar(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	BuildNPC(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
 void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
@@ -1292,6 +1296,22 @@ void GameobjectManager::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	
 }
 
+void GameobjectManager::BuildNPC(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+{
+	//m_pAngelNPCObject = new Warrior();//사각형 오브젝트를 만들겠다
+	//m_pAngelNPCObject->InsertComponent<RenderComponent>();
+	//m_pAngelNPCObject->InsertComponent<CLoadedModelInfoCompnent>();
+	//m_pAngelNPCObject->SetPosition(XMFLOAT3(100.f, 0.f, 0.f));
+	//m_pAngelNPCObject->SetModel("Model/AngelMage.bin");
+	//m_pAngelNPCObject->SetAnimationSets(5);
+	//m_pAngelNPCObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//m_pAngelNPCObject->m_pSkinnedAnimationController->SetTrackAnimationSet(5);
+	//m_pAngelNPCObject->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_DIE]->m_nType = ANIMATION_TYPE_ONCE;
+	//m_pAngelNPCObject->SetScale(30.0f);
+	//m_pAngelNPCObject->SetBoundingBox(m_pBoundingBox[0]);
+	//m_ppGameObjects.emplace_back(m_pAngelNPCObject);
+}
+
 enum UI
 {
 	UI_GAMESEARCHING,
@@ -1635,6 +1655,12 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			g_Logic.m_KeyInput->m_bEKey = false;
 			break;
 		}
+		//NPC와 대화하거나 포털들어갈 때 상호작용 키  
+		case 'G':
+		{
+			m_bNPCinteraction = true;
+			break;
+		}
 		}
 	}
 	default:
@@ -1843,11 +1869,13 @@ void GameobjectManager::AddTextToUILayer(int iIndex)
 	//pObj->SetActiveState(true);
 
 	queue<wstring> queueStr;
-	/*if (iIndex == NPC_TEXT)
-	{*/
+	if (iIndex == NPC_TEXT)
+	{
 		queueStr.emplace(L"용사님들 드디어 오셧군요");
 		queueStr.emplace(L"저희 꿈마을을 지켜주세요!");
-	//}
+		queueStr.emplace(L"앞에 있는 악몽들을 처치해주세요!");
+
+	}
 	//else if (iIndex == GOLEM_TEXT) //돌덩이 죽을때
 	//{
 	//	queueStr.emplace(L"전리품? 나한텐 그런거 없다..");
