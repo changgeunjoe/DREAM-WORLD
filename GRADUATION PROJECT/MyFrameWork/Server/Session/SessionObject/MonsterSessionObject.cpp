@@ -114,85 +114,82 @@ void MonsterSessionObject::SetDirection(DIRECTION d)
 
 void MonsterSessionObject::Move(float fDistance, float elapsedTime)
 {
-	XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f);
 	//new - Astar
-	m_reserveRoadLock.lock();
-	if (m_ReserveRoad.size() > 0) {
-		DirectX::XMFLOAT3 destinationCenter = g_bossMapData.GetTriangleMesh(*m_ReserveRoad.begin()).GetCenter();
-		m_reserveRoadLock.unlock();
-		m_DestinationPos = destinationCenter;
-		auto lookV = Vector3::Subtract(m_DestinationPos, m_position);//방향 벡터
-		auto distance = Vector3::Length(lookV); // 거리
-		if (distance > 40.0f) {
-			lookV = Vector3::Normalize(lookV);
-			CalcRightVector();
-			bool OnRight = (Vector3::DotProduct(m_rightVector, lookV) > 0) ? true : false;	// 목적지가 오른쪽 왼
-			float ChangingAngle = Vector3::Angle(lookV, m_directionVector);
+	XMFLOAT3 destinationPlayerPos = g_iocpNetwork.m_session[m_aggroPlayerId].m_sessionObject->GetPos();//플레이어 위치
+	XMFLOAT3 desPlayerVector = Vector3::Subtract(destinationPlayerPos, m_position);
+	float playerDistance = Vector3::Length(Vector3::Subtract(m_position, desPlayerVector));
+	desPlayerVector = Vector3::Normalize(desPlayerVector);
+	CalcRightVector();
+	if (playerDistance < 40.0f) {//플레이어가 근접함
 
-			//old - No_Astar
-			//XMFLOAT3 des = Vector3::Subtract(m_DestinationPos, m_position);	// 목적지랑 위치랑 벡터
-			//CalcRightVector();
-			//bool OnRight = (Vector3::DotProduct(m_rightVector, Vector3::Normalize(des)) > 0) ? true : false;	// 목적지가 올느쪽 왼
-			//float ChangingAngle = Vector3::Angle(Vector3::Normalize(des), m_directionVector);
-			//
+	}
+	else {//그렇지 못하다면 길을 찾아 가야한다.
+		m_reserveRoadLock.lock();
+		if (m_ReserveRoad.size() > 0) {
+			int currentNodeIdx = *m_ReserveRoad.begin();
+			XMFLOAT3 destinationNodeCenter = g_bossMapData.GetTriangleMesh(currentNodeIdx).GetCenter();	//노드의 위치			
+			m_reserveRoadLock.unlock();
+			m_DestinationPos = destinationNodeCenter;
+			auto desNodeVector = Vector3::Subtract(m_DestinationPos, m_position);//방향 벡터
+			auto desNodeDistance = Vector3::Length(desNodeVector); // 거리
+			desNodeVector = Vector3::Normalize(desNodeVector);
+			bool OnRight = (Vector3::DotProduct(m_rightVector, desNodeVector) > 0) ? true : false;	// 목적지가 오른쪽 왼
+			float ChangingAngle = Vector3::Angle(desNodeVector, m_directionVector);
+			//거리와 벡터 계산		
+			bool isOnNode = g_bossMapData.GetTriangleMesh(currentNodeIdx).IsOnTriangleMesh(m_position);
 
-			//if (Vector3::Length(des) < 10.0f) {
-			//	auto durationTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - m_lastAttackTime);
-			//	if (durationTime > std::chrono::seconds(1) + std::chrono::milliseconds(500)) {
-			//		ExpOver* ov = new ExpOver();
-			//		ov->m_opCode = OP_BOSS_ATTACK_SELECT;
-			//		memcpy(ov->m_buffer, m_roomId.c_str(), m_roomId.size());
-			//		ov->m_buffer[m_roomId.size()] = 0;
-			//		PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, -1, &ov->m_overlap);
-			//	}
-			//}
-
-			//float distance = Vector3::Length(des);
-
-			if (ChangingAngle > 15.0f && distance < 40.0f) {
-				OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
+			if (desNodeDistance > 70.0f) { //목적지와 거리가 10이상 이라면
+				if (desNodeDistance > 50.0f) {
+					if (ChangingAngle > 40.0f) {
+						OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
+					}
+					else {
+						if (ChangingAngle > 1.6f) {
+							OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
+						}
+						m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, fDistance, false));//틱마다 움직임
+						m_SPBB = BoundingSphere(DirectX::XMFLOAT3(m_position.x, m_position.y + 30.0f, m_position.z), 30.0f);
+					}
+				}
+				else {//현재 노드에 가까울때
+					if (ChangingAngle > 1.6f)
+					{
+						OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
+					}
+					m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, fDistance, false));//틱마다 움직임
+					m_SPBB = BoundingSphere(DirectX::XMFLOAT3(m_position.x, m_position.y + 30.0f, m_position.z), 30.0f);
+				}
+				//std::cout << "BossPos: " << m_position.x << "0, " << m_position.z << std::endl;
 			}
 			else {
-				if (ChangingAngle > 0.5f)
-				{
-					OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
+				m_reserveRoadLock.lock();
+				m_onIdx = *m_ReserveRoad.begin();
+				m_ReserveRoad.erase(m_ReserveRoad.begin());
+				if (m_ReserveRoad.size() != 0) {
+					DirectX::XMFLOAT3 center = g_bossMapData.GetTriangleMesh(*m_ReserveRoad.begin()).GetCenter();
+					m_DestinationPos = center;//목적지 다음 노드의 센터
 				}
-				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, fDistance, false));//틱마다 움직임
-				m_SPBB = BoundingSphere(DirectX::XMFLOAT3(m_position.x, m_position.y + 30.0f, m_position.z), 30.0f);
+				m_reserveRoadLock.unlock();
 			}
-			//std::cout << "BossPos: " << m_position.x << "0, " << m_position.z << std::endl;
-		}
-		else {
-			m_reserveRoadLock.lock();
-			m_onIdx = *m_ReserveRoad.begin();
-			m_ReserveRoad.erase(m_ReserveRoad.begin());
-			if (m_ReserveRoad.size() != 0) {
-				DirectX::XMFLOAT3 center = g_bossMapData.GetTriangleMesh(*m_ReserveRoad.begin()).GetCenter();
-				m_DestinationPos = center;//목적지 다음 노드의 센터
-			}
-			m_reserveRoadLock.unlock();
-		}
+		}else 		m_reserveRoadLock.unlock();
 	}
-	else {
-		m_reserveRoadLock.unlock();
-		XMFLOAT3 desPlayerPos = g_iocpNetwork.m_session[m_aggroPlayerId].m_sessionObject->GetPos();
-		XMFLOAT3 desVector = Vector3::Subtract(desPlayerPos, m_position);
-		float dis = Vector3::Length(Vector3::Subtract(m_position, desPlayerPos));
-		desVector = Vector3::Normalize(desVector);
-		CalcRightVector();
-		bool OnRight = (Vector3::DotProduct(m_rightVector, desVector) > 0) ? true : false;	// 목적지가 오른쪽 왼
-		float ChangingAngle = Vector3::Angle(desVector, m_directionVector);
-		if (ChangingAngle > 15.0f && dis < 40.0f) {
-			OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
-		}
-		else {
-			if (ChangingAngle > 0.5f)
-			{
-				OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
-			}
-		}
+	//else {
+	//m_reserveRoadLock.unlock();
 
-	}
+	//CalcRightVector();
+	//bool OnRight = (Vector3::DotProduct(m_rightVector, desVector) > 0) ? true : false;	// 목적지가 오른쪽 왼
+	//float ChangingAngle = Vector3::Angle(desVector, m_directionVector);
+	//if (ChangingAngle > 15.0f && dis < 40.0f) {
+	//	OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
+	//}
+	//else {
+	//	if (ChangingAngle > 0.5f)
+	//	{
+	//		OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
+	//	}
+	//}
+
+	//}
 }
 
 
@@ -358,5 +355,3 @@ bool MonsterSessionObject::StartAttack()
 	}
 	return false;
 }
-
-;

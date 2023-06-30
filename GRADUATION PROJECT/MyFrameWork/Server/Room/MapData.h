@@ -7,6 +7,8 @@ class MapData
 {
 private:
 	std::string m_fileName;
+	std::vector<XMFLOAT3> m_vertex;
+	std::vector<int> m_index;
 	std::vector<TrinangleMesh> m_triangleMesh;
 	std::vector<int> m_zeroVertexIdxs;
 private:

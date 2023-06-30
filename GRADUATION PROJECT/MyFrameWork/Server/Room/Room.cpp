@@ -271,7 +271,7 @@ void Room::ChangeBossState()
 			if (!m_boss.isMove)
 				m_boss.StartMove(DIRECTION::FRONT);
 		}
-		TIMER_EVENT bossStateEvent{ std::chrono::system_clock::now() + std::chrono::milliseconds(700), m_roomId ,EV_BOSS_STATE };
+		TIMER_EVENT bossStateEvent{ std::chrono::system_clock::now() + std::chrono::milliseconds(100), m_roomId ,EV_BOSS_STATE };
 		g_Timer.InsertTimerQueue(bossStateEvent);
 	}
 	else {

@@ -414,8 +414,8 @@ void Logic::ProcessPacket(char* p)
 		XMFLOAT3 bossRightVector = monsterObject->GetRight();
 		high_resolution_clock::time_point h_t = high_resolution_clock::now();
 
-		std::cout << "local boss Dir: : " << bossLookVector.x << ", " << bossLookVector.y << ", " << bossLookVector.z << endl;
-		std::cout << "server boss Dir: : " << recvPacket->bossState.directionVector.x << ", " << recvPacket->bossState.directionVector.y << ", " << recvPacket->bossState.directionVector.z << endl;
+		//std::cout << "local boss Dir: : " << bossLookVector.x << ", " << bossLookVector.y << ", " << bossLookVector.z << endl;
+		//std::cout << "server boss Dir: : " << recvPacket->bossState.directionVector.x << ", " << recvPacket->bossState.directionVector.y << ", " << recvPacket->bossState.directionVector.z << endl;
 
 		XMFLOAT3 bossInterpolationVector = Vector3::Subtract(recvPacket->bossState.pos, bossPos);
 
@@ -437,7 +437,7 @@ void Logic::ProcessPacket(char* p)
 		bool OnRight = (Vector3::DotProduct(bossRightVector, Vector3::Normalize(recvPacket->bossState.directionVector)) > 0) ? true : false;	// 목적지가 올느쪽 왼
 
 		float bossRotBetweenAngle = Vector3::Angle(Vector3::Normalize(recvPacket->bossState.directionVector), bossLookVector);
-		cout << "boss Rot Between Angle: " << bossRotBetweenAngle << " Degree" << endl;
+		//cout << "boss Rot Between Angle: " << bossRotBetweenAngle << " Degree" << endl;
 		float bossInterpolationAngle = bossRotBetweenAngle - bosDurationTime * 90.0f;
 		//PrintCurrentTime();
 		//cout << endl << "bossBetweenAngle: " << bossRotBetweenAngle << endl;
@@ -484,7 +484,7 @@ void Logic::ProcessPacket(char* p)
 			m_MonsterSession.m_currentPlayGameObject->SetPosition(recvPacket->bossState.pos);
 		}
 		else {
-			std::cout << "force Set Interpolation Position: " << bossInterpolationDistance << endl;
+			//std::cout << "force Set Interpolation Position: " << bossInterpolationDistance << endl;
 			m_MonsterSession.m_currentPlayGameObject->m_interpolationDistance = abs(bossInterpolationDistance);
 			m_MonsterSession.m_currentPlayGameObject->m_interpolationVector = Vector3::Normalize(bossInterpolationVector);
 		}
@@ -643,16 +643,24 @@ void Logic::ProcessPacket(char* p)
 				triangleIdxVec.push_back(recvPacket->node[i]);
 			}
 			//gGameFramework.m_pScene->m_pObjectManager->m_VecNodeQueue.push_back(recvPacket->node[i]);				
+			//AStart Node Mesh
 			gGameFramework.m_pScene->m_pObjectManager->m_nodeLock.lock();
 			gGameFramework.m_pScene->m_pObjectManager->m_VecNodeQueue.swap(triangleIdxVec);
 			gGameFramework.m_pScene->m_pObjectManager->m_nodeLock.unlock();
 
+			//boss Move Node Data
 			m_MonsterSession.m_currentPlayGameObject->m_lockBossRoute.lock();
 			m_MonsterSession.m_currentPlayGameObject->m_BossRoute.swap(recvNodeQueue);
 			m_MonsterSession.m_currentPlayGameObject->m_lockBossRoute.unlock();
 		}
 
-		m_MonsterSession.m_currentPlayGameObject->SetMoveState(true);
+		if (!m_MonsterSession.m_currentPlayGameObject->GetMoveState())
+		{
+			m_MonsterSession.m_currentPlayGameObject->SetMoveState(true);
+			m_MonsterSession.m_currentPlayGameObject->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ATTACK::ATTACK_COUNT;
+			m_MonsterSession.m_currentPlayGameObject->m_pSkinnedAnimationController->SetTrackEnable(0, 2);
+		}
+		//m_MonsterSession.m_currentPlayGameObject->SetMoveState(true);
 		cout << endl;
 	}
 	break;

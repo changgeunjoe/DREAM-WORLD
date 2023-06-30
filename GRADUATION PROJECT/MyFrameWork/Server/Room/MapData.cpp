@@ -6,8 +6,7 @@
 void MapData::GetReadMapData()
 {
 	using namespace std;
-	std::vector<XMFLOAT3> vertex;
-	std::vector<int> index;
+
 	std::string line;
 	int vertexNum = 0;
 	int vertexNomalNum = 0;
@@ -37,14 +36,14 @@ void MapData::GetReadMapData()
 	inFile >> std::skipws;
 	int vertexCnt = -1;
 	inFile >> vertexCnt;
-	vertex.reserve(vertexCnt);
+	m_vertex.reserve(vertexCnt);
 	while (vertexCnt)
 	{
 		XMFLOAT3 v;
 		inFile >> v.x >> v.y >> v.z;
 		/*v.x *= 30.0f;
 		v.z *= 30.0f;*/
-		vertex.emplace_back(v.x, 0.0f, v.z);
+		m_vertex.emplace_back(v.x, 0.0f, v.z);
 		vertexCnt--;
 	}
 
@@ -57,13 +56,13 @@ void MapData::GetReadMapData()
 
 	int indexCnt = -1;
 	inFile >> indexCnt;
-	index.reserve(indexCnt);
+	m_index.reserve(indexCnt);
 	m_triangleMesh.reserve(indexCnt / 3);
 	while (indexCnt)
 	{
 		int i;
 		inFile >> i;
-		index.emplace_back(i);
+		m_index.emplace_back(i);
 		indexCnt--;
 	}
 
@@ -74,8 +73,8 @@ void MapData::GetReadMapData()
 	cout << "relation pos: " << inFile.tellg() << endl;
 	inFile >> std::skipws;
 
-	for (auto indexIter = index.begin(); indexIter != index.end(); indexIter += 3) {
-		m_triangleMesh.emplace_back(vertex[*indexIter], vertex[*(indexIter + 1)], vertex[*(indexIter + 2)]);
+	for (auto indexIter = m_index.begin(); indexIter != m_index.end(); indexIter += 3) {
+		m_triangleMesh.emplace_back(m_vertex[*indexIter], m_vertex[*(indexIter + 1)], m_vertex[*(indexIter + 2)], *indexIter, *(indexIter + 1), *(indexIter + 2));
 	}
 
 	while (true)
@@ -87,7 +86,7 @@ void MapData::GetReadMapData()
 		inFile >> relationCnt;
 		vector<int> siblingNodeIndex;
 		if (relationCnt < 0)break;
-		siblingNodeIndex.reserve(relationCnt);//형제 노드들 인덱스 저장
+		siblingNodeIndex.reserve(relationCnt);//형제 노드들 인덱스 저장 - 2개임
 		for (int relationIdx = 0; relationIdx < relationCnt; relationIdx++) {
 			int idx = -1;
 			inFile >> idx;
@@ -108,7 +107,7 @@ void MapData::GetReadMapData()
 	int inIdx = -1;
 	int zeroIdx = -1;
 	//vector<int> m_zeroVertexIdxs;
-	for (int i = 0; i < index.size() / 3; i++) {
+	for (int i = 0; i < m_index.size() / 3; i++) {
 		float dis = m_triangleMesh[i].GetDistance(300.0f, 0.0f, 100.0f);
 		if (fltMx > dis) {
 			fltMx = dis;
@@ -184,13 +183,18 @@ std::list<int> MapData::AStarLoad(int myTriangleIdx, float desX, float desZ)
 #endif
 			if (m_triangleMesh[currentTriangleIdx].IsOnTriangleMesh(desX, 0.0f, desZ)) {
 				std::list<int> resList;
+				std::stack<int> resStack;
 				int currentIdx = currentTriangleIdx;
+				resStack.push(currentIdx);
 				while (true) {
 					AstarNode currentNode = closeList[currentIdx];
+					resStack.push(currentIdx);
 					if (currentIdx == myTriangleIdx) {
 #ifdef _DEBUG
 						std::cout << std::endl << std::endl;
 #endif
+						//findPath(resList);
+						//findPath(resStack);
 						return resList;
 					}
 					resList.emplace_front(currentIdx);
