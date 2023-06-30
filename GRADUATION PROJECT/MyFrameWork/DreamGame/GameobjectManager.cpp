@@ -818,6 +818,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	g_Logic.m_inGamePlayerSession[0].m_id = 0;
 #endif // LOCAL_TASK
 
+	BuildNPC(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 	BuildShadow(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//무조건 마지막에 해줘야된다.
 //	Build2DUI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -829,7 +830,6 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	BuildStage1(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 //	BuildAstar(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	BuildNPC(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
 void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
@@ -1310,18 +1310,16 @@ void GameobjectManager::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 
 void GameobjectManager::BuildNPC(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-//	m_pAngelNPCObject = new Warrior();//사각형 오브젝트를 만들겠다
-//	m_pAngelNPCObject->InsertComponent<RenderComponent>();
-//	m_pAngelNPCObject->InsertComponent<CLoadedModelInfoCompnent>();
-//	m_pAngelNPCObject->SetPosition(XMFLOAT3(100.f, 0.f, 0.f));
-//	m_pAngelNPCObject->SetModel("Model/AngelMage.bin");
-////	m_pAngelNPCObject->SetAnimationSets(5);
-//	m_pAngelNPCObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-//	//m_pAngelNPCObject->m_pSkinnedAnimationController->SetTrackAnimationSet(5);
-//	//m_pAngelNPCObject->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_DIE]->m_nType = ANIMATION_TYPE_ONCE;
-//	m_pAngelNPCObject->SetScale(30.0f);
-//	//m_pAngelNPCObject->SetBoundingBox(m_pBoundingBox[0]);
-//	m_ppGameObjects.emplace_back(m_pAngelNPCObject);
+	m_pAngelNPCObject = new Warrior();//사각형 오브젝트를 만들겠다
+	m_pAngelNPCObject->InsertComponent<RenderComponent>();
+	m_pAngelNPCObject->InsertComponent<CLoadedModelInfoCompnent>();
+	m_pAngelNPCObject->SetPosition(XMFLOAT3(100.f, 0.f, 0.f));
+	m_pAngelNPCObject->SetModel("Model/Angel.bin");
+	m_pAngelNPCObject->SetAnimationSets(1);
+	m_pAngelNPCObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pAngelNPCObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1);
+	m_pAngelNPCObject->SetScale(30.0f);
+	m_ppGameObjects.emplace_back(m_pAngelNPCObject);
 }
 
 enum UI
