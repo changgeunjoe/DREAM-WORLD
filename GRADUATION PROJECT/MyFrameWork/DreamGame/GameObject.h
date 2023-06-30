@@ -12,6 +12,7 @@
 #include"MultiSpriteShaderComponent.h"
 #include"InstanceRenderComponent.h"
 #include"TerrainShaderComponent.h"
+#include"TrailShaderComponent.h"
 //include"CLoadModelinfo.h"
 class DepthRenderShaderComponent;
 class CLoadedModelInfoCompnent;
@@ -34,7 +35,7 @@ class TerrainShaderComponent;
 class GameObject
 {
 public:
-	GameObject(entity_id entityID);
+	GameObject(entity_id entityID = UNDEF_ENTITY);
 	~GameObject();
 
 	void Update(float elapsedTime);
@@ -42,6 +43,8 @@ public:
 	entity_id GetEntityID() const;
 
 	void SetPosition(const XMFLOAT3& position);
+	void SetAddPosition(XMFLOAT3 position) { m_AddPosition = position; }
+	XMFLOAT3 GetAddPosition() { return m_AddPosition; }
 	void UpdateCameraPosition();
 	const XMFLOAT3& GetPosition() const;
 
@@ -98,6 +101,7 @@ public:
     virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
     virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList, XMFLOAT4X4* pxmf4x4World, MaterialComponent* ppMaterialsComponent);
+	virtual void UpdateObjectVarialbes(XMFLOAT4X4* pxmf4x4World);
     virtual void ReleaseShaderVariables();
 	virtual void Reset() {};
 
@@ -109,7 +113,7 @@ public:
 
 	CAnimationController* m_pSkinnedAnimationController = NULL;
 
-	UINT GetMeshType() { return((m_pMeshComponent) ? m_pMeshComponent->GetType() : 0x00); };
+	UINT GetMeshType() { return((m_pMeshComponent) ? m_pMeshComponent->GetType() : 0x00); }
 	void SetMaterialType(UINT nType) { m_nType |= nType; }
 
 	void AnimateRowColumn(float fTimeElapsed);
@@ -118,7 +122,9 @@ public:
 	void SetCurrentHP(float fHP);
 	float GetCurrentHP() { return m_fHp; }
 	float GetMaxCurrentHP() { return m_fMaxHp; }
-	MeshComponent* GetMesh() { return m_pMeshComponent; };
+	MeshComponent* GetMesh() { return m_pMeshComponent; }
+
+	float GetDistance() const { return m_fDistance; } //카메라와 오브젝트의 거리
 public:
 	static CLoadedModelInfoCompnent* LoadGeometryAndAnimationFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, ShaderComponent* pShader, bool isBinary);
 
@@ -173,9 +179,11 @@ public:
 	CCamera* m_pCamera{ nullptr };
 	float                           m_fBoundingSize{ 8.0f };
 	BoundingSphere					m_SPBB = BoundingSphere(XMFLOAT3(0.0f, 0.0f, 0.0f), m_fBoundingSize);
+	BoundingOrientedBox				m_OBB;
 	GameObject* m_VisualizeSPBB{ nullptr };
 
-	
+
+	float                           m_fTime{};
 
 	int                             m_iRButtionCount = 0;
 
@@ -184,6 +192,8 @@ public:
 	bool                            m_RMouseInput = false;
 
 	bool                            m_bRimLight = true;
+
+	XMFLOAT4						m_xmf4Color{};
 
 protected:
 
@@ -198,7 +208,7 @@ protected:
 	XMFLOAT3 m_position{};
 	//Quaternion m_orientation;
 	float                           m_nRotateAngle = 0.0f;
-
+	float							m_fDistance = 0.0f;
     wchar_t* pszFileNames{};
     char* pszModelNames{};
 	LPCTSTR m_pFileName{};
@@ -240,6 +250,9 @@ protected:
 	CB_GAMEOBJECT_MULTISPRITE* m_pcbMappedMultiSpriteGameObjects = NULL;
 	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dCbvGPUDescriptorHandle;
 
+	ID3D12Resource* m_pd3dcbGameObjectColor = NULL;
+	CB_GAMEOBJECTCOLOR_INFO* m_pcbMappedGameObjectsColor = NULL;
+
 	ID3D12Resource* pShadowMap = nullptr;
 	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);// 삭제 예정(변경)
 	int nObjects = 0;//삭제 예정(변경)
@@ -265,27 +278,30 @@ public:
 
 	void SetFileName(LPCTSTR pFileName);
 
+	void SetColor(XMFLOAT4 xmf4Color) { m_xmf4Color = xmf4Color; }
+
+	void CalculateDistance(const XMFLOAT3& xmf3CameramPosition);
+
 protected:
 	bool                            m_bLButtonClicked = false;
 	bool                            m_bRButtonClicked = false;
 	atomic_bool                     m_bMoveState = false;
 
 protected:
-	CharacterType                   m_characterType = CharacterType::CT_NONE;
 	float                           m_fHp{ 100 };//캐릭터 현재 체력
 	float                           m_fMaxHp{ 100 };//캐릭터 최대 체력
-	float                           m_fSpeed;
-	float                           m_fDamage;
-	float							m_projectilesLookY;
+	float                           m_fSpeed{};
+	float                           m_fDamage{};
+	float							m_projectilesLookY{};
+	XMFLOAT3						m_AddPosition{};
 
-	float                           m_fTime{};
+
+	float                           m_fTimeElapsed{};
 	int                             m_nProjectiles{};
 
 	CHeightMapImage* m_pHeightMapImage;
 public:
 	array<Projectile*, 10>          m_pProjectiles;
-	void SetCharacterType(CharacterType type) { m_characterType = type; }
-	CharacterType GetCharacterType() { return m_characterType; }
 
 	void SetBoundingSize(float size)
 	{

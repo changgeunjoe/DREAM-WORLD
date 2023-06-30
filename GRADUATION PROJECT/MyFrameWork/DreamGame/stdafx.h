@@ -32,7 +32,6 @@
 #include <chrono>
 #include <filesystem>
 using namespace std;
-
 #include <d3d12.h>
 #include <dxgi1_4.h>
 #include <D3Dcompiler.h>
@@ -57,7 +56,7 @@ using namespace std;
 #endif
 #define PLAYER_MAX_RANGE 288.0f
 //#ifndef LOCAL_TASK
-//#define LOCAL_TASK 1
+#define LOCAL_TASK 1
 //#endif // !LOCAL_TASK
 
 ///////////////////////////////////////
@@ -193,7 +192,10 @@ inline bool IsEqual(float fA, float fB, float fEpsilon) { return(::IsZero(fA - f
 inline float InverseSqrt(float fValue) { return 1.0f / sqrtf(fValue); }
 inline void Swap(float* pfS, float* pfT) { float fTemp = *pfS; *pfS = *pfT; *pfT = fTemp; }
 inline float RandomValue(float a, float b) { return(a + (((float)rand() / (float)RAND_MAX) * (b - a))); }
-
+inline float RandF(float fMin, float fMax)
+{
+	return(fMin + ((float)rand() / (float)RAND_MAX) * (fMax - fMin));
+}
 
 struct MATERIAL
 {
@@ -215,6 +217,10 @@ struct CB_GAMEOBJECT_INFO
 struct CB_GAMEOBJECTWORLD_INFO
 {
 	XMFLOAT4X4						m_xmf4x4World;
+};
+struct CB_GAMEOBJECTCOLOR_INFO
+{
+	XMFLOAT4						m_xmf4Color;
 };
 
 struct CB_GAMEOBJECT_STAT

@@ -127,6 +127,9 @@
     <Filter Include="03.GameObject\Camera\Light">
       <UniqueIdentifier>{9b6c0702-22de-46fd-aece-29beee9dd564}</UniqueIdentifier>
     </Filter>
+    <Filter Include="03.GameObject\Effect">
+      <UniqueIdentifier>{79599104-53d1-42d5-8604-114a4f3c5a46}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -264,6 +267,12 @@
     <ClInclude Include="Network\MapData\MapData.h">
       <Filter>10.NetworkHelper\Room</Filter>
     </ClInclude>
+    <ClInclude Include="EffectObject.h">
+      <Filter>03.GameObject\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="DebuffObject.h">
+      <Filter>03.GameObject\Effect</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -391,6 +400,12 @@
     </ClCompile>
     <ClCompile Include="Network\MapData\MapData.cpp">
       <Filter>10.NetworkHelper\Room</Filter>
+    </ClCompile>
+    <ClCompile Include="EffectObject.cpp">
+      <Filter>03.GameObject\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="DebuffObject.cpp">
+      <Filter>03.GameObject\Effect</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

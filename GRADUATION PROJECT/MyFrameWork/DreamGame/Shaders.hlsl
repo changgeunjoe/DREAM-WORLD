@@ -73,9 +73,14 @@ cbuffer cbUIInfo : register(b9) //캐릭터별 체력과 림라이트 활성화 여부
     bool bUIActive : packoffset(c0);
 };
 
-cbuffer cbGameObjectWorld : register(b10) //캐릭터별 체력과 림라이트 활성화 여부 
+cbuffer cbGameObjectWorld : register(b10) //게임오브젝트 월드변환
 {
     matrix gmtxGameObjectWorld : packoffset(c0);
+};
+
+cbuffer cbGameObjectColor : register(b11) //캐릭터별 체력과 림라이트 활성화 여부 
+{
+    float4 gmtxGameObjectColor : packoffset(c0);
 };
 struct INSTANCEDGAMEOBJECTINFO//인스턴싱 데이터를 위한 구조체이다
 {
@@ -180,7 +185,20 @@ float4 PSDiffused(VS_OUTPUT input) : SV_TARGET
     {
         cColor = float4(0, 0, 0, 1);
     }
-     return cColor;
+    if (cColor.x < 0.2 || cColor.y < 0.2 || cColor.z < 0.2)
+    {
+        cColor.w = 0;
+    }
+    else{
+      //  float4 color = float4(0.6,0, 0, 0);
+       // cColor.xyz = cColor.xyz ;
+        //lerp(cColor, color,0.5);
+        float4 color = float4(10, 10, 10, 0);
+        cColor.xyz = 1 - cColor.xyz;
+        cColor += gmtxGameObjectColor;
+    }
+       
+    return cColor;
 
  #endif
 
@@ -226,18 +244,21 @@ float4 PSTexturedTrail(VS_TEXTURED_OUTPUT input) : SV_TARGET
 {
        // Sample the texture
     float4 cColor = shaderTexture.Sample(gWrapSamplerState, input.uv);
+    cColor += gmtxGameObjectColor;
+    cColor.w = 0.4;
     return (cColor);
 }
 
 float4 PSSpriteTextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
 {
-       // Sample the texture
+    // Sample the texture
     float4 cColor = shaderTexture.Sample(gWrapSamplerState, input.uv);
     if (cColor.x == 0 || cColor.y == 0 || cColor.z == 0)
     {
         cColor.w = 0;
     }
-       return (cColor);
+  
+    return (cColor);
 }
 
 float4 PSUITextured(VS_TEXTURED_OUTPUT input) : SV_TARGET

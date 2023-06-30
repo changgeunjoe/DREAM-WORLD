@@ -153,7 +153,9 @@
     <ClInclude Include="Character.h" />
     <ClInclude Include="CLoadModelinfo.h" />
     <ClInclude Include="ComponentBase.h" />
+    <ClInclude Include="DebuffObject.h" />
     <ClInclude Include="define.h" />
+    <ClInclude Include="EffectObject.h" />
     <ClInclude Include="InstanceRenderComponent.h" />
     <ClInclude Include="InstancingShaderComponent.h" />
     <ClInclude Include="Light.h" />
@@ -200,6 +202,8 @@
     <ClCompile Include="Character.cpp" />
     <ClCompile Include="CLoadModelinfo.cpp" />
     <ClCompile Include="ComponentBase.cpp" />
+    <ClCompile Include="DebuffObject.cpp" />
+    <ClCompile Include="EffectObject.cpp" />
     <ClCompile Include="InstanceRenderComponent.cpp" />
     <ClCompile Include="InstancingShaderComponent.cpp" />
     <ClCompile Include="Light.cpp" />

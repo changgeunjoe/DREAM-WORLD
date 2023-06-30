@@ -5,6 +5,7 @@
 
 
 
+class UILayer;
 class GameobjectManager;
 class CCamera;
 struct RootSignatureDesc
@@ -52,15 +53,17 @@ public:
 	void SetRootParameterDescriptorTable(D3D12_ROOT_PARAMETER pd3dRootParameter[], int iIndex, UINT NumDescriptorRanges, const D3D12_DESCRIPTOR_RANGE* pDescriptorRanges, D3D12_SHADER_VISIBILITY ShaderVisibility);
 	void SetRootParameterConstants(D3D12_ROOT_PARAMETER pd3dRootParameter[], int iIndex, UINT Num32BitValues, UINT ShaderRegister, UINT RegisterSpace, D3D12_SHADER_VISIBILITY ShaderVisibility);
 
+	GameobjectManager* GetObjectManager() { return m_pObjectManager; }
 protected:
 	//씬은 게임 객체들의 집합이다.게임 객체는 셰이더를 포함한다.
 	
 
-	GameobjectManager* m_pObjectManager=NULL;
+	GameobjectManager* m_pObjectManager = NULL;
 	ID3D12RootSignature* m_pd3dGraphicsRootSignature = NULL;
 	RootSignatureDesc RootSignature;
 
 	CCamera* m_pCamera{ NULL };
+	//2dpont ui
 
 
 
@@ -70,6 +73,8 @@ protected:
 
 	float m_fTime{};
 	friend class Logic;
+public:
+	UILayer* m_pUILayer = NULL;
 };
 
 

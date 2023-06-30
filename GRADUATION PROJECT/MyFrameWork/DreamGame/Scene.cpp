@@ -95,7 +95,7 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	RootSignature.Descriptorrange[11].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	//-------------------------------rootParameter----------------------------------------------------    
-	RootSignature.RootParameter.resize(23);
+	RootSignature.RootParameter.resize(24);
 	//shaderTexture (b0)Shaders.hlsl
 	RootSignature.RootParameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	RootSignature.RootParameter[0].DescriptorTable.NumDescriptorRanges = 1;
@@ -208,12 +208,18 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	RootSignature.RootParameter[21].Descriptor.ShaderRegister = 9;
 	RootSignature.RootParameter[21].Descriptor.RegisterSpace = 0;
 	RootSignature.RootParameter[21].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-	//GameobjectWorld(b10) Shaders.hlsl
-	RootSignature.RootParameter[22].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-	RootSignature.RootParameter[22].Constants.Num32BitValues = 16;
-	RootSignature.RootParameter[22].Descriptor.ShaderRegister = 10;
+	//ColorInfo(b11) Shaders.hlsl
+	RootSignature.RootParameter[22].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	RootSignature.RootParameter[22].Descriptor.ShaderRegister = 11;
 	RootSignature.RootParameter[22].Descriptor.RegisterSpace = 0;
 	RootSignature.RootParameter[22].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	//GameobjectWorld(b10) Shaders.hlsl
+	RootSignature.RootParameter[23].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+	RootSignature.RootParameter[23].Constants.Num32BitValues = 16;
+	RootSignature.RootParameter[23].Descriptor.ShaderRegister = 10;
+	RootSignature.RootParameter[23].Descriptor.RegisterSpace = 0;
+	RootSignature.RootParameter[23].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	
 	//textureSampler
 	RootSignature.TextureSamplerDescs.resize(3);
 	RootSignature.TextureSamplerDescs[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
@@ -285,7 +291,9 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 {
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 	m_pObjectManager = new GameobjectManager(pCamera);
+	m_pObjectManager->m_pUILayer = m_pUILayer;
 	m_pObjectManager->BuildObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	
 }
 
 

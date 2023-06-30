@@ -22,7 +22,7 @@ public:
 	virtual void ReleaseUploadBuffers();
 	virtual void Animate(float fTimeElapsed);
 
-	virtual void Render(ID3D12Device* pd3dDevice,ID3D12GraphicsCommandList* pd3dCommandList, int nPipelineState, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, int nPipelineState, ID3D12RootSignature* pd3dGraphicsRootSignature, float fTimeElapsed);
 
 public:
 	vector<GameObject*> m_ppObjects;
