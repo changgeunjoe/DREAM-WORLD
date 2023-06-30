@@ -126,6 +126,7 @@ private: //active object
 	GameObject* m_pMonsterHPBarObject{ NULL };
 	GameObject* m_pVictoryUIObject{ NULL };
 	GameObject* m_pContinueUIObject{ NULL };
+	GameObject* m_pTalkUIObject{ NULL };
 	vector<GameObject*> m_ppCharacterUIObjects;
 	string m_sChooseCharcater{};
 	//ParticleObject-Particle -  23.04.13 .ccg

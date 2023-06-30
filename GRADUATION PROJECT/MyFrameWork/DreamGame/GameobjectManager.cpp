@@ -357,6 +357,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	if (m_pStage1TerrainObject) {
 		//m_pStage1TerrainObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
+	m_pTalkUIObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	
 	
 	//AstarRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -825,7 +826,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	//BuildInstanceObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 //	BuildStoryUI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//BuildTrail(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//BuildStage1(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	BuildStage1(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 //	BuildAstar(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildNPC(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -1082,11 +1083,23 @@ void GameobjectManager::Build2DUI(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	m_pUIGameCreateObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppUIObjects.emplace_back(m_pUIGameCreateObject);
 
+	
+	//m_ppUIObjects.emplace_back(m_pUIGameCreateObject);
+
 	//m_pPlayerObject->SetCamera(m_pCamera);
 }
 
 void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
+	m_pTalkUIObject = new GameObject(UI_ENTITY);
+	m_pTalkUIObject->InsertComponent<RenderComponent>();
+	m_pTalkUIObject->InsertComponent<UIMeshComponent>();
+	m_pTalkUIObject->InsertComponent<UiShaderComponent>();
+	m_pTalkUIObject->InsertComponent<TextureComponent>();
+	m_pTalkUIObject->SetTexture(L"UI/CreateRoom.dds", RESOURCE_TEXTURE2D, 3);
+	m_pTalkUIObject->SetPosition(XMFLOAT3(0.45, -0.5, 1.00));
+	m_pTalkUIObject->SetScale(0.05, 0.02, 1);
+	m_pTalkUIObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//m_pMonsterHPBarObject = new GameObject(UNDEF_ENTITY);
 	//m_pMonsterHPBarObject->InsertComponent<RenderComponent>();
 	//m_pMonsterHPBarObject->InsertComponent<CLoadedModelInfoCompnent>();
@@ -1297,18 +1310,18 @@ void GameobjectManager::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 
 void GameobjectManager::BuildNPC(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	//m_pAngelNPCObject = new Warrior();//사각형 오브젝트를 만들겠다
-	//m_pAngelNPCObject->InsertComponent<RenderComponent>();
-	//m_pAngelNPCObject->InsertComponent<CLoadedModelInfoCompnent>();
-	//m_pAngelNPCObject->SetPosition(XMFLOAT3(100.f, 0.f, 0.f));
-	//m_pAngelNPCObject->SetModel("Model/AngelMage.bin");
-	//m_pAngelNPCObject->SetAnimationSets(5);
-	//m_pAngelNPCObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//m_pAngelNPCObject->m_pSkinnedAnimationController->SetTrackAnimationSet(5);
-	//m_pAngelNPCObject->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_DIE]->m_nType = ANIMATION_TYPE_ONCE;
-	//m_pAngelNPCObject->SetScale(30.0f);
-	//m_pAngelNPCObject->SetBoundingBox(m_pBoundingBox[0]);
-	//m_ppGameObjects.emplace_back(m_pAngelNPCObject);
+//	m_pAngelNPCObject = new Warrior();//사각형 오브젝트를 만들겠다
+//	m_pAngelNPCObject->InsertComponent<RenderComponent>();
+//	m_pAngelNPCObject->InsertComponent<CLoadedModelInfoCompnent>();
+//	m_pAngelNPCObject->SetPosition(XMFLOAT3(100.f, 0.f, 0.f));
+//	m_pAngelNPCObject->SetModel("Model/AngelMage.bin");
+////	m_pAngelNPCObject->SetAnimationSets(5);
+//	m_pAngelNPCObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+//	//m_pAngelNPCObject->m_pSkinnedAnimationController->SetTrackAnimationSet(5);
+//	//m_pAngelNPCObject->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_DIE]->m_nType = ANIMATION_TYPE_ONCE;
+//	m_pAngelNPCObject->SetScale(30.0f);
+//	//m_pAngelNPCObject->SetBoundingBox(m_pBoundingBox[0]);
+//	m_ppGameObjects.emplace_back(m_pAngelNPCObject);
 }
 
 enum UI
