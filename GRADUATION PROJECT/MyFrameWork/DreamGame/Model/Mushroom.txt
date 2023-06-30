@@ -1,35 +1,35 @@
 P_Mushroom_01 (6)
 <position>: -28.7 -0.21 -89.16 
-<quaternion>: 0.07828706 0.173493 0.1061823 
+<quaternion>: 0.07828706 0.173493 0.1061823 0.9759594 
 <rotation>: 6.659359 20.95796 13.65152 
 <scale>: 0.5645499 0.56455 0.56455 
 P_Mushroom_01 (4)
 <position>: -62.889 -0.2657118 -74.82018 
-<quaternion>: 0 0 0 
+<quaternion>: 0 0 0 1 
 <rotation>: 0 0 0 
 <scale>: 0.7289301 0.7289301 0.7289301 
 P_Mushroom_01 (5)
 <position>: -73.158 -0.3100004 -110.14 
-<quaternion>: 0 0 0 
+<quaternion>: 0 0 0 1 
 <rotation>: 0 0 0 
 <scale>: 0.75465 0.75465 0.75465 
 P_Mushroom_01 (7)
 <position>: -79.66784 -0.3100004 -110.14 
-<quaternion>: 0 0 0 
+<quaternion>: 0 0 0 1 
 <rotation>: 0 0 0 
 <scale>: 0.75465 0.75465 0.75465 
 P_Mushroom_01 (8)
 <position>: -55.49677 -0.2164278 -106.006 
-<quaternion>: 0 0 0 
+<quaternion>: 0 0 0 1 
 <rotation>: 0 0 0 
 <scale>: 0.7289301 0.7289301 0.7289301 
 P_Mushroom_01 (9)
 <position>: -53.99088 -0.2492838 -108.399 
-<quaternion>: 0 0.1735576 0 
+<quaternion>: 0 0.1735576 0 0.9848238 
 <rotation>: 0 19.98946 0 
 <scale>: 0.72893 0.7289301 0.72893 
 P_Mushroom_01 (10)
 <position>: -57.59956 -0.1945238 -108.4538 
-<quaternion>: 0 0.1735576 0 
+<quaternion>: 0 0.1735576 0 0.9848238 
 <rotation>: 0 19.98946 0 
 <scale>: 0.72893 0.7289301 0.72893 

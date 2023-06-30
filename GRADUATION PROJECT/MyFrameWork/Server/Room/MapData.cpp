@@ -50,7 +50,7 @@ void MapData::GetReadMapData()
 	//index data Read
 	inFile.clear();
 	inFile >> std::noskipws;
-	inFile.seekg(indexPos + indicesStr.size() + 1, std::ios::beg);
+	inFile.seekg(indexPos + indicesStr.size() + 2, std::ios::beg);
 	cout << "index pos: " << inFile.tellg() << endl;
 	inFile >> std::skipws;
 
@@ -69,7 +69,7 @@ void MapData::GetReadMapData()
 	//Relay Data Read
 	inFile.clear();
 	inFile >> std::noskipws;
-	inFile.seekg(relationxPos + relationStr.size() + 2, std::ios::beg);
+	inFile.seekg(relationxPos + relationStr.size() + 4, std::ios::beg);
 	cout << "relation pos: " << inFile.tellg() << endl;
 	inFile >> std::skipws;
 
@@ -127,6 +127,113 @@ void MapData::GetReadMapData()
 		std::cout << i << " ";
 	std::cout << std::endl;
 	std::cout << "map load end" << std::endl;
+}
+
+void MapData::GetReadCollisionData()
+{
+	std::vector<XMFLOAT4> quaternion;
+	std::vector<XMFLOAT3> tempPos;
+	std::vector<XMFLOAT3> tempScale;
+	std::vector<XMFLOAT3> tempCenterPos;
+	std::vector<XMFLOAT3> tempLocalCenterPos;
+	std::vector<XMFLOAT3> tempExtentScale;
+
+	std::string temp;
+	float number[3] = {};
+	float qnumber[4] = {};
+	int objCount = -1;
+
+	std::string FileName = "MapData/CollisionData.txt";
+	std::ifstream objectFile(FileName);
+
+	while (!objectFile.eof())
+	{
+		objectFile >> temp;
+		if (temp == "<position>:")
+		{
+			for (int i = 0; i < 3; ++i)
+			{
+				objectFile >> temp;
+				number[i] = std::stof(temp);
+			}
+			tempPos.emplace_back(number[0], number[1], number[2]);
+		}
+		else if (temp == "<quaternion>:")
+		{
+			for (int i = 0; i < 4; ++i)
+			{
+				objectFile >> temp;
+				qnumber[i] = std::stof(temp);
+			}
+			quaternion.emplace_back(qnumber[0], qnumber[1], qnumber[2], qnumber[3]);
+		}
+		else if (temp == "<rotation>:")
+		{
+			for (int i = 0; i < 3; ++i)
+				objectFile >> temp;
+		}
+		else if (temp == "<scale>:")
+		{
+			for (int i = 0; i < 3; ++i)
+			{
+				objectFile >> temp;
+				number[i] = std::stof(temp);
+			}
+			tempScale.emplace_back(number[0], number[1], number[2]);
+		}
+		else if (temp == "<BoxCollider>")
+		{
+			for (int j = 0; j < 4; ++j)
+			{
+				objectFile >> temp;
+				if (temp == "<center>:")
+				{
+					for (int i = 0; i < 3; ++i)
+					{
+						objectFile >> temp;
+						number[i] = stof(temp);
+					}
+					tempCenterPos.emplace_back(number[0], number[1], number[2]);
+				}
+				else if (temp == "<size>:")
+				{
+					for (int i = 0; i < 3; ++i)
+						objectFile >> temp;
+				}
+				else if (temp == "<localCenter>:")
+				{
+					for (int i = 0; i < 3; ++i)
+					{
+						objectFile >> temp;
+						number[i] = stof(temp);
+					}
+					tempLocalCenterPos.emplace_back(number[0], number[1], number[2]);
+				}
+				else if (temp == "<localSize>:")
+				{
+					for (int i = 0; i < 3; ++i)
+					{
+						objectFile >> temp;
+						number[i] = stof(temp);
+					}
+					tempExtentScale.emplace_back(number[0], number[1], number[2]);
+				}
+			}
+		}
+		else
+		{
+			objCount++;
+		}
+	}
+
+	for (int i = 0; i < objCount; ++i)
+	{
+		XMFLOAT3 extentPos = XMFLOAT3(tempScale[i].x * tempExtentScale[i].x,
+			tempScale[i].y * tempExtentScale[i].y, tempScale[i].z * tempExtentScale[i].z);
+		XMFLOAT3 centerPos = Vector3::Add(tempCenterPos[i], tempLocalCenterPos[i]);
+		extentPos = XMFLOAT3(extentPos.x * 0.5f, extentPos.y * 0.5f, extentPos.z * 0.5f);
+		m_collisionOBB.emplace_back(centerPos, extentPos, quaternion[i]);
+	}
 }
 
 std::list<int> MapData::AStarLoad(int myTriangleIdx, float desX, float desZ)
@@ -208,4 +315,5 @@ std::list<int> MapData::AStarLoad(int myTriangleIdx, float desX, float desZ)
 MapData::MapData(std::string fileName) : m_fileName(fileName)
 {
 	GetReadMapData();
+	GetReadCollisionData();
 }

@@ -35,6 +35,7 @@ public:
 	void Move(float fDistance);
 	void SetDirection(DIRECTION d);
 	void SetMouseInput(bool LmouseInput, bool RmouseInput);
+	bool CanGo(const XMFLOAT3& nextPos);
 public:
 	virtual void Rotate(ROTATE_AXIS axis, float angle) override;
 public:

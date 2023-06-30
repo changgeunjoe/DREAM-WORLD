@@ -3,8 +3,10 @@
 #include "../Session.h"
 #include "../../Logic/Logic.h"
 #include "../../IOCPNetwork/protocol/protocol.h"
+#include "../../Room/MapData.h"
 
-extern  Logic g_logic;
+extern Logic g_logic;
+extern MapData g_bossMapData;
 
 PlayerSessionObject::PlayerSessionObject(int id, ROLE r) : SessionObject()
 {
@@ -96,6 +98,20 @@ void PlayerSessionObject::SetMouseInput(bool LmouseInput, bool RmouseInput)
 	m_rightmouseInput = RmouseInput;
 }
 
+bool PlayerSessionObject::CanGo(const XMFLOAT3& nextPos)
+{
+	XMVECTOR tempPoint = XMVectorSet(nextPos.x, nextPos.y, nextPos.z, 0.0f);
+	for (const auto& p : g_bossMapData.GetOBB())
+	{
+		if (p.Contains(tempPoint))
+		{
+			std::cout << m_id << " Player Get Collision " << std::endl;
+			return false;
+		}
+	}
+	return true;
+}
+
 void PlayerSessionObject::StartMove(DIRECTION d)
 {
 	//std::cout << "PlayerSessionObject::StartMove()" << std::endl;
@@ -150,7 +166,7 @@ void PlayerSessionObject::Move(float fDistance)
 		case DIRECTION::LEFT:
 		case DIRECTION::FRONT | DIRECTION::LEFT:
 			DirectX::XMFLOAT3 tempPos = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, fDistance));
-			if (Vector3::Length(tempPos) < 288.0f) m_position = tempPos;
+			if (CanGo(tempPos)) m_position = tempPos;
 		default: break;
 		}
 	}
