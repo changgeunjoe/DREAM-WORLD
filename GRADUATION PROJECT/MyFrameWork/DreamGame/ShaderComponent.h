@@ -2,7 +2,6 @@
 
 #include "ComponentBase.h"
 #include"TextureComponent.h"
-#include"ShaderComponent.h"
 class MaterialComponent;
 class ShaderComponent : public ComponentBase
 {

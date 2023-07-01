@@ -135,6 +135,7 @@ private: //active object
 	GameObject* m_pFireballSpriteObject{ NULL };
 	GameObject* m_pFireballEmissionSpriteObject{ NULL };
 	GameObject* m_pFireball2EmissionSpriteObject{ NULL };
+	GameObject* m_pSwordFireObject{ NULL };
 	vector<GameObject*> m_ppParticleObjects;
 
 	//StoryUIObject -23.

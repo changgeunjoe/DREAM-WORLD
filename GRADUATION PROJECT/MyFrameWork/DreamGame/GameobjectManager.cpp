@@ -12,10 +12,12 @@
 #include "TrailShaderComponent.h"
 #include "TrailComponent.h"
 #include"TerrainShaderComponent.h"
+#include"EffectShaderComponent.h"
 #include "./Network/MapData/MapData.h"
 #include"EffectObject.h"
 #include"DebuffObject.h"
 #include"UILayer.h"
+
 
 extern NetworkHelper g_NetworkHelper;
 extern Logic g_Logic;
@@ -342,9 +344,9 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_ppCharacterUIObjects[i]->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature);
 	}*/
 
-	//for (int i = 0; i < m_ppParticleObjects.size(); i++) {
-	//	m_ppParticleObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//파티클
-	//}
+	for (int i = 0; i < m_ppParticleObjects.size(); i++) {
+		m_ppParticleObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//파티클
+	}
 	if (GameEnd)
 	{
 		m_pVictoryUIObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -823,7 +825,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	BuildShadow(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//무조건 마지막에 해줘야된다.
 //	Build2DUI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildCharacterUI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//BuildParticle(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	BuildParticle(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//BuildInstanceObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 //	BuildStoryUI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//BuildTrail(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -836,7 +838,7 @@ void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	m_pFireballSpriteObject = new GameObject(UNDEF_ENTITY);
 	m_pFireballSpriteObject->InsertComponent<RenderComponent>();
 	m_pFireballSpriteObject->InsertComponent<UIMeshComponent>();
-	m_pFireballSpriteObject->InsertComponent<ShaderComponent>();
+	m_pFireballSpriteObject->InsertComponent<MultiSpriteShaderComponent>();
 	m_pFireballSpriteObject->InsertComponent<TextureComponent>();
 	m_pFireballSpriteObject->SetTexture(L"MagicEffect/CandleFlame.dds", RESOURCE_TEXTURE2D, 3);
 	m_pFireballSpriteObject->SetPosition(XMFLOAT3(100, 40, 100));
@@ -857,20 +859,33 @@ void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	m_pFireballEmissionSpriteObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppParticleObjects.emplace_back(m_pFireballEmissionSpriteObject);
 
-	m_pFireballSpriteObjects.resize(20);
-	m_pFireballSpriteObjects[0] = new GameObject(UNDEF_ENTITY);
-	m_pFireballSpriteObjects[0]->InsertComponent<RenderComponent>();
-	m_pFireballSpriteObjects[0]->InsertComponent<CLoadedModelInfoCompnent>();
-	m_pFireballSpriteObjects[0]->SetPosition(XMFLOAT3(100, 0, 0));
-	m_pFireballSpriteObjects[0]->SetModel("Model/RockSpike.bin");
-	m_pFireballSpriteObjects[0]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pFireballSpriteObjects[0]->SetScale(30.0f, 30.0f, 30.0f);
-	for (int i = 1; i < 20; i++) {
-		m_pFireballSpriteObjects[i] = new GameObject(UNDEF_ENTITY);
-		m_pFireballSpriteObjects[i]->SetPosition(XMFLOAT3(0, i * 10, 0));
-		m_pFireballSpriteObjects[i]->SetScale(30.0f, 30.0f, 30.0f);
-		m_ppParticleObjects.emplace_back(m_pFireballSpriteObjects[i]);
-	}
+	m_pSwordFireObject = new GameObject(UNDEF_ENTITY);
+	m_pSwordFireObject->InsertComponent<RenderComponent>();
+	m_pSwordFireObject->InsertComponent<UIMeshComponent>();
+	m_pSwordFireObject->InsertComponent<MultiSpriteShaderComponent>();
+	m_pSwordFireObject->InsertComponent<TextureComponent>();
+	m_pSwordFireObject->SetTexture(L"MagicEffect/SwordEffectFire_5x5.dds", RESOURCE_TEXTURE2D, 3);
+	m_pSwordFireObject->SetPosition(XMFLOAT3(0, 40, 130));
+	m_pSwordFireObject->SetScale(10);
+	m_pSwordFireObject->SetRowColumn(5, 5, 0.005);
+	m_pSwordFireObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppParticleObjects.emplace_back(m_pSwordFireObject);
+	
+	
+	//m_pFireballSpriteObjects.resize(20);
+	//m_pFireballSpriteObjects[0] = new GameObject(UNDEF_ENTITY);
+	//m_pFireballSpriteObjects[0]->InsertComponent<RenderComponent>();
+	//m_pFireballSpriteObjects[0]->InsertComponent<CLoadedModelInfoCompnent>();
+	//m_pFireballSpriteObjects[0]->SetPosition(XMFLOAT3(100, 0, 0));
+	//m_pFireballSpriteObjects[0]->SetModel("Model/RockSpike.bin");
+	//m_pFireballSpriteObjects[0]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//m_pFireballSpriteObjects[0]->SetScale(30.0f, 30.0f, 30.0f);
+	//for (int i = 1; i < 20; i++) {
+	//	m_pFireballSpriteObjects[i] = new GameObject(UNDEF_ENTITY);
+	//	m_pFireballSpriteObjects[i]->SetPosition(XMFLOAT3(0, i * 10, 0));
+	//	m_pFireballSpriteObjects[i]->SetScale(30.0f, 30.0f, 30.0f);
+	//	m_ppParticleObjects.emplace_back(m_pFireballSpriteObjects[i]);
+	//}
 }
 void GameobjectManager::BuildTrail(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
@@ -903,7 +918,7 @@ void GameobjectManager::BuildAstar(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 }
 void GameobjectManager::BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	m_pStage1Objects[0] = new GameObject(UNDEF_ENTITY);
+	/*m_pStage1Objects[0] = new GameObject(UNDEF_ENTITY);
 	m_pStage1Objects[0]->InsertComponent<RenderComponent>();
 	m_pStage1Objects[0]->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pStage1Objects[0]->SetPosition(XMFLOAT3(0, -5, 0));
@@ -911,7 +926,7 @@ void GameobjectManager::BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pStage1Objects[0]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pStage1Objects[0]->SetScale(1.0f, 1.0f, 1.0f);
 	m_pStage1Objects[0]->SetRimLight(false);
-	m_ppGameObjects.emplace_back(m_pStage1Objects[0]);
+	m_ppGameObjects.emplace_back(m_pStage1Objects[0]);*/
 	/*m_pStage1Objects[1] = new GameObject(UNDEF_ENTITY);
 	m_pStage1Objects[1]->InsertComponent<RenderComponent>();
 	m_pStage1Objects[1]->InsertComponent<CLoadedModelInfoCompnent>();

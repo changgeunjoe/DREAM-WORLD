@@ -13,6 +13,7 @@
 #include"InstanceRenderComponent.h"
 #include"TerrainShaderComponent.h"
 #include"TrailShaderComponent.h"
+#include"EffectShaderComponent.h"
 //include"CLoadModelinfo.h"
 class DepthRenderShaderComponent;
 class CLoadedModelInfoCompnent;
@@ -23,6 +24,7 @@ class Projectile;
 class InstanceRenderComponent;
 class TrailShaderComponent;
 class TerrainShaderComponent;
+
 
 #define MATERIAL_ALBEDO_MAP				0x01
 #define MATERIAL_SPECULAR_MAP			0x02
@@ -431,6 +433,10 @@ inline T* GameObject::ComponentType(component_id& componentID)
 	else if (typeid(T).name() == typeid(NaviMeshShaderComponent).name())
 	{
 		componentID = component_id::NAVIMESHSHADER_COMPONENT;
+	}
+	else if (typeid(T).name() == typeid(EffectShaderComponent).name())
+	{
+		componentID = component_id::EFFECTSHADER_COMPONENT;
 	}
     else
     {

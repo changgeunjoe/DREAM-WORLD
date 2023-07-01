@@ -130,6 +130,9 @@
     <Filter Include="03.GameObject\Effect">
       <UniqueIdentifier>{79599104-53d1-42d5-8604-114a4f3c5a46}</UniqueIdentifier>
     </Filter>
+    <Filter Include="04.Component\ShaderComponent\EffectShaderComponent">
+      <UniqueIdentifier>{cb153da1-0e0d-49f0-ab14-3f79dbe85602}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -273,6 +276,9 @@
     <ClInclude Include="DebuffObject.h">
       <Filter>03.GameObject\Effect</Filter>
     </ClInclude>
+    <ClInclude Include="EffectShaderComponent.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -406,6 +412,9 @@
     </ClCompile>
     <ClCompile Include="DebuffObject.cpp">
       <Filter>03.GameObject\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="EffectShaderComponent.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

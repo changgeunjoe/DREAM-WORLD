@@ -10,6 +10,7 @@
 #include "GameFramework.h"
 #include "GameobjectManager.h"
 
+
 extern MapData g_bossMapData;
 extern CGameFramework gGameFramework;
 
@@ -352,9 +353,10 @@ void GameObject::BuildShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	ComponentBase* pNaviMeshShaderComponent = GetComponent(component_id::NAVIMESHSHADER_COMPONENT);
 	ComponentBase* pTrailShaderComponent = GetComponent(component_id::TRAILSHADER_COMPONENT);
 	ComponentBase* pTerrainShaderComponent = GetComponent(component_id::TERRAINSHADER_COMPONENT);
+	ComponentBase* pEffectShaderComponent = GetComponent(component_id::EFFECTSHADER_COMPONENT);
 	if (pShaderComponent != NULL || pSkyShaderComponent != NULL || pUiShaderComponent != NULL || pSpriteShaderComponent != NULL 
 		|| pBoundingBoxShaderComponent != NULL || pBlendingUiShaderComponent != NULL|| pTrailShaderComponent!=NULL
-		|| pTerrainShaderComponent!=NULL)
+		|| pTerrainShaderComponent!=NULL|| pEffectShaderComponent)
 	{
 		if (pShaderComponent != NULL)
 		{
@@ -380,6 +382,9 @@ void GameObject::BuildShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		}
 		else if (pTerrainShaderComponent != NULL) {
 			m_pShaderComponent = static_cast<TrailShaderComponent*>(pTerrainShaderComponent);
+		}
+		else if (pEffectShaderComponent != NULL) {
+			m_pShaderComponent = static_cast<EffectShaderComponent*>(pEffectShaderComponent);
 		}
 		else if (pNaviMeshShaderComponent != NULL)
 		{

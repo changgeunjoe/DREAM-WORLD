@@ -215,14 +215,7 @@ struct VS_TEXTURED_OUTPUT
     float4 position : SV_POSITION;
     float2 uv : TEXCOORD;
 };
-VS_TEXTURED_OUTPUT VSSpriteAnimation(VS_TEXTURED_INPUT input)
-{
-    VS_TEXTURED_OUTPUT output;
 
-    output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObjectWorld), gmtxView), gmtxProjection);
-    output.uv = mul(float3(input.uv, 1.0f), (float3x3) (gmtxTextureview)).xy;
-    return (output);
-}
 VS_TEXTURED_OUTPUT VSUITextured(VS_TEXTURED_INPUT input)
 {
     VS_TEXTURED_OUTPUT output;
@@ -248,12 +241,48 @@ float4 PSTexturedTrail(VS_TEXTURED_OUTPUT input) : SV_TARGET
     cColor.w = 0.4;
     return (cColor);
 }
+VS_TEXTURED_OUTPUT VSEffect(VS_TEXTURED_INPUT input)
+{
+    VS_TEXTURED_OUTPUT output;
 
+    output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObjectWorld), gmtxView), gmtxProjection);
+    output.uv = input.uv;
+    return (output);
+}
+float4 PSEffectTextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
+{
+    // Sample the texture
+    float4 cColor = shaderTexture.Sample(gWrapSamplerState, input.uv);
+    if (cColor.x < 0.2 || cColor.y < 0.2 || cColor.z < 0.2)
+    {
+        cColor.w = 0;
+    }
+    else
+    {
+      //  float4 color = float4(0.6,0, 0, 0);
+       // cColor.xyz = cColor.xyz ;
+        //lerp(cColor, color,0.5);
+        float4 color = float4(10, 10, 10, 0);
+        cColor.xyz = 1 - cColor.xyz;
+        cColor += gmtxGameObjectColor;
+    }
+       
+    return cColor;
+}
+
+VS_TEXTURED_OUTPUT VSSpriteAnimation(VS_TEXTURED_INPUT input)
+{
+    VS_TEXTURED_OUTPUT output;
+
+    output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObjectWorld), gmtxView), gmtxProjection);
+    output.uv = mul(float3(input.uv, 1.0f), (float3x3) (gmtxTextureview)).xy;
+    return (output);
+}
 float4 PSSpriteTextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
 {
     // Sample the texture
     float4 cColor = shaderTexture.Sample(gWrapSamplerState, input.uv);
-    if (cColor.x == 0 || cColor.y == 0 || cColor.z == 0)
+    if (cColor.x < 0.1 || cColor.y < 0.1 || cColor.z < 0.1)
     {
         cColor.w = 0;
     }
