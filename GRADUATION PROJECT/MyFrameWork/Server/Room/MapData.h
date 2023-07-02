@@ -11,6 +11,7 @@ private:
 	std::vector<int> m_index;
 	std::vector<TrinangleMesh> m_triangleMesh;
 	std::vector<int> m_zeroVertexIdxs;
+	std::vector<BoundingOrientedBox> m_collisionOBB;
 private:
 public:
 	MapData() {};
@@ -20,6 +21,7 @@ public:
 		m_fileName = fileName;
 	}
 	void GetReadMapData();
+	void GetReadCollisionData();
 	std::list<int> AStarLoad(int myTriangleIdx, float desX, float desZ);
 	TrinangleMesh& const GetTriangleMesh(int idx) { return m_triangleMesh[idx]; }
 	const std::vector<int> GetZeroIdxs() { return m_zeroVertexIdxs; }
@@ -28,4 +30,6 @@ public:
 			return -1;
 		return m_zeroVertexIdxs[0];
 	}
+	const std::vector<BoundingOrientedBox>& GetOBB() { return m_collisionOBB; }
+
 };

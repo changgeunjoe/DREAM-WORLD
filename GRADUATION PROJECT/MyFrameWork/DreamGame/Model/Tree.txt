@@ -1,75 +1,75 @@
 forestpack_tree_fir_tall (1)
 <position>: -7.32 2.19 -45.99 
-<quaternion>: 0 0 0 
+<quaternion>: 0 0 0 1 
 <rotation>: 0 0 0 
 <scale>: 1 1 1 
 forestpack_tree_fir_tall (2)
 <position>: -1.9 3.3 -39.87 
-<quaternion>: 0.05488379 0.008451361 0.1519578 
+<quaternion>: 0.05488379 0.008451361 0.1519578 0.9868258 
 <rotation>: 6.070551 1.922532 17.60999 
 <scale>: 1 1 1 
 forestpack_tree_fir_tall (3)
 <position>: -21.78681 0.83 -45.99 
-<quaternion>: 0 0 0.03424057 
+<quaternion>: 0 0 0.03424057 0.9994136 
 <rotation>: 0 0 3.924448 
 <scale>: 1 1 1 
 forestpack_tree_fir_tall (4)
 <position>: -29.55281 5.950595 -46.00936 
-<quaternion>: -0.006250695 -0.33345 -0.01766918 
+<quaternion>: -0.006250695 -0.33345 -0.01766918 0.9425815 
 <rotation>: 358.6496 321.0559 358.3297 
 <scale>: 1 1 1 
 forestpack_tree_fir_tall (5)
 <position>: -25.35681 5.24 -40.686 
-<quaternion>: 0 0 -0.01874223 
+<quaternion>: 0 0 -0.01874223 0.9998243 
 <rotation>: 0 0 357.8522 
 <scale>: 1 1 1 
 forestpack_tree_fir_tall (6)
 <position>: -24.40581 4.955 -35.133 
-<quaternion>: 0 0 -0.01874223 
+<quaternion>: 0 0 -0.01874223 0.9998243 
 <rotation>: 0 0 357.8522 
 <scale>: 1 1 1 
 forestpack_tree_fir_tall (7)
 <position>: -23.35281 3.677 -28.332 
-<quaternion>: 0 0 -0.01874223 
+<quaternion>: 0 0 -0.01874223 0.9998243 
 <rotation>: 0 0 357.8522 
 <scale>: 1 1 1 
 forestpack_tree_fir_tall (8)
 <position>: -18.93081 2.402 -28.34701 
-<quaternion>: 0.03363639 0.5615492 -0.07991876 
+<quaternion>: 0.03363639 0.5615492 -0.07991876 0.8228877 
 <rotation>: 8.343914 68.22336 354.5628 
 <scale>: 1 1 1 
 forestpack_tree_fir_tall (9)
 <position>: -19.27199 2.687946 -35.15236 
-<quaternion>: 0.002419086 0.1290487 -0.01858545 
+<quaternion>: 0.002419086 0.1290487 -0.01858545 0.9914612 
 <rotation>: 0.5496881 14.82191 357.9237 
 <scale>: 1 1 1 
 forestpack_tree_fir_tall (10)
 <position>: -2.016808 1.721 -33.72001 
-<quaternion>: 0.05438338 0.01122964 0.1016109 
+<quaternion>: 0.05438338 0.01122964 0.1016109 0.9932732 
 <rotation>: 6.070552 1.922532 11.78393 
 <scale>: 1 1 1 
 forestpack_tree_fir_tall (11)
 <position>: -19.11981 2.387 -24.144 
-<quaternion>: 0.03363639 0.5615492 -0.07991876 
+<quaternion>: 0.03363639 0.5615492 -0.07991876 0.8228877 
 <rotation>: 8.343914 68.22336 354.5628 
 <scale>: 1 1 1 
 forestpack_tree_fir_tall (12)
 <position>: -63.36681 0.08 -70.47 
-<quaternion>: 0 0 0.03424057 
+<quaternion>: 0 0 0.03424057 0.9994136 
 <rotation>: 0 0 3.924448 
 <scale>: 1 1 1 
 forestpack_tree_fir_tall (13)
 <position>: -67.08681 -0.19 -73.83 
-<quaternion>: 0.007179312 -0.2095497 0.03347946 
+<quaternion>: 0.007179312 -0.2095497 0.03347946 0.9771983 
 <rotation>: 1.608071 335.8439 3.580329 
 <scale>: 1 1 1 
 forestpack_tree_fir_tall (14)
 <position>: -45.87681 -0.009999998 -94.29 
-<quaternion>: 0 0 0.03424057 
+<quaternion>: 0 0 0.03424057 0.9994136 
 <rotation>: 0 0 3.924448 
 <scale>: 1 1 1 
 forestpack_tree_fir_tall (15)
 <position>: -45.87681 -0.009999998 -101.46 
-<quaternion>: 0.01427537 -0.4166695 0.03112283 
+<quaternion>: 0.01427537 -0.4166695 0.03112283 0.9084129 
 <rotation>: 2.973366 310.7867 2.562475 
 <scale>: 1 1 1 

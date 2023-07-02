@@ -470,22 +470,12 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 		}
 		else if (temp == "<quaternion>:")
 		{
-			if (type == 0)
+			for (int i = 0; i < 4; ++i)
 			{
-				for (int i = 0; i < 3; ++i)
-				{
-					objectFile >> temp;
-				}
+				objectFile >> temp;
+				qnumber[i] = stof(temp);
 			}
-			else
-			{
-				for (int i = 0; i < 4; ++i)
-				{
-					objectFile >> temp;
-					qnumber[i] = stof(temp);
-				}
-				quaternion.emplace_back(qnumber[0], qnumber[1], qnumber[2], qnumber[3]);
-			}
+			quaternion.emplace_back(qnumber[0], qnumber[1], qnumber[2], qnumber[3]);
 		}
 		else if (temp == "<rotation>:")
 		{
@@ -588,9 +578,11 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 			tempBoundingBox->InsertComponent<CubeMeshComponent>();
 			tempBoundingBox->InsertComponent<BoundingBoxShaderComponent>();
 			tempBoundingBox->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-			tempBoundingBox->SetScale(extentPos.x * 2, extentPos.y * 2, extentPos.z * 2);
-			tempBoundingBox->Rotate(&quaternion[i]);
+
 			tempBoundingBox->SetPosition(centerPos);
+			tempBoundingBox->Rotate(&quaternion[i]);
+			tempBoundingBox->SetScale(extentPos.x * 2.0f, extentPos.y * 2.0f, extentPos.z * 2.0f);
+
 			m_pObstacleBoundingBox.emplace_back(tempBoundingBox);
 		}
 		m_ppGameObjects.emplace_back(tempObject[i]);
@@ -623,9 +615,9 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/BigMushroom.txt", "Model/BigMushroom.bin", 0);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Mushroom.txt", "Model/Mushroom.bin", 0);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/LongFence.txt", "Model/LongFence.bin", 0);
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence01.txt", "Model/ShortFence01.bin", 0);
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence02.txt", "Model/ShortFence02.bin", 0);
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence03.txt", "Model/ShortFence03.bin", 0);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence1.txt", "Model/ShortFence01.bin", 0);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence2.txt", "Model/ShortFence02.bin", 0);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence3.txt", "Model/ShortFence03.bin", 0);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Tree.txt", "Model/Tree.bin", 0);
 
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock1.txt", "Model/Rock1.bin", 1);
@@ -640,7 +632,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPlaneObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pPlaneObject->SetScale(1.0f, 1.0f, 1.0f);
 	m_pPlaneObject->SetRimLight(false);
-	m_ppGameObjects.emplace_back(m_pPlaneObject);
+	//m_ppGameObjects.emplace_back(m_pPlaneObject);
 
 	////ÀÓ½Ã µ¹´óÀÌ ·»´õ
 	//m_pRockObject = new GameObject(UNDEF_ENTITY);
@@ -1457,7 +1449,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		g_Logic.m_MonsterSession.m_currentPlayGameObject->SetCurrentHP(0.0f);
 		GameEnd = true;
 	}
-	if (nMessageID == WM_KEYDOWN && wParam == VK_F12)
+	if (nMessageID == WM_KEYDOWN && wParam == VK_F3)
 	{
 		m_bDebugMode = !m_bDebugMode;
 	}
