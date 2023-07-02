@@ -50,7 +50,7 @@ void MapData::GetReadMapData()
 	//index data Read
 	inFile.clear();
 	inFile >> std::noskipws;
-	inFile.seekg(indexPos + indicesStr.size() + 1, std::ios::beg);
+	inFile.seekg(indexPos + indicesStr.size() + 2, std::ios::beg);
 	cout << "index pos: " << inFile.tellg() << endl;
 	inFile >> std::skipws;
 
@@ -69,7 +69,7 @@ void MapData::GetReadMapData()
 	//Relay Data Read
 	inFile.clear();
 	inFile >> std::noskipws;
-	inFile.seekg(relationxPos + relationStr.size() + 2, std::ios::beg);
+	inFile.seekg(relationxPos + relationStr.size() + 4, std::ios::beg);
 	cout << "relation pos: " << inFile.tellg() << endl;
 	inFile >> std::skipws;
 

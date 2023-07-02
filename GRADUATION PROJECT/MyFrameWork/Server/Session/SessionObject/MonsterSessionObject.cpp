@@ -121,14 +121,19 @@ void MonsterSessionObject::Move(float fDistance, float elapsedTime)
 	desPlayerVector = Vector3::Normalize(desPlayerVector);
 	CalcRightVector();
 	if (playerDistance < 40.0f) {//플레이어가 근접함
-
+		float ChangingAngle = Vector3::Angle(desPlayerVector, m_directionVector);
+		if (ChangingAngle > 1.6f) {
+			bool OnRight = (Vector3::DotProduct(m_rightVector, desPlayerVector) > 0) ? true : false;	// 목적지가 오른쪽 왼
+			OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
+			//공격은 외부 if에서 알아서 조건 맞으면 함
+		}
 	}
 	else {//그렇지 못하다면 길을 찾아 가야한다.
 		m_reserveRoadLock.lock();
 		if (m_ReserveRoad.size() > 0) {
 			int currentNodeIdx = *m_ReserveRoad.begin();
-			XMFLOAT3 destinationNodeCenter = g_bossMapData.GetTriangleMesh(currentNodeIdx).GetCenter();	//노드의 위치			
 			m_reserveRoadLock.unlock();
+			XMFLOAT3 destinationNodeCenter = g_bossMapData.GetTriangleMesh(currentNodeIdx).GetCenter();	//노드의 위치			
 			m_DestinationPos = destinationNodeCenter;
 			auto desNodeVector = Vector3::Subtract(m_DestinationPos, m_position);//방향 벡터
 			auto desNodeDistance = Vector3::Length(desNodeVector); // 거리
@@ -171,7 +176,8 @@ void MonsterSessionObject::Move(float fDistance, float elapsedTime)
 				}
 				m_reserveRoadLock.unlock();
 			}
-		}else 		m_reserveRoadLock.unlock();
+		}
+		else 		m_reserveRoadLock.unlock();
 	}
 	//else {
 	//m_reserveRoadLock.unlock();
@@ -193,20 +199,23 @@ void MonsterSessionObject::Move(float fDistance, float elapsedTime)
 }
 
 
-void MonsterSessionObject::SetDestinationPos(DirectX::XMFLOAT3 des)
+void MonsterSessionObject::SetDestinationPos(int id)
 {
 	//장애물이 있기때문에 목적지가 아닌, Road를 저장하여 움직이자
 	// 서버에서는 계산을 해서 움직이고, 클라에서는 서버에서 계산된 값을 가지고 자동으로 움직이자.
 	//m_DestinationPos = des;
-	m_reserveRoadLock.lock();
-	m_ReserveRoad = g_bossMapData.AStarLoad(m_onIdx, des.x, des.z);
-	m_reserveRoadLock.unlock();
 	SERVER_PACKET::BossMoveNodePacket sendPacket;
+	sendPacket.desPlayerId = GetAggroPlayerId();
+	std::cout << "aggro Id: " << sendPacket.desPlayerId << std::endl;
+	XMFLOAT3 playerPos = g_iocpNetwork.m_session[sendPacket.desPlayerId].m_sessionObject->GetPos();
+	m_reserveRoadLock.lock();
+	m_ReserveRoad = g_bossMapData.AStarLoad(m_onIdx, playerPos.x, playerPos.z);
+	m_reserveRoadLock.unlock();
 	m_reserveRoadLock.lock();
 	if (m_ReserveRoad.front() == m_onIdx) {
 		m_reserveRoadLock.unlock();
 		sendPacket.nodeCnt = -1;
-		sendPacket.desPos = XMFLOAT3(des.x, 0, des.z);
+		//sendPacket.desPos = XMFLOAT3(des.x, 0, des.z);
 	}
 	else {
 		sendPacket.nodeCnt = m_ReserveRoad.size() > 40 ? 40 : m_ReserveRoad.size();

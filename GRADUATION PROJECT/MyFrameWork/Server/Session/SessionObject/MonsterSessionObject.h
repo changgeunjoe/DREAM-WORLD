@@ -40,7 +40,7 @@ public:
 	void SetDirection(DIRECTION d);
 	void Move(float fDistance, float elapsedTime);
 public:
-	void SetDestinationPos(DirectX::XMFLOAT3 des);
+	void SetDestinationPos(int id);
 	void SetRestRotateAngle(ROTATE_AXIS axis, float angle) {
 		switch (axis)
 		{

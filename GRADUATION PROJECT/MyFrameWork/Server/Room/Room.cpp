@@ -257,9 +257,8 @@ void Room::ChangeBossState()
 	else if (!m_boss.StartAttack()) {
 		m_boss.isAttack = false;
 		m_boss.SetAggroPlayerId();
-		if (m_boss.GetAggroPlayerId() != -1) {
-			XMFLOAT3 playerPos = g_iocpNetwork.m_session[m_boss.GetAggroPlayerId()].m_sessionObject->GetPos();
-			m_boss.SetDestinationPos(playerPos);
+		if (m_boss.GetAggroPlayerId() != -1) {		
+			m_boss.SetDestinationPos(m_boss.GetAggroPlayerId());
 			//NodePacket이랑 BossChangeStateMovePacket 통합하여 수정해야할듯?
 			/*SERVER_PACKET::BossChangeStateMovePacket sendPacket;
 			sendPacket.type = SERVER_PACKET::BOSS_CHANGE_STATE_MOVE_DES;

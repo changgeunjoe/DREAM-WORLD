@@ -626,12 +626,13 @@ void Logic::ProcessPacket(char* p)
 		gGameFramework.m_pScene->m_pObjectManager->m_nodeLock.lock();
 		gGameFramework.m_pScene->m_pObjectManager->m_VecNodeQueue.clear();
 		gGameFramework.m_pScene->m_pObjectManager->m_nodeLock.unlock();
+		m_MonsterSession.m_currentPlayGameObject->m_intDesPlayer = recvPacket->desPlayerId;
+		//std::cout << "recv aggro Id: " << recvPacket->desPlayerId << std::endl;
 		cout << "보스 이동 인덱스 : ";
 		if (recvPacket->nodeCnt == -1) {
 			m_MonsterSession.m_currentPlayGameObject->m_lockBossRoute.lock();
 			m_MonsterSession.m_currentPlayGameObject->m_BossRoute.swap(recvNodeQueue);
-			m_MonsterSession.m_currentPlayGameObject->m_lockBossRoute.unlock();
-			m_MonsterSession.m_currentPlayGameObject->m_xmf3Destination = recvPacket->desPos;
+			m_MonsterSession.m_currentPlayGameObject->m_lockBossRoute.unlock();			
 		}
 		else if (recvPacket->nodeCnt > -1) {
 			vector<int> triangleIdxVec;
