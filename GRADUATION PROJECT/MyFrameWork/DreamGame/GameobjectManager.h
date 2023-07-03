@@ -116,6 +116,7 @@ private: //active object
 	GameObject* m_pUIArcherCharacterObject{ NULL };
 	GameObject* m_pUITankerCharacterObject{ NULL };
 	GameObject* m_pUIPriestCharacterObject{ NULL };
+	GameObject* m_pTalkUIObject{ NULL };
 
 	//SECTION 2
 	GameObject* m_pUIGameCreateObject{ NULL };
@@ -126,7 +127,6 @@ private: //active object
 	GameObject* m_pMonsterHPBarObject{ NULL };
 	GameObject* m_pVictoryUIObject{ NULL };
 	GameObject* m_pContinueUIObject{ NULL };
-	GameObject* m_pTalkUIObject{ NULL };
 	vector<GameObject*> m_ppCharacterUIObjects;
 	string m_sChooseCharcater{};
 	//ParticleObject-Particle -  23.04.13 .ccg
@@ -182,6 +182,7 @@ public:
 	std::mutex m_nodeLock;
 	UILayer* m_pUILayer{ NULL };
 	bool m_bNPCinteraction{false};
+	bool m_bNPCscreen{ false };
 	int m_iTEXTiIndex{ 0 };
 public:
 	void SetPlayCharacter(Session* pSession);

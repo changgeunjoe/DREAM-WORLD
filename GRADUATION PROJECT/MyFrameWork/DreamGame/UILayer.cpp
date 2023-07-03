@@ -70,7 +70,7 @@ void UILayer::Initialize(ID3D12Device* pd3dDevice, ID3D12CommandQueue* pd3dComma
 	m_pd2dDevice->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, (ID2D1DeviceContext2**)&m_pd2dDeviceContext);
 
 	m_pd2dDeviceContext->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_GRAYSCALE);
-	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White), (ID2D1SolidColorBrush**)&m_pd2dTextBrush);
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightPink), (ID2D1SolidColorBrush**)&m_pd2dTextBrush);
 
 	DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), (IUnknown**)&m_pd2dWriteFactory);
 	pdxgiDevice->Release();
@@ -158,7 +158,7 @@ void UILayer::Resize(ID3D12Resource** ppd3dRenderTargets, UINT nWidth, UINT nHei
 	m_pd2dDevice->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &m_pd2dDeviceContext);
 	m_pd2dDeviceContext->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_GRAYSCALE);
 	if (m_pd2dTextBrush) m_pd2dTextBrush->Release();
-	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White), &m_pd2dTextBrush);
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Brown), &m_pd2dTextBrush);
 
 	const float fFontSize = m_fHeight / 20.0f;
 	const float fSmallFontSize = m_fHeight / 30.0f;
@@ -188,14 +188,14 @@ void UILayer::Resize(ID3D12Resource** ppd3dRenderTargets, UINT nWidth, UINT nHei
 	//if (AddFontResourceExA("netmarble Medium", FR_PRIVATE, 0) == 0)
 	//AddFontResourceExA("netmarble Medium", FR_PRIVATE, 0);
 	//m_pd2dWriteFactory->CreateTextFormat(L"netmarble Medium", nullptr, DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, fFontSize, L"en-us", &m_pdwTextFormat);
-	m_pd2dWriteFactory->CreateTextFormat(L"궁서체", nullptr, DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, fFontSize, L"en-us", &m_pdwTextFormat);
+	m_pd2dWriteFactory->CreateTextFormat(L"Font/모리스9.ttf", nullptr, DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, fFontSize, L"en-us", &m_pdwTextFormat);
 
 
 	m_pdwTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
 	m_pdwTextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR);
 
 
-	m_pd2dWriteFactory->CreateTextFormat(L"궁서체", nullptr, DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, fSmallFontSize, L"en-us", &m_pdwDamageFontFormat);
+	m_pd2dWriteFactory->CreateTextFormat(L"Font/모리스9.ttf", nullptr, DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, fSmallFontSize, L"en-us", &m_pdwDamageFontFormat);
 
 	m_pdwDamageFontFormat->SetTextAlignment(/*DWRITE_TEXT_ALIGNMENT_CENTER*/DWRITE_TEXT_ALIGNMENT_LEADING);
 	m_pdwDamageFontFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR);
@@ -344,8 +344,8 @@ CNPCTextBlock::CNPCTextBlock(IDWriteTextFormat* pdwFormat, D2D1_RECT_F& d2dLayou
 	m_qTotalText = queueStr;
 	//m_strTotalText = L"승붕게이야 카톡읽으면 답장해라...";
 
-	m_d2dLayoutRect.left = FRAME_BUFFER_WIDTH * 0.2f;
-	m_d2dLayoutRect.top = FRAME_BUFFER_HEIGHT * 0.8f;
+	m_d2dLayoutRect.left = FRAME_BUFFER_WIDTH * 0.27f;
+	m_d2dLayoutRect.top = FRAME_BUFFER_HEIGHT * 0.85f;
 }
 
 CNPCTextBlock::~CNPCTextBlock()
