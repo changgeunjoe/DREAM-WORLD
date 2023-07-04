@@ -162,41 +162,28 @@ float4 PSDiffused(VS_OUTPUT input) : SV_TARGET
 #else
     float3 normalW = normalize(input.normalW);
      float4 cColor = shaderTexture.Sample(gWrapSamplerState, input.uv);
-    if (input.uv.y > 0.95)
-    {
-        cColor = float4(0, 0, 0, 1);
 
-    }
-    if (input.uv.y < 0.05)
-    {
-        cColor = float4(0, 0, 0, 1);
-    }
-    if (input.uv.x > 0.95)
-    {
-        cColor = float4(0, 0, 0, 1);
+    //if (input.uv.x < 0.01)
+    //{
+    //    cColor = float4(0, 0, 0, 1);
 
-    }
-    if (input.uv.x < 0.01)
-    {
-        cColor = float4(0, 0, 0, 1);
-
-    }
-    if (input.uv.x > gfCharactertHP)
-    {
-        cColor = float4(0, 0, 0, 1);
-    }
+    //}
+    //if (input.uv.x > gfCharactertHP)
+    //{
+    //    cColor = float4(0, 0, 0, 1);
+    //}
     if (cColor.x < 0.2 || cColor.y < 0.2 || cColor.z < 0.2)
     {
         cColor.w = 0;
     }
-    else{
-      //  float4 color = float4(0.6,0, 0, 0);
-       // cColor.xyz = cColor.xyz ;
-        //lerp(cColor, color,0.5);
-        float4 color = float4(10, 10, 10, 0);
-        cColor.xyz = 1 - cColor.xyz;
-        cColor += gmtxGameObjectColor;
-    }
+    //else{
+    //  //  float4 color = float4(0.6,0, 0, 0);
+    //   // cColor.xyz = cColor.xyz ;
+    //    //lerp(cColor, color,0.5);
+    //    float4 color = float4(10, 10, 10, 0);
+    //    cColor.xyz = 1 - cColor.xyz;
+    //    cColor += gmtxGameObjectColor;
+    //}
        
     return cColor;
 
@@ -684,11 +671,17 @@ float4 PSShadowMapShadow(VS_SHADOW_MAP_OUTPUT input) : SV_TARGET
         if (gfMode == CELLSHADING_MODE || gfMode == OUTLINE_MODE)
         cColor = cColor + Rimline; // Rimline;
     }
-    if (cColor.w < 0.1f)
-        return cColor;
+    float4 cHDRColor = lerp(cColor, cIllumination, 0.1f);
+    float3 cLinearColor = pow(cHDRColor.rgb, 2.2f);
+    cLinearColor = (cLinearColor * (1.0f + cLinearColor / 5.5f)) / (1.0f + cLinearColor);
+    float3 cGammaColor = pow(cLinearColor, 1.0f / 2.2f);
+    return float4(cGammaColor, cHDRColor.a);
+    
+    //if (cColor.w < 0.1f)
+    //    return cColor;
     //else if (dot(normalize(cIllumination), normalize(gLightDir.xyz)) > cThreshold) // 빛의 방향과 색상 값으로 경계면을 계산합니다.
     // /   return cColor;
-    else
+    //else
         return lerp(cColor, cIllumination, 0.4f); // 경계면 이하의 색상 값은 부드럽게 처리합니다.
     
 }

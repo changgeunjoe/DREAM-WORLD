@@ -206,14 +206,14 @@ void UILayer::Resize(ID3D12Resource** ppd3dRenderTargets, UINT nWidth, UINT nHei
 		//m_vecTextBlocks[TEXT_NPC].emplace_back(pTb);
 }
 
-void UILayer::Update(const float& fTimeElapsed,bool& binteraction)
+void UILayer::Update(const float& fTimeElapsed,bool& binteraction,bool& bscreen)
 {
 	for (int j = 0; j < TEXT_TYPE::TEXT_END; ++j)
 	{
 		auto it = m_vecTextBlocks[j].begin();
 		while (it != m_vecTextBlocks[j].end()&& binteraction)
 		{
-			(*it)->Update(fTimeElapsed, binteraction);
+			(*it)->Update(fTimeElapsed, binteraction, bscreen);
 
 			if ((*it)->m_isDead)
 			{
@@ -312,7 +312,7 @@ CDamageTextBlock::~CDamageTextBlock()
 {
 }
 
-void CDamageTextBlock::Update(const float& fTimeElapsed, bool& bInteraction)
+void CDamageTextBlock::Update(const float& fTimeElapsed, bool& bInteraction, bool& bscreen)
 {
 	m_fLifeTime -= fTimeElapsed;
 	if (m_fLifeTime < 0.f)
@@ -353,13 +353,17 @@ CNPCTextBlock::~CNPCTextBlock()
 }
 #define CHARACTHER_DELAY 0.1f
 #define SENTENCE_DELAY 1.5f
-void CNPCTextBlock::Update(const float& fTimeElapsed,bool& bInteraction)
+void CNPCTextBlock::Update(const float& fTimeElapsed,bool& bInteraction,bool& bscreen)
 {
 	
 	m_fTime += fTimeElapsed;
+	if (m_qTotalText.empty()) {
+		bscreen = false;
+		bInteraction = false;
+	}
 	if (m_fTime > CHARACTHER_DELAY && !m_qTotalText.empty())
 	{
-		wstring curTotalStr = m_qTotalText.front();
+		wstring curTotalStr = m_qTotalText.front(); 
 		//m_strText.assign(m_strTotalText, 0, ++m_iIndex);
 		if (!m_bInitSentences) {
 			m_strText.append(curTotalStr, m_iIndex++, 1);

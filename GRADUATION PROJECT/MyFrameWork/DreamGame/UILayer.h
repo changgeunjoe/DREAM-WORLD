@@ -34,7 +34,7 @@ public:
     void ReleaseResources();
     void Resize(ID3D12Resource** ppd3dRenderTargets, UINT width, UINT height);
 
-    void Update(const float& fTimeElapsed, bool &binteraction);
+    void Update(const float& fTimeElapsed, bool &binteraction, bool& bscreen);
 
     void AddDamageFont(XMFLOAT3 xmf3WorldPos, wstring strText);
     void AddTextFont(queue<wstring>& queueStr);
@@ -74,7 +74,7 @@ public:
     virtual ~CTextBlock();
 
 public:
-    virtual void Update(const float& fTimeElapsed,bool &bInteraction) { ; }
+    virtual void Update(const float& fTimeElapsed,bool &bInteraction, bool& bscreen) { ; }
 
 public:
     IDWriteTextFormat* m_pdwFormat;
@@ -93,7 +93,7 @@ public:
     virtual ~CDamageTextBlock();
 
 public:
-    virtual void Update(const float& fTimeElapsed, bool& bInteraction) override;
+    virtual void Update(const float& fTimeElapsed, bool& bInteraction,bool& bscreen) override;
 
 public:
     XMFLOAT3            m_xmf3WorldPos;
@@ -111,7 +111,7 @@ public:
     virtual ~CNPCTextBlock();
 
 public:
-    virtual void Update(const float& fTimeElapsed,bool& bInteraction) override;
+    virtual void Update(const float& fTimeElapsed,bool& bInteraction, bool& bscreen) override;
 
 public:
     queue<wstring>      m_qTotalText;
