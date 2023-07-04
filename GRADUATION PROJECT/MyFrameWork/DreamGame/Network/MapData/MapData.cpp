@@ -13,7 +13,7 @@ void MapData::GetReadMapData()
 	int vertexTextureNum = 0;
 	//m_fileName = "\\\MapData\\\BossRoom.txt";
 	//cout << std::filesystem::current_path().string() << endl;
-	std::ifstream inFile{ m_fileName };
+	std::ifstream inFile{ m_navFileName };
 	//cout << std::filesystem::current_path().filename() << endl;
 	////cout << filesystem::current_path() << endl;
 	//std::filesystem::directory_iterator itr(std::filesystem::current_path());
@@ -152,7 +152,159 @@ std::list<int> MapData::AStarLoad(int myTriangleIdx, float desX, float desZ)
 	}
 }
 
-MapData::MapData(std::string fileName) : m_fileName(fileName)
+MapData::MapData(std::string fileName, std::string collisionFileName) : m_navFileName(fileName), m_collisionFileName(collisionFileName)
 {
 	GetReadMapData();
+	GetReadCollisionData();
+}
+
+
+void MapData::GetReadCollisionData()
+{
+	std::vector<XMFLOAT4> quaternion;
+	std::vector<XMFLOAT3> tempPos;
+	std::vector<XMFLOAT3> tempScale;
+	std::vector<XMFLOAT3> tempCenterPos;
+	std::vector<XMFLOAT3> tempLocalCenterPos;
+	std::vector<XMFLOAT3> tempExtentScale;
+	std::vector<float> forwardDotRes;
+	std::vector<float> rightDotRes;
+	std::vector<XMFLOAT3> forwardNormalVector;
+	std::vector<XMFLOAT3> rightNormalVector;
+	std::string readObj;
+	float number[3] = {};
+	float qnumber[4] = {};
+	int objCount = -1;
+
+	std::string FileName = "CollisionData.txt";
+	std::ifstream objectFile(m_collisionFileName);
+
+	while (!objectFile.eof())
+	{
+		objectFile >> readObj;
+		if (readObj == "<position>:")
+		{
+			for (int i = 0; i < 3; ++i)
+			{
+				objectFile >> readObj;
+				number[i] = std::stof(readObj);
+			}
+			tempPos.emplace_back(number[0], number[1], number[2]);
+		}
+		else if (readObj == "<quaternion>:")
+		{
+			for (int i = 0; i < 4; ++i)
+			{
+				objectFile >> readObj;
+				qnumber[i] = std::stof(readObj);
+			}
+			quaternion.emplace_back(qnumber[0], qnumber[1], qnumber[2], qnumber[3]);
+		}
+		else if (readObj == "<rotation>:")
+		{
+			for (int i = 0; i < 3; ++i)
+				objectFile >> readObj;
+		}
+		else if (readObj == "<scale>:")
+		{
+			for (int i = 0; i < 3; ++i)
+			{
+				objectFile >> readObj;
+				number[i] = std::stof(readObj);
+			}
+			tempScale.emplace_back(number[0], number[1], number[2]);
+		}
+		else if (readObj == "<BoxCollider>")
+		{
+			for (int j = 0; j < 8; ++j)
+			{
+				objectFile >> readObj;
+				if (readObj == "<center>:")
+				{
+					for (int i = 0; i < 3; ++i)
+					{
+						objectFile >> readObj;
+						number[i] = stof(readObj);
+					}
+					tempCenterPos.emplace_back(number[0], number[1], number[2]);
+				}
+				else if (readObj == "<size>:")
+				{
+					for (int i = 0; i < 3; ++i)
+						objectFile >> readObj;
+				}
+				else if (readObj == "<localCenter>:")
+				{
+					for (int i = 0; i < 3; ++i)
+					{
+						objectFile >> readObj;
+						number[i] = stof(readObj);
+					}
+					tempLocalCenterPos.emplace_back(number[0], number[1], number[2]);
+				}
+				else if (readObj == "<localSize>:")
+				{
+					for (int i = 0; i < 3; ++i)
+					{
+						objectFile >> readObj;
+						number[i] = stof(readObj);
+					}
+					tempExtentScale.emplace_back(number[0], number[1], number[2]);
+				}
+				else if (readObj == "<forward>:")
+				{
+					for (int i = 0; i < 3; ++i)
+					{
+						objectFile >> readObj;
+						number[i] = stof(readObj);
+					}
+					forwardNormalVector.emplace_back(number[0], number[1], number[2]);
+				}
+				else if (readObj == "<right>:")
+				{
+					for (int i = 0; i < 3; ++i)
+					{
+						objectFile >> readObj;
+						number[i] = stof(readObj);
+					}
+					rightNormalVector.emplace_back(number[0], number[1], number[2]);
+				}
+				else if (readObj == "<forwardDotRes>:")
+				{
+					objectFile >> readObj;
+					float num = stof(readObj);
+					forwardDotRes.emplace_back(num);
+				}
+				else if (readObj == "<rightDotRes>:")
+				{
+					objectFile >> readObj;
+					float num = stof(readObj);
+					rightDotRes.emplace_back(num);
+				}
+			}
+		}
+		else if (readObj == "<Seq>:") { objectFile >> readObj; }
+		else
+		{
+			objCount++;
+		}
+	}
+
+	for (int i = 0; i < objCount; ++i)
+	{
+		XMFLOAT3 extentPos = XMFLOAT3(tempScale[i].x * tempExtentScale[i].x,
+			tempScale[i].y * tempExtentScale[i].y, tempScale[i].z * tempExtentScale[i].z);
+		XMFLOAT3 centerPos = Vector3::Add(tempCenterPos[i], tempLocalCenterPos[i]);
+		extentPos = XMFLOAT3(extentPos.x * 0.5f, extentPos.y * 0.5f, extentPos.z * 0.5f);
+		m_collisionDatas.emplace_back(centerPos, extentPos, quaternion[i], forwardDotRes[i], forwardNormalVector[i], rightDotRes[i], rightNormalVector[i]);
+		if (i == 0) {
+			m_collisionDatas[i].SetRelationIdx(objCount - 1);
+			m_collisionDatas[i].SetRelationIdx(i + 1);
+		}
+		else if (i == objCount - 1) {
+			m_collisionDatas[i].SetRelationIdx(i - 1);
+			m_collisionDatas[i].SetRelationIdx(0);
+		}
+	}
+	return;
 }

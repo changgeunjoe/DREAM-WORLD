@@ -15,13 +15,22 @@ private:
 private:
 
 	ROLE m_InGameRole = ROLE::NONE_SELECT;
+private:
+	float                           m_fBoundingSize{ 8.0f };
+	BoundingSphere					m_SPBB = BoundingSphere(XMFLOAT3(0.0f, 0.0f, 0.0f), m_fBoundingSize);
 public:
 	DIRECTION m_inputDirection = DIRECTION::IDLE;
 	DIRECTION m_prevDirection = DIRECTION::IDLE;
 public:
 	PlayerSessionObject(int id, ROLE r);
 	virtual	~PlayerSessionObject();
+protected:
+	virtual void SetPosition(DirectX::XMFLOAT3& pos) override {
+		m_position = pos;
+		m_SPBB.Center = pos;
+		//m_SPBB.
 
+	}
 
 
 public:
@@ -35,7 +44,7 @@ public:
 	void Move(float fDistance);
 	void SetDirection(DIRECTION d);
 	void SetMouseInput(bool LmouseInput, bool RmouseInput);
-	bool CanGo(const XMFLOAT3& nextPos);
+	bool CheckMove(float& fDistance);
 public:
 	virtual void Rotate(ROTATE_AXIS axis, float angle) override;
 public:
@@ -86,3 +95,4 @@ public:
 	}
 	bool GetLeftAttack() { return m_leftmouseInput;	}
 };
+//m_SPBB = BoundingSphere(XMFLOAT3(position.x, position.y, position.z), m_fBoundingSize);

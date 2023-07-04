@@ -23,7 +23,8 @@ CGameFramework gGameFramework;
 NetworkHelper g_NetworkHelper;
 Logic g_Logic;
 RoomManger g_RoomManager;
-MapData g_bossMapData;
+MapData		g_bossMapData{ std::filesystem::current_path().string().append("\\\Network\\\MapData\\\BossRoom.txt"),std::filesystem::current_path().string().append("\\\Network\\\MapData\\\CollisionData.txt") };
+
 
 bool GameEnd = false;
 
@@ -52,8 +53,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
 	// TODO: 여기에 코드를 입력합니다.
-	g_bossMapData.SetFileName(std::filesystem::current_path().string().append("\\\Network\\\MapData\\\BossRoom.txt"));
-	g_bossMapData.GetReadMapData();
+	//g_bossMapData.SetFileName(std::filesystem::current_path().string().append("\\\Network\\\MapData\\\BossRoom.txt"));
+	//g_bossMapData.GetReadMapData();
+	//g_bossMapData.GetReadCollisionData();
 #ifndef LOCAL_TASK
 	while (!g_NetworkHelper.TryConnect());
 	g_NetworkHelper.Start();

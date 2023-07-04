@@ -5,7 +5,7 @@
 #include "../../Logic/Logic.h"
 #include "../../Timer/Timer.h"
 #include "../../Room/RoomManager.h"
-#include "../../Room/MapData.h"
+#include "../../MapData/MapData.h"
 #include "PlayerSessionObject.h"
 #include "../../IOCPNetwork/protocol/protocol.h"
 

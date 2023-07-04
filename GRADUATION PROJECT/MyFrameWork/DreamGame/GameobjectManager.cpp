@@ -497,7 +497,7 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 		}
 		else if (temp == "<BoxCollider>")
 		{
-			for (int j = 0; j < 4; ++j)
+			for (int j = 0; j < 8; ++j)
 			{
 				objectFile >> temp;
 				if (temp == "<center>:")
@@ -534,10 +534,33 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 					}
 					tempExtentScale.emplace_back(number[0], number[1], number[2]);
 				}
+				else if (temp == "<forward>:")
+				{
+					for (int i = 0; i < 3; ++i)
+					{
+						objectFile >> temp;						
+					}					
+				}
+				else if (temp == "<right>:")
+				{
+					for (int i = 0; i < 3; ++i)
+					{
+						objectFile >> temp;						
+					}					
+				}
+				else if (temp == "<forwardDotRes>:")
+				{
+					objectFile >> temp;					
+				}
+				else if (temp == "<rightDotRes>:")
+				{
+					objectFile >> temp;					
+				}
 			}
 		}
+		else if (temp == "<Seq>:") { objectFile >> temp; }
 		else
-		{
+		{			
 			if (type == 0)
 				objectFile >> temp;
 			objCount++;
@@ -620,9 +643,9 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence3.txt", "Model/ShortFence03.bin", 0);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Tree.txt", "Model/Tree.bin", 0);
 
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock1.txt", "Model/Rock1.bin", 1);
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock2.txt", "Model/Rock2.bin", 1);
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock3.txt", "Model/Rock3.bin", 1);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock1.txt", "Model/Rock01.bin", 1);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock2.txt", "Model/Rock02.bin", 1);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock3.txt", "Model/Rock03.bin", 1);
 
 	m_pPlaneObject = new GameObject(UNDEF_ENTITY);
 	m_pPlaneObject->InsertComponent<RenderComponent>();

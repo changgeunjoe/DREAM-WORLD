@@ -130,6 +130,9 @@
     <Filter Include="03.GameObject\Effect">
       <UniqueIdentifier>{79599104-53d1-42d5-8604-114a4f3c5a46}</UniqueIdentifier>
     </Filter>
+    <Filter Include="10.NetworkHelper\MapData">
+      <UniqueIdentifier>{80961179-1fbb-4289-9c68-f88f90b588a7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -264,14 +267,17 @@
     <ClInclude Include="TerrainShaderComponent.h">
       <Filter>04.Component\ShaderComponent\TerrainShaderComponent</Filter>
     </ClInclude>
-    <ClInclude Include="Network\MapData\MapData.h">
-      <Filter>10.NetworkHelper\Room</Filter>
-    </ClInclude>
     <ClInclude Include="EffectObject.h">
       <Filter>03.GameObject\Effect</Filter>
     </ClInclude>
     <ClInclude Include="DebuffObject.h">
       <Filter>03.GameObject\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\MapData\MapCollide.h">
+      <Filter>10.NetworkHelper\MapData</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\MapData\MapData.h">
+      <Filter>10.NetworkHelper\MapData</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -398,14 +404,17 @@
     <ClCompile Include="TerrainShaderComponent.cpp">
       <Filter>04.Component\ShaderComponent\TerrainShaderComponent</Filter>
     </ClCompile>
-    <ClCompile Include="Network\MapData\MapData.cpp">
-      <Filter>10.NetworkHelper\Room</Filter>
-    </ClCompile>
     <ClCompile Include="EffectObject.cpp">
       <Filter>03.GameObject\Effect</Filter>
     </ClCompile>
     <ClCompile Include="DebuffObject.cpp">
       <Filter>03.GameObject\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\MapData\MapCollide.cpp">
+      <Filter>10.NetworkHelper\MapData</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\MapData\MapData.cpp">
+      <Filter>10.NetworkHelper\MapData</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

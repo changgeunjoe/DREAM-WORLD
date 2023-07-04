@@ -4,12 +4,12 @@
 #include "DB/DBObject.h"
 #include "Timer/Timer.h"
 #include "Room/RoomManager.h"
-#include "Room/MapData.h"
+#include "MapData/MapData.h"
 
 #include<filesystem>
 
 IOCPNetwork g_iocpNetwork;
-MapData		g_bossMapData{ std::filesystem::current_path().string().append("\\\MapData\\\BossRoom.txt") };
+MapData		g_bossMapData{ std::filesystem::current_path().string().append("\\\MapData\\\BossRoom.txt"),std::filesystem::current_path().string().append("\\\MapData\\\CollisionData.txt") };
 DBObject	g_DBObj;
 Timer		g_Timer;
 RoomManager	g_RoomManager;

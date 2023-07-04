@@ -66,8 +66,8 @@ void GameObject::SetPosition(const XMFLOAT3& position)
 	m_xmf4x4ToParent._41 = position.x;
 	m_xmf4x4ToParent._42 = position.y;
 	m_xmf4x4ToParent._43 = position.z;
-
-	m_SPBB = BoundingSphere(XMFLOAT3(position.x, position.y, position.z), m_fBoundingSize);
+	m_SPBB.Center = position;
+	//m_SPBB = BoundingSphere(XMFLOAT3(position.x, position.y, position.z), m_fBoundingSize);
 	//if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(position, m_pCamera->GetOffset()));
 
 	UpdateTransform(NULL);
@@ -238,7 +238,7 @@ void GameObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	m_pd3dGraphicsRootSignature = pd3dGraphicsRootSignature;
 	ComponentBase* pComponent = GetComponent(component_id::RENDER_COMPONENT);
 	ComponentBase* pInsComponent = GetComponent(component_id::INSRENDER_COMPONENT);
-	if (pComponent != NULL|| pInsComponent!=NULL)
+	if (pComponent != NULL || pInsComponent != NULL)
 	{
 		if (pComponent)
 		{
@@ -325,7 +325,7 @@ void GameObject::BuildMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 	if (pTrailMeshComponent != NULL)
 	{
 		m_pTrailMeshComponent = static_cast<TrailMeshComponent*>(pTrailMeshComponent);
-		m_pTrailMeshComponent->BuildObject(pd3dDevice, pd3dCommandList, 24*8*6);
+		m_pTrailMeshComponent->BuildObject(pd3dDevice, pd3dCommandList, 24 * 8 * 6);
 		m_pMeshComponent = m_pTrailMeshComponent;
 	}
 	ComponentBase* pHeightMapMeshComponent = GetComponent(component_id::HEIGHTMESH_COMPONENT);
@@ -335,7 +335,7 @@ void GameObject::BuildMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 		XMFLOAT3 xmf3Scale(1.0f, 1.0f, 1.0f);
 		XMFLOAT4 xmf4Color(0.3f, 1.0f, 0.0f, 0.0f);
 		m_pHeightMapImage = new CHeightMapImage(m_pFileName, 257, 257, xmf3Scale);
-		m_pHeihtMapMeshComponent->BuildObject(pd3dDevice, pd3dCommandList,0,0, 257, 257, xmf3Scale, xmf4Color, m_pHeightMapImage);
+		m_pHeihtMapMeshComponent->BuildObject(pd3dDevice, pd3dCommandList, 0, 0, 257, 257, xmf3Scale, xmf4Color, m_pHeightMapImage);
 		m_pMeshComponent = m_pHeihtMapMeshComponent;
 	}
 }
@@ -352,9 +352,9 @@ void GameObject::BuildShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	ComponentBase* pNaviMeshShaderComponent = GetComponent(component_id::NAVIMESHSHADER_COMPONENT);
 	ComponentBase* pTrailShaderComponent = GetComponent(component_id::TRAILSHADER_COMPONENT);
 	ComponentBase* pTerrainShaderComponent = GetComponent(component_id::TERRAINSHADER_COMPONENT);
-	if (pShaderComponent != NULL || pSkyShaderComponent != NULL || pUiShaderComponent != NULL || pSpriteShaderComponent != NULL 
-		|| pBoundingBoxShaderComponent != NULL || pBlendingUiShaderComponent != NULL|| pTrailShaderComponent!=NULL
-		|| pTerrainShaderComponent!=NULL)
+	if (pShaderComponent != NULL || pSkyShaderComponent != NULL || pUiShaderComponent != NULL || pSpriteShaderComponent != NULL
+		|| pBoundingBoxShaderComponent != NULL || pBlendingUiShaderComponent != NULL || pTrailShaderComponent != NULL
+		|| pTerrainShaderComponent != NULL)
 	{
 		if (pShaderComponent != NULL)
 		{
@@ -445,7 +445,7 @@ void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3
 	if (m_pChild) m_pChild->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
 }
 
-void GameObject::InstanceRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, int nObjects,bool bPrerender)
+void GameObject::InstanceRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, int nObjects, bool bPrerender)
 {
 
 	UpdateShaderVariables(pd3dCommandList);
@@ -465,7 +465,7 @@ void GameObject::InstanceRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandL
 	}
 	if (m_pInstanceRenderComponent != NULL && m_pMeshComponent != NULL && m_ppMaterialsComponent == NULL && m_pLoadedModelComponent == NULL)
 	{
-		m_pInstanceRenderComponent->Render(pd3dCommandList, m_pMeshComponent, 0,nObjects);//수정필요
+		m_pInstanceRenderComponent->Render(pd3dCommandList, m_pMeshComponent, 0, nObjects);//수정필요
 	}
 	if (m_nMaterials > 0)
 	{
@@ -484,8 +484,8 @@ void GameObject::InstanceRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandL
 			m_pRenderComponent->InstanceRender(pd3dCommandList, m_pMeshComponent, i, nObjects);
 		}
 	}
-	if (m_pSibling) m_pSibling->InstanceRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, nObjects,bPrerender);
-	if (m_pChild) m_pChild->InstanceRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, nObjects,bPrerender);
+	if (m_pSibling) m_pSibling->InstanceRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, nObjects, bPrerender);
+	if (m_pChild) m_pChild->InstanceRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, nObjects, bPrerender);
 }
 
 void GameObject::ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent)
@@ -527,13 +527,13 @@ void GameObject::ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLis
 
 void GameObject::Animate(float fTimeElapsed)
 {
-	if(m_pCamera) UpdateCameraPosition();
+	if (m_pCamera) UpdateCameraPosition();
 	if (m_pSkinnedAnimationController)
 	{
 		m_pSkinnedAnimationController->AdvanceTime(fTimeElapsed, this);
-		if(m_VisualizeSPBB) m_VisualizeSPBB->SetPosition(XMFLOAT3(GetPosition().x, GetPosition().y + m_fBoundingSize, GetPosition().z));
+		if (m_VisualizeSPBB) m_VisualizeSPBB->SetPosition(XMFLOAT3(GetPosition().x, GetPosition().y + m_fBoundingSize, GetPosition().z));
 	}
-	
+
 	if (m_pSibling) m_pSibling->Animate(fTimeElapsed);
 	if (m_pChild) m_pChild->Animate(fTimeElapsed);
 }
@@ -580,7 +580,7 @@ void GameObject::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 	m_pd3dcbMultiSpriteGameObjects = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes2, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 
 	m_pd3dcbMultiSpriteGameObjects->Map(0, NULL, (void**)&m_pcbMappedMultiSpriteGameObjects);
-	
+
 
 	UINT ncbElementBytes4 = ((sizeof(CB_GAMEOBJECTWORLD_INFO) + 255) & ~255); //256의 배수
 	m_pd3dcbGameObjectsWorld = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes4, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
@@ -596,7 +596,7 @@ void GameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandLis
 {
 	if (m_pd3dcbGameObjects)
 	{
-		float mfhp=0;
+		float mfhp = 0;
 		mfhp = (m_fHp / m_fMaxHp);//현재 체력값을 최대체력 비례로 나타낸식 23.04.18 .ccg
 		::memcpy(&m_pcbMappedGameObjects->m_xmfHP, &mfhp, sizeof(float));
 		::memcpy(&m_pcbMappedGameObjects->m_bRimLight, &m_bRimLight, sizeof(bool));
@@ -721,7 +721,7 @@ CLoadedModelInfoCompnent* GameObject::LoadGeometryAndAnimationFromFile(ID3D12Dev
 				pLoadedModel->m_pModelRootObject = GameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, NULL, pInFile, pShader, &pLoadedModel->m_nSkinnedMeshes);
 				::ReadStringFromFile(pInFile, pstrToken); //"</Hierarchy>"
 
-				
+
 			}
 			else if (!strcmp(pstrToken, "<Animation>:"))
 			{
@@ -871,7 +871,7 @@ void GameObject::LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfoCompnent* 
 	UINT nReads = 0;
 
 	int nAnimationSets = 0;
-	
+
 	for (; ; )
 	{
 		::ReadStringFromFile(pInFile, pstrToken);
@@ -890,7 +890,7 @@ void GameObject::LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfoCompnent* 
 			{
 				::ReadStringFromFile(pInFile, pstrToken);
 				pLoadedModel->m_pAnimationSets->m_ppAnimatedBoneFrameCaches[j] = pLoadedModel->m_pModelRootObject->FindFrame(pstrToken);
-				
+
 #ifdef _WITH_DEBUG_SKINNING_BONE
 				TCHAR pstrDebug[256] = { 0 };
 				TCHAR pwstrAnimationBoneName[64] = { 0 };
@@ -1104,22 +1104,48 @@ void GameObject::MoveForward(float fDistance)
 {
 	XMFLOAT3 xmf3Position = GetPosition();
 	XMFLOAT3 xmf3Look = GetLook();
-	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, fDistance);
-	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * fDistance / 50.0f);
-	if (Vector3::Length(xmf3Position) < PLAYER_MAX_RANGE)	GameObject::SetPosition(xmf3Position);
-	vector<GameObject*> tempVector = gGameFramework.GetScene()->GetObjectManager()->GetObstacle();
-	XMVECTOR tempPoint = XMVectorSet(xmf3Position.x, xmf3Position.y, xmf3Position.z, 0.0f);
-	for (int i = 0; i < tempVector.size(); ++i)
-	{
-		if (tempVector[i]->m_OBB.Contains(tempPoint))
-		{
-			// cout << "충돌 발생 : " << i << "번째 바위와 충돌하였습니다." << endl;
-			// cout << "바위 Center Position : " << tempVector[i]->GetPosition().x <<", " << tempVector[i]->GetPosition().y << ", " << tempVector[i]->GetPosition().z << " )" << endl;
-			// cout << "충돌 포지션 : ( "<< xmf3Position.x <<", " << xmf3Position.y << ", " << xmf3Position.z << " )" << endl;
-			//슬라이딩 벡터 구현
+	vector<MapCollide>& Collides = g_bossMapData.GetCollideData();
+	//if (Vector3::Length(xmf3Position) < PLAYER_MAX_RANGE)	GameObject::SetPosition(xmf3Position);
+	//vector<GameObject*> tempVector = gGameFramework.GetScene()->GetObjectManager()->GetObstacle();
+	//XMVECTOR tempPoint = XMVectorSet(xmf3Position.x, xmf3Position.y, xmf3Position.z, 0.0f);
+	for (auto& collide : Collides) {
+		if (collide.GetObb().Intersects(m_SPBB)) {
+			auto& relationIdxsVector = collide.GetRelationCollisionIdxs();
+			int secondCollide = -1;
+			for (auto& otherCol : relationIdxsVector) {
+				if (Collides[otherCol].GetObb().Intersects(m_SPBB)) {					
+					secondCollide = otherCol;
+					break;
+				}
+			}
+			if (secondCollide == -1) {
+				auto CollidePolygonNormalVector = collide.CalSlidingVector(xmf3Position, GetLook());
+				xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(CollidePolygonNormalVector.second, 0.5f * fDistance));
+			}
+			else {
+				auto normalVec1 = collide.CalSlidingVector(xmf3Position, GetLook());
+				auto normalVec2 = Collides[secondCollide].CalSlidingVector(m_position, GetLook());
+				xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(Vector3::Add(normalVec1.first, normalVec2.first), 0.5f * fDistance));
+			}
+			xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * fDistance / 50.0f);
+			GameObject::SetPosition(xmf3Position);
 			return;
 		}
 	}
+	//for (int i = 0; i < tempVector.size(); ++i)
+	//{
+	//	if (/*tempVector[i]->m_OBB.Contains(tempPoint)*/tempVector[i]->m_OBB.Intersects(m_SPBB))
+	//	{
+	//		tempVector[i]->m_OBB.Intersects(m_SPBB);
+	//		// cout << "충돌 발생 : " << i << "번째 바위와 충돌하였습니다." << endl;
+	//		// cout << "바위 Center Position : " << tempVector[i]->GetPosition().x <<", " << tempVector[i]->GetPosition().y << ", " << tempVector[i]->GetPosition().z << " )" << endl;
+	//		// cout << "충돌 포지션 : ( "<< xmf3Position.x <<", " << xmf3Position.y << ", " << xmf3Position.z << " )" << endl;
+	//		//슬라이딩 벡터 구현
+	//		return;
+	//	}
+	//}
+	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, fDistance);
+	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * fDistance / 50.0f);
 	GameObject::SetPosition(xmf3Position);
 }
 

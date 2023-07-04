@@ -143,13 +143,14 @@
     <ClCompile Include="IOCPNetwork\IOCP\IOCPNetwork.cpp" />
     <ClCompile Include="Logic\Logic.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MapData\MapCollide.cpp" />
+    <ClCompile Include="MapData\MapData.cpp" />
     <ClCompile Include="PCH\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Room\MapData.cpp" />
     <ClCompile Include="Room\Room.cpp" />
     <ClCompile Include="Room\RoomManager.cpp" />
     <ClCompile Include="Session\Session.cpp" />
@@ -164,8 +165,9 @@
     <ClInclude Include="IOCPNetwork\IOCP\IOCPNetwork.h" />
     <ClInclude Include="IOCPNetwork\protocol\protocol.h" />
     <ClInclude Include="Logic\Logic.h" />
+    <ClInclude Include="MapData\MapCollide.h" />
+    <ClInclude Include="MapData\MapData.h" />
     <ClInclude Include="PCH\stdafx.h" />
-    <ClInclude Include="Room\MapData.h" />
     <ClInclude Include="Room\Room.h" />
     <ClInclude Include="Room\RoomManager.h" />
     <ClInclude Include="Session\ExpOver.h" />

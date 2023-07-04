@@ -3,7 +3,8 @@
 #include "../Session.h"
 #include "../../Logic/Logic.h"
 #include "../../IOCPNetwork/protocol/protocol.h"
-#include "../../Room/MapData.h"
+#include "../../MapData/MapData.h"
+
 
 extern Logic g_logic;
 extern MapData g_bossMapData;
@@ -30,6 +31,7 @@ bool PlayerSessionObject::AdjustPlayerInfo(DirectX::XMFLOAT3& position) // , Dir
 	//m_rotateAngle = rotate;
 	if (Vector3::Length(Vector3::Subtract(m_position, position)) < 0.3f) { // ���� �� �̸��̶�� ���� ����, �̻��̶�� ���ǵ� ��?���� �����ϰ� ��ġ ���� ��ġ�� ��ȯ
 		m_position = position;
+
 		return true;
 	}
 	return false;
@@ -98,19 +100,56 @@ void PlayerSessionObject::SetMouseInput(bool LmouseInput, bool RmouseInput)
 	m_rightmouseInput = RmouseInput;
 }
 
-bool PlayerSessionObject::CanGo(const XMFLOAT3& nextPos)
+bool PlayerSessionObject::CheckMove(float& fDistance)
 {
-	XMVECTOR tempPoint = XMVectorSet(nextPos.x, nextPos.y, nextPos.z, 0.0f);
-	for (const auto& p : g_bossMapData.GetOBB())
+	auto& allCollisionVec = g_bossMapData.GetCollideData();
+	for (auto& collide : allCollisionVec)
 	{
-		if (p.Contains(tempPoint))
+		if (collide.GetObb().Intersects(m_SPBB))
 		{
+			//XMFLOAT3 CollidePolygonNormalVector = p.CalSlidingVector(m_position, m_directionVector);
+			//m_position = Vector3::Add(m_position, Vector3::ScalarProduct(CollidePolygonNormalVector, 0.5f * fDistance));
+			std::vector<int>& relationIdxsVector = collide.GetRelationCollisionIdxs();
+			int secondCollide = -1;
+			for (auto& otherCol : relationIdxsVector) {
+				if (allCollisionVec[otherCol].GetObb().Intersects(m_SPBB)) {
+					//CollidePolygonNormalVector = allCollisionVec[otherCol].CalSlidingVector(m_position, m_directionVector);
+					//m_position = Vector3::Add(m_position, Vector3::ScalarProduct(CollidePolygonNormalVector, 0.5f * fDistance));
+					secondCollide = otherCol;
+					break;
+				}
+			}
+			if (secondCollide == -1) {
+				auto CollidePolygonNormalVector = collide.CalSlidingVector(m_position, m_directionVector);
+				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(CollidePolygonNormalVector.second, 0.5f * fDistance));
+			}
+			else {
+				auto normalVec1 = collide.CalSlidingVector(m_position, m_directionVector);
+				auto normalVec2 = allCollisionVec[secondCollide].CalSlidingVector(m_position, m_directionVector);
+				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(Vector3::Add(normalVec1.first, normalVec2.first), 0.5f * fDistance));
+			}
 			std::cout << m_id << " Player Get Collision " << std::endl;
+			m_SPBB.Center = m_position;
 			return false;
 		}
 	}
 	return true;
 }
+
+//bool PlayerSessionObject::CanGo(const XMFLOAT3& nextPos)//sp_bb로 확인 할 수 있게 하자
+//{
+//	XMVECTOR tempPoint = XMVectorSet(nextPos.x, nextPos.y, nextPos.z, 0.0f);
+//	
+//	//for (const auto& p : g_bossMapData.GetOBB())
+//	//{
+//	//	if (p.Contains(tempPoint))
+//	//	{
+//	//		std::cout << m_id << " Player Get Collision " << std::endl;
+//	//		return false;
+//	//	}
+//	//}
+//	return true;
+//}
 
 void PlayerSessionObject::StartMove(DIRECTION d)
 {
@@ -165,8 +204,12 @@ void PlayerSessionObject::Move(float fDistance)
 		case DIRECTION::BACK | DIRECTION::LEFT:
 		case DIRECTION::LEFT:
 		case DIRECTION::FRONT | DIRECTION::LEFT:
-			DirectX::XMFLOAT3 tempPos = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, fDistance));
-			if (CanGo(tempPos)) m_position = tempPos;
+			if (CheckMove(fDistance)) {
+				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, fDistance));
+				m_SPBB.Center = m_position;
+			}
+			else
+				break;
 		default: break;
 		}
 	}

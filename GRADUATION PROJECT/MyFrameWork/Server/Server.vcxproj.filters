@@ -35,6 +35,9 @@
     <Filter Include="Timer">
       <UniqueIdentifier>{cf8ae021-9f8f-43cb-bc14-3e832e28ebfe}</UniqueIdentifier>
     </Filter>
+    <Filter Include="MapData">
+      <UniqueIdentifier>{cc4ba47b-4988-4ef1-8eb5-0fc85941872c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -76,8 +79,11 @@
     <ClCompile Include="Session\SessionObject\ShootingSessionObject.cpp">
       <Filter>Session\SessionObject</Filter>
     </ClCompile>
-    <ClCompile Include="Room\MapData.cpp">
-      <Filter>Room</Filter>
+    <ClCompile Include="MapData\MapData.cpp">
+      <Filter>MapData</Filter>
+    </ClCompile>
+    <ClCompile Include="MapData\MapCollide.cpp">
+      <Filter>MapData</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -123,8 +129,11 @@
     <ClInclude Include="Session\SessionObject\ShootingSessionObject.h">
       <Filter>Session\SessionObject</Filter>
     </ClInclude>
-    <ClInclude Include="Room\MapData.h">
-      <Filter>Room</Filter>
+    <ClInclude Include="MapData\MapData.h">
+      <Filter>MapData</Filter>
+    </ClInclude>
+    <ClInclude Include="MapData\MapCollide.h">
+      <Filter>MapData</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
