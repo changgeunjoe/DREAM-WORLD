@@ -468,6 +468,7 @@ VS_SKYBOX_CUBEMAP_OUTPUT VSSkyBox(VS_SKYBOX_CUBEMAP_INPUT input)
 float4 PSSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
 {
     float4 cColor = SkyCubeTexture.Sample(gClampSamplerState, input.positionL);
+    cColor = round(cColor * 8.0f) / 8.0f;
     return (cColor);
 }
 

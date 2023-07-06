@@ -19,7 +19,7 @@
 #include <memory.h>
 #include <tchar.h>
 #include <math.h>
-
+#include <dwrite_3.h>
 #include <string>
 #include <wrl.h>
 #include <shellapi.h>

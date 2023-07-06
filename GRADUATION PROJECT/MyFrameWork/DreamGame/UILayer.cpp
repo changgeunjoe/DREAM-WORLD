@@ -166,36 +166,38 @@ void UILayer::Resize(ID3D12Resource** ppd3dRenderTargets, UINT nWidth, UINT nHei
 
 
 
-	//ComPtr<IDWriteFontFile> fontFileReference;
+	ComPtr<IDWriteFontFile> fontFileReference;
 
-	//m_pd2dWriteFactory->CreateFontFileReference(L"MyFont.ttf", nullptr, &fontFileReference);
+	m_pd2dWriteFactory->CreateFontFileReference(L"Font/CookieRunBold.ttf", nullptr, &fontFileReference);
 
-	//ComPtr<IDWriteFontSetBuilder1> fontSetBuilder;
-	//m_pd2dWriteFactory->CreateFontSetBuilder(&fontSetBuilder);
+	ComPtr<IDWriteFontSetBuilder1> fontSetBuilder;
+	m_pd2dWriteFactory->CreateFontSetBuilder(&fontSetBuilder);
 
-	//fontSetBuilder->AddFontFile(fontFileReference.Get());
+	fontSetBuilder->AddFontFile(fontFileReference.Get());
 
-	//ComPtr<IDWriteFontSet> customFontSet;
-	//fontSetBuilder->CreateFontSet(&customFontSet);
+	ComPtr<IDWriteFontSet> customFontSet;
+	fontSetBuilder->CreateFontSet(&customFontSet);
 
-	//m_pd2dWriteFactory->CreateFontCollectionFromFontSet(customFontSet.Get(), &m_pdwFontCollection);
+	m_pd2dWriteFactory->CreateFontCollectionFromFontSet(
+		customFontSet.Get()
+		, &m_pdwFontCollection1
+	);
 
+	ComPtr<IDWriteFontFamily> fontFamily;
+	ComPtr<IDWriteLocalizedStrings> localizedFontName;
+	TCHAR c_styleFontName[65];
 
-
-
-
-
-	//if (AddFontResourceExA("netmarble Medium", FR_PRIVATE, 0) == 0)
-	//AddFontResourceExA("netmarble Medium", FR_PRIVATE, 0);
-	//m_pd2dWriteFactory->CreateTextFormat(L"netmarble Medium", nullptr, DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, fFontSize, L"en-us", &m_pdwTextFormat);
-	m_pd2dWriteFactory->CreateTextFormat(L"Font/모리스9.ttf", nullptr, DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, fFontSize, L"en-us", &m_pdwTextFormat);
+	m_pdwFontCollection1->GetFontFamily(0, &fontFamily);
+	fontFamily->GetFamilyNames(&localizedFontName);
+	localizedFontName->GetString(0, c_styleFontName, 65);
+	m_pd2dWriteFactory->CreateTextFormat(c_styleFontName, m_pdwFontCollection1, DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, fFontSize, L"ko", &m_pdwTextFormat);
 
 
 	m_pdwTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
 	m_pdwTextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR);
 
 
-	m_pd2dWriteFactory->CreateTextFormat(L"Font/모리스9.ttf", nullptr, DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, fSmallFontSize, L"en-us", &m_pdwDamageFontFormat);
+	m_pd2dWriteFactory->CreateTextFormat(c_styleFontName, m_pdwFontCollection1, DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, fSmallFontSize, L"en-us", &m_pdwDamageFontFormat);
 
 	m_pdwDamageFontFormat->SetTextAlignment(/*DWRITE_TEXT_ALIGNMENT_CENTER*/DWRITE_TEXT_ALIGNMENT_LEADING);
 	m_pdwDamageFontFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR);

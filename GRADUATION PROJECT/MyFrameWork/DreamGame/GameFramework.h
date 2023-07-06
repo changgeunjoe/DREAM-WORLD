@@ -25,7 +25,7 @@ private:
 	//Direct3D 디바이스 인터페이스에 대한 포인터이다. 주로 리소스를 생성하기 위하여 필요하다.
 
 	bool m_bMsaa4xEnable = false;
-
+	bool m_bFullScreen=false;
 	UINT m_nMsaa4xQualityLevels = 0;
 	//MSAA(Multi Sampleing AA) 다중 샘플링을 활성화하고 다중 샘플링 레벨을 설정한다. SSAA(SUPER SAMPLING AA)도 있다.
 
