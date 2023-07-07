@@ -58,7 +58,7 @@ public:
 	void SetMesh(MeshComponent* pMesh);
 	void SetCamera(CCamera* pCamera);
 	void SetRowColumn(float x, float y, float fSpeed = 0.1);
-	void MoveObject(DIRECTION& currentDirection, const XMFLOAT3& CameraAxis);
+	virtual void MoveObject(DIRECTION& currentDirection, const XMFLOAT3& CameraAxis);
 
 	void MoveStrafe(float fDistance = 1.0f);
 	void MoveUp(float fDistance = 1.0f);
@@ -301,7 +301,7 @@ protected:
 
 	CHeightMapImage* m_pHeightMapImage;
 public:
-	array<Projectile*, 10>          m_pProjectiles;
+	array<Projectile*, MAX_ARROW>          m_pProjectiles;
 
 	void SetBoundingSize(float size)
 	{

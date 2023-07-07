@@ -3,12 +3,19 @@
 
 class Character : public GameObject
 {
+protected:
+	bool m_bQSkillClicked;
+	bool m_bESkillClicked;
 public:
 	Character();
 	virtual ~Character();
 	virtual void RbuttonClicked(float fTimeElapsed);
 	virtual void RbuttonUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f });
 	virtual void Reset();
+	virtual void FirstSkillDown() { m_bQSkillClicked = true; }
+	virtual void FirstSkillUp() {};
+	virtual void SecondSkillDown() { m_bESkillClicked = true; };
+	virtual void SecondSkillUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f }) {};
 	//virtual void Move(DIRECTION direction, float fDistance);
 };
 
@@ -25,6 +32,8 @@ public:
 
 class Archer : public Character
 {
+private:
+	XMFLOAT3 m_CameraLook;
 public:
 	Archer();
 	virtual ~Archer();
@@ -35,6 +44,12 @@ public:
 	virtual void Move(DIRECTION direction, float fDsitance) override;
 	virtual void Animate(float fTimeElapsed);
 	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender = false);
+	virtual void MoveObject(DIRECTION& currentDirection, const XMFLOAT3& CameraAxis);
+	virtual void FirstSkillDown();
+	virtual void FirstSkillUp();
+	virtual void SecondSkillDown();
+	virtual void SecondSkillUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f });
+	virtual void ShootArrow();
 };
 
 class Tanker : public Character
@@ -87,15 +102,24 @@ public:
 	Projectile(entity_id eid = UNDEF_ENTITY);
 	virtual ~Projectile();
 	virtual void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void SetRButtonClicked(bool clicked) {};
+	virtual bool GetRButtonClicked() { return false; }
 };
 
 class Arrow : public Projectile
 {
 public:
+	int			m_ArrowType;
+	float		m_ArrowPos;
+	bool		m_RButtonClicked;
+	XMFLOAT3	m_xmf3TargetPos;
+public:
 	Arrow();
 	virtual ~Arrow();
 	virtual void Animate(float fTimeElapsed);
 	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender = false);
+	virtual void SetRButtonClicked(bool clicked) { m_RButtonClicked = clicked; }
+	virtual bool GetRButtonClicked() { return m_RButtonClicked; }
 };
 
 class EnergyBall : public Projectile

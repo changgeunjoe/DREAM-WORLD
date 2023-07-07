@@ -161,7 +161,7 @@ using Microsoft::WRL::ComPtr;
 
 #pragma comment(lib, "dxguid.lib")
 
-
+#define MAX_ARROW 10
 
 // TODO: 프로그램에 필요한 추가 헤더는 여기에서 참조합니다.
 
@@ -306,7 +306,7 @@ enum CharacterAnimation
 	CA_ATTACK,
 	CA_DIE,
 	CA_VICTORY,
-	CA_DEFENCE,
+	CA_SKILL,
 	CA_BLENDING = 99
 };
 

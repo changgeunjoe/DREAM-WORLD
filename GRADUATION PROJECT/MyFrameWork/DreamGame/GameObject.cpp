@@ -120,6 +120,8 @@ void GameObject::SetLook(const XMFLOAT3& xmfLook)
 	m_xmf4x4ToParent._11 = xmftRight.x;	m_xmf4x4ToParent._12 = xmftRight.y;	m_xmf4x4ToParent._13 = xmftRight.z;
 	m_xmf4x4ToParent._21 = xmftUp.x;	m_xmf4x4ToParent._22 = xmftUp.y;	m_xmf4x4ToParent._23 = xmftUp.z;
 	m_xmf4x4ToParent._31 = xmftLook.x;	m_xmf4x4ToParent._32 = xmftLook.y;	m_xmf4x4ToParent._33 = xmftLook.z;
+
+	UpdateTransform(NULL);
 }
 
 XMFLOAT3 GameObject::GetUp()
@@ -1109,9 +1111,10 @@ void GameObject::MoveForward(float fDistance)
 	//if (Vector3::Length(xmf3Position) < PLAYER_MAX_RANGE)	GameObject::SetPosition(xmf3Position);
 	vector<GameObject*> tempVector = gGameFramework.GetScene()->GetObjectManager()->GetObstacle();
 	XMVECTOR tempPoint = XMVectorSet(xmf3Position.x, xmf3Position.y, xmf3Position.z, 0.0f);
+	BoundingSphere tempSPBB = BoundingSphere(XMFLOAT3(xmf3Position.x, xmf3Position.y, xmf3Position.z), m_fBoundingSize);
 	for (int i = 0; i < tempVector.size(); ++i)
 	{
-		if (tempVector[i]->m_OBB.Contains(tempPoint))
+		if (tempVector[i]->m_OBB.Intersects(tempSPBB))
 		{
 			// cout << "충돌 발생 : " << i << "번째 바위와 충돌하였습니다." << endl;
 			// cout << "바위 Center Position : " << tempVector[i]->GetPosition().x <<", " << tempVector[i]->GetPosition().y << ", " << tempVector[i]->GetPosition().z << " )" << endl;
