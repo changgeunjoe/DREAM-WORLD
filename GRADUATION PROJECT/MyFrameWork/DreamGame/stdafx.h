@@ -19,7 +19,7 @@
 #include <memory.h>
 #include <tchar.h>
 #include <math.h>
-
+#include <dwrite_3.h>
 #include <string>
 #include <wrl.h>
 #include <shellapi.h>
@@ -287,7 +287,9 @@ enum component_id
 	TRAILSHADER_COMPONENT,
 	HEIGHTMESH_COMPONENT,
 	TERRAINSHADER_COMPONENT,	
-	NAVIMESHSHADER_COMPONENT
+	NAVIMESHSHADER_COMPONENT,
+	EFFECTSHADER_COMPONENT,
+	BLENDSHADER_COMPONENT
 };
 //mean about component_id;
 enum CharacterType
@@ -309,6 +311,13 @@ enum CharacterAnimation
 	CA_SKILL,
 	CA_BLENDING = 99
 };
+
+//NPCText
+enum TEXT
+{
+	NPC_TEXT=0
+};
+
 
 enum BOSS_ATTACK : char {
 	ATTACK_PUNCH,

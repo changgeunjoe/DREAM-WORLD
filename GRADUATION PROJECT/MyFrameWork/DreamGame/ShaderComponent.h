@@ -2,7 +2,6 @@
 
 #include "ComponentBase.h"
 #include"TextureComponent.h"
-#include"ShaderComponent.h"
 class MaterialComponent;
 class ShaderComponent : public ComponentBase
 {
@@ -172,4 +171,16 @@ public:
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader(int nPipelineState);
 
 	virtual D3D12_RASTERIZER_DESC CreateRasterizerState(int nPipelineState);
+};
+
+class BlendShaderComponent : public ShaderComponent
+{
+public:
+	BlendShaderComponent() {};
+	virtual ~BlendShaderComponent() {};
+
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout(int nPipelineState);
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader(int nPipelineState);
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader(int nPipelineState);
+	virtual D3D12_BLEND_DESC CreateBlendState(int nPipelineState);
 };

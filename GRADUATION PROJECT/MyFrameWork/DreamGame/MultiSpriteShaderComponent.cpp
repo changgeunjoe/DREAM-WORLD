@@ -1,8 +1,5 @@
 #include "stdafx.h"
 #include "MultiSpriteShaderComponent.h"
-#include"stdafx.h"
-#include "UiShaderComponent.h"
-#include "MultiSpriteShaderComponent.h"
 
 MultiSpriteShaderComponent::MultiSpriteShaderComponent()
 {

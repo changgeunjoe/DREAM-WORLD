@@ -48,6 +48,7 @@ public:
 	virtual void BuildInstanceObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void BuildStoryUI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void BuildNPC(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	
 	virtual void BuildBossStageObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 
@@ -64,7 +65,7 @@ public:
 	virtual void onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	virtual void onProcessingMouseMessageUI(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
-	void AddTextToUILayer(int index);
+	void AddTextToUILayer(int &index);
 	float CalculateDistance(const XMFLOAT3& firstPosition, const XMFLOAT3& lastPosition);
 
 private: //active object 
@@ -117,6 +118,7 @@ private: //active object
 	GameObject* m_pUIArcherCharacterObject{ NULL };
 	GameObject* m_pUITankerCharacterObject{ NULL };
 	GameObject* m_pUIPriestCharacterObject{ NULL };
+	GameObject* m_pTalkUIObject{ NULL };
 
 	//SECTION 2
 	GameObject* m_pUIGameCreateObject{ NULL };
@@ -135,6 +137,7 @@ private: //active object
 	GameObject* m_pFireballSpriteObject{ NULL };
 	GameObject* m_pFireballEmissionSpriteObject{ NULL };
 	GameObject* m_pFireball2EmissionSpriteObject{ NULL };
+	GameObject* m_pSwordFireObject{ NULL };
 	vector<GameObject*> m_ppParticleObjects;
 
 	//StoryUIObject -23.
@@ -151,12 +154,16 @@ private: //active object
 	//AstarObject
 	GameObject* m_pAstarObject{ NULL };
 	TrailComponent* m_pAstarComponent{ NULL };
-	//
+	//Effect
 	array<GameObject*, 10> m_pStage1Objects{ NULL };
 	GameObject* m_pStage1TerrainObject{ NULL };
 	
 	EffectObject* m_pEffectObject{NULL};
 	EffectObject* m_pDebuffObject{ NULL };
+
+	//NPC Object 
+	GameObject* m_pAngelNPCObject{ NULL };
+	GameObject* m_pAngelMageNPCObject{ NULL };
 
 	POINT						m_ptOldCursorPos;
 
@@ -175,7 +182,10 @@ private: //active object
 public:
 	std::vector<int> m_VecNodeQueue;
 	std::mutex m_nodeLock;
-	UILayer* m_pUILayer = NULL;
+	UILayer* m_pUILayer{ NULL };
+	bool m_bNPCinteraction{false};
+	bool m_bNPCscreen{ false };
+	int m_iTEXTiIndex{ 0 };
 public:
 	void SetPlayCharacter(Session* pSession);
 	void SetSection(int n) { m_nSection = n; }

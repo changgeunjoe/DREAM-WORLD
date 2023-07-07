@@ -10,6 +10,7 @@
 #include "GameFramework.h"
 #include "GameobjectManager.h"
 
+
 extern MapData g_bossMapData;
 extern CGameFramework gGameFramework;
 
@@ -354,9 +355,11 @@ void GameObject::BuildShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	ComponentBase* pNaviMeshShaderComponent = GetComponent(component_id::NAVIMESHSHADER_COMPONENT);
 	ComponentBase* pTrailShaderComponent = GetComponent(component_id::TRAILSHADER_COMPONENT);
 	ComponentBase* pTerrainShaderComponent = GetComponent(component_id::TERRAINSHADER_COMPONENT);
+	ComponentBase* pEffectShaderComponent = GetComponent(component_id::EFFECTSHADER_COMPONENT);
+	ComponentBase* pBlendShaderComponent = GetComponent(component_id::BLENDSHADER_COMPONENT);
 	if (pShaderComponent != NULL || pSkyShaderComponent != NULL || pUiShaderComponent != NULL || pSpriteShaderComponent != NULL 
 		|| pBoundingBoxShaderComponent != NULL || pBlendingUiShaderComponent != NULL|| pTrailShaderComponent!=NULL
-		|| pTerrainShaderComponent!=NULL)
+		|| pTerrainShaderComponent!=NULL|| pEffectShaderComponent|| pBlendShaderComponent)
 	{
 		if (pShaderComponent != NULL)
 		{
@@ -383,6 +386,12 @@ void GameObject::BuildShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		else if (pTerrainShaderComponent != NULL) {
 			m_pShaderComponent = static_cast<TrailShaderComponent*>(pTerrainShaderComponent);
 		}
+		else if (pEffectShaderComponent != NULL) {
+			m_pShaderComponent = static_cast<EffectShaderComponent*>(pEffectShaderComponent);
+		}
+		else if (pBlendShaderComponent != NULL) {
+			m_pShaderComponent = static_cast<BlendShaderComponent*>(pBlendShaderComponent);
+		}
 		else if (pNaviMeshShaderComponent != NULL)
 		{
 			m_pShaderComponent = static_cast<SphereShaderComponent*>(pNaviMeshShaderComponent);
@@ -408,7 +417,6 @@ void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3
 {
 	UpdateShaderVariables(pd3dCommandList);
 	UpdateShaderVariables(pd3dCommandList, &m_xmf4x4World, NULL);
-
 	if (m_pSkinnedAnimationController)
 		m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
 
@@ -437,6 +445,7 @@ void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3
 					m_ppMaterialsComponent[i]->m_pShader->Render(pd3dCommandList, 0, pd3dGraphicsRootSignature, bPrerender);
 					pd3dCommandList->SetGraphicsRootDescriptorTable(0, m_ppMaterialsComponent[i]->m_pShader->GetCbvGPUDescriptorHandle());
 					m_ppMaterialsComponent[i]->m_pShader->UpdateShaderVariables(pd3dCommandList, &m_xmf4x4World, m_ppMaterialsComponent[i]);
+					//
 					//m_ppMaterialsComponent[i]->UpdateShaderVariable(pd3dCommandList);
 				}
 			}

@@ -3,6 +3,7 @@
 #include"GameObject.h"
 
 
+
 EffectObject::EffectObject()
 {
 }
@@ -17,11 +18,11 @@ void EffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pSmokeObject[i] = new GameObject(UNDEF_ENTITY);
 		m_pSmokeObject[i]->InsertComponent<RenderComponent>();
 		m_pSmokeObject[i]->InsertComponent<UIMeshComponent>();
-		m_pSmokeObject[i]->InsertComponent<ShaderComponent>();
+		m_pSmokeObject[i]->InsertComponent<EffectShaderComponent>();
 		m_pSmokeObject[i]->InsertComponent<TextureComponent>();
 		m_pSmokeObject[i]->SetTexture(L"MagicEffect/Smoke.dds", RESOURCE_TEXTURE2D, 3);
 		m_pSmokeObject[i]->SetAddPosition( XMFLOAT3(RandF(-5, 5),RandF(-0, 10), RandF(-5, 5)));
-		m_pSmokeObject[i]->SetColor(XMFLOAT4(1.0f, 0.7843f, 0.1568f, 0));
+		m_pSmokeObject[i]->SetColor(XMFLOAT4(0.0f, 1.0f, 0.2568f , 0));
 		m_pSmokeObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pSmokeObject[i]->m_fTime = RandF(0, 10);
 		m_pEffectObjects.push_back(m_pSmokeObject[i]);
@@ -30,12 +31,12 @@ void EffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pPointObject[i] = new GameObject(UNDEF_ENTITY);
 		m_pPointObject[i]->InsertComponent<RenderComponent>();
 		m_pPointObject[i]->InsertComponent<UIMeshComponent>();
-		m_pPointObject[i]->InsertComponent<ShaderComponent>();
+		m_pPointObject[i]->InsertComponent<EffectShaderComponent>();
 		m_pPointObject[i]->InsertComponent<TextureComponent>();
 		m_pPointObject[i]->SetTexture(L"MagicEffect/Point1.dds", RESOURCE_TEXTURE2D, 3);
 		m_pPointObject[i]->SetAddPosition(XMFLOAT3(RandF(-5, 5), RandF(-5, 5), RandF(-5, 5)));
 		m_pPointObject[i]->SetPosition(XMFLOAT3(0,0,0));
-		m_pPointObject[i]->SetColor(XMFLOAT4(1.0f, 0.7843f, 0.1568f, 0));
+		m_pPointObject[i]->SetColor(XMFLOAT4(0.0f, 1.0f, 0.2568f, 0));
 		m_pPointObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pPointObject[i]->m_fTime = RandF(0, 10);
 		m_pEffectObjects.push_back(m_pPointObject[i]);
@@ -44,13 +45,13 @@ void EffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pArrowObject[i] = new GameObject(UNDEF_ENTITY);
 		m_pArrowObject[i]->InsertComponent<RenderComponent>();
 		m_pArrowObject[i]->InsertComponent<UIMeshComponent>();
-		m_pArrowObject[i]->InsertComponent<ShaderComponent>();
+		m_pArrowObject[i]->InsertComponent<EffectShaderComponent>();
 		m_pArrowObject[i]->InsertComponent<TextureComponent>();
 		m_pArrowObject[i]->SetTexture(L"MagicEffect/Arrow.dds", RESOURCE_TEXTURE2D, 3);
 		m_pArrowObject[i]->SetPosition(XMFLOAT3(0, 40, 50));
 		m_pArrowObject[i]->SetAddPosition(XMFLOAT3(RandF(-5, 5), RandF(-5, 5), RandF(-5, 5)));
 		m_pArrowObject[i]->SetRowColumn(16, 8, 0.05);
-		m_pArrowObject[i]->SetColor(XMFLOAT4(1.0f, 0.7843f, 0.1568f, 0));
+		m_pArrowObject[i]->SetColor(XMFLOAT4(0.0f, 1.0f, 0.2568f, 0));
 		m_pArrowObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pArrowObject[i]->m_fTime = RandF(0, 10);
 		m_pEffectObjects.push_back(m_pArrowObject[i]);
@@ -59,12 +60,12 @@ void EffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pFlareObject[i] = new GameObject(UNDEF_ENTITY);
 		m_pFlareObject[i]->InsertComponent<RenderComponent>();
 		m_pFlareObject[i]->InsertComponent<UIMeshComponent>();
-		m_pFlareObject[i]->InsertComponent<ShaderComponent>();
+		m_pFlareObject[i]->InsertComponent<EffectShaderComponent>();
 		m_pFlareObject[i]->InsertComponent<TextureComponent>();
 		m_pFlareObject[i]->SetTexture(L"MagicEffect/Flare.dds", RESOURCE_TEXTURE2D, 3);
 		m_pFlareObject[i]->SetPosition(XMFLOAT3(0, 40, 50));
 		m_pFlareObject[i]->SetAddPosition(XMFLOAT3(RandF(-5, 5), RandF(-5, 5), RandF(-5, 5)));
-		m_pFlareObject[i]->SetColor(XMFLOAT4(1.0f, 0.7843f, 0.1568f, 0));
+		m_pFlareObject[i]->SetColor(XMFLOAT4(0.0f, 1.0f, 0.2568f, 0));
 		m_pFlareObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pFlareObject[i]->m_fTime = RandF(0, 10);
 		m_pEffectObjects.push_back(m_pFlareObject[i]);
@@ -72,7 +73,7 @@ void EffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	m_pAttackObject = new GameObject(UNDEF_ENTITY);
 	m_pAttackObject->InsertComponent<RenderComponent>();
 	m_pAttackObject->InsertComponent<UIMeshComponent>();
-	m_pAttackObject->InsertComponent<ShaderComponent>();
+	m_pAttackObject->InsertComponent<EffectShaderComponent>();
 	m_pAttackObject->InsertComponent<TextureComponent>();
 	m_pAttackObject->SetTexture(L"MagicEffect/Attack.dds", RESOURCE_TEXTURE2D, 3);
 	m_pAttackObject->SetPosition(XMFLOAT3(0, 0, 0));

@@ -162,41 +162,28 @@ float4 PSDiffused(VS_OUTPUT input) : SV_TARGET
 #else
     float3 normalW = normalize(input.normalW);
      float4 cColor = shaderTexture.Sample(gWrapSamplerState, input.uv);
-    if (input.uv.y > 0.95)
-    {
-        cColor = float4(0, 0, 0, 1);
 
-    }
-    if (input.uv.y < 0.05)
-    {
-        cColor = float4(0, 0, 0, 1);
-    }
-    if (input.uv.x > 0.95)
-    {
-        cColor = float4(0, 0, 0, 1);
+    //if (input.uv.x < 0.01)
+    //{
+    //    cColor = float4(0, 0, 0, 1);
 
-    }
-    if (input.uv.x < 0.01)
-    {
-        cColor = float4(0, 0, 0, 1);
-
-    }
-    if (input.uv.x > gfCharactertHP)
-    {
-        cColor = float4(0, 0, 0, 1);
-    }
+    //}
+    //if (input.uv.x > gfCharactertHP)
+    //{
+    //    cColor = float4(0, 0, 0, 1);
+    //}
     if (cColor.x < 0.2 || cColor.y < 0.2 || cColor.z < 0.2)
     {
         cColor.w = 0;
     }
-    else{
-      //  float4 color = float4(0.6,0, 0, 0);
-       // cColor.xyz = cColor.xyz ;
-        //lerp(cColor, color,0.5);
-        float4 color = float4(10, 10, 10, 0);
-        cColor.xyz = 1 - cColor.xyz;
-        cColor += gmtxGameObjectColor;
-    }
+    //else{
+    //  //  float4 color = float4(0.6,0, 0, 0);
+    //   // cColor.xyz = cColor.xyz ;
+    //    //lerp(cColor, color,0.5);
+    //    float4 color = float4(10, 10, 10, 0);
+    //    cColor.xyz = 1 - cColor.xyz;
+    //    cColor += gmtxGameObjectColor;
+    //}
        
     return cColor;
 
@@ -215,14 +202,7 @@ struct VS_TEXTURED_OUTPUT
     float4 position : SV_POSITION;
     float2 uv : TEXCOORD;
 };
-VS_TEXTURED_OUTPUT VSSpriteAnimation(VS_TEXTURED_INPUT input)
-{
-    VS_TEXTURED_OUTPUT output;
 
-    output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObjectWorld), gmtxView), gmtxProjection);
-    output.uv = mul(float3(input.uv, 1.0f), (float3x3) (gmtxTextureview)).xy;
-    return (output);
-}
 VS_TEXTURED_OUTPUT VSUITextured(VS_TEXTURED_INPUT input)
 {
     VS_TEXTURED_OUTPUT output;
@@ -248,12 +228,64 @@ float4 PSTexturedTrail(VS_TEXTURED_OUTPUT input) : SV_TARGET
     cColor.w = 0.4;
     return (cColor);
 }
+VS_TEXTURED_OUTPUT VSBlendTextured(VS_TEXTURED_INPUT input)
+{
+    VS_TEXTURED_OUTPUT output;
+    output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+    output.uv = input.uv;
+    return (output);
+}
 
+float4 PSBlendTextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
+{
+       // Sample the texture
+    float4 cColor = shaderTexture.Sample(gWrapSamplerState, input.uv);
+    //cColor += gmtxGameObjectColor;
+    //cColor.w = 0.4;
+    return (cColor);
+}
+VS_TEXTURED_OUTPUT VSEffect(VS_TEXTURED_INPUT input)
+{
+    VS_TEXTURED_OUTPUT output;
+
+    output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObjectWorld), gmtxView), gmtxProjection);
+    output.uv = input.uv;
+    return (output);
+}
+float4 PSEffectTextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
+{
+    // Sample the texture
+    float4 cColor = shaderTexture.Sample(gWrapSamplerState, input.uv);
+    if (cColor.x < 0.2 || cColor.y < 0.2 || cColor.z < 0.2)
+    {
+        cColor.w = 0;
+    }
+    else
+    {
+      //  float4 color = float4(0.6,0, 0, 0);
+       // cColor.xyz = cColor.xyz ;
+        //lerp(cColor, color,0.5);
+        float4 color = float4(10, 10, 10, 0);
+        cColor.xyz = 1 - cColor.xyz;
+        cColor += gmtxGameObjectColor;
+    }
+       
+    return cColor;
+}
+
+VS_TEXTURED_OUTPUT VSSpriteAnimation(VS_TEXTURED_INPUT input)
+{
+    VS_TEXTURED_OUTPUT output;
+
+    output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObjectWorld), gmtxView), gmtxProjection);
+    output.uv = mul(float3(input.uv, 1.0f), (float3x3) (gmtxTextureview)).xy;
+    return (output);
+}
 float4 PSSpriteTextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
 {
     // Sample the texture
     float4 cColor = shaderTexture.Sample(gWrapSamplerState, input.uv);
-    if (cColor.x == 0 || cColor.y == 0 || cColor.z == 0)
+    if (cColor.x < 0.1 || cColor.y < 0.1 || cColor.z < 0.1)
     {
         cColor.w = 0;
     }
@@ -266,17 +298,24 @@ float4 PSUITextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
        // Sample the texture 
     float4 cColor = shaderTexture.Sample(gWrapSamplerState, input.uv);
     //  float4 outlineColor = float4(1, 0, 0, 
-    if (input.uv.x > gfCharactertHP)
-    {
-        cColor = float4(0, 0, 0, 1);
-    }
-   
-    if (!bUIActive)
-    {
-        float4 f = float4(0.5, 0.5, 0.5, 1);
-        return lerp(f, cColor, 0.4);
-    }
-    else
+    //if (input.uv.x > gfCharactertHP)
+    //{
+    //    cColor = float4(0, 0, 0, 1);
+    //}
+    //if (cColor.x == 0 || cColor.y == 0 || cColor.z == 0)
+    //{
+    //    cColor.w = 0;
+    //}
+    if (gmtxGameObjectColor.w > 0.5)
+        cColor.w= gmtxGameObjectColor.w;
+  //  cColor.w = 0.5;
+    //if (!bUIActive)
+    //{
+    //    float4 f = float4(0.5, 0.5, 0.5, 1);
+    //    return lerp(f, cColor, 0.4);
+    //}
+    
+    //else
         return (cColor);
 }
 
@@ -445,6 +484,7 @@ VS_SKYBOX_CUBEMAP_OUTPUT VSSkyBox(VS_SKYBOX_CUBEMAP_INPUT input)
 float4 PSSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
 {
     float4 cColor = SkyCubeTexture.Sample(gClampSamplerState, input.positionL);
+    cColor = round(cColor * 8.0f) / 8.0f;
     return (cColor);
 }
 
@@ -506,12 +546,12 @@ VS_LIGHTING_OUTPUT VSLighting(VS_LIGHTING_INPUT input)
     VS_LIGHTING_OUTPUT output;
     if (!bAnimationShader)
     {
-        output.normalW = mul(input.normal, (float3x3) gmtxGameObject);
-        output.positionW = (float3) mul(float4(input.position, 1.0f), gmtxGameObject);
+        output.normalW = mul(input.normal, (float3x3) gmtxGameObjectWorld);
+        output.positionW = (float3) mul(float4(input.position, 1.0f), gmtxGameObjectWorld);
         output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
         output.uv = input.uv;
-        output.tangentW = mul(input.tangent, (float3x3) gmtxGameObject);
-        output.bitangentW = mul(input.bitangent, (float3x3) gmtxGameObject);
+        output.tangentW = mul(input.tangent, (float3x3) gmtxGameObjectWorld);
+        output.bitangentW = mul(input.bitangent, (float3x3) gmtxGameObjectWorld);
     }
     else if (bAnimationShader)
     {
@@ -623,7 +663,7 @@ float4 PSShadowMapShadow(VS_SHADOW_MAP_OUTPUT input) : SV_TARGET
     }
     if (gfMode == CELLSHADING_MODE || gfMode == CARTOON_MODE)
     {
-           cAlbedoColor = round(cAlbedoColor * 8.0f) / 8.0f; // 등급을 16단계로 나누어 반올림합니다.
+           cAlbedoColor = round(cAlbedoColor * 8.0f) / 5.5f; // 등급을 16단계로 나누어 반올림합니다.
     }
     
     float4 cIllumination = Lighting(input.positionW, normalize(input.normalW), true, input.uvs);
@@ -648,12 +688,20 @@ float4 PSShadowMapShadow(VS_SHADOW_MAP_OUTPUT input) : SV_TARGET
         if (gfMode == CELLSHADING_MODE || gfMode == OUTLINE_MODE)
         cColor = cColor + Rimline; // Rimline;
     }
-    if (cColor.w < 0.1f)
-        return cColor;
+    float4 cHDRColor = lerp(cColor, cIllumination, 0.4f);
+    float3 cLinearColor = pow(cHDRColor.rgb, 2.2f);
+    cLinearColor = (cLinearColor * (1.0f + cLinearColor / 5.5f)) / (1.0f + cLinearColor);
+    float3 cGammaColor = pow(cLinearColor, 1.0f / 2.2f);
+    if (cColor.w < 0.1f && gmtxGameObjectColor.a!=1)
+       return cColor;
+    return float4(cGammaColor, 1);
+    
+   
     //else if (dot(normalize(cIllumination), normalize(gLightDir.xyz)) > cThreshold) // 빛의 방향과 색상 값으로 경계면을 계산합니다.
     // /   return cColor;
-    else
-        return lerp(cColor, cIllumination, 0.4f); // 경계면 이하의 색상 값은 부드럽게 처리합니다.
+    //else
+        //return lerp(cColor, cIllumination, 0.4f); // 경계면 이하의 색상 값은 부드럽게 처리합니다.
+    //return cColor;
     
 }
 ///////////////////////////////////////////////////////////////////////////////
