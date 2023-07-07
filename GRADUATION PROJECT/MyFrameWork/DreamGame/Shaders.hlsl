@@ -228,6 +228,22 @@ float4 PSTexturedTrail(VS_TEXTURED_OUTPUT input) : SV_TARGET
     cColor.w = 0.4;
     return (cColor);
 }
+VS_TEXTURED_OUTPUT VSBlendTextured(VS_TEXTURED_INPUT input)
+{
+    VS_TEXTURED_OUTPUT output;
+    output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+    output.uv = input.uv;
+    return (output);
+}
+
+float4 PSBlendTextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
+{
+       // Sample the texture
+    float4 cColor = shaderTexture.Sample(gWrapSamplerState, input.uv);
+    //cColor += gmtxGameObjectColor;
+    //cColor.w = 0.4;
+    return (cColor);
+}
 VS_TEXTURED_OUTPUT VSEffect(VS_TEXTURED_INPUT input)
 {
     VS_TEXTURED_OUTPUT output;
@@ -530,12 +546,12 @@ VS_LIGHTING_OUTPUT VSLighting(VS_LIGHTING_INPUT input)
     VS_LIGHTING_OUTPUT output;
     if (!bAnimationShader)
     {
-        output.normalW = mul(input.normal, (float3x3) gmtxGameObject);
-        output.positionW = (float3) mul(float4(input.position, 1.0f), gmtxGameObject);
+        output.normalW = mul(input.normal, (float3x3) gmtxGameObjectWorld);
+        output.positionW = (float3) mul(float4(input.position, 1.0f), gmtxGameObjectWorld);
         output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
         output.uv = input.uv;
-        output.tangentW = mul(input.tangent, (float3x3) gmtxGameObject);
-        output.bitangentW = mul(input.bitangent, (float3x3) gmtxGameObject);
+        output.tangentW = mul(input.tangent, (float3x3) gmtxGameObjectWorld);
+        output.bitangentW = mul(input.bitangent, (float3x3) gmtxGameObjectWorld);
     }
     else if (bAnimationShader)
     {
@@ -647,7 +663,7 @@ float4 PSShadowMapShadow(VS_SHADOW_MAP_OUTPUT input) : SV_TARGET
     }
     if (gfMode == CELLSHADING_MODE || gfMode == CARTOON_MODE)
     {
-           cAlbedoColor = round(cAlbedoColor * 8.0f) / 8.0f; // 등급을 16단계로 나누어 반올림합니다.
+           cAlbedoColor = round(cAlbedoColor * 8.0f) / 5.5f; // 등급을 16단계로 나누어 반올림합니다.
     }
     
     float4 cIllumination = Lighting(input.positionW, normalize(input.normalW), true, input.uvs);
@@ -672,18 +688,20 @@ float4 PSShadowMapShadow(VS_SHADOW_MAP_OUTPUT input) : SV_TARGET
         if (gfMode == CELLSHADING_MODE || gfMode == OUTLINE_MODE)
         cColor = cColor + Rimline; // Rimline;
     }
-    float4 cHDRColor = lerp(cColor, cIllumination, 0.1f);
+    float4 cHDRColor = lerp(cColor, cIllumination, 0.4f);
     float3 cLinearColor = pow(cHDRColor.rgb, 2.2f);
     cLinearColor = (cLinearColor * (1.0f + cLinearColor / 5.5f)) / (1.0f + cLinearColor);
     float3 cGammaColor = pow(cLinearColor, 1.0f / 2.2f);
-    return float4(cGammaColor, cHDRColor.a);
+    if (cColor.w < 0.1f && gmtxGameObjectColor.a!=1)
+       return cColor;
+    return float4(cGammaColor, 1);
     
-    //if (cColor.w < 0.1f)
-    //    return cColor;
+   
     //else if (dot(normalize(cIllumination), normalize(gLightDir.xyz)) > cThreshold) // 빛의 방향과 색상 값으로 경계면을 계산합니다.
     // /   return cColor;
     //else
-        return lerp(cColor, cIllumination, 0.4f); // 경계면 이하의 색상 값은 부드럽게 처리합니다.
+        //return lerp(cColor, cIllumination, 0.4f); // 경계면 이하의 색상 값은 부드럽게 처리합니다.
+    //return cColor;
     
 }
 ///////////////////////////////////////////////////////////////////////////////

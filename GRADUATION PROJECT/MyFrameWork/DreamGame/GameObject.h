@@ -438,6 +438,10 @@ inline T* GameObject::ComponentType(component_id& componentID)
 	{
 		componentID = component_id::EFFECTSHADER_COMPONENT;
 	}
+	else if (typeid(T).name() == typeid(BlendShaderComponent).name())
+	{
+		componentID = component_id::BLENDSHADER_COMPONENT;
+	}
     else
     {
         componentID = component_id::UNDEF_COMPONENT;
