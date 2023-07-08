@@ -284,6 +284,8 @@ public:
 
 	void CalculateDistance(const XMFLOAT3& xmf3CameramPosition);
 
+
+
 protected:
 	bool                            m_bLButtonClicked = false;
 	bool                            m_bRButtonClicked = false;

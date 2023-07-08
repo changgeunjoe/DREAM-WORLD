@@ -1290,3 +1290,4 @@ void GameObject::MoveObject(DIRECTION& currentDirection, const XMFLOAT3& CameraA
 		SetLook(xmf3Rev);
 	}
 }
+
