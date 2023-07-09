@@ -65,7 +65,7 @@ public:
 	virtual void onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	virtual void onProcessingMouseMessageUI(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	
-	bool CheckCollision();
+	bool CheckCollision(vector<GameObject*> m_ppObjects);
 
 
 	void AddTextToUILayer(int &index);
@@ -122,6 +122,7 @@ private: //active object
 	GameObject* m_pUITankerCharacterObject{ NULL };
 	GameObject* m_pUIPriestCharacterObject{ NULL };
 	GameObject* m_pTalkUIObject{ NULL };
+	GameObject* m_pAttackUIObject{ NULL };
 
 	//SECTION 2
 	GameObject* m_pUIGameCreateObject{ NULL };

@@ -316,6 +316,7 @@ float4 PSUITextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
     //}
     
     //else
+    cColor.xyz += gmtxGameObjectColor.xyz;
         return (cColor);
 }
 

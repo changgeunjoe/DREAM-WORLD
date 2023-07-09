@@ -581,16 +581,18 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 		tempObject[i] = new GameObject(UNDEF_ENTITY);
 		tempObject[i]->InsertComponent<RenderComponent>();
 		tempObject[i]->InsertComponent<CLoadedModelInfoCompnent>();
-		tempObject[i]->SetPosition(XMFLOAT3(tempPos[i].x * scale, tempPos[i].y * scale, tempPos[i].z * scale));
+		
 		tempObject[i]->SetModel(tempModel);
 		tempObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		tempObject[i]->SetScale(tempScale[i].x* scale, tempScale[i].y* scale, tempScale[i].z* scale);
 		XMFLOAT3 Axis = XMFLOAT3(1, 0, 0);
 		tempObject[i]->Rotate(&Axis, tempRotate[i].x);
 		Axis = tempObject[i]->GetUp();
 		tempObject[i]->Rotate(&Axis, tempRotate[i].y);
 		Axis = tempObject[i]->GetUp();
 		tempObject[i]->Rotate(&Axis, tempRotate[i].z);
-		tempObject[i]->SetScale(tempScale[i].x* scale, tempScale[i].y * scale, tempScale[i].z * scale);
+		tempObject[i]->SetPosition(XMFLOAT3(tempPos[i].x* scale, tempPos[i].y* scale, tempPos[i].z* scale));
+		
 
 		if (type == 0)
 		{
@@ -611,6 +613,7 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 			tempBoundingBox->InsertComponent<CubeMeshComponent>();
 			tempBoundingBox->InsertComponent<BoundingBoxShaderComponent>();
 			tempBoundingBox->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+			
 			tempBoundingBox->SetScale(extentPos.x * 2, extentPos.y * 2, extentPos.z * 2);
 			tempBoundingBox->Rotate(&quaternion[i]);
 			tempBoundingBox->SetPosition(centerPos);
@@ -817,15 +820,15 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	// 플레이어가 캐릭터 선택하는 부분에 유사하게 넣을 예정
 	// m_pWarriorObject m_pArcherObject m_pTankerObject m_pPriestObject
 	m_pPlayerObject = new GameObject(UNDEF_ENTITY);
-	memcpy(m_pPlayerObject, m_pPriestObject, sizeof(Archer));
-	m_pPriestObject->SetCamera(m_pCamera);
-	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject = m_pPriestObject;
+	memcpy(m_pPlayerObject, m_pArcherObject, sizeof(Archer));
+	m_pArcherObject->SetCamera(m_pCamera);
+	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject = m_pArcherObject;
 	g_Logic.m_inGamePlayerSession[0].m_isVisible = true;
 	g_Logic.m_inGamePlayerSession[0].m_id = 0;
 #endif // LOCAL_TASK
 
 	BuildNPC(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//BuildStage1(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	BuildStage1(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//BuildBossStageObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildShadow(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//무조건 마지막에 해줘야된다.
 // 서순을 잘챙기자 ㅋㅋ	
@@ -943,7 +946,8 @@ void GameobjectManager::BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pStage1Objects[0]->SetPosition(XMFLOAT3(0, -5, 0));
 	m_pStage1Objects[0]->SetModel("Model/New_Terrain.bin");
 	m_pStage1Objects[0]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pStage1Objects[0]->SetScale(1.0f, 1.0f, 1.0f);
+	m_pStage1Objects[0]->SetScale(10);
+	m_pStage1Objects[0]->SetColor(XMFLOAT4(0, 1.0f, 1.0f,1));
 	m_pStage1Objects[0]->SetRimLight(false);
 	m_ppGameObjects.emplace_back(m_pStage1Objects[0]);
 	/*m_pStage1Objects[1] = new GameObject(UNDEF_ENTITY);
@@ -1137,6 +1141,19 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pTalkUIObject->SetScale(0.23, 0.035, 1);
 	m_pTalkUIObject->SetColor(XMFLOAT4(0, 0, 0, 0.75));
 	m_pTalkUIObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+
+	m_pAttackUIObject = new GameObject(UI_ENTITY);
+	m_pAttackUIObject->InsertComponent<RenderComponent>();
+	m_pAttackUIObject->InsertComponent<UIMeshComponent>();
+	m_pAttackUIObject->InsertComponent<UiShaderComponent>();
+	m_pAttackUIObject->InsertComponent<TextureComponent>();
+	m_pAttackUIObject->SetTexture(L"UI/Attack.dds", RESOURCE_TEXTURE2D, 3);
+	m_pAttackUIObject->SetPosition(XMFLOAT3(0.0, -0.0, 1.01));
+	m_pAttackUIObject->SetScale(0.014, 0.005, 1);
+	m_pAttackUIObject->SetColor(XMFLOAT4(0, -0.7, -5, 0));
+	//m_pAttackUIObject->SetColor(XMFLOAT4(0, 0, 0, 0.75));
+	m_pAttackUIObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppCharacterUIObjects.emplace_back(m_pAttackUIObject);
 	//m_ppCharacterUIObjects.emplace_back(m_pTalkUIObject);
 	//m_pMonsterHPBarObject = new GameObject(UNDEF_ENTITY);
 	//m_pMonsterHPBarObject->InsertComponent<RenderComponent>();
@@ -1868,7 +1885,7 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_LMouseInput = true;
 		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetLButtonClicked(true);
 		SomethingChanging = true;
-		CheckCollision();
+		CheckCollision(m_ppGameObjects);
 		break;
 	}
 	case WM_LBUTTONUP:
@@ -2023,17 +2040,18 @@ void GameobjectManager::SetUIActive()
 	m_pUIPriestCharacterObject->m_bUIActive = true;
 }
 
-bool GameobjectManager::CheckCollision()
+bool GameobjectManager::CheckCollision(vector<GameObject*> m_ppObjects)
 {
-	XMVECTOR rayOrigin = XMLoadFloat3(&m_pCamera->GetPosition());
+	XMVECTOR rayOrigin = XMLoadFloat3(&XMFLOAT3(m_pCamera->GetPosition().x, m_pCamera->GetPosition().y-10, m_pCamera->GetPosition().z));
+	cout << "x" << m_pCamera->GetPosition().x << "y " << m_pCamera->GetPosition().y;
 	XMVECTOR rayDirection = XMLoadFloat3(&m_pCamera->GetLookVector());
 	float rayDistance;
 	// 레이저와 BoundingSphere의 충돌 여부를 계산
-	for (int i = 0; i < m_ppGameObjects.size(); i++)
+	for (int i = 0; i < m_ppObjects.size(); i++)
 	{
-		if (m_ppGameObjects[i]->m_SPBB.Intersects(rayOrigin, rayDirection, rayDistance))
+		if (m_ppObjects[i]->m_SPBB.Intersects(rayOrigin, rayDirection, rayDistance))
 		{
-			m_pSelectedObject = m_ppGameObjects[i];
+			m_pSelectedObject = m_ppObjects[i];
 			rayDistance = rayDistance;
 			return true;
 		}
