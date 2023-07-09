@@ -148,7 +148,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	}
 	CharacterUIAnimate(fTimeElapsed);
 	if (m_pTrailComponent) {
-	TrailAnimate(fTimeElapsed);
+		TrailAnimate(fTimeElapsed);
 	}
 	AddTextToUILayer(0);
 }
@@ -236,7 +236,7 @@ void GameobjectManager::TrailAnimate(float fTimeElapsed)
 		m_pWarriorObject->m_pLoadedModelComponent->m_pWeaponStart->GetPosition().z),
 		XMFLOAT3(m_pWarriorObject->m_pLoadedModelComponent->m_pWeaponEnd->GetPosition().x,
 			m_pWarriorObject->m_pLoadedModelComponent->m_pWeaponEnd->GetPosition().y,
-			m_pWarriorObject->m_pLoadedModelComponent->m_pWeaponEnd->GetPosition().z) );
+			m_pWarriorObject->m_pLoadedModelComponent->m_pWeaponEnd->GetPosition().z));
 
 }
 
@@ -256,7 +256,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 
 	UpdateShaderVariables(pd3dCommandList);
 	m_pSkyboxObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	
+
 	if (m_pDepthShaderComponent) {
 		m_pDepthShaderComponent->UpdateShaderVariables(pd3dCommandList);//오브젝트의 깊이값의 렌더입니다.
 	}
@@ -327,35 +327,35 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pShadowmapShaderComponent->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature, m_fTimeElapsed);
 	}
 	TrailRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-//	EffectRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,m_fTime);
+	//	EffectRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,m_fTime);
 
-	//m_pNaviMeshObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//if (m_pTextureToViewportComponent)
-	//{
-	//	m_pTextureToViewportComponent->Render(pd3dCommandList, m_pCamera, 0, pd3dGraphicsRootSignature);
-	//}
+		//m_pNaviMeshObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		//if (m_pTextureToViewportComponent)
+		//{
+		//	m_pTextureToViewportComponent->Render(pd3dCommandList, m_pCamera, 0, pd3dGraphicsRootSignature);
+		//}
 
-	/*for (int i = 0; i < m_ppCharacterUIObjects.size(); i++) {
-		m_ppCharacterUIObjects[i]->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature);
-	}*/
+		/*for (int i = 0; i < m_ppCharacterUIObjects.size(); i++) {
+			m_ppCharacterUIObjects[i]->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature);
+		}*/
 
-	//for (int i = 0; i < m_ppParticleObjects.size(); i++) {
-	//	m_ppParticleObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//파티클
-	//}
+		//for (int i = 0; i < m_ppParticleObjects.size(); i++) {
+		//	m_ppParticleObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//파티클
+		//}
 	if (GameEnd)
 	{
 		m_pVictoryUIObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pContinueUIObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 	for (int i = 0; i < 6; i++) {
-		if(m_pStage1Objects[i])
+		if (m_pStage1Objects[i])
 			m_pStage1Objects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 	if (m_pStage1TerrainObject) {
 		//m_pStage1TerrainObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
-	
-	
+
+
 	AstarRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
 
@@ -538,29 +538,29 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 				{
 					for (int i = 0; i < 3; ++i)
 					{
-						objectFile >> temp;						
-					}					
+						objectFile >> temp;
+					}
 				}
 				else if (temp == "<right>:")
 				{
 					for (int i = 0; i < 3; ++i)
 					{
-						objectFile >> temp;						
-					}					
+						objectFile >> temp;
+					}
 				}
 				else if (temp == "<forwardDotRes>:")
 				{
-					objectFile >> temp;					
+					objectFile >> temp;
 				}
 				else if (temp == "<rightDotRes>:")
 				{
-					objectFile >> temp;					
+					objectFile >> temp;
 				}
 			}
 		}
 		else if (temp == "<Seq>:") { objectFile >> temp; }
 		else
-		{			
+		{
 			if (type == 0)
 				objectFile >> temp;
 			objCount++;
@@ -572,7 +572,7 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 		tempObject[i] = new GameObject(UNDEF_ENTITY);
 		tempObject[i]->InsertComponent<RenderComponent>();
 		tempObject[i]->InsertComponent<CLoadedModelInfoCompnent>();
-		tempObject[i]->SetPosition(XMFLOAT3(tempPos[i].x, tempPos[i].y, tempPos[i].z));
+		tempObject[i]->SetPosition(XMFLOAT3(tempPos[i].x * 10.0f, tempPos[i].y * 10.0f, tempPos[i].z * 10.0f));
 		tempObject[i]->SetModel(tempModel);
 		tempObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		XMFLOAT3 Axis = XMFLOAT3(1, 0, 0);
@@ -581,7 +581,7 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 		tempObject[i]->Rotate(&Axis, tempRotate[i].y);
 		Axis = tempObject[i]->GetUp();
 		tempObject[i]->Rotate(&Axis, tempRotate[i].z);
-		tempObject[i]->SetScale(tempScale[i].x, tempScale[i].y, tempScale[i].z);
+		tempObject[i]->SetScale(tempScale[i].x * 10.0f, tempScale[i].y * 10.0f, tempScale[i].z * 10.0f);
 		if (type == 0)
 		{
 			// XMFLOAT3 tempEPos = Vector3::Add(tempPos[i], tempScale[i]);
@@ -589,6 +589,10 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 		}
 		else
 		{
+			//tempScale: 모델 스케일
+			//tempExtentScale: 유니티 바운딩 박스 스케일(로컬 스케일 값)
+			//tempCenterPos: 모델 위치
+			//tempLocalCenterPos: 바운딩 박스 위치(로컬 위치)
 			XMFLOAT3 extentPos = XMFLOAT3(tempScale[i].x * tempExtentScale[i].x,
 				tempScale[i].y * tempExtentScale[i].y, tempScale[i].z * tempExtentScale[i].z);
 			XMFLOAT3 centerPos = Vector3::Add(tempCenterPos[i], tempLocalCenterPos[i]);
@@ -604,8 +608,7 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 
 			tempBoundingBox->SetPosition(centerPos);
 			tempBoundingBox->Rotate(&quaternion[i]);
-			tempBoundingBox->SetScale(extentPos.x * 2.0f, extentPos.y * 2.0f, extentPos.z * 2.0f);
-
+			tempBoundingBox->SetScale(extentPos.x * 2.0f, extentPos.y * 2.0f, extentPos.z * 2.0f);			
 			m_pObstacleBoundingBox.emplace_back(tempBoundingBox);
 		}
 		m_ppGameObjects.emplace_back(tempObject[i]);
@@ -619,7 +622,7 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 void GameobjectManager::EffectRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float ftimeElapsed)
 {
 	if (m_pEffectObject) {
-			m_pEffectObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		m_pEffectObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 	if (m_pDebuffObject) {
 		//m_pDebuffObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -712,7 +715,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 		m_pArrowObjects[i]->SetModel(ArrowModel);
 		m_pArrowObjects[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pArrowObjects[i]->SetScale(30.0f);
-		m_pArrowObjects[i]->SetBoundingSize(0.2f); 
+		m_pArrowObjects[i]->SetBoundingSize(0.2f);
 		static_cast<Archer*>(m_pArcherObject)->SetArrow(m_pArrowObjects[i]);
 	}
 
@@ -757,7 +760,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 		static_cast<Priest*>(m_pPriestObject)->SetEnergyBall(m_pEnergyBallObjects[i]);
 	}
 
-	m_pEnergyBallObject=new EnergyBall();
+	m_pEnergyBallObject = new EnergyBall();
 	m_pEnergyBallObject->InsertComponent<RenderComponent>();
 	m_pEnergyBallObject->InsertComponent<SphereMeshComponent>();
 	m_pEnergyBallObject->InsertComponent<SphereShaderComponent>();
@@ -832,7 +835,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 
 
 	BuildShadow(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//무조건 마지막에 해줘야된다.
-//	Build2DUI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//	Build2DUI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildCharacterUI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildParticle(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//BuildInstanceObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -963,7 +966,7 @@ void GameobjectManager::BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pStage1Objects[5]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pStage1Objects[5]->SetScale(30.0f, 30.0f, 30.0f);
 	m_pStage1Objects[5]->SetRimLight(false);*/
-	
+
 
 	//m_pStage1TerrainObject = new GameObject(UNDEF_ENTITY);
 	//m_pStage1TerrainObject->InsertComponent<RenderComponent>();
@@ -1304,7 +1307,7 @@ void GameobjectManager::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 
 	m_pDebuffObject = new DebuffObject;
 	m_pDebuffObject->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	
+
 }
 
 enum UI
@@ -1648,15 +1651,17 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		case 'E':
 		{
 			g_Logic.m_KeyInput->m_bEKey = false;
+			//test
+			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetPosition(XMFLOAT3(0, 0, 0));
 			break;
 		}
 		}
 	}
 	default:
 		break;
-	}
+		}
 	return(false);
-}
+	}
 
 bool GameobjectManager::onProcessingKeyboardMessageUI(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
@@ -1783,7 +1788,7 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 		case WM_LBUTTONUP:
 			g_NetworkHelper.SendTestGameEndOKPacket();
 			g_NetworkHelper.SetRole(ROLE::NONE_SELECT);
-			for(int i = 0; i < 4; ++i)
+			for (int i = 0; i < 4; ++i)
 				g_Logic.m_inGamePlayerSession[i].Reset();
 			ResetObject();
 			break;
@@ -1832,7 +1837,7 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 			, g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_RMouseInput);
 #endif
 
-	}
+}
 
 void GameobjectManager::onProcessingMouseMessageUI(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
@@ -1860,8 +1865,8 @@ void GameobjectManager::AddTextToUILayer(int iIndex)
 	queue<wstring> queueStr;
 	/*if (iIndex == NPC_TEXT)
 	{*/
-		queueStr.emplace(L"용사님들 드디어 오셧군요");
-		queueStr.emplace(L"저희 꿈마을을 지켜주세요!");
+	queueStr.emplace(L"용사님들 드디어 오셧군요");
+	queueStr.emplace(L"저희 꿈마을을 지켜주세요!");
 	//}
 	//else if (iIndex == GOLEM_TEXT) //돌덩이 죽을때
 	//{
