@@ -453,6 +453,8 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 	vector<XMFLOAT3> tempLocalCenterPos;
 	vector<XMFLOAT3> tempExtentScale;
 
+	vector<XMFLOAT3> tempBoundingBoxSize;
+
 	string temp;
 	float number[3] = {};
 	float qnumber[4] = {};
@@ -514,7 +516,9 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 					for (int i = 0; i < 3; ++i)
 					{
 						objectFile >> temp;
+						number[i] = stof(temp);
 					}
+					tempBoundingBoxSize.emplace_back(number[0], number[1], number[2]);
 				}
 				else if (temp == "<localCenter>:")
 				{
@@ -595,9 +599,9 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 			//tempLocalCenterPos: 바운딩 박스 위치(로컬 위치)
 			XMFLOAT3 extentPos = XMFLOAT3(tempScale[i].x * tempExtentScale[i].x,
 				tempScale[i].y * tempExtentScale[i].y, tempScale[i].z * tempExtentScale[i].z);
-			XMFLOAT3 centerPos = Vector3::Add(tempCenterPos[i], tempLocalCenterPos[i]);
+			XMFLOAT3 centerPos =  Vector3::Add(tempPos[i], tempLocalCenterPos[i]);
 			extentPos = XMFLOAT3(extentPos.x * 0.5f, extentPos.y * 0.5f, extentPos.z * 0.5f);
-			tempObject[i]->m_OBB = BoundingOrientedBox(centerPos, extentPos, quaternion[i]);
+			tempObject[i]->m_OBB = BoundingOrientedBox(tempCenterPos[i], extentPos, quaternion[i]);
 			m_ppObstacleObjects.emplace_back(tempObject[i]);
 
 			GameObject* tempBoundingBox = new GameObject(SQUARE_ENTITY);
@@ -606,9 +610,42 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 			tempBoundingBox->InsertComponent<BoundingBoxShaderComponent>();
 			tempBoundingBox->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
-			tempBoundingBox->SetPosition(centerPos);
+			XMFLOAT4X4 matrix = Matrix4x4::Identity();
+			XMMATRIX mtxScale;
+
+
+			////child
+			////T
+			//mtxScale = XMMatrixTranslation(tempLocalCenterPos[i].x, tempLocalCenterPos[i].y, tempLocalCenterPos[i].z);
+			//matrix = Matrix4x4::Multiply(mtxScale, matrix);
+
+			////R
+			//XMVECTOR quaternionVector = XMVectorSet(quaternion[i].x, quaternion[i].y, quaternion[i].z, quaternion[i].w);
+			//mtxScale = XMMatrixRotationQuaternion(quaternionVector);
+			//matrix = Matrix4x4::Multiply(mtxScale, matrix);
+
+			////S			
+			//mtxScale = XMMatrixScaling(tempExtentScale[i].x, tempExtentScale[i].y, tempExtentScale[i].z);
+			//matrix = Matrix4x4::Multiply(mtxScale, matrix);
+
+
+			////parent
+			////T
+			//mtxScale = XMMatrixTranslation(tempPos[i].x, tempPos[i].y, tempPos[i].z);
+			//matrix = Matrix4x4::Multiply(mtxScale, matrix);
+
+			////S
+			//mtxScale = XMMatrixScaling(tempScale[i].x, tempScale[i].y, tempScale[i].z);
+			//matrix = Matrix4x4::Multiply(mtxScale, matrix);
+
+			////XMFLOAT4X4 xmmtx4x4Result;
+			////XMStoreFloat4x4(&xmmtx4x4Result, XMLoadFloat4x4(&tempObject[i]->m_xmf4x4World)* XMLoadFloat4x4(&matrix));
+			//tempBoundingBox->m_xmf4x4World = matrix;
+
+
+			tempBoundingBox->SetPosition(tempCenterPos[i]);
 			tempBoundingBox->Rotate(&quaternion[i]);
-			tempBoundingBox->SetScale(extentPos.x * 2.0f, extentPos.y * 2.0f, extentPos.z * 2.0f);			
+			tempBoundingBox->SetScale(extentPos.x * 2.0f, extentPos.y * 2.0f, extentPos.z * 2.0f);
 			m_pObstacleBoundingBox.emplace_back(tempBoundingBox);
 		}
 		m_ppGameObjects.emplace_back(tempObject[i]);

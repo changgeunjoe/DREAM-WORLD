@@ -294,9 +294,9 @@ void MapData::GetReadCollisionData()
 	{
 		XMFLOAT3 extentPos = XMFLOAT3(tempScale[i].x * tempExtentScale[i].x,
 			tempScale[i].y * tempExtentScale[i].y, tempScale[i].z * tempExtentScale[i].z);
-		XMFLOAT3 centerPos = Vector3::Add(tempCenterPos[i], tempLocalCenterPos[i]);
+		//XMFLOAT3 centerPos = tempCenterPos[i];// Vector3::Add(tempCenterPos[i], tempLocalCenterPos[i]);
 		extentPos = XMFLOAT3(extentPos.x * 0.5f, extentPos.y * 0.5f, extentPos.z * 0.5f);
-		m_collisionDatas.emplace_back(centerPos, extentPos, quaternion[i], forwardDotRes[i], forwardNormalVector[i], rightDotRes[i], rightNormalVector[i]);
+		m_collisionDatas.emplace_back(tempCenterPos[i], extentPos, quaternion[i], forwardDotRes[i], forwardNormalVector[i], rightDotRes[i], rightNormalVector[i]);
 		if (i == 0) {
 			m_collisionDatas[i].SetRelationIdx(objCount - 1);
 			m_collisionDatas[i].SetRelationIdx(i + 1);

@@ -1111,7 +1111,7 @@ void GameObject::MoveForward(float fDistance)
 	//if (Vector3::Length(xmf3Position) < PLAYER_MAX_RANGE)	GameObject::SetPosition(xmf3Position);
 	//vector<GameObject*> tempVector = gGameFramework.GetScene()->GetObjectManager()->GetObstacle();
 	//XMVECTOR tempPoint = XMVectorSet(xmf3Position.x, xmf3Position.y, xmf3Position.z, 0.0f);
-	if (fDistance < 0)xmf3Look = Vector3::ScalarProduct(xmf3Look, -1.0f, true);
+	if (fDistance < 0) xmf3Look = Vector3::ScalarProduct(xmf3Look, -1.0f, false);
 	//XMFLOAT3 futurePos = xmf3Position = Vector3::Add(xmf3Position, xmf3Look, fDistance);;
 	for (auto& collide : Collides) {
 		if (collide.GetObb().Intersects(m_SPBB)) {
@@ -1127,46 +1127,49 @@ void GameObject::MoveForward(float fDistance)
 				auto CollidePolygonNormalVector = collide.CalSlidingVector(m_SPBB, xmf3Position, xmf3Look);//노말, 슬라이딩, 노말이 가져야할 크기 를 반환
 				XMFLOAT3 collideNormalVector = std::get<0>(CollidePolygonNormalVector);//노말 벡터
 				XMFLOAT3 collideSlidingVector = std::get<1>(CollidePolygonNormalVector);//슬라이딩 벡터
-				float collideNormalSize = std::get<2>(CollidePolygonNormalVector);//노말 벡터가 가져야할 크기(충돌 위치 조정을 위한)
-				float slidingVectorDotProductReslut = std::get<3>(CollidePolygonNormalVector);//슬라이딩 벡터와 룩 벡터 내적 값
+				float normalVectorDotProductReslut = std::get<2>(CollidePolygonNormalVector);
+				float slidingVectorDotProductReslut = std::get<3>(CollidePolygonNormalVector);//슬라이딩 벡터와 무브 벡터 내적 값
+
+				//float collideNormalSize = std::get<2>(CollidePolygonNormalVector);//노말 벡터가 가져야할 크기(충돌 위치 조정을 위한)
 				//if (slidingVectorDotProductReslut > 0.8f)slidingVectorDotProductReslut = 0.8f;
 				//collideNormalSize += 0.05f;
 				//cout << "lookVec: (" << lookVec.x << ", " << lookVec.y << ", " << lookVec.z << endl;
-				cout << "collideNormalVector: (" << collideNormalVector.x << ", " << collideNormalVector.y << ", " << collideNormalVector.z << ")" << endl;
-				cout << "collideSlidingVector: (" << collideSlidingVector.x << ", " << collideSlidingVector.y << ", " << collideSlidingVector.z << ")" << endl;
-				cout << "moveVector: (" << xmf3Look.x << ", " << xmf3Look.y << ", " << xmf3Look.z << ")" << endl;
-				xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(collideSlidingVector, 0.7f * fDistance));
+				//cout << "collideNormalVector: (" << collideNormalVector.x << ", " << collideNormalVector.y << ", " << collideNormalVector.z << ")" << endl;
+				//cout << "collideSlidingVector: (" << collideSlidingVector.x << ", " << collideSlidingVector.y << ", " << collideSlidingVector.z << ")" << endl;
+				//cout << "moveVector: (" << xmf3Look.x << ", " << xmf3Look.y << ", " << xmf3Look.z << ")" << endl;
+				cout << "NormalDotProductRes: (" << normalVectorDotProductReslut << ")" << endl;
+				cout << "slidingDotProductRes: (" << slidingVectorDotProductReslut << ")" << endl;
+				xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(collideSlidingVector, slidingVectorDotProductReslut * fDistance));
+				xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(collideNormalVector, /*collideNormalSize * slidingVectorDotProductReslut * */normalVectorDotProductReslut * fDistance));
 				//if (collideNormalSize > 0.0f)
-				float dotRes = Vector3::DotProduct(collideNormalVector, xmf3Look);
-				dotRes = std::abs(dotRes);
-				xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(collideNormalVector, /*collideNormalSize * slidingVectorDotProductReslut * */dotRes * fDistance));
+				//float dotRes = Vector3::DotProduct(collideNormalVector, xmf3Look);
+				//dotRes = std::abs(dotRes);
 			}
 			else {
 				auto CollidePolygonNormalVector1 = collide.CalSlidingVector(m_SPBB, xmf3Position, xmf3Look);//노말, 슬라이딩, 노말이 가져야할 크기 를 반환
 				XMFLOAT3 collideNormalVector1 = std::get<0>(CollidePolygonNormalVector1);//노말 벡터
-				XMFLOAT3 collideSlidingVector1 = std::get<1>(CollidePolygonNormalVector1);//슬라이딩 벡터
-				float collideNormalSize1 = std::get<2>(CollidePolygonNormalVector1);//노말 벡터가 가져야할 크기(충돌 위치 조정을 위한)
-				float slidingVectorDotProductReslut1 = 1.3f - std::get<3>(CollidePolygonNormalVector1);//슬라이딩 벡터와 룩 벡터 내적 값
-				if (slidingVectorDotProductReslut1 > 0.8f)slidingVectorDotProductReslut1 = 0.8f;
+				//XMFLOAT3 collideSlidingVector1 = std::get<1>(CollidePolygonNormalVector1);//슬라이딩 벡터
+				float normalVectorDotProductResult1 = std::get<2>(CollidePolygonNormalVector1);//노말 벡터가 가져야할 크기(충돌 위치 조정을 위한)
+				float slidingVectorDotProductResult1 = std::get<3>(CollidePolygonNormalVector1);//슬라이딩 벡터와 룩 벡터 내적 값				
 
 				auto CollidePolygonNormalVector2 = Collides[secondCollide].CalSlidingVector(m_SPBB, xmf3Position, xmf3Look);//노말, 슬라이딩, 노말이 가져야할 크기 를 반환
 				XMFLOAT3 collideNormalVector2 = std::get<0>(CollidePolygonNormalVector2);//노말 벡터
-				XMFLOAT3 collideSlidingVector2 = std::get<1>(CollidePolygonNormalVector2);//슬라이딩 벡터
-				float collideNormalSize2 = std::get<2>(CollidePolygonNormalVector2);//노말 벡터가 가져야할 크기(충돌 위치 조정을 위한)
-				float slidingVectorDotProductReslut2 = 1.3f - std::get<3>(CollidePolygonNormalVector2);//슬라이딩 벡터와 룩 벡터 내적 값
-				if (slidingVectorDotProductReslut2 > 0.8f)slidingVectorDotProductReslut2 = 0.8f;
+				//XMFLOAT3 collideSlidingVector2 = std::get<1>(CollidePolygonNormalVector2);//슬라이딩 벡터
+				float normalVectorDotProductResult2 = std::get<2>(CollidePolygonNormalVector2);//노말 벡터가 가져야할 크기(충돌 위치 조정을 위한)
+				float slidingVectorDotProductResult2 = std::get<3>(CollidePolygonNormalVector2);//슬라이딩 벡터와 룩 벡터 내적 값
+
 				XMFLOAT3 resultSlidingVector = Vector3::Normalize(Vector3::Subtract(collide.GetObb().Center, Collides[secondCollide].GetObb().Center));
 				resultSlidingVector.y = 0.0f;
 				float dotRes = Vector3::DotProduct(resultSlidingVector, xmf3Look);
 				if (dotRes < 0)resultSlidingVector = Vector3::ScalarProduct(resultSlidingVector, -1.0f, false);
-				xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(resultSlidingVector, 0.7f * fDistance));
-				if (collideNormalSize1 > 0.0f)
-					xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(collideNormalVector1, collideNormalSize1 * slidingVectorDotProductReslut1 * fDistance));
-				if (collideNormalSize2 > 0.0f)
-					xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(collideNormalVector2, collideNormalSize2 * slidingVectorDotProductReslut2 * fDistance));
+
+				xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(resultSlidingVector, fDistance));
+				xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(collideNormalVector1, normalVectorDotProductResult1 * fDistance));
+				xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(collideNormalVector2, normalVectorDotProductResult2 * fDistance));
 			}
 			xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * fDistance / 50.0f);
 			GameObject::SetPosition(xmf3Position);
+			if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(xmf3Position, m_pCamera->GetOffset()));
 			return;
 		}
 	}
@@ -1205,6 +1208,7 @@ void GameObject::MoveForward(float fDistance)
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, fDistance);
 	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * fDistance / 50.0f);
 	GameObject::SetPosition(xmf3Position);
+	if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(xmf3Position, m_pCamera->GetOffset()));
 }
 
 void GameObject::Rotate(float fPitch, float fYaw, float fRoll)

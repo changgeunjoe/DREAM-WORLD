@@ -117,10 +117,10 @@ void MonsterSessionObject::Move(float fDistance, float elapsedTime)
 	//new - Astar
 	XMFLOAT3 destinationPlayerPos = g_iocpNetwork.m_session[m_aggroPlayerId].m_sessionObject->GetPos();//플레이어 위치
 	XMFLOAT3 desPlayerVector = Vector3::Subtract(destinationPlayerPos, m_position);
-	float playerDistance = Vector3::Length(Vector3::Subtract(m_position, desPlayerVector));
+	float playerDistance = Vector3::Length(desPlayerVector);
 	desPlayerVector = Vector3::Normalize(desPlayerVector);
 	CalcRightVector();
-	if (playerDistance < 40.0f) {//플레이어가 근접함
+	if (playerDistance < 40.0f) {//플레이어가 근접함 80으로 변경하고 같은 노드인지 확인 하는 문 추가하자
 		float ChangingAngle = Vector3::Angle(desPlayerVector, m_directionVector);
 		if (ChangingAngle > 1.6f) {
 			bool OnRight = (Vector3::DotProduct(m_rightVector, desPlayerVector) > 0) ? true : false;	// 목적지가 오른쪽 왼

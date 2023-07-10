@@ -120,13 +120,37 @@ bool PlayerSessionObject::CheckMove(float& fDistance)
 				}
 			}
 			if (secondCollide == -1) {
-				auto CollidePolygonNormalVector = collide.CalSlidingVector(m_position, m_directionVector);
-				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(CollidePolygonNormalVector.second, 0.5f * fDistance));
+				auto CollidePolygonNormalVector = collide.CalSlidingVector(m_SPBB, m_position, m_directionVector);//노말, 슬라이딩, 노말이 가져야할 크기 를 반환
+				XMFLOAT3 collideNormalVector = std::get<0>(CollidePolygonNormalVector);//노말 벡터
+				XMFLOAT3 collideSlidingVector = std::get<1>(CollidePolygonNormalVector);//슬라이딩 벡터
+				float normalVectorDotProductReslut = std::get<2>(CollidePolygonNormalVector);
+				float slidingVectorDotProductReslut = std::get<3>(CollidePolygonNormalVector);//슬라이딩 벡터와 무브 벡터 내적 값
+				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideSlidingVector, slidingVectorDotProductReslut * fDistance));
+				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideNormalVector, normalVectorDotProductReslut * fDistance));
 			}
 			else {
-				auto normalVec1 = collide.CalSlidingVector(m_position, m_directionVector);
-				auto normalVec2 = allCollisionVec[secondCollide].CalSlidingVector(m_position, m_directionVector);
-				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(Vector3::Add(normalVec1.first, normalVec2.first), 0.5f * fDistance));
+				auto CollidePolygonNormalVector1 = collide.CalSlidingVector(m_SPBB, m_position, m_directionVector);
+				auto CollidePolygonNormalVector2 = allCollisionVec[secondCollide].CalSlidingVector(m_SPBB, m_position, m_directionVector);
+
+				XMFLOAT3 collideNormalVector1 = std::get<0>(CollidePolygonNormalVector1);//노말 벡터
+				XMFLOAT3 collideSlidingVector1 = std::get<1>(CollidePolygonNormalVector1);//슬라이딩 벡터
+				float normalVectorDotProductResult1 = std::get<2>(CollidePolygonNormalVector1);
+				float slidingVectorDotProductResult1 = std::get<3>(CollidePolygonNormalVector1);//슬라이딩 벡터와 무브 벡터 내적 값
+				
+				XMFLOAT3 collideNormalVector2 = std::get<0>(CollidePolygonNormalVector2);//노말 벡터
+				XMFLOAT3 collideSlidingVector2 = std::get<1>(CollidePolygonNormalVector2);//슬라이딩 벡터
+				float normalVectorDotProductResult2 = std::get<2>(CollidePolygonNormalVector2);
+				float slidingVectorDotProductResult2 = std::get<3>(CollidePolygonNormalVector2);//슬라이딩 벡터와 무브 벡터 내적 값
+
+				XMFLOAT3 resultSlidingVector = Vector3::Normalize(Vector3::Subtract(collide.GetObb().Center, allCollisionVec[secondCollide].GetObb().Center));
+				resultSlidingVector.y = 0.0f;
+				float dotRes = Vector3::DotProduct(resultSlidingVector, m_directionVector);
+				if (dotRes < 0)resultSlidingVector = Vector3::ScalarProduct(resultSlidingVector, -1.0f, false);
+
+				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(resultSlidingVector, fDistance));
+				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideNormalVector1, normalVectorDotProductResult1 * fDistance));
+				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideNormalVector2, normalVectorDotProductResult2 * fDistance));
+
 			}
 			std::cout << m_id << " Player Get Collision " << std::endl;
 			m_SPBB.Center = m_position;
