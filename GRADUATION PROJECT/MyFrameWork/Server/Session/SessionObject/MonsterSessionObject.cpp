@@ -115,18 +115,27 @@ void MonsterSessionObject::SetDirection(DIRECTION d)
 void MonsterSessionObject::Move(float fDistance, float elapsedTime)
 {
 	//new - Astar
+	if (g_iocpNetwork.m_session[m_aggroPlayerId].m_sessionObject == nullptr)return;
 	XMFLOAT3 destinationPlayerPos = g_iocpNetwork.m_session[m_aggroPlayerId].m_sessionObject->GetPos();//플레이어 위치
 	XMFLOAT3 desPlayerVector = Vector3::Subtract(destinationPlayerPos, m_position);
 	float playerDistance = Vector3::Length(desPlayerVector);
 	desPlayerVector = Vector3::Normalize(desPlayerVector);
 	CalcRightVector();
-	if (playerDistance < 40.0f) {//플레이어가 근접함 80으로 변경하고 같은 노드인지 확인 하는 문 추가하자
+	bool bossAndPlayerOnSameIdx = g_bossMapData.GetTriangleMesh(m_onIdx).IsOnTriangleMesh(destinationPlayerPos);
+	if (playerDistance < 120.0f && bossAndPlayerOnSameIdx) {//플레이어가 근접함 80으로 변경하고 같은 노드인지 확인 하는 문 추가하자
 		float ChangingAngle = Vector3::Angle(desPlayerVector, m_directionVector);
 		if (ChangingAngle > 1.6f) {
 			bool OnRight = (Vector3::DotProduct(m_rightVector, desPlayerVector) > 0) ? true : false;	// 목적지가 오른쪽 왼
 			OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
 			//공격은 외부 if에서 알아서 조건 맞으면 함
 		}
+		if (playerDistance >= 42.0f) {
+			m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, fDistance, false));//틱마다 움직임
+			m_SPBB.Center = m_position;
+			m_SPBB.Center.y += 30.0f;
+		}
+		return;
+
 	}
 	else {//그렇지 못하다면 길을 찾아 가야한다.
 		m_reserveRoadLock.lock();
@@ -153,7 +162,9 @@ void MonsterSessionObject::Move(float fDistance, float elapsedTime)
 							OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
 						}
 						m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, fDistance, false));//틱마다 움직임
-						m_SPBB = BoundingSphere(DirectX::XMFLOAT3(m_position.x, m_position.y + 30.0f, m_position.z), 30.0f);
+						m_SPBB.Center = m_position;
+						m_SPBB.Center.y += 30.0f;
+						//m_SPBB = BoundingSphere(DirectX::XMFLOAT3(m_position.x, m_position.y + 30.0f, m_position.z), 30.0f);
 					}
 				}
 				else {//현재 노드에 가까울때
@@ -162,7 +173,9 @@ void MonsterSessionObject::Move(float fDistance, float elapsedTime)
 						OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
 					}
 					m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, fDistance, false));//틱마다 움직임
-					m_SPBB = BoundingSphere(DirectX::XMFLOAT3(m_position.x, m_position.y + 30.0f, m_position.z), 30.0f);
+					m_SPBB.Center = m_position;
+					m_SPBB.Center.y += 30.0f;
+					//m_SPBB = BoundingSphere(DirectX::XMFLOAT3(m_position.x, m_position.y + 30.0f, m_position.z), 30.0f);
 				}
 				//std::cout << "BossPos: " << m_position.x << "0, " << m_position.z << std::endl;
 			}
@@ -345,7 +358,7 @@ void MonsterSessionObject::AttackPlayer()
 bool MonsterSessionObject::StartAttack()
 {
 	XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f);
-	auto pPos = g_iocpNetwork.m_session[m_aggroPlayerId].m_sessionObject->GetPos();
+	auto& pPos = g_iocpNetwork.m_session[m_aggroPlayerId].m_sessionObject->GetPos();
 	XMFLOAT3 des = Vector3::Subtract(pPos, m_position);	// 목적지랑 위치랑 벡터	
 	float len = Vector3::Length(des);
 	des = Vector3::Normalize(des);

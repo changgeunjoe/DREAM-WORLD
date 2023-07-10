@@ -893,16 +893,41 @@ void Monster::Animate(float fTimeElapsed)
 			XMFLOAT3 desPlayerVector = Vector3::Subtract(desPlayerPos, GetPosition());
 			float playerDistance = Vector3::Length(desPlayerVector);
 			desPlayerVector = Vector3::Normalize(desPlayerVector);
+			m_lockBossRoute.lock();
+			if (playerDistance < 120.0f && m_BossRoute.empty()) {
+				m_lockBossRoute.unlock();
+				/*m_lockBossRoute.lock();
+				if (!m_BossRoute.empty())
+					int currentNodeIdx = m_BossRoute.front();
+				m_lockBossRoute.unlock();
+				bool bossAndPlayerOnSameIdx = g_bossMapData.GetTriangleMesh(currentNodeIdx).IsOnTriangleMesh(desPlayerPos);*/
 
-			if (playerDistance < 40.0f) {
-				bool OnRight = (Vector3::DotProduct(GetRight(), Vector3::Normalize(desPlayerVector)) > 0) ? true : false;
+				//if (bossAndPlayerOnSameIdx) {
 				float ChangingAngle = Vector3::Angle(desPlayerVector, GetLook());
+				if (ChangingAngle > 1.6f) {
+					bool OnRight = (Vector3::DotProduct(GetRight(), desPlayerVector) > 0) ? true : false;
+					if (OnRight) {
+						Rotate(&up, 90.0f * fTimeElapsed);
+						m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
+					}
+					else {
+						Rotate(&up, -90.0f * fTimeElapsed);
+						m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
+					}
+				}
+				if (playerDistance >= 42.0f)
+					MoveForward(50 * fTimeElapsed);
+				Character::Animate(fTimeElapsed);
+				return;
+				//m_position = Vector3::Add(m_position, Vector3::ScalarProduct(desPlayerVector, fTimeElapsed, false));//틱마다 움직임					
+
 				//Rotate(&up, -90.0f * fTimeElapsed);
 				//m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
 				//임시로 했음 수정해야됨
+			//}
 			}
 			else {
-				m_lockBossRoute.lock();
+				//m_lockBossRoute.lock();
 				if (!m_BossRoute.empty()) {
 					int currentNodeIdx = m_BossRoute.front();
 					m_lockBossRoute.unlock();

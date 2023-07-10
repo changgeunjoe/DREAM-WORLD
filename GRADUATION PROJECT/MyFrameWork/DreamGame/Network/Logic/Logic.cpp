@@ -450,7 +450,7 @@ void Logic::ProcessPacket(char* p)
 		//		m_MonsterSession.m_currentPlayGameObject->Rotate(0, -bossRotBetweenAngle, 0);
 		//}
 		else {
-			std::cout << "force Set Interpolation Rotate: " << bossInterpolationAngle << endl;
+			//std::cout << "force Set Interpolation Rotate: " << bossInterpolationAngle << endl;
 			OnRight ? m_MonsterSession.m_currentPlayGameObject->m_interpolationRotateAngleY = bossInterpolationAngle :
 				m_MonsterSession.m_currentPlayGameObject->m_interpolationRotateAngleY = -bossInterpolationAngle;
 		}
@@ -480,7 +480,7 @@ void Logic::ProcessPacket(char* p)
 			m_MonsterSession.m_currentPlayGameObject->m_interpolationVector = XMFLOAT3{ 0,0,0 };
 		}
 		else if (abs(bossInterpolationDistance) > 50.0f) {
-			std::cout << "force Set Position" << endl;
+			//std::cout << "force Set Position" << endl;
 			m_MonsterSession.m_currentPlayGameObject->SetPosition(recvPacket->bossState.pos);
 		}
 		else {
@@ -628,21 +628,22 @@ void Logic::ProcessPacket(char* p)
 		gGameFramework.m_pScene->m_pObjectManager->m_nodeLock.unlock();
 		m_MonsterSession.m_currentPlayGameObject->m_intDesPlayer = recvPacket->desPlayerId;
 		//std::cout << "recv aggro Id: " << recvPacket->desPlayerId << std::endl;
-		cout << "보스 이동 인덱스 : ";
 		if (recvPacket->nodeCnt == -1) {
 			m_MonsterSession.m_currentPlayGameObject->m_lockBossRoute.lock();
 			m_MonsterSession.m_currentPlayGameObject->m_BossRoute.swap(recvNodeQueue);
-			m_MonsterSession.m_currentPlayGameObject->m_lockBossRoute.unlock();			
+			m_MonsterSession.m_currentPlayGameObject->m_lockBossRoute.unlock();
 		}
 		else if (recvPacket->nodeCnt > -1) {
+			cout << "보스 이동 인덱스 : ";
 			vector<int> triangleIdxVec;
 			for (int i = 0; i < recvPacket->nodeCnt; i++) {
 				//보스가 이동할 노드 데이터
 				// 받아온 노드들 벡터에 새로 넣기
-				cout << recvPacket->node[i] << ", " << endl;
+				cout << recvPacket->node[i] << ", ";
 				recvNodeQueue.push(recvPacket->node[i]);
 				triangleIdxVec.push_back(recvPacket->node[i]);
 			}
+			cout << endl;
 			//gGameFramework.m_pScene->m_pObjectManager->m_VecNodeQueue.push_back(recvPacket->node[i]);				
 			//AStart Node Mesh
 			gGameFramework.m_pScene->m_pObjectManager->m_nodeLock.lock();
@@ -657,12 +658,13 @@ void Logic::ProcessPacket(char* p)
 
 		if (!m_MonsterSession.m_currentPlayGameObject->GetMoveState())
 		{
+			cout << "SERVER_PACKET::BOSS_MOVE_NODE - SetMoveState True" << endl;
 			m_MonsterSession.m_currentPlayGameObject->SetMoveState(true);
 			m_MonsterSession.m_currentPlayGameObject->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ATTACK::ATTACK_COUNT;
 			m_MonsterSession.m_currentPlayGameObject->m_pSkinnedAnimationController->SetTrackEnable(0, 2);
 		}
 		//m_MonsterSession.m_currentPlayGameObject->SetMoveState(true);
-		cout << endl;
+		//cout << endl;
 	}
 	break;
 	case SERVER_PACKET::PRE_EXIST_LOGIN://이미 존재하는 플레이어가 있기 때문에, 지금 들어온 플레이어(내 클라이언트는) 접속 해제 패킷을 수신
