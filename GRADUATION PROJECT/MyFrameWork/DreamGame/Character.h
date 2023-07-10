@@ -6,6 +6,7 @@ class Character : public GameObject
 protected:
 	bool m_bQSkillClicked;
 	bool m_bESkillClicked;
+	bool m_bOnAttack;
 public:
 	Character();
 	virtual ~Character();
@@ -16,6 +17,11 @@ public:
 	virtual void FirstSkillUp() {};
 	virtual void SecondSkillDown() { m_bESkillClicked = true; };
 	virtual void SecondSkillUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f }) {};
+
+public:
+	bool GetQSkillState() { return m_bQSkillClicked; }
+	bool GetESkillState() { return m_bESkillClicked; }
+	bool GetOnAttack() { return m_bOnAttack; }
 	//virtual void Move(DIRECTION direction, float fDistance);
 };
 

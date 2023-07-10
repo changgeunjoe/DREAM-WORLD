@@ -390,6 +390,22 @@ void Logic::ProcessPacket(int userId, char* p)
 		}
 	}
 	break;
+	case CLIENT_PACKET::SKILL_INPUT:
+	{
+		CLIENT_PACKET::SkillInputPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::SkillInputPacket*>(p);
+
+		SERVER_PACKET::SkillInputPacket sendPacket;
+		sendPacket.qSkill = recvPacket->qSkill;
+		sendPacket.eSkill = recvPacket->eSkill;
+		sendPacket.userId = userId;
+		sendPacket.type = SERVER_PACKET::SKILL_INPUT;
+		sendPacket.size = sizeof(SERVER_PACKET::SkillInputPacket);
+#ifdef _DEBUG
+		//PrintCurrentTime();
+		//std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::SKILL_INPUT - MultiCastOtherPlayer" << std::endl;
+#endif
+		MultiCastOtherPlayerInRoom(userId, &sendPacket);
+	}
 	default:
 		PrintCurrentTime();
 		std::cout << "unknown Packet" << std::endl;

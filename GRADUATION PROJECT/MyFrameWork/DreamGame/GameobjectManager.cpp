@@ -257,12 +257,6 @@ void GameobjectManager::StoryUIAnimate(float fTimeElapsed)
 
 void GameobjectManager::OnPreRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	{
-		for (int i = 0; i < 10; i++) {
-			cout << "xÁÂÇ¥´Â " << m_ppGameObjects[i]->m_xmf4x4World._41 << "yÁÂÇ¥´Â " << m_ppGameObjects[i]->m_xmf4x4World._42 << "zÁÂÇ¥´Â " << m_ppGameObjects[i]->m_xmf4x4World._43 << endl;
-		}
-		cout << "end" << endl;
-	}
 	m_pDepthShaderComponent->PrepareShadowMap(pd3dDevice, pd3dCommandList);
 	//Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
@@ -843,12 +837,6 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	BuildTrail(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildAstar(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	{
-		for (int i = 0; i < 10; i++) {
-			cout << "xÁÂÇ¥´Â " << m_ppGameObjects[i]->m_xmf4x4World._41 << "yÁÂÇ¥´Â " << m_ppGameObjects[i]->m_xmf4x4World._42 << "zÁÂÇ¥´Â " << m_ppGameObjects[i]->m_xmf4x4World._43 << endl;
-		}
-		cout << "end" << endl;
-	}
 }
 void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
@@ -952,6 +940,7 @@ void GameobjectManager::BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pStage1Objects[0]->SetModel("Model/New_Terrain.bin");
 	m_pStage1Objects[0]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pStage1Objects[0]->SetScale(1.0f, 1.0f, 1.0f);
+	m_pStage1Objects[0]->SetColor(XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
 	m_pStage1Objects[0]->SetRimLight(false);
 	m_ppGameObjects.emplace_back(m_pStage1Objects[0]);
 	/*m_pStage1Objects[1] = new GameObject(UNDEF_ENTITY);
@@ -1014,12 +1003,6 @@ void GameobjectManager::BuildLight()
 }
 void GameobjectManager::BuildShadow(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	{
-		for (int i = 0; i < 10; i++) {
-			cout << "xÁÂÇ¥´Â " << m_ppGameObjects[i]->m_xmf4x4World._41 << "yÁÂÇ¥´Â " << m_ppGameObjects[i]->m_xmf4x4World._42 << "zÁÂÇ¥´Â " << m_ppGameObjects[i]->m_xmf4x4World._43 << endl;
-		}
-		cout << "end" << endl;
-	}
 	m_pDepthShaderComponent = new DepthRenderShaderComponent();
 	m_pDepthShaderComponent->BuildDepth(m_ppGameObjects, m_pLight->GetLight());
 	m_pDepthShaderComponent->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
@@ -1032,9 +1015,6 @@ void GameobjectManager::BuildShadow(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pShadowmapShaderComponent->BuildShadow(m_ppGameObjects);
 	m_pShadowmapShaderComponent->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
 	m_pShadowmapShaderComponent->BuildObjects(pd3dDevice, pd3dCommandList, m_pDepthShaderComponent->GetDepthTexture());
-
-
-
 }
 void GameobjectManager::Build2DUI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
@@ -1601,13 +1581,22 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		case 'Q':
 		{
 			//g_Logic.m_KeyInput->m_bQKey = true;
-			static_cast<Character*>(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject)->FirstSkillDown();
+			Character* pcharacter = static_cast<Character*>(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject);
+			if (pcharacter->GetQSkillState() == false && pcharacter->GetOnAttack() == false)
+			{
+				g_NetworkHelper.SendSkillStatePacket(pcharacter->GetQSkillState(), pcharacter->GetESkillState());
+				pcharacter->FirstSkillDown();
+			}
 			break;
 		}
 		case 'E':
 		{
-			//g_Logic.m_KeyInput->m_bEKey = true;
-			static_cast<Character*>(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject)->SecondSkillDown();
+			Character* pcharacter = static_cast<Character*>(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject);
+			if (pcharacter->GetESkillState() == false && pcharacter->GetOnAttack() == false)
+			{
+				g_NetworkHelper.SendSkillStatePacket(pcharacter->GetQSkillState(), pcharacter->GetESkillState());
+				pcharacter->SecondSkillDown();
+			}
 			break;
 		}
 		case 'O':
@@ -1711,7 +1700,6 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		{
 			//g_Logic.m_KeyInput->m_bQKey = false;
 			static_cast<Character*>(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject)->FirstSkillUp();
-			// g_NetworkHelper.SendTestGameEndPacket();
 			break;
 		}
 		case 'E':

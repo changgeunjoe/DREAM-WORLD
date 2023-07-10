@@ -370,17 +370,19 @@ void Archer::Animate(float fTimeElapsed)
 		GameObject::Animate(fTimeElapsed);
 		return;
 	}
-	bool UpperLock = false;
 
 	if (m_pSkinnedAnimationController->m_CurrentAnimations.first == CharacterAnimation::CA_ATTACK)
 	{
 		if (m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd == true)
 		{
 			ShootArrow();
+			m_bOnAttack = false;
 			m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd = false;
 		}
-		else 
-			UpperLock = true;
+		else
+		{
+			m_bOnAttack = true;
+		}
 	}
 
 	// 현재 재생될 애니메이션 선택
@@ -388,12 +390,12 @@ void Archer::Animate(float fTimeElapsed)
 	{
 		if (m_bRButtonClicked || m_bLButtonClicked || m_bQSkillClicked || m_bESkillClicked)
 		{
-			if (!UpperLock) AfterAnimation.first = CharacterAnimation::CA_ATTACK;
+			if (!m_bOnAttack) AfterAnimation.first = CharacterAnimation::CA_ATTACK;
 			AfterAnimation.second = CharacterAnimation::CA_MOVE;
 		}
 		else
 		{// 그냥 움직이기
-			if (!UpperLock) AfterAnimation.first = CharacterAnimation::CA_MOVE;
+			if (!m_bOnAttack) AfterAnimation.first = CharacterAnimation::CA_MOVE;
 			AfterAnimation.second = CharacterAnimation::CA_MOVE;
 		}
 	}
@@ -401,10 +403,10 @@ void Archer::Animate(float fTimeElapsed)
 	{
 		if (m_bRButtonClicked || m_bLButtonClicked || m_bQSkillClicked || m_bESkillClicked)
 		{
-			if (!UpperLock) AfterAnimation.first = CharacterAnimation::CA_ATTACK;
+			if (!m_bOnAttack) AfterAnimation.first = CharacterAnimation::CA_ATTACK;
 			AfterAnimation.second = CharacterAnimation::CA_ATTACK;
 		}
-		else if (!UpperLock)
+		else if (!m_bOnAttack)
 		{// IDLE
 			AfterAnimation.first = CharacterAnimation::CA_IDLE;
 			AfterAnimation.second = CharacterAnimation::CA_IDLE;
@@ -533,25 +535,6 @@ void Archer::ShootArrow()
 		}
 		m_bQSkillClicked = false;
 	}
-	else if (m_bLButtonClicked == true)
-	{// 1개의 화살을 발사하는 기본 공격 실행
-		if (m_pCamera)
-			m_pProjectiles[m_nProjectiles]->m_xmf3direction = XMFLOAT3(GetObjectLook().x, m_pCamera->GetLookVector().y, GetObjectLook().z);
-		else
-			m_pProjectiles[m_nProjectiles]->m_xmf3direction = XMFLOAT3(GetObjectLook().x, -sin(m_projectilesLookY * 3.141592 / 180.0f), GetObjectLook().z);
-
-		m_pProjectiles[m_nProjectiles]->m_xmf3direction = Vector3::Normalize(m_pProjectiles[m_nProjectiles]->m_xmf3direction);
-		m_pProjectiles[m_nProjectiles]->m_xmf3startPosition = GetPosition();
-		m_pProjectiles[m_nProjectiles]->SetPosition(Vector3::Add(GetPosition(), XMFLOAT3(0.0f, 5.0f, 0.0f)));
-		m_pProjectiles[m_nProjectiles]->m_fSpeed = 150.0f;
-		m_pProjectiles[m_nProjectiles]->m_bActive = true;
-		static_cast<Arrow*>(m_pProjectiles[m_nProjectiles])->m_xmf3TargetPos = XMFLOAT3(0.0f, -1.0f, 0.0f);
-		static_cast<Arrow*>(m_pProjectiles[m_nProjectiles])->m_ArrowType = 0;
-		if (m_pCamera)
-			g_NetworkHelper.SendArrowAttackPacket(m_pProjectiles[m_nProjectiles]->m_xmf3startPosition, m_pProjectiles[m_nProjectiles]->m_xmf3direction, m_pProjectiles[m_nProjectiles]->m_fSpeed);
-		m_nProjectiles++;
-		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_ATTACK]->m_fPosition = -ANIMATION_CALLBACK_EPSILON;
-	}
 	else if (m_bESkillClicked == true)
 	{
 		// 1개의 화살을 발사 && 데미지 및 스피드 수정
@@ -587,6 +570,25 @@ void Archer::ShootArrow()
 		m_bESkillClicked = false;
 
 		Character::RbuttonUp(m_CameraLook);
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_ATTACK]->m_fPosition = -ANIMATION_CALLBACK_EPSILON;
+	}
+	else if (m_bOnAttack == true)
+	{// 1개의 화살을 발사하는 기본 공격 실행
+		if (m_pCamera)
+			m_pProjectiles[m_nProjectiles]->m_xmf3direction = XMFLOAT3(GetObjectLook().x, m_pCamera->GetLookVector().y, GetObjectLook().z);
+		else
+			m_pProjectiles[m_nProjectiles]->m_xmf3direction = XMFLOAT3(GetObjectLook().x, -sin(m_projectilesLookY * 3.141592 / 180.0f), GetObjectLook().z);
+
+		m_pProjectiles[m_nProjectiles]->m_xmf3direction = Vector3::Normalize(m_pProjectiles[m_nProjectiles]->m_xmf3direction);
+		m_pProjectiles[m_nProjectiles]->m_xmf3startPosition = GetPosition();
+		m_pProjectiles[m_nProjectiles]->SetPosition(Vector3::Add(GetPosition(), XMFLOAT3(0.0f, 5.0f, 0.0f)));
+		m_pProjectiles[m_nProjectiles]->m_fSpeed = 150.0f;
+		m_pProjectiles[m_nProjectiles]->m_bActive = true;
+		static_cast<Arrow*>(m_pProjectiles[m_nProjectiles])->m_xmf3TargetPos = XMFLOAT3(0.0f, -1.0f, 0.0f);
+		static_cast<Arrow*>(m_pProjectiles[m_nProjectiles])->m_ArrowType = 0;
+		if (m_pCamera)
+			g_NetworkHelper.SendArrowAttackPacket(m_pProjectiles[m_nProjectiles]->m_xmf3startPosition, m_pProjectiles[m_nProjectiles]->m_xmf3direction, m_pProjectiles[m_nProjectiles]->m_fSpeed);
+		m_nProjectiles++;
 		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_ATTACK]->m_fPosition = -ANIMATION_CALLBACK_EPSILON;
 	}
 }
