@@ -57,6 +57,8 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	m_fTime += fTimeElapsed;
 	m_fTimeElapsed = fTimeElapsed;
 	m_pSkyboxObject->SetPosition(m_pCamera->GetPosition());
+	m_pLight->UpdatePosition(XMFLOAT3(m_pCamera->GetPosition().x,
+		m_pCamera->GetPosition().y+600, m_pCamera->GetPosition().z));
 	if (m_pMonsterHPBarObject)//23.04.18 몬스터 체력바 -> 카메라를 바라 보도록 .ccg
 	{
 		m_pMonsterHPBarObject->SetLookAt(m_pCamera->GetPosition());
@@ -863,10 +865,10 @@ void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	m_pFireballEmissionSpriteObject->InsertComponent<UIMeshComponent>();
 	m_pFireballEmissionSpriteObject->InsertComponent<MultiSpriteShaderComponent>();
 	m_pFireballEmissionSpriteObject->InsertComponent<TextureComponent>();
-	m_pFireballEmissionSpriteObject->SetTexture(L"MagicEffect/Monsterdebuff_5x6.dds", RESOURCE_TEXTURE2D, 3);
+	m_pFireballEmissionSpriteObject->SetTexture(L"MagicEffect/swordEffect_5x5.dds", RESOURCE_TEXTURE2D, 3);
 	m_pFireballEmissionSpriteObject->SetPosition(XMFLOAT3(0, 40, 100));
 	m_pFireballEmissionSpriteObject->SetScale(10);
-	m_pFireballEmissionSpriteObject->SetRowColumn(5, 6, 0.06);
+	m_pFireballEmissionSpriteObject->SetRowColumn(5, 5, 0.06);
 	m_pFireballEmissionSpriteObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppParticleObjects.emplace_back(m_pFireballEmissionSpriteObject);
 
@@ -942,7 +944,7 @@ void GameobjectManager::BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pStage1Objects[0] = new GameObject(UNDEF_ENTITY);
 	m_pStage1Objects[0]->InsertComponent<RenderComponent>();
 	m_pStage1Objects[0]->InsertComponent<CLoadedModelInfoCompnent>();
-	m_pStage1Objects[0]->SetPosition(XMFLOAT3(0, -5, 0));
+	m_pStage1Objects[0]->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pStage1Objects[0]->SetModel("Model/New_Terrain.bin");
 	m_pStage1Objects[0]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pStage1Objects[0]->SetScale(10);
@@ -1952,6 +1954,12 @@ void GameobjectManager::AddTextToUILayer(int &iIndex)
 		queueStr.emplace(L"용사님들 드디어 오셧군요");
 		queueStr.emplace(L"저희 꿈마을을 지켜주세요!");
 		queueStr.emplace(L"앞에 있는 악몽들을 처치해주세요!");
+	}
+	if (iIndex == BOSS_TEXT)
+	{
+		queueStr.emplace(L"너희가 꿈마을을 지킬 수 있을거 같으냐!!!");
+		queueStr.emplace(L"으하하하하하");
+		queueStr.emplace(L"다 죽여주마!");
 	}
 	if (iIndex != -1) {
 		m_pUILayer->AddTextFont(queueStr);

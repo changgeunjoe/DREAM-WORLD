@@ -315,7 +315,8 @@ enum CharacterAnimation
 //NPCText
 enum TEXT
 {
-	NPC_TEXT=0
+	NPC_TEXT=0,
+	BOSS_TEXT = 1
 };
 
 
