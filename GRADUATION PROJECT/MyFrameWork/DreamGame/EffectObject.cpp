@@ -89,23 +89,8 @@ void EffectObject::RenderEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandL
 	SortEffect();//카메라 거리별로 Sort후 렌더
 
 	for (int i = 0; i < m_pEffectObjects.size(); i++) {
-		//cout << m_pEffectObjects[i]->GetDistance()<<" ";
 		m_pEffectObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
-	//cout << endl;
-	/*for (int i = m_pSmokeObject.size() - 1; i >= 0; i--) {
-		m_pSmokeObject[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	}*/
-	//for (int i = m_pPointObject.size() - 1; i >= 0; i--) {
-	//	m_pPointObject[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//}
-	//for (int i = 0; i < m_pArrowObject.size(); i++) {
-	//	m_pArrowObject[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//}
-	//for (int i = 0; i < m_pFlareObject.size(); i++) {
-	//	m_pFlareObject[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//}
-
 
 }
 
@@ -185,10 +170,10 @@ void EffectObject::AnimateEffect(CCamera* pCamera,XMFLOAT3 xm3position,float fti
 	m_pAttackObject->Rotate(0, 180, 0);
 	m_pAttackObject->SetPosition(XMFLOAT3(xm3position.x,xm3position.y+10,xm3position.z ));
 
-
 	for (int i = 0; i < m_pEffectObjects.size(); i++) {
 		m_pEffectObjects[i]->CalculateDistance(pCamera->GetPosition());
 	}
+	
 }
 
 void EffectObject::SortEffect()
@@ -200,4 +185,50 @@ void EffectObject::SortEffect()
 bool CompareGameObjects(const GameObject* obj1, const GameObject* obj2)
 {
 	return obj1->GetDistance() > obj2->GetDistance();
+}
+
+LightningEffectObject::LightningEffectObject()
+{
+}
+
+LightningEffectObject::~LightningEffectObject()
+{
+}
+
+void LightningEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+{
+	for (int i = 0; i < m_pLightningSpriteObject.size(); i++) {
+		m_pLightningSpriteObject[i] = new GameObject(UNDEF_ENTITY);
+		m_pLightningSpriteObject[i]->InsertComponent<RenderComponent>();
+		m_pLightningSpriteObject[i]->InsertComponent<UIMeshComponent>();
+		m_pLightningSpriteObject[i]->InsertComponent<MultiSpriteShaderComponent>();
+		m_pLightningSpriteObject[i]->InsertComponent<TextureComponent>();
+		m_pLightningSpriteObject[i]->SetTexture(L"MagicEffect/Lightning_2x2.dds", RESOURCE_TEXTURE2D, 3);
+		m_pLightningSpriteObject[i]->SetPosition(XMFLOAT3(0, 40, 100+10*i));
+		m_pLightningSpriteObject[i]->SetScale(7.0f, 12.0f, 7.0f);
+		m_pLightningSpriteObject[i]->SetRowColumn(2.0f, 2.0f, 0.06f+0.5*i);
+		m_pLightningSpriteObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		m_pLightningSpriteObject[i]->m_fTime = RandF(0, 10);
+		m_pEffectObjects.push_back(m_pLightningSpriteObject[i]);
+	}
+}
+
+
+void LightningEffectObject::AnimateEffect(CCamera* pCamera, XMFLOAT3 xm3position, float ftimeelapsed, float fTime)
+{
+	for (int i = 0; i < m_pLightningSpriteObject.size(); i++) {
+
+		m_pLightningSpriteObject[i]->SetLookAt(pCamera->GetPosition());
+		
+		m_pLightningSpriteObject[i]->SetScale(7.0f, 20.0f, 7.0f);
+		m_pLightningSpriteObject[i]->Rotate(0, 180, 0);
+		m_pLightningSpriteObject[i]->SetPosition(XMFLOAT3(
+			xm3position.x ,
+			xm3position.y +30,
+			xm3position.z ));
+		m_pLightningSpriteObject[i]->AnimateRowColumn(ftimeelapsed);
+	}
+	for (int i = 0; i < m_pEffectObjects.size(); i++) {
+		m_pEffectObjects[i]->CalculateDistance(pCamera->GetPosition());
+	}
 }

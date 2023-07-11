@@ -140,6 +140,8 @@ private: //active object
 	vector<GameObject*>  m_pFireballSpriteObjects;
 	GameObject* m_pFireballSpriteObject{ NULL };
 	GameObject* m_pFireballEmissionSpriteObject{ NULL };
+	GameObject* m_pLightningSpriteObject{ NULL };
+	GameObject* m_pMosterdebuffSpriteObject{ NULL };
 	GameObject* m_pFireball2EmissionSpriteObject{ NULL };
 	GameObject* m_pSwordFireObject{ NULL };
 	vector<GameObject*> m_ppParticleObjects;
@@ -164,6 +166,8 @@ private: //active object
 	
 	EffectObject* m_pEffectObject{NULL};
 	EffectObject* m_pDebuffObject{ NULL };
+	EffectObject* m_pLightEffectObject{ NULL };
+	vector<EffectObject*> m_ppEffectObjects{};
 
 	//NPC Object 
 	GameObject* m_pAngelNPCObject{ NULL };

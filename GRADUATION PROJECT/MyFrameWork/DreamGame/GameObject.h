@@ -197,13 +197,15 @@ public:
 
 	XMFLOAT4						m_xmf4Color{};
 
+	float                           m_fScale = 0.0f;
+	XMFLOAT3                        m_f3Scale{};
 protected:
 
 	int								m_nReferences = 0;
 	UINT							m_nTextureType;
 	int                             m_nSamplers = 1;
 	int                             m_nRootParameter = 1;
-	float                           m_fScale = 0.0f;
+	
 
 	int								m_iVertexCount = 0;
 	entity_id m_entityID{};//object id 

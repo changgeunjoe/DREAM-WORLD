@@ -72,15 +72,18 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	for (int i = 0; i < m_ppParticleObjects.size(); i++) {
 		m_ppParticleObjects[i]->SetLookAt(m_pCamera->GetPosition());
 		//m_ppParticleObjects[i]->SetPosition(XMFLOAT3(mfHittmp.x, mfHittmp.y+20, mfHittmp.z));
-		m_ppParticleObjects[i]->SetScale(8);
+		m_ppParticleObjects[i]->SetScale(m_ppParticleObjects[i]->m_f3Scale.x,
+			m_ppParticleObjects[i]->m_f3Scale.y, m_ppParticleObjects[i]->m_f3Scale.z );
 		m_ppParticleObjects[i]->Rotate(0, 180, 0);
+		m_ppParticleObjects[i]->AnimateRowColumn(fTimeElapsed);
 	}
 
 	//Effect
 	if (m_pSelectedObject) {
-		m_pEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 10);
+		//m_pEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 10);
+		m_pLightEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 10);
 	}
-	m_pDebuffObject->AnimateEffect(m_pCamera, g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition(), fTimeElapsed, m_fTime * 10);
+	//m_pDebuffObject->AnimateEffect(m_pCamera, g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition(), fTimeElapsed, m_fTime * 10);
 	//m_pMonsterObject->Animate(fTimeElapsed);
 	//sword effect
 	//m_pSwordFireObject->SetPosition(XMFLOAT3(m_pWarriorObject->m_pLoadedModelComponent->m_pWeaponStart->GetPosition().x,
@@ -152,9 +155,6 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	}
 	tempcount++;
 #endif
-	for (int i = 0; i < m_ppParticleObjects.size(); i++) {
-		m_ppParticleObjects[i]->AnimateRowColumn(fTimeElapsed);
-	}
 	CharacterUIAnimate(fTimeElapsed);
 	if (m_pTrailComponent) {
 	TrailAnimate(fTimeElapsed);
@@ -274,10 +274,6 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	if (m_pDepthShaderComponent) {
 		m_pDepthShaderComponent->UpdateShaderVariables(pd3dCommandList);//¿ÀºêÁ§Æ®ÀÇ ±íÀÌ°ªÀÇ ·»´õÀÔ´Ï´Ù.
 	}
-	//ÀÎ½ºÅÏ½Ì ·»´õ 
-	/*if (m_pInstancingShaderComponent) {
-		m_pInstancingShaderComponent->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature);
-	}*/
 
 	//m_pFireballSpriteObjects[0]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//
@@ -639,6 +635,9 @@ void GameobjectManager::EffectRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 	if (m_pDebuffObject) {
 		m_pDebuffObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
+	if (m_pLightEffectObject) {
+		m_pLightEffectObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
 }
 
 void GameobjectManager::BuildBossStageObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -860,17 +859,30 @@ void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	m_pFireballSpriteObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppParticleObjects.emplace_back(m_pFireballSpriteObject);
 
-	m_pFireballEmissionSpriteObject = new GameObject(UNDEF_ENTITY);
-	m_pFireballEmissionSpriteObject->InsertComponent<RenderComponent>();
-	m_pFireballEmissionSpriteObject->InsertComponent<UIMeshComponent>();
-	m_pFireballEmissionSpriteObject->InsertComponent<MultiSpriteShaderComponent>();
-	m_pFireballEmissionSpriteObject->InsertComponent<TextureComponent>();
-	m_pFireballEmissionSpriteObject->SetTexture(L"MagicEffect/swordEffect_5x5.dds", RESOURCE_TEXTURE2D, 3);
-	m_pFireballEmissionSpriteObject->SetPosition(XMFLOAT3(0, 40, 100));
-	m_pFireballEmissionSpriteObject->SetScale(10);
-	m_pFireballEmissionSpriteObject->SetRowColumn(5, 5, 0.06);
-	m_pFireballEmissionSpriteObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppParticleObjects.emplace_back(m_pFireballEmissionSpriteObject);
+	m_pLightningSpriteObject = new GameObject(UNDEF_ENTITY);
+	m_pLightningSpriteObject->InsertComponent<RenderComponent>();
+	m_pLightningSpriteObject->InsertComponent<UIMeshComponent>();
+	m_pLightningSpriteObject->InsertComponent<MultiSpriteShaderComponent>();
+	m_pLightningSpriteObject->InsertComponent<TextureComponent>();
+	m_pLightningSpriteObject->SetTexture(L"MagicEffect/Lightning_2x2.dds", RESOURCE_TEXTURE2D, 3);
+	m_pLightningSpriteObject->SetPosition(XMFLOAT3(0, 40, 100));
+	m_pLightningSpriteObject->SetScale(7.0f,12.0f,7.0f);
+	m_pLightningSpriteObject->SetRowColumn(2.0f, 2.0f, 0.06f);
+	m_pLightningSpriteObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppParticleObjects.emplace_back(m_pLightningSpriteObject);
+
+	m_pMosterdebuffSpriteObject = new GameObject(UNDEF_ENTITY);
+	m_pMosterdebuffSpriteObject->InsertComponent<RenderComponent>();
+	m_pMosterdebuffSpriteObject->InsertComponent<UIMeshComponent>();
+	m_pMosterdebuffSpriteObject->InsertComponent<MultiSpriteShaderComponent>();
+	m_pMosterdebuffSpriteObject->InsertComponent<TextureComponent>();
+	m_pMosterdebuffSpriteObject->SetTexture(L"MagicEffect/Monsterdebuff_5x6.dds", RESOURCE_TEXTURE2D, 3);
+	m_pMosterdebuffSpriteObject->SetPosition(XMFLOAT3(0, 40, 130));
+	m_pMosterdebuffSpriteObject->SetScale(2);
+	m_pMosterdebuffSpriteObject->SetRowColumn(5, 6, 0.03);
+	m_pMosterdebuffSpriteObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppParticleObjects.emplace_back(m_pMosterdebuffSpriteObject);
+
 
 	m_pSwordFireObject = new GameObject(UNDEF_ENTITY);
 	m_pSwordFireObject->InsertComponent<RenderComponent>();
@@ -933,7 +945,7 @@ void GameobjectManager::BuildAstar(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 }
 void GameobjectManager::BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/BigMushroom.txt", "Model/BigMushroom.bin", 0);
+	/*ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/BigMushroom.txt", "Model/BigMushroom.bin", 0);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Mushroom.txt", "Model/Mushroom.bin", 0);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/LongFence.txt", "Model/LongFence.bin", 0);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence01.txt", "Model/ShortFence01.bin", 0);
@@ -950,7 +962,7 @@ void GameobjectManager::BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pStage1Objects[0]->SetScale(10);
 	m_pStage1Objects[0]->SetColor(XMFLOAT4(0, 1.0f, 1.0f,1));
 	m_pStage1Objects[0]->SetRimLight(false);
-	m_ppGameObjects.emplace_back(m_pStage1Objects[0]);
+	m_ppGameObjects.emplace_back(m_pStage1Objects[0]);*/
 	/*m_pStage1Objects[1] = new GameObject(UNDEF_ENTITY);
 	m_pStage1Objects[1]->InsertComponent<RenderComponent>();
 	m_pStage1Objects[1]->InsertComponent<CLoadedModelInfoCompnent>();
@@ -1361,6 +1373,9 @@ void GameobjectManager::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 
 	m_pDebuffObject = new DebuffObject;
 	m_pDebuffObject->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+
+	m_pLightEffectObject = new LightningEffectObject;
+	m_pLightEffectObject->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	
 }
 

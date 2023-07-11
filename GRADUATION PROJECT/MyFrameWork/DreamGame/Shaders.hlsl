@@ -285,7 +285,7 @@ float4 PSSpriteTextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
 {
     // Sample the texture
     float4 cColor = shaderTexture.Sample(gWrapSamplerState, input.uv);
-    //if (cColor.x < 0.1 || cColor.y < 0.1 || cColor.z < 0.1)
+    //if (cColor.x == 0.0 || cColor.y == 0.0 || cColor.z == 0.0)
     //{
     //    cColor.w = 0;
     //}

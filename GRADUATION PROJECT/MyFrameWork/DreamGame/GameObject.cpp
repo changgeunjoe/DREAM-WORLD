@@ -149,6 +149,7 @@ void GameObject::SetLookAt(XMFLOAT3& xmf3Target, XMFLOAT3& xmf3Up)
 
 void GameObject::SetScale(float x, float y, float z)
 {
+	m_f3Scale = XMFLOAT3(x, y, z);
 	XMMATRIX mtxScale = XMMatrixScaling(x, y, z);
 	m_xmf4x4ToParent = Matrix4x4::Multiply(mtxScale, m_xmf4x4ToParent);
 
@@ -156,6 +157,7 @@ void GameObject::SetScale(float x, float y, float z)
 }
 void GameObject::SetinitScale(float x, float y, float z)
 {
+	
 	XMMATRIX mtxScale = XMMatrixScaling(x, y, z);
 	m_xmf4x4ToParent = Matrix4x4::Identity();
 	m_xmf4x4ToParent = Matrix4x4::Multiply(mtxScale, m_xmf4x4ToParent);
@@ -165,6 +167,7 @@ void GameObject::SetinitScale(float x, float y, float z)
 
 void GameObject::SetScale(float fScale)
 {
+	m_f3Scale = XMFLOAT3(fScale, fScale, fScale);
 	m_fScale = fScale;
 	XMMATRIX mtxScale = XMMatrixScaling(fScale, fScale, fScale);
 	m_xmf4x4ToParent = Matrix4x4::Multiply(mtxScale, m_xmf4x4ToParent);
