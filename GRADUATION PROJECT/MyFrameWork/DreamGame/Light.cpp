@@ -57,8 +57,8 @@ void CLight::BuildLight()
 	m_pLights[0].m_xmf3Direction = XMFLOAT3(1.0f, -1.0f, 0.0f);
 	//m_pLights[0].m_xmf3Direction = XMFLOAT3(0.5f, -1.0f, 0.5f);
 	//m_pLights[0].m_xmf3Direction = Vector3::Normalize(m_pLights[0].m_xmf3Direction);
-	m_pLights[0].m_xmf3Position = XMFLOAT3(-(_PLANE_WIDTH * 0.5f)+100, 600.0f, (_PLANE_WIDTH * 0.5f));
-	m_pLights[0].m_fRange = 700.0f;
+	m_pLights[0].m_xmf3Position = XMFLOAT3(-(_PLANE_WIDTH * 0.5f)+100, 500.0f, (_PLANE_WIDTH * 0.5f));
+	m_pLights[0].m_fRange = 499.0f;
 
 	m_pLights[1].m_bEnable = false;
 	m_pLights[1].m_nType = SPOT_LIGHT;

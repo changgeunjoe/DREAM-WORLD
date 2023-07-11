@@ -249,7 +249,6 @@ void GameobjectManager::TrailAnimate(float fTimeElapsed)
 		XMFLOAT3(m_pWarriorObject->m_pLoadedModelComponent->m_pWeaponEnd->GetPosition().x,
 			m_pWarriorObject->m_pLoadedModelComponent->m_pWeaponEnd->GetPosition().y,
 			m_pWarriorObject->m_pLoadedModelComponent->m_pWeaponEnd->GetPosition().z) );
-
 }
 
 void GameobjectManager::StoryUIAnimate(float fTimeElapsed)
@@ -820,9 +819,9 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	// 플레이어가 캐릭터 선택하는 부분에 유사하게 넣을 예정
 	// m_pWarriorObject m_pArcherObject m_pTankerObject m_pPriestObject
 	m_pPlayerObject = new GameObject(UNDEF_ENTITY);
-	memcpy(m_pPlayerObject, m_pArcherObject, sizeof(Archer));
-	m_pArcherObject->SetCamera(m_pCamera);
-	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject = m_pArcherObject;
+	memcpy(m_pPlayerObject, m_pWarriorObject, sizeof(Archer));
+	m_pWarriorObject->SetCamera(m_pCamera);
+	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject = m_pWarriorObject;
 	g_Logic.m_inGamePlayerSession[0].m_isVisible = true;
 	g_Logic.m_inGamePlayerSession[0].m_id = 0;
 #endif // LOCAL_TASK
@@ -864,10 +863,10 @@ void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	m_pFireballEmissionSpriteObject->InsertComponent<UIMeshComponent>();
 	m_pFireballEmissionSpriteObject->InsertComponent<MultiSpriteShaderComponent>();
 	m_pFireballEmissionSpriteObject->InsertComponent<TextureComponent>();
-	m_pFireballEmissionSpriteObject->SetTexture(L"MagicEffect/FireballEmission_7x7.dds", RESOURCE_TEXTURE2D, 3);
+	m_pFireballEmissionSpriteObject->SetTexture(L"MagicEffect/Monsterdebuff_5x6.dds", RESOURCE_TEXTURE2D, 3);
 	m_pFireballEmissionSpriteObject->SetPosition(XMFLOAT3(0, 40, 100));
 	m_pFireballEmissionSpriteObject->SetScale(10);
-	m_pFireballEmissionSpriteObject->SetRowColumn(7, 7, 0.05);
+	m_pFireballEmissionSpriteObject->SetRowColumn(5, 6, 0.06);
 	m_pFireballEmissionSpriteObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppParticleObjects.emplace_back(m_pFireballEmissionSpriteObject);
 
