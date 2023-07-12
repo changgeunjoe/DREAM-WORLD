@@ -846,14 +846,16 @@ void CGameFramework::AnimateObjects()
 void CGameFramework::WaitForGpuComplete()
 {
 	UINT64 nFenceValue = ++m_nFenceValues[m_nSwapChainBufferIndex];
-	//CPU펜스의 값을 증가한다.
+
 	HRESULT hResult = m_pd3dCommandQueue->Signal(m_pd3dFence, nFenceValue);
-	//GPU가 펜스의 값을 설정하는 명령을 명령 큐에 추가한다.
+
 	if (m_pd3dFence->GetCompletedValue() < nFenceValue)
 	{
-		//펜스의 현재 값이 설정한 값보다 작으면 펜스의 현재 값이 설정한 값이 될 때까지 기다린다.
 		hResult = m_pd3dFence->SetEventOnCompletion(nFenceValue, m_hFenceEvent);
-		::WaitForSingleObject(m_hFenceEvent, INFINITE);
+		if (SUCCEEDED(hResult))
+		{
+			::WaitForSingleObject(m_hFenceEvent, INFINITE);
+		}
 	}
 }
 void CGameFramework::MoveToNextFrame()

@@ -80,8 +80,8 @@ void GameobjectManager::Animate(float fTimeElapsed)
 
 	//Effect
 	if (m_pSelectedObject) {
-		//m_pEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 10);
-		m_pLightEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 10);
+		m_pEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 10);
+		//m_pLightEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 10);
 	}
 	//m_pDebuffObject->AnimateEffect(m_pCamera, g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition(), fTimeElapsed, m_fTime * 10);
 	//m_pMonsterObject->Animate(fTimeElapsed);
@@ -653,15 +653,16 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	BuildLight();
 	CLoadedModelInfoCompnent* ArrowModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Arrow.bin", NULL, true);
 
-	/*m_pPlaneObject = new GameObject(UNDEF_ENTITY);
-	m_pPlaneObject->InsertComponent<RenderComponent>();
-	m_pPlaneObject->InsertComponent<CLoadedModelInfoCompnent>();
-	m_pPlaneObject->SetPosition(XMFLOAT3(0, 0, 0));
-	m_pPlaneObject->SetModel("Model/Floor.bin");
-	m_pPlaneObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pPlaneObject->SetScale(1.0f, 1.0f, 1.0f);
-	m_pPlaneObject->SetRimLight(false);
-	m_ppGameObjects.emplace_back(m_pPlaneObject);*/
+	//m_pPlaneObject = new GameObject(UNDEF_ENTITY);
+	//m_pPlaneObject->InsertComponent<RenderComponent>();
+	//m_pPlaneObject->InsertComponent<CLoadedModelInfoCompnent>();
+	//m_pPlaneObject->SetPosition(XMFLOAT3(0, 0, 0));
+	//m_pPlaneObject->SetModel("Model/Floor.bin");
+	//m_pPlaneObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//m_pPlaneObject->SetScale(1.0f, 1.0f, 1.0f);
+	////m_pPlaneObject->SetColor(XMFLOAT4(0, 0, 0, 1));
+	//m_pPlaneObject->SetRimLight(false);
+	//m_ppGameObjects.emplace_back(m_pPlaneObject);
 
 	/*for (int i = 0; i < 4; ++i)
 	{
@@ -828,8 +829,8 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 #endif // LOCAL_TASK
 
 	BuildNPC(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	BuildStage1(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//BuildBossStageObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//BuildStage1(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	BuildBossStageObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildShadow(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//무조건 마지막에 해줘야된다.
 // 서순을 잘챙기자 ㅋㅋ	
 	//m_pTextureToViewportComponent = new TextureToViewportComponent();
@@ -945,7 +946,7 @@ void GameobjectManager::BuildAstar(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 }
 void GameobjectManager::BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	/*ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/BigMushroom.txt", "Model/BigMushroom.bin", 0);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/BigMushroom.txt", "Model/BigMushroom.bin", 0);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Mushroom.txt", "Model/Mushroom.bin", 0);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/LongFence.txt", "Model/LongFence.bin", 0);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence01.txt", "Model/ShortFence01.bin", 0);
@@ -962,7 +963,7 @@ void GameobjectManager::BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pStage1Objects[0]->SetScale(10);
 	m_pStage1Objects[0]->SetColor(XMFLOAT4(0, 1.0f, 1.0f,1));
 	m_pStage1Objects[0]->SetRimLight(false);
-	m_ppGameObjects.emplace_back(m_pStage1Objects[0]);*/
+	m_ppGameObjects.emplace_back(m_pStage1Objects[0]);
 	/*m_pStage1Objects[1] = new GameObject(UNDEF_ENTITY);
 	m_pStage1Objects[1]->InsertComponent<RenderComponent>();
 	m_pStage1Objects[1]->InsertComponent<CLoadedModelInfoCompnent>();

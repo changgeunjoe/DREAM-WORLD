@@ -68,6 +68,7 @@ public:
 	virtual void MoveForward(float fDistance = 1.0f);
 	virtual void Move(DIRECTION direction, float fDistance = 1.0f);
 	virtual void Move(XMFLOAT3 direction, float fDistance = 1.0f);
+	virtual void MoveVelocity(XMFLOAT3 direction, float ftimeelapsed ,float fDistance = 1.0f);
 
 	bool CheckIntersect(const GameObject* GameObject);	//수정필요
 
@@ -325,6 +326,8 @@ public:
 	float m_interpolationDistance = 0.0f;
 	XMFLOAT3 m_interpolationVector = XMFLOAT3{ 0,0,0 };
 	float m_interpolationRotateAngleY = 0.0f;
+
+	XMFLOAT3 m_xmf3RamdomDirection{};
 public:
 	GameObject* m_pHPBarUI{ NULL };
 	GameObject* m_pProfileUI{ NULL };

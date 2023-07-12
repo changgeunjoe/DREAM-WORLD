@@ -82,6 +82,22 @@ void EffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	m_pAttackObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pAttackObject->m_fTime = RandF(0, 10);
 	m_pEffectObjects.push_back(m_pAttackObject);
+
+	for (int i = 0; i < m_ppParticleObjects.size(); i++) {
+		m_ppParticleObjects[i] = new GameObject(UNDEF_ENTITY);
+		m_ppParticleObjects[i]->InsertComponent<RenderComponent>();
+		m_ppParticleObjects[i]->InsertComponent<UIMeshComponent>();
+		m_ppParticleObjects[i]->InsertComponent<EffectShaderComponent>();
+		m_ppParticleObjects[i]->InsertComponent<TextureComponent>();
+		m_ppParticleObjects[i]->SetTexture(L"MagicEffect/Point1.dds", RESOURCE_TEXTURE2D, 3);
+		m_ppParticleObjects[i]->SetAddPosition(XMFLOAT3(RandF(-5, 5), RandF(-5, 5), RandF(-5, 5)));
+		m_ppParticleObjects[i]->SetPosition(XMFLOAT3(0, 0, 0));
+		m_ppParticleObjects[i]->SetColor(XMFLOAT4(0.0f, 1.0f, 0.2568f, 0));
+		m_ppParticleObjects[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		m_ppParticleObjects[i]->m_fTime = RandF(0, 10);
+		m_ppParticleObjects[i]->m_xmf3RamdomDirection = XMFLOAT3(RandF(-1, 1), RandF(-1, 1), RandF(-1, 1));
+		m_pEffectObjects.push_back(m_ppParticleObjects[i]);
+	}
 }
 
 void EffectObject::RenderEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -173,12 +189,26 @@ void EffectObject::AnimateEffect(CCamera* pCamera,XMFLOAT3 xm3position,float fti
 	for (int i = 0; i < m_pEffectObjects.size(); i++) {
 		m_pEffectObjects[i]->CalculateDistance(pCamera->GetPosition());
 	}
-	
+	Particle();
 }
 
 void EffectObject::SortEffect()
 {
 	std::sort(m_pEffectObjects.begin(), m_pEffectObjects.end(), CompareGameObjects);
+}
+
+void EffectObject::Particle()
+{
+	for (int i = 0; i < m_ppParticleObjects.size(); i++) {
+	
+		
+		//빌드 오브젝트
+		m_ppParticleObjects[i]->MoveVelocity(m_ppParticleObjects[i]->m_xmf3RamdomDirection, 0.01);
+	}
+	
+	
+
+
 }
 
 
@@ -224,7 +254,7 @@ void LightningEffectObject::AnimateEffect(CCamera* pCamera, XMFLOAT3 xm3position
 		m_pLightningSpriteObject[i]->Rotate(0, 180, 0);
 		m_pLightningSpriteObject[i]->SetPosition(XMFLOAT3(
 			xm3position.x ,
-			xm3position.y +30,
+			xm3position.y +42,
 			xm3position.z ));
 		m_pLightningSpriteObject[i]->AnimateRowColumn(ftimeelapsed);
 	}
