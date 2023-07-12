@@ -56,6 +56,7 @@ public:
 	virtual void SecondSkillDown();
 	virtual void SecondSkillUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f });
 	virtual void ShootArrow();
+	// virtual void ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent);
 };
 
 class Tanker : public Character
@@ -73,6 +74,9 @@ public:
 class Priest : public Character
 {
 public:
+	GameObject* m_pHealRange{ nullptr };
+	float		m_fHealTime{ 0.0f };
+public:
 	Priest();
 	virtual ~Priest();
 	virtual void RbuttonClicked(float fTimeElapsed);
@@ -82,6 +86,12 @@ public:
 	virtual void Move(DIRECTION direction, float fDsitance) override;
 	virtual void Animate(float fTimeElapsed);
 	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender = false);
+	virtual void MoveObject(DIRECTION& currentDirection, const XMFLOAT3& CameraAxis);
+	virtual void FirstSkillDown();
+	virtual void FirstSkillUp();
+	virtual void SecondSkillDown() {};
+	virtual void SecondSkillUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f }) {};
+	// virtual void ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent);
 };
 
 class Monster : public Character

@@ -98,7 +98,7 @@ public:
 	virtual void BuildShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
     virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,bool bPrerender=false);
     virtual void InstanceRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, int nObjects,bool bPrerender = false);
-    void ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent);
+    virtual void ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent);
     virtual void Animate(float fTimeElapsed);
     virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
     virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
@@ -190,13 +190,14 @@ public:
 	int                             m_iRButtionCount = 0;
 
 	DIRECTION                       m_prevDirection = DIRECTION::IDLE;
-	bool                            m_LMouseInput = false;
-	bool                            m_RMouseInput = false;
+	bool                            m_LMouseInput{ false };
+	bool                            m_RMouseInput{ false };
 
-	bool                            m_bRimLight = true;
+	bool                            m_bRimLight{ true };
 
 	XMFLOAT4						m_xmf4Color{};
 
+	bool							m_bActive{ true };
 protected:
 
 	int								m_nReferences = 0;
@@ -226,6 +227,8 @@ protected:
     RenderComponent* m_pRenderComponent{ nullptr };
 	SphereMeshComponent* m_pSphereComponent{ nullptr };
 	TrailMeshComponent* m_pTrailMeshComponent{ nullptr };
+	CylinderMeshComponent* m_pCylinderMeshComponent{ nullptr };
+	SquareMeshComponent* m_pSquareMeshComponent{ nullptr };
 	HeihtMapMeshComponent* m_pHeihtMapMeshComponent{ nullptr };
     InstanceRenderComponent* m_pInstanceRenderComponent{ nullptr };//인스턴스 렌더 추가 23.04.26 .ccg
     
@@ -317,6 +320,8 @@ public:
 	XMFLOAT3                        m_xmf3Destination = XMFLOAT3{ 0,0,0 };
 	float                           m_UIScale = 10.0f;
 	bool                            m_bUIActive{ true };
+
+	int								m_iObjType = 0;
 public:
 	float m_interpolationDistance = 0.0f;
 	XMFLOAT3 m_interpolationVector = XMFLOAT3{ 0,0,0 };
@@ -441,6 +446,22 @@ inline T* GameObject::ComponentType(component_id& componentID)
 	else if (typeid(T).name() == typeid(BlendShaderComponent).name())
 	{
 		componentID = component_id::BLENDSHADER_COMPONENT;
+	}
+	else if (typeid(T).name() == typeid(CylinderMeshComponent).name())
+	{
+		componentID = component_id::CYLINDER_COMPONENT;
+	}
+	else if (typeid(T).name() == typeid(CylinderShaderComponent).name())
+	{
+		componentID = component_id::CYLINDERSHADER_COMPONENT;
+	}
+	else if (typeid(T).name() == typeid(SquareMeshComponent).name())
+	{
+		componentID = component_id::SQUAREMESH_COMPONENT;
+	}
+	else if (typeid(T).name() == typeid(SquareShaderComponent).name())
+	{
+		componentID = component_id::SQUARESHADER_COMPONENT;
 	}
     else
     {

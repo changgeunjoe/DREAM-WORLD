@@ -80,9 +80,9 @@ void Warrior::Attack(float fSpeed)
 	if (m_bQSkillClicked)
 	{
 		m_bQSkillClicked = false;
-		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_SKILL].m_bAnimationEnd = false;
-		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_SKILL].m_fPosition = -ANIMATION_CALLBACK_EPSILON;
-		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_SKILL].m_fSpeed = 1.0f;
+		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_FIRSTSKILL].m_bAnimationEnd = false;
+		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_FIRSTSKILL].m_fPosition = -ANIMATION_CALLBACK_EPSILON;
+		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_FIRSTSKILL].m_fSpeed = 1.0f;
 	}
 	else if (m_bLButtonClicked)
 	{
@@ -176,9 +176,9 @@ void Warrior::Animate(float fTimeElapsed)
 	bool UpperLock = false;
 	switch (AfterAnimation.first)
 	{
-	case CharacterAnimation::CA_SKILL:
+	case CharacterAnimation::CA_FIRSTSKILL:
 	{
-		if (m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_SKILL].m_bAnimationEnd == false)
+		if (m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_FIRSTSKILL].m_bAnimationEnd == false)
 		{
 			UpperLock = true;
 		}
@@ -194,7 +194,7 @@ void Warrior::Animate(float fTimeElapsed)
 	}
 	}
 	if (m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd == true
-		|| m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_SKILL].m_bAnimationEnd == true)
+		|| m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_FIRSTSKILL].m_bAnimationEnd == true)
 	{
 		Attack();
 		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd = false;
@@ -204,7 +204,7 @@ void Warrior::Animate(float fTimeElapsed)
 	{
 		if (m_bQSkillClicked)	// 공격
 		{
-			if (!UpperLock) AfterAnimation.first = CharacterAnimation::CA_SKILL;
+			if (!UpperLock) AfterAnimation.first = CharacterAnimation::CA_FIRSTSKILL;
 			AfterAnimation.second = CharacterAnimation::CA_MOVE;
 		}
 		else if (m_bLButtonClicked)	// 공격
@@ -222,8 +222,8 @@ void Warrior::Animate(float fTimeElapsed)
 	{
 		if (m_bQSkillClicked)	// 공격
 		{
-			if (!UpperLock) AfterAnimation.first = CharacterAnimation::CA_SKILL;
-			AfterAnimation.second = CharacterAnimation::CA_SKILL;
+			if (!UpperLock) AfterAnimation.first = CharacterAnimation::CA_FIRSTSKILL;
+			AfterAnimation.second = CharacterAnimation::CA_FIRSTSKILL;
 		}
 		else if (m_bLButtonClicked)	// 공격
 		{
@@ -272,7 +272,6 @@ void Archer::SetArrow(Projectile* pArrow)
 {
 	if (m_nProjectiles < MAX_ARROW)
 	{
-		m_pProjectiles[m_nProjectiles] = new Arrow();
 		m_pProjectiles[m_nProjectiles] = static_cast<Projectile*>(pArrow);
 		m_pProjectiles[m_nProjectiles]->SetPosition(Vector3::Add(GetPosition(), XMFLOAT3(0.0f, 7.5f, 0.0f)));
 		m_pProjectiles[m_nProjectiles]->SetLook(GetObjectLook());
@@ -593,6 +592,11 @@ void Archer::ShootArrow()
 	}
 }
 
+//void Archer::ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent)
+//{
+//	GameObject::ShadowRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender, pShaderComponent);
+//}
+
 Tanker::Tanker() : Character()
 {
 	m_fHp = 600.0f;
@@ -680,6 +684,9 @@ void Tanker::Move(DIRECTION direction, float fDistance)
 
 void Tanker::Animate(float fTimeElapsed)
 {
+	if (m_bRButtonClicked)
+		RbuttonClicked(fTimeElapsed);
+
 	if (m_fHp < FLT_EPSILON)
 	{
 		if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CharacterAnimation::CA_DIE)
@@ -722,12 +729,17 @@ void Tanker::Animate(float fTimeElapsed)
 	{
 		if (m_bRButtonClicked)
 		{
-			if (!UpperLock) AfterAnimation.first = CharacterAnimation::CA_SKILL;
+			if (!UpperLock) AfterAnimation.first = CharacterAnimation::CA_FIRSTSKILL;
 			AfterAnimation.second = CharacterAnimation::CA_MOVE;
 		}
 		else if (m_bLButtonClicked)	// 공격
 		{
 			if (!UpperLock) AfterAnimation.first = CharacterAnimation::CA_ATTACK;
+			AfterAnimation.second = CharacterAnimation::CA_MOVE;
+		}
+		else if (m_bQSkillClicked)
+		{
+			if (!UpperLock) AfterAnimation.first = CharacterAnimation::CA_SECONDSKILL;
 			AfterAnimation.second = CharacterAnimation::CA_MOVE;
 		}
 		else						// 그냥 움직이기
@@ -740,13 +752,18 @@ void Tanker::Animate(float fTimeElapsed)
 	{
 		if (m_bRButtonClicked)
 		{
-			AfterAnimation.first = CharacterAnimation::CA_SKILL;
-			AfterAnimation.second = CharacterAnimation::CA_SKILL;
+			AfterAnimation.first = CharacterAnimation::CA_FIRSTSKILL;
+			AfterAnimation.second = CharacterAnimation::CA_FIRSTSKILL;
 		}
 		else if (m_bLButtonClicked)	// 공격
 		{
 			AfterAnimation.first = CharacterAnimation::CA_ATTACK;
 			AfterAnimation.second = CharacterAnimation::CA_ATTACK;
+		}
+		else if (m_bQSkillClicked)
+		{
+			if (!UpperLock) AfterAnimation.first = CharacterAnimation::CA_SECONDSKILL;
+			AfterAnimation.second = CharacterAnimation::CA_SECONDSKILL;
 		}
 		else						// IDLE
 		{
@@ -766,6 +783,11 @@ void Tanker::Animate(float fTimeElapsed)
 	{
 		Attack();
 		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd = false;
+	}
+	if (m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_SECONDSKILL].m_bAnimationEnd == true)
+	{
+		m_bQSkillClicked = false;
+		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_SECONDSKILL].m_bAnimationEnd = false;
 	}
 
 	GameObject::Animate(fTimeElapsed);
@@ -804,39 +826,39 @@ void Priest::Move(DIRECTION direction, float fDistance)
 		tempDir = (DIRECTION)(tempDir ^ DIRECTION::BACK);
 	}
 
-	if (!m_bRButtonClicked)
-	{
-		switch (tempDir)
-		{
-		case DIRECTION::FRONT:
-		case DIRECTION::FRONT | DIRECTION::RIGHT:
-		case DIRECTION::RIGHT:
-		case DIRECTION::BACK | DIRECTION::RIGHT:
-		case DIRECTION::BACK:
-		case DIRECTION::BACK | DIRECTION::LEFT:
-		case DIRECTION::LEFT:
-		case DIRECTION::FRONT | DIRECTION::LEFT:
-			MoveForward(fDistance);
-		default: break;
-		}
-	}
-	else
-	{
+	//if (!m_bRButtonClicked)
+	//{
+	//	switch (tempDir)
+	//	{
+	//	case DIRECTION::FRONT:
+	//	case DIRECTION::FRONT | DIRECTION::RIGHT:
+	//	case DIRECTION::RIGHT:
+	//	case DIRECTION::BACK | DIRECTION::RIGHT:
+	//	case DIRECTION::BACK:
+	//	case DIRECTION::BACK | DIRECTION::LEFT:
+	//	case DIRECTION::LEFT:
+	//	case DIRECTION::FRONT | DIRECTION::LEFT:
+	//		MoveForward(fDistance);
+	//	default: break;
+	//	}
+	//}
+	//else
+	//{
 		//fDistance /= 3;
-		switch (tempDir)
-		{
-		case DIRECTION::IDLE: break;
-		case DIRECTION::FRONT: MoveForward(fDistance); break;
-		case DIRECTION::FRONT | DIRECTION::RIGHT: MoveDiagonal(1, 1, fDistance); break;
-		case DIRECTION::RIGHT: MoveStrafe(fDistance); break;
-		case DIRECTION::BACK | DIRECTION::RIGHT: MoveDiagonal(-1, 1, fDistance);  break;
-		case DIRECTION::BACK: MoveForward(-fDistance); break;
-		case DIRECTION::BACK | DIRECTION::LEFT: MoveDiagonal(-1, -1, fDistance); break;
-		case DIRECTION::LEFT: MoveStrafe(-fDistance); break;
-		case DIRECTION::FRONT | DIRECTION::LEFT: MoveDiagonal(1, -1, fDistance); break;
-		default: break;
-		}
+	switch (tempDir)
+	{
+	case DIRECTION::IDLE: break;
+	case DIRECTION::FRONT: MoveForward(fDistance); break;
+	case DIRECTION::FRONT | DIRECTION::RIGHT: MoveDiagonal(1, 1, fDistance); break;
+	case DIRECTION::RIGHT: MoveStrafe(fDistance); break;
+	case DIRECTION::BACK | DIRECTION::RIGHT: MoveDiagonal(-1, 1, fDistance);  break;
+	case DIRECTION::BACK: MoveForward(-fDistance); break;
+	case DIRECTION::BACK | DIRECTION::LEFT: MoveDiagonal(-1, -1, fDistance); break;
+	case DIRECTION::LEFT: MoveStrafe(-fDistance); break;
+	case DIRECTION::FRONT | DIRECTION::LEFT: MoveDiagonal(1, -1, fDistance); break;
+	default: break;
 	}
+	//}
 }
 
 void Priest::Animate(float fTimeElapsed)
@@ -863,6 +885,18 @@ void Priest::Animate(float fTimeElapsed)
 		GameObject::Animate(fTimeElapsed);
 		return;
 	}
+
+	if (m_pHealRange->m_bActive)
+	{
+		m_fHealTime += fTimeElapsed;
+		if (m_fHealTime > 10.0f)
+		{
+			m_fHealTime = 0.0f;
+			m_pHealRange->m_bActive = false;
+			m_bQSkillClicked = false;
+		}
+	}
+
 	pair<CharacterAnimation, CharacterAnimation> AfterAnimation = m_pSkinnedAnimationController->m_CurrentAnimations;
 	bool UpperLock = false;
 	switch (AfterAnimation.first)
@@ -972,9 +1006,45 @@ void Priest::SetEnergyBall(Projectile* pEnergyBall)
 void Priest::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender)
 {
 	for (int i = 0; i < m_pProjectiles.size(); ++i)
-		if (m_pProjectiles[i]) m_pProjectiles[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
+		if (m_pProjectiles[i]) 
+			m_pProjectiles[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
+
 	GameObject::Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
 }
+
+void Priest::MoveObject(DIRECTION& currentDirection, const XMFLOAT3& CameraAxis)
+{
+	XMFLOAT3 xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
+	XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&xmf3Up), XMConvertToRadians(CameraAxis.y));
+	XMFLOAT3 xmf3Look = XMFLOAT3(0.0f, 0.0f, 1.0f);
+	xmf3Look = Vector3::TransformNormal(xmf3Look, xmmtxRotate);
+
+	XMFLOAT3 xmf3Rev = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	float fRotateAngle = -1.0f;
+
+	DIRECTION tempDir = currentDirection;
+
+	SetLook(xmf3Look);
+}
+
+void Priest::FirstSkillDown()
+{
+	m_bQSkillClicked = true;
+	m_pHealRange->m_bActive = true;
+}
+
+void Priest::FirstSkillUp()
+{
+}
+
+//void Priest::ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent)
+//{
+//	for (int i = 0; i < m_pProjectiles.size(); ++i)
+//		if (m_pProjectiles[i])
+//			m_pProjectiles[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
+//
+//	GameObject::ShadowRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender, pShaderComponent);
+//}
 
 Monster::Monster() : Character()
 {

@@ -300,6 +300,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	for (int i = 0; i < m_pEnergyBallObjects.size(); i++) {
 		m_pEnergyBallObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
+
 	//m_pMonsterCubeObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//for (auto& session : g_Logic.m_inGamePlayerSession) {
 	//	if (-1 != session.m_id && session.m_isVisible) {
@@ -329,8 +330,6 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	//	m_ppUIObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//}
 
-	
-
 	if (m_pShadowmapShaderComponent)
 	{
 		m_pShadowmapShaderComponent->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature, m_fTimeElapsed);
@@ -340,7 +339,18 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 			m_pStage1Objects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 	if (m_pMonsterHPBarObject) {
-		m_pMonsterHPBarObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		//m_pMonsterHPBarObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
+
+	if (m_pHealRange)
+	{
+		if (m_pHealRange->m_bActive)
+		{
+			XMFLOAT3 pos = m_pPriestObject->GetPosition();
+			pos.y = 0.1f;
+			m_pHealRange->SetPosition(pos);
+			m_pHealRange->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		}
 	}
 
 	for (int i = 0; i < m_ppParticleObjects.size(); i++) {
@@ -356,8 +366,6 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		//m_pTextureToViewportComponent->Render(pd3dCommandList, m_pCamera, 0, pd3dGraphicsRootSignature);
 	}
 
-	
-
 	if (GameEnd)
 	{
 		m_pVictoryUIObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -369,7 +377,6 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		//m_pStage1TerrainObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 	//m_pTalkUIObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	
 	
 	//AstarRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
@@ -573,6 +580,8 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 	}
 	GameObject** tempObject = new GameObject * [objCount];	// 멤버 변수로 교체 예정
 	float scale = 10.0f;
+	if (type == 1)
+		scale = 1.0f;
 	for (int i = 0; i < objCount; ++i)
 	{
 		tempObject[i] = new GameObject(UNDEF_ENTITY);
@@ -613,15 +622,11 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 			tempBoundingBox->SetPosition(centerPos);
 			m_pObstacleBoundingBox.emplace_back(tempBoundingBox);
 		}
-		
 		m_ppGameObjects.emplace_back(tempObject[i]);
-	
-		
-
 	}
 
 	//if (tempObject) delete[] tempObject;
-	//if (tempModel) delete tempModel;
+	if (tempModel) delete tempModel;
 }
 
 void GameobjectManager::EffectRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float ftimeElapsed)
@@ -646,6 +651,9 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	BuildLight();
 	CLoadedModelInfoCompnent* ArrowModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Arrow.bin", NULL, true);
+
+	//BuildStage1(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	BuildBossStageObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 	m_pPlaneObject = new GameObject(UNDEF_ENTITY);
 	m_pPlaneObject->InsertComponent<RenderComponent>();
@@ -711,12 +719,12 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pTankerObject->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pTankerObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pTankerObject->SetModel("Model/Tanker.bin");
-	m_pTankerObject->SetAnimationSets(6);
+	m_pTankerObject->SetAnimationSets(8);
 	m_pTankerObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pTankerObject->m_pSkinnedAnimationController->SetTrackAnimationSet(6);
-	m_pTankerObject->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_SKILL]->m_nType = ANIMATION_TYPE_HALF;
+	m_pTankerObject->m_pSkinnedAnimationController->SetTrackAnimationSet(8);
+	m_pTankerObject->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_FIRSTSKILL]->m_nType = ANIMATION_TYPE_HALF;
 	m_pTankerObject->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_DIE]->m_nType = ANIMATION_TYPE_ONCE;
-	m_pTankerObject->m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_SKILL].m_fSpeed = 0.3f;
+	m_pTankerObject->m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_FIRSTSKILL].m_fSpeed = 0.3f;
 	m_pTankerObject->SetScale(30.0f);
 	m_pTankerObject->SetBoundingBox(m_pBoundingBox[2]);
 	m_ppGameObjects.emplace_back(m_pTankerObject);
@@ -733,6 +741,16 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPriestObject->SetScale(30.0f);
 	m_pPriestObject->SetBoundingBox(m_pBoundingBox[3]);
 	m_ppGameObjects.emplace_back(m_pPriestObject);
+
+	m_pHealRange = new GameObject(SQUARE_ENTITY);
+	m_pHealRange->InsertComponent<RenderComponent>();
+	m_pHealRange->InsertComponent<SquareMeshComponent>();
+	m_pHealRange->InsertComponent<SquareShaderComponent>();
+	m_pHealRange->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pHealRange->SetPosition(XMFLOAT3(0, 0.0f, 0));
+	m_pHealRange->SetScale(1.0f);
+	m_pHealRange->m_bActive = false;
+	static_cast<Priest*>(m_pPriestObject)->m_pHealRange = m_pHealRange;
 
 	for (int i = 0; i < 10; ++i)
 	{
@@ -814,16 +832,14 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	// 플레이어가 캐릭터 선택하는 부분에 유사하게 넣을 예정
 	// m_pWarriorObject m_pArcherObject m_pTankerObject m_pPriestObject
 	m_pPlayerObject = new GameObject(UNDEF_ENTITY);
-	memcpy(m_pPlayerObject, m_pArcherObject, sizeof(Archer));
-	m_pArcherObject->SetCamera(m_pCamera);
-	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject = m_pArcherObject;
+	memcpy(m_pPlayerObject, m_pPriestObject, sizeof(Priest));
+	m_pPriestObject->SetCamera(m_pCamera);
+	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject = m_pPriestObject;
 	g_Logic.m_inGamePlayerSession[0].m_isVisible = true;
 	g_Logic.m_inGamePlayerSession[0].m_id = 0;
 #endif // LOCAL_TASK
 
 	BuildNPC(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	BuildStage1(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	BuildBossStageObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildShadow(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//무조건 마지막에 해줘야된다.
 // 서순을 잘챙기자 ㅋㅋ	
 	//m_pTextureToViewportComponent = new TextureToViewportComponent();
@@ -1518,7 +1534,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		g_Logic.m_MonsterSession.m_currentPlayGameObject->SetCurrentHP(0.0f);
 		GameEnd = true;
 	}
-	if (nMessageID == WM_KEYDOWN && wParam == VK_F12)
+	if (nMessageID == WM_KEYDOWN && wParam == VK_F3)
 	{
 		m_bDebugMode = !m_bDebugMode;
 	}

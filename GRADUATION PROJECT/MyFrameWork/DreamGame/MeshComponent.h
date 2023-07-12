@@ -167,13 +167,28 @@ public:
 
 };
 
+class CylinderMeshComponent : public MeshComponent
+{
+public:
+	CylinderMeshComponent();
+	~CylinderMeshComponent();
+	void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float radius, float height, UINT numSegments);
+};
+
+class SquareMeshComponent : public MeshComponent
+{
+public:
+	SquareMeshComponent() {};
+	~SquareMeshComponent() {};
+	void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float length);
+};
+
 class SphereMeshComponent :public MeshComponent
 {
 public:
 	SphereMeshComponent();
 	~SphereMeshComponent();
 	void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fRadius, UINT nSlices, UINT nStacks);
-
 };
 
 class SkyBoxMeshComponent : public MeshComponent

@@ -92,6 +92,9 @@ private: //active object
 	GameObject* m_pPlayerObject{ NULL };
 	GameObject* m_pEnergyBallObject{ NULL };
 
+	GameObject* m_pHealRange{ NULL };
+	GameObject* m_pBarrierObject{ NULL };
+
 
 
 	DepthRenderShaderComponent* m_pDepthShaderComponent{ NULL };

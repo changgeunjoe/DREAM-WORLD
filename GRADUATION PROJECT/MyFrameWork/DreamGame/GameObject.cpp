@@ -341,6 +341,20 @@ void GameObject::BuildMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 		m_pHeihtMapMeshComponent->BuildObject(pd3dDevice, pd3dCommandList,0,0, 257, 257, xmf3Scale, xmf4Color, m_pHeightMapImage);
 		m_pMeshComponent = m_pHeihtMapMeshComponent;
 	}
+	ComponentBase* pCylinderMeshComponent = GetComponent(component_id::CYLINDER_COMPONENT);
+	if (pCylinderMeshComponent != NULL)
+	{
+		m_pCylinderMeshComponent = static_cast<CylinderMeshComponent*>(pCylinderMeshComponent);
+		m_pCylinderMeshComponent->BuildObject(pd3dDevice, pd3dCommandList, 100.0f, 15.0f, 10000);
+		m_pMeshComponent = m_pCylinderMeshComponent;
+	}
+	ComponentBase* pSquareMeshComponent = GetComponent(component_id::SQUAREMESH_COMPONENT);
+	if (pSquareMeshComponent != NULL)
+	{
+		m_pSquareMeshComponent = static_cast<SquareMeshComponent*>(pSquareMeshComponent);
+		m_pSquareMeshComponent->BuildObject(pd3dDevice, pd3dCommandList, 150.0f);
+		m_pMeshComponent = m_pSquareMeshComponent;
+	}
 }
 
 void GameObject::BuildShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -357,9 +371,11 @@ void GameObject::BuildShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	ComponentBase* pTerrainShaderComponent = GetComponent(component_id::TERRAINSHADER_COMPONENT);
 	ComponentBase* pEffectShaderComponent = GetComponent(component_id::EFFECTSHADER_COMPONENT);
 	ComponentBase* pBlendShaderComponent = GetComponent(component_id::BLENDSHADER_COMPONENT);
+	ComponentBase* pCylinderShaderComponent = GetComponent(component_id::CYLINDERSHADER_COMPONENT);
+	ComponentBase* pSquareShaderComponent = GetComponent(component_id::SQUARESHADER_COMPONENT);
 	if (pShaderComponent != NULL || pSkyShaderComponent != NULL || pUiShaderComponent != NULL || pSpriteShaderComponent != NULL 
 		|| pBoundingBoxShaderComponent != NULL || pBlendingUiShaderComponent != NULL|| pTrailShaderComponent!=NULL
-		|| pTerrainShaderComponent!=NULL|| pEffectShaderComponent|| pBlendShaderComponent)
+		|| pTerrainShaderComponent!=NULL|| pEffectShaderComponent|| pBlendShaderComponent || pCylinderShaderComponent || pSquareShaderComponent)
 	{
 		if (pShaderComponent != NULL)
 		{
@@ -391,6 +407,12 @@ void GameObject::BuildShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		}
 		else if (pBlendShaderComponent != NULL) {
 			m_pShaderComponent = static_cast<BlendShaderComponent*>(pBlendShaderComponent);
+		}
+		else if (pCylinderShaderComponent != NULL) {
+			m_pShaderComponent = static_cast<CylinderShaderComponent*>(pCylinderShaderComponent);
+		}
+		else if (pSquareShaderComponent != NULL) {
+			m_pShaderComponent = static_cast<SquareShaderComponent*>(pSquareShaderComponent);
 		}
 		else if (pNaviMeshShaderComponent != NULL)
 		{
