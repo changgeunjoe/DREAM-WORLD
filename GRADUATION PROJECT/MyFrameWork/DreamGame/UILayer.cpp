@@ -392,3 +392,47 @@ void CNPCTextBlock::Update(const float& fTimeElapsed,bool& bInteraction,bool& bs
 
 	}
 }
+
+CLobbyTextBlock::CLobbyTextBlock(IDWriteTextFormat* pdwFormat, D2D1_RECT_F& d2dLayoutRect, queue<wstring>& queueStr,XMFLOAT2 mf2LayoutRect)
+{
+	m_pdwFormat = pdwFormat;
+	m_d2dLayoutRect = d2dLayoutRect;
+	m_qTotalText = queueStr;
+	//m_strTotalText = strText;
+	m_d2dLayoutRect.left = FRAME_BUFFER_WIDTH * mf2LayoutRect.x;
+	m_d2dLayoutRect.top = FRAME_BUFFER_HEIGHT * mf2LayoutRect.y;
+
+}
+
+CLobbyTextBlock::~CLobbyTextBlock()
+{
+}
+
+void CLobbyTextBlock::Update(const float& fTimeElapsed, bool& bInteraction, bool& bscreen)
+{
+	//m_fTime += fTimeElapsed;
+	//if (m_qTotalText.empty()) {
+	//	bscreen = false;
+	//	bInteraction = false;
+	//}
+	//if (m_fTime > CHARACTHER_DELAY && !m_qTotalText.empty())
+	//{
+	//	wstring curTotalStr = m_qTotalText.front();
+	//	//m_strText.assign(m_strTotalText, 0, ++m_iIndex);
+	//	if (!m_bInitSentences) {
+	//		m_strText.append(curTotalStr, m_iIndex++, 1);
+	//	}
+	//	if (m_iIndex > curTotalStr.size()) //한 문장 끝나면
+	//	{
+	//		bInteraction = false;
+	//		//m_strText.erase();
+	//		//m_strText.clear(); // 
+	//		//m_isDead = true;
+	//		//m_qTotalText.pop();
+
+	//		m_iIndex = 0;
+	//		m_bInitSentences = true;
+	//		//m_isSentenceEnd = true;
+	//	}
+	//
+}

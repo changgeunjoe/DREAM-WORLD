@@ -121,3 +121,19 @@ public:
 
 
 };
+class CLobbyTextBlock : public CTextBlock
+{
+public:
+    CLobbyTextBlock(IDWriteTextFormat* pdwFormat, D2D1_RECT_F& d2dLayoutRect, queue<wstring>& queueStr, XMFLOAT2 mf2LayoutRect);
+    virtual ~CLobbyTextBlock();
+
+public:
+    virtual void Update(const float& fTimeElapsed, bool& bInteraction, bool& bscreen) override;
+
+public:
+    queue<wstring>      m_qTotalText;
+    float               m_fTime = 0.f;
+    int                 m_iIndex = 0;
+
+
+};
