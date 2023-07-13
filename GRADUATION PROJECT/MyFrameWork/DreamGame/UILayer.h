@@ -61,7 +61,7 @@ private:
     IDWriteFontCollection1* m_pdwFontCollection1 = NULL;
     std::vector<ID3D11Resource*>    m_vWrappedRenderTargets;
     std::vector<ID2D1Bitmap1*>      m_vd2dRenderTargets;
-    vector<list<CTextBlock*>>         m_vecTextBlocks;
+    vector<list<CTextBlock*>>       m_vecTextBlocks;
     std::list<CDamageTextBlock*>    m_listDamageFont;
 
 };

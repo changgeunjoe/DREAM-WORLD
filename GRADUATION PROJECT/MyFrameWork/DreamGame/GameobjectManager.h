@@ -117,6 +117,7 @@ private: //active object
 	GameObject* m_pUIGameSearchObject{ NULL };
 	GameObject* m_pUIGameChoiceObject{ NULL };
 	GameObject* m_pUIGameMathchingObject{ NULL };
+	GameObject* m_pUICharacterPickObjects[4]{ NULL };
 	GameObject* m_pUIWarriorCharacterObject{ NULL };
 	GameObject* m_pUIArcherCharacterObject{ NULL };
 	GameObject* m_pUITankerCharacterObject{ NULL };

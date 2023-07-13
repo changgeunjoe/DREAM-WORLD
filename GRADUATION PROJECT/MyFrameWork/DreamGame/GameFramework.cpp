@@ -916,19 +916,19 @@ void CGameFramework::FrameAdvance()
 	//렌더 타겟 뷰(서술자)와 깊이-스텐실 뷰(서술자)를 출력-병합 단계(OM)에 연결한다. //렌더링 코드는 여기에 추가될 것이다.
 	//m_pScene->OnPreRender(m_pd3dDevice, m_pd3dCommandList, m_pCamera);
 	//Render2DFont();
-	if (m_bLobbyScene)
+	
+	 if (!m_bLobbyScene)
 	{
-		if (m_pLobbyScene) m_pLobbyScene->UIRender(m_pd3dDevice, m_pd3dCommandList, m_pUICamera);
-	}
-	else if (!m_bLobbyScene)
-	{
-		/*if (m_bSceneBuild) {
-			m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList, m_pCamera);
-			m_bSceneBuild = false;
-		}*/
 		if (m_pScene) m_pScene->Render(m_pd3dDevice, m_pd3dCommandList, m_pCamera);
-		if (m_pScene) m_pScene->UIRender(m_pd3dDevice, m_pd3dCommandList, m_pUICamera, m_GameTimer.GetTimeElapsed());
 	}
+	 if (!m_bLobbyScene)
+	 {
+		 if (m_pLobbyScene) m_pLobbyScene->UIRender(m_pd3dDevice, m_pd3dCommandList, m_pUICamera);
+	 }
+	 if (m_bLobbyScene)
+	 {
+		 if (m_pScene) m_pScene->UIRender(m_pd3dDevice, m_pd3dCommandList, m_pUICamera, m_GameTimer.GetTimeElapsed());
+	 }
 
 
 #ifndef _WITH_DIRECT2D

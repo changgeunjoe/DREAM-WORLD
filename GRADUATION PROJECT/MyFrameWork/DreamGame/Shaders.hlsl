@@ -298,10 +298,10 @@ float4 PSUITextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
        // Sample the texture 
     float4 cColor = shaderTexture.Sample(gWrapSamplerState, input.uv);
     //  float4 outlineColor = float4(1, 0, 0, 
-    //if (input.uv.x > gfCharactertHP)
-    //{
-    //    cColor = float4(0, 0, 0, 1);
-    //}
+    if (input.uv.x > gfCharactertHP)
+    {
+        cColor = float4(0, 0, 0, 1);
+    }
     //if (cColor.x == 0 || cColor.y == 0 || cColor.z == 0)
     //{
     //    cColor.w = 0;
@@ -309,11 +309,11 @@ float4 PSUITextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
     if (gmtxGameObjectColor.w > 0.5)
         cColor.w= gmtxGameObjectColor.w;
   //  cColor.w = 0.5;
-    //if (!bUIActive)
-    //{
-    //    float4 f = float4(0.5, 0.5, 0.5, 1);
-    //    return lerp(f, cColor, 0.4);
-    //}
+    if (!bUIActive)
+    {
+        float4 f = float4(0.5, 0.5, 0.5, 1);
+        return lerp(f, cColor, 0.4);
+    }
     
     //else
     cColor.xyz += gmtxGameObjectColor.xyz;

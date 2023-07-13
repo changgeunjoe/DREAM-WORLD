@@ -58,7 +58,7 @@ void LobbyCScene::UIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 	pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
 	if (pCamera) pCamera->UpdateShaderVariables(pd3dCommandList);
 	//씬을 렌더링하는 것은 씬을 구성하는 게임 객체(셰이더를 포함하는 객체)들을 렌더링하는 것이다. 
-
+	//m_pObjectManager->Render(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 	m_pObjectManager->UIRender(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 }
 

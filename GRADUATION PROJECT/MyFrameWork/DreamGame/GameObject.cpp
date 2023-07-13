@@ -1212,6 +1212,10 @@ void GameObject::MoveVelocity(XMFLOAT3 direction, float ftimeelapsed,float fDist
 
 		m_fTime += ftimeelapsed;
 	}
+
+	if (m_fTime == 10) {
+		GameObject::SetPosition(XMFLOAT3(0,0,0));
+	}
 }
 
 void GameObject::MoveDiagonal(int fowardDirection, int rightDirection, float distance)
