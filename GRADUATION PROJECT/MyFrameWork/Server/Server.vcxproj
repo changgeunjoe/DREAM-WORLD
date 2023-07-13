@@ -153,9 +153,9 @@
     </ClCompile>
     <ClCompile Include="Room\Room.cpp" />
     <ClCompile Include="Room\RoomManager.cpp" />
-    <ClCompile Include="Session\Session.cpp" />
+    <ClCompile Include="Session\UserSession.cpp" />
     <ClCompile Include="Session\SessionObject\MonsterSessionObject.cpp" />
-    <ClCompile Include="Session\SessionObject\PlayerSessionObject.cpp" />
+    <ClCompile Include="Session\SessionObject\ChracterSessionObject.cpp" />
     <ClCompile Include="Session\SessionObject\SessionObject.cpp" />
     <ClCompile Include="Session\SessionObject\ShootingSessionObject.cpp" />
     <ClCompile Include="Timer\Timer.cpp" />
@@ -171,9 +171,9 @@
     <ClInclude Include="Room\Room.h" />
     <ClInclude Include="Room\RoomManager.h" />
     <ClInclude Include="Session\ExpOver.h" />
-    <ClInclude Include="Session\Session.h" />
+    <ClInclude Include="Session\UserSession.h" />
     <ClInclude Include="Session\SessionObject\MonsterSessionObject.h" />
-    <ClInclude Include="Session\SessionObject\PlayerSessionObject.h" />
+    <ClInclude Include="Session\SessionObject\ChracterSessionObject.h" />
     <ClInclude Include="Session\SessionObject\SessionObject.h" />
     <ClInclude Include="Session\SessionObject\ShootingSessionObject.h" />
     <ClInclude Include="Timer\Timer.h" />

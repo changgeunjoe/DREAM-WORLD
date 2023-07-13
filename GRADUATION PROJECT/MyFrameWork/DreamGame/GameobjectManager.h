@@ -184,5 +184,6 @@ public:
 	void SetStoryTime() { m_fStroyTime = 0; };
 	void ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, const char* fileName, char* modelName, int type);
 	vector<GameObject*>& GetObstacle() { return m_ppObstacleObjects; }
+	GameObject* GetChracterInfo(ROLE r);
 };
 

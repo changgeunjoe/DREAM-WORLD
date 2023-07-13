@@ -2,7 +2,7 @@
 #include <mutex>
 #include "DBObject.h"
 #include "../IOCPNetwork/IOCP/IOCPNetwork.h"
-#include "../Session/SessionObject/PlayerSessionObject.h"
+#include "../Session/SessionObject/ChracterSessionObject.h"
 #include "../Logic/Logic.h"
 #include "../IOCPNetwork/protocol/protocol.h"
 
@@ -63,7 +63,7 @@ void DBObject::RunDBThread()
 					//for (auto& session : g_iocpNetwork.m_session) {
 					//	if (currentEvent.userId == session.GetId() || session.GetId() == -1)
 					//		continue;
-					//	PlayerSessionObject* otherSession = dynamic_cast<PlayerSessionObject*>(session.m_sessionObject);
+					//	ChracterSessionObject* otherSession = dynamic_cast<ChracterSessionObject*>(session.m_sessionObject);
 					//	char* otherPlayerDataPacket = otherSession->GetPlayerInfo();
 					//	//SERVER_PACKET::AddPlayerPacket* otherPlayerDataPacket = reinterpret_cast<SERVER_PACKET::AddPlayerPacket*>(otherSession->GetPlayerInfo());
 					//	//char* otherPlayerDataPacket = otherSession->GetPlayerInfo();

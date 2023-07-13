@@ -32,6 +32,7 @@ public:
 	~Logic();
 public:
 	void ProcessPacket(char* p);
+	XMFLOAT3 GetPostion(ROLE r);
 	friend class CGameFramework;
 private:
 	chrono::high_resolution_clock::time_point attckPacketRecvTime;

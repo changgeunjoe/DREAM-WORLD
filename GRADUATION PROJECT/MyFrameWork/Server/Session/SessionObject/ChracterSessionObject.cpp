@@ -1,6 +1,6 @@
 #include "stdafx.h"
-#include "PlayerSessionObject.h"
-#include "../Session.h"
+#include "ChracterSessionObject.h"
+#include "../UserSession.h"
 #include "../../Logic/Logic.h"
 #include "../../IOCPNetwork/protocol/protocol.h"
 #include "../../MapData/MapData.h"
@@ -9,24 +9,21 @@
 extern Logic g_logic;
 extern MapData g_bossMapData;
 
-PlayerSessionObject::PlayerSessionObject(int id, ROLE r) : SessionObject()
+ChracterSessionObject::ChracterSessionObject(ROLE r) : SessionObject()
 {
-	m_id = id;
-	/*m_level = 0;
-	m_exp = 0;*/
 	m_hp = 0;
 	m_maxHp = 0;
 	m_attackDamage = 0;
-	m_InGameRole = r;
+	m_speed = 50.0f;
 	SetRole(r);
 }
 
-PlayerSessionObject::~PlayerSessionObject()
+ChracterSessionObject::~ChracterSessionObject()
 {
 }
 
 
-bool PlayerSessionObject::AdjustPlayerInfo(DirectX::XMFLOAT3& position) // , DirectX::XMFLOAT3& rotate
+bool ChracterSessionObject::AdjustPlayerInfo(DirectX::XMFLOAT3& position) // , DirectX::XMFLOAT3& rotate
 {
 	//m_rotateAngle = rotate;
 	if (Vector3::Length(Vector3::Subtract(m_position, position)) < 0.3f) { // ���� �� �̸��̶�� ���� ����, �̻��̶�� ���ǵ� ��?���� �����ϰ� ��ġ ���� ��ġ�� ��ȯ
@@ -37,19 +34,7 @@ bool PlayerSessionObject::AdjustPlayerInfo(DirectX::XMFLOAT3& position) // , Dir
 	return false;
 }
 
-void PlayerSessionObject::AutoMove()
-{
-	CalcRightVector();
-	auto currentTime = std::chrono::high_resolution_clock::now();
-	double durationTime = std::chrono::duration_cast<std::chrono::microseconds>(currentTime - m_lastMoveTime).count();
-	durationTime = (double)durationTime / 1000.0f;
-	Move(((float)durationTime / 1000.0f) * 50.0f);
-	m_lastMoveTime = currentTime;
-	// std::cout << "current Position " << m_position.x << " " << m_position.y << " " << m_position.z << std::endl;	
-	// std::cout << "rotate angle" << m_directionVector.x << " " << m_directionVector.y << " " << m_directionVector.z << std::endl;
-}
-
-void PlayerSessionObject::SetDirection(DIRECTION d)
+void ChracterSessionObject::SetDirection(DIRECTION d)
 {
 	DirectX::XMFLOAT3 xmf3Up = DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f);
 	DirectX::XMMATRIX xmmtxRotate = DirectX::XMMatrixRotationAxis(DirectX::XMLoadFloat3(&xmf3Up), DirectX::XMConvertToRadians(m_rotateAngle.y));
@@ -94,13 +79,13 @@ void PlayerSessionObject::SetDirection(DIRECTION d)
 	}
 }
 
-void PlayerSessionObject::SetMouseInput(bool LmouseInput, bool RmouseInput)
+void ChracterSessionObject::SetMouseInput(bool LmouseInput, bool RmouseInput)
 {
 	m_leftmouseInput = LmouseInput;
 	m_rightmouseInput = RmouseInput;
 }
 
-bool PlayerSessionObject::CheckMove(float& fDistance)
+bool ChracterSessionObject::CheckMove(float fDistance)
 {
 	auto& allCollisionVec = g_bossMapData.GetCollideData();
 	for (auto& collide : allCollisionVec)
@@ -136,7 +121,7 @@ bool PlayerSessionObject::CheckMove(float& fDistance)
 				XMFLOAT3 collideSlidingVector1 = std::get<1>(CollidePolygonNormalVector1);//슬라이딩 벡터
 				float normalVectorDotProductResult1 = std::get<2>(CollidePolygonNormalVector1);
 				float slidingVectorDotProductResult1 = std::get<3>(CollidePolygonNormalVector1);//슬라이딩 벡터와 무브 벡터 내적 값
-				
+
 				XMFLOAT3 collideNormalVector2 = std::get<0>(CollidePolygonNormalVector2);//노말 벡터
 				XMFLOAT3 collideSlidingVector2 = std::get<1>(CollidePolygonNormalVector2);//슬라이딩 벡터
 				float normalVectorDotProductResult2 = std::get<2>(CollidePolygonNormalVector2);
@@ -152,7 +137,7 @@ bool PlayerSessionObject::CheckMove(float& fDistance)
 				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideNormalVector2, normalVectorDotProductResult2 * fDistance));
 
 			}
-			std::cout << m_id << " Player Get Collision " << std::endl;
+			std::cout << " Player Get Collision " << std::endl;
 			m_SPBB.Center = m_position;
 			return false;
 		}
@@ -160,24 +145,9 @@ bool PlayerSessionObject::CheckMove(float& fDistance)
 	return true;
 }
 
-//bool PlayerSessionObject::CanGo(const XMFLOAT3& nextPos)//sp_bb로 확인 할 수 있게 하자
-//{
-//	XMVECTOR tempPoint = XMVectorSet(nextPos.x, nextPos.y, nextPos.z, 0.0f);
-//	
-//	//for (const auto& p : g_bossMapData.GetOBB())
-//	//{
-//	//	if (p.Contains(tempPoint))
-//	//	{
-//	//		std::cout << m_id << " Player Get Collision " << std::endl;
-//	//		return false;
-//	//	}
-//	//}
-//	return true;
-//}
-
-void PlayerSessionObject::StartMove(DIRECTION d)
+void ChracterSessionObject::StartMove(DIRECTION d)
 {
-	//std::cout << "PlayerSessionObject::StartMove()" << std::endl;
+	//std::cout << "ChracterSessionObject::StartMove()" << std::endl;
 	if (m_inputDirection == DIRECTION::IDLE)
 		m_lastMoveTime = std::chrono::high_resolution_clock::now();
 
@@ -185,61 +155,66 @@ void PlayerSessionObject::StartMove(DIRECTION d)
 	SetDirection(m_inputDirection);
 }
 
-void PlayerSessionObject::StopMove()
+void ChracterSessionObject::StopMove()
 {
 	//PrintCurrentTime();
-	//std::cout << "PlayerSessionObject::StopMove() - Look Dir: " << m_directionVector.x << ", " << m_directionVector.y << ", " << m_directionVector.z << std::endl;
-	//std::cout << "PlayerSessionObject::StopMove() - Pos: " << m_position.x << ", " << m_position.y << ", " << m_position.z << std::endl;
+	//std::cout << "ChracterSessionObject::StopMove() - Look Dir: " << m_directionVector.x << ", " << m_directionVector.y << ", " << m_directionVector.z << std::endl;
+	//std::cout << "ChracterSessionObject::StopMove() - Pos: " << m_position.x << ", " << m_position.y << ", " << m_position.z << std::endl;
 	// m_prevDirection = m_inputDirection;
 	m_inputDirection = DIRECTION::IDLE;
 }
 
-void PlayerSessionObject::ChangeDirection(DIRECTION d)
+void ChracterSessionObject::ChangeDirection(DIRECTION d)
 {
 	m_inputDirection = (DIRECTION)(m_inputDirection ^ d);
 	SetDirection(m_inputDirection);
 }
 
-void PlayerSessionObject::Move(float fDistance)
-{
-	DIRECTION tespDIR = m_inputDirection;
-	if (((tespDIR & DIRECTION::LEFT) == DIRECTION::LEFT) &&
-		((tespDIR & DIRECTION::RIGHT) == DIRECTION::RIGHT))
-	{
-		tespDIR = (DIRECTION)(tespDIR ^ DIRECTION::LEFT);
-		tespDIR = (DIRECTION)(tespDIR ^ DIRECTION::RIGHT);
-	}
-	if (((tespDIR & DIRECTION::FRONT) == DIRECTION::FRONT) &&
-		((tespDIR & DIRECTION::BACK) == DIRECTION::BACK))
-	{
-		tespDIR = (DIRECTION)(tespDIR ^ DIRECTION::FRONT);
-		tespDIR = (DIRECTION)(tespDIR ^ DIRECTION::BACK);
-	}
-
+void ChracterSessionObject::Move(float elapsedTime)
+{	
+	std::cout << "character::Move() - elapsedTime: " << elapsedTime << std::endl;
 	if (m_inputDirection != DIRECTION::IDLE)
 	{
-		switch (tespDIR)
-		{
-		case DIRECTION::FRONT:
-		case DIRECTION::FRONT | DIRECTION::RIGHT:
-		case DIRECTION::RIGHT:
-		case DIRECTION::BACK | DIRECTION::RIGHT:
-		case DIRECTION::BACK:
-		case DIRECTION::BACK | DIRECTION::LEFT:
-		case DIRECTION::LEFT:
-		case DIRECTION::FRONT | DIRECTION::LEFT:
-			if (CheckMove(fDistance)) {
-				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, fDistance));
-				m_SPBB.Center = m_position;
-			}
-			else
-				break;
-		default: break;
+		if (CheckMove(elapsedTime * m_speed)) {
+			m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, elapsedTime * m_speed));
+			m_SPBB.Center = m_position;
 		}
+		//DIRECTION tespDIR = m_inputDirection;
+		//if (((tespDIR & DIRECTION::LEFT) == DIRECTION::LEFT) &&
+		//	((tespDIR & DIRECTION::RIGHT) == DIRECTION::RIGHT))
+		//{
+		//	tespDIR = (DIRECTION)(tespDIR ^ DIRECTION::LEFT);
+		//	tespDIR = (DIRECTION)(tespDIR ^ DIRECTION::RIGHT);
+		//}
+		//if (((tespDIR & DIRECTION::FRONT) == DIRECTION::FRONT) &&
+		//	((tespDIR & DIRECTION::BACK) == DIRECTION::BACK))
+		//{
+		//	tespDIR = (DIRECTION)(tespDIR ^ DIRECTION::FRONT);
+		//	tespDIR = (DIRECTION)(tespDIR ^ DIRECTION::BACK);
+		//}
+		//switch (tespDIR)
+		//{
+		//case DIRECTION::FRONT:
+		//case DIRECTION::FRONT | DIRECTION::RIGHT:
+		//case DIRECTION::RIGHT:
+		//case DIRECTION::BACK | DIRECTION::RIGHT:
+		//case DIRECTION::BACK:
+		//case DIRECTION::BACK | DIRECTION::LEFT:
+		//case DIRECTION::LEFT:
+		//case DIRECTION::FRONT | DIRECTION::LEFT:
+		//{
+		//	if (CheckMove(elapsedTime * m_speed)) {
+		//		m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, elapsedTime * m_speed));
+		//		m_SPBB.Center = m_position;
+		//	}
+		//}
+		//break;
+		//default: break;
+		//}
 	}
 }
 
-void PlayerSessionObject::Rotate(ROTATE_AXIS axis, float angle)
+void ChracterSessionObject::Rotate(ROTATE_AXIS axis, float angle)
 {
 	//std::cout << "rotate axis: " << (int)axis << " angle: " << angle << std::endl;
 	DirectX::XMFLOAT3 upVec = DirectX::XMFLOAT3(0, 1, 0);
@@ -276,27 +251,43 @@ void PlayerSessionObject::Rotate(ROTATE_AXIS axis, float angle)
 	//std::cout << "current direction " << m_directionVector.x << " " << m_directionVector.y << " " << m_directionVector.z << std::endl;
 	//std::cout << "rotate angle" << m_rotateAngle.x << " " << m_rotateAngle.y << " " << m_rotateAngle.z << std::endl;
 }
-//
-//const DirectX::XMFLOAT3 PlayerSessionObject::GetPosition()
-//{
-//	return m_position;
-//}
-//
-//const DirectX::XMFLOAT3 PlayerSessionObject::GetRotation()
-//{
-//	return m_rotateAngle;
-//}
 
-char* PlayerSessionObject::GetPlayerInfo()
+void WarriorSessionObject::Skill_1()
 {
-	SERVER_PACKET::AddPlayerPacket* playerInfo = new SERVER_PACKET::AddPlayerPacket;
-	playerInfo->userId = m_id;
-	//memcpy(playerInfo->name, m_playerName.c_str(), m_playerName.size() * 2);
-	//playerInfo->name[m_playerName.size()] = 0;
-	playerInfo->position = m_position;
-	playerInfo->rotate = m_rotateAngle;
-	playerInfo->type = SERVER_PACKET::ADD_PLAYER;
-	playerInfo->role = m_InGameRole;
-	playerInfo->size = sizeof(SERVER_PACKET::AddPlayerPacket);
-	return reinterpret_cast<char*>(playerInfo);
+
+}
+
+void WarriorSessionObject::Skill_2()
+{
+
+}
+
+void MageSessionObject::Skill_1()
+{
+
+}
+
+void MageSessionObject::Skill_2()
+{
+
+}
+
+void TankerSessionObject::Skill_1()
+{
+
+}
+
+void TankerSessionObject::Skill_2()
+{
+
+}
+
+void ArcherSessionObject::Skill_1()
+{
+
+}
+
+void ArcherSessionObject::Skill_2()
+{
+
 }

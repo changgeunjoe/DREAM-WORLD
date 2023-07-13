@@ -656,6 +656,14 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 	if (tempModel) delete tempModel;
 }
 
+GameObject* GameobjectManager::GetChracterInfo(ROLE r)
+{
+	if (r == ROLE::WARRIOR) return m_pWarriorObject;
+	if (r == ROLE::PRIEST) return m_pPriestObject;
+	if (r == ROLE::TANKER) return m_pTankerObject;
+	if (r == ROLE::ARCHER) return m_pArcherObject;
+}
+
 void GameobjectManager::EffectRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float ftimeElapsed)
 {
 	if (m_pEffectObject) {

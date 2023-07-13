@@ -626,7 +626,8 @@ void Logic::ProcessPacket(char* p)
 		gGameFramework.m_pScene->m_pObjectManager->m_nodeLock.lock();
 		gGameFramework.m_pScene->m_pObjectManager->m_VecNodeQueue.clear();
 		gGameFramework.m_pScene->m_pObjectManager->m_nodeLock.unlock();
-		m_MonsterSession.m_currentPlayGameObject->m_intDesPlayer = recvPacket->desPlayerId;
+		//Role로 변경했음 이거 참고 바람
+		m_MonsterSession.m_currentPlayGameObject->m_roleDesPlayer = recvPacket->targetRole;
 		//std::cout << "recv aggro Id: " << recvPacket->desPlayerId << std::endl;
 		if (recvPacket->nodeCnt == -1) {
 			m_MonsterSession.m_currentPlayGameObject->m_lockBossRoute.lock();
@@ -687,4 +688,10 @@ void Logic::ProcessPacket(char* p)
 	}
 	break;
 	}
+}
+
+XMFLOAT3 Logic::GetPostion(ROLE r)
+{
+	return gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo(r)->GetPosition();
+	// TODO: 여기에 return 문을 삽입합니다.
 }

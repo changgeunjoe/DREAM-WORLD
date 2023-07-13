@@ -880,16 +880,9 @@ void Monster::Animate(float fTimeElapsed)
 	if (m_bMoveState)	// 움직이는 중
 	{
 		XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f);
-		XMFLOAT3 desPlayerPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
-		if (m_intDesPlayer != -1) {
-			auto findRes = find_if(g_Logic.m_inGamePlayerSession.begin(), g_Logic.m_inGamePlayerSession.end(), [this](auto& fObj) {
-				if (fObj.m_id == m_intDesPlayer)
-					return true;
-				return false;
-				});
-			if (findRes != g_Logic.m_inGamePlayerSession.end()) {
-				desPlayerPos = findRes->m_currentPlayGameObject->GetPosition();
-			}
+		//XMFLOAT3 desPlayerPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		if (m_roleDesPlayer != ROLE::NONE_SELECT) {
+			XMFLOAT3 desPlayerPos = g_Logic.GetPostion(m_roleDesPlayer);
 			XMFLOAT3 desPlayerVector = Vector3::Subtract(desPlayerPos, GetPosition());
 			float playerDistance = Vector3::Length(desPlayerVector);
 			desPlayerVector = Vector3::Normalize(desPlayerVector);

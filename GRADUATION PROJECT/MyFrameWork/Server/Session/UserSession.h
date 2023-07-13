@@ -2,8 +2,8 @@
 #include "../PCH/stdafx.h"
 #include "ExpOver.h"
 
-class PlayerSessionObject;
-class Session
+class ChracterSessionObject;
+class UserSession
 {
 private:
 	std::mutex			m_playerStateLock;
@@ -14,13 +14,13 @@ private:
 	SOCKET				m_socket;
 	int					m_prevBufferSize;
 	std::wstring		m_playerName;
-
-public:
-	PlayerSessionObject* m_sessionObject;
+	ROLE				m_role;
+private:
+	ChracterSessionObject* m_sessionObject;
 	int m_roomId;
 public:
-	Session();
-	~Session();
+	UserSession();
+	~UserSession();
 
 private:
 	void Initialize();
@@ -52,9 +52,24 @@ public:
 	}
 	std::wstring& GetName() { return m_playerName; }
 public:
-	PlayerSessionObject* SetPlaySessionObject(ROLE r);
+	ChracterSessionObject* SetPlaySessionObject(ChracterSessionObject* pSession);
+	void PlayCharacterMove();
+	std::tuple<int, int, DirectX::XMFLOAT3, DirectX::XMFLOAT3> GetPlayCharacterState();
+public:
 	void ResetPlayerToLobbyState();
 public:
+	void SetRole(ROLE r) { m_role = r; }
+	ROLE GetRole() { return m_role; }
+public:
 	void ResetSession();
+	/*void ChangeDirectionPlayCharacter(DIRECTION d);
+	void StopMovePlayCharacter();
+	DirectX::XMFLOAT3 GetPositionPlayCharacter();
+	bool AdjustPlayCharacterInfo(DirectX::XMFLOAT3& postion);
+	void RotatePlayCharacter(ROTATE_AXIS axis, float& angle);
+	void StartMovePlayCharacter(DIRECTION d);
+	void SetMouseInputPlayCharacter(bool left, bool right);
+	bool GetLeftAttackPlayCharacter();
+	short GetAttackDamagePlayCharacter();*/
 	friend class SessionObject;
 };

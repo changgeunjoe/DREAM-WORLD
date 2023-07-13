@@ -1,12 +1,12 @@
 #pragma once
-#include "../../Session/Session.h"
+#include "../../Session/UserSession.h"
 #include "../../PCH/stdafx.h" //Áö¿ö¾ßµÊ
 
 #define PORT 9000
 
 static std::random_device rd;
 static std::default_random_engine dre(rd());
-static std::uniform_int_distribution<> aggroRandomPlayer(0, 4);
+static std::uniform_int_distribution<> aggroRandomPlayer(0, 3);//inclusive
 static std::uniform_int_distribution<> bossRandAttack(0, (int)BOSS_ATTACK::ATTACK_COUNT - 1);
 
 class IOCPNetwork
@@ -27,7 +27,7 @@ private:
 	int		m_currentClientId;
 	concurrency::concurrent_queue<int> m_restClientId;
 public:
-	std::array<Session, MAX_USER> m_session;
+	std::array<UserSession, MAX_USER> m_session;
 public:
 
 	IOCPNetwork();

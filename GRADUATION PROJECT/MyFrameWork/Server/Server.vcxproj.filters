@@ -52,13 +52,13 @@
     <ClCompile Include="Logic\Logic.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="Session\Session.cpp">
+    <ClCompile Include="Session\UserSession.cpp">
       <Filter>Session</Filter>
     </ClCompile>
     <ClCompile Include="Session\SessionObject\SessionObject.cpp">
       <Filter>Session\SessionObject</Filter>
     </ClCompile>
-    <ClCompile Include="Session\SessionObject\PlayerSessionObject.cpp">
+    <ClCompile Include="Session\SessionObject\ChracterSessionObject.cpp">
       <Filter>Session\SessionObject</Filter>
     </ClCompile>
     <ClCompile Include="DB\DBObject.cpp">
@@ -102,13 +102,13 @@
     <ClInclude Include="Logic\Logic.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="Session\Session.h">
+    <ClInclude Include="Session\UserSession.h">
       <Filter>Session</Filter>
     </ClInclude>
     <ClInclude Include="Session\SessionObject\SessionObject.h">
       <Filter>Session\SessionObject</Filter>
     </ClInclude>
-    <ClInclude Include="Session\SessionObject\PlayerSessionObject.h">
+    <ClInclude Include="Session\SessionObject\ChracterSessionObject.h">
       <Filter>Session\SessionObject</Filter>
     </ClInclude>
     <ClInclude Include="DB\DBObject.h">

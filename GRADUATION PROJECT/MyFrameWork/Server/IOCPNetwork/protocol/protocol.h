@@ -276,7 +276,7 @@ namespace SERVER_PACKET {
 		char type;
 		DirectX::XMFLOAT3 bossPos;
 		//DirectX::XMFLOAT3 desPos;
-		int desPlayerId;
+		ROLE targetRole;
 		int nodeCnt;
 		int node[40];
 	};

@@ -33,18 +33,12 @@
 #include <concurrent_unordered_set.h>
 #include <atomic>
 
+#include<filesystem>
 #include <iostream>
 #include <math.h>
 #include <random>
 #include <DirectXMath.h>
 #include <DirectXCollision.h>
-
-extern "C"
-{
-#include "../lua/include/lua.h"
-#include "../lua/include/lauxlib.h"
-#include "../lua/include/lualib.h"
-}
 
 enum PLAYER_STATE
 {

@@ -6,8 +6,6 @@
 #include "Room/RoomManager.h"
 #include "MapData/MapData.h"
 
-#include<filesystem>
-
 IOCPNetwork g_iocpNetwork;
 MapData		g_bossMapData{ std::filesystem::current_path().string().append("\\\MapData\\\BossRoom.txt"),std::filesystem::current_path().string().append("\\\MapData\\\CollisionData.txt") };
 DBObject	g_DBObj;
@@ -17,8 +15,6 @@ Logic		g_logic;
 
 int main()
 {	
-	//g_bossMapData.SetFileName(std::filesystem::current_path().string().append("\\\MapData\\\BossRoom.txt"));
-	//g_bossMapData.GetReadMapData();
 	std::wcout.imbue(std::locale("KOREAN"));
 	g_iocpNetwork.Start();
 	g_iocpNetwork.Destroy();

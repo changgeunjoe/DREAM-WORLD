@@ -3,7 +3,7 @@
 #include "../Timer/Timer.h"
 #include "../Logic/Logic.h"
 #include "../IOCPNetwork/IOCP/IOCPNetwork.h"
-#include "../Session/SessionObject/PlayerSessionObject.h"
+#include "../Session/SessionObject/ChracterSessionObject.h"
 #include "../IOCPNetwork/protocol/protocol.h"
 
 extern Timer g_Timer;
@@ -13,6 +13,10 @@ extern IOCPNetwork g_iocpNetwork;
 Room::Room()
 {
 	m_isAlive = false;
+	m_characterMap.try_emplace(ROLE::WARRIOR, new WarriorSessionObject(ROLE::WARRIOR));
+	m_characterMap.try_emplace(ROLE::TANKER, new TankerSessionObject(ROLE::TANKER));
+	m_characterMap.try_emplace(ROLE::ARCHER, new ArcherSessionObject(ROLE::ARCHER));
+	m_characterMap.try_emplace(ROLE::PRIEST, new MageSessionObject(ROLE::PRIEST));
 }
 
 Room::Room(const Room& rhs)
@@ -20,11 +24,14 @@ Room::Room(const Room& rhs)
 	m_inGamePlayers = rhs.m_inGamePlayers;
 	m_roomName = rhs.m_roomName;
 	m_roomOwnerId = rhs.m_roomOwnerId;
+	m_characterMap = rhs.m_characterMap;
 }
 
 Room::~Room()
 {
-
+	for (auto& character : m_characterMap) {
+		delete character.second;
+	}
 }
 
 Room& Room::operator=(Room& rhs)
@@ -34,11 +41,34 @@ Room& Room::operator=(Room& rhs)
 	m_roomOwnerId = rhs.m_roomOwnerId;
 	return *this;
 }
-
+void Room::SendAllPlayerInfo()
+{
+	std::map<ROLE, int> players;
+	{
+		std::lock_guard<std::mutex> lg{ m_lockInGamePlayers };
+		players = m_inGamePlayers;
+	}
+	for (auto& p : players) {
+		SERVER_PACKET::AddPlayerPacket playerInfo;
+		playerInfo.userId = p.second;
+		//memcpy(playerInfo->name, m_playerName.c_str(), m_playerName.size() * 2);
+		//playerInfo->name[m_playerName.size()] = 0;
+		playerInfo.position = m_characterMap[p.first]->GetPos();
+		playerInfo.rotate = m_characterMap[p.first]->GetRot();
+		playerInfo.type = SERVER_PACKET::ADD_PLAYER;
+		playerInfo.role = p.first;
+		playerInfo.size = sizeof(SERVER_PACKET::AddPlayerPacket);
+		for(auto& sendPlayer : players)
+			g_iocpNetwork.m_session[sendPlayer.second].Send(&playerInfo);
+	}
+}
 void Room::InsertInGamePlayer(std::map<ROLE, int>& matchPlayer)
 {
 	m_roomOwnerId = matchPlayer.begin()->second;
+	std::lock_guard<std::mutex> lg{ m_lockInGamePlayers };
 	m_inGamePlayers = matchPlayer;
+	for (auto& i : matchPlayer)
+		g_iocpNetwork.m_session[i.second].SetPlaySessionObject(m_characterMap[i.first]);
 }
 
 void Room::InsertInGamePlayer(ROLE r, int playerId)
@@ -50,14 +80,17 @@ void Room::InsertInGamePlayer(ROLE r, int playerId)
 
 void Room::DeleteInGamePlayer(int playerId)
 {
-	std::lock_guard<std::mutex> lg{ m_lockInGamePlayers };
-	m_inGamePlayers.erase(
-		std::find_if(m_inGamePlayers.begin(), m_inGamePlayers.end(), [&playerId](std::pair<ROLE, int> p)
-			{ // playerId가 같은 것을 찾아 제거
-				return p.second == playerId;
-			}
-		)
+	auto findPlayerIter = std::find_if(m_inGamePlayers.begin(), m_inGamePlayers.end(), [&playerId](std::pair<ROLE, int> p)
+		{ // playerId가 같은 것을 찾아 제거
+			return p.second == playerId;
+		}
 	);
+	//{//diconnected Player 저장
+	//	std::lock_guard<std::mutex> lg{ m_lockdisconnectedPlayer };
+	//	m_disconnectedPlayers.insert(std::make_pair(g_iocpNetwork.m_session[playerId].GetName(), g_iocpNetwork.m_session[playerId].GetRole() ));
+	//}
+	std::lock_guard<std::mutex> lg{ m_lockInGamePlayers };
+	m_inGamePlayers.erase(findPlayerIter);//disconnected된 플레이어 처리
 }
 
 std::map<ROLE, int> Room::GetPlayerMap()
@@ -68,16 +101,15 @@ std::map<ROLE, int> Room::GetPlayerMap()
 
 void Room::InsertDisconnectedPlayer(int id)
 {
-	std::map<ROLE, int>::iterator findPlayer;
+	auto findPlayer = std::find_if(m_inGamePlayers.begin(), m_inGamePlayers.end(), [&id](std::pair<ROLE, int> p)
+		{
+			return p.second == id;
+		}
+	);
 	{// playerId find
 		std::lock_guard<std::mutex> lg{ m_lockInGamePlayers };
-		findPlayer = std::find_if(m_inGamePlayers.begin(), m_inGamePlayers.end(), [&id](std::pair<ROLE, int> p)
-			{
-				return p.second == id;
-			}
-		);
+		if (findPlayer == m_inGamePlayers.end()) return;
 	}
-	if (findPlayer == m_inGamePlayers.end()) return;
 	{//desconneced Player insert
 		std::lock_guard<std::mutex> lg{ m_lockdisconnectedPlayer };
 		m_disconnectedPlayers.try_emplace(g_iocpNetwork.m_session[id].GetName(), findPlayer->first);
@@ -161,6 +193,13 @@ bool Room::MeleeAttack(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 pos)
 void Room::GameStart()
 {
 	m_isAlive = true;
+
+	for (auto& p : m_inGamePlayers) {//플레이어 무브
+		//DataRace -> 팅긴 플레이어 처리
+
+	}
+
+
 	//PrintCurrentTime();
 
 	//std::cout << "PlayerNum: " << m_inGamePlayers.size() << std::endl;
@@ -183,12 +222,8 @@ void Room::GameRunningLogic()
 {
 	if (m_boss.isMove)
 		m_boss.AutoMove();//보스 무브
-	for (auto& p : m_inGamePlayers) {//플레이어 무브
-		if (g_iocpNetwork.m_session[p.second].m_sessionObject != nullptr) {
-			if (g_iocpNetwork.m_session[p.second].m_sessionObject->m_inputDirection != DIRECTION::IDLE) {
-				g_iocpNetwork.m_session[p.second].m_sessionObject->AutoMove();
-			}
-		}
+	for (auto& playCharacter : m_characterMap) {//플레이어 무브		
+		playCharacter.second->AutoMove();
 	}
 	//여기에 화살이나 ball 오브젝트 이동 구현
 	for (auto& arrow : m_arrows)
@@ -235,13 +270,22 @@ void Room::BossFindPlayer()
 		playerMap = m_inGamePlayers;
 	}
 #ifdef ALONE_TEST
-	m_boss.ReserveAggroPlayerId(playerMap.begin()->second);
-	m_boss.SetAggroPlayerId();
+	m_boss.ReserveAggroPlayerRole(playerMap.begin()->first);
+	m_boss.SetAggroPlayerRole();
 #endif // ALONE_TEST
 #ifndef ALONE_TEST
 	if (m_boss.isBossDie) {
 		ROLE randR = (ROLE)aggroRandomPlayer(dre);
-		m_boss.ReserveAggroPlayerId(playerMap[randR]);
+		randR = (ROLE)std::pow(2, (int)randR);
+		m_lockInGamePlayers.lock();
+		if (m_inGamePlayers.count(randR)) {
+			m_lockInGamePlayers.unlock();
+			m_boss.ReserveAggroPlayerRole(randR);
+		}
+		else {
+			m_boss.ReserveAggroPlayerRole(m_inGamePlayers.begin()->first);
+			m_lockInGamePlayers.unlock();
+		}
 	}
 	else {
 		TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::seconds(5) + std::chrono::milliseconds(500), m_roomId ,EV_FIND_PLAYER };
@@ -253,23 +297,18 @@ void Room::BossFindPlayer()
 void Room::ChangeBossState()
 {
 	if (!m_isAlive) return;
-	if (m_boss.isBossDie) {}
-	else if (!m_boss.StartAttack()) {
+	else if (m_boss.isBossDie) {}
+	else if (m_boss.GetAggroPlayerRole() == NONE_SELECT) {
+		TIMER_EVENT bossStateEvent{ std::chrono::system_clock::now() + std::chrono::milliseconds(100), m_roomId ,EV_BOSS_STATE };
+		g_Timer.InsertTimerQueue(bossStateEvent);
+	}
+	//auto aggroCharacter = m_characterMap[m_boss.GetAggroPlayerRole()];		
+	if (!m_boss.StartAttack()) {
 		m_boss.isAttack = false;
-		m_boss.SetAggroPlayerId();
-		if (m_boss.GetAggroPlayerId() != -1) {		
-			m_boss.SetDestinationPos(m_boss.GetAggroPlayerId());
-			//NodePacket이랑 BossChangeStateMovePacket 통합하여 수정해야할듯?
-			/*SERVER_PACKET::BossChangeStateMovePacket sendPacket;
-			sendPacket.type = SERVER_PACKET::BOSS_CHANGE_STATE_MOVE_DES;
-			sendPacket.size = sizeof(SERVER_PACKET::BossChangeStateMovePacket);
-			sendPacket.desPos = playerPos;
-			sendPacket.bossPos = m_boss.GetPos();
-
-			g_logic.BroadCastInRoom(m_roomId, &sendPacket);*/
-			if (!m_boss.isMove)
-				m_boss.StartMove(DIRECTION::FRONT);
-		}
+		m_boss.SetAggroPlayerRole();
+		m_boss.SetDestinationPos();
+		if (!m_boss.isMove)
+			m_boss.StartMove();
 		TIMER_EVENT bossStateEvent{ std::chrono::system_clock::now() + std::chrono::milliseconds(100), m_roomId ,EV_BOSS_STATE };
 		g_Timer.InsertTimerQueue(bossStateEvent);
 	}
@@ -322,11 +361,21 @@ void Room::UpdateGameStateForPlayer()
 			std::lock_guard<std::mutex> lg{ m_lockInGamePlayers };
 			playerMap = m_inGamePlayers;
 		}
-		for (auto& p : playerMap) {
-			sendPacket.userState[i].userId = p.second;
-			sendPacket.userState[i].hp = g_iocpNetwork.m_session[p.second].m_sessionObject->GetHp();
-			sendPacket.userState[i].pos = g_iocpNetwork.m_session[p.second].m_sessionObject->GetPos();
-			sendPacket.userState[i].rot = g_iocpNetwork.m_session[p.second].m_sessionObject->GetRot();
+		for (auto& p : playerMap) {//DataRace
+			auto playChracterState = g_iocpNetwork.m_session[p.second].GetPlayCharacterState();//tuple - id hp pos rot
+			int id = std::get<0>(playChracterState);
+			if (id == -1) {
+				sendPacket.userState[i].userId = -1;
+				continue;
+			}
+			int hp = std::get<1>(playChracterState);
+			DirectX::XMFLOAT3 pos = std::get<2>(playChracterState);
+			DirectX::XMFLOAT3 rot = std::get<3>(playChracterState);
+			sendPacket.userState[i].userId = id;
+			sendPacket.userState[i].hp = hp;
+			sendPacket.userState[i].pos = pos;
+			sendPacket.userState[i].rot = rot;
+			std::cout << "Pos: " << pos.x << ", " << pos.y << ", " << pos.z << std::endl;
 			++i;
 		}
 		sendPacket.time = std::chrono::utc_clock::now();
@@ -338,5 +387,93 @@ void Room::UpdateGameStateForPlayer()
 
 void Room::BossAttackExecute()
 {
-	m_boss.AttackPlayer();
+	if (m_boss.GetHp() <= 0) return;
+	switch (m_boss.currentAttack)
+	{
+	case ATTACK_KICK:
+	{
+		for (auto& playCharater : m_characterMap) {
+			auto bossToPlayerVector = Vector3::Subtract(playCharater.second->GetPos(), m_boss.GetPos());
+			float dotProductRes = Vector3::DotProduct(bossToPlayerVector, m_boss.GetDirectionVector());
+			float bossToPlayerDis = Vector3::Length(bossToPlayerVector);
+			if (bossToPlayerDis < 50.0f && abs(dotProductRes) < cosf(3.141592f / 12.0f)) {// 15 + 15 도 총 30도 내에 있다면
+				playCharater.second->AttackedHp(40);
+			}
+		}
+	}
+	break;
+	case ATTACK_PUNCH:
+	{
+		for (auto& playCharater : m_characterMap) {
+			auto bossToPlayerVector = Vector3::Subtract(playCharater.second->GetPos(), m_boss.GetPos());
+			float dotProductRes = Vector3::DotProduct(bossToPlayerVector, m_boss.GetDirectionVector());
+			float bossToPlayerDis = Vector3::Length(bossToPlayerVector);
+			if (bossToPlayerDis < 45.0f && abs(dotProductRes) < cosf(3.141592f / 12.0f)) { // 15 + 15 도 총 30도 내에 있다면
+				playCharater.second->AttackedHp(20);
+				//player Hit Foward
+			}
+		}
+	}
+	break;
+	case ATTACK_SPIN:
+	{
+		for (auto& playCharater : m_characterMap) {
+			auto bossToPlayerVector = Vector3::Subtract(playCharater.second->GetPos(), m_boss.GetPos());
+			float bossToPlayerDis = Vector3::Length(bossToPlayerVector);
+			if (bossToPlayerDis < 45.0f) {
+				playCharater.second->AttackedHp(15);
+				//player Hit spin
+			}
+		}
+	}
+	break;
+	default:
+		break;
+	}
+	//m_boss.AttackPlayer();
+}
+
+void Room::ChangeDirectionPlayCharacter(ROLE r, DIRECTION d)
+{
+	m_characterMap[r]->ChangeDirection(d);
+}
+
+void Room::StopMovePlayCharacter(ROLE r)
+{
+	m_characterMap[r]->StopMove();
+}
+
+DirectX::XMFLOAT3 Room::GetPositionPlayCharacter(ROLE r)
+{
+	return m_characterMap[r]->GetPos();
+}
+
+bool Room::AdjustPlayCharacterInfo(ROLE r, DirectX::XMFLOAT3& postion)
+{
+	return m_characterMap[r]->AdjustPlayerInfo(postion);;
+}
+
+void Room::RotatePlayCharacter(ROLE r, ROTATE_AXIS axis, float& angle)
+{
+	m_characterMap[r]->Rotate(axis, angle);
+}
+
+void Room::StartMovePlayCharacter(ROLE r, DIRECTION d)
+{
+	m_characterMap[r]->StartMove(d);
+}
+
+void Room::SetMouseInputPlayCharacter(ROLE r, bool left, bool right)
+{
+	m_characterMap[r]->SetMouseInput(left, right);
+}
+
+bool Room::GetLeftAttackPlayCharacter(ROLE r)
+{
+	return m_characterMap[r]->GetLeftAttack();
+}
+
+short Room::GetAttackDamagePlayCharacter(ROLE r)
+{
+	return m_characterMap[r]->GetAttackDamage();
 }
