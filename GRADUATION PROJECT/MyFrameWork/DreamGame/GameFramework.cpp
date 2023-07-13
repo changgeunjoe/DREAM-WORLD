@@ -725,7 +725,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			break;
 		case VK_F2:
 #ifdef LOCAL_TASK
-			m_bLobbyScene = !m_bLobbyScene;
+			//m_bLobbyScene = !m_bLobbyScene;
 #endif
 			break;
 		case VK_F8:
@@ -823,8 +823,10 @@ void CGameFramework::ProcessInput()
 
 					g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::X, g_Logic.m_inGamePlayerSession[0].m_ownerRotateAngle.x);
 					g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::Y, cxDelta);
-
-				m_pCamera->Rotate(cyDelta, cxDelta, 0.0f);
+					if (!m_bLobbyScene)
+					{
+						m_pCamera->Rotate(cyDelta, cxDelta, 0.0f);
+					}
 				//}
 			}
 			if (dwDirection != DIRECTION::IDLE) {
@@ -881,7 +883,7 @@ void CGameFramework::FrameAdvance()
 	hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 	//명령 할당자와 명령 리스트를 리셋한다.
 
-	if (!m_bLobbyScene)
+	if (m_bLobbyScene)
 		m_pScene->OnPreRender(m_pd3dDevice, m_pd3dCommandList, m_pCamera);
 
 	D3D12_RESOURCE_BARRIER d3dResourceBarrier;
@@ -917,15 +919,15 @@ void CGameFramework::FrameAdvance()
 	//m_pScene->OnPreRender(m_pd3dDevice, m_pd3dCommandList, m_pCamera);
 	//Render2DFont();
 	
-	 if (!m_bLobbyScene)
+	 if (m_bLobbyScene)
 	{
 		if (m_pScene) m_pScene->Render(m_pd3dDevice, m_pd3dCommandList, m_pCamera);
 	}
-	 if (!m_bLobbyScene)
+	 if (m_bLobbyScene)
 	 {
 		 if (m_pLobbyScene) m_pLobbyScene->UIRender(m_pd3dDevice, m_pd3dCommandList, m_pUICamera);
 	 }
-	 if (m_bLobbyScene)
+	 if (!m_bLobbyScene)
 	 {
 		 if (m_pScene) m_pScene->UIRender(m_pd3dDevice, m_pd3dCommandList, m_pUICamera, m_GameTimer.GetTimeElapsed());
 	 }

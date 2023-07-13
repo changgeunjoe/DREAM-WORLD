@@ -1054,72 +1054,72 @@ void GameobjectManager::Build2DUI(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	BuildLight();
 
-	/*m_pUIGameSearchObject = new GameObject(UI_ENTITY);
+	m_pUIGameSearchObject = new GameObject(UI_ENTITY);
 	m_pUIGameSearchObject->InsertComponent<RenderComponent>();
 	m_pUIGameSearchObject->InsertComponent<UIMeshComponent>();
 	m_pUIGameSearchObject->InsertComponent<UiShaderComponent>();
 	m_pUIGameSearchObject->InsertComponent<TextureComponent>();
-	m_pUIGameSearchObject->SetTexture(L"UI/ButtonPress.dds", RESOURCE_TEXTURE2D, 3);
-	m_pUIGameSearchObject->SetPosition(XMFLOAT3(0.0, 0.0, 1.00));
-	m_pUIGameSearchObject->SetScale(0.05, 0.025, 1);
+	m_pUIGameSearchObject->SetTexture(L"UI/PressButtonPink.dds", RESOURCE_TEXTURE2D, 3);
+	m_pUIGameSearchObject->SetPosition(XMFLOAT3(-0.35, 0.45, 1.00));
+	m_pUIGameSearchObject->SetScale(0.05, 0.02, 1);
 	m_pUIGameSearchObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppUIObjects.emplace_back(m_pUIGameSearchObject);*/
+	m_ppUIObjects.emplace_back(m_pUIGameSearchObject);
 
-	/*m_pUIGameMathchingObject = new GameObject(UI_ENTITY);
-	m_pUIGameMathchingObject->InsertComponent<RenderComponent>();
-	m_pUIGameMathchingObject->InsertComponent<UIMeshComponent>();
-	m_pUIGameMathchingObject->InsertComponent<UiShaderComponent>();
-	m_pUIGameMathchingObject->InsertComponent<TextureComponent>();
-	m_pUIGameMathchingObject->SetTexture(L"UI/ButtonPress.dds", RESOURCE_TEXTURE2D, 3);
-	m_pUIGameMathchingObject->SetPosition(XMFLOAT3(0.1, 0, 1.01));
-	m_pUIGameMathchingObject->SetScale(0.05, 0.02, 1);
-	m_pUIGameMathchingObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppUIObjects.emplace_back(m_pUIGameMathchingObject);*/
+	m_pUIGameEndObject = new GameObject(UI_ENTITY);
+	m_pUIGameEndObject->InsertComponent<RenderComponent>();
+	m_pUIGameEndObject->InsertComponent<UIMeshComponent>();
+	m_pUIGameEndObject->InsertComponent<UiShaderComponent>();
+	m_pUIGameEndObject->InsertComponent<TextureComponent>();
+	m_pUIGameEndObject->SetTexture(L"UI/ButtonPress.dds", RESOURCE_TEXTURE2D, 3);
+	m_pUIGameEndObject->SetPosition(XMFLOAT3(0.35, 0.45, 1.00));
+	m_pUIGameEndObject->SetScale(0.05, 0.02, 1);
+	m_pUIGameEndObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppUIObjects.emplace_back(m_pUIGameEndObject);
 
 
-	m_pUICharacterPickObjects[0] = new GameObject(UI_ENTITY);
-	m_pUICharacterPickObjects[0]->InsertComponent<RenderComponent>();
-	m_pUICharacterPickObjects[0]->InsertComponent<UIMeshComponent>();
-	m_pUICharacterPickObjects[0]->InsertComponent<UiShaderComponent>();
-	m_pUICharacterPickObjects[0]->InsertComponent<TextureComponent>();
-	m_pUICharacterPickObjects[0]->SetTexture(L"UI/ButtonPress.dds", RESOURCE_TEXTURE2D, 3);
-	m_pUICharacterPickObjects[0]->SetPosition(XMFLOAT3(-0.6, 0, 1.01));
-	m_pUICharacterPickObjects[0]->SetScale(0.05, 0.02, 1);
-	m_pUICharacterPickObjects[0]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppUIObjects.emplace_back(m_pUICharacterPickObjects[0]);
+	m_pUIWarriorCharacterObject = new GameObject(UI_ENTITY);
+	m_pUIWarriorCharacterObject->InsertComponent<RenderComponent>();
+	m_pUIWarriorCharacterObject->InsertComponent<UIMeshComponent>();
+	m_pUIWarriorCharacterObject->InsertComponent<UiShaderComponent>();
+	m_pUIWarriorCharacterObject->InsertComponent<TextureComponent>();
+	m_pUIWarriorCharacterObject->SetTexture(L"UI/PressButtonPink.dds", RESOURCE_TEXTURE2D, 3);
+	m_pUIWarriorCharacterObject->SetPosition(XMFLOAT3(-0.6, 0.12, 1.01));
+	m_pUIWarriorCharacterObject->SetScale(0.05, 0.02, 1);
+	m_pUIWarriorCharacterObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppUIObjects.emplace_back(m_pUIWarriorCharacterObject);
 
-	m_pUICharacterPickObjects[1] = new GameObject(UI_ENTITY);
-	m_pUICharacterPickObjects[1]->InsertComponent<RenderComponent>();
-	m_pUICharacterPickObjects[1]->InsertComponent<UIMeshComponent>();
-	m_pUICharacterPickObjects[1]->InsertComponent<UiShaderComponent>();
-	m_pUICharacterPickObjects[1]->InsertComponent<TextureComponent>();
-	m_pUICharacterPickObjects[1]->SetTexture(L"UI/ButtonPress.dds", RESOURCE_TEXTURE2D, 3);
-	m_pUICharacterPickObjects[1]->SetPosition(XMFLOAT3(-0.4, 0, 1.01));
-	m_pUICharacterPickObjects[1]->SetScale(0.05, 0.02, 1);
-	m_pUICharacterPickObjects[1]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppUIObjects.emplace_back(m_pUICharacterPickObjects[1]);
+	m_pUIArcherCharacterObject = new GameObject(UI_ENTITY);
+	m_pUIArcherCharacterObject->InsertComponent<RenderComponent>();
+	m_pUIArcherCharacterObject->InsertComponent<UIMeshComponent>();
+	m_pUIArcherCharacterObject->InsertComponent<UiShaderComponent>();
+	m_pUIArcherCharacterObject->InsertComponent<TextureComponent>();
+	m_pUIArcherCharacterObject->SetTexture(L"UI/ButtonPress.dds", RESOURCE_TEXTURE2D, 3);
+	m_pUIArcherCharacterObject->SetPosition(XMFLOAT3(-0.2, 0.12, 1.01));
+	m_pUIArcherCharacterObject->SetScale(0.05, 0.02, 1);
+	m_pUIArcherCharacterObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppUIObjects.emplace_back(m_pUIArcherCharacterObject);
 
-	m_pUICharacterPickObjects[2] = new GameObject(UI_ENTITY);
-	m_pUICharacterPickObjects[2]->InsertComponent<RenderComponent>();
-	m_pUICharacterPickObjects[2]->InsertComponent<UIMeshComponent>();
-	m_pUICharacterPickObjects[2]->InsertComponent<UiShaderComponent>();
-	m_pUICharacterPickObjects[2]->InsertComponent<TextureComponent>();
-	m_pUICharacterPickObjects[2]->SetTexture(L"UI/ButtonPress.dds", RESOURCE_TEXTURE2D, 3);
-	m_pUICharacterPickObjects[2]->SetPosition(XMFLOAT3(0.4, 0, 1.01));
-	m_pUICharacterPickObjects[2]->SetScale(0.05, 0.02, 1);
-	m_pUICharacterPickObjects[2]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppUIObjects.emplace_back(m_pUICharacterPickObjects[2]);
+	m_pUITankerCharacterObject = new GameObject(UI_ENTITY);
+	m_pUITankerCharacterObject->InsertComponent<RenderComponent>();
+	m_pUITankerCharacterObject->InsertComponent<UIMeshComponent>();
+	m_pUITankerCharacterObject->InsertComponent<UiShaderComponent>();
+	m_pUITankerCharacterObject->InsertComponent<TextureComponent>();
+	m_pUITankerCharacterObject->SetTexture(L"UI/ButtonPress.dds", RESOURCE_TEXTURE2D, 3);
+	m_pUITankerCharacterObject->SetPosition(XMFLOAT3(0.2, 0.12, 1.01));
+	m_pUITankerCharacterObject->SetScale(0.05, 0.02, 1);
+	m_pUITankerCharacterObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppUIObjects.emplace_back(m_pUITankerCharacterObject);
 
-	m_pUICharacterPickObjects[3] = new GameObject(UI_ENTITY);
-	m_pUICharacterPickObjects[3]->InsertComponent<RenderComponent>();
-	m_pUICharacterPickObjects[3]->InsertComponent<UIMeshComponent>();
-	m_pUICharacterPickObjects[3]->InsertComponent<UiShaderComponent>();
-	m_pUICharacterPickObjects[3]->InsertComponent<TextureComponent>();
-	m_pUICharacterPickObjects[3]->SetTexture(L"UI/ButtonPress.dds", RESOURCE_TEXTURE2D, 3);
-	m_pUICharacterPickObjects[3]->SetPosition(XMFLOAT3(0.6, 0, 1.01));
-	m_pUICharacterPickObjects[3]->SetScale(0.05, 0.02, 1);
-	m_pUICharacterPickObjects[3]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppUIObjects.emplace_back(m_pUICharacterPickObjects[3]);
+	m_pUIPriestCharacterObject = new GameObject(UI_ENTITY);
+	m_pUIPriestCharacterObject->InsertComponent<RenderComponent>();
+	m_pUIPriestCharacterObject->InsertComponent<UIMeshComponent>();
+	m_pUIPriestCharacterObject->InsertComponent<UiShaderComponent>();
+	m_pUIPriestCharacterObject->InsertComponent<TextureComponent>();
+	m_pUIPriestCharacterObject->SetTexture(L"UI/ButtonPress.dds", RESOURCE_TEXTURE2D, 3);
+	m_pUIPriestCharacterObject->SetPosition(XMFLOAT3(0.6, 0.12, 1.01));
+	m_pUIPriestCharacterObject->SetScale(0.05, 0.02, 1);
+	m_pUIPriestCharacterObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppUIObjects.emplace_back(m_pUIPriestCharacterObject);
 
 	/*m_pUIWarriorCharacterObject = new GameObject(UI_ENTITY);
 	m_pUIWarriorCharacterObject->InsertComponent<RenderComponent>();
@@ -1456,6 +1456,8 @@ enum UI
 	UI_PRIESTCHARACTER,
 	UI_ENTERROOM,
 	UI_CREATEROOM,
+	UI_GAMESTART,
+	UI_GAMEEND
 };
 
 void GameobjectManager::PickObjectByRayIntersection(int xClient, int yClient)
@@ -1495,12 +1497,14 @@ void GameobjectManager::ProcessingUI(int n)
 #ifdef LOCAL_TASK
 		m_nSection = 1;
 #endif
+		m_pUIGameSearchObject->m_bUIActive = false;
 		cout << "request Room List" << endl;
 		g_NetworkHelper.SendRequestRoomList();
 		break;
 	}
 	case UI::UI_GAMEMATCHING:
 	{
+		m_pUIGameEndObject->m_bUIActive = false;
 		if (!m_bInMatching)
 		{
 			cout << "StartMatching" << endl;

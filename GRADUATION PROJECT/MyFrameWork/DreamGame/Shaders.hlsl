@@ -156,8 +156,7 @@ VS_OUTPUT VSDiffused(VS_INPUT input)
 float4 PSDiffused(VS_OUTPUT input) : SV_TARGET
 {
 #ifdef _WITH_VERTEX_LIGHTING
-
-
+ 
         return (cIllumination + float4(input.positionW, 1.0f));
 #else
     float3 normalW = normalize(input.normalW);
@@ -309,12 +308,11 @@ float4 PSUITextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
     if (gmtxGameObjectColor.w > 0.5)
         cColor.w= gmtxGameObjectColor.w;
   //  cColor.w = 0.5;
-    if (!bUIActive)
+    if (!bUIActive && cColor.w!=0)
     {
         float4 f = float4(0.5, 0.5, 0.5, 1);
         return lerp(f, cColor, 0.4);
     }
-    
     //else
     cColor.xyz += gmtxGameObjectColor.xyz;
         return (cColor);
@@ -664,7 +662,7 @@ float4 PSShadowMapShadow(VS_SHADOW_MAP_OUTPUT input) : SV_TARGET
     }
     if (gfMode == CELLSHADING_MODE || gfMode == CARTOON_MODE)
     {
-           cAlbedoColor = round(cAlbedoColor * 8.0f) / 5.5f; // 등급을 16단계로 나누어 반올림합니다.
+           cAlbedoColor = round(cAlbedoColor * 8.0f) / 5.0f; // 등급을 16단계로 나누어 반올림합니다.
     }
     
     float4 cIllumination = Lighting(input.positionW, normalize(input.normalW), true, input.uvs);
