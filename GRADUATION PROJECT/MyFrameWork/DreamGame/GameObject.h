@@ -204,7 +204,7 @@ protected:
 	UINT							m_nTextureType;
 	int                             m_nSamplers = 1;
 	int                             m_nRootParameter = 1;
-	float                           m_fScale = 0.0f;
+	XMFLOAT3						m_xmf3Scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
 
 	int								m_iVertexCount = 0;
 	entity_id m_entityID{};//object id 

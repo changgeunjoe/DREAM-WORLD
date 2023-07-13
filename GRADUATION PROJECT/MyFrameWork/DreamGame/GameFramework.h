@@ -154,4 +154,10 @@ public:
 
 	void MoveToNextFrame();
 	friend class Logic;
+
+	GAME_STATE m_gameState = GAME_STATE::GS_FIRST_STAGE;
+
+public:
+	GAME_STATE GetCurrentGameState() { return m_gameState; }
+	void SetCurrentGameState(GAME_STATE gs) { m_gameState = gs; }
 };

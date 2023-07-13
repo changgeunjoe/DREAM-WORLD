@@ -64,6 +64,8 @@ public:
 	void SetAnimationCallbackHandler(CAnimationCallbackHandler* pCallbackHandler);
 
 	void HandleCallback();
+
+	void ResetAnimation();
 };
 
 class CAnimationSets

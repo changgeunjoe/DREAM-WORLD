@@ -114,13 +114,12 @@ void GameObject::SetLook(const XMFLOAT3& xmfLook)
 	xmftRight = Vector3::CrossProduct(xmftUp, xmftLook, true);
 	xmftUp = Vector3::CrossProduct(xmftLook, xmftRight, true);
 
-	xmftLook = Vector3::ScalarProduct(xmftLook, m_fScale, false);
-	xmftRight = Vector3::ScalarProduct(xmftRight, m_fScale, false);
-	xmftUp = Vector3::ScalarProduct(xmftUp, m_fScale, false);
-
 	m_xmf4x4ToParent._11 = xmftRight.x;	m_xmf4x4ToParent._12 = xmftRight.y;	m_xmf4x4ToParent._13 = xmftRight.z;
 	m_xmf4x4ToParent._21 = xmftUp.x;	m_xmf4x4ToParent._22 = xmftUp.y;	m_xmf4x4ToParent._23 = xmftUp.z;
 	m_xmf4x4ToParent._31 = xmftLook.x;	m_xmf4x4ToParent._32 = xmftLook.y;	m_xmf4x4ToParent._33 = xmftLook.z;
+
+	XMMATRIX mtxScale = XMMatrixScaling(m_xmf3Scale.x, m_xmf3Scale.y, m_xmf3Scale.z);
+	m_xmf4x4ToParent = Matrix4x4::Multiply(mtxScale, m_xmf4x4ToParent);
 
 	UpdateTransform(NULL);
 }
@@ -149,6 +148,7 @@ void GameObject::SetLookAt(XMFLOAT3& xmf3Target, XMFLOAT3& xmf3Up)
 
 void GameObject::SetScale(float x, float y, float z)
 {
+	m_xmf3Scale = XMFLOAT3(x, y, z);
 	XMMATRIX mtxScale = XMMatrixScaling(x, y, z);
 	m_xmf4x4ToParent = Matrix4x4::Multiply(mtxScale, m_xmf4x4ToParent);
 
@@ -165,7 +165,7 @@ void GameObject::SetinitScale(float x, float y, float z)
 
 void GameObject::SetScale(float fScale)
 {
-	m_fScale = fScale;
+	m_xmf3Scale = XMFLOAT3(fScale, fScale, fScale);
 	XMMATRIX mtxScale = XMMatrixScaling(fScale, fScale, fScale);
 	m_xmf4x4ToParent = Matrix4x4::Multiply(mtxScale, m_xmf4x4ToParent);
 
@@ -1140,19 +1140,19 @@ void GameObject::MoveForward(float fDistance)
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, fDistance);
 	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * fDistance / 50.0f);
 	//if (Vector3::Length(xmf3Position) < PLAYER_MAX_RANGE)	GameObject::SetPosition(xmf3Position);
-	vector<GameObject*> tempVector = gGameFramework.GetScene()->GetObjectManager()->GetObstacle();
-	XMVECTOR tempPoint = XMVectorSet(xmf3Position.x, xmf3Position.y, xmf3Position.z, 0.0f);
-	BoundingSphere tempSPBB = BoundingSphere(XMFLOAT3(xmf3Position.x, xmf3Position.y, xmf3Position.z), m_fBoundingSize);
-	for (int i = 0; i < tempVector.size(); ++i)
-	{
-		if (tempVector[i]->m_OBB.Intersects(tempSPBB))
-		{
-			// cout << "충돌 발생 : " << i << "번째 바위와 충돌하였습니다." << endl;
-			// cout << "바위 Center Position : " << tempVector[i]->GetPosition().x <<", " << tempVector[i]->GetPosition().y << ", " << tempVector[i]->GetPosition().z << " )" << endl;
-			// cout << "충돌 포지션 : ( "<< xmf3Position.x <<", " << xmf3Position.y << ", " << xmf3Position.z << " )" << endl;
-			return;
-		}
-	}
+	//vector<GameObject*> tempVector = gGameFramework.GetScene()->GetObjectManager()->GetObstacle();
+	//XMVECTOR tempPoint = XMVectorSet(xmf3Position.x, xmf3Position.y, xmf3Position.z, 0.0f);
+	//BoundingSphere tempSPBB = BoundingSphere(XMFLOAT3(xmf3Position.x, xmf3Position.y, xmf3Position.z), m_fBoundingSize);
+	//for (int i = 0; i < tempVector.size(); ++i)
+	//{
+	//	if (tempVector[i]->m_OBB.Intersects(tempSPBB))
+	//	{
+	//		// cout << "충돌 발생 : " << i << "번째 바위와 충돌하였습니다." << endl;
+	//		// cout << "바위 Center Position : " << tempVector[i]->GetPosition().x <<", " << tempVector[i]->GetPosition().y << ", " << tempVector[i]->GetPosition().z << " )" << endl;
+	//		// cout << "충돌 포지션 : ( "<< xmf3Position.x <<", " << xmf3Position.y << ", " << xmf3Position.z << " )" << endl;
+	//		return;
+	//	}
+	//}
 	GameObject::SetPosition(xmf3Position);
 }
 

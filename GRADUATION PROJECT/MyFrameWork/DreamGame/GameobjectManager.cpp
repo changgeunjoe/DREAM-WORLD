@@ -17,13 +17,13 @@
 #include"EffectObject.h"
 #include"DebuffObject.h"
 #include"UILayer.h"
-
+#include "GameFramework.h"
 
 extern NetworkHelper g_NetworkHelper;
 extern Logic g_Logic;
 extern bool GameEnd;
 extern MapData g_bossMapData;
-
+extern CGameFramework gGameFramework;
 
 template<typename S>
 S* ComponentType(component_id componentID)
@@ -598,12 +598,7 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 		tempObject[i]->Rotate(&Axis, tempRotate[i].z);
 		tempObject[i]->SetScale(tempScale[i].x* scale, tempScale[i].y * scale, tempScale[i].z * scale);
 
-		if (type == 0)
-		{
-			// XMFLOAT3 tempEPos = Vector3::Add(tempPos[i], tempScale[i]);
-			// tempObject[i]->m_OBB = BoundingOrientedBox(tempPos[i], tempEPos, quaternion[i]);
-		}
-		else
+		if (type == 1)
 		{
 			XMFLOAT3 extentPos = XMFLOAT3(tempScale[i].x * tempExtentScale[i].x,
 				tempScale[i].y * tempExtentScale[i].y, tempScale[i].z * tempExtentScale[i].z);
@@ -625,7 +620,105 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 		m_ppGameObjects.emplace_back(tempObject[i]);
 	}
 
-	//if (tempObject) delete[] tempObject;
+	if (tempObject) delete[] tempObject;
+	if (tempModel) delete tempModel;
+}
+
+void GameobjectManager::ReadNormalMonsterFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, const char* fileName, char* modelName, int type)
+{
+	CLoadedModelInfoCompnent* tempModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, modelName, NULL, true);
+	ifstream objectFile(fileName);
+
+	int objCount = -1;
+	vector<XMFLOAT3> tempPos;
+	vector<XMFLOAT4> quaternion;
+
+	vector<XMFLOAT3> tempScale;
+	vector<XMFLOAT3> tempRotate;
+
+	string temp;
+	float number[3] = {};
+	float qnumber[4] = {};
+	while (!objectFile.eof())
+	{
+		objectFile >> temp;
+		if (temp == "<position>:")
+		{
+			for (int i = 0; i < 3; ++i)
+			{
+				objectFile >> temp;
+				number[i] = stof(temp);
+			}
+			tempPos.emplace_back(number[0], number[1], number[2]);
+		}
+		else if (temp == "<quaternion>:")
+		{
+			for (int i = 0; i < 4; ++i)
+			{
+				objectFile >> temp;
+				qnumber[i] = stof(temp);
+			}
+			quaternion.emplace_back(qnumber[0], qnumber[1], qnumber[2], qnumber[3]);
+
+		}
+		else if (temp == "<rotation>:")
+		{
+			for (int i = 0; i < 3; ++i)
+			{
+				objectFile >> temp;
+				number[i] = stof(temp);
+			}
+			tempRotate.emplace_back(number[0], number[1], number[2]);
+		}
+		else if (temp == "<scale>:")
+		{
+			for (int i = 0; i < 3; ++i)
+			{
+				objectFile >> temp;
+				number[i] = stof(temp);
+			}
+			tempScale.emplace_back(number[0], number[1], number[2]);
+		}
+		else
+		{
+			objectFile >> temp;
+			objCount++;
+		}
+	}
+	NormalMonster** tempObject = new NormalMonster * [objCount];
+
+	for (int i = 0; i < objCount; ++i)
+	{
+		tempObject[i] = new NormalMonster();
+		tempObject[i]->m_nID = i;
+		tempObject[i]->InsertComponent<RenderComponent>();
+		tempObject[i]->InsertComponent<CLoadedModelInfoCompnent>();
+		tempObject[i]->SetModel(tempModel);
+		tempObject[i]->SetPosition(XMFLOAT3(tempPos[i].x, tempPos[i].y - 18.0f, tempPos[i].z));
+		tempObject[i]->SetAnimationSets(6);
+		tempObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		tempObject[i]->m_pSkinnedAnimationController->SetTrackAnimationSet(6);
+		tempObject[i]->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_DIE]->m_nType = ANIMATION_TYPE_ONCE;
+		tempObject[i]->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_FIRSTSKILL]->m_nType = ANIMATION_TYPE_ONCE;
+
+		pair<CharacterAnimation, CharacterAnimation> StartAnimations = { CharacterAnimation::CA_FIRSTSKILL, CharacterAnimation::CA_FIRSTSKILL };
+		tempObject[i]->m_pSkinnedAnimationController->m_CurrentAnimations = StartAnimations;
+		tempObject[i]->m_pSkinnedAnimationController->SetTrackEnable(StartAnimations);
+		tempObject[i]->SetMoveState(true);
+		XMFLOAT3 Axis = XMFLOAT3(1, 0, 0);
+		tempObject[i]->Rotate(&Axis, tempRotate[i].x);
+		Axis = tempObject[i]->GetUp();
+		tempObject[i]->Rotate(&Axis, tempRotate[i].y);
+		Axis = tempObject[i]->GetUp();
+		tempObject[i]->Rotate(&Axis, tempRotate[i].z);
+		tempObject[i]->SetScale(tempScale[i].x, tempScale[i].y, tempScale[i].z);
+		XMFLOAT3 t = tempObject[i]->GetPosition();
+		// 바운딩 스피어 추가 필요
+
+		m_ppGameObjects.emplace_back(tempObject[i]);
+	}
+
+	if (tempObject) delete[] tempObject;
 	if (tempModel) delete tempModel;
 }
 
@@ -644,6 +737,7 @@ void GameobjectManager::BuildBossStageObject(ID3D12Device* pd3dDevice, ID3D12Gra
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock1.txt", "Model/Rock1.bin", 1);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock2.txt", "Model/Rock2.bin", 1);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock3.txt", "Model/Rock3.bin", 1);
+	ReadNormalMonsterFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/NormalMonster.txt", "Model/Death.bin", 0);
 }
 
 void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -654,6 +748,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 
 	//BuildStage1(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildBossStageObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+
 
 	m_pPlaneObject = new GameObject(UNDEF_ENTITY);
 	m_pPlaneObject->InsertComponent<RenderComponent>();
@@ -948,6 +1043,7 @@ void GameobjectManager::BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence02.txt", "Model/ShortFence02.bin", 0);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence03.txt", "Model/ShortFence03.bin", 0);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Tree.txt", "Model/Tree.bin", 0);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/OOBB.txt", "Model/Cube.bin", 0);
 
 	m_pStage1Objects[0] = new GameObject(UNDEF_ENTITY);
 	m_pStage1Objects[0]->InsertComponent<RenderComponent>();
@@ -955,7 +1051,7 @@ void GameobjectManager::BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pStage1Objects[0]->SetPosition(XMFLOAT3(0, -5, 0));
 	m_pStage1Objects[0]->SetModel("Model/New_Terrain.bin");
 	m_pStage1Objects[0]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pStage1Objects[0]->SetScale(1.0f, 1.0f, 1.0f);
+	m_pStage1Objects[0]->SetScale(10.0f, 10.0f, 10.0f);
 	m_pStage1Objects[0]->SetColor(XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
 	m_pStage1Objects[0]->SetRimLight(false);
 	m_ppGameObjects.emplace_back(m_pStage1Objects[0]);
@@ -1538,7 +1634,12 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 	{
 		m_bDebugMode = !m_bDebugMode;
 	}
-
+	if (nMessageID == WM_KEYDOWN && wParam == VK_TAB)
+	{
+		int curGameState = gGameFramework.GetCurrentGameState();
+		curGameState = (curGameState + 1) % 3;
+		gGameFramework.SetCurrentGameState(static_cast<GAME_STATE>(curGameState));
+	}
 	if (nMessageID == WM_KEYDOWN && wParam == VK_F5)
 	{
 		m_xmfMode = DEFAULT_MODE;

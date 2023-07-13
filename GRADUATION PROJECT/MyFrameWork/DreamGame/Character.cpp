@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Character.h"
 #include "Animation.h"
+#include "GameFramework.h"
 #include "Network/NetworkHelper.h"
 #include "Network/Logic/Logic.h"
 #include "Network/MapData/MapData.h"
@@ -9,6 +10,7 @@ extern Logic g_Logic;
 extern NetworkHelper g_NetworkHelper;
 extern bool GameEnd;
 extern MapData g_bossMapData;
+extern CGameFramework gGameFramework;
 
 Character::Character() : GameObject(UNDEF_ENTITY)
 {
@@ -61,6 +63,11 @@ void Character::Reset()
 	{
 		m_pCamera = nullptr;
 	}
+}
+
+bool Character::CheckAnimationEnd(int nAnimation)
+{
+	return m_pSkinnedAnimationController->m_pAnimationTracks[nAnimation].m_bAnimationEnd;
 }
 
 Warrior::Warrior() : Character()
@@ -178,7 +185,7 @@ void Warrior::Animate(float fTimeElapsed)
 	{
 	case CharacterAnimation::CA_FIRSTSKILL:
 	{
-		if (m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_FIRSTSKILL].m_bAnimationEnd == false)
+		if (CheckAnimationEnd(CA_FIRSTSKILL) == false)
 		{
 			UpperLock = true;
 		}
@@ -186,15 +193,14 @@ void Warrior::Animate(float fTimeElapsed)
 	}
 	case CharacterAnimation::CA_ATTACK:
 	{
-		if (m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd == false)
+		if (CheckAnimationEnd(CA_ATTACK) == false)
 		{
 			UpperLock = true;
 		}
 		break;
 	}
 	}
-	if (m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd == true
-		|| m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_FIRSTSKILL].m_bAnimationEnd == true)
+	if (CheckAnimationEnd(CA_ATTACK) || CheckAnimationEnd(CA_FIRSTSKILL))
 	{
 		Attack();
 		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd = false;
@@ -372,7 +378,7 @@ void Archer::Animate(float fTimeElapsed)
 
 	if (m_pSkinnedAnimationController->m_CurrentAnimations.first == CharacterAnimation::CA_ATTACK)
 	{
-		if (m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd == true)
+		if (CheckAnimationEnd(CA_ATTACK))
 		{
 			ShootArrow();
 			m_bOnAttack = false;
@@ -455,7 +461,7 @@ void Archer::FirstSkillUp()
 void Archer::SecondSkillDown()
 {
 	if (!(m_pSkinnedAnimationController->m_CurrentAnimations.first == CharacterAnimation::CA_ATTACK &&
-		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd == false)
+		CheckAnimationEnd(CA_ATTACK) == false)
 		|| m_bESkillClicked == true)
 	{
 		m_bESkillClicked = true;
@@ -717,7 +723,7 @@ void Tanker::Animate(float fTimeElapsed)
 	{
 	case CharacterAnimation::CA_ATTACK:
 	{
-		if (m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd == false)
+		if (CheckAnimationEnd(CA_ATTACK) == false)
 		{
 			UpperLock = true;
 		}
@@ -779,12 +785,12 @@ void Tanker::Animate(float fTimeElapsed)
 		m_pSkinnedAnimationController->SetTrackEnable(AfterAnimation);
 	}
 
-	if (m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd == true)
+	if (CheckAnimationEnd(CA_ATTACK) == true)
 	{
 		Attack();
 		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd = false;
 	}
-	if (m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_SECONDSKILL].m_bAnimationEnd == true)
+	if (CheckAnimationEnd(CA_SECONDSKILL) == true)
 	{
 		m_bQSkillClicked = false;
 		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_SECONDSKILL].m_bAnimationEnd = false;
@@ -903,7 +909,7 @@ void Priest::Animate(float fTimeElapsed)
 	{
 	case CharacterAnimation::CA_ATTACK:
 	{
-		if (m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd == false)
+		if (CheckAnimationEnd(CA_ATTACK) == false)
 			UpperLock = true;
 		break;
 	}
@@ -953,7 +959,7 @@ void Priest::Animate(float fTimeElapsed)
 		m_pSkinnedAnimationController->SetTrackEnable(AfterAnimation);
 	}
 
-	if (m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd == true)
+	if (CheckAnimationEnd(CA_ATTACK) == true)
 	{
 		Attack();
 		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd = false;
@@ -1299,4 +1305,150 @@ TrailObject::~TrailObject()
 
 void TrailObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
+}
+
+NormalMonster::NormalMonster() : Character()
+{
+}
+
+NormalMonster::~NormalMonster()
+{
+}
+
+void NormalMonster::Animate(float fTimeElapsed)
+{
+	if (gGameFramework.GetCurrentGameState() == GAME_STATE::GS_FIRST_STAGE)
+	{
+		if (CheckAnimationEnd(CA_FIRSTSKILL) == true)
+		{
+			pair<CharacterAnimation, CharacterAnimation> NextAnimations = { CharacterAnimation::CA_IDLE, CharacterAnimation::CA_IDLE };
+			m_pSkinnedAnimationController->m_CurrentAnimations = NextAnimations;
+			m_pSkinnedAnimationController->SetTrackEnable(NextAnimations);
+		}
+#ifdef LOCAL_TASK
+		if (!m_bHaveTarget)
+		{
+			XMFLOAT3 currentPos = GetPosition();
+			for (auto& session : g_Logic.m_inGamePlayerSession)
+			{
+				if (session.m_id == -1) continue;
+				XMFLOAT3 targetPos = session.m_currentPlayGameObject->GetPosition();
+				XMFLOAT3 toTarget = Vector3::Subtract(targetPos, currentPos);
+				float targetLength = Vector3::Length(toTarget);
+				if (targetLength < 200.0f)
+				{
+					m_iTargetID = session.m_id;
+					m_bHaveTarget = true;
+					break;
+				}
+			}
+		}
+#endif
+	}
+	else
+	{
+		if (gGameFramework.GetCurrentGameState() == GAME_STATE::GS_SECOND_STAGE_FIRST_PHASE)
+		{
+			return;
+		}
+		else
+		{
+			if (m_bCanActive == false)
+			{
+				if (CheckAnimationEnd(CA_FIRSTSKILL) == true)
+				{
+					m_bCanActive = true;
+					pair<CharacterAnimation, CharacterAnimation> NextAnimations = { CharacterAnimation::CA_IDLE, CharacterAnimation::CA_IDLE };
+					m_pSkinnedAnimationController->m_CurrentAnimations = NextAnimations;
+					m_pSkinnedAnimationController->SetTrackEnable(NextAnimations);
+				}
+				else
+				{
+					GameObject::Animate(fTimeElapsed);
+					return;
+				}
+			}
+#ifdef LOCAL_TASK
+			if (!m_bHaveTarget)
+			{
+				// 플레이어 4명 포지션과 거리 계산해서 목표 설정
+				XMFLOAT3 currentPos = GetPosition();
+				float farDistance= FLT_MAX;
+				for (auto& session : g_Logic.m_inGamePlayerSession)
+				{
+					if (session.m_id == -1) continue;
+					XMFLOAT3 targetPos = session.m_currentPlayGameObject->GetPosition();
+					XMFLOAT3 toTarget = Vector3::Subtract(targetPos, currentPos);
+					float targetLength = Vector3::Length(toTarget);
+					if (targetLength < farDistance)
+					{
+						m_bHaveTarget = true;
+						m_iTargetID = session.m_id;
+						farDistance = targetLength;
+					}
+				}
+			}
+#endif
+		}
+	}
+
+	if (m_bHaveTarget)
+	{
+		auto findRes = find_if(g_Logic.m_inGamePlayerSession.begin(), g_Logic.m_inGamePlayerSession.end(), [&](auto& fObj) {
+			return fObj.m_id == m_iTargetID;
+			});
+		if (findRes == g_Logic.m_inGamePlayerSession.end())
+			return;
+		m_xmf3Destination = findRes->m_currentPlayGameObject->GetPosition();
+
+		XMFLOAT3 MyPos = GetPosition();
+		XMFLOAT3 des = XMFLOAT3(m_xmf3Destination.x - MyPos.x, 0.0f, m_xmf3Destination.z - MyPos.z);
+		float distance = Vector3::Length(des);
+
+		if (distance < 30.0f)
+		{
+			m_bMoveState = false;
+			m_bOnAttack = true;
+		}
+		else if (distance >= 30.0f)
+		{
+			m_bOnAttack = false;
+			m_bMoveState = true;
+			SetLook(Vector3::Normalize(des));
+			MoveForward(25 * fTimeElapsed);
+		}
+	}
+	else
+	{
+		m_bMoveState = false;
+		m_bOnAttack = false;
+	}
+
+	pair<CharacterAnimation, CharacterAnimation> NextAnimations = { CharacterAnimation::CA_NOTHING, CharacterAnimation::CA_NOTHING };
+	if (m_bMoveState)
+	{
+		if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CA_MOVE)
+			NextAnimations = { CharacterAnimation::CA_MOVE, CharacterAnimation::CA_MOVE };
+	}
+	else if (m_bOnAttack)
+	{
+		if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CA_ATTACK)
+		{
+			NextAnimations = { CharacterAnimation::CA_ATTACK, CharacterAnimation::CA_ATTACK };
+			m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_fPosition = -ANIMATION_CALLBACK_EPSILON;
+		}
+	}
+	else
+	{
+		if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CA_IDLE)
+			NextAnimations = { CharacterAnimation::CA_IDLE, CharacterAnimation::CA_IDLE };
+	}
+
+	if (NextAnimations.first != CharacterAnimation::CA_NOTHING)
+	{
+		m_pSkinnedAnimationController->m_CurrentAnimations = NextAnimations;
+		m_pSkinnedAnimationController->SetTrackEnable(NextAnimations);
+	}
+
+	GameObject::Animate(fTimeElapsed);
 }

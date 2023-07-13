@@ -17,6 +17,7 @@ public:
 	virtual void FirstSkillUp() {};
 	virtual void SecondSkillDown() { m_bESkillClicked = true; };
 	virtual void SecondSkillUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f }) {};
+	bool CheckAnimationEnd(int nAnimation);
 
 public:
 	bool GetQSkillState() { return m_bQSkillClicked; }
@@ -99,6 +100,22 @@ class Monster : public Character
 public:
 	Monster();
 	virtual ~Monster();
+	virtual void Animate(float fTimeElapsed);
+public:
+	XMFLOAT3 m_xmf3rotateAngle = XMFLOAT3{ 0,0,0 };
+};
+
+class NormalMonster : public Character
+{
+private:
+	bool	m_bHaveTarget{ false };
+	bool	m_bCanActive{ false };
+	int		m_iTargetID{ -1 };
+public:
+	int		m_nID = -1;
+
+	NormalMonster();
+	virtual ~NormalMonster();
 	virtual void Animate(float fTimeElapsed);
 public:
 	XMFLOAT3 m_xmf3rotateAngle = XMFLOAT3{ 0,0,0 };

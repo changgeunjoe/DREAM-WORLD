@@ -544,16 +544,18 @@ float4 PSHealRange(VS_HEAL_RANGE_OUTPUT input) : SV_TARGET
     float alpha = 0.0;
     float4 color;
 
-    if (distance < 150.0f * 0.3f)
-    {
-        alpha = 0.7;
-    }
-    if (distance > 150.0f * 0.95f && distance < 150.0f)
-    {
-        // alpha = 1.0 - smoothstep(150.0f * 0.3f, 150.0f, distance);
-        color = float4(1.0f, 1.0f, 0.8f, 1.0f);
-        return color;
-    }
+    alpha = 0.5 - smoothstep(150.0f * 0.0f, 150.0f, distance);
+
+    //if (distance < 150.0f * 0.3f)
+    //{
+    //    alpha = 0.7;
+    //}
+    //if (distance > 150.0f * 0.95f && distance < 150.0f)
+    //{
+    //    // alpha = 1.0 - smoothstep(150.0f * 0.3f, 150.0f, distance);
+    //    color = float4(1.0f, 1.0f, 0.8f, 1.0f);
+    //    return color;
+    //}
 
     color = float4(1.0, 1.0, 0.0, alpha);
     color.rgb += wave;
