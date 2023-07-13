@@ -58,7 +58,7 @@ void Room::SendAllPlayerInfo()
 		playerInfo.type = SERVER_PACKET::ADD_PLAYER;
 		playerInfo.role = p.first;
 		playerInfo.size = sizeof(SERVER_PACKET::AddPlayerPacket);
-		for(auto& sendPlayer : players)
+		for (auto& sendPlayer : players)
 			g_iocpNetwork.m_session[sendPlayer.second].Send(&playerInfo);
 	}
 }
@@ -264,6 +264,7 @@ void Room::GameEnd()
 void Room::BossFindPlayer()
 {
 	if (!m_isAlive) return;
+	if (m_boss.isBossDie) return;
 	std::map<ROLE, int> playerMap;
 	{
 		std::lock_guard<std::mutex> lg{ m_lockInGamePlayers };
@@ -274,23 +275,24 @@ void Room::BossFindPlayer()
 	m_boss.SetAggroPlayerRole();
 #endif // ALONE_TEST
 #ifndef ALONE_TEST
-	if (m_boss.isBossDie) {
-		ROLE randR = (ROLE)aggroRandomPlayer(dre);
-		randR = (ROLE)std::pow(2, (int)randR);
-		m_lockInGamePlayers.lock();
-		if (m_inGamePlayers.count(randR)) {
-			m_lockInGamePlayers.unlock();
-			m_boss.ReserveAggroPlayerRole(randR);
-		}
-		else {
-			m_boss.ReserveAggroPlayerRole(m_inGamePlayers.begin()->first);
-			m_lockInGamePlayers.unlock();
-		}
+	ROLE randR = (ROLE)aggroRandomPlayer(dre);
+	randR = (ROLE)std::pow(2, (int)randR);
+	m_lockInGamePlayers.lock();
+	if (m_inGamePlayers.count(randR)) {
+		m_lockInGamePlayers.unlock();
+		m_boss.ReserveAggroPlayerRole(randR);
 	}
 	else {
-		TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::seconds(5) + std::chrono::milliseconds(500), m_roomId ,EV_FIND_PLAYER };
-		g_Timer.InsertTimerQueue(new_ev);
+		//´Ù ³ª°¬À»¶§ ¹æ »ç¸Á
+		if (m_inGamePlayers.size() == 0) {
+			m_lockInGamePlayers.unlock();
+			return;
+		}
+		m_boss.ReserveAggroPlayerRole(m_inGamePlayers.begin()->first);
+		m_lockInGamePlayers.unlock();
 	}
+	TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::seconds(5) + std::chrono::milliseconds(500), m_roomId ,EV_FIND_PLAYER };
+	g_Timer.InsertTimerQueue(new_ev);
 #endif // ALONE_TEST
 }
 
@@ -298,11 +300,12 @@ void Room::ChangeBossState()
 {
 	if (!m_isAlive) return;
 	else if (m_boss.isBossDie) {}
-	else if (m_boss.GetAggroPlayerRole() == NONE_SELECT) {
+	else if (m_boss.GetAggroPlayerRole() == NONE_SELECT && m_boss.GetNewAggroPlayerRole() == NONE_SELECT) {
 		TIMER_EVENT bossStateEvent{ std::chrono::system_clock::now() + std::chrono::milliseconds(100), m_roomId ,EV_BOSS_STATE };
 		g_Timer.InsertTimerQueue(bossStateEvent);
+		return;
 	}
-	//auto aggroCharacter = m_characterMap[m_boss.GetAggroPlayerRole()];		
+	//auto aggroCharacter = m_characterMap[m_boss.GetAggroPlayerRole()];			
 	if (!m_boss.StartAttack()) {
 		m_boss.isAttack = false;
 		m_boss.SetAggroPlayerRole();

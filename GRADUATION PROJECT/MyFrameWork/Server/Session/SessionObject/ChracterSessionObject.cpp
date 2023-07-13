@@ -170,15 +170,18 @@ void ChracterSessionObject::ChangeDirection(DIRECTION d)
 	SetDirection(m_inputDirection);
 }
 
-void ChracterSessionObject::Move(float elapsedTime)
-{	
-	std::cout << "character::Move() - elapsedTime: " << elapsedTime << std::endl;
+bool ChracterSessionObject::Move(float elapsedTime)
+{
 	if (m_inputDirection != DIRECTION::IDLE)
 	{
+#ifdef _DEBUG
+		std::cout << "character::Move() - elapsedTime: " << elapsedTime << std::endl;
+#endif // 
 		if (CheckMove(elapsedTime * m_speed)) {
 			m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, elapsedTime * m_speed));
 			m_SPBB.Center = m_position;
 		}
+		return true;
 		//DIRECTION tespDIR = m_inputDirection;
 		//if (((tespDIR & DIRECTION::LEFT) == DIRECTION::LEFT) &&
 		//	((tespDIR & DIRECTION::RIGHT) == DIRECTION::RIGHT))
@@ -212,6 +215,7 @@ void ChracterSessionObject::Move(float elapsedTime)
 		//default: break;
 		//}
 	}
+	return false;
 }
 
 void ChracterSessionObject::Rotate(ROTATE_AXIS axis, float angle)

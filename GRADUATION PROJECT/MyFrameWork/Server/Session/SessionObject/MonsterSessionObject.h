@@ -32,7 +32,7 @@ public:
 	virtual void Rotate(ROTATE_AXIS axis, float angle) override;
 public:
 	void SetDirection(DIRECTION d);
-	void Move(float elapsedTime) override;
+	bool Move(float elapsedTime) override;
 public:
 	void SetDestinationPos();
 	void SetRestRotateAngle(ROTATE_AXIS axis, float angle) {
@@ -57,6 +57,7 @@ public:
 	void ReserveAggroPlayerRole(ROLE r);
 	void SetAggroPlayerRole();
 	ROLE GetAggroPlayerRole() { return m_aggroPlayerRole; }
+	ROLE GetNewAggroPlayerRole() { return m_newAggroPlayerRole; }
 	void AttackTimer();
 	void AttackPlayer();
 	bool StartAttack();

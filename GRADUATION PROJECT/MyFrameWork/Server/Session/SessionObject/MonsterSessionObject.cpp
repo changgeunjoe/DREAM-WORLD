@@ -70,7 +70,7 @@ void MonsterSessionObject::Rotate(ROTATE_AXIS axis, float angle)
 	//std::cout << "Boss Dir Vector" << m_directionVector.x << " " << m_directionVector.y << " " << m_directionVector.z << std::endl;
 }
 
-void MonsterSessionObject::Move(float elapsedTime)
+bool MonsterSessionObject::Move(float elapsedTime)
 {	
 	XMFLOAT3 destinationPlayerPos = g_RoomManager.GetRunningRoomRef(m_roomId).GetPositionPlayCharacter(m_aggroPlayerRole);//플레이어 위치
 	XMFLOAT3 desPlayerVector = Vector3::Subtract(destinationPlayerPos, m_position);
@@ -90,7 +90,7 @@ void MonsterSessionObject::Move(float elapsedTime)
 			m_SPBB.Center = m_position;
 			m_SPBB.Center.y += 30.0f;
 		}
-		return;
+		return true;
 	}
 	else {//그렇지 못하다면 길을 찾아 가야한다.
 		m_reserveRoadLock.lock();
@@ -164,6 +164,7 @@ void MonsterSessionObject::Move(float elapsedTime)
 	//}
 
 	//}
+	return true;
 }
 
 
@@ -265,6 +266,7 @@ void MonsterSessionObject::AttackPlayer()
 
 bool MonsterSessionObject::StartAttack()
 {
+	if (m_aggroPlayerRole == ROLE::NONE_SELECT) return false;
 	XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f);
 	XMFLOAT3& pPos = g_RoomManager.GetRunningRoomRef(m_roomId).GetPositionPlayCharacter(m_aggroPlayerRole);
 	XMFLOAT3 des = Vector3::Subtract(pPos, m_position);	// 목적지랑 위치랑 벡터	

@@ -36,7 +36,7 @@ public:
 	virtual void StopMove();
 	virtual void ChangeDirection(DIRECTION d);
 public:
-	void Move(float elapsedTime) override;
+	bool Move(float elapsedTime) override;
 	void SetDirection(DIRECTION d);
 	void SetMouseInput(bool LmouseInput, bool RmouseInput);
 	bool CheckMove(float fDistance);

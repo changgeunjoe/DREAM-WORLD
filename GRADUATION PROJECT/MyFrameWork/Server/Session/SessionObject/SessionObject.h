@@ -33,7 +33,7 @@ public:
 	/*virtual void StartMove(DIRECTION d) = 0;
 	virtual void StopMove() = 0;
 	virtual void ChangeDirection(DIRECTION d) = 0;*/
-	virtual void Move(float elapsedTime) = 0;
+	virtual bool Move(float elapsedTime) = 0;
 public:
 public:
 	virtual void Rotate(ROTATE_AXIS axis, float angle) = 0;

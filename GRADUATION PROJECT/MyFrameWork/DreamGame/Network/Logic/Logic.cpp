@@ -622,10 +622,8 @@ void Logic::ProcessPacket(char* p)
 
 
 		SERVER_PACKET::BossMoveNodePacket* recvPacket = reinterpret_cast<SERVER_PACKET::BossMoveNodePacket*>(p);
-		std::queue<int> recvNodeQueue;
-		gGameFramework.m_pScene->m_pObjectManager->m_nodeLock.lock();
-		gGameFramework.m_pScene->m_pObjectManager->m_VecNodeQueue.clear();
-		gGameFramework.m_pScene->m_pObjectManager->m_nodeLock.unlock();
+		if (gGameFramework.m_pScene == nullptr) return;
+		std::queue<int> recvNodeQueue;		
 		//Role로 변경했음 이거 참고 바람
 		m_MonsterSession.m_currentPlayGameObject->m_roleDesPlayer = recvPacket->targetRole;
 		//std::cout << "recv aggro Id: " << recvPacket->desPlayerId << std::endl;

@@ -587,15 +587,14 @@ void Logic::MatchMaking()
 
 			int newRoomId = g_RoomManager.GetRoomId();
 			if (newRoomId != -1) {
-				for (const auto& p : matchPlayer) {//플레이어 정보 세팅하고 뿌려주기
-					//send match Success Packet
-
-					//role Setting  빠짐
-					g_iocpNetwork.m_session[p.second].SetRoomId(newRoomId);//roomId to Player					
-					//플레이어 정보 해야됨
-				}
 				Room& roomRef = g_RoomManager.GetRunningRoomRef(newRoomId);
 				roomRef.InsertInGamePlayer(matchPlayer);
+				for (const auto& p : matchPlayer) {//플레이어 정보 세팅하고 뿌려주기
+					//send match Success Packet
+					//플레이어 정보 해야됨
+					g_iocpNetwork.m_session[p.second].SetRole(p.first);
+					g_iocpNetwork.m_session[p.second].SetRoomId(newRoomId);
+				}
 				roomRef.SendAllPlayerInfo();
 
 				SERVER_PACKET::NotifyPacket sendPacket;

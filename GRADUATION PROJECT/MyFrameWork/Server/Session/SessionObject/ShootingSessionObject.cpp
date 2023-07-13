@@ -50,12 +50,12 @@ void ShootingSessionObject::SetStart(XMFLOAT3& dir, XMFLOAT3& srcPos, float spee
 	m_SPBB = BoundingSphere(XMFLOAT3(srcPos.x, srcPos.y + 4.0f, srcPos.z), 4.0f);
 }
 
-void ShootingSessionObject::Move(float elapsedTime)
+bool ShootingSessionObject::Move(float elapsedTime)
 {
 	m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, elapsedTime * m_speed));
 	m_SPBB = BoundingSphere(XMFLOAT3(m_position.x, m_position.y + 4.0f, m_position.z), 4.0f);
 	//순수 가상함수 Move에 추가하자 밑에 부분
 	m_distance += elapsedTime * m_speed;
-	if (m_distance > 250.0f) m_active = false;	// 추후 수정 //생명주기 관리에 사용
-	m_lastMoveTime = std::chrono::high_resolution_clock::now();
+	if (m_distance > 250.0f) m_active = false;	// 추후 수정 //생명주기 관리에 사용	
+	return true;
 }

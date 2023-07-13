@@ -24,7 +24,7 @@ public:
 	int DetectCollision(MonsterSessionObject* m_bossSession);
 	void SetSpeed(float speed);
 	void SetStart(XMFLOAT3& dir, XMFLOAT3& srcPos, float speed);
-	void Move(float elapsedTime) override;
+	bool Move(float elapsedTime) override;
 public:
 	void SetInfo(int idx)
 	{
