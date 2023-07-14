@@ -13,6 +13,7 @@
 #include"InstanceRenderComponent.h"
 #include"TerrainShaderComponent.h"
 #include"TrailShaderComponent.h"
+#include"EffectShaderComponent.h"
 //include"CLoadModelinfo.h"
 class DepthRenderShaderComponent;
 class CLoadedModelInfoCompnent;
@@ -23,6 +24,7 @@ class Projectile;
 class InstanceRenderComponent;
 class TrailShaderComponent;
 class TerrainShaderComponent;
+
 
 #define MATERIAL_ALBEDO_MAP				0x01
 #define MATERIAL_SPECULAR_MAP			0x02
@@ -58,7 +60,7 @@ public:
 	void SetMesh(MeshComponent* pMesh);
 	void SetCamera(CCamera* pCamera);
 	void SetRowColumn(float x, float y, float fSpeed = 0.1);
-	void MoveObject(DIRECTION& currentDirection, const XMFLOAT3& CameraAxis);
+	virtual void MoveObject(DIRECTION& currentDirection, const XMFLOAT3& CameraAxis);
 
 	void MoveStrafe(float fDistance = 1.0f);
 	void MoveUp(float fDistance = 1.0f);
@@ -66,6 +68,7 @@ public:
 	virtual void MoveForward(float fDistance = 1.0f);
 	virtual void Move(DIRECTION direction, float fDistance = 1.0f);
 	virtual void Move(XMFLOAT3 direction, float fDistance = 1.0f);
+	virtual void MoveVelocity(XMFLOAT3 direction, float ftimeelapsed ,float fDistance = 1.0f);
 
 	bool CheckIntersect(const GameObject* GameObject);	//수정필요
 
@@ -104,6 +107,8 @@ public:
 	virtual void UpdateObjectVarialbes(XMFLOAT4X4* pxmf4x4World);
     virtual void ReleaseShaderVariables();
 	virtual void Reset() {};
+
+	virtual void Die(float ftimeelapsed);
 
 	void SetChild(GameObject* pChild, bool bReferenceUpdate = false);
 	GameObject* FindFrame(char* pstrFrameName);
@@ -192,16 +197,19 @@ public:
 	bool                            m_RMouseInput = false;
 
 	bool                            m_bRimLight = true;
+	bool							m_bDie = false;
 
 	XMFLOAT4						m_xmf4Color{};
 
+	float                           m_fScale = 0.0f;
+	XMFLOAT3                        m_f3Scale{};
 protected:
 
 	int								m_nReferences = 0;
 	UINT							m_nTextureType;
 	int                             m_nSamplers = 1;
 	int                             m_nRootParameter = 1;
-	float                           m_fScale = 0.0f;
+	
 
 	int								m_iVertexCount = 0;
 	entity_id m_entityID{};//object id 
@@ -282,6 +290,8 @@ public:
 
 	void CalculateDistance(const XMFLOAT3& xmf3CameramPosition);
 
+
+
 protected:
 	bool                            m_bLButtonClicked = false;
 	bool                            m_bRButtonClicked = false;
@@ -301,7 +311,7 @@ protected:
 
 	CHeightMapImage* m_pHeightMapImage;
 public:
-	array<Projectile*, 10>          m_pProjectiles;
+	array<Projectile*, MAX_ARROW>          m_pProjectiles;
 
 	void SetBoundingSize(float size)
 	{
@@ -320,6 +330,8 @@ public:
 	float m_interpolationDistance = 0.0f;
 	XMFLOAT3 m_interpolationVector = XMFLOAT3{ 0,0,0 };
 	float m_interpolationRotateAngleY = 0.0f;
+
+	XMFLOAT3 m_xmf3RamdomDirection{};
 public:
 	GameObject* m_pHPBarUI{ NULL };
 	GameObject* m_pProfileUI{ NULL };
@@ -432,6 +444,14 @@ inline T* GameObject::ComponentType(component_id& componentID)
 	else if (typeid(T).name() == typeid(NaviMeshShaderComponent).name())
 	{
 		componentID = component_id::NAVIMESHSHADER_COMPONENT;
+	}
+	else if (typeid(T).name() == typeid(EffectShaderComponent).name())
+	{
+		componentID = component_id::EFFECTSHADER_COMPONENT;
+	}
+	else if (typeid(T).name() == typeid(BlendShaderComponent).name())
+	{
+		componentID = component_id::BLENDSHADER_COMPONENT;
 	}
     else
     {

@@ -130,6 +130,9 @@
     <Filter Include="03.GameObject\Effect">
       <UniqueIdentifier>{79599104-53d1-42d5-8604-114a4f3c5a46}</UniqueIdentifier>
     </Filter>
+    <Filter Include="04.Component\ShaderComponent\EffectShaderComponent">
+      <UniqueIdentifier>{cb153da1-0e0d-49f0-ab14-3f79dbe85602}</UniqueIdentifier>
+    </Filter>
     <Filter Include="10.NetworkHelper\MapData">
       <UniqueIdentifier>{80961179-1fbb-4289-9c68-f88f90b588a7}</UniqueIdentifier>
     </Filter>
@@ -279,6 +282,9 @@
     <ClInclude Include="Network\MapData\MapData.h">
       <Filter>10.NetworkHelper\MapData</Filter>
     </ClInclude>
+    <ClInclude Include="EffectShaderComponent.h">
+      <Filter>04.Component\ShaderComponent\EffectShaderComponent</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -415,6 +421,9 @@
     </ClCompile>
     <ClCompile Include="Network\MapData\MapData.cpp">
       <Filter>10.NetworkHelper\MapData</Filter>
+    </ClCompile>
+    <ClCompile Include="EffectShaderComponent.cpp">
+      <Filter>04.Component\ShaderComponent\EffectShaderComponent</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

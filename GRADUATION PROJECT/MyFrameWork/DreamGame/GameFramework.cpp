@@ -563,7 +563,7 @@ void CGameFramework::BuildObjects()
 	m_pCamera = new CCamera();
 
 	m_pCamera->GenerateProjectionMatrix(1.01f, 5000.0f, ASPECT_RATIO, 60.0f);
-	m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
+	m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 0.98f);
 	m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
 	m_pCamera->CreateShaderVariables(m_pd3dDevice, m_pd3dCommandList);
 
@@ -704,10 +704,10 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 
 void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
-	if (m_bLobbyScene) {
+	if (!m_bLobbyScene) {
 		m_pLobbyScene->onProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
 	}
-	else if (!m_bLobbyScene) {
+	else if (m_bLobbyScene) {
 		m_pScene->onProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
 	}
 	switch (nMessageID)
@@ -725,13 +725,13 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			break;
 		case VK_F2:
 #ifdef LOCAL_TASK
-			m_bLobbyScene = !m_bLobbyScene;
+			//m_bLobbyScene = !m_bLobbyScene;
 #endif
 			break;
 		case VK_F8:
 			break;
 		case VK_F9:
-			ChangeSwapChainState();
+			//ChangeSwapChainState();
 			break;
 		default:
 			break;
@@ -823,8 +823,10 @@ void CGameFramework::ProcessInput()
 
 					g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::X, g_Logic.m_inGamePlayerSession[0].m_ownerRotateAngle.x);
 					g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::Y, cxDelta);
-
-				m_pCamera->Rotate(cyDelta, cxDelta, 0.0f);
+					if (!m_bLobbyScene)
+					{
+						m_pCamera->Rotate(cyDelta, cxDelta, 0.0f);
+					}
 				//}
 			}
 			if (dwDirection != DIRECTION::IDLE) {
@@ -840,20 +842,22 @@ void CGameFramework::AnimateObjects()
 {
 	float fTimeElapsed = m_GameTimer.GetTimeElapsed();
 	if (m_pScene) m_pScene->AnimateObjects(m_GameTimer.GetTimeElapsed());
-	m_pUILayer->Update(fTimeElapsed);
+	
 }
 
 void CGameFramework::WaitForGpuComplete()
 {
 	UINT64 nFenceValue = ++m_nFenceValues[m_nSwapChainBufferIndex];
-	//CPU펜스의 값을 증가한다.
+
 	HRESULT hResult = m_pd3dCommandQueue->Signal(m_pd3dFence, nFenceValue);
-	//GPU가 펜스의 값을 설정하는 명령을 명령 큐에 추가한다.
+
 	if (m_pd3dFence->GetCompletedValue() < nFenceValue)
 	{
-		//펜스의 현재 값이 설정한 값보다 작으면 펜스의 현재 값이 설정한 값이 될 때까지 기다린다.
 		hResult = m_pd3dFence->SetEventOnCompletion(nFenceValue, m_hFenceEvent);
-		::WaitForSingleObject(m_hFenceEvent, INFINITE);
+		if (SUCCEEDED(hResult))
+		{
+			::WaitForSingleObject(m_hFenceEvent, INFINITE);
+		}
 	}
 }
 void CGameFramework::MoveToNextFrame()
@@ -879,7 +883,7 @@ void CGameFramework::FrameAdvance()
 	hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 	//명령 할당자와 명령 리스트를 리셋한다.
 
-	if (!m_bLobbyScene)
+	if (m_bLobbyScene)
 		m_pScene->OnPreRender(m_pd3dDevice, m_pd3dCommandList, m_pCamera);
 
 	D3D12_RESOURCE_BARRIER d3dResourceBarrier;
@@ -914,19 +918,19 @@ void CGameFramework::FrameAdvance()
 	//렌더 타겟 뷰(서술자)와 깊이-스텐실 뷰(서술자)를 출력-병합 단계(OM)에 연결한다. //렌더링 코드는 여기에 추가될 것이다.
 	//m_pScene->OnPreRender(m_pd3dDevice, m_pd3dCommandList, m_pCamera);
 	//Render2DFont();
-	if (m_bLobbyScene)
+	
+	 if (m_bLobbyScene)
 	{
-		if (m_pLobbyScene) m_pLobbyScene->UIRender(m_pd3dDevice, m_pd3dCommandList, m_pUICamera);
-	}
-	else if (!m_bLobbyScene)
-	{
-		/*if (m_bSceneBuild) {
-			m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList, m_pCamera);
-			m_bSceneBuild = false;
-		}*/
 		if (m_pScene) m_pScene->Render(m_pd3dDevice, m_pd3dCommandList, m_pCamera);
-		if (m_pScene) m_pScene->UIRender(m_pd3dDevice, m_pd3dCommandList, m_pUICamera, m_GameTimer.GetTimeElapsed());
 	}
+	 if (m_bLobbyScene)
+	 {
+		 if (m_pLobbyScene) m_pLobbyScene->UIRender(m_pd3dDevice, m_pd3dCommandList, m_pUICamera);
+	 }
+	 if (!m_bLobbyScene)
+	 {
+		 if (m_pScene) m_pScene->UIRender(m_pd3dDevice, m_pd3dCommandList, m_pUICamera, m_GameTimer.GetTimeElapsed());
+	 }
 
 
 #ifndef _WITH_DIRECT2D

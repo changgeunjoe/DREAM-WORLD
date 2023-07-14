@@ -70,7 +70,7 @@ void UILayer::Initialize(ID3D12Device* pd3dDevice, ID3D12CommandQueue* pd3dComma
 	m_pd2dDevice->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, (ID2D1DeviceContext2**)&m_pd2dDeviceContext);
 
 	m_pd2dDeviceContext->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_GRAYSCALE);
-	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White), (ID2D1SolidColorBrush**)&m_pd2dTextBrush);
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightPink), (ID2D1SolidColorBrush**)&m_pd2dTextBrush);
 
 	DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), (IUnknown**)&m_pd2dWriteFactory);
 	pdxgiDevice->Release();
@@ -158,7 +158,7 @@ void UILayer::Resize(ID3D12Resource** ppd3dRenderTargets, UINT nWidth, UINT nHei
 	m_pd2dDevice->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &m_pd2dDeviceContext);
 	m_pd2dDeviceContext->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_GRAYSCALE);
 	if (m_pd2dTextBrush) m_pd2dTextBrush->Release();
-	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White), &m_pd2dTextBrush);
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Brown), &m_pd2dTextBrush);
 
 	const float fFontSize = m_fHeight / 20.0f;
 	const float fSmallFontSize = m_fHeight / 30.0f;
@@ -166,61 +166,61 @@ void UILayer::Resize(ID3D12Resource** ppd3dRenderTargets, UINT nWidth, UINT nHei
 
 
 
-	//ComPtr<IDWriteFontFile> fontFileReference;
+	ComPtr<IDWriteFontFile> fontFileReference;
 
-	//m_pd2dWriteFactory->CreateFontFileReference(L"MyFont.ttf", nullptr, &fontFileReference);
+	m_pd2dWriteFactory->CreateFontFileReference(L"Font/CookieRunBold.ttf", nullptr, &fontFileReference);
 
-	//ComPtr<IDWriteFontSetBuilder1> fontSetBuilder;
-	//m_pd2dWriteFactory->CreateFontSetBuilder(&fontSetBuilder);
+	ComPtr<IDWriteFontSetBuilder1> fontSetBuilder;
+	m_pd2dWriteFactory->CreateFontSetBuilder(&fontSetBuilder);
 
-	//fontSetBuilder->AddFontFile(fontFileReference.Get());
+	fontSetBuilder->AddFontFile(fontFileReference.Get());
 
-	//ComPtr<IDWriteFontSet> customFontSet;
-	//fontSetBuilder->CreateFontSet(&customFontSet);
+	ComPtr<IDWriteFontSet> customFontSet;
+	fontSetBuilder->CreateFontSet(&customFontSet);
 
-	//m_pd2dWriteFactory->CreateFontCollectionFromFontSet(customFontSet.Get(), &m_pdwFontCollection);
+	m_pd2dWriteFactory->CreateFontCollectionFromFontSet(
+		customFontSet.Get()
+		, &m_pdwFontCollection1
+	);
 
+	ComPtr<IDWriteFontFamily> fontFamily;
+	ComPtr<IDWriteLocalizedStrings> localizedFontName;
+	TCHAR c_styleFontName[65];
 
-
-
-
-
-	//if (AddFontResourceExA("netmarble Medium", FR_PRIVATE, 0) == 0)
-	//AddFontResourceExA("netmarble Medium", FR_PRIVATE, 0);
-	//m_pd2dWriteFactory->CreateTextFormat(L"netmarble Medium", nullptr, DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, fFontSize, L"en-us", &m_pdwTextFormat);
-	m_pd2dWriteFactory->CreateTextFormat(L"궁서체", nullptr, DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, fFontSize, L"en-us", &m_pdwTextFormat);
+	m_pdwFontCollection1->GetFontFamily(0, &fontFamily);
+	fontFamily->GetFamilyNames(&localizedFontName);
+	localizedFontName->GetString(0, c_styleFontName, 65);
+	m_pd2dWriteFactory->CreateTextFormat(c_styleFontName, m_pdwFontCollection1, DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, fFontSize, L"ko", &m_pdwTextFormat);
 
 
 	m_pdwTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
 	m_pdwTextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR);
 
 
-	m_pd2dWriteFactory->CreateTextFormat(L"궁서체", nullptr, DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, fSmallFontSize, L"en-us", &m_pdwDamageFontFormat);
+	m_pd2dWriteFactory->CreateTextFormat(c_styleFontName, m_pdwFontCollection1, DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, fSmallFontSize, L"en-us", &m_pdwDamageFontFormat);
 
 	m_pdwDamageFontFormat->SetTextAlignment(/*DWRITE_TEXT_ALIGNMENT_CENTER*/DWRITE_TEXT_ALIGNMENT_LEADING);
 	m_pdwDamageFontFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR);
 	//    m_pd2dWriteFactory->CreateTextFormat(L"Arial", nullptr, DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, fSmallFontSize, L"en-us", &m_pdwTextFormat);
-
-
 		/////////////
 		//wstring str = L"";
 		//CTextBlock* pTb = new CNPCTextBlock(m_pdwTextFormat, D2D1::RectF(0.f, 0.f, (float)FRAME_BUFFER_WIDTH, (float)FRAME_BUFFER_HEIGHT), str);
 		//m_vecTextBlocks[TEXT_NPC].emplace_back(pTb);
 }
 
-void UILayer::Update(const float& fTimeElapsed)
+void UILayer::Update(const float& fTimeElapsed,bool& binteraction,bool& bscreen)
 {
 	for (int j = 0; j < TEXT_TYPE::TEXT_END; ++j)
 	{
 		auto it = m_vecTextBlocks[j].begin();
-		while (it != m_vecTextBlocks[j].end())
+		while (it != m_vecTextBlocks[j].end()&& binteraction)
 		{
-			(*it)->Update(fTimeElapsed);
+			(*it)->Update(fTimeElapsed, binteraction, bscreen);
 
 			if ((*it)->m_isDead)
 			{
-				delete (*it);
-				it = m_vecTextBlocks[j].erase(it);
+				delete (*it); 
+				it=m_vecTextBlocks[j].erase(it);
 			}
 			else
 				++it;
@@ -238,7 +238,7 @@ void UILayer::AddDamageFont(XMFLOAT3 xmf3WorldPos, wstring strText)
 void UILayer::AddTextFont(queue<wstring>& queueStr)
 {
 	if (!m_vecTextBlocks[TEXT_NPC].empty()) //NPC Text는 1개 씩
-	    m_vecTextBlocks[TEXT_NPC].front()->m_isDead = true;
+		m_vecTextBlocks[TEXT_NPC].front()->m_isDead = true;
 
 	CTextBlock* pTb = new CNPCTextBlock(m_pdwTextFormat, D2D1::RectF(0.f, 0.f, m_fWidth, m_fHeight), queueStr);
 	m_vecTextBlocks[TEXT_NPC].emplace_back(pTb);
@@ -314,7 +314,7 @@ CDamageTextBlock::~CDamageTextBlock()
 {
 }
 
-void CDamageTextBlock::Update(const float& fTimeElapsed)
+void CDamageTextBlock::Update(const float& fTimeElapsed, bool& bInteraction, bool& bscreen)
 {
 	m_fLifeTime -= fTimeElapsed;
 	if (m_fLifeTime < 0.f)
@@ -346,8 +346,8 @@ CNPCTextBlock::CNPCTextBlock(IDWriteTextFormat* pdwFormat, D2D1_RECT_F& d2dLayou
 	m_qTotalText = queueStr;
 	//m_strTotalText = L"승붕게이야 카톡읽으면 답장해라...";
 
-	m_d2dLayoutRect.left = FRAME_BUFFER_WIDTH * 0.5f;
-	m_d2dLayoutRect.top = FRAME_BUFFER_HEIGHT * 0.5f;
+	m_d2dLayoutRect.left = FRAME_BUFFER_WIDTH * 0.27f;
+	m_d2dLayoutRect.top = FRAME_BUFFER_HEIGHT * 0.85f;
 }
 
 CNPCTextBlock::~CNPCTextBlock()
@@ -355,22 +355,84 @@ CNPCTextBlock::~CNPCTextBlock()
 }
 #define CHARACTHER_DELAY 0.1f
 #define SENTENCE_DELAY 1.5f
-void CNPCTextBlock::Update(const float& fTimeElapsed)
+void CNPCTextBlock::Update(const float& fTimeElapsed,bool& bInteraction,bool& bscreen)
 {
+	
 	m_fTime += fTimeElapsed;
+	if (m_qTotalText.empty()) {
+		bscreen = false;
+		bInteraction = false;
+	}
 	if (m_fTime > CHARACTHER_DELAY && !m_qTotalText.empty())
 	{
-		wstring curTotalStr = m_qTotalText.front();
+		wstring curTotalStr = m_qTotalText.front(); 
 		//m_strText.assign(m_strTotalText, 0, ++m_iIndex);
-		m_strText.append(curTotalStr, m_iIndex++, 1);
-
+		if (!m_bInitSentences) {
+			m_strText.append(curTotalStr, m_iIndex++, 1);
+		}
 		if (m_iIndex > curTotalStr.size()) //한 문장 끝나면
 		{
-			m_qTotalText.pop();
+			bInteraction = false;
+			//m_strText.erase();
+			//m_strText.clear(); // 
+			//m_isDead = true;
+			//m_qTotalText.pop();
+
 			m_iIndex = 0;
+			m_bInitSentences = true;
 			//m_isSentenceEnd = true;
+		}
+		if (bInteraction && m_bInitSentences) {
+			m_strText.clear();
+			m_qTotalText.pop();
+			m_bInitSentences = false;
+			
 		}
 		m_fTime = 0.f;
 
 	}
+}
+
+CLobbyTextBlock::CLobbyTextBlock(IDWriteTextFormat* pdwFormat, D2D1_RECT_F& d2dLayoutRect, queue<wstring>& queueStr,XMFLOAT2 mf2LayoutRect)
+{
+	m_pdwFormat = pdwFormat;
+	m_d2dLayoutRect = d2dLayoutRect;
+	m_qTotalText = queueStr;
+	//m_strTotalText = strText;
+	m_d2dLayoutRect.left = FRAME_BUFFER_WIDTH * mf2LayoutRect.x;
+	m_d2dLayoutRect.top = FRAME_BUFFER_HEIGHT * mf2LayoutRect.y;
+
+}
+
+CLobbyTextBlock::~CLobbyTextBlock()
+{
+}
+
+void CLobbyTextBlock::Update(const float& fTimeElapsed, bool& bInteraction, bool& bscreen)
+{
+	//m_fTime += fTimeElapsed;
+	//if (m_qTotalText.empty()) {
+	//	bscreen = false;
+	//	bInteraction = false;
+	//}
+	//if (m_fTime > CHARACTHER_DELAY && !m_qTotalText.empty())
+	//{
+	//	wstring curTotalStr = m_qTotalText.front();
+	//	//m_strText.assign(m_strTotalText, 0, ++m_iIndex);
+	//	if (!m_bInitSentences) {
+	//		m_strText.append(curTotalStr, m_iIndex++, 1);
+	//	}
+	//	if (m_iIndex > curTotalStr.size()) //한 문장 끝나면
+	//	{
+	//		bInteraction = false;
+	//		//m_strText.erase();
+	//		//m_strText.clear(); // 
+	//		//m_isDead = true;
+	//		//m_qTotalText.pop();
+
+	//		m_iIndex = 0;
+	//		m_bInitSentences = true;
+	//		//m_isSentenceEnd = true;
+	//	}
+	//
 }

@@ -34,7 +34,7 @@ public:
     void ReleaseResources();
     void Resize(ID3D12Resource** ppd3dRenderTargets, UINT width, UINT height);
 
-    void Update(const float& fTimeElapsed);
+    void Update(const float& fTimeElapsed, bool &binteraction, bool& bscreen);
 
     void AddDamageFont(XMFLOAT3 xmf3WorldPos, wstring strText);
     void AddTextFont(queue<wstring>& queueStr);
@@ -50,7 +50,7 @@ private:
 
     ID3D11DeviceContext* m_pd3d11DeviceContext = NULL;
     ID3D11On12Device* m_pd3d11On12Device = NULL;
-    IDWriteFactory* m_pd2dWriteFactory = NULL;
+    IDWriteFactory5* m_pd2dWriteFactory = NULL;
     ID2D1Factory3* m_pd2dFactory = NULL;
     ID2D1Device2* m_pd2dDevice = NULL;
     ID2D1DeviceContext2* m_pd2dDeviceContext = NULL;
@@ -58,9 +58,10 @@ private:
     IDWriteTextFormat* m_pdwTextFormat = NULL;
     IDWriteTextFormat* m_pdwDamageFontFormat = NULL;
 
+    IDWriteFontCollection1* m_pdwFontCollection1 = NULL;
     std::vector<ID3D11Resource*>    m_vWrappedRenderTargets;
     std::vector<ID2D1Bitmap1*>      m_vd2dRenderTargets;
-    vector<list<CTextBlock*>>         m_vecTextBlocks;
+    vector<list<CTextBlock*>>       m_vecTextBlocks;
     std::list<CDamageTextBlock*>    m_listDamageFont;
 
 };
@@ -74,13 +75,14 @@ public:
     virtual ~CTextBlock();
 
 public:
-    virtual void Update(const float& fTimeElapsed) { ; }
+    virtual void Update(const float& fTimeElapsed,bool &bInteraction, bool& bscreen) { ; }
 
 public:
     IDWriteTextFormat* m_pdwFormat;
     D2D1_RECT_F         m_d2dLayoutRect;
     wstring             m_strText;
     bool                m_isDead = false;
+    bool    m_bInitSentences = false;
 
 };
 
@@ -92,7 +94,7 @@ public:
     virtual ~CDamageTextBlock();
 
 public:
-    virtual void Update(const float& fTimeElapsed) override;
+    virtual void Update(const float& fTimeElapsed, bool& bInteraction,bool& bscreen) override;
 
 public:
     XMFLOAT3            m_xmf3WorldPos;
@@ -110,7 +112,23 @@ public:
     virtual ~CNPCTextBlock();
 
 public:
-    virtual void Update(const float& fTimeElapsed) override;
+    virtual void Update(const float& fTimeElapsed,bool& bInteraction, bool& bscreen) override;
+
+public:
+    queue<wstring>      m_qTotalText;
+    float               m_fTime = 0.f;
+    int                 m_iIndex = 0;
+
+
+};
+class CLobbyTextBlock : public CTextBlock
+{
+public:
+    CLobbyTextBlock(IDWriteTextFormat* pdwFormat, D2D1_RECT_F& d2dLayoutRect, queue<wstring>& queueStr, XMFLOAT2 mf2LayoutRect);
+    virtual ~CLobbyTextBlock();
+
+public:
+    virtual void Update(const float& fTimeElapsed, bool& bInteraction, bool& bscreen) override;
 
 public:
     queue<wstring>      m_qTotalText;

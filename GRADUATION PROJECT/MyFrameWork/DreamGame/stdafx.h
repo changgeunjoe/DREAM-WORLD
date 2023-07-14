@@ -19,7 +19,7 @@
 #include <memory.h>
 #include <tchar.h>
 #include <math.h>
-
+#include <dwrite_3.h>
 #include <string>
 #include <wrl.h>
 #include <shellapi.h>
@@ -118,8 +118,8 @@ using Microsoft::WRL::ComPtr;
 
 //#define _WITH_SWAPCHAIN_FULLSCREEN_STATE
 #define PIXELCOUNT				257
-#define FRAME_BUFFER_WIDTH		1280
-#define FRAME_BUFFER_HEIGHT		720
+#define FRAME_BUFFER_WIDTH		GetSystemMetrics(SM_CXSCREEN)
+#define FRAME_BUFFER_HEIGHT		GetSystemMetrics(SM_CYSCREEN)
 
 
 #define _PLANE_WIDTH			300
@@ -140,6 +140,7 @@ using Microsoft::WRL::ComPtr;
 #define CARTOON_MODE			1
 #define OUTLINE_MODE			2
 #define CELLSHADING_MODE		3
+#define DISSOLVE_MODE			4	
 
 #define ANIMATION_CALLBACK_EPSILON		0.0165f
 //#define _WITH_CB_GAMEOBJECT_32BIT_CONSTANTS
@@ -163,7 +164,7 @@ using Microsoft::WRL::ComPtr;
 
 #pragma comment(lib, "dxguid.lib")
 
-
+#define MAX_ARROW 10
 
 // TODO: 프로그램에 필요한 추가 헤더는 여기에서 참조합니다.
 
@@ -289,7 +290,9 @@ enum component_id
 	TRAILSHADER_COMPONENT,
 	HEIGHTMESH_COMPONENT,
 	TERRAINSHADER_COMPONENT,	
-	NAVIMESHSHADER_COMPONENT
+	NAVIMESHSHADER_COMPONENT,
+	EFFECTSHADER_COMPONENT,
+	BLENDSHADER_COMPONENT
 };
 //mean about component_id;
 enum CharacterType
@@ -308,9 +311,17 @@ enum CharacterAnimation
 	CA_ATTACK,
 	CA_DIE,
 	CA_VICTORY,
-	CA_DEFENCE,
+	CA_SKILL,
 	CA_BLENDING = 99
 };
+
+//NPCText
+enum TEXT
+{
+	NPC_TEXT=0,
+	BOSS_TEXT = 1
+};
+
 
 enum BOSS_ATTACK : char {
 	ATTACK_PUNCH,

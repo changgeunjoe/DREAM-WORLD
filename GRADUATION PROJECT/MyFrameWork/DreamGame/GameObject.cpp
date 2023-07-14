@@ -10,6 +10,7 @@
 #include "GameFramework.h"
 #include "GameobjectManager.h"
 
+
 extern MapData g_bossMapData;
 extern CGameFramework gGameFramework;
 
@@ -120,6 +121,8 @@ void GameObject::SetLook(const XMFLOAT3& xmfLook)
 	m_xmf4x4ToParent._11 = xmftRight.x;	m_xmf4x4ToParent._12 = xmftRight.y;	m_xmf4x4ToParent._13 = xmftRight.z;
 	m_xmf4x4ToParent._21 = xmftUp.x;	m_xmf4x4ToParent._22 = xmftUp.y;	m_xmf4x4ToParent._23 = xmftUp.z;
 	m_xmf4x4ToParent._31 = xmftLook.x;	m_xmf4x4ToParent._32 = xmftLook.y;	m_xmf4x4ToParent._33 = xmftLook.z;
+
+	UpdateTransform(NULL);
 }
 
 XMFLOAT3 GameObject::GetUp()
@@ -146,6 +149,7 @@ void GameObject::SetLookAt(XMFLOAT3& xmf3Target, XMFLOAT3& xmf3Up)
 
 void GameObject::SetScale(float x, float y, float z)
 {
+	m_f3Scale = XMFLOAT3(x, y, z);
 	XMMATRIX mtxScale = XMMatrixScaling(x, y, z);
 	m_xmf4x4ToParent = Matrix4x4::Multiply(mtxScale, m_xmf4x4ToParent);
 
@@ -153,6 +157,7 @@ void GameObject::SetScale(float x, float y, float z)
 }
 void GameObject::SetinitScale(float x, float y, float z)
 {
+	
 	XMMATRIX mtxScale = XMMatrixScaling(x, y, z);
 	m_xmf4x4ToParent = Matrix4x4::Identity();
 	m_xmf4x4ToParent = Matrix4x4::Multiply(mtxScale, m_xmf4x4ToParent);
@@ -162,6 +167,7 @@ void GameObject::SetinitScale(float x, float y, float z)
 
 void GameObject::SetScale(float fScale)
 {
+	m_f3Scale = XMFLOAT3(fScale, fScale, fScale);
 	m_fScale = fScale;
 	XMMATRIX mtxScale = XMMatrixScaling(fScale, fScale, fScale);
 	m_xmf4x4ToParent = Matrix4x4::Multiply(mtxScale, m_xmf4x4ToParent);
@@ -352,9 +358,11 @@ void GameObject::BuildShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	ComponentBase* pNaviMeshShaderComponent = GetComponent(component_id::NAVIMESHSHADER_COMPONENT);
 	ComponentBase* pTrailShaderComponent = GetComponent(component_id::TRAILSHADER_COMPONENT);
 	ComponentBase* pTerrainShaderComponent = GetComponent(component_id::TERRAINSHADER_COMPONENT);
-	if (pShaderComponent != NULL || pSkyShaderComponent != NULL || pUiShaderComponent != NULL || pSpriteShaderComponent != NULL
-		|| pBoundingBoxShaderComponent != NULL || pBlendingUiShaderComponent != NULL || pTrailShaderComponent != NULL
-		|| pTerrainShaderComponent != NULL)
+	ComponentBase* pEffectShaderComponent = GetComponent(component_id::EFFECTSHADER_COMPONENT);
+	ComponentBase* pBlendShaderComponent = GetComponent(component_id::BLENDSHADER_COMPONENT);
+	if (pShaderComponent != NULL || pSkyShaderComponent != NULL || pUiShaderComponent != NULL || pSpriteShaderComponent != NULL 
+		|| pBoundingBoxShaderComponent != NULL || pBlendingUiShaderComponent != NULL|| pTrailShaderComponent!=NULL
+		|| pTerrainShaderComponent!=NULL|| pEffectShaderComponent|| pBlendShaderComponent)
 	{
 		if (pShaderComponent != NULL)
 		{
@@ -381,6 +389,12 @@ void GameObject::BuildShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		else if (pTerrainShaderComponent != NULL) {
 			m_pShaderComponent = static_cast<TrailShaderComponent*>(pTerrainShaderComponent);
 		}
+		else if (pEffectShaderComponent != NULL) {
+			m_pShaderComponent = static_cast<EffectShaderComponent*>(pEffectShaderComponent);
+		}
+		else if (pBlendShaderComponent != NULL) {
+			m_pShaderComponent = static_cast<BlendShaderComponent*>(pBlendShaderComponent);
+		}
 		else if (pNaviMeshShaderComponent != NULL)
 		{
 			m_pShaderComponent = static_cast<SphereShaderComponent*>(pNaviMeshShaderComponent);
@@ -406,7 +420,6 @@ void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3
 {
 	UpdateShaderVariables(pd3dCommandList);
 	UpdateShaderVariables(pd3dCommandList, &m_xmf4x4World, NULL);
-
 	if (m_pSkinnedAnimationController)
 		m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
 
@@ -435,6 +448,7 @@ void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3
 					m_ppMaterialsComponent[i]->m_pShader->Render(pd3dCommandList, 0, pd3dGraphicsRootSignature, bPrerender);
 					pd3dCommandList->SetGraphicsRootDescriptorTable(0, m_ppMaterialsComponent[i]->m_pShader->GetCbvGPUDescriptorHandle());
 					m_ppMaterialsComponent[i]->m_pShader->UpdateShaderVariables(pd3dCommandList, &m_xmf4x4World, m_ppMaterialsComponent[i]);
+					//
 					//m_ppMaterialsComponent[i]->UpdateShaderVariable(pd3dCommandList);
 				}
 			}
@@ -640,6 +654,12 @@ void GameObject::ReleaseShaderVariables()
 		m_pd3dcbGameObjects->Unmap(0, NULL);
 		m_pd3dcbGameObjects->Release();
 	}
+}
+
+void GameObject::Die(float ftimeelapsed)
+{
+	m_xmf4Color.w += ftimeelapsed/10;
+	cout << m_xmf4Color.w << endl;
 }
 
 void GameObject::SetChild(GameObject* pChild, bool bReferenceUpdate)
@@ -1247,6 +1267,8 @@ void GameObject::UpdateTransform(XMFLOAT4X4* pxmf4x4Parent)
 
 void GameObject::Move(DIRECTION direction, float fDistance)
 {
+
+
 }
 
 void GameObject::Move(XMFLOAT3 direction, float fDistance)
@@ -1254,6 +1276,40 @@ void GameObject::Move(XMFLOAT3 direction, float fDistance)
 	XMFLOAT3 xmf3Position = GetPosition();
 	xmf3Position = Vector3::Add(xmf3Position, direction, fDistance);
 	if (Vector3::Length(xmf3Position) < PLAYER_MAX_RANGE)	GameObject::SetPosition(xmf3Position);
+}
+
+void GameObject::MoveVelocity(XMFLOAT3 direction, float ftimeelapsed,float fDistance)
+{
+	const float fGravity = 9.8f;
+
+	if (m_fTime < 5)
+	{
+		// 위로 올라가는 구간
+		m_fTime += ftimeelapsed;
+		float fVelocityY = fDistance / 5.0f; // 위로 올라갈 속도 계산
+		float fGravityDistance = fVelocityY * m_fTime - 0.5f * fGravity * m_fTime * m_fTime; // 중력에 의한 이동 거리 계산
+
+		XMFLOAT3 xmf3Position = GetPosition();
+		xmf3Position = Vector3::Add(xmf3Position, direction, fGravityDistance);
+		GameObject::SetPosition(xmf3Position);
+	}
+	else
+	{
+		// 아래로 떨어지는 구간
+		float fTimeAfter5Seconds = m_fTime - 5.0f;
+		float fVelocityY = fDistance / 5.0f; // 아래로 떨어질 속도 계산
+		float fGravityDistance = fVelocityY * fTimeAfter5Seconds + 0.5f * fGravity * fTimeAfter5Seconds * fTimeAfter5Seconds; // 중력에 의한 이동 거리 계산
+
+		XMFLOAT3 xmf3Position = GetPosition();
+		xmf3Position = Vector3::Add(xmf3Position, direction, fGravityDistance);
+		GameObject::SetPosition(xmf3Position);
+
+		m_fTime += ftimeelapsed;
+	}
+
+	if (m_fTime == 10) {
+		GameObject::SetPosition(XMFLOAT3(0,0,0));
+	}
 }
 
 void GameObject::MoveDiagonal(int fowardDirection, int rightDirection, float distance)
@@ -1367,3 +1423,4 @@ void GameObject::MoveObject(DIRECTION& currentDirection, const XMFLOAT3& CameraA
 		SetLook(xmf3Rev);
 	}
 }
+

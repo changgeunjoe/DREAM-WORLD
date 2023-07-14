@@ -69,6 +69,7 @@ public:
 	virtual void ReleaseShaderVariables();
 	virtual LIGHT* GetLight();
 	virtual void BuildLight();
+	void UpdatePosition(XMFLOAT3 &mPosition);
 private:// Light object
 	ID3D12Resource* m_pd3dcbLights = NULL;
 	LIGHTS* m_pcbMappedLights = NULL;
