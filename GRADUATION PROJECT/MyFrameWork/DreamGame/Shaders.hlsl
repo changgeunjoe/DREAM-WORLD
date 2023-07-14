@@ -541,7 +541,7 @@ float4 PSHealRange(VS_HEAL_RANGE_OUTPUT input) : SV_TARGET
     float timeFactor = 5.0f;
     float wave = sin((distance * frequency) + (gfTime * timeFactor)) * amplitude;
 
-    float alpha = 0.0;
+    float alpha = 0.7;
     float4 color;
 
     alpha = 0.5 - smoothstep(150.0f * 0.0f, 150.0f, distance);
@@ -557,7 +557,7 @@ float4 PSHealRange(VS_HEAL_RANGE_OUTPUT input) : SV_TARGET
     //    return color;
     //}
 
-    color = float4(1.0, 1.0, 0.0, alpha);
+    color = float4(0.4, 1.0, 0.4, alpha);
     color.rgb += wave;
 
     return color;

@@ -1256,8 +1256,8 @@ void GameObject::MoveForward(float fDistance)
 	//		return;
 	//	}
 	//}
-	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, fDistance);
-	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * fDistance / 50.0f);
+	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, std::abs(fDistance));
+	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * std::abs(fDistance) / 50.0f);
 	GameObject::SetPosition(xmf3Position);
 	if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(xmf3Position, m_pCamera->GetOffset()));
 }
