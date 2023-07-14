@@ -993,8 +993,8 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	g_Logic.m_inGamePlayerSession[0].m_id = 0;
 #endif // LOCAL_TASK
 
-	//BuildStage1(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//BuildBossStageObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	BuildStage1(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	BuildBossStageObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildNPC(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildShadow(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//무조건 마지막에 해줘야된다.
 // 서순을 잘챙기자 ㅋㅋ	
@@ -1110,10 +1110,10 @@ void GameobjectManager::BuildAstar(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 }
 void GameobjectManager::BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/BigMushroom.txt", "Model/BigMushroom.bin", 0);
+	/*ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/BigMushroom.txt", "Model/BigMushroom.bin", 0);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Mushroom.txt", "Model/Mushroom.bin", 0);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/LongFence.txt", "Model/LongFence.bin", 0);
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence1.txt", "Model/ShortFence01.bin", 0);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence1.txt", "Model/ShortFence01.bin", 0);*/
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence2.txt", "Model/ShortFence02.bin", 0);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence3.txt", "Model/ShortFence03.bin", 0);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Tree.txt", "Model/Tree.bin", 0);

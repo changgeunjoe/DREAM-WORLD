@@ -85,7 +85,7 @@ void MaterialComponent::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12Grap
 		size_t nConverted = 0;
 		mbstowcs_s(&nConverted, pwstrTextureName, 64, pstrFilePath, _TRUNCATE);
 
-// #define _WITH_DISPLAY_TEXTURE_NAME
+#define _WITH_DISPLAY_TEXTURE_NAME
 
 #ifdef _WITH_DISPLAY_TEXTURE_NAME
 		static int nTextures = 0, nRepeatedTextures = 0;
@@ -93,11 +93,25 @@ void MaterialComponent::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12Grap
 		_stprintf_s(pstrDebug, 256, _T("Texture Name: %d %c %s\n"), nTextures++, ' ', pwstrTextureName);
 		OutputDebugString(pstrDebug);
 #endif
-		*ppTexture = new TextureComponent();
-		(*ppTexture)->BuildTexture(1, RESOURCE_TEXTURE2D, 0, 1);
-		(*ppTexture)->LoadTextureFromFile(pd3dDevice, pd3dCommandList, pwstrTextureName, RESOURCE_TEXTURE2D, 0);
-		if (*ppTexture) (*ppTexture)->AddRef();
-		pShader->CreateShaderResourceViews(pd3dDevice, *ppTexture, 0, nRootParameter, false);
+			*ppTexture = new TextureComponent();
+			(*ppTexture)->BuildTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+			(*ppTexture)->LoadTextureFromFile(pd3dDevice, pd3dCommandList, pwstrTextureName, RESOURCE_TEXTURE2D, 0);
+			if (*ppTexture) (*ppTexture)->AddRef();
+			pShader->CreateShaderResourceViews(pd3dDevice, *ppTexture, 0, nRootParameter, false);
+		/*	else
+			{
+				if (pParent)
+				{
+					while (pParent)
+					{
+						if (!pParent->m_pParent) break;
+						pParent = pParent->m_pParent;
+					}
+					GameObject* pRootGameObject = pParent;
+					*ppTexture = pRootGameObject->FindReplicatedTexture(pwstrTextureName);
+					if (*ppTexture) (*ppTexture)->AddRef();
+				}
+			}*/
 	}
 }
 
@@ -118,7 +132,7 @@ void MaterialComponent::PrepareStandardShaders(ID3D12Device* pd3dDevice, ID3D12G
 {
 	int nObjects = 0;
 	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);// 삭제 예정(변경)
-	StandardShaderComponent* pStandardShader= new  StandardShaderComponent();
+	StandardShaderComponent* pStandardShader = new  StandardShaderComponent();
 	pStandardShader = new  StandardShaderComponent();
 	pStandardShader->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
 	pStandardShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 10, 40);
