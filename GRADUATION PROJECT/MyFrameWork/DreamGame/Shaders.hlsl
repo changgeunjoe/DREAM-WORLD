@@ -14,6 +14,7 @@
 #define CARTOON_MODE			1
 #define OUTLINE_MODE			2
 #define CELLSHADING_MODE		3
+#define DISSOLVE_MODE		    4
 
 struct MATERIAL
 {
@@ -645,15 +646,20 @@ VS_SHADOW_MAP_OUTPUT VSShadowMapShadow(VS_LIGHTING_INPUT input)
     return (output);
 }
 
-
+float dissolveThreshold = 0.5f; // Dissolve 텍스처의 임계값
+float dissolveSpeed = 1.0f; // Dissolve 속도
 
 float4 PSShadowMapShadow(VS_SHADOW_MAP_OUTPUT input) : SV_TARGET
 {
     float4 cAlbedoColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
+    float4 cNormalColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
     if (gnTexturesMask & MATERIAL_ALBEDO_MAP) 
         cAlbedoColor = gtxtAlbedoTexture.Sample(gWrapSamplerState, input.uv);
     else
         cAlbedoColor = gMaterial.m_cDiffuse;
+    if (gnTexturesMask & MATERIAL_NORMAL_MAP)
+        cNormalColor = gtxtNormalTexture.Sample(gWrapSamplerState, input.uv);//디퓨즈 컬러로 사용할 예정
+    
     
     if (gfMode == DEFAULT_MODE)
     {
@@ -691,9 +697,36 @@ float4 PSShadowMapShadow(VS_SHADOW_MAP_OUTPUT input) : SV_TARGET
     float3 cLinearColor = pow(cHDRColor.rgb, 2.2f);
     cLinearColor = (cLinearColor * (1.0f + cLinearColor / 5.5f)) / (1.0f + cLinearColor);
     float3 cGammaColor = pow(cLinearColor, 1.0f / 2.2f);
-    if (cColor.w < 0.1f && gmtxGameObjectColor.a!=1)
-       return cColor;
-    return float4(cGammaColor, 1);
+    
+    ////////////////////////////////////////////////////
+        // Dissolve 효과를 위한 변수
+    float dissolveAmount = 0.0f; // Dissolve 정도
+    if (cColor.w < 0.1f && gmtxGameObjectColor.a != 1)
+        return cColor;
+    //if (cGammaColor.y < gmtxGameObjectColor.w)
+    //{
+    //    return float4(cGammaColor, 0);
+    //}
+    // Dissolve 활성화 여부를 확인
+    //if (cAlbedoColor.r < gmtxGameObjectColor.w && gfMode == DISSOLVE_MODE)
+    //{
+    //    return float4(cGammaColor, 0);
+    //    //dissolveAmount = saturate((input.positionW.x + input.positionW.y + input.positionW.z) * dissolveSpeed);
+    //    //dissolveAmount = 1.0f - dissolveAmount;
+    //    //dissolveAmount = step(dissolveThreshold, dissolveAmount);
+    //    //float3 finalColor = lerp(cGammaColor.rgb, float3(0.0f, 0.0f, 0.0f), dissolveAmount);
+
+    //    //return float4(finalColor, 1.0f);
+    //}
+
+    // 캐릭터가 사라지는 부분과 dissolve된 부분을 혼합
+
+
+    ////////////////////////////////////////////////////
+       
+    return float4(cGammaColor, 1 );
+    
+  
     
    
     //else if (dot(normalize(cIllumination), normalize(gLightDir.xyz)) > cThreshold) // 빛의 방향과 색상 값으로 경계면을 계산합니다.

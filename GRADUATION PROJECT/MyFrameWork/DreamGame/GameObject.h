@@ -108,6 +108,8 @@ public:
     virtual void ReleaseShaderVariables();
 	virtual void Reset() {};
 
+	virtual void Die(float ftimeelapsed);
+
 	void SetChild(GameObject* pChild, bool bReferenceUpdate = false);
 	GameObject* FindFrame(char* pstrFrameName);
 	void FindAndSetSkinnedMesh(SkinnedMeshComponent** ppSkinnedMeshes, int* pnSkinnedMesh);
@@ -195,6 +197,7 @@ public:
 	bool                            m_RMouseInput = false;
 
 	bool                            m_bRimLight = true;
+	bool							m_bDie = false;
 
 	XMFLOAT4						m_xmf4Color{};
 

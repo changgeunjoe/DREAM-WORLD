@@ -704,10 +704,10 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 
 void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
-	if (m_bLobbyScene) {
+	if (!m_bLobbyScene) {
 		m_pLobbyScene->onProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
 	}
-	else if (!m_bLobbyScene) {
+	else if (m_bLobbyScene) {
 		m_pScene->onProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
 	}
 	switch (nMessageID)
@@ -731,7 +731,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		case VK_F8:
 			break;
 		case VK_F9:
-			ChangeSwapChainState();
+			//ChangeSwapChainState();
 			break;
 		default:
 			break;

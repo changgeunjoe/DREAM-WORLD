@@ -656,6 +656,12 @@ void GameObject::ReleaseShaderVariables()
 	}
 }
 
+void GameObject::Die(float ftimeelapsed)
+{
+	m_xmf4Color.w += ftimeelapsed/10;
+	cout << m_xmf4Color.w << endl;
+}
+
 void GameObject::SetChild(GameObject* pChild, bool bReferenceUpdate)
 {
 	if (pChild)

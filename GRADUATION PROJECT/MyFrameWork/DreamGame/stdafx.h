@@ -138,6 +138,7 @@ using Microsoft::WRL::ComPtr;
 #define CARTOON_MODE			1
 #define OUTLINE_MODE			2
 #define CELLSHADING_MODE		3
+#define DISSOLVE_MODE			4	
 
 #define ANIMATION_CALLBACK_EPSILON		0.0165f
 //#define _WITH_CB_GAMEOBJECT_32BIT_CONSTANTS
