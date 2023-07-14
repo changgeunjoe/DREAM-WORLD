@@ -1695,6 +1695,7 @@ void GameobjectManager::ProcessingUI(int n)
 	{
 #ifdef LOCAL_TASK
 		m_nSection = 1;
+	
 #endif
 		m_pUIGameSearchObject->m_bUIActive = false;
 		cout << "request Room List" << endl;

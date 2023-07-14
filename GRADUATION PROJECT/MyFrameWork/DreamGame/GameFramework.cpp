@@ -725,7 +725,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			break;
 		case VK_F2:
 #ifdef LOCAL_TASK
-			//m_bLobbyScene = !m_bLobbyScene;
+			m_bLobbyScene = !m_bLobbyScene;
 #endif
 			break;
 		case VK_F8:
@@ -918,11 +918,7 @@ void CGameFramework::FrameAdvance()
 	//렌더 타겟 뷰(서술자)와 깊이-스텐실 뷰(서술자)를 출력-병합 단계(OM)에 연결한다. //렌더링 코드는 여기에 추가될 것이다.
 	//m_pScene->OnPreRender(m_pd3dDevice, m_pd3dCommandList, m_pCamera);
 	//Render2DFont();
-	
-	 if (m_bLobbyScene)
-	{
-		if (m_pScene) m_pScene->Render(m_pd3dDevice, m_pd3dCommandList, m_pCamera);
-	}
+	if (m_pScene) m_pScene->Render(m_pd3dDevice, m_pd3dCommandList, m_pCamera);
 	 if (m_bLobbyScene)
 	 {
 		 if (m_pLobbyScene) m_pLobbyScene->UIRender(m_pd3dDevice, m_pd3dCommandList, m_pUICamera);
