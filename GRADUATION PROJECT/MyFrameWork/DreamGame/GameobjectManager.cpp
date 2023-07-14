@@ -282,7 +282,11 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	{
 		for (int i = 0; i < 5; i++)
 			m_pBoundingBox[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-		for (auto& p : m_pObstacleBoundingBox)
+		for (auto& p : m_ppObstacleBoundingBox)
+		{
+			p->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		}
+		for(auto& p : m_ppNormalMonsterBoundingBox)
 		{
 			p->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		}
@@ -615,7 +619,7 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 			tempBoundingBox->SetScale(extentPos.x * 2, extentPos.y * 2, extentPos.z * 2);
 			tempBoundingBox->Rotate(&quaternion[i]);
 			tempBoundingBox->SetPosition(centerPos);
-			m_pObstacleBoundingBox.emplace_back(tempBoundingBox);
+			m_ppObstacleBoundingBox.emplace_back(tempBoundingBox);
 		}
 		m_ppGameObjects.emplace_back(tempObject[i]);
 	}
@@ -686,7 +690,10 @@ void GameobjectManager::ReadNormalMonsterFile(ID3D12Device* pd3dDevice, ID3D12Gr
 		}
 	}
 	NormalMonster** tempObject = new NormalMonster * [objCount];
-
+	m_ppNormalMonsterBoundingBox.reserve(sizeof(size_t) * objCount);
+	float fScale = 1.0f;
+	if (type == 1)
+		fScale = 10.0f;
 	for (int i = 0; i < objCount; ++i)
 	{
 		tempObject[i] = new NormalMonster();
@@ -694,7 +701,7 @@ void GameobjectManager::ReadNormalMonsterFile(ID3D12Device* pd3dDevice, ID3D12Gr
 		tempObject[i]->InsertComponent<RenderComponent>();
 		tempObject[i]->InsertComponent<CLoadedModelInfoCompnent>();
 		tempObject[i]->SetModel(tempModel);
-		tempObject[i]->SetPosition(XMFLOAT3(tempPos[i].x, tempPos[i].y - 18.0f, tempPos[i].z));
+		tempObject[i]->SetPosition(XMFLOAT3(tempPos[i].x * fScale, tempPos[i].y - 12.0f, tempPos[i].z * fScale));
 		tempObject[i]->SetAnimationSets(6);
 		tempObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		tempObject[i]->m_pSkinnedAnimationController->SetTrackAnimationSet(6);
@@ -713,8 +720,19 @@ void GameobjectManager::ReadNormalMonsterFile(ID3D12Device* pd3dDevice, ID3D12Gr
 		tempObject[i]->Rotate(&Axis, tempRotate[i].z);
 		tempObject[i]->SetScale(tempScale[i].x, tempScale[i].y, tempScale[i].z);
 		XMFLOAT3 t = tempObject[i]->GetPosition();
-		// 바운딩 스피어 추가 필요
 
+		// 바운딩 스피어 추가 필요
+		GameObject* MonsterBoundingSphere = new GameObject(SQUARE_ENTITY);
+		MonsterBoundingSphere->InsertComponent<RenderComponent>();
+		MonsterBoundingSphere->InsertComponent<SphereMeshComponent>();
+		MonsterBoundingSphere->InsertComponent<BoundingBoxShaderComponent>();
+		MonsterBoundingSphere->SetBoundingSize(15.0f);
+		MonsterBoundingSphere->SetBoundingOffset(XMFLOAT3(0.0f, 18.0f, 0.0f));
+		MonsterBoundingSphere->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		MonsterBoundingSphere->SetScale(1.f);
+		tempObject[i]->SetBoundingBox(MonsterBoundingSphere);
+
+		m_ppNormalMonsterBoundingBox.emplace_back(MonsterBoundingSphere);
 		m_ppGameObjects.emplace_back(tempObject[i]);
 	}
 
@@ -746,7 +764,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	BuildLight();
 	CLoadedModelInfoCompnent* ArrowModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Arrow.bin", NULL, true);
 
-	//BuildStage1(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	// BuildStage1(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildBossStageObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 
@@ -827,6 +845,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPriestObject = new Priest();
 	m_pPriestObject->InsertComponent<RenderComponent>();
 	m_pPriestObject->InsertComponent<CLoadedModelInfoCompnent>();
+	// m_pPriestObject->SetPosition(XMFLOAT3(-1400, 0, -1500));
 	m_pPriestObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pPriestObject->SetModel("Model/Priests.bin");
 	m_pPriestObject->SetAnimationSets(5);
@@ -1043,7 +1062,8 @@ void GameobjectManager::BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence02.txt", "Model/ShortFence02.bin", 0);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence03.txt", "Model/ShortFence03.bin", 0);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Tree.txt", "Model/Tree.bin", 0);
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/OOBB.txt", "Model/Cube.bin", 0);
+	ReadNormalMonsterFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/NormalMonsterS1.txt", "Model/Death.bin", 1);
+	// ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/OOBB.txt", "Model/Cube.bin", 0);
 
 	m_pStage1Objects[0] = new GameObject(UNDEF_ENTITY);
 	m_pStage1Objects[0]->InsertComponent<RenderComponent>();

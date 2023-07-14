@@ -74,7 +74,8 @@ private: //active object
 	array<Projectile*, 10> m_pArrowObjects;
 	array<Projectile*, 10> m_pEnergyBallObjects;
 	array<GameObject*, 10> m_pBoundingBox;
-	vector<GameObject*> m_pObstacleBoundingBox;
+	vector<GameObject*> m_ppObstacleBoundingBox;
+	vector<GameObject*> m_ppNormalMonsterBoundingBox;
 	int				m_nObjects{};
 	GameObject* m_pGameObject{ NULL };
 

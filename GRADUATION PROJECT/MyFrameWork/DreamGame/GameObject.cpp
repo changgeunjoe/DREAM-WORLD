@@ -63,12 +63,16 @@ entity_id GameObject::GetEntityID() const
 
 void GameObject::SetPosition(const XMFLOAT3& position)
 {
-
 	m_xmf4x4ToParent._41 = position.x;
 	m_xmf4x4ToParent._42 = position.y;
 	m_xmf4x4ToParent._43 = position.z;
 
-	m_SPBB = BoundingSphere(XMFLOAT3(position.x, position.y, position.z), m_fBoundingSize);
+	if (m_fBoundingSize > FLT_EPSILON)
+	{
+		m_SPBB.Center.x = position.x + m_xmf3BoundingSphereOffset.x;
+		m_SPBB.Center.y = position.y + m_xmf3BoundingSphereOffset.y + m_fBoundingSize;
+		m_SPBB.Center.z = position.z + m_xmf3BoundingSphereOffset.z;
+	}
 	//if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(position, m_pCamera->GetOffset()));
 
 	UpdateTransform(NULL);
@@ -564,7 +568,12 @@ void GameObject::Animate(float fTimeElapsed)
 	if (m_pSkinnedAnimationController)
 	{
 		m_pSkinnedAnimationController->AdvanceTime(fTimeElapsed, this);
-		if(m_VisualizeSPBB) m_VisualizeSPBB->SetPosition(XMFLOAT3(GetPosition().x, GetPosition().y + m_fBoundingSize, GetPosition().z));
+		if (m_VisualizeSPBB)
+		{
+			m_VisualizeSPBB->SetPosition(XMFLOAT3(GetPosition().x + m_VisualizeSPBB->m_xmf3BoundingSphereOffset.x,
+				GetPosition().y + m_VisualizeSPBB->m_xmf3BoundingSphereOffset.y + m_fBoundingSize,
+				GetPosition().z + m_VisualizeSPBB->m_xmf3BoundingSphereOffset.z));
+		}
 	}
 	
 	if (m_pSibling) m_pSibling->Animate(fTimeElapsed);
@@ -1113,8 +1122,17 @@ void GameObject::CalculateDistance(const XMFLOAT3& xmf3CameramPosition)
 
 }
 
+void GameObject::SetBoundingSize(float size)
+{
+	m_fBoundingSize = size;
+	m_SPBB = BoundingSphere(XMFLOAT3(GetPosition().x + m_xmf3BoundingSphereOffset.x,
+		GetPosition().y + m_fBoundingSize + m_xmf3BoundingSphereOffset.y, GetPosition().z + m_xmf3BoundingSphereOffset.z), m_fBoundingSize);
+}
 
-
+void GameObject::SetBoundingOffset(XMFLOAT3& boundingOffset)
+{
+	m_xmf3BoundingSphereOffset = boundingOffset;
+}
 
 void GameObject::MoveStrafe(float fDistance)
 {

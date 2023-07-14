@@ -180,6 +180,7 @@ public:
 
 	CCamera* m_pCamera{ nullptr };
 	float                           m_fBoundingSize{ 8.0f };
+	XMFLOAT3                        m_xmf3BoundingSphereOffset{ 0.0f, 0.0f, 0.0f };
 	BoundingSphere					m_SPBB = BoundingSphere(XMFLOAT3(0.0f, 0.0f, 0.0f), m_fBoundingSize);
 	BoundingOrientedBox				m_OBB;
 	GameObject* m_VisualizeSPBB{ nullptr };
@@ -308,11 +309,9 @@ protected:
 public:
 	array<Projectile*, MAX_ARROW>          m_pProjectiles;
 
-	void SetBoundingSize(float size)
-	{
-		m_fBoundingSize = size;
-		m_SPBB = BoundingSphere(XMFLOAT3(GetPosition().x, GetPosition().y + m_fBoundingSize, GetPosition().z), m_fBoundingSize);
-	}
+	void SetBoundingSize(float size);
+	void SetBoundingOffset(XMFLOAT3& boundingOffset);
+
 	float GetBoundingSize() { return m_fBoundingSize; }
 	void SetProjectileY(float yLook) { m_projectilesLookY = yLook; }
 public:

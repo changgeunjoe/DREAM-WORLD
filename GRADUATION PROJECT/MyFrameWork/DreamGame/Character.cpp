@@ -1317,6 +1317,16 @@ NormalMonster::~NormalMonster()
 
 void NormalMonster::Animate(float fTimeElapsed)
 {
+	if (m_fHp < FLT_EPSILON)
+	{
+		if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CA_DIE)
+		{
+			pair<CharacterAnimation, CharacterAnimation> NextAnimations = { CharacterAnimation::CA_DIE, CharacterAnimation::CA_DIE };
+			m_pSkinnedAnimationController->m_CurrentAnimations = NextAnimations;
+			m_pSkinnedAnimationController->SetTrackEnable(NextAnimations);
+		}
+		return;
+	}
 	if (gGameFramework.GetCurrentGameState() == GAME_STATE::GS_FIRST_STAGE)
 	{
 		if (CheckAnimationEnd(CA_FIRSTSKILL) == true)
