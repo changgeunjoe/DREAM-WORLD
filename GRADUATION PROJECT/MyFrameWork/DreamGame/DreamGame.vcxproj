@@ -156,6 +156,7 @@
     <ClInclude Include="DebuffObject.h" />
     <ClInclude Include="define.h" />
     <ClInclude Include="EffectObject.h" />
+    <ClInclude Include="EffectShaderComponent.h" />
     <ClInclude Include="InstanceRenderComponent.h" />
     <ClInclude Include="InstancingShaderComponent.h" />
     <ClInclude Include="Light.h" />
@@ -205,6 +206,7 @@
     <ClCompile Include="ComponentBase.cpp" />
     <ClCompile Include="DebuffObject.cpp" />
     <ClCompile Include="EffectObject.cpp" />
+    <ClCompile Include="EffectShaderComponent.cpp" />
     <ClCompile Include="InstanceRenderComponent.cpp" />
     <ClCompile Include="InstancingShaderComponent.cpp" />
     <ClCompile Include="Light.cpp" />

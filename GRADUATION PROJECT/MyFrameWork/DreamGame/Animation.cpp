@@ -20,7 +20,7 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fTrackElapsedT
 		if (m_fPosition < 0.0f)	m_fPosition = 0.0f;
 		else
 		{
-			if(m_fPosition < 0.6f * fAnimationLength && fTrackPosition + TrackElapsedTime > 0.6f * fAnimationLength)
+			if(m_fPosition < 0.8f * fAnimationLength && fTrackPosition + TrackElapsedTime > 0.8f * fAnimationLength)
 				m_bAnimationEnd = true;
 			m_fPosition = fTrackPosition + TrackElapsedTime;
 			if (m_fPosition > fAnimationLength)
@@ -51,7 +51,8 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fTrackElapsedT
 			m_fPosition = fTrackPosition + TrackElapsedTime;
 			if (m_fPosition > fAnimationLength)
 			{
-				//m_fPosition = -ANIMATION_CALLBACK_EPSILON;
+				m_fPosition = -ANIMATION_CALLBACK_EPSILON;
+				m_bAnimationEnd = true;
 				return(fAnimationLength);
 			}
 		}

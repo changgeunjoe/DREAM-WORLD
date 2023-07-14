@@ -310,10 +310,10 @@ void DepthRenderShaderComponent::Render(ID3D12Device* pd3dDevice,ID3D12GraphicsC
 
 	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
 	pCamera->UpdateShaderVariables(pd3dCommandList);
-
+	
 	//조명의 위치에서 오브젝트 깊이값 저장, 렌더타겟에 저장
 	for (int i = 0; i < m_ppObjects.size();i++) {
-		
+		m_ppObjects[i]->UpdateTransform(NULL);
 		m_ppObjects[i]->Render(pd3dDevice,pd3dCommandList, pd3dGraphicsRootSignature,true);
 	}
 

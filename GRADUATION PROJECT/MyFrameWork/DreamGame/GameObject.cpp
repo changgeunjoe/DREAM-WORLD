@@ -10,6 +10,7 @@
 #include "GameFramework.h"
 #include "GameobjectManager.h"
 
+
 extern MapData g_bossMapData;
 extern CGameFramework gGameFramework;
 
@@ -62,12 +63,16 @@ entity_id GameObject::GetEntityID() const
 
 void GameObject::SetPosition(const XMFLOAT3& position)
 {
-
 	m_xmf4x4ToParent._41 = position.x;
 	m_xmf4x4ToParent._42 = position.y;
 	m_xmf4x4ToParent._43 = position.z;
-	m_SPBB.Center = position;
-	//m_SPBB = BoundingSphere(XMFLOAT3(position.x, position.y, position.z), m_fBoundingSize);
+
+	if (m_fBoundingSize > FLT_EPSILON)
+	{
+		m_SPBB.Center.x = position.x + m_xmf3BoundingSphereOffset.x;
+		m_SPBB.Center.y = position.y + m_xmf3BoundingSphereOffset.y + m_fBoundingSize;
+		m_SPBB.Center.z = position.z + m_xmf3BoundingSphereOffset.z;
+	}
 	//if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(position, m_pCamera->GetOffset()));
 
 	UpdateTransform(NULL);
@@ -113,13 +118,14 @@ void GameObject::SetLook(const XMFLOAT3& xmfLook)
 	xmftRight = Vector3::CrossProduct(xmftUp, xmftLook, true);
 	xmftUp = Vector3::CrossProduct(xmftLook, xmftRight, true);
 
-	xmftLook = Vector3::ScalarProduct(xmftLook, m_fScale, false);
-	xmftRight = Vector3::ScalarProduct(xmftRight, m_fScale, false);
-	xmftUp = Vector3::ScalarProduct(xmftUp, m_fScale, false);
-
 	m_xmf4x4ToParent._11 = xmftRight.x;	m_xmf4x4ToParent._12 = xmftRight.y;	m_xmf4x4ToParent._13 = xmftRight.z;
 	m_xmf4x4ToParent._21 = xmftUp.x;	m_xmf4x4ToParent._22 = xmftUp.y;	m_xmf4x4ToParent._23 = xmftUp.z;
 	m_xmf4x4ToParent._31 = xmftLook.x;	m_xmf4x4ToParent._32 = xmftLook.y;	m_xmf4x4ToParent._33 = xmftLook.z;
+
+	XMMATRIX mtxScale = XMMatrixScaling(m_xmf3Scale.x, m_xmf3Scale.y, m_xmf3Scale.z);
+	m_xmf4x4ToParent = Matrix4x4::Multiply(mtxScale, m_xmf4x4ToParent);
+
+	UpdateTransform(NULL);
 }
 
 XMFLOAT3 GameObject::GetUp()
@@ -146,6 +152,7 @@ void GameObject::SetLookAt(XMFLOAT3& xmf3Target, XMFLOAT3& xmf3Up)
 
 void GameObject::SetScale(float x, float y, float z)
 {
+	m_xmf3Scale = XMFLOAT3(x, y, z);
 	XMMATRIX mtxScale = XMMatrixScaling(x, y, z);
 	m_xmf4x4ToParent = Matrix4x4::Multiply(mtxScale, m_xmf4x4ToParent);
 
@@ -162,7 +169,7 @@ void GameObject::SetinitScale(float x, float y, float z)
 
 void GameObject::SetScale(float fScale)
 {
-	m_fScale = fScale;
+	m_xmf3Scale = XMFLOAT3(fScale, fScale, fScale);
 	XMMATRIX mtxScale = XMMatrixScaling(fScale, fScale, fScale);
 	m_xmf4x4ToParent = Matrix4x4::Multiply(mtxScale, m_xmf4x4ToParent);
 
@@ -338,6 +345,20 @@ void GameObject::BuildMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 		m_pHeihtMapMeshComponent->BuildObject(pd3dDevice, pd3dCommandList, 0, 0, 257, 257, xmf3Scale, xmf4Color, m_pHeightMapImage);
 		m_pMeshComponent = m_pHeihtMapMeshComponent;
 	}
+	ComponentBase* pCylinderMeshComponent = GetComponent(component_id::CYLINDER_COMPONENT);
+	if (pCylinderMeshComponent != NULL)
+	{
+		m_pCylinderMeshComponent = static_cast<CylinderMeshComponent*>(pCylinderMeshComponent);
+		m_pCylinderMeshComponent->BuildObject(pd3dDevice, pd3dCommandList, 100.0f, 15.0f, 10000);
+		m_pMeshComponent = m_pCylinderMeshComponent;
+	}
+	ComponentBase* pSquareMeshComponent = GetComponent(component_id::SQUAREMESH_COMPONENT);
+	if (pSquareMeshComponent != NULL)
+	{
+		m_pSquareMeshComponent = static_cast<SquareMeshComponent*>(pSquareMeshComponent);
+		m_pSquareMeshComponent->BuildObject(pd3dDevice, pd3dCommandList, 150.0f);
+		m_pMeshComponent = m_pSquareMeshComponent;
+	}
 }
 
 void GameObject::BuildShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -352,9 +373,13 @@ void GameObject::BuildShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	ComponentBase* pNaviMeshShaderComponent = GetComponent(component_id::NAVIMESHSHADER_COMPONENT);
 	ComponentBase* pTrailShaderComponent = GetComponent(component_id::TRAILSHADER_COMPONENT);
 	ComponentBase* pTerrainShaderComponent = GetComponent(component_id::TERRAINSHADER_COMPONENT);
-	if (pShaderComponent != NULL || pSkyShaderComponent != NULL || pUiShaderComponent != NULL || pSpriteShaderComponent != NULL
-		|| pBoundingBoxShaderComponent != NULL || pBlendingUiShaderComponent != NULL || pTrailShaderComponent != NULL
-		|| pTerrainShaderComponent != NULL)
+	ComponentBase* pEffectShaderComponent = GetComponent(component_id::EFFECTSHADER_COMPONENT);
+	ComponentBase* pBlendShaderComponent = GetComponent(component_id::BLENDSHADER_COMPONENT);
+	ComponentBase* pCylinderShaderComponent = GetComponent(component_id::CYLINDERSHADER_COMPONENT);
+	ComponentBase* pSquareShaderComponent = GetComponent(component_id::SQUARESHADER_COMPONENT);
+	if (pShaderComponent != NULL || pSkyShaderComponent != NULL || pUiShaderComponent != NULL || pSpriteShaderComponent != NULL 
+		|| pBoundingBoxShaderComponent != NULL || pBlendingUiShaderComponent != NULL|| pTrailShaderComponent!=NULL
+		|| pTerrainShaderComponent!=NULL|| pEffectShaderComponent|| pBlendShaderComponent || pCylinderShaderComponent || pSquareShaderComponent)
 	{
 		if (pShaderComponent != NULL)
 		{
@@ -381,6 +406,18 @@ void GameObject::BuildShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		else if (pTerrainShaderComponent != NULL) {
 			m_pShaderComponent = static_cast<TrailShaderComponent*>(pTerrainShaderComponent);
 		}
+		else if (pEffectShaderComponent != NULL) {
+			m_pShaderComponent = static_cast<EffectShaderComponent*>(pEffectShaderComponent);
+		}
+		else if (pBlendShaderComponent != NULL) {
+			m_pShaderComponent = static_cast<BlendShaderComponent*>(pBlendShaderComponent);
+		}
+		else if (pCylinderShaderComponent != NULL) {
+			m_pShaderComponent = static_cast<CylinderShaderComponent*>(pCylinderShaderComponent);
+		}
+		else if (pSquareShaderComponent != NULL) {
+			m_pShaderComponent = static_cast<SquareShaderComponent*>(pSquareShaderComponent);
+		}
 		else if (pNaviMeshShaderComponent != NULL)
 		{
 			m_pShaderComponent = static_cast<SphereShaderComponent*>(pNaviMeshShaderComponent);
@@ -406,7 +443,6 @@ void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3
 {
 	UpdateShaderVariables(pd3dCommandList);
 	UpdateShaderVariables(pd3dCommandList, &m_xmf4x4World, NULL);
-
 	if (m_pSkinnedAnimationController)
 		m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
 
@@ -435,6 +471,7 @@ void GameObject::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3
 					m_ppMaterialsComponent[i]->m_pShader->Render(pd3dCommandList, 0, pd3dGraphicsRootSignature, bPrerender);
 					pd3dCommandList->SetGraphicsRootDescriptorTable(0, m_ppMaterialsComponent[i]->m_pShader->GetCbvGPUDescriptorHandle());
 					m_ppMaterialsComponent[i]->m_pShader->UpdateShaderVariables(pd3dCommandList, &m_xmf4x4World, m_ppMaterialsComponent[i]);
+					//
 					//m_ppMaterialsComponent[i]->UpdateShaderVariable(pd3dCommandList);
 				}
 			}
@@ -531,9 +568,14 @@ void GameObject::Animate(float fTimeElapsed)
 	if (m_pSkinnedAnimationController)
 	{
 		m_pSkinnedAnimationController->AdvanceTime(fTimeElapsed, this);
-		if (m_VisualizeSPBB) m_VisualizeSPBB->SetPosition(XMFLOAT3(GetPosition().x, GetPosition().y + m_fBoundingSize, GetPosition().z));
+		if (m_VisualizeSPBB)
+		{
+			m_VisualizeSPBB->SetPosition(XMFLOAT3(GetPosition().x + m_VisualizeSPBB->m_xmf3BoundingSphereOffset.x,
+				GetPosition().y + m_VisualizeSPBB->m_xmf3BoundingSphereOffset.y + m_fBoundingSize,
+				GetPosition().z + m_VisualizeSPBB->m_xmf3BoundingSphereOffset.z));
+		}
 	}
-
+	
 	if (m_pSibling) m_pSibling->Animate(fTimeElapsed);
 	if (m_pChild) m_pChild->Animate(fTimeElapsed);
 }
@@ -1080,8 +1122,17 @@ void GameObject::CalculateDistance(const XMFLOAT3& xmf3CameramPosition)
 
 }
 
+void GameObject::SetBoundingSize(float size)
+{
+	m_fBoundingSize = size;
+	m_SPBB = BoundingSphere(XMFLOAT3(GetPosition().x + m_xmf3BoundingSphereOffset.x,
+		GetPosition().y + m_fBoundingSize + m_xmf3BoundingSphereOffset.y, GetPosition().z + m_xmf3BoundingSphereOffset.z), m_fBoundingSize);
+}
 
-
+void GameObject::SetBoundingOffset(XMFLOAT3& boundingOffset)
+{
+	m_xmf3BoundingSphereOffset = boundingOffset;
+}
 
 void GameObject::MoveStrafe(float fDistance)
 {

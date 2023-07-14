@@ -19,7 +19,7 @@
 #include <memory.h>
 #include <tchar.h>
 #include <math.h>
-
+#include <dwrite_3.h>
 #include <string>
 #include <wrl.h>
 #include <shellapi.h>
@@ -163,7 +163,7 @@ using Microsoft::WRL::ComPtr;
 
 #pragma comment(lib, "dxguid.lib")
 
-
+#define MAX_ARROW 10
 
 // TODO: 프로그램에 필요한 추가 헤더는 여기에서 참조합니다.
 
@@ -289,7 +289,13 @@ enum component_id
 	TRAILSHADER_COMPONENT,
 	HEIGHTMESH_COMPONENT,
 	TERRAINSHADER_COMPONENT,	
-	NAVIMESHSHADER_COMPONENT
+	NAVIMESHSHADER_COMPONENT,
+	EFFECTSHADER_COMPONENT,
+	BLENDSHADER_COMPONENT,
+	CYLINDER_COMPONENT,
+	CYLINDERSHADER_COMPONENT,
+	SQUAREMESH_COMPONENT,
+	SQUARESHADER_COMPONENT
 };
 //mean about component_id;
 enum CharacterType
@@ -308,9 +314,25 @@ enum CharacterAnimation
 	CA_ATTACK,
 	CA_DIE,
 	CA_VICTORY,
-	CA_DEFENCE,
-	CA_BLENDING = 99
+	CA_FIRSTSKILL,
+	CA_SECONDSKILL,
+	CA_BLENDING = 99,
+	CA_NOTHING
 };
+
+enum GAME_STATE
+{
+	GS_FIRST_STAGE,
+	GS_SECOND_STAGE_FIRST_PHASE,
+	GS_SECOND_STAGE_SECOND_PHASE,
+};
+
+//NPCText
+enum TEXT
+{
+	NPC_TEXT=0
+};
+
 
 enum BOSS_ATTACK : char {
 	ATTACK_PUNCH,

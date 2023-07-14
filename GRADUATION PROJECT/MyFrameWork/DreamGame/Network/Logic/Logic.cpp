@@ -680,6 +680,27 @@ void Logic::ProcessPacket(char* p)
 
 	}
 	break;
+	case SERVER_PACKET::SKILL_INPUT:
+	{
+		SERVER_PACKET::SkillInputPacket* recvPacket = reinterpret_cast<SERVER_PACKET::SkillInputPacket*>(p);
+
+		auto findRes = find_if(m_inGamePlayerSession.begin(), m_inGamePlayerSession.end(), [&recvPacket](auto& fObj) {
+			if (fObj.m_id == recvPacket->userId)
+				return true;
+			return false;
+			});
+		if (findRes != m_inGamePlayerSession.end()) {
+			if (recvPacket->qSkill == true) {
+				static_cast<Character*>(findRes->m_currentPlayGameObject)->FirstSkillDown();
+			}
+
+			if (recvPacket->eSkill == true) {
+				static_cast<Character*>(findRes->m_currentPlayGameObject)->SecondSkillDown();
+			}
+		}
+	}
+	break;
+
 	default:
 	{
 		std::cout << "Unknown Packet Recv" << std::endl;

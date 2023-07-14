@@ -13,6 +13,7 @@
 #include"InstanceRenderComponent.h"
 #include"TerrainShaderComponent.h"
 #include"TrailShaderComponent.h"
+#include"EffectShaderComponent.h"
 //include"CLoadModelinfo.h"
 class DepthRenderShaderComponent;
 class CLoadedModelInfoCompnent;
@@ -23,6 +24,7 @@ class Projectile;
 class InstanceRenderComponent;
 class TrailShaderComponent;
 class TerrainShaderComponent;
+
 
 #define MATERIAL_ALBEDO_MAP				0x01
 #define MATERIAL_SPECULAR_MAP			0x02
@@ -58,7 +60,7 @@ public:
 	void SetMesh(MeshComponent* pMesh);
 	void SetCamera(CCamera* pCamera);
 	void SetRowColumn(float x, float y, float fSpeed = 0.1);
-	void MoveObject(DIRECTION& currentDirection, const XMFLOAT3& CameraAxis);
+	virtual void MoveObject(DIRECTION& currentDirection, const XMFLOAT3& CameraAxis);
 
 	void MoveStrafe(float fDistance = 1.0f);
 	void MoveUp(float fDistance = 1.0f);
@@ -96,7 +98,7 @@ public:
 	virtual void BuildShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
     virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,bool bPrerender=false);
     virtual void InstanceRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, int nObjects,bool bPrerender = false);
-    void ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent);
+    virtual void ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent);
     virtual void Animate(float fTimeElapsed);
     virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
     virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
@@ -178,6 +180,7 @@ public:
 
 	CCamera* m_pCamera{ nullptr };
 	float                           m_fBoundingSize{ 8.0f };
+	XMFLOAT3                        m_xmf3BoundingSphereOffset{ 0.0f, 0.0f, 0.0f };
 	BoundingSphere					m_SPBB = BoundingSphere(XMFLOAT3(0.0f, 0.0f, 0.0f), m_fBoundingSize);
 	BoundingOrientedBox				m_OBB;
 	GameObject* m_VisualizeSPBB{ nullptr };
@@ -188,20 +191,21 @@ public:
 	int                             m_iRButtionCount = 0;
 
 	DIRECTION                       m_prevDirection = DIRECTION::IDLE;
-	bool                            m_LMouseInput = false;
-	bool                            m_RMouseInput = false;
+	bool                            m_LMouseInput{ false };
+	bool                            m_RMouseInput{ false };
 
-	bool                            m_bRimLight = true;
+	bool                            m_bRimLight{ true };
 
 	XMFLOAT4						m_xmf4Color{};
 
+	bool							m_bActive{ true };
 protected:
 
 	int								m_nReferences = 0;
 	UINT							m_nTextureType;
 	int                             m_nSamplers = 1;
 	int                             m_nRootParameter = 1;
-	float                           m_fScale = 0.0f;
+	XMFLOAT3						m_xmf3Scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
 
 	int								m_iVertexCount = 0;
 	entity_id m_entityID{};//object id 
@@ -224,6 +228,8 @@ protected:
     RenderComponent* m_pRenderComponent{ nullptr };
 	SphereMeshComponent* m_pSphereComponent{ nullptr };
 	TrailMeshComponent* m_pTrailMeshComponent{ nullptr };
+	CylinderMeshComponent* m_pCylinderMeshComponent{ nullptr };
+	SquareMeshComponent* m_pSquareMeshComponent{ nullptr };
 	HeihtMapMeshComponent* m_pHeihtMapMeshComponent{ nullptr };
     InstanceRenderComponent* m_pInstanceRenderComponent{ nullptr };//인스턴스 렌더 추가 23.04.26 .ccg
     
@@ -301,13 +307,11 @@ protected:
 
 	CHeightMapImage* m_pHeightMapImage;
 public:
-	array<Projectile*, 10>          m_pProjectiles;
+	array<Projectile*, MAX_ARROW>          m_pProjectiles;
 
-	void SetBoundingSize(float size)
-	{
-		m_fBoundingSize = size;
-		m_SPBB = BoundingSphere(XMFLOAT3(GetPosition().x, GetPosition().y + m_fBoundingSize, GetPosition().z), m_fBoundingSize);
-	}
+	void SetBoundingSize(float size);
+	void SetBoundingOffset(XMFLOAT3& boundingOffset);
+
 	float GetBoundingSize() { return m_fBoundingSize; }
 	void SetProjectileY(float yLook) { m_projectilesLookY = yLook; }
 public:
@@ -316,6 +320,8 @@ public:
 	ROLE								m_roleDesPlayer = ROLE::NONE_SELECT;
 	float                           m_UIScale = 10.0f;
 	bool                            m_bUIActive{ true };
+
+	int								m_iObjType = 0;
 public:
 	float m_interpolationDistance = 0.0f;
 	XMFLOAT3 m_interpolationVector = XMFLOAT3{ 0,0,0 };
@@ -432,6 +438,30 @@ inline T* GameObject::ComponentType(component_id& componentID)
 	else if (typeid(T).name() == typeid(NaviMeshShaderComponent).name())
 	{
 		componentID = component_id::NAVIMESHSHADER_COMPONENT;
+	}
+	else if (typeid(T).name() == typeid(EffectShaderComponent).name())
+	{
+		componentID = component_id::EFFECTSHADER_COMPONENT;
+	}
+	else if (typeid(T).name() == typeid(BlendShaderComponent).name())
+	{
+		componentID = component_id::BLENDSHADER_COMPONENT;
+	}
+	else if (typeid(T).name() == typeid(CylinderMeshComponent).name())
+	{
+		componentID = component_id::CYLINDER_COMPONENT;
+	}
+	else if (typeid(T).name() == typeid(CylinderShaderComponent).name())
+	{
+		componentID = component_id::CYLINDERSHADER_COMPONENT;
+	}
+	else if (typeid(T).name() == typeid(SquareMeshComponent).name())
+	{
+		componentID = component_id::SQUAREMESH_COMPONENT;
+	}
+	else if (typeid(T).name() == typeid(SquareShaderComponent).name())
+	{
+		componentID = component_id::SQUARESHADER_COMPONENT;
 	}
     else
     {

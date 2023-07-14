@@ -118,10 +118,13 @@ void ShadowMapShaderComponent::Render(ID3D12Device* pd3dDevice,ID3D12GraphicsCom
 	UpdateShaderVariables(pd3dCommandList);
 
 	for (int i = 0; i < m_ppObjects.size(); i++) {
-		m_ppObjects[i]->Animate(fTimeElapsed);
-		if(!m_ppObjects[i]->m_pSkinnedAnimationController)
-			m_ppObjects[i]->UpdateTransform(NULL);
-		m_ppObjects[i]->ShadowRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, true,this);
+		if (m_ppObjects[i]->m_bActive)
+		{
+			m_ppObjects[i]->Animate(fTimeElapsed);
+			if (!m_ppObjects[i]->m_pSkinnedAnimationController)
+				m_ppObjects[i]->UpdateTransform(NULL);
+			m_ppObjects[i]->ShadowRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, true, this);
+		}
 	}
 }
 
@@ -131,7 +134,7 @@ D3D12_BLEND_DESC ShadowMapShaderComponent::CreateBlendState(int nPipelineState)
 	::ZeroMemory(&d3dBlendDesc, sizeof(D3D12_BLEND_DESC));
 	d3dBlendDesc.AlphaToCoverageEnable = FALSE;
 	d3dBlendDesc.IndependentBlendEnable = FALSE;
-	d3dBlendDesc.RenderTarget[0].BlendEnable = FALSE;
+	d3dBlendDesc.RenderTarget[0].BlendEnable = TRUE;
 	d3dBlendDesc.RenderTarget[0].LogicOpEnable = FALSE;
 	d3dBlendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
 	d3dBlendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;

@@ -563,7 +563,7 @@ void CGameFramework::BuildObjects()
 	m_pCamera = new CCamera();
 
 	m_pCamera->GenerateProjectionMatrix(1.01f, 5000.0f, ASPECT_RATIO, 60.0f);
-	m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
+	m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 0.98f);
 	m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
 	m_pCamera->CreateShaderVariables(m_pd3dDevice, m_pd3dCommandList);
 
@@ -840,7 +840,7 @@ void CGameFramework::AnimateObjects()
 {
 	float fTimeElapsed = m_GameTimer.GetTimeElapsed();
 	if (m_pScene) m_pScene->AnimateObjects(m_GameTimer.GetTimeElapsed());
-	m_pUILayer->Update(fTimeElapsed);
+	
 }
 
 void CGameFramework::WaitForGpuComplete()
