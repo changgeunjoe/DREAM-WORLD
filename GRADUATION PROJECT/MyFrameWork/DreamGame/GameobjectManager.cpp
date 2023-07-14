@@ -680,7 +680,7 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 			tempBoundingBox->SetPosition(tempCenterPos[i]);
 			tempBoundingBox->Rotate(&quaternion[i]);
 			tempBoundingBox->SetScale(extentPos.x * 2.0f, extentPos.y * 2.0f, extentPos.z * 2.0f);
-			m_pObstacleBoundingBox.emplace_back(tempBoundingBox);
+			m_ppObstacleBoundingBox.emplace_back(tempBoundingBox);
 		}
 		m_ppGameObjects.emplace_back(tempObject[i]);
 	}

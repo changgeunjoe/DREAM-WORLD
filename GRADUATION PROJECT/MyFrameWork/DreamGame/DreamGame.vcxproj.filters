@@ -269,7 +269,7 @@
     </ClInclude>
     <ClInclude Include="TerrainShaderComponent.h">
       <Filter>04.Component\ShaderComponent\TerrainShaderComponent</Filter>
-    </ClInclude>
+    </ClInclude>    
     <ClInclude Include="EffectObject.h">
       <Filter>03.GameObject\Effect</Filter>
     </ClInclude>
