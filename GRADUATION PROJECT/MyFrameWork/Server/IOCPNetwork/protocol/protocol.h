@@ -20,6 +20,8 @@ namespace CLIENT_PACKET {
 	constexpr unsigned char GAME_END_OK = 16;
 	constexpr unsigned char TEST_GAME_END = 17; //임시로 클라에서 전송하여 게임 끝낼 수 있게
 
+	constexpr unsigned char SKILL_INPUT = 18;
+
 
 
 	struct MovePacket
@@ -108,6 +110,13 @@ namespace CLIENT_PACKET {
 		short size;
 		char type;
 	};
+
+	struct SkillInputPacket {
+		short size;
+		char type;
+		bool qSkill;
+		bool eSkill;
+	};
 }
 
 namespace SERVER_PACKET {
@@ -140,6 +149,8 @@ namespace SERVER_PACKET {
 	constexpr unsigned char BOSS_MOVE_NODE = 90;
 	constexpr unsigned char DUPLICATED_LOGIN = 91;//중복된 로그인이 들어왔다
 	constexpr unsigned char PRE_EXIST_LOGIN = 92; //이미 로그인된 아이디다
+
+	constexpr unsigned char SKILL_INPUT = 93;
 
 
 	struct MovePacket
@@ -281,6 +292,13 @@ namespace SERVER_PACKET {
 		int node[40];
 	};
 
+	struct SkillInputPacket {
+		short size;
+		char type;
+		int userId;
+		bool qSkill;
+		bool eSkill;
+	};
 }
 
 #pragma pack (pop)

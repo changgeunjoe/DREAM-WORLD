@@ -36,6 +36,7 @@ public:
 	void SendKeyUpPacket(DIRECTION d);
 	void SendLoginData(char* loginId, char* pw);
 	void SendMouseStatePacket(bool LClickedButton, bool RClickedButton);
+	void SendSkillStatePacket(bool qSkill, bool eSkill);
 	void SendCreateRoomPacket(ROLE r, wstring roomName);
 	void SendRequestRoomList();
 	void SendMatchRequestPacket();

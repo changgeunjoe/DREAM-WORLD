@@ -77,7 +77,8 @@ private: //active object
 	array<Projectile*, 10> m_pArrowObjects;
 	array<Projectile*, 10> m_pEnergyBallObjects;
 	array<GameObject*, 10> m_pBoundingBox;
-	vector<GameObject*> m_pObstacleBoundingBox;
+	vector<GameObject*> m_ppObstacleBoundingBox;
+	vector<GameObject*> m_ppNormalMonsterBoundingBox;
 	int				m_nObjects{};
 	GameObject* m_pGameObject{ NULL };
 
@@ -94,6 +95,9 @@ private: //active object
 	GameObject* m_pMonsterCubeObject{ NULL };
 	GameObject* m_pPlayerObject{ NULL };
 	GameObject* m_pEnergyBallObject{ NULL };
+
+	GameObject* m_pHealRange{ NULL };
+	GameObject* m_pBarrierObject{ NULL };
 
 
 
@@ -204,6 +208,7 @@ public:
 	void SetUIActive();
 	void SetStoryTime() { m_fStroyTime = 0; };
 	void ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, const char* fileName, char* modelName, int type);
+	void ReadNormalMonsterFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, const char* fileName, char* modelName, int type);
 	vector<GameObject*>& GetObstacle() { return m_ppObstacleObjects; }
 	GameObject* GetChracterInfo(ROLE r);
 };

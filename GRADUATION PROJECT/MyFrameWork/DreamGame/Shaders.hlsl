@@ -493,6 +493,12 @@ struct VS_BOUNDING_BOX_OUTPUT
     float4 position : SV_POSITION;
 };
 
+struct VS_HEAL_RANGE_OUTPUT
+{
+    float4 position : SV_POSITION;
+    float3 worldPosition : TEXCOORD;
+};
+
 VS_BOUNDING_BOX_OUTPUT VSBoundingBox(VS_SKYBOX_CUBEMAP_INPUT input)
 {
     VS_BOUNDING_BOX_OUTPUT output;
@@ -514,6 +520,56 @@ float4 PSNaviMesh(VS_BOUNDING_BOX_OUTPUT input) : SV_TARGET
 {
     return(float4(1.0f, 0.6f, 0.0f, 0.3f));
 }
+
+VS_HEAL_RANGE_OUTPUT VSHealRange(VS_SKYBOX_CUBEMAP_INPUT input)
+{
+    VS_HEAL_RANGE_OUTPUT output;
+    output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObjectWorld), gmtxView), gmtxProjection);
+    output.worldPosition = mul(float4(input.position, 1.0f), gmtxGameObjectWorld).xyz;
+    output.worldPosition -= gmtxGameObjectWorld._41_42_43;
+
+    return output;
+}
+
+float4 PSHealRange(VS_HEAL_RANGE_OUTPUT input) : SV_TARGET
+{
+    float2 position = input.worldPosition.xz;
+    float distance = length(position);
+
+    float frequency = -0.5f;
+    float amplitude = 0.5f;
+    float timeFactor = 5.0f;
+    float wave = sin((distance * frequency) + (gfTime * timeFactor)) * amplitude;
+
+    float alpha = 0.0;
+    float4 color;
+
+    alpha = 0.5 - smoothstep(150.0f * 0.0f, 150.0f, distance);
+
+    //if (distance < 150.0f * 0.3f)
+    //{
+    //    alpha = 0.7;
+    //}
+    //if (distance > 150.0f * 0.95f && distance < 150.0f)
+    //{
+    //    // alpha = 1.0 - smoothstep(150.0f * 0.3f, 150.0f, distance);
+    //    color = float4(1.0f, 1.0f, 0.8f, 1.0f);
+    //    return color;
+    //}
+
+    color = float4(1.0, 1.0, 0.0, alpha);
+    color.rgb += wave;
+
+    return color;
+
+    //if (distance > 30.0f && distance < 50.0f)
+    //{
+    //    return float4(1.0, 1.0, 0.8, 1.0);
+    //}
+
+    //return float4(0.0f, 0.0f, 0.0f, 0.0f);
+}
+
 //////////////////////////////////////////////////////////////////////////shadow
 
 
