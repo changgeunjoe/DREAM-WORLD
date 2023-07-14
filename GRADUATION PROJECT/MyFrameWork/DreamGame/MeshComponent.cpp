@@ -905,3 +905,127 @@ XMFLOAT3 CHeightMapImage::GetHeightMapNormal(int x, int z)
 
 	return(xmf3Normal);
 }
+
+CylinderMeshComponent::CylinderMeshComponent()
+{
+}
+
+CylinderMeshComponent::~CylinderMeshComponent()
+{
+}
+
+void CylinderMeshComponent::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float radius, float height, UINT numSegments)
+{
+	m_nVertices = 2 * numSegments + 2;
+	m_nStride = sizeof(XMFLOAT3);
+	m_nOffset = 0;
+	m_nSlot = 0;
+	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	m_pxmf3Positions = new XMFLOAT3[m_nVertices];
+
+	float theta = 0.0f;
+	float deltaTheta = XM_2PI / numSegments;
+
+	float heightIncrement = height / 2.0f;
+
+	int i = 0;
+	for (UINT j = 0; j < numSegments; ++j)
+	{
+		float x = radius * cos(theta);
+		float z = radius * sin(theta);
+
+		m_pxmf3Positions[i++] = XMFLOAT3(x, -heightIncrement, z);
+		m_pxmf3Positions[i++] = XMFLOAT3(x, heightIncrement, z);
+
+		theta += deltaTheta;
+	}
+	m_pxmf3Positions[i++] = XMFLOAT3(0.0f, -heightIncrement, 0.0f);
+	m_pxmf3Positions[i++] = XMFLOAT3(0.0f, heightIncrement, 0.0f);
+
+
+	m_pd3dVertexBuffer = CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf3Positions, sizeof(XMFLOAT3) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dVertexUploadBuffer);
+
+	m_d3dVertexBufferView.BufferLocation = m_pd3dVertexBuffer->GetGPUVirtualAddress();
+	m_d3dVertexBufferView.StrideInBytes = sizeof(XMFLOAT3);
+	m_d3dVertexBufferView.SizeInBytes = sizeof(XMFLOAT3) * m_nVertices;
+
+	m_nIndices = 3 * (2 * numSegments) + 3 * (2 * numSegments);
+	m_pnIndices = new UINT[m_nIndices];
+
+	int currentIndex = 0;
+
+	// Generate indices for the side of the cylinder
+	for (int j = 0; j < numSegments; ++j)
+	{
+		m_pnIndices[currentIndex++] = j * 2;
+		m_pnIndices[currentIndex++] = j * 2 + 1;
+		m_pnIndices[currentIndex++] = ((j + 1) % numSegments) * 2;
+		
+		m_pnIndices[currentIndex++] = ((j + 1) % numSegments) * 2;
+		m_pnIndices[currentIndex++] = j * 2 + 1;
+		m_pnIndices[currentIndex++] = ((j + 1) % numSegments) * 2 + 1;
+	}
+
+	// Generate indices for the bottom cap
+	for (int j = 0; j < numSegments; ++j)
+	{
+		m_pnIndices[currentIndex++] = j * 2;  // Current bottom vertex
+		m_pnIndices[currentIndex++] = ((j + 1) % numSegments) * 2;  // Next bottom vertex
+		m_pnIndices[currentIndex++] = m_nVertices - 2;  // Center vertex of bottom cap
+	}
+
+	for (int j = 0; j < numSegments; ++j)
+	{
+		m_pnIndices[currentIndex++] = ((j + 1) % numSegments) * 2 + 1;
+		m_pnIndices[currentIndex++] = j * 2 + 1;
+		m_pnIndices[currentIndex++] = m_nVertices - 1;
+	}
+
+	m_pd3dIndexBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pnIndices, sizeof(UINT) * m_nIndices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_INDEX_BUFFER, &m_pd3dIndexUploadBuffer);
+
+	m_d3dIndexBufferView.BufferLocation = m_pd3dIndexBuffer->GetGPUVirtualAddress();
+	m_d3dIndexBufferView.Format = DXGI_FORMAT_R32_UINT;
+	m_d3dIndexBufferView.SizeInBytes = sizeof(UINT) * m_nIndices;
+
+	delete[] m_pxmf3Positions;
+	delete[] m_pnIndices;
+}
+
+void SquareMeshComponent::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float length)
+{
+	m_nVertices = 4;
+	m_nStride = sizeof(XMFLOAT3);
+	m_nOffset = 0;
+	m_nSlot = 0;
+	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	m_pxmf3Positions = new XMFLOAT3[m_nVertices];
+
+	m_pxmf3Positions[0] = XMFLOAT3(-length, 0.0f, +length);
+	m_pxmf3Positions[1] = XMFLOAT3(-length, 0.0f, -length);
+	m_pxmf3Positions[2] = XMFLOAT3(+length, 0.0f, +length);
+	m_pxmf3Positions[3] = XMFLOAT3(+length, 0.0f, -length);
+
+	m_pd3dVertexBuffer = CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf3Positions, sizeof(XMFLOAT3) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dVertexUploadBuffer);
+
+	m_d3dVertexBufferView.BufferLocation = m_pd3dVertexBuffer->GetGPUVirtualAddress();
+	m_d3dVertexBufferView.StrideInBytes = sizeof(XMFLOAT3);
+	m_d3dVertexBufferView.SizeInBytes = sizeof(XMFLOAT3) * m_nVertices;
+
+	m_nIndices = 6;
+	m_pnIndices = new UINT[m_nIndices];
+	m_pnIndices[0] = 0;
+	m_pnIndices[1] = 2;
+	m_pnIndices[2] = 1;
+	m_pnIndices[3] = 2;
+	m_pnIndices[4] = 3;
+	m_pnIndices[5] = 1;
+
+	m_pd3dIndexBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pnIndices, sizeof(UINT) * m_nIndices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_INDEX_BUFFER, &m_pd3dIndexUploadBuffer);
+
+	m_d3dIndexBufferView.BufferLocation = m_pd3dIndexBuffer->GetGPUVirtualAddress();
+	m_d3dIndexBufferView.Format = DXGI_FORMAT_R32_UINT;
+	m_d3dIndexBufferView.SizeInBytes = sizeof(UINT) * m_nIndices;
+
+	delete[] m_pxmf3Positions;
+	delete[] m_pnIndices;
+}

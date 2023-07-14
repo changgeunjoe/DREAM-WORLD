@@ -152,6 +152,16 @@ void NetworkHelper::SendMouseStatePacket(bool LClickedButton, bool RClickedButto
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
+void NetworkHelper::SendSkillStatePacket(bool qSkill, bool eSkill)
+{
+	CLIENT_PACKET::SkillInputPacket sendPacket;
+	sendPacket.qSkill = qSkill;
+	sendPacket.eSkill = eSkill;
+	sendPacket.type = CLIENT_PACKET::SKILL_INPUT;
+	sendPacket.size = sizeof(CLIENT_PACKET::SkillInputPacket);
+	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
+}
+
 void NetworkHelper::SendCreateRoomPacket(ROLE r, wstring roomName)
 {
 	CLIENT_PACKET::CreateRoomPacket sendPacket;

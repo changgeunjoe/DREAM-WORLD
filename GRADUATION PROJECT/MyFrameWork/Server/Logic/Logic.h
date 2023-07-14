@@ -1,7 +1,7 @@
 #pragma once
 #include "../PCH/stdafx.h"
 
-class Session;
+class UserSession;
 class Logic
 {
 private:
@@ -29,7 +29,7 @@ private:
 	std::mutex m_inGameUserLock;
 	std::map<std::wstring, int> m_inGameUser;//현재 게임에 접속한 유저에 대해서 key: id, value: server arr idx
 public:
-	void AcceptPlayer(Session* session, int userId, SOCKET& sock);
+	void AcceptPlayer(UserSession* session, int userId, SOCKET& sock);
 	void ProcessPacket(int userId, char* p);
 
 	//send

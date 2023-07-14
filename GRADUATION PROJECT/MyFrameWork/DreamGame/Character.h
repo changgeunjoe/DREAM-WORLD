@@ -6,6 +6,7 @@ class Character : public GameObject
 protected:
 	bool m_bQSkillClicked;
 	bool m_bESkillClicked;
+	bool m_bOnAttack;
 public:
 	Character();
 	virtual ~Character();
@@ -16,6 +17,12 @@ public:
 	virtual void FirstSkillUp() {};
 	virtual void SecondSkillDown() { m_bESkillClicked = true; };
 	virtual void SecondSkillUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f }) {};
+	bool CheckAnimationEnd(int nAnimation);
+
+public:
+	bool GetQSkillState() { return m_bQSkillClicked; }
+	bool GetESkillState() { return m_bESkillClicked; }
+	bool GetOnAttack() { return m_bOnAttack; }
 	//virtual void Move(DIRECTION direction, float fDistance);
 };
 
@@ -50,6 +57,7 @@ public:
 	virtual void SecondSkillDown();
 	virtual void SecondSkillUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f });
 	virtual void ShootArrow();
+	// virtual void ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent);
 };
 
 class Tanker : public Character
@@ -67,6 +75,9 @@ public:
 class Priest : public Character
 {
 public:
+	GameObject* m_pHealRange{ nullptr };
+	float		m_fHealTime{ 0.0f };
+public:
 	Priest();
 	virtual ~Priest();
 	virtual void RbuttonClicked(float fTimeElapsed);
@@ -76,6 +87,12 @@ public:
 	virtual void Move(DIRECTION direction, float fDsitance) override;
 	virtual void Animate(float fTimeElapsed);
 	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender = false);
+	virtual void MoveObject(DIRECTION& currentDirection, const XMFLOAT3& CameraAxis);
+	virtual void FirstSkillDown();
+	virtual void FirstSkillUp();
+	virtual void SecondSkillDown() {};
+	virtual void SecondSkillUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f }) {};
+	// virtual void ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent);
 };
 
 class Monster : public Character
@@ -83,6 +100,22 @@ class Monster : public Character
 public:
 	Monster();
 	virtual ~Monster();
+	virtual void Animate(float fTimeElapsed);
+public:
+	XMFLOAT3 m_xmf3rotateAngle = XMFLOAT3{ 0,0,0 };
+};
+
+class NormalMonster : public Character
+{
+private:
+	bool	m_bHaveTarget{ false };
+	bool	m_bCanActive{ false };
+	int		m_iTargetID{ -1 };
+public:
+	int		m_nID = -1;
+
+	NormalMonster();
+	virtual ~NormalMonster();
 	virtual void Animate(float fTimeElapsed);
 public:
 	XMFLOAT3 m_xmf3rotateAngle = XMFLOAT3{ 0,0,0 };

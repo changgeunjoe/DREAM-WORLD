@@ -414,8 +414,8 @@ void Logic::ProcessPacket(char* p)
 		XMFLOAT3 bossRightVector = monsterObject->GetRight();
 		high_resolution_clock::time_point h_t = high_resolution_clock::now();
 
-		std::cout << "local boss Dir: : " << bossLookVector.x << ", " << bossLookVector.y << ", " << bossLookVector.z << endl;
-		std::cout << "server boss Dir: : " << recvPacket->bossState.directionVector.x << ", " << recvPacket->bossState.directionVector.y << ", " << recvPacket->bossState.directionVector.z << endl;
+		//std::cout << "local boss Dir: : " << bossLookVector.x << ", " << bossLookVector.y << ", " << bossLookVector.z << endl;
+		//std::cout << "server boss Dir: : " << recvPacket->bossState.directionVector.x << ", " << recvPacket->bossState.directionVector.y << ", " << recvPacket->bossState.directionVector.z << endl;
 
 		XMFLOAT3 bossInterpolationVector = Vector3::Subtract(recvPacket->bossState.pos, bossPos);
 
@@ -437,7 +437,7 @@ void Logic::ProcessPacket(char* p)
 		bool OnRight = (Vector3::DotProduct(bossRightVector, Vector3::Normalize(recvPacket->bossState.directionVector)) > 0) ? true : false;	// 목적지가 올느쪽 왼
 
 		float bossRotBetweenAngle = Vector3::Angle(Vector3::Normalize(recvPacket->bossState.directionVector), bossLookVector);
-		cout << "boss Rot Between Angle: " << bossRotBetweenAngle << " Degree" << endl;
+		//cout << "boss Rot Between Angle: " << bossRotBetweenAngle << " Degree" << endl;
 		float bossInterpolationAngle = bossRotBetweenAngle - bosDurationTime * 90.0f;
 		//PrintCurrentTime();
 		//cout << endl << "bossBetweenAngle: " << bossRotBetweenAngle << endl;
@@ -450,7 +450,7 @@ void Logic::ProcessPacket(char* p)
 		//		m_MonsterSession.m_currentPlayGameObject->Rotate(0, -bossRotBetweenAngle, 0);
 		//}
 		else {
-			std::cout << "force Set Interpolation Rotate: " << bossInterpolationAngle << endl;
+			//std::cout << "force Set Interpolation Rotate: " << bossInterpolationAngle << endl;
 			OnRight ? m_MonsterSession.m_currentPlayGameObject->m_interpolationRotateAngleY = bossInterpolationAngle :
 				m_MonsterSession.m_currentPlayGameObject->m_interpolationRotateAngleY = -bossInterpolationAngle;
 		}
@@ -480,11 +480,11 @@ void Logic::ProcessPacket(char* p)
 			m_MonsterSession.m_currentPlayGameObject->m_interpolationVector = XMFLOAT3{ 0,0,0 };
 		}
 		else if (abs(bossInterpolationDistance) > 50.0f) {
-			std::cout << "force Set Position" << endl;
+			//std::cout << "force Set Position" << endl;
 			m_MonsterSession.m_currentPlayGameObject->SetPosition(recvPacket->bossState.pos);
 		}
 		else {
-			std::cout << "force Set Interpolation Position: " << bossInterpolationDistance << endl;
+			//std::cout << "force Set Interpolation Position: " << bossInterpolationDistance << endl;
 			m_MonsterSession.m_currentPlayGameObject->m_interpolationDistance = abs(bossInterpolationDistance);
 			m_MonsterSession.m_currentPlayGameObject->m_interpolationVector = Vector3::Normalize(bossInterpolationVector);
 		}
@@ -622,38 +622,48 @@ void Logic::ProcessPacket(char* p)
 
 
 		SERVER_PACKET::BossMoveNodePacket* recvPacket = reinterpret_cast<SERVER_PACKET::BossMoveNodePacket*>(p);
-		std::queue<int> recvNodeQueue;
-		gGameFramework.m_pScene->m_pObjectManager->m_nodeLock.lock();
-		gGameFramework.m_pScene->m_pObjectManager->m_VecNodeQueue.clear();
-		gGameFramework.m_pScene->m_pObjectManager->m_nodeLock.unlock();
-		cout << "보스 이동 인덱스 : ";
+		if (gGameFramework.m_pScene == nullptr) return;
+		std::queue<int> recvNodeQueue;		
+		//Role로 변경했음 이거 참고 바람
+		m_MonsterSession.m_currentPlayGameObject->m_roleDesPlayer = recvPacket->targetRole;
+		//std::cout << "recv aggro Id: " << recvPacket->desPlayerId << std::endl;
 		if (recvPacket->nodeCnt == -1) {
 			m_MonsterSession.m_currentPlayGameObject->m_lockBossRoute.lock();
 			m_MonsterSession.m_currentPlayGameObject->m_BossRoute.swap(recvNodeQueue);
 			m_MonsterSession.m_currentPlayGameObject->m_lockBossRoute.unlock();
-			m_MonsterSession.m_currentPlayGameObject->m_xmf3Destination = recvPacket->desPos;
 		}
 		else if (recvPacket->nodeCnt > -1) {
+			cout << "보스 이동 인덱스 : ";
 			vector<int> triangleIdxVec;
 			for (int i = 0; i < recvPacket->nodeCnt; i++) {
 				//보스가 이동할 노드 데이터
 				// 받아온 노드들 벡터에 새로 넣기
-				cout << recvPacket->node[i] << ", " << endl;
+				cout << recvPacket->node[i] << ", ";
 				recvNodeQueue.push(recvPacket->node[i]);
 				triangleIdxVec.push_back(recvPacket->node[i]);
 			}
+			cout << endl;
 			//gGameFramework.m_pScene->m_pObjectManager->m_VecNodeQueue.push_back(recvPacket->node[i]);				
+			//AStart Node Mesh
 			gGameFramework.m_pScene->m_pObjectManager->m_nodeLock.lock();
 			gGameFramework.m_pScene->m_pObjectManager->m_VecNodeQueue.swap(triangleIdxVec);
 			gGameFramework.m_pScene->m_pObjectManager->m_nodeLock.unlock();
 
+			//boss Move Node Data
 			m_MonsterSession.m_currentPlayGameObject->m_lockBossRoute.lock();
 			m_MonsterSession.m_currentPlayGameObject->m_BossRoute.swap(recvNodeQueue);
 			m_MonsterSession.m_currentPlayGameObject->m_lockBossRoute.unlock();
 		}
 
-		m_MonsterSession.m_currentPlayGameObject->SetMoveState(true);
-		cout << endl;
+		if (!m_MonsterSession.m_currentPlayGameObject->GetMoveState())
+		{
+			cout << "SERVER_PACKET::BOSS_MOVE_NODE - SetMoveState True" << endl;
+			m_MonsterSession.m_currentPlayGameObject->SetMoveState(true);
+			m_MonsterSession.m_currentPlayGameObject->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ATTACK::ATTACK_COUNT;
+			m_MonsterSession.m_currentPlayGameObject->m_pSkinnedAnimationController->SetTrackEnable(0, 2);
+		}
+		//m_MonsterSession.m_currentPlayGameObject->SetMoveState(true);
+		//cout << endl;
 	}
 	break;
 	case SERVER_PACKET::PRE_EXIST_LOGIN://이미 존재하는 플레이어가 있기 때문에, 지금 들어온 플레이어(내 클라이언트는) 접속 해제 패킷을 수신
@@ -670,10 +680,37 @@ void Logic::ProcessPacket(char* p)
 
 	}
 	break;
+	case SERVER_PACKET::SKILL_INPUT:
+	{
+		SERVER_PACKET::SkillInputPacket* recvPacket = reinterpret_cast<SERVER_PACKET::SkillInputPacket*>(p);
+
+		auto findRes = find_if(m_inGamePlayerSession.begin(), m_inGamePlayerSession.end(), [&recvPacket](auto& fObj) {
+			if (fObj.m_id == recvPacket->userId)
+				return true;
+			return false;
+			});
+		if (findRes != m_inGamePlayerSession.end()) {
+			if (recvPacket->qSkill == true) {
+				static_cast<Character*>(findRes->m_currentPlayGameObject)->FirstSkillDown();
+			}
+
+			if (recvPacket->eSkill == true) {
+				static_cast<Character*>(findRes->m_currentPlayGameObject)->SecondSkillDown();
+			}
+		}
+	}
+	break;
+
 	default:
 	{
 		std::cout << "Unknown Packet Recv" << std::endl;
 	}
 	break;
 	}
+}
+
+XMFLOAT3 Logic::GetPostion(ROLE r)
+{
+	return gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo(r)->GetPosition();
+	// TODO: 여기에 return 문을 삽입합니다.
 }

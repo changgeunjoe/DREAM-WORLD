@@ -6,16 +6,16 @@ class MonsterSessionObject : public SessionObject
 {
 public:
 	MonsterSessionObject();
-	MonsterSessionObject(int& roomId);
 	virtual ~MonsterSessionObject();
-
+private:
+	int m_roomId = -1;
 private:
 	DirectX::XMFLOAT3 m_DestinationPos = { 0,0,0 };
 	std::mutex m_restRotateAngleLock;
 	DirectX::XMFLOAT3 m_RestRotateAngle = { 0,0,0 };
 private:
-	int m_aggroPlayerId = -1;
-	int m_newAggroPlayerId = -1;
+	ROLE m_aggroPlayerRole = ROLE::NONE_SELECT;
+	ROLE m_newAggroPlayerRole = ROLE::NONE_SELECT;
 	std::mutex m_reserveRoadLock;
 	std::list<int> m_ReserveRoad;
 	int m_onIdx = -1;
@@ -27,20 +27,14 @@ public:
 public:
 	std::chrono::high_resolution_clock::time_point m_lastAttackTime = std::chrono::high_resolution_clock::now();
 public:
-	virtual void AutoMove() override;
-	virtual void StartMove(DIRECTION d) override;
-	virtual void StopMove() override;
-	virtual void ChangeDirection(DIRECTION d) override;
-public:
-	/*virtual const DirectX::XMFLOAT3 GetPosition() override;
-	virtual const DirectX::XMFLOAT3 GetRotation() override;*/
+	void StartMove();	
 public:
 	virtual void Rotate(ROTATE_AXIS axis, float angle) override;
 public:
 	void SetDirection(DIRECTION d);
-	void Move(float fDistance, float elapsedTime);
+	bool Move(float elapsedTime) override;
 public:
-	void SetDestinationPos(DirectX::XMFLOAT3 des);
+	void SetDestinationPos();
 	void SetRestRotateAngle(ROTATE_AXIS axis, float angle) {
 		switch (axis)
 		{
@@ -60,9 +54,10 @@ public:
 public:
 	DirectX::XMFLOAT3 GetLook() { return m_directionVector; }
 public:
-	void ReserveAggroPlayerId(int id);
-	void SetAggroPlayerId();
-	int GetAggroPlayerId() { return m_aggroPlayerId; }
+	void ReserveAggroPlayerRole(ROLE r);
+	void SetAggroPlayerRole();
+	ROLE GetAggroPlayerRole() { return m_aggroPlayerRole; }
+	ROLE GetNewAggroPlayerRole() { return m_newAggroPlayerRole; }
 	void AttackTimer();
 	void AttackPlayer();
 	bool StartAttack();
@@ -70,5 +65,5 @@ public:
 public:
 	bool isBossDie = false;
 	void SetZeroHp() { m_hp = 0; }
-
+	void SetRoomId(int roomId) { m_roomId = roomId; }
 };

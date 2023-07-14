@@ -4,7 +4,7 @@
 #endif
 #include "SessionObject.h"
 
-class Session;
+class UserSession;
 class MonsterSessionObject;
 
 class ShootingSessionObject : public SessionObject
@@ -16,28 +16,19 @@ private:
 public:
 	bool m_active = false;
 	ShootingSessionObject();
-	ShootingSessionObject(int& roomId);
 	virtual ~ShootingSessionObject();
-private:	
-	float m_speed;
-public:
-	virtual void AutoMove();
-	virtual void StartMove(DIRECTION d);
-	virtual void StopMove();
-	virtual void ChangeDirection(DIRECTION d);
-	virtual void Rotate(ROTATE_AXIS axis, float angle);
+	void Rotate(ROTATE_AXIS axis, float angle) override {}
 public:
 	virtual const DirectX::XMFLOAT3 GetPosition();
 	virtual const DirectX::XMFLOAT3 GetRotation();
 	int DetectCollision(MonsterSessionObject* m_bossSession);
 	void SetSpeed(float speed);
 	void SetStart(XMFLOAT3& dir, XMFLOAT3& srcPos, float speed);
-	void Move(float distance);
+	bool Move(float elapsedTime) override;
 public:
-	void SetInfo(int& roomId, int idx)
+	void SetInfo(int idx)
 	{
 		m_id = idx;
-		m_roomId = roomId;
 	}
 	int GetId() { return m_id; }
 };

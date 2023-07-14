@@ -8,7 +8,7 @@ protected:
 	short	m_hp;
 	short	m_maxHp;
 	short	m_attackDamage;
-	int		m_roomId;
+	float m_speed = 50.0f;
 protected:
 	DirectX::XMFLOAT3 m_position;
 	DirectX::XMFLOAT3 m_rotateAngle = { 0,0,0 };
@@ -18,8 +18,7 @@ protected:
 	DirectX::XMFLOAT4X4 m_worldMatrix = Matrix4x4::Identity();
 	std::chrono::high_resolution_clock::time_point m_lastMoveTime;
 public:
-	SessionObject();
-	SessionObject(int roomId) : m_roomId(roomId) {};
+	SessionObject();	
 	virtual ~SessionObject();
 public:
 	short GetHp() { return m_hp; }
@@ -30,10 +29,11 @@ public:
 	void AttackedHp(short damage) { m_hp -= damage; };
 	short GetAttackDamage() { return m_attackDamage; }
 public:
-	virtual void AutoMove() = 0;
-	virtual void StartMove(DIRECTION d) = 0;
+	void AutoMove();
+	/*virtual void StartMove(DIRECTION d) = 0;
 	virtual void StopMove() = 0;
-	virtual void ChangeDirection(DIRECTION d) = 0;
+	virtual void ChangeDirection(DIRECTION d) = 0;*/
+	virtual bool Move(float elapsedTime) = 0;
 public:
 public:
 	virtual void Rotate(ROTATE_AXIS axis, float angle) = 0;
@@ -43,11 +43,6 @@ protected:
 		m_rightVector = Vector3::CrossProduct(DirectX::XMFLOAT3(0, 1, 0), m_directionVector);
 	}
 protected:
-	void SetPosition(DirectX::XMFLOAT3 pos) { m_position = pos; }
-public:
-	void SetRoomId(int& roomId)
-	{
-		m_roomId = roomId;
-	}
-	int GetRoomId() { return m_roomId; }
+	virtual void SetPosition(DirectX::XMFLOAT3 pos) { m_position = pos; }
+	virtual void SetPosition(DirectX::XMFLOAT3& pos) { m_position = pos; }
 };

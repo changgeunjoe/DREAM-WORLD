@@ -133,6 +133,9 @@
     <Filter Include="04.Component\ShaderComponent\EffectShaderComponent">
       <UniqueIdentifier>{cb153da1-0e0d-49f0-ab14-3f79dbe85602}</UniqueIdentifier>
     </Filter>
+    <Filter Include="10.NetworkHelper\MapData">
+      <UniqueIdentifier>{80961179-1fbb-4289-9c68-f88f90b588a7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -266,10 +269,7 @@
     </ClInclude>
     <ClInclude Include="TerrainShaderComponent.h">
       <Filter>04.Component\ShaderComponent\TerrainShaderComponent</Filter>
-    </ClInclude>
-    <ClInclude Include="Network\MapData\MapData.h">
-      <Filter>10.NetworkHelper\Room</Filter>
-    </ClInclude>
+    </ClInclude>    
     <ClInclude Include="EffectObject.h">
       <Filter>03.GameObject\Effect</Filter>
     </ClInclude>
@@ -278,6 +278,12 @@
     </ClInclude>
     <ClInclude Include="EffectShaderComponent.h">
       <Filter>04.Component\ShaderComponent\EffectShaderComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\MapData\MapCollide.h">
+      <Filter>10.NetworkHelper\MapData</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\MapData\MapData.h">
+      <Filter>10.NetworkHelper\MapData</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -404,14 +410,17 @@
     <ClCompile Include="TerrainShaderComponent.cpp">
       <Filter>04.Component\ShaderComponent\TerrainShaderComponent</Filter>
     </ClCompile>
-    <ClCompile Include="Network\MapData\MapData.cpp">
-      <Filter>10.NetworkHelper\Room</Filter>
-    </ClCompile>
     <ClCompile Include="EffectObject.cpp">
       <Filter>03.GameObject\Effect</Filter>
     </ClCompile>
     <ClCompile Include="DebuffObject.cpp">
       <Filter>03.GameObject\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\MapData\MapCollide.cpp">
+      <Filter>10.NetworkHelper\MapData</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\MapData\MapData.cpp">
+      <Filter>10.NetworkHelper\MapData</Filter>
     </ClCompile>
     <ClCompile Include="EffectShaderComponent.cpp">
       <Filter>04.Component\ShaderComponent\EffectShaderComponent</Filter>

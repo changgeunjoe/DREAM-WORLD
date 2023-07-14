@@ -4,6 +4,7 @@
 #endif
 #include "../Session/SessionObject/ShootingSessionObject.h"
 #include "../Session/SessionObject/MonsterSessionObject.h"
+#include "../Session/SessionObject/ChracterSessionObject.h"
 
 class Room
 {
@@ -21,17 +22,21 @@ private:
 public:
 	void SetRoomId(int roomId) { m_roomId = roomId; }
 	bool IsArriveState() { return m_isAlive; }
-	//Player Session
+	//Player UserSession
 private:
 	//ingame Player
 	std::mutex m_lockInGamePlayers;
 	std::map<ROLE, int> m_inGamePlayers;
-
+	
 	//disconnect Player에 대해서 저장, logic클래스에서도 Player_State가 INGameRoom일때 nickName저장 후, 함
 	std::mutex m_lockdisconnectedPlayer;
 	std::map<std::wstring, ROLE> m_disconnectedPlayers;//key: nickName, value: Role
+private:
+	std::map<ROLE, ChracterSessionObject*> m_characterMap;
+
 public:
 	//ingame Player
+	void SendAllPlayerInfo();
 	void InsertInGamePlayer(std::map<ROLE, int>& matchPlayer);
 	void InsertInGamePlayer(ROLE r, int playerId);
 	void DeleteInGamePlayer(int playerId);
@@ -43,7 +48,7 @@ public:
 	bool CheckDisconnectedPlayer(std::wstring& name);
 private:
 	void DeleteDisconnectedPlayer(int playerId, std::wstring& name);
-	//Monster Session
+	//Monster UserSession
 private:
 	MonsterSessionObject m_boss;
 public:
@@ -62,7 +67,17 @@ public:
 	Concurrency::concurrent_queue<short> m_bossDamagedQueue;
 	bool MeleeAttack(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 pos);
 
-	//Game Session
+	//Game UserSession
+public:
+	void ChangeDirectionPlayCharacter(ROLE r, DIRECTION d);
+	void StopMovePlayCharacter(ROLE r);
+	DirectX::XMFLOAT3 GetPositionPlayCharacter(ROLE r);
+	bool AdjustPlayCharacterInfo(ROLE r, DirectX::XMFLOAT3& postion);
+	void RotatePlayCharacter(ROLE r, ROTATE_AXIS axis, float& angle);
+	void StartMovePlayCharacter(ROLE r, DIRECTION d);
+	void SetMouseInputPlayCharacter(ROLE r, bool left, bool right);
+	bool GetLeftAttackPlayCharacter(ROLE r);
+	short GetAttackDamagePlayCharacter(ROLE r);
 public:
 	void GameStart();
 	void GameRunningLogic();
@@ -71,4 +86,6 @@ public:
 	void ChangeBossState();
 	void UpdateGameStateForPlayer();
 	void BossAttackExecute();
+
+
 };

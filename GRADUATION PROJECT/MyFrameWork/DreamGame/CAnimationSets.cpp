@@ -124,3 +124,8 @@ void CAnimationSet::HandleCallback()
 		}
 	}
 }
+
+void CAnimationSet::ResetAnimation()
+{
+	m_fPosition = -ANIMATION_CALLBACK_EPSILON;
+}

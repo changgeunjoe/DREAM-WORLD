@@ -79,13 +79,13 @@ void MaterialComponent::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12Grap
 		strcpy_s(pstrFilePath, 64, "Model/Textures/");
 
 		bDuplicated = (pstrTextureName[0] == '@');
-		strcpy_s(pstrFilePath + 15, 64 - 15, pstrTextureName); // (bDuplicated) ? (pstrTextureName + 1) :
+		strcpy_s(pstrFilePath + 15, 64 - 15, (bDuplicated) ? (pstrTextureName + 1) : pstrTextureName);
 		strcpy_s(pstrFilePath + 15 + ((bDuplicated) ? (nStrLength - 1) : nStrLength), 64 - 15 - ((bDuplicated) ? (nStrLength - 1) : nStrLength), ".dds");
 
 		size_t nConverted = 0;
 		mbstowcs_s(&nConverted, pwstrTextureName, 64, pstrFilePath, _TRUNCATE);
 
-#define _WITH_DISPLAY_TEXTURE_NAME
+// #define _WITH_DISPLAY_TEXTURE_NAME
 
 #ifdef _WITH_DISPLAY_TEXTURE_NAME
 		static int nTextures = 0, nRepeatedTextures = 0;
@@ -93,28 +93,11 @@ void MaterialComponent::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12Grap
 		_stprintf_s(pstrDebug, 256, _T("Texture Name: %d %c %s\n"), nTextures++, ' ', pwstrTextureName);
 		OutputDebugString(pstrDebug);
 #endif
-		if (!bDuplicated)
-		{
-			*ppTexture = new TextureComponent();
-			(*ppTexture)->BuildTexture(1, RESOURCE_TEXTURE2D, 0, 1);
-			(*ppTexture)->LoadTextureFromFile(pd3dDevice, pd3dCommandList, pwstrTextureName, RESOURCE_TEXTURE2D, 0);
-			if (*ppTexture) (*ppTexture)->AddRef();
-			pShader->CreateShaderResourceViews(pd3dDevice, *ppTexture, 0, nRootParameter, false);
-		}
-		else
-		{
-			if (pParent)
-			{
-				while (pParent)
-				{
-					if (!pParent->m_pParent) break;
-					pParent = pParent->m_pParent;
-				}
-				GameObject* pRootGameObject = pParent;
-				*ppTexture = pRootGameObject->FindReplicatedTexture(pwstrTextureName);
-				if (*ppTexture) (*ppTexture)->AddRef();
-			}
-		}
+		*ppTexture = new TextureComponent();
+		(*ppTexture)->BuildTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+		(*ppTexture)->LoadTextureFromFile(pd3dDevice, pd3dCommandList, pwstrTextureName, RESOURCE_TEXTURE2D, 0);
+		if (*ppTexture) (*ppTexture)->AddRef();
+		pShader->CreateShaderResourceViews(pd3dDevice, *ppTexture, 0, nRootParameter, false);
 	}
 }
 
