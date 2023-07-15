@@ -334,7 +334,8 @@ enum GAME_STATE
 enum TEXT
 {
 	NPC_TEXT=0,
-	BOSS_TEXT = 1
+	BOSS_TEXT = 1,
+	START_TEXT = 2
 };
 
 

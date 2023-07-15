@@ -432,6 +432,7 @@ void GameobjectManager::CharacterUIRender(ID3D12Device* pd3dDevice, ID3D12Graphi
 	}
 	if (m_bNPCscreen) {
 		m_pTalkUIObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		m_pPressGUIObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 }
 
@@ -1369,13 +1370,23 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pTalkUIObject->SetColor(XMFLOAT4(0, 0, 0, 0.75));
 	m_pTalkUIObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
+	m_pPressGUIObject = new GameObject(UI_ENTITY);
+	m_pPressGUIObject->InsertComponent<RenderComponent>();
+	m_pPressGUIObject->InsertComponent<UIMeshComponent>();
+	m_pPressGUIObject->InsertComponent<UiShaderComponent>();
+	m_pPressGUIObject->InsertComponent<TextureComponent>();
+	m_pPressGUIObject->SetTexture(L"UI/PressGPink.dds", RESOURCE_TEXTURE2D, 3);
+	m_pPressGUIObject->SetPosition(XMFLOAT3(0.56, -0.5, 1.00));
+	m_pPressGUIObject->SetScale(0.02, 0.02, 1);
+	m_pPressGUIObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+
 	m_pAttackUIObject = new GameObject(UI_ENTITY);
 	m_pAttackUIObject->InsertComponent<RenderComponent>();
 	m_pAttackUIObject->InsertComponent<UIMeshComponent>();
 	m_pAttackUIObject->InsertComponent<UiShaderComponent>();
 	m_pAttackUIObject->InsertComponent<TextureComponent>();
 	m_pAttackUIObject->SetTexture(L"UI/Attack.dds", RESOURCE_TEXTURE2D, 3);
-	m_pAttackUIObject->SetPosition(XMFLOAT3(0.0, -0.0, 1.01));
+	m_pAttackUIObject->SetPosition(XMFLOAT3(0.0, 0.0, 1.01));
 	m_pAttackUIObject->SetScale(0.014, 0.005, 1);
 	m_pAttackUIObject->SetColor(XMFLOAT4(0, -0.7, -5, 0));
 	//m_pAttackUIObject->SetColor(XMFLOAT4(0, 0, 0, 0.75));
@@ -1657,6 +1668,7 @@ void GameobjectManager::ProcessingUI(int n)
 	{
 #ifdef LOCAL_TASK
 		m_nSection = 1;
+
 #endif
 		m_pUIGameSearchObject->m_bUIActive = false;
 		cout << "request Room List" << endl;
@@ -1986,7 +1998,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		case 'V':
 		{
 			m_bNPCinteraction = true;
-			m_iTEXTiIndex = 0;
+			m_iTEXTiIndex = 2;
 			break;
 		}
 		}
@@ -2200,6 +2212,13 @@ void GameobjectManager::AddTextToUILayer(int& iIndex)
 	//pObj->SetActiveState(true);
 
 	queue<wstring> queueStr;
+	if (iIndex == START_TEXT )
+	{
+		queueStr.emplace(L"안녕하세요! 드림월드에 오신 것을 환영해요");
+		queueStr.emplace(L"먼저 플레이 방법에 대해서 알려드릴게요!");
+		queueStr.emplace(L"앞에 보이는 캐릭터들 중 원하는 캐릭터를 선택하신 후에");
+		queueStr.emplace(L"게임 시작을 누르시면 선택한 캐릭터를 플레이 하실 수 있어요!");
+	}
 	if (iIndex == NPC_TEXT)
 	{
 		queueStr.emplace(L"용사님들 드디어 오셧군요");

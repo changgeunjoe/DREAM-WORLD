@@ -302,7 +302,7 @@ float4 PSUITextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
     {
         cColor = float4(0, 0, 0, 1);
     }
-    //if (cColor.x == 0 || cColor.y == 0 || cColor.z == 0)
+    //if (cColor.x < 0.1 || cColor.y < 0.1 || cColor.z < 0.1 )
     //{
     //    cColor.w = 0;
     //}

@@ -127,6 +127,7 @@ private: //active object
 	GameObject* m_pUITankerCharacterObject{ NULL };
 	GameObject* m_pUIPriestCharacterObject{ NULL };
 	GameObject* m_pTalkUIObject{ NULL };
+	GameObject* m_pPressGUIObject{ NULL };
 	GameObject* m_pAttackUIObject{ NULL };
 
 	//SECTION 2

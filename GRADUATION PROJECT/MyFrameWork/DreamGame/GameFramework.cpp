@@ -725,7 +725,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			break;
 		case VK_F2:
 #ifdef LOCAL_TASK
-			//m_bLobbyScene = !m_bLobbyScene;
+			m_bLobbyScene = !m_bLobbyScene;
 #endif
 			break;
 		case VK_F8:
@@ -919,10 +919,9 @@ void CGameFramework::FrameAdvance()
 	//m_pScene->OnPreRender(m_pd3dDevice, m_pd3dCommandList, m_pCamera);
 	//Render2DFont();
 	
-	 if (m_bLobbyScene)
-	{
+
 		if (m_pScene) m_pScene->Render(m_pd3dDevice, m_pd3dCommandList, m_pCamera);
-	}
+
 	 if (m_bLobbyScene)
 	 {
 		 if (m_pLobbyScene) m_pLobbyScene->UIRender(m_pd3dDevice, m_pd3dCommandList, m_pUICamera);
