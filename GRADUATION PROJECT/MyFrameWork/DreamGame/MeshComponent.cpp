@@ -841,8 +841,6 @@ CHeightMapImage::CHeightMapImage(LPCTSTR pFileName, int nWidth, int nLength, XMF
 			m_pHeightMapPixels[x + ((m_nLength - 1 - y) * m_nWidth)] = pHeightMapPixels[x + (y * m_nWidth)];
 		}
 	}
-
-	if (pHeightMapPixels) delete[] pHeightMapPixels;
 }
 
 CHeightMapImage::~CHeightMapImage(void)
@@ -986,9 +984,6 @@ void CylinderMeshComponent::BuildObject(ID3D12Device* pd3dDevice, ID3D12Graphics
 	m_d3dIndexBufferView.BufferLocation = m_pd3dIndexBuffer->GetGPUVirtualAddress();
 	m_d3dIndexBufferView.Format = DXGI_FORMAT_R32_UINT;
 	m_d3dIndexBufferView.SizeInBytes = sizeof(UINT) * m_nIndices;
-
-	delete[] m_pxmf3Positions;
-	delete[] m_pnIndices;
 }
 
 void SquareMeshComponent::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float length)
@@ -1025,7 +1020,4 @@ void SquareMeshComponent::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	m_d3dIndexBufferView.BufferLocation = m_pd3dIndexBuffer->GetGPUVirtualAddress();
 	m_d3dIndexBufferView.Format = DXGI_FORMAT_R32_UINT;
 	m_d3dIndexBufferView.SizeInBytes = sizeof(UINT) * m_nIndices;
-
-	delete[] m_pxmf3Positions;
-	delete[] m_pnIndices;
 }
