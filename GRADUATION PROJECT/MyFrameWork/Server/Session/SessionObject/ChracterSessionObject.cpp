@@ -266,6 +266,20 @@ void WarriorSessionObject::Skill_2()
 
 }
 
+void WarriorSessionObject::SetStage_1Position()
+{
+	SetPosition(XMFLOAT3(-1290.0f, 0, -1470.0f));
+	m_maxHp = m_hp = 400;
+	m_attackDamage = 150;
+}
+
+void WarriorSessionObject::SetBossStagePosition()
+{
+	SetPosition(XMFLOAT3(0, 0, -211.0f));
+	m_maxHp = m_hp = 400;
+	m_attackDamage = 150;
+}
+
 void MageSessionObject::Skill_1()
 {
 
@@ -274,6 +288,20 @@ void MageSessionObject::Skill_1()
 void MageSessionObject::Skill_2()
 {
 
+}
+
+void MageSessionObject::SetStage_1Position()
+{
+	SetPosition(XMFLOAT3(-1370.45, 0, -1450.89f));
+	m_maxHp = m_hp = 480;
+	m_attackDamage = 30;
+}
+
+void MageSessionObject::SetBossStagePosition()
+{
+	SetPosition(XMFLOAT3(20, 0, -285));
+	m_maxHp = m_hp = 480;
+	m_attackDamage = 30;
 }
 
 void TankerSessionObject::Skill_1()
@@ -286,6 +314,20 @@ void TankerSessionObject::Skill_2()
 
 }
 
+void TankerSessionObject::SetStage_1Position()
+{
+	SetPosition(XMFLOAT3(-1260.3f, 0, -1510.7f));
+	m_maxHp = m_hp = 600;
+	m_attackDamage = 60;
+}
+
+void TankerSessionObject::SetBossStagePosition()
+{
+	SetPosition(XMFLOAT3(82, 0, -223.0f));
+	m_maxHp = m_hp = 600;
+	m_attackDamage = 60;
+}
+
 void ArcherSessionObject::Skill_1()
 {
 
@@ -294,4 +336,18 @@ void ArcherSessionObject::Skill_1()
 void ArcherSessionObject::Skill_2()
 {
 
+}
+
+void ArcherSessionObject::SetStage_1Position()
+{
+	SetPosition(XMFLOAT3(-1340.84f, 0, -1520.93f));
+	m_maxHp = m_hp = 250;
+	m_attackDamage = 200;
+}
+
+void ArcherSessionObject::SetBossStagePosition()
+{
+	SetPosition(XMFLOAT3(123, 0, -293));
+	m_maxHp = m_hp = 250;
+	m_attackDamage = 200;
 }

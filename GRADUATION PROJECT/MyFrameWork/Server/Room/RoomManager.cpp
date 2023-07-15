@@ -76,7 +76,18 @@ void RoomManager::UpdateGameStateForPlayer(int roomId)
 		std::lock_guard<std::mutex> lg{ m_runningRoomSetLock };
 		if (!m_runningRoomIdSet.count(roomId)) return;
 	}
-	m_roomArr[roomId].UpdateGameStateForPlayer();
+	//m_roomArr[roomId].GetRoomState();
+	m_roomArr[roomId].UpdateGameStateForPlayer_BOSS();
+}
+
+void RoomManager::UpdateSmallMonster(int roomId)
+{
+	{
+		std::lock_guard<std::mutex> lg{ m_runningRoomSetLock };
+		if (!m_runningRoomIdSet.count(roomId)) return;
+	}
+	//m_roomArr[roomId].GetRoomState();
+	m_roomArr[roomId].UpdateSmallMonster();
 }
 
 void RoomManager::BossAttackExecute(int roomId)

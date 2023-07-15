@@ -153,6 +153,7 @@
     </ClCompile>
     <ClCompile Include="Room\Room.cpp" />
     <ClCompile Include="Room\RoomManager.cpp" />
+    <ClCompile Include="Session\SessionObject\SmallMonsterSessionObject.cpp" />
     <ClCompile Include="Session\UserSession.cpp" />
     <ClCompile Include="Session\SessionObject\MonsterSessionObject.cpp" />
     <ClCompile Include="Session\SessionObject\ChracterSessionObject.cpp" />
@@ -171,6 +172,7 @@
     <ClInclude Include="Room\Room.h" />
     <ClInclude Include="Room\RoomManager.h" />
     <ClInclude Include="Session\ExpOver.h" />
+    <ClInclude Include="Session\SessionObject\SmallMonsterSessionObject.h" />
     <ClInclude Include="Session\UserSession.h" />
     <ClInclude Include="Session\SessionObject\MonsterSessionObject.h" />
     <ClInclude Include="Session\SessionObject\ChracterSessionObject.h" />

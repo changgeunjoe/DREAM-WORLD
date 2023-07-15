@@ -161,149 +161,147 @@ MapData::MapData(std::string fileName, std::string collisionFileName) : m_navFil
 
 void MapData::GetReadCollisionData()
 {
-	std::vector<XMFLOAT4> quaternion;
-	std::vector<XMFLOAT3> tempPos;
-	std::vector<XMFLOAT3> tempScale;
-	std::vector<XMFLOAT3> tempCenterPos;
-	std::vector<XMFLOAT3> tempLocalCenterPos;
-	std::vector<XMFLOAT3> tempExtentScale;
-	std::vector<float> forwardDotRes;
-	std::vector<float> rightDotRes;
-	std::vector<XMFLOAT3> forwardNormalVector;
-	std::vector<XMFLOAT3> rightNormalVector;
-	std::string readObj;
-	float number[3] = {};
-	float qnumber[4] = {};
-	int objCount = -1;
-
 	std::string FileName = "CollisionData.txt";
 	std::ifstream objectFile(m_collisionFileName);
 
+	vector<XMFLOAT3> modelPosition;
+	vector<XMFLOAT4> quaternion;
+
+	vector<XMFLOAT3> modelScale;
+	vector<XMFLOAT3> modelEulerRotate;
+
+	vector<XMFLOAT3> colliderWorldPosition;
+	vector<XMFLOAT3> colliderWorldBoundSize;
+	vector<XMFLOAT3> colliderWorldExtentSize;
+	vector<XMFLOAT3> colliderForwardVec;
+	vector<XMFLOAT3> colliderRightVec;
+	vector<float>	 forwardDot;
+	vector<float>	 rightDot;
+
+	string temp;
+	vector<string> name;
+	float number[3] = {};
+	float qnumber[4] = {};
 	while (!objectFile.eof())
 	{
-		objectFile >> readObj;
-		if (readObj == "<position>:")
+		objectFile >> temp;
+		if (temp == "<position>:")
 		{
 			for (int i = 0; i < 3; ++i)
 			{
-				objectFile >> readObj;
-				number[i] = std::stof(readObj);
+				objectFile >> temp;
+				number[i] = stof(temp);
 			}
-			tempPos.emplace_back(number[0], number[1], number[2]);
+			modelPosition.emplace_back(number[0], number[1], number[2]);
 		}
-		else if (readObj == "<quaternion>:")
+		else if (temp == "<quaternion>:")
 		{
 			for (int i = 0; i < 4; ++i)
 			{
-				objectFile >> readObj;
-				qnumber[i] = std::stof(readObj);
+				objectFile >> temp;
+				qnumber[i] = stof(temp);
 			}
 			quaternion.emplace_back(qnumber[0], qnumber[1], qnumber[2], qnumber[3]);
 		}
-		else if (readObj == "<rotation>:")
-		{
-			for (int i = 0; i < 3; ++i)
-				objectFile >> readObj;
-		}
-		else if (readObj == "<scale>:")
+		else if (temp == "<rotation>:")
 		{
 			for (int i = 0; i < 3; ++i)
 			{
-				objectFile >> readObj;
-				number[i] = std::stof(readObj);
+				objectFile >> temp;
+				number[i] = stof(temp);
 			}
-			tempScale.emplace_back(number[0], number[1], number[2]);
+			modelEulerRotate.emplace_back(number[0], number[1], number[2]);
 		}
-		else if (readObj == "<BoxCollider>")
+		else if (temp == "<scale>:")
 		{
-			for (int j = 0; j < 8; ++j)
+			for (int i = 0; i < 3; ++i)
 			{
-				objectFile >> readObj;
-				if (readObj == "<center>:")
+				objectFile >> temp;
+				number[i] = stof(temp);
+			}
+			modelScale.emplace_back(number[0], number[1], number[2]);
+		}
+		else if (temp == "<BoxCollider>")
+		{
+			for (int j = 0; j < 7; ++j)
+			{
+				objectFile >> temp;
+				if (temp == "<center>:")
 				{
 					for (int i = 0; i < 3; ++i)
 					{
-						objectFile >> readObj;
-						number[i] = stof(readObj);
+						objectFile >> temp;
+						number[i] = stof(temp);
 					}
-					tempCenterPos.emplace_back(number[0], number[1], number[2]);
+					colliderWorldPosition.emplace_back(number[0], number[1], number[2]);
 				}
-				else if (readObj == "<size>:")
-				{
-					for (int i = 0; i < 3; ++i)
-						objectFile >> readObj;
-				}
-				else if (readObj == "<localCenter>:")
+				else if (temp == "<boundSize>:")
 				{
 					for (int i = 0; i < 3; ++i)
 					{
-						objectFile >> readObj;
-						number[i] = stof(readObj);
+						objectFile >> temp;
+						number[i] = stof(temp);
 					}
-					tempLocalCenterPos.emplace_back(number[0], number[1], number[2]);
+					colliderWorldBoundSize.emplace_back(number[0], number[1], number[2]);
 				}
-				else if (readObj == "<localSize>:")
+				else if (temp == "<extent>:")
 				{
 					for (int i = 0; i < 3; ++i)
 					{
-						objectFile >> readObj;
-						number[i] = stof(readObj);
+						objectFile >> temp;
+						number[i] = stof(temp);
 					}
-					tempExtentScale.emplace_back(number[0], number[1], number[2]);
+					colliderWorldExtentSize.emplace_back(number[0], number[1], number[2]);
 				}
-				else if (readObj == "<forward>:")
+				else if (temp == "<forward>:")
 				{
 					for (int i = 0; i < 3; ++i)
 					{
-						objectFile >> readObj;
-						number[i] = stof(readObj);
+						objectFile >> temp;
+						number[i] = stof(temp);
 					}
-					forwardNormalVector.emplace_back(number[0], number[1], number[2]);
+					colliderForwardVec.emplace_back(number[0], number[1], number[2]);
 				}
-				else if (readObj == "<right>:")
+				else if (temp == "<right>:")
 				{
 					for (int i = 0; i < 3; ++i)
 					{
-						objectFile >> readObj;
-						number[i] = stof(readObj);
+						objectFile >> temp;
+						number[i] = stof(temp);
 					}
-					rightNormalVector.emplace_back(number[0], number[1], number[2]);
+					colliderRightVec.emplace_back(number[0], number[1], number[2]);
 				}
-				else if (readObj == "<forwardDotRes>:")
+				else if (temp == "<forwardDotRes>:")
 				{
-					objectFile >> readObj;
-					float num = stof(readObj);
-					forwardDotRes.emplace_back(num);
+					objectFile >> temp;
+					number[0] = stof(temp);
+					forwardDot.emplace_back(number[0]);
 				}
-				else if (readObj == "<rightDotRes>:")
+				else if (temp == "<rightDotRes>:")
 				{
-					objectFile >> readObj;
-					float num = stof(readObj);
-					rightDotRes.emplace_back(num);
+					objectFile >> temp;
+					number[0] = stof(temp);
+					rightDot.emplace_back(number[0]);
 				}
 			}
 		}
-		else if (readObj == "<Seq>:") { objectFile >> readObj; }
-		else
-		{
-			objCount++;
-		}
+		else name.emplace_back(temp);
 	}
 
-	for (int i = 0; i < objCount; ++i)
+	for (int i = 0; i < rightDot.size(); ++i)
+		m_collisionDatas.emplace_back(colliderWorldPosition[i], colliderWorldExtentSize[i], quaternion[i], forwardDot[i], colliderForwardVec[i], rightDot[i], colliderRightVec[i]);
+
+	for (int i = 0; i < m_collisionDatas.size(); i++)
 	{
-		XMFLOAT3 extentPos = XMFLOAT3(tempScale[i].x * tempExtentScale[i].x,
-			tempScale[i].y * tempExtentScale[i].y, tempScale[i].z * tempExtentScale[i].z);
-		//XMFLOAT3 centerPos = tempCenterPos[i];// Vector3::Add(tempCenterPos[i], tempLocalCenterPos[i]);
-		extentPos = XMFLOAT3(extentPos.x * 0.5f, extentPos.y * 0.5f, extentPos.z * 0.5f);
-		m_collisionDatas.emplace_back(tempCenterPos[i], extentPos, quaternion[i], forwardDotRes[i], forwardNormalVector[i], rightDotRes[i], rightNormalVector[i]);
-		if (i == 0) {
-			m_collisionDatas[i].SetRelationIdx(objCount - 1);
-			m_collisionDatas[i].SetRelationIdx(i + 1);
-		}
-		else if (i == objCount - 1) {
-			m_collisionDatas[i].SetRelationIdx(i - 1);
-			m_collisionDatas[i].SetRelationIdx(0);
+		for (int j = 0; j < m_collisionDatas.size(); j++) {
+			if (i != j) {
+				bool intersectResult = m_collisionDatas[i].GetObb().Intersects(m_collisionDatas[j].GetObb());
+				if (intersectResult) {
+					m_collisionDatas[i].SetRelationIdx(j);
+					name[i];
+					name[j];
+				}
+			}
 		}
 	}
 	return;

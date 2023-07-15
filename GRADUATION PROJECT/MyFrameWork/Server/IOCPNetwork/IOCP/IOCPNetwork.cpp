@@ -137,7 +137,7 @@ void IOCPNetwork::WorkerThread()
 				delete ex_over;
 		}
 		break;
-		case OP_GAME_STATE_SEND:
+		case OP_GAME_STATE_B_SEND:
 		{
 			g_RoomManager.UpdateGameStateForPlayer(key);
 			if (ex_over != nullptr)
@@ -147,6 +147,13 @@ void IOCPNetwork::WorkerThread()
 		case OP_BOSS_ATTACK_EXECUTE:
 		{
 			g_RoomManager.BossAttackExecute(key);
+			if (ex_over != nullptr)
+				delete ex_over;
+		}
+		break;
+		case OP_UPDATE_SMALL_MONSTER:
+		{
+			g_RoomManager.UpdateSmallMonster(key);
 			if (ex_over != nullptr)
 				delete ex_over;
 		}

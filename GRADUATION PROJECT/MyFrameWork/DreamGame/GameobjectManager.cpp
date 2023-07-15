@@ -293,7 +293,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		{
 			p->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		}
-		for(auto& p : m_ppNormalMonsterBoundingBox)
+		for (auto& p : m_ppNormalMonsterBoundingBox)
 		{
 			p->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		}
@@ -479,17 +479,15 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 	ifstream objectFile(fileName);
 
 	int objCount = -1;
-	vector<XMFLOAT3> tempPos;
+	vector<XMFLOAT3> modelPosition;
 	vector<XMFLOAT4> quaternion;
 
-	vector<XMFLOAT3> tempScale;
-	vector<XMFLOAT3> tempRotate;
+	vector<XMFLOAT3> modelScale;
+	vector<XMFLOAT3> modelEulerRotate;
 
-	vector<XMFLOAT3> tempCenterPos;
-	vector<XMFLOAT3> tempLocalCenterPos;
-	vector<XMFLOAT3> tempExtentScale;
-
-	vector<XMFLOAT3> tempBoundingBoxSize;
+	vector<XMFLOAT3> colliderWorldPosition;
+	vector<XMFLOAT3> colliderWorldBoundSize;
+	vector<XMFLOAT3> colliderWorldExtentSize;
 
 	string temp;
 	float number[3] = {};
@@ -504,7 +502,7 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 				objectFile >> temp;
 				number[i] = stof(temp);
 			}
-			tempPos.emplace_back(number[0], number[1], number[2]);
+			modelPosition.emplace_back(number[0], number[1], number[2]);
 		}
 		else if (temp == "<quaternion>:")
 		{
@@ -522,7 +520,7 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 				objectFile >> temp;
 				number[i] = stof(temp);
 			}
-			tempRotate.emplace_back(number[0], number[1], number[2]);
+			modelEulerRotate.emplace_back(number[0], number[1], number[2]);
 		}
 		else if (temp == "<scale>:")
 		{
@@ -531,11 +529,11 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 				objectFile >> temp;
 				number[i] = stof(temp);
 			}
-			tempScale.emplace_back(number[0], number[1], number[2]);
+			modelScale.emplace_back(number[0], number[1], number[2]);
 		}
 		else if (temp == "<BoxCollider>")
 		{
-			for (int j = 0; j < 8; ++j)
+			for (int j = 0; j < 7; ++j)
 			{
 				objectFile >> temp;
 				if (temp == "<center>:")
@@ -545,66 +543,65 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 						objectFile >> temp;
 						number[i] = stof(temp);
 					}
-					tempCenterPos.emplace_back(number[0], number[1], number[2]);
+					colliderWorldPosition.emplace_back(number[0], number[1], number[2]);
 				}
-				else if (temp == "<size>:")
+				else if (temp == "<boundSize>:")
 				{
 					for (int i = 0; i < 3; ++i)
 					{
 						objectFile >> temp;
 						number[i] = stof(temp);
 					}
-					tempBoundingBoxSize.emplace_back(number[0], number[1], number[2]);
+					colliderWorldBoundSize.emplace_back(number[0], number[1], number[2]);
 				}
-				else if (temp == "<localCenter>:")
+				else if (temp == "<extent>:")
 				{
 					for (int i = 0; i < 3; ++i)
 					{
 						objectFile >> temp;
 						number[i] = stof(temp);
 					}
-					tempLocalCenterPos.emplace_back(number[0], number[1], number[2]);
-				}
-				else if (temp == "<localSize>:")
-				{
-					for (int i = 0; i < 3; ++i)
-					{
-						objectFile >> temp;
-						number[i] = stof(temp);
-					}
-					tempExtentScale.emplace_back(number[0], number[1], number[2]);
+					colliderWorldExtentSize.emplace_back(number[0], number[1], number[2]);
 				}
 				else if (temp == "<forward>:")
 				{
 					for (int i = 0; i < 3; ++i)
 					{
 						objectFile >> temp;
+						number[i] = stof(temp);
 					}
+					///colliderForwardVec.emplace_back(number[0], number[1], number[2]);
 				}
 				else if (temp == "<right>:")
 				{
 					for (int i = 0; i < 3; ++i)
 					{
 						objectFile >> temp;
+						number[i] = stof(temp);
 					}
+					//colliderRightVec.emplace_back(number[0], number[1], number[2]);
 				}
 				else if (temp == "<forwardDotRes>:")
 				{
 					objectFile >> temp;
+					number[0] = stof(temp);
+					//forwardDot.emplace_back(number[0]);
 				}
 				else if (temp == "<rightDotRes>:")
 				{
 					objectFile >> temp;
+					number[0] = stof(temp);
+					//rightDot.emplace_back(number[0]);
 				}
 			}
 		}
-		else if (temp == "<Seq>:") { objectFile >> temp; }
 		else
 		{
 			if (type == 0)
 				objectFile >> temp;
 			objCount++;
 		}
+	
 	}
 	GameObject** tempObject = new GameObject * [objCount];	// 멤버 변수로 교체 예정
 	float scale = 10.0f;
@@ -616,36 +613,32 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 		tempObject[i] = new GameObject(UNDEF_ENTITY);
 		tempObject[i]->InsertComponent<RenderComponent>();
 		tempObject[i]->InsertComponent<CLoadedModelInfoCompnent>();
-		tempObject[i]->SetPosition(XMFLOAT3(tempPos[i].x, tempPos[i].y, tempPos[i].z));
-		tempObject[i]->SetModel(modelName);
+		tempObject[i]->SetPosition(XMFLOAT3(modelPosition[i].x * scale, modelPosition[i].y * scale, modelPosition[i].z * scale));
+		tempObject[i]->SetModel(tempModel);
 		tempObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		tempObject[i]->SetScale(tempScale[i].x * scale, tempScale[i].y * scale, tempScale[i].z * scale);
 		XMFLOAT3 Axis = XMFLOAT3(1, 0, 0);
-		tempObject[i]->Rotate(&Axis, tempRotate[i].x);
+		tempObject[i]->Rotate(&Axis, modelEulerRotate[i].x);
 		Axis = tempObject[i]->GetUp();
-		tempObject[i]->Rotate(&Axis, tempRotate[i].y);
+		tempObject[i]->Rotate(&Axis, modelEulerRotate[i].y);
 		Axis = tempObject[i]->GetUp();
-		tempObject[i]->Rotate(&Axis, tempRotate[i].z);
-		tempObject[i]->SetPosition(XMFLOAT3(tempPos[i].x * scale, tempPos[i].y * scale, tempPos[i].z * scale));
+		tempObject[i]->Rotate(&Axis, modelEulerRotate[i].z);
+		tempObject[i]->SetScale(modelScale[i].x * scale, modelScale[i].y * scale, modelScale[i].z * scale);
 
 		if (type == 1)
 		{
-			XMFLOAT3 extentPos = XMFLOAT3(tempScale[i].x * tempExtentScale[i].x,
-				tempScale[i].y * tempExtentScale[i].y, tempScale[i].z * tempExtentScale[i].z);
-			XMFLOAT3 centerPos =  Vector3::Add(tempPos[i], tempLocalCenterPos[i]);
-			extentPos = XMFLOAT3(extentPos.x * 0.5f, extentPos.y * 0.5f, extentPos.z * 0.5f);
-			tempObject[i]->m_OBB = BoundingOrientedBox(tempCenterPos[i], extentPos, quaternion[i]);
-			m_ppObstacleObjects.emplace_back(tempObject[i]);
+			//tempObject[i]->m_OBB = BoundingOrientedBox(colliderWorldPosition[i], colliderWorldExtentSize[i], quaternion[i]);
+			//m_ppObstacleObjects.emplace_back(tempObject[i]);
 
 			GameObject* tempBoundingBox = new GameObject(SQUARE_ENTITY);
 			tempBoundingBox->InsertComponent<RenderComponent>();
 			tempBoundingBox->InsertComponent<CubeMeshComponent>();
 			tempBoundingBox->InsertComponent<BoundingBoxShaderComponent>();
-			tempBoundingBox->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+			tempBoundingBox->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);			
 
 			tempBoundingBox->SetPosition(tempCenterPos[i]);
 			tempBoundingBox->Rotate(&quaternion[i]);
-			tempBoundingBox->SetScale(extentPos.x * 2.0f, extentPos.y * 2.0f, extentPos.z * 2.0f);
+			tempBoundingBox->SetScale(colliderWorldBoundSize[i].x, colliderWorldBoundSize[i].y, colliderWorldBoundSize[i].z);
 			m_ppObstacleBoundingBox.emplace_back(tempBoundingBox);
 		}
 		m_ppGameObjects.emplace_back(tempObject[i]);
@@ -783,14 +776,10 @@ void GameobjectManager::EffectRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 
 void GameobjectManager::BuildBossStageObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	CLoadedModelInfoCompnent* Rock01Model = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock01.bin", NULL, true);
-	CLoadedModelInfoCompnent* Rock02Model = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock02.bin", NULL, true);
-	CLoadedModelInfoCompnent* Rock03Model = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock03.bin", NULL, true);
-	CLoadedModelInfoCompnent* DeathModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Death.bin", NULL, true);
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock1.txt", Rock01Model, 1);
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock2.txt", Rock02Model, 1);
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock3.txt", Rock03Model, 1);
-	ReadNormalMonsterFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/NormalMonster.txt", DeathModel, 0);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock1.txt", "Model/Rock01.bin", 1);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock2.txt", "Model/Rock02.bin", 1);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock3.txt", "Model/Rock03.bin", 1);
+	ReadNormalMonsterFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/NormalMonster.txt", "Model/Death.bin", 0);
 }
 
 void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -2001,11 +1990,11 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			m_iTEXTiIndex = 2;
 			break;
 		}
-		}
+	}
 	}
 	default:
 		break;
-		}
+}
 	return(false);
 	}
 
@@ -2203,8 +2192,6 @@ void GameobjectManager::onProcessingMouseMessageUI(HWND hWnd, UINT nMessageID, W
 		break;
 	}
 }
-
-
 
 void GameobjectManager::AddTextToUILayer(int& iIndex)
 {

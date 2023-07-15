@@ -1,0 +1,75 @@
+Death01
+<position>: -144.3112 0 -139.5278 
+<quaternion>: 0 0.4038691 0 0.9148169 
+<rotation>: 0 47.64055 0 
+<scale>: 1 1 1 
+Death02
+<position>: -230.4952 0 -112.9833 
+<quaternion>: 0 0.5772344 0 0.8165785 
+<rotation>: 0 70.51253 0 
+<scale>: 1 1 1 
+Death03
+<position>: -217.3638 0 155.0357 
+<quaternion>: 0 0.8588238 0 0.512271 
+<rotation>: 0 118.3696 0 
+<scale>: 1 1 1 
+Death04
+<position>: -53 0 186.2 
+<quaternion>: 0 0.9969553 0 0.07797536 
+<rotation>: 0 171.0556 0 
+<scale>: 1 1 1 
+Death05
+<position>: 55.26399 0 -204.7774 
+<quaternion>: 0 -0.1427457 0 0.9897594 
+<rotation>: 0 343.5865 0 
+<scale>: 1 1 1 
+Death06
+<position>: -95.21577 0 -188.451 
+<quaternion>: 0 0.08570232 0 0.9963208 
+<rotation>: 0 9.832825 0 
+<scale>: 1 1 1 
+Death07
+<position>: -243.5363 0 62.17299 
+<quaternion>: 0 0.7397829 0 0.6728457 
+<rotation>: 0 95.42584 0 
+<scale>: 1 1 1 
+Death08
+<position>: 149.8081 0 -142.9205 
+<quaternion>: 0 -0.4316237 0 0.9020538 
+<rotation>: 0 308.8587 0 
+<scale>: 1 1 1 
+Death09
+<position>: -35.2 0 -158.3 
+<quaternion>: 0 0.07019424 0 0.9975334 
+<rotation>: 0 8.050287 0 
+<scale>: 1 1 1 
+Death10
+<position>: 36.15665 0 197.8033 
+<quaternion>: 0 -0.9912184 0 0.1322353 
+<rotation>: 0 195.1976 0 
+<scale>: 1 1 1 
+Death11
+<position>: 142.2902 0 162.5834 
+<quaternion>: 0 0.9145856 0 -0.4043925 
+<rotation>: 0 227.7061 0 
+<scale>: 1 1 1 
+Death12
+<position>: 192.8847 0 -54.34583 
+<quaternion>: 0 -0.6110675 0 0.7915786 
+<rotation>: 0 284.6666 0 
+<scale>: 1 1 1 
+Death13
+<position>: 150.0782 0 48.89954 
+<quaternion>: 0 -0.7498139 0 0.6616488 
+<rotation>: 0 262.8515 0 
+<scale>: 1 1 1 
+Death14
+<position>: -165.5853 0 191.7743 
+<quaternion>: 0 0.9420867 0 0.3353694 
+<rotation>: 0 140.81 0 
+<scale>: 1 1 1 
+Death15
+<position>: -240.6483 0 -27.4072 
+<quaternion>: 0 0.6925941 0 0.7213275 
+<rotation>: 0 87.67162 0 
+<scale>: 1 1 1 

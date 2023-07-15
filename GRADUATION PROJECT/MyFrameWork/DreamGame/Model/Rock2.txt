@@ -3,58 +3,37 @@ Rock07
 <quaternion>: 0 0.5972154 0 0.802081 
 <rotation>: 0 73.34145 0 
 <scale>: 12.72561 25.45122 12.72561 
-<Seq>: 4
 <BoxCollider>
-  <center>: -446.1654 103.3345 -89.94678 
-  <size>: 312.2467 225.4728 286.1485 
-  <localCenter>: 2.212899 4.806825 -0.3476282 
-  <localSize>: 17.3619 8.859016 20.41665 
+  <center>: -446.1654 103.3345 -89.94677 
+  <boundSize>: 220.9408 225.4727 259.8144 
+  <extent>: 110.4704 112.7364 129.9072 
   <forward>: 0.9580303 0 0.2866675 
   <right>: 0.2866675 0 -0.9580303 
-  <forwardDotRes>: 0.7617967 
-  <rightDotRes>: 0.6478162 
+  <forwardDotRes>: 0.675625 
+  <rightDotRes>: 0.7372454 
 Rock10
 <position>: 488.9 -73 -49.3 
 <quaternion>: 0 -0.6950161 0 0.7189942 
 <rotation>: 0 271.943 0 
 <scale>: 20.165 27.60415 12.72561 
-<Seq>: 10
 <BoxCollider>
   <center>: 491.4299 103.1818 -45.60547 
-  <size>: 230.6548 223.5357 197.5294 
-  <localCenter>: 0.1873634 6.382437 -0.1888492 
-  <localSize>: 9.423865 8.097899 17.62906 
+  <boundSize>: 190.0323 223.5357 224.3405 
+  <extent>: 95.01614 111.7678 112.1703 
   <forward>: -0.9994252 0 0.03390509 
   <right>: 0.03390509 0 0.9994252 
-  <forwardDotRes>: 0.8819017 
-  <rightDotRes>: 0.4714333 
+  <forwardDotRes>: 0.6504598 
+  <rightDotRes>: 0.7595407 
 Rock02
 <position>: 54.8 -0.6 446.8 
 <quaternion>: 0 -0.99974 0 0.02280221 
 <rotation>: 0 182.6132 0 
 <scale>: 19.91431 16.73672 12.72561 
-<Seq>: 0
 <BoxCollider>
   <center>: 41.29929 95.62959 423.2962 
-  <size>: 183.973 212.4332 248.6098 
-  <localCenter>: 0.6234245 5.749609 1.893418 
-  <localSize>: 8.695599 12.69264 18.93546 
+  <boundSize>: 173.1668 212.4332 240.9652 
+  <extent>: 86.58341 106.2166 120.4826 
   <forward>: -0.04559256 0 -0.9989601 
   <right>: -0.9989601 0 0.04559256 
-  <forwardDotRes>: 0.9087583 
-  <rightDotRes>: 0.4173227 
-Rock02_1
-<position>: -764 -19.005 350 
-<quaternion>: 0 0 0 1 
-<rotation>: 0 0 0 
-<scale>: 1 1 1 
-<Seq>: 0
-<BoxCollider>
-  <center>: -767.6824 -17.17011 350.0466 
-  <size>: 11.82788 4.439983 17.52411 
-  <localCenter>: -3.682431 1.834886 0.04657664 
-  <localSize>: 11.82791 4.439983 17.52409 
-  <forward>: 0 0 1 
-  <right>: 1 0 0 
-  <forwardDotRes>: 0.8288672 
-  <rightDotRes>: 0.5594454 
+  <forwardDotRes>: 0.8038392 
+  <rightDotRes>: 0.5948466 

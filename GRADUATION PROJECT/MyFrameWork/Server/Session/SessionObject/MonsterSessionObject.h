@@ -6,6 +6,7 @@ class MonsterSessionObject : public SessionObject
 {
 public:
 	MonsterSessionObject();
+	MonsterSessionObject(int roomId);
 	virtual ~MonsterSessionObject();
 private:
 	int m_roomId = -1;
@@ -22,6 +23,8 @@ private:
 public:
 	std::atomic_bool  isMove = false;
 	std::atomic_bool isAttack = false;
+	std::atomic_bool isPhaseChange = false;
+
 	BOSS_ATTACK currentAttack = BOSS_ATTACK::ATTACK_COUNT;
 	DirectX::BoundingSphere m_SPBB = BoundingSphere(DirectX::XMFLOAT3(0.0f, 30.0f, 0.0f), 30.0f);
 public:
@@ -30,8 +33,7 @@ public:
 	void StartMove();	
 public:
 	virtual void Rotate(ROTATE_AXIS axis, float angle) override;
-public:
-	void SetDirection(DIRECTION d);
+public:	
 	bool Move(float elapsedTime) override;
 public:
 	void SetDestinationPos();

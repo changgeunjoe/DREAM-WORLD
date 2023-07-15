@@ -5,18 +5,36 @@
 #include "../IOCPNetwork/IOCP/IOCPNetwork.h"
 #include "../Session/SessionObject/ChracterSessionObject.h"
 #include "../IOCPNetwork/protocol/protocol.h"
+#include "../MapData/MapData.h"
+
+extern MapData		g_stage1MapData;
+extern MapData		g_bossMapData;
 
 extern Timer g_Timer;
 extern Logic g_logic;
 extern IOCPNetwork g_iocpNetwork;
 
-Room::Room()
+Room::Room() :m_boss(MonsterSessionObject(m_roomId))
 {
 	m_isAlive = false;
 	m_characterMap.try_emplace(ROLE::WARRIOR, new WarriorSessionObject(ROLE::WARRIOR));
 	m_characterMap.try_emplace(ROLE::TANKER, new TankerSessionObject(ROLE::TANKER));
 	m_characterMap.try_emplace(ROLE::ARCHER, new ArcherSessionObject(ROLE::ARCHER));
 	m_characterMap.try_emplace(ROLE::PRIEST, new MageSessionObject(ROLE::PRIEST));
+
+	while (!g_stage1MapData.GetCompleteState());
+	auto& monsterData = g_stage1MapData.GetMonsterData();
+	for (int i = 0; i < 15; i++) {
+		m_StageSmallMonster[i].SetInitPosition(monsterData[i].position);
+		m_StageSmallMonster[i].Rotate(ROTATE_AXIS::Y, monsterData[i].eulerRotate.y);
+	}
+
+	while (!g_bossMapData.GetCompleteState());
+	auto& bossMonsterData = g_bossMapData.GetMonsterData();
+	for (int i = 0; i < 15; i++) {
+		m_BossSmallMonster[i].SetInitPosition(bossMonsterData[i].position);
+		m_BossSmallMonster[i].Rotate(ROTATE_AXIS::Y, bossMonsterData[i].eulerRotate.y);
+	}
 }
 
 Room::Room(const Room& rhs)
@@ -193,35 +211,40 @@ bool Room::MeleeAttack(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 pos)
 void Room::GameStart()
 {
 	m_isAlive = true;
+	//monster Update
+	//TIMER_EVENT smallMonsterEvent{ std::chrono::system_clock::now() + std::chrono::seconds(1) + std::chrono::milliseconds(500), m_roomId ,EV_SM_UPDATE };
+	//g_Timer.InsertTimerQueue(smallMonsterEvent);
+	TIMER_EVENT gameStateEvent{ std::chrono::system_clock::now() + std::chrono::milliseconds(500), m_roomId ,EV_GAME_STATE_S_SEND };
+	g_Timer.InsertTimerQueue(gameStateEvent);
+}
 
-	for (auto& p : m_inGamePlayers) {//플레이어 무브
-		//DataRace -> 팅긴 플레이어 처리
-
-	}
-
-
-	//PrintCurrentTime();
-
-	//std::cout << "PlayerNum: " << m_inGamePlayers.size() << std::endl;
-	//for (auto& playerInfo : m_inGamePlayers) {
-	//	std::cout << "PlayerId: " << playerInfo.second << std::endl;
-	//}
-
-	CreateBossMonster(); //임시 입니다.
-
+void Room::BossStageStart()
+{
 	TIMER_EVENT findEv{ std::chrono::system_clock::now() + std::chrono::milliseconds(1), m_roomId ,EV_FIND_PLAYER };
 	g_Timer.InsertTimerQueue(findEv);
 	TIMER_EVENT bossStateEvent{ std::chrono::system_clock::now() + std::chrono::milliseconds(30), m_roomId, EV_BOSS_STATE };
 	//TIMER_EVENT bossStateEvent{ std::chrono::system_clock::now() + std::chrono::seconds(11), m_roomId ,EV_BOSS_STATE };
 	g_Timer.InsertTimerQueue(bossStateEvent);
-	TIMER_EVENT gameStateEvent{ std::chrono::system_clock::now() + std::chrono::seconds(1) + std::chrono::milliseconds(500), m_roomId ,EV_GAME_STATE_SEND };
-	g_Timer.InsertTimerQueue(gameStateEvent);
 }
 
 void Room::GameRunningLogic()
 {
-	if (m_boss.isMove)
-		m_boss.AutoMove();//보스 무브
+	if (m_roomState == ROOM_STATE::ROOM_STAGE1) {
+		for (int i = 0; i < 15; i++) {
+			if (m_StageSmallMonster->GetHp() > 0.0f)
+				m_StageSmallMonster->AutoMove();
+		}
+	}
+	else if (m_roomState == ROOM_STATE::ROOM_BOSS) {
+		if (m_boss.isPhaseChange) {//페이즈 바뀔때 작은 몬스터 나오기
+			for (int i = 0; i < 15; i++) {
+				if (m_BossSmallMonster->GetHp() > 0.0f)
+					m_BossSmallMonster->AutoMove();
+			}
+		}
+		if (m_boss.isMove)
+			m_boss.AutoMove();//보스 무브
+	}
 	for (auto& playCharacter : m_characterMap) {//플레이어 무브		
 		playCharacter.second->AutoMove();
 	}
@@ -329,7 +352,68 @@ void Room::ChangeBossState()
 	}
 }
 
-void Room::UpdateGameStateForPlayer()
+void Room::UpdateGameStateForPlayer_STAGE1()
+{
+	if (!m_isAlive) return;
+	else {
+		bool npcComStart = false;//처음 트리거 박스
+		if (m_stage1TrigerCnt != 0) {
+			m_lockInGamePlayers.lock();
+			if (m_stage1TrigerCnt >= m_inGamePlayers.size()) {
+				npcComStart = true;
+			}
+			m_lockInGamePlayers.unlock();
+			if (npcComStart) {
+				m_stage1TrigerCnt = 0;				
+			}
+		}
+
+		//std::cout << "bossHp : " << refRoom.GetBoss().GetHp() << std::endl;
+		SERVER_PACKET::GameState_STAGE1 sendPacket;
+		sendPacket.type = SERVER_PACKET::GAME_STATE_S;
+		sendPacket.size = sizeof(SERVER_PACKET::GameState_STAGE1);
+		int i = 0;
+		std::map<ROLE, int> playerMap;
+		{
+			std::lock_guard<std::mutex> lg{ m_lockInGamePlayers };
+			playerMap = m_inGamePlayers;
+		}
+		sendPacket.userState[0].userId = -1;
+		sendPacket.userState[1].userId = -1;
+		sendPacket.userState[2].userId = -1;
+		sendPacket.userState[3].userId = -1;
+		for (auto& p : playerMap) {
+			sendPacket.userState[i].userId = p.second;
+			sendPacket.userState[i].hp = m_characterMap[p.first]->GetHp();
+			sendPacket.userState[i].pos = m_characterMap[p.first]->GetPos();
+			sendPacket.userState[i].rot = m_characterMap[p.first]->GetRot();
+			++i;
+		}
+		//small monster state도 추가
+		sendPacket.time = std::chrono::utc_clock::now();
+		g_logic.BroadCastInRoom(m_roomId, &sendPacket);
+		TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::milliseconds(30), m_roomId ,EV_GAME_STATE_S_SEND };//GameState 30ms마다 전송하게 수정
+		g_Timer.InsertTimerQueue(new_ev);
+	}
+}
+
+void Room::UpdateSmallMonster()
+{
+	if (m_roomState == ROOM_STATE::ROOM_BOSS) return;
+	XMFLOAT3 pos[4];
+	int i = 0;
+	for (auto& character : m_characterMap) {
+		pos[i] = character.second->GetPos();
+	}
+	for (int i = 0; i < 15; i++)
+	{
+		m_StageSmallMonster[i].SetDestinationPos(pos);
+	}
+	TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::milliseconds(30), m_roomId ,EV_SM_UPDATE };//GameState 30ms마다 전송하게 수정
+	g_Timer.InsertTimerQueue(new_ev);
+}
+
+void Room::UpdateGameStateForPlayer_BOSS()
 {
 	if (!m_isAlive) return;
 	short damage = -1;
@@ -348,12 +432,13 @@ void Room::UpdateGameStateForPlayer()
 		sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
 		sendPacket.type = SERVER_PACKET::GAME_END;
 		g_logic.BroadCastInRoom(m_roomId, &sendPacket);
+		return;
 	}
 	else {
 		//std::cout << "bossHp : " << refRoom.GetBoss().GetHp() << std::endl;
-		SERVER_PACKET::GameState sendPacket;
-		sendPacket.type = SERVER_PACKET::GAME_STATE;
-		sendPacket.size = sizeof(SERVER_PACKET::GameState);
+		SERVER_PACKET::GameState_BOSS sendPacket;
+		sendPacket.type = SERVER_PACKET::GAME_STATE_B;
+		sendPacket.size = sizeof(SERVER_PACKET::GameState_BOSS);
 		sendPacket.bossState.hp = m_boss.GetHp();
 		sendPacket.bossState.pos = m_boss.GetPos();
 		sendPacket.bossState.rot = m_boss.GetRot();
@@ -364,26 +449,20 @@ void Room::UpdateGameStateForPlayer()
 			std::lock_guard<std::mutex> lg{ m_lockInGamePlayers };
 			playerMap = m_inGamePlayers;
 		}
-		for (auto& p : playerMap) {//DataRace
-			auto playChracterState = g_iocpNetwork.m_session[p.second].GetPlayCharacterState();//tuple - id hp pos rot
-			int id = std::get<0>(playChracterState);
-			if (id == -1) {
-				sendPacket.userState[i].userId = -1;
-				continue;
-			}
-			int hp = std::get<1>(playChracterState);
-			DirectX::XMFLOAT3 pos = std::get<2>(playChracterState);
-			DirectX::XMFLOAT3 rot = std::get<3>(playChracterState);
-			sendPacket.userState[i].userId = id;
-			sendPacket.userState[i].hp = hp;
-			sendPacket.userState[i].pos = pos;
-			sendPacket.userState[i].rot = rot;
-			std::cout << "Pos: " << pos.x << ", " << pos.y << ", " << pos.z << std::endl;
+		sendPacket.userState[0].userId = -1;
+		sendPacket.userState[1].userId = -1;
+		sendPacket.userState[2].userId = -1;
+		sendPacket.userState[3].userId = -1;
+		for (auto& p : playerMap) {
+			sendPacket.userState[i].userId = p.second;
+			sendPacket.userState[i].hp = m_characterMap[p.first]->GetHp();
+			sendPacket.userState[i].pos = m_characterMap[p.first]->GetPos();
+			sendPacket.userState[i].rot = m_characterMap[p.first]->GetRot();
 			++i;
 		}
 		sendPacket.time = std::chrono::utc_clock::now();
 		g_logic.BroadCastInRoom(m_roomId, &sendPacket);
-		TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::milliseconds(30), m_roomId ,EV_GAME_STATE_SEND };//GameState 30ms마다 전송하게 수정
+		TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::milliseconds(30), m_roomId ,EV_GAME_STATE_B_SEND };//GameState 30ms마다 전송하게 수정
 		g_Timer.InsertTimerQueue(new_ev);
 	}
 }

@@ -1,0 +1,442 @@
+OOBB1
+<position>: -124.28 0.55 -143.33 
+<quaternion>: 0 -0.3103437 0 0.9506244 
+<rotation>: 0 323.8401 0 
+<scale>: 1 1 1 
+<BoxCollider>
+  <center>: -110.6055 1.169138 -132.9344 
+  <boundSize>: 39.86915 2.238277 1.649369 
+  <extent>: 19.93457 1.119138 0.8246845 
+  <forward>: -0.5900407 0 0.8073735 
+  <right>: 0.8073735 0 0.5900407 
+  <forwardDotRes>: 0.5997562 
+  <rightDotRes>: 0.8001828 
+OOBB2
+<position>: -130.07 1 -143.27 
+<quaternion>: 0 0.1062258 0 0.994342 
+<rotation>: 0 12.19559 0 
+<scale>: 1 1 1 
+<BoxCollider>
+  <center>: -132.4354 1 -142.7588 
+  <boundSize>: 13.48124 2.238277 1.649369 
+  <extent>: 6.740622 1.119138 0.8246845 
+  <forward>: 0.2112496 0 0.9774321 
+  <right>: 0.9774321 0 -0.2112496 
+  <forwardDotRes>: 0.313166 
+  <rightDotRes>: 0.9496984 
+OOBB3
+<position>: -127.06 1 -155.82 
+<quaternion>: 0 -0.3126612 0 0.9498648 
+<rotation>: 0 323.5606 0 
+<scale>: 1 1 1 
+<BoxCollider>
+  <center>: -128.7697 1 -157.0824 
+  <boundSize>: 12.89175 2.238277 1.649369 
+  <extent>: 6.445877 1.119138 0.8246845 
+  <forward>: -0.5939717 0 0.8044859 
+  <right>: 0.8044859 0 0.5939717 
+  <forwardDotRes>: 0.6206213 
+  <rightDotRes>: 0.7841105 
+OOBB4
+<position>: -138.44 1 -154.24 
+<quaternion>: 0 0.4444931 0 0.8957824 
+<rotation>: 0 52.78182 0 
+<scale>: 1 1 1 
+<BoxCollider>
+  <center>: -138.7342 1 -153.8528 
+  <boundSize>: 16.72919 2.238277 1.649369 
+  <extent>: 8.364594 1.119138 0.8246845 
+  <forward>: 0.7963381 0 0.6048518 
+  <right>: 0.6048518 0 -0.7963381 
+  <forwardDotRes>: 0.7814975 
+  <rightDotRes>: 0.6239083 
+OOBB5
+<position>: -139.26 1 -144.19 
+<quaternion>: 0 0.8800562 0 0.4748695 
+<rotation>: 0 123.2983 0 
+<scale>: 1 1 1 
+<BoxCollider>
+  <center>: -140.1292 1 -145.5132 
+  <boundSize>: 9.342634 2.238277 1.649369 
+  <extent>: 4.671317 1.119138 0.8246845 
+  <forward>: 0.8358238 0 -0.5489979 
+  <right>: -0.5489979 0 -0.8358238 
+  <forwardDotRes>: 0.8012367 
+  <rightDotRes>: 0.5983475 
+OOBB6
+<position>: -112.56 0.55 -148.16 
+<quaternion>: 0 -0.3394985 0 0.9406066 
+<rotation>: 0 320.3074 0 
+<scale>: 1 1 1 
+<BoxCollider>
+  <center>: -104.1766 1.169138 -140.6913 
+  <boundSize>: 31.89374 2.238277 1.785517 
+  <extent>: 15.94687 1.119138 0.8927584 
+  <forward>: -0.638669 0 0.7694816 
+  <right>: 0.7694816 0 0.638669 
+  <forwardDotRes>: 0.6461596 
+  <rightDotRes>: 0.7632023 
+OOBB7
+<position>: -121.1 0.55 -152.81 
+<quaternion>: 0 -0.1671999 0 0.9859231 
+<rotation>: 0 340.7499 0 
+<scale>: 1 1 1 
+<BoxCollider>
+  <center>: -118.6235 1.169138 -151.471 
+  <boundSize>: 11.0793 2.238277 1.895507 
+  <extent>: 5.539652 1.119138 0.9477535 
+  <forward>: -0.3296925 0 0.9440883 
+  <right>: 0.9440883 0 0.3296925 
+  <forwardDotRes>: 0.4407171 
+  <rightDotRes>: 0.8976461 
+OOBB8
+<position>: -92.89999 0.55 -121.45 
+<quaternion>: 0 -0.1662449 0 0.9860845 
+<rotation>: 0 340.8609 0 
+<scale>: 1 1 1 
+<BoxCollider>
+  <center>: -93.37495 1.169138 -121.0635 
+  <boundSize>: 4.876328 2.238277 1.256875 
+  <extent>: 2.438164 1.119138 0.6284375 
+  <forward>: -0.327863 0 0.9447253 
+  <right>: 0.9447253 0 0.327863 
+  <forwardDotRes>: 0.4853632 
+  <rightDotRes>: 0.8743126 
+OOBB9
+<position>: -89.93998 0.55 -131.88 
+<quaternion>: 0 0.04169345 0 0.9991304 
+<rotation>: 0 4.779103 0 
+<scale>: 1 1 1 
+<BoxCollider>
+  <center>: -82.87319 1.169138 -131.6333 
+  <boundSize>: 19.98083 2.238277 1.374545 
+  <extent>: 9.990413 1.119138 0.6872725 
+  <forward>: 0.08331439 0 0.9965233 
+  <right>: 0.9965233 0 -0.08331439 
+  <forwardDotRes>: 0.1498165 
+  <rightDotRes>: 0.9887138 
+OOBB10
+<position>: -71.23998 0.55 -132.65 
+<quaternion>: 0 -0.1518427 0 0.9884047 
+<rotation>: 0 342.5325 0 
+<scale>: 1 1 1 
+<BoxCollider>
+  <center>: -67.53068 1.169138 -130.6078 
+  <boundSize>: 14.24003 2.238277 1.374545 
+  <extent>: 7.120013 1.119138 0.6872725 
+  <forward>: -0.3001641 0 0.9538876 
+  <right>: 0.9538876 0 0.3001641 
+  <forwardDotRes>: 0.3706538 
+  <rightDotRes>: 0.9287711 
+OOBB11
+<position>: -58.91 0.55 -126.72 
+<quaternion>: 0 -0.4295278 0 0.9030536 
+<rotation>: 0 309.1248 0 
+<scale>: 1 1 1 
+<BoxCollider>
+  <center>: -59.94171 1.169138 -126.6657 
+  <boundSize>: 7.202861 2.238277 1.374545 
+  <extent>: 3.601431 1.119138 0.6872725 
+  <forward>: -0.7757733 0 0.6310117 
+  <right>: 0.6310117 0 0.7757733 
+  <forwardDotRes>: 0.7547064 
+  <rightDotRes>: 0.6560626 
+OOBB12
+<position>: -58.32 0.55 -120.91 
+<quaternion>: 0 -0.7640244 0 0.6451874 
+<rotation>: 0 260.3594 0 
+<scale>: 1 1 1 
+<BoxCollider>
+  <center>: -59.84274 1.169138 -116.9295 
+  <boundSize>: 18.54542 2.238277 1.374545 
+  <extent>: 9.272708 1.119138 0.6872726 
+  <forward>: -0.9858779 0 -0.1674666 
+  <right>: -0.1674666 0 0.9858779 
+  <forwardDotRes>: 0.9721774 
+  <rightDotRes>: 0.2342455 
+OOBB13
+<position>: -59.73 0.55 -104.96 
+<quaternion>: 0 -0.6235884 0 0.7817529 
+<rotation>: 0 282.8427 0 
+<scale>: 1 1 1 
+<BoxCollider>
+  <center>: -60.09455 1.169138 -102.9081 
+  <boundSize>: 11.10078 2.238277 1.328375 
+  <extent>: 5.550391 1.119138 0.6641873 
+  <forward>: -0.9749841 0 0.2222749 
+  <right>: 0.2222749 0 0.9749841 
+  <forwardDotRes>: 0.9472305 
+  <rightDotRes>: 0.3205534 
+OOBB14
+<position>: -56.92 0.55 -96.04001 
+<quaternion>: 0 -0.4743564 0 0.8803329 
+<rotation>: 0 303.3651 0 
+<scale>: 1 1 1 
+<BoxCollider>
+  <center>: -56.21828 1.169138 -93.82043 
+  <boundSize>: 10.3779 2.238277 1.124285 
+  <extent>: 5.188949 1.119138 0.5621425 
+  <forward>: -0.8351831 0 0.5499719 
+  <right>: 0.5499719 0 0.8351831 
+  <forwardDotRes>: 0.8131595 
+  <rightDotRes>: 0.5820408 
+OOBB15
+<position>: -51.53 0.55 -89.96001 
+<quaternion>: 0 -0.1587861 0 0.987313 
+<rotation>: 0 341.7271 0 
+<scale>: 1 1 1 
+<BoxCollider>
+  <center>: -44.09294 1.169138 -86.79945 
+  <boundSize>: 20.28331 2.238277 1.193472 
+  <extent>: 10.14165 1.119138 0.596736 
+  <forward>: -0.3135431 0 0.9495739 
+  <right>: 0.9495739 0 0.3135431 
+  <forwardDotRes>: 0.3565393 
+  <rightDotRes>: 0.9342803 
+OOBB16
+<position>: -35.50999 0.55 -84.67 
+<quaternion>: 0 -0.2753734 0 0.9613373 
+<rotation>: 0 328.0315 0 
+<scale>: 1 1 1 
+<BoxCollider>
+  <center>: -29.0327 1.169138 -79.83848 
+  <boundSize>: 20.28331 2.238277 1.193472 
+  <extent>: 10.14165 1.119138 0.596736 
+  <forward>: -0.5294535 0 0.848339 
+  <right>: 0.848339 0 0.5294535 
+  <forwardDotRes>: 0.550118 
+  <rightDotRes>: 0.8350869 
+OOBB17
+<position>: -23.48 0.55 -76.07001 
+<quaternion>: 0 -0.5564876 0 0.8308559 
+<rotation>: 0 292.3735 0 
+<scale>: 1 1 1 
+<BoxCollider>
+  <center>: -8.552719 1.169138 -38.0478 
+  <boundSize>: 85.86083 2.238277 1.193472 
+  <extent>: 42.93042 1.119138 0.596736 
+  <forward>: -0.9247221 0 0.3806431 
+  <right>: 0.3806431 0 0.9247221 
+  <forwardDotRes>: 0.9209567 
+  <rightDotRes>: 0.389665 
+OOBB18
+<position>: -90.19999 0.55 -121.51 
+<quaternion>: 0 0.03199007 0 0.9994882 
+<rotation>: 0 3.666418 0 
+<scale>: 1 1 1 
+<BoxCollider>
+  <center>: -83.885 1.169138 -121.3927 
+  <boundSize>: 20.2084 2.238277 1.256875 
+  <extent>: 10.1042 1.119138 0.6284375 
+  <forward>: 0.0639474 0 0.9979533 
+  <right>: 0.9979533 0 -0.0639474 
+  <forwardDotRes>: 0.1247901 
+  <rightDotRes>: 0.9921831 
+OOBB19
+<position>: -72.19999 0.55 -119.43 
+<quaternion>: 0 -0.5344762 0 0.8451836 
+<rotation>: 0 295.3832 0 
+<scale>: 1 1 1 
+<BoxCollider>
+  <center>: -73.30406 1.169138 -120.8811 
+  <boundSize>: 4.050683 2.238277 1.547749 
+  <extent>: 2.025341 1.119138 0.7738744 
+  <forward>: -0.9034609 0 0.4286705 
+  <right>: 0.4286705 0 0.9034609 
+  <forwardDotRes>: 0.8095674 
+  <rightDotRes>: 0.587027 
+OOBB20
+<position>: -71.52998 0.55 -116.35 
+<quaternion>: 0 -0.6281851 0 0.778064 
+<rotation>: 0 282.1673 0 
+<scale>: 1 1 1 
+<BoxCollider>
+  <center>: -69.23883 1.169138 -103.8205 
+  <boundSize>: 31.68163 2.238277 1.496385 
+  <extent>: 15.84081 1.119138 0.7481925 
+  <forward>: -0.9775364 0 0.210767 
+  <right>: 0.210767 0 0.9775364 
+  <forwardDotRes>: 0.967777 
+  <rightDotRes>: 0.2518088 
+OOBB21
+<position>: -65.30999 0.55 -90.51001 
+<quaternion>: 0 -0.4353426 0 0.9002649 
+<rotation>: 0 308.3858 0 
+<scale>: 1 1 1 
+<BoxCollider>
+  <center>: -62.48763 1.169138 -86.30123 
+  <boundSize>: 16.3229 2.238277 1.496385 
+  <extent>: 8.161451 1.119138 0.7481924 
+  <forward>: -0.7838473 0 0.6209536 
+  <right>: 0.6209536 0 0.7838473 
+  <forwardDotRes>: 0.771745 
+  <rightDotRes>: 0.6359321 
+OOBB22
+<position>: -59.03999 0.55 -83.29001 
+<quaternion>: 0 -0.1964329 0 0.9805173 
+<rotation>: 0 337.3431 0 
+<scale>: 1 1 1 
+<BoxCollider>
+  <center>: -52.50252 1.169138 -80.1264 
+  <boundSize>: 20.72293 2.238277 1.496385 
+  <extent>: 10.36147 1.119138 0.7481924 
+  <forward>: -0.3852117 0 0.9228283 
+  <right>: 0.9228283 0 0.3852117 
+  <forwardDotRes>: 0.4292833 
+  <rightDotRes>: 0.9031699 
+OOBB23
+<position>: -40.81 0.55 -74.88 
+<quaternion>: 0 -0.2909184 0 0.9567479 
+<rotation>: 0 326.1741 0 
+<scale>: 1 1 1 
+<BoxCollider>
+  <center>: -36.63495 1.169138 -71.61554 
+  <boundSize>: 16.79081 2.238277 1.523167 
+  <extent>: 8.395407 1.119138 0.7615837 
+  <forward>: -0.5566711 0 0.830733 
+  <right>: 0.830733 0 0.5566711 
+  <forwardDotRes>: 0.5828122 
+  <rightDotRes>: 0.8126068 
+OOBB24
+<position>: -27.96999 0.55 -65.10001 
+<quaternion>: 0 -0.4311016 0 0.9023034 
+<rotation>: 0 308.925 0 
+<scale>: 1 1 1 
+<BoxCollider>
+  <center>: -28.20536 1.169138 -64.6789 
+  <boundSize>: 6.990522 2.238277 1.403348 
+  <extent>: 3.495261 1.119138 0.7016742 
+  <forward>: -0.7779689 0 0.6283027 
+  <right>: 0.6283027 0 0.7779689 
+  <forwardDotRes>: 0.7553063 
+  <rightDotRes>: 0.655372 
+OOBB25
+<position>: -24.87 0.55 -60.16001 
+<quaternion>: 0 -0.472943 0 0.881093 
+<rotation>: 0 303.549 0 
+<scale>: 1 1 1 
+<BoxCollider>
+  <center>: -24.86819 1.169138 -59.58879 
+  <boundSize>: 6.417258 2.238277 1.670375 
+  <extent>: 3.208629 1.119138 0.8351874 
+  <forward>: -0.8334135 0 0.5526499 
+  <right>: 0.5526499 0 0.8334135 
+  <forwardDotRes>: 0.7856417 
+  <rightDotRes>: 0.6186818 
+OOBB26
+<position>: -22.52 0.55 -55.81 
+<quaternion>: 0 -0.5466162 0 0.8373833 
+<rotation>: 0 293.7296 0 
+<scale>: 1 1 1 
+<BoxCollider>
+  <center>: -21.08585 1.169138 -51.76675 
+  <boundSize>: 12.78584 2.238277 1.670375 
+  <extent>: 6.392918 1.119138 0.8351874 
+  <forward>: -0.9154546 0 0.4024215 
+  <right>: 0.4024215 0 0.9154546 
+  <forwardDotRes>: 0.8801776 
+  <rightDotRes>: 0.4746446 
+OOBB27
+<position>: -18.7 0.55 -46.71 
+<quaternion>: 0 -0.636404 0 0.7713559 
+<rotation>: 0 280.9516 0 
+<scale>: 1 1 1 
+<BoxCollider>
+  <center>: -16.27771 1.169138 -32.50054 
+  <boundSize>: 28.89679 2.238277 1.656059 
+  <extent>: 14.44839 1.119138 0.8280293 
+  <forward>: -0.981788 0 0.1899798 
+  <right>: 0.1899798 0 0.981788 
+  <forwardDotRes>: 0.9705834 
+  <rightDotRes>: 0.2407654 
+OOBB28
+<position>: -13.17 0.55 -19.13 
+<quaternion>: 0 -0.8739621 0 0.485994 
+<rotation>: 0 238.1552 0 
+<scale>: 1 1 1 
+<BoxCollider>
+  <center>: -19.59651 1.169138 -9.392229 
+  <boundSize>: 22.87785 2.238277 1.656059 
+  <extent>: 11.43892 1.119138 0.8280293 
+  <forward>: -0.8494806 0 -0.5276195 
+  <right>: -0.5276195 0 0.8494806 
+  <forwardDotRes>: 0.8332058 
+  <rightDotRes>: 0.552963 
+OOBB29
+<position>: -24.43 0.55 -3.790009 
+<quaternion>: 0 -0.693644 0 0.720318 
+<rotation>: 0 272.1615 0 
+<scale>: 1 1 1 
+<BoxCollider>
+  <center>: -24.32163 1.169138 7.601661 
+  <boundSize>: 22.32758 2.238277 1.656059 
+  <extent>: 11.16379 1.119138 0.8280294 
+  <forward>: -0.9992886 0 0.03771585 
+  <right>: 0.03771585 0 0.9992886 
+  <forwardDotRes>: 0.9938301 
+  <rightDotRes>: 0.1109129 
+OOBB30
+<position>: -24.06 0.55 17.21999 
+<quaternion>: 0 -0.3607086 0 0.9326786 
+<rotation>: 0 317.7126 0 
+<scale>: 1 1 1 
+<BoxCollider>
+  <center>: -16.44551 1.169138 24.57998 
+  <boundSize>: 22.36738 2.238277 1.656059 
+  <extent>: 11.18369 1.119138 0.8280293 
+  <forward>: -0.6728503 0 0.7397786 
+  <right>: 0.7397786 0 0.6728503 
+  <forwardDotRes>: 0.6776589 
+  <rightDotRes>: 0.7353764 
+OOBB31
+<position>: -9.559998 0.61 30.48998 
+<quaternion>: 0 0.004319645 0 0.9999907 
+<rotation>: 0 0.4949964 0 
+<scale>: 1 1 1 
+<BoxCollider>
+  <center>: 0.4115324 1.229138 30.7252 
+  <boundSize>: 21.1352 2.238277 1.656059 
+  <extent>: 10.5676 1.119138 0.8280293 
+  <forward>: 0.008639209 0 0.9999627 
+  <right>: 0.9999627 0 -0.008639209 
+  <forwardDotRes>: 0.08660951 
+  <rightDotRes>: 0.9962423 
+OOBB32
+<position>: 6.840005 0.61 30.25999 
+<quaternion>: 0 0.4229504 0 0.9061528 
+<rotation>: 0 50.042 0 
+<scale>: 1 1 1 
+<BoxCollider>
+  <center>: 11.0997 1.229141 25.67625 
+  <boundSize>: 15.29625 2.238277 1.656059 
+  <extent>: 7.648126 1.119138 0.8280293 
+  <forward>: 0.7665154 0 0.642226 
+  <right>: 0.642226 0 -0.7665154 
+  <forwardDotRes>: 0.755403 
+  <rightDotRes>: 0.6552605 
+OOBB33
+<position>: 13.86001 0.61 21.92 
+<quaternion>: 0 0.6923825 0 0.7215306 
+<rotation>: 0 87.63801 0 
+<scale>: 1 1 1 
+<BoxCollider>
+  <center>: 14.43861 1.229141 15.68936 
+  <boundSize>: 15.29625 2.238277 1.656059 
+  <extent>: 7.648126 1.119138 0.8280293 
+  <forward>: 0.9991503 0 0.04121292 
+  <right>: 0.04121292 0 -0.9991503 
+  <forwardDotRes>: 0.9891028 
+  <rightDotRes>: 0.1472268 
+OOBB34
+<position>: 14.42001 0.64 8.499985 
+<quaternion>: 0 0.9199755 0 0.3919759 
+<rotation>: 0 133.845 0 
+<scale>: 1 1 1 
+<BoxCollider>
+  <center>: 11.74136 1.259141 5.247257 
+  <boundSize>: 11.20072 2.238277 1.656059 
+  <extent>: 5.600362 1.119138 0.8280293 
+  <forward>: 0.7212165 0 -0.6927099 
+  <right>: -0.6927099 0 -0.7212165 
+  <forwardDotRes>: 0.7176099 
+  <rightDotRes>: 0.6964452 

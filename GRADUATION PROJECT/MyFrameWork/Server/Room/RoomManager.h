@@ -29,6 +29,7 @@ public:
 	void BossFindPlayer(int roomId);
 	void ChangeBossState(int roomId);
 	void UpdateGameStateForPlayer(int roomId);
+	void UpdateSmallMonster(int roomId);
 	void BossAttackExecute(int roomId);
 public:
 	friend Logic;

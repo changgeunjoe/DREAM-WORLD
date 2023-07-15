@@ -69,10 +69,10 @@ void Timer::TimerThreadFunc()
 				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, ev.targetId, &ov->m_overlap);
 			}
 			break;
-			case EV_GAME_STATE_SEND:
+			case EV_GAME_STATE_B_SEND:
 			{
 				ExpOver* ov = new ExpOver();
-				ov->m_opCode = OP_GAME_STATE_SEND;
+				ov->m_opCode = OP_GAME_STATE_B_SEND;
 				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, ev.targetId, &ov->m_overlap);
 				//TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::milliseconds(500), ev.roomId, -1,EV_GAME_STATE_SEND };
 				//{
@@ -99,6 +99,13 @@ void Timer::TimerThreadFunc()
 			{
 				ExpOver* ov = new ExpOver();
 				ov->m_opCode = OP_BOSS_ATTACK_EXECUTE;
+				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, ev.targetId, &ov->m_overlap);
+			}
+			break;
+			case EV_SM_UPDATE:
+			{
+				ExpOver* ov = new ExpOver();
+				ov->m_opCode = OP_UPDATE_SMALL_MONSTER;
 				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, ev.targetId, &ov->m_overlap);
 			}
 			break;

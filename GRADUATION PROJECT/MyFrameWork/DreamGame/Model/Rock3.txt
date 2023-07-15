@@ -3,73 +3,50 @@ Rock06
 <quaternion>: 0 0.7976144 0 0.6031677 
 <rotation>: 0 105.8058 0 
 <scale>: 12.72561 25.45122 11.58451 
-<Seq>: 3
 <BoxCollider>
   <center>: -435.043 103.9812 146.0394 
-  <size>: 310.2745 227.9661 314.0396 
-  <localCenter>: -2.082813 4.832233 0.1469138 
-  <localSize>: 20.08361 8.956983 21.59075 
+  <boundSize>: 255.5763 227.9661 250.1182 
+  <extent>: 127.7881 113.983 125.0591 
   <forward>: 0.9621905 0 -0.2723775 
   <right>: -0.2723775 0 -0.9621905 
-  <forwardDotRes>: 0.7322004 
-  <rightDotRes>: 0.6810893 
+  <forwardDotRes>: 0.7113582 
+  <rightDotRes>: 0.7028295 
 Rock03
 <position>: 240.7 -19.005 357.3 
 <quaternion>: 0 0.880653 0 0.4737619 
 <rotation>: 0 123.4425 0 
 <scale>: 12.72561 25.45122 12.72561 
-<Seq>: 12
 <BoxCollider>
-  <center>: 256.0899 38.83804 335.5505 
-  <size>: 381.2294 97.49449 384.9374 
-  <localCenter>: 0.7596747 2.272702 1.951034 
-  <localSize>: 22.24099 3.830642 21.21261 
+  <center>: 259.0322 38.83773 340.0055 
+  <boundSize>: 272.3523 97.49449 269.9435 
+  <extent>: 136.1762 48.74725 134.9717 
   <forward>: 0.8344397 0 -0.5510993 
   <right>: -0.5510993 0 -0.8344397 
-  <forwardDotRes>: 0.690179 
-  <rightDotRes>: 0.7236387 
+  <forwardDotRes>: 0.7077488 
+  <rightDotRes>: 0.7064642 
 Rock11
 <position>: 445 -19.005 -245.2 
 <quaternion>: 0 0.8940526 0 0.4479619 
 <rotation>: 0 126.774 0 
 <scale>: 12.72561 25.45122 12.72561 
-<Seq>: 9
 <BoxCollider>
   <center>: 416.4241 93.78486 -276.4082 
-  <size>: 378.697 200.8822 374.5602 
-  <localCenter>: 3.30869 4.43161 -0.3305358 
-  <localSize>: 20.34189 7.892834 21.94845 
+  <boundSize>: 258.8629 200.8822 279.3074 
+  <extent>: 129.4315 100.4411 139.6537 
   <forward>: 0.801003 0 -0.5986602 
   <right>: -0.5986602 0 -0.801003 
-  <forwardDotRes>: 0.7334399 
-  <rightDotRes>: 0.6797543 
+  <forwardDotRes>: 0.7032129 
+  <rightDotRes>: 0.7109794 
 Rock12
 <position>: -191.6 -19.005 -397.1 
 <quaternion>: 0 0.8251542 0 0.5649076 
 <rotation>: 0 111.2083 0 
 <scale>: 12.72561 25.45122 12.72561 
-<Seq>: 6
 <BoxCollider>
   <center>: -169.9992 103.4736 -401.8514 
-  <size>: 295.4339 224.0543 328.8184 
-  <localCenter>: -0.2659774 4.81229 1.717533 
-  <localSize>: 21.25341 8.803284 16.65509 
+  <boundSize>: 270.4628 224.0543 211.9463 
+  <extent>: 135.2314 112.0271 105.9731 
   <forward>: 0.9322717 0 -0.3617591 
   <right>: -0.3617591 0 -0.9322717 
-  <forwardDotRes>: 0.616813 
-  <rightDotRes>: 0.7871097 
-Rock03_1
-<position>: -737 -19.005 327 
-<quaternion>: 0 0 0 1 
-<rotation>: 0 0 0 
-<scale>: 1 1 1 
-<Seq>: 3
-<BoxCollider>
-  <center>: -739.405 -17.36526 326.7493 
-  <size>: 14.75427 3.738423 20.79547 
-  <localCenter>: -2.404974 1.639737 -0.2507415 
-  <localSize>: 14.75428 3.738424 20.79545 
-  <forward>: 0 0 1 
-  <right>: 1 0 0 
-  <forwardDotRes>: 0.815577 
-  <rightDotRes>: 0.5786486 
+  <forwardDotRes>: 0.7438592 
+  <rightDotRes>: 0.6683363 

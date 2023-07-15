@@ -18,7 +18,7 @@ protected:
 	DirectX::XMFLOAT4X4 m_worldMatrix = Matrix4x4::Identity();
 	std::chrono::high_resolution_clock::time_point m_lastMoveTime;
 public:
-	SessionObject();	
+	SessionObject();
 	virtual ~SessionObject();
 public:
 	short GetHp() { return m_hp; }
@@ -30,9 +30,6 @@ public:
 	short GetAttackDamage() { return m_attackDamage; }
 public:
 	void AutoMove();
-	/*virtual void StartMove(DIRECTION d) = 0;
-	virtual void StopMove() = 0;
-	virtual void ChangeDirection(DIRECTION d) = 0;*/
 	virtual bool Move(float elapsedTime) = 0;
 public:
 public:
@@ -45,4 +42,6 @@ protected:
 protected:
 	virtual void SetPosition(DirectX::XMFLOAT3 pos) { m_position = pos; }
 	virtual void SetPosition(DirectX::XMFLOAT3& pos) { m_position = pos; }
+public:
+	void SetInitPosition(DirectX::XMFLOAT3& pos) { m_position = pos; }
 };

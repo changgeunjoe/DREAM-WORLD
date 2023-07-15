@@ -23,9 +23,17 @@ MonsterSessionObject::MonsterSessionObject() : SessionObject()
 	m_onIdx = g_bossMapData.GetFirstIdxs();
 }
 
+MonsterSessionObject::MonsterSessionObject(int roomId) :SessionObject(), m_roomId(roomId)
+{
+	m_speed = 50.0f;
+	m_maxHp = m_hp = 2500;
+	m_DestinationPos = XMFLOAT3{ 0,0,0 };
+	m_onIdx = g_bossMapData.GetFirstIdxs();
+}
+
 MonsterSessionObject::~MonsterSessionObject()
 {
-
+	
 }
 
 void MonsterSessionObject::StartMove()
@@ -71,7 +79,7 @@ void MonsterSessionObject::Rotate(ROTATE_AXIS axis, float angle)
 }
 
 bool MonsterSessionObject::Move(float elapsedTime)
-{	
+{
 	XMFLOAT3 destinationPlayerPos = g_RoomManager.GetRunningRoomRef(m_roomId).GetPositionPlayCharacter(m_aggroPlayerRole);//플레이어 위치
 	XMFLOAT3 desPlayerVector = Vector3::Subtract(destinationPlayerPos, m_position);
 	float playerDistance = Vector3::Length(desPlayerVector);
@@ -256,7 +264,7 @@ void MonsterSessionObject::AttackTimer()
 
 void MonsterSessionObject::AttackPlayer()
 {
-	
+
 	//if (restCount == 0) {
 	//	StartMove(DIRECTION::FRONT);
 	//	isAttack = false;

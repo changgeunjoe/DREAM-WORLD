@@ -10,16 +10,14 @@ class ChracterSessionObject : public SessionObject
 private:
 	bool	m_leftmouseInput;
 	bool	m_rightmouseInput;
-protected:
 private:
-
 	ROLE m_InGameRole = ROLE::NONE_SELECT;
 private:
 	float                           m_fBoundingSize{ 8.0f };
 	BoundingSphere					m_SPBB = BoundingSphere(XMFLOAT3(0.0f, 0.0f, 0.0f), m_fBoundingSize);
 public:
-	DIRECTION m_inputDirection = DIRECTION::IDLE;
-	DIRECTION m_prevDirection = DIRECTION::IDLE;
+	DIRECTION						m_inputDirection = DIRECTION::IDLE;
+	DIRECTION						m_prevDirection = DIRECTION::IDLE;
 public:
 	ChracterSessionObject(ROLE r);
 	virtual	~ChracterSessionObject();
@@ -43,43 +41,12 @@ public:
 public:
 	virtual void Rotate(ROTATE_AXIS axis, float angle) override;
 public:
+	virtual void SetStage_1Position() = 0;
+	virtual void SetBossStagePosition() = 0;
 	void SetRole(ROLE r) {
 		m_InGameRole = r;
-		switch (r)
-		{
-		case WARRIOR:
-		{
-			SetPosition(XMFLOAT3(260, 0, 50));
-			m_maxHp = m_hp = 400;
-			m_attackDamage = 150;
-		}
-		break;
-		case PRIEST:
-		{
-			SetPosition(XMFLOAT3(-270, 0, 40));
-			m_maxHp = m_hp = 480;
-			m_attackDamage = 30;
-		}
-		break;
-		case TANKER:
-		{
-			SetPosition(XMFLOAT3(150, 0, -60));
-			m_maxHp = m_hp = 600;
-			m_attackDamage = 60;
-		}
-		break;
-		case ARCHER:
-		{
-			SetPosition(XMFLOAT3(-200, 0, -40));
-			m_maxHp = m_hp = 250;
-			m_attackDamage = 200;
-		}
-		break;
-		default:
-			break;
-		}
 	}
-	void ResetRole() { m_InGameRole = ROLE::NONE_SELECT; }
+	//void ResetRole() { m_InGameRole = ROLE::NONE_SELECT; }
 	ROLE GetRole() {
 		return m_InGameRole;
 	}
@@ -95,10 +62,13 @@ class WarriorSessionObject : public ChracterSessionObject
 public:
 	WarriorSessionObject(int id) :ChracterSessionObject(ROLE::WARRIOR)
 	{
-
+		SetStage_1Position();
 	}
 	~WarriorSessionObject() {}
 public:
+	void SetStage_1Position()override;
+	void SetBossStagePosition()override;
+
 	void Skill_1()override;
 	void Skill_2()override;
 };
@@ -108,10 +78,12 @@ class MageSessionObject : public ChracterSessionObject
 public:
 	MageSessionObject(int id) :ChracterSessionObject(ROLE::PRIEST)
 	{
-
+		SetStage_1Position();
 	}
 	~MageSessionObject() {}
 public:
+	void SetStage_1Position()override;
+	void SetBossStagePosition()override;
 	void Skill_1()override;
 	void Skill_2()override;
 };
@@ -121,10 +93,12 @@ class TankerSessionObject : public ChracterSessionObject
 public:
 	TankerSessionObject(int id) :ChracterSessionObject(ROLE::TANKER)
 	{
-
+		SetStage_1Position();
 	}
 	~TankerSessionObject() {}
 public:
+	void SetStage_1Position()override;
+	void SetBossStagePosition()override;
 	void Skill_1()override;
 	void Skill_2()override;
 };
@@ -134,10 +108,12 @@ class ArcherSessionObject : public ChracterSessionObject
 public:
 	ArcherSessionObject(int id) :ChracterSessionObject(ROLE::ARCHER)
 	{
-
+		SetStage_1Position();
 	}
 	~ArcherSessionObject() {}
 public:
+	void SetStage_1Position()override;
+	void SetBossStagePosition()override;
 	void Skill_1()override;
 	void Skill_2()override;
 };

@@ -390,10 +390,10 @@ void Logic::ProcessPacket(char* p)
 		recvPacket->speed;
 	}
 	break;
-	case SERVER_PACKET::GAME_STATE:
+	case SERVER_PACKET::GAME_STATE_B:
 	{
 		//std::cout << "ProcessPacket()::SERVER_PACKET::GAME_STATE" << std::endl;
-		SERVER_PACKET::GameState* recvPacket = reinterpret_cast<SERVER_PACKET::GameState*>(p);
+		SERVER_PACKET::GameState_BOSS* recvPacket = reinterpret_cast<SERVER_PACKET::GameState_BOSS*>(p);
 		if (recvPacket->bossState.hp != 2500) {
 			//std::cout << "ProcessPacket()::SERVER_PACKET::GAME_STATE - Boss HP: " << recvPacket->bossState.hp << std::endl;
 

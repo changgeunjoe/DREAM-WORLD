@@ -142,13 +142,14 @@ namespace SERVER_PACKET {
 	constexpr unsigned char BOSS_CHANGE_STATE_MOVE_DES = 83;
 	constexpr unsigned char SHOOTING_ARROW = 84;
 	constexpr unsigned char SHOOTING_BALL = 85;
-	constexpr unsigned char GAME_STATE = 86;
 	constexpr unsigned char BOSS_ATTACK = 87;
 	constexpr unsigned char HIT_BOSS_MAGE = 88;
 	constexpr unsigned char GAME_END = 89;
 	constexpr unsigned char BOSS_MOVE_NODE = 90;
 	constexpr unsigned char DUPLICATED_LOGIN = 91;//중복된 로그인이 들어왔다
 	constexpr unsigned char PRE_EXIST_LOGIN = 92; //이미 로그인된 아이디다
+	constexpr unsigned char GAME_STATE_B = 86;
+	constexpr unsigned char GAME_STATE_S = 93;
 
 	constexpr unsigned char SKILL_INPUT = 93;
 
@@ -251,8 +252,15 @@ namespace SERVER_PACKET {
 		int userId = -1;
 		int hp;
 		XMFLOAT3 pos;
+		XMFLOAT3 rot;		
+	};
+
+	struct InGameSmallMonster {
+		int id;
+		int hp;
+		XMFLOAT3 pos;
 		XMFLOAT3 rot;
-		
+		XMFLOAT3 directionVector;
 	};
 
 	struct InGameBossState {
@@ -262,11 +270,19 @@ namespace SERVER_PACKET {
 		XMFLOAT3 directionVector;
 	};
 
-	struct GameState {//Player State-> pos rot...추가하여 보정?
+	struct GameState_BOSS {//Player State-> pos rot...추가하여 보정?
 		short size;
 		char type;
 		InGamePlayerState userState[4];
 		InGameBossState bossState;
+		std::chrono::utc_clock::time_point time;
+	};
+
+	struct GameState_STAGE1 {//Player State-> pos rot...추가하여 보정?
+		short size;
+		char type;
+		InGamePlayerState userState[4];
+		InGameSmallMonster smallMonster[15];
 		std::chrono::utc_clock::time_point time;
 	};
 
