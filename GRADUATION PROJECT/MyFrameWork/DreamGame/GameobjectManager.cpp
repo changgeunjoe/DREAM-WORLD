@@ -806,7 +806,11 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pCamera->SetPosition(XMFLOAT3(-1450, 18, -1490));
 	m_pCamera->Rotate(0, 90, 0);
 	CLoadedModelInfoCompnent* ArrowModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Arrow.bin", NULL, true);
-	
+
+	BuildStage1(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	BuildBossStageObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+
+
 	m_pPlaneObject = new GameObject(UNDEF_ENTITY);
 	m_pPlaneObject->InsertComponent<RenderComponent>();
 	m_pPlaneObject->InsertComponent<CLoadedModelInfoCompnent>();
@@ -832,6 +836,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pWarriorObject->InsertComponent<RenderComponent>();
 	m_pWarriorObject->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pWarriorObject->SetPosition(XMFLOAT3(-1400.f, 0.f, -1500.f));
+	// m_pWarriorObject->SetPosition(XMFLOAT3(0.0f, 0.0f, 0.0f));
 	m_pWarriorObject->SetModel("Model/Warrior.bin");
 	m_pWarriorObject->SetAnimationSets(6);
 	m_pWarriorObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -846,6 +851,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pArcherObject->InsertComponent<RenderComponent>();
 	m_pArcherObject->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pArcherObject->SetPosition(XMFLOAT3(-1400.f, 0.f, -1520.f));
+	// m_pArcherObject->SetPosition(XMFLOAT3(0.0f, 0.0f, 0.0f));
 	m_pArcherObject->SetModel("Model/Archer.bin");
 	m_pArcherObject->SetAnimationSets(5);
 	m_pArcherObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -873,6 +879,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pTankerObject->InsertComponent<RenderComponent>();
 	m_pTankerObject->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pTankerObject->SetPosition(XMFLOAT3(-1400.f, 0.f, -1480.f));
+	// m_pTankerObject->SetPosition(XMFLOAT3(0.0f, 0.0f, 0.0f));
 	m_pTankerObject->SetModel("Model/Tanker.bin");
 	m_pTankerObject->SetAnimationSets(8);
 	m_pTankerObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -889,6 +896,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPriestObject->InsertComponent<RenderComponent>();
 	m_pPriestObject->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pPriestObject->SetPosition(XMFLOAT3(-1400.f, 0.f, -1460.f));
+	// m_pPriestObject->SetPosition(XMFLOAT3(0.0f, 0.0f, 0.0f));
 	m_pPriestObject->SetModel("Model/Priests.bin");
 	m_pPriestObject->SetAnimationSets(5);
 	m_pPriestObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -944,10 +952,14 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pMonsterObject->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pMonsterObject->SetPosition(XMFLOAT3(500, 0, 0));
 	m_pMonsterObject->SetModel("Model/Boss.bin");
-	m_pMonsterObject->SetAnimationSets(11);
+	m_pMonsterObject->SetAnimationSets(13);
 	m_pMonsterObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackAnimationSet(11);
-	m_pMonsterObject->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[10]->m_nType = ANIMATION_TYPE_ONCE;
+	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackAnimationSet(13);
+	m_pMonsterObject->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[BOSS_ANIMATION::BA_DIE]->m_nType = ANIMATION_TYPE_ONCE;
+	m_pMonsterObject->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[BOSS_ANIMATION::BA_UNDERGROUND]->m_nType = ANIMATION_TYPE_ONCE;
+	m_pMonsterObject->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[BOSS_ANIMATION::BA_REVERSE_SPAWN]->m_nType = ANIMATION_TYPE_REVERSE;
+	m_pMonsterObject->m_pSkinnedAnimationController->m_pAnimationTracks[BOSS_ANIMATION::BA_PUNCHING_SKILL].m_fSpeed = 2.0f;
+	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_PUNCHING_SKILL, 2);
 	m_pMonsterObject->SetScale(15.0f);
 	m_pMonsterObject->SetBoundingSize(30.0f);
 	m_pMonsterObject->SetBoundingBox(m_pBoundingBox[4]);
@@ -996,8 +1008,6 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	g_Logic.m_inGamePlayerSession[0].m_id = 0;
 #endif // LOCAL_TASK
 
-	BuildBossStageObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	BuildStage1(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildNPC(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildShadow(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//무조건 마지막에 해줘야된다.
 // 서순을 잘챙기자 ㅋㅋ	

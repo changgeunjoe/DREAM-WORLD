@@ -778,7 +778,7 @@ void CGameFramework::ProcessInput()
 	bool bProcessedByScene = false;
 	GetKeyboardState(pKeysBuffer);
 	//if&& m_pScene) bProcessedByScene = m_pScene->ProcessInput(pKeysBuffer);
-	if (!bProcessedByScene)
+	if (!m_bLobbyScene)
 	{
 		DWORD dwDirection = 0;
 		if (pKeysBuffer[VK_UP] & 0xF0) dwDirection |= DIR_FORWARD;
