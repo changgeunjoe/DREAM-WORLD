@@ -208,6 +208,7 @@ public:
 	bool m_bNPCinteraction{true};
 	bool m_bNPCscreen{ true };
 	int m_iTEXTiIndex{ 2 };
+	int m_nStageType=1;
 public:
 	void SetPlayCharacter(Session* pSession);
 	void SetSection(int n) { m_nSection = n; }
@@ -216,8 +217,8 @@ public:
 	void SetInMatching(bool inMatching) { m_bInMatching = inMatching; }
 	void SetUIActive();
 	void SetStoryTime() { m_fStroyTime = 0; };
-	void ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, const char* fileName, CLoadedModelInfoCompnent* modelName, int type);
-	void ReadNormalMonsterFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, const char* fileName, CLoadedModelInfoCompnent* modelName, int type);
+	void ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, const char* fileName, CLoadedModelInfoCompnent* modelName, int type, int stagetype);
+	void ReadNormalMonsterFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, const char* fileName, CLoadedModelInfoCompnent* modelName, int type, int stagetype);
 	vector<GameObject*>& GetObstacle() { return m_ppObstacleObjects; }
 	GameObject* GetChracterInfo(ROLE r);
 };

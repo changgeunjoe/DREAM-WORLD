@@ -1174,6 +1174,7 @@ void GameObject::MoveForward(float fDistance)
 	//vector<GameObject*> tempVector = gGameFramework.GetScene()->GetObjectManager()->GetObstacle();
 	//XMVECTOR tempPoint = XMVectorSet(xmf3Position.x, xmf3Position.y, xmf3Position.z, 0.0f);
 	if (fDistance < 0) xmf3Look = Vector3::ScalarProduct(xmf3Look, -1.0f, false);
+	fDistance = std::abs(fDistance);
 	//XMFLOAT3 futurePos = xmf3Position = Vector3::Add(xmf3Position, xmf3Look, fDistance);;
 	for (auto& collide : Collides) {
 		if (collide.GetObb().Intersects(m_SPBB)) {

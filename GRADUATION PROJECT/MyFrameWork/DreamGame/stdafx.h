@@ -54,7 +54,7 @@ using namespace std;
 #ifdef _DEBUG
 #include <dxgidebug.h>
 #endif
-#define PLAYER_MAX_RANGE 288.0f
+#define PLAYER_MAX_RANGE 999288.0f
 //#ifndef LOCAL_TASK
 #define LOCAL_TASK 1
 //#endif // !LOCAL_TASK
@@ -109,6 +109,12 @@ enum ROLE :char {
 	TANKER = 0x04,
 	ARCHER = 0x08,
 	RAND = 0x10
+};
+
+enum STAGE
+{
+	STAGE1 = 1,
+	STAGE2 = 2
 };
 
 using namespace DirectX;

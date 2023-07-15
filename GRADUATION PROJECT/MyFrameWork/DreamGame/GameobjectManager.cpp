@@ -343,12 +343,14 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 
 	if (m_pShadowmapShaderComponent)
 	{
-		m_pShadowmapShaderComponent->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature, m_fTimeElapsed);
+	
+		m_pShadowmapShaderComponent->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature, m_fTimeElapsed,m_nStageType);
+	
 	}
-	for (int i = 0; i < 6; i++) {
+	/*for (int i = 0; i < 6; i++) {
 		if (m_pStage1Objects[i])
 			m_pStage1Objects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	}
+	}*/
 	if (m_pMonsterHPBarObject) {
 		//m_pMonsterHPBarObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
@@ -479,7 +481,7 @@ void GameobjectManager::StoryUIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 //	return XMFLOAT4(revW, revX, revY, revZ);
 //}
 
-void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, const char* fileName, CLoadedModelInfoCompnent* modelName, int type)
+void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, const char* fileName, CLoadedModelInfoCompnent* modelName, int type,int stagetype)
 {
 	ifstream objectFile(fileName);
 
@@ -632,7 +634,7 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 		Axis = tempObject[i]->GetUp();
 		tempObject[i]->Rotate(&Axis, tempRotate[i].z);
 		tempObject[i]->SetPosition(XMFLOAT3(tempPos[i].x * scale, tempPos[i].y * scale, tempPos[i].z * scale));
-
+		tempObject[i]->m_nStageType = stagetype;
 		if (type == 1)
 		{
 			XMFLOAT3 extentPos = XMFLOAT3(tempScale[i].x * tempExtentScale[i].x,
@@ -657,7 +659,7 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 	}
 }
 
-void GameobjectManager::ReadNormalMonsterFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, const char* fileName, CLoadedModelInfoCompnent* modelName, int type)
+void GameobjectManager::ReadNormalMonsterFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, const char* fileName, CLoadedModelInfoCompnent* modelName, int type,int stagetype)
 {
 	ifstream objectFile(fileName);
 
@@ -748,7 +750,7 @@ void GameobjectManager::ReadNormalMonsterFile(ID3D12Device* pd3dDevice, ID3D12Gr
 		tempObject[i]->Rotate(&Axis, tempRotate[i].z);
 		tempObject[i]->SetScale(tempScale[i].x, tempScale[i].y, tempScale[i].z);
 		XMFLOAT3 t = tempObject[i]->GetPosition();
-
+		tempObject[i]->m_nStageType = stagetype;
 		// 바운딩 스피어 추가 필요
 		GameObject* MonsterBoundingSphere = new GameObject(SQUARE_ENTITY);
 		MonsterBoundingSphere->InsertComponent<RenderComponent>();
@@ -792,10 +794,10 @@ void GameobjectManager::BuildBossStageObject(ID3D12Device* pd3dDevice, ID3D12Gra
 	CLoadedModelInfoCompnent* Rock02Model = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock02.bin", NULL, true);
 	CLoadedModelInfoCompnent* Rock03Model = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock03.bin", NULL, true);
 	CLoadedModelInfoCompnent* DeathModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Death.bin", NULL, true);
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock1.txt", Rock01Model, 1);
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock2.txt", Rock02Model, 1);
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock3.txt", Rock03Model, 1);
-	ReadNormalMonsterFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/NormalMonster.txt", DeathModel, 0);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock1.txt", Rock01Model, 1, STAGE2);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock2.txt", Rock02Model, 1, STAGE2);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock3.txt", Rock03Model, 1, STAGE2);
+	ReadNormalMonsterFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/NormalMonster.txt", DeathModel, 0, STAGE2);
 }
 
 void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -1001,8 +1003,8 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	// m_pWarriorObject m_pArcherObject m_pTankerObject m_pPriestObject
 	m_pPlayerObject = new GameObject(UNDEF_ENTITY);
 	m_pCamera->Rotate(0, -90, 0);
-	m_pWarriorObject->SetCamera(m_pCamera);
-	m_pPlayerObject = m_pWarriorObject;
+	m_pArcherObject->SetCamera(m_pCamera);
+	m_pPlayerObject = m_pArcherObject;
 	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject = m_pPlayerObject;
 	g_Logic.m_inGamePlayerSession[0].m_isVisible = true;
 	g_Logic.m_inGamePlayerSession[0].m_id = 0;
@@ -1133,16 +1135,15 @@ void GameobjectManager::BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	CLoadedModelInfoCompnent* Death = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Death.bin", NULL, true);
 	CLoadedModelInfoCompnent* Cube = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Cube.bin", NULL, true);
 
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/BigMushroom.txt", BigMushroom, 0);
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Mushroom.txt", Mushroom, 0);
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/LongFence.txt", LongFence, 0);
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence1.txt", ShortFence01, 0);
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence2.txt", ShortFence02, 0);
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence3.txt", ShortFence03, 0);
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Tree.txt", Tree, 0);
-	ReadNormalMonsterFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/NormalMonsterS1.txt", Death, 1);
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/OOBB.txt", Cube, 0);
-
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/BigMushroom.txt", BigMushroom, 0, STAGE1);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Mushroom.txt", Mushroom, 0, STAGE1);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/LongFence.txt", LongFence, 0, STAGE1);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence1.txt", ShortFence01, 0, STAGE1);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence2.txt", ShortFence02, 0, STAGE1);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence3.txt", ShortFence03, 0, STAGE1);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Tree.txt", Tree, 0, STAGE1);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/OOBB.txt", Cube, 0, STAGE1);
+	ReadNormalMonsterFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/NormalMonsterS1.txt", Death, 1, STAGE1);
 	m_pStage1Objects[0] = new GameObject(UNDEF_ENTITY);
 	m_pStage1Objects[0]->InsertComponent<RenderComponent>();
 	m_pStage1Objects[0]->InsertComponent<CLoadedModelInfoCompnent>();
@@ -1152,6 +1153,7 @@ void GameobjectManager::BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pStage1Objects[0]->SetScale(10);
 	m_pStage1Objects[0]->SetColor(XMFLOAT4(0, 1.0f, 1.0f, 1));
 	m_pStage1Objects[0]->SetRimLight(false);
+	m_pStage1Objects[0]->m_nStageType = STAGE1;
 	m_ppGameObjects.emplace_back(m_pStage1Objects[0]);
 	/*m_pStage1Objects[1] = new GameObject(UNDEF_ENTITY);
 	m_pStage1Objects[1]->InsertComponent<RenderComponent>();
@@ -2028,6 +2030,11 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		{
 			m_bNPCinteraction = true;
 			m_iTEXTiIndex = 2;
+			break;
+		}
+		case 'T':
+		{
+			m_nStageType= 2;
 			break;
 		}
 		}
