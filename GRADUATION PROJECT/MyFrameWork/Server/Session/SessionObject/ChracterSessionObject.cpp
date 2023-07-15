@@ -4,10 +4,11 @@
 #include "../../Logic/Logic.h"
 #include "../../IOCPNetwork/protocol/protocol.h"
 #include "../../MapData/MapData.h"
-
+#include "../../Room/Room.h"
 
 extern Logic g_logic;
 extern MapData g_bossMapData;
+extern MapData g_stage1MapData;
 
 ChracterSessionObject::ChracterSessionObject(ROLE r) : SessionObject()
 {
@@ -85,7 +86,7 @@ void ChracterSessionObject::SetMouseInput(bool LmouseInput, bool RmouseInput)
 	m_rightmouseInput = RmouseInput;
 }
 
-bool ChracterSessionObject::CheckMove(float fDistance)
+bool ChracterSessionObject::CheckMove_Boss(float fDistance)
 {
 	auto& allCollisionVec = g_bossMapData.GetCollideData();
 	for (auto& collide : allCollisionVec)
@@ -155,6 +156,66 @@ void ChracterSessionObject::StartMove(DIRECTION d)
 	SetDirection(m_inputDirection);
 }
 
+bool ChracterSessionObject::CheckMove_Stage1(float fDistance)
+{
+	auto& allCollisionVec = g_stage1MapData.GetCollideData();
+	for (auto& collide : allCollisionVec)
+	{
+		if (collide.GetObb().Intersects(m_SPBB))
+		{
+			//XMFLOAT3 CollidePolygonNormalVector = p.CalSlidingVector(m_position, m_directionVector);
+			//m_position = Vector3::Add(m_position, Vector3::ScalarProduct(CollidePolygonNormalVector, 0.5f * fDistance));
+			std::vector<int>& relationIdxsVector = collide.GetRelationCollisionIdxs();
+			int secondCollide = -1;
+			for (auto& otherCol : relationIdxsVector) {
+				if (allCollisionVec[otherCol].GetObb().Intersects(m_SPBB)) {
+					//CollidePolygonNormalVector = allCollisionVec[otherCol].CalSlidingVector(m_position, m_directionVector);
+					//m_position = Vector3::Add(m_position, Vector3::ScalarProduct(CollidePolygonNormalVector, 0.5f * fDistance));
+					secondCollide = otherCol;
+					break;
+				}
+			}
+			if (secondCollide == -1) {
+				auto CollidePolygonNormalVector = collide.CalSlidingVector(m_SPBB, m_position, m_directionVector);//노말, 슬라이딩, 노말이 가져야할 크기 를 반환
+				XMFLOAT3 collideNormalVector = std::get<0>(CollidePolygonNormalVector);//노말 벡터
+				XMFLOAT3 collideSlidingVector = std::get<1>(CollidePolygonNormalVector);//슬라이딩 벡터
+				float normalVectorDotProductReslut = std::get<2>(CollidePolygonNormalVector);
+				float slidingVectorDotProductReslut = std::get<3>(CollidePolygonNormalVector);//슬라이딩 벡터와 무브 벡터 내적 값
+				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideSlidingVector, slidingVectorDotProductReslut * fDistance));
+				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideNormalVector, normalVectorDotProductReslut * fDistance));
+			}
+			else {
+				auto CollidePolygonNormalVector1 = collide.CalSlidingVector(m_SPBB, m_position, m_directionVector);
+				auto CollidePolygonNormalVector2 = allCollisionVec[secondCollide].CalSlidingVector(m_SPBB, m_position, m_directionVector);
+
+				XMFLOAT3 collideNormalVector1 = std::get<0>(CollidePolygonNormalVector1);//노말 벡터
+				XMFLOAT3 collideSlidingVector1 = std::get<1>(CollidePolygonNormalVector1);//슬라이딩 벡터
+				float normalVectorDotProductResult1 = std::get<2>(CollidePolygonNormalVector1);
+				float slidingVectorDotProductResult1 = std::get<3>(CollidePolygonNormalVector1);//슬라이딩 벡터와 무브 벡터 내적 값
+
+				XMFLOAT3 collideNormalVector2 = std::get<0>(CollidePolygonNormalVector2);//노말 벡터
+				XMFLOAT3 collideSlidingVector2 = std::get<1>(CollidePolygonNormalVector2);//슬라이딩 벡터
+				float normalVectorDotProductResult2 = std::get<2>(CollidePolygonNormalVector2);
+				float slidingVectorDotProductResult2 = std::get<3>(CollidePolygonNormalVector2);//슬라이딩 벡터와 무브 벡터 내적 값
+
+				XMFLOAT3 resultSlidingVector = Vector3::Normalize(Vector3::Subtract(collide.GetObb().Center, allCollisionVec[secondCollide].GetObb().Center));
+				resultSlidingVector.y = 0.0f;
+				float dotRes = Vector3::DotProduct(resultSlidingVector, m_directionVector);
+				if (dotRes < 0)resultSlidingVector = Vector3::ScalarProduct(resultSlidingVector, -1.0f, false);
+
+				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(resultSlidingVector, fDistance));
+				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideNormalVector1, normalVectorDotProductResult1 * fDistance));
+				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideNormalVector2, normalVectorDotProductResult2 * fDistance));
+
+			}
+			std::cout << " Player Get Collision " << std::endl;
+			m_SPBB.Center = m_position;
+			return false;
+		}
+	}
+	return true;
+}
+
 void ChracterSessionObject::StopMove()
 {
 	//PrintCurrentTime();
@@ -176,44 +237,21 @@ bool ChracterSessionObject::Move(float elapsedTime)
 	{
 #ifdef _DEBUG
 		std::cout << "character::Move() - elapsedTime: " << elapsedTime << std::endl;
-#endif // 
-		if (CheckMove(elapsedTime * m_speed)) {
-			m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, elapsedTime * m_speed));
-			m_SPBB.Center = m_position;
+#endif 		 
+		if (m_roomState == ROOM_BOSS) {
+			if (CheckMove_Boss(elapsedTime * m_speed)) {
+				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, elapsedTime * m_speed));
+				m_SPBB.Center = m_position;
+			}
+			return true;
 		}
-		return true;
-		//DIRECTION tespDIR = m_inputDirection;
-		//if (((tespDIR & DIRECTION::LEFT) == DIRECTION::LEFT) &&
-		//	((tespDIR & DIRECTION::RIGHT) == DIRECTION::RIGHT))
-		//{
-		//	tespDIR = (DIRECTION)(tespDIR ^ DIRECTION::LEFT);
-		//	tespDIR = (DIRECTION)(tespDIR ^ DIRECTION::RIGHT);
-		//}
-		//if (((tespDIR & DIRECTION::FRONT) == DIRECTION::FRONT) &&
-		//	((tespDIR & DIRECTION::BACK) == DIRECTION::BACK))
-		//{
-		//	tespDIR = (DIRECTION)(tespDIR ^ DIRECTION::FRONT);
-		//	tespDIR = (DIRECTION)(tespDIR ^ DIRECTION::BACK);
-		//}
-		//switch (tespDIR)
-		//{
-		//case DIRECTION::FRONT:
-		//case DIRECTION::FRONT | DIRECTION::RIGHT:
-		//case DIRECTION::RIGHT:
-		//case DIRECTION::BACK | DIRECTION::RIGHT:
-		//case DIRECTION::BACK:
-		//case DIRECTION::BACK | DIRECTION::LEFT:
-		//case DIRECTION::LEFT:
-		//case DIRECTION::FRONT | DIRECTION::LEFT:
-		//{
-		//	if (CheckMove(elapsedTime * m_speed)) {
-		//		m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, elapsedTime * m_speed));
-		//		m_SPBB.Center = m_position;
-		//	}
-		//}
-		//break;
-		//default: break;
-		//}
+		else {
+			if (CheckMove_Stage1(elapsedTime * m_speed)) {
+				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, elapsedTime * m_speed));
+				m_SPBB.Center = m_position;
+			}
+			return true;
+		}
 	}
 	return false;
 }

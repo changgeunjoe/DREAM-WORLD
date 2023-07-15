@@ -12,6 +12,7 @@
 
 
 extern MapData g_bossMapData;
+extern MapData g_stage1MapData;
 extern CGameFramework gGameFramework;
 
 
@@ -160,7 +161,7 @@ void GameObject::SetScale(float x, float y, float z)
 }
 void GameObject::SetinitScale(float x, float y, float z)
 {
-	
+
 	XMMATRIX mtxScale = XMMatrixScaling(x, y, z);
 	m_xmf4x4ToParent = Matrix4x4::Identity();
 	m_xmf4x4ToParent = Matrix4x4::Multiply(mtxScale, m_xmf4x4ToParent);
@@ -379,9 +380,9 @@ void GameObject::BuildShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	ComponentBase* pBlendShaderComponent = GetComponent(component_id::BLENDSHADER_COMPONENT);
 	ComponentBase* pCylinderShaderComponent = GetComponent(component_id::CYLINDERSHADER_COMPONENT);
 	ComponentBase* pSquareShaderComponent = GetComponent(component_id::SQUARESHADER_COMPONENT);
-	if (pShaderComponent != NULL || pSkyShaderComponent != NULL || pUiShaderComponent != NULL || pSpriteShaderComponent != NULL 
-		|| pBoundingBoxShaderComponent != NULL || pBlendingUiShaderComponent != NULL|| pTrailShaderComponent!=NULL
-		|| pTerrainShaderComponent!=NULL|| pEffectShaderComponent|| pBlendShaderComponent || pCylinderShaderComponent || pSquareShaderComponent)
+	if (pShaderComponent != NULL || pSkyShaderComponent != NULL || pUiShaderComponent != NULL || pSpriteShaderComponent != NULL
+		|| pBoundingBoxShaderComponent != NULL || pBlendingUiShaderComponent != NULL || pTrailShaderComponent != NULL
+		|| pTerrainShaderComponent != NULL || pEffectShaderComponent || pBlendShaderComponent || pCylinderShaderComponent || pSquareShaderComponent)
 	{
 		if (pShaderComponent != NULL)
 		{
@@ -688,7 +689,7 @@ void GameObject::ReleaseShaderVariables()
 
 void GameObject::Die(float ftimeelapsed)
 {
-	m_xmf4Color.w += ftimeelapsed/10;
+	m_xmf4Color.w += ftimeelapsed / 10;
 	cout << m_xmf4Color.w << endl;
 }
 
@@ -1167,13 +1168,18 @@ void GameObject::MoveForward(float fDistance)
 	XMFLOAT3 xmf3Look = GetLook();
 	xmf3Look.y = 0.0f;
 	vector<MapCollide>& Collides = g_bossMapData.GetCollideData();
+	//if()//stage1이라면
+	//Collides = g_stage1MapData.GetCollideData();
+
 	//if (Vector3::Length(xmf3Position) < PLAYER_MAX_RANGE)	GameObject::SetPosition(xmf3Position);
 	//vector<GameObject*> tempVector = gGameFramework.GetScene()->GetObjectManager()->GetObstacle();
 	//XMVECTOR tempPoint = XMVectorSet(xmf3Position.x, xmf3Position.y, xmf3Position.z, 0.0f);
 	if (fDistance < 0) xmf3Look = Vector3::ScalarProduct(xmf3Look, -1.0f, false);
+	fDistance = std::abs(fDistance);
 	//XMFLOAT3 futurePos = xmf3Position = Vector3::Add(xmf3Position, xmf3Look, fDistance);;
 	for (auto& collide : Collides) {
 		if (collide.GetObb().Intersects(m_SPBB)) {
+
 			auto& relationIdxsVector = collide.GetRelationCollisionIdxs();
 			int secondCollide = -1;
 			for (auto& otherCol : relationIdxsVector) {
@@ -1231,39 +1237,7 @@ void GameObject::MoveForward(float fDistance)
 			if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(xmf3Position, m_pCamera->GetOffset()));
 			return;
 		}
-	}
-
-	//prev else
-	//auto normalVec1 = collide.CalSlidingVector(m_SPBB, xmf3Position, GetLook());
-	//auto normalVec2 = Collides[secondCollide].CalSlidingVector(m_SPBB, m_position, GetLook());
-	//XMFLOAT3 collideNormalVector1 = std::get<0>(normalVec1);//노말 벡터1
-	//XMFLOAT3 collideSlidingVector1 = std::get<1>(normalVec1);//슬라이딩 벡터
-	//float collideNormalSize1 = std::get<2>(normalVec1);//노말 벡터가 가져야할 크기(충돌 위치 조정을 위한)
-
-	//XMFLOAT3 collideNormalVector2 = std::get<0>(normalVec2);//노말 벡터2
-	//XMFLOAT3 collideSlidingVector2 = std::get<1>(normalVec2);//슬라이딩 벡터
-	//float collideNormalSize2 = std::get<2>(normalVec2);//노말 벡터가 가져야할 크기(충돌 위치 조정을 위한) 
-
-	//xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(collideNormalVector1, collideNormalSize1));
-	//xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(collideNormalVector2, collideNormalSize2));
-	//if (collideNormalSize1 >= collideNormalSize2)
-	//	xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(collideSlidingVector1, 0.5f * fDistance));
-	//else
-	//	xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(collideSlidingVector2, 0.5f * fDistance));
-
-
-	//for (int i = 0; i < tempVector.size(); ++i)
-	//{
-	//	if (/*tempVector[i]->m_OBB.Contains(tempPoint)*/tempVector[i]->m_OBB.Intersects(m_SPBB))
-	//	{
-	//		tempVector[i]->m_OBB.Intersects(m_SPBB);
-	//		// cout << "충돌 발생 : " << i << "번째 바위와 충돌하였습니다." << endl;
-	//		// cout << "바위 Center Position : " << tempVector[i]->GetPosition().x <<", " << tempVector[i]->GetPosition().y << ", " << tempVector[i]->GetPosition().z << " )" << endl;
-	//		// cout << "충돌 포지션 : ( "<< xmf3Position.x <<", " << xmf3Position.y << ", " << xmf3Position.z << " )" << endl;
-	//		//슬라이딩 벡터 구현
-	//		return;
-	//	}
-	//}
+	}	
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, fDistance);
 	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * fDistance / 50.0f);
 	GameObject::SetPosition(xmf3Position);
@@ -1317,7 +1291,7 @@ void GameObject::Move(XMFLOAT3 direction, float fDistance)
 	if (Vector3::Length(xmf3Position) < PLAYER_MAX_RANGE)	GameObject::SetPosition(xmf3Position);
 }
 
-void GameObject::MoveVelocity(XMFLOAT3 direction, float ftimeelapsed,float fDistance)
+void GameObject::MoveVelocity(XMFLOAT3 direction, float ftimeelapsed, float fDistance)
 {
 	const float fGravity = 9.8f;
 
@@ -1347,7 +1321,7 @@ void GameObject::MoveVelocity(XMFLOAT3 direction, float ftimeelapsed,float fDist
 	}
 
 	if (m_fTime == 10) {
-		GameObject::SetPosition(XMFLOAT3(0,0,0));
+		GameObject::SetPosition(XMFLOAT3(0, 0, 0));
 	}
 }
 

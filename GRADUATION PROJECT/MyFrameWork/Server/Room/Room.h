@@ -24,7 +24,7 @@ private:
 private:
 	int m_stage1TrigerCnt = 0;
 public:
-	void SetRoomId(int roomId) { m_roomId = roomId; }
+	void SetRoomId(int roomId);
 	bool IsArriveState() { return m_isAlive; }
 	//Player UserSession
 private:

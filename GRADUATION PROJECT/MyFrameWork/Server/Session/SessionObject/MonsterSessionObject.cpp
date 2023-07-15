@@ -23,17 +23,18 @@ MonsterSessionObject::MonsterSessionObject() : SessionObject()
 	m_onIdx = g_bossMapData.GetFirstIdxs();
 }
 
-MonsterSessionObject::MonsterSessionObject(int roomId) :SessionObject(), m_roomId(roomId)
+MonsterSessionObject::MonsterSessionObject(int roomId) :SessionObject()
 {
 	m_speed = 50.0f;
 	m_maxHp = m_hp = 2500;
 	m_DestinationPos = XMFLOAT3{ 0,0,0 };
 	m_onIdx = g_bossMapData.GetFirstIdxs();
+	m_roomId = roomId;
 }
 
 MonsterSessionObject::~MonsterSessionObject()
 {
-	
+
 }
 
 void MonsterSessionObject::StartMove()

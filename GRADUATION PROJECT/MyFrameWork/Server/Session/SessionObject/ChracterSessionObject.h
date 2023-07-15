@@ -18,6 +18,8 @@ private:
 public:
 	DIRECTION						m_inputDirection = DIRECTION::IDLE;
 	DIRECTION						m_prevDirection = DIRECTION::IDLE;
+private:
+	ROOM_STATE						m_roomState = ROOM_STATE::ROOM_BOSS;
 public:
 	ChracterSessionObject(ROLE r);
 	virtual	~ChracterSessionObject();
@@ -37,7 +39,8 @@ public:
 	bool Move(float elapsedTime) override;
 	void SetDirection(DIRECTION d);
 	void SetMouseInput(bool LmouseInput, bool RmouseInput);
-	bool CheckMove(float fDistance);
+	bool CheckMove_Boss(float fDistance);
+	bool CheckMove_Stage1(float fDistance);
 public:
 	virtual void Rotate(ROTATE_AXIS axis, float angle) override;
 public:
@@ -51,6 +54,7 @@ public:
 		return m_InGameRole;
 	}
 	bool GetLeftAttack() { return m_leftmouseInput; }
+	void SetRoomState(ROOM_STATE rState) { m_roomState = rState; }
 public:
 	virtual void Skill_1() = 0;
 	virtual void Skill_2() = 0;

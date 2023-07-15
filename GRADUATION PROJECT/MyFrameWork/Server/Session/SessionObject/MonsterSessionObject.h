@@ -9,8 +9,6 @@ public:
 	MonsterSessionObject(int roomId);
 	virtual ~MonsterSessionObject();
 private:
-	int m_roomId = -1;
-private:
 	DirectX::XMFLOAT3 m_DestinationPos = { 0,0,0 };
 	std::mutex m_restRotateAngleLock;
 	DirectX::XMFLOAT3 m_RestRotateAngle = { 0,0,0 };
@@ -64,8 +62,6 @@ public:
 	void AttackPlayer();
 	bool StartAttack();
 	///////////////
-public:
 	bool isBossDie = false;
-	void SetZeroHp() { m_hp = 0; }
-	void SetRoomId(int roomId) { m_roomId = roomId; }
+	void SetZeroHp() { m_hp = 0; }	
 };

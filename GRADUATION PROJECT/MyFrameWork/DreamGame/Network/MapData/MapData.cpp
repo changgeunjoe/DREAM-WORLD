@@ -2,11 +2,22 @@
 #include "MapData.h"
 
 
+MapData::MapData(std::string navFileName, std::string collisionFileName, std::string monsterFileName) : m_navFileName(navFileName), m_collisionFileName(collisionFileName), m_monsterDataFileName(monsterFileName)
+{
+	if (navFileName != "NONE")
+		GetReadMapData();
+	if (collisionFileName != "NONE")
+		GetReadCollisionData();
+	if (monsterFileName != "NONE")
+		GetReadMonsterData();
+	m_initCoplete = true;
+}
+
+
 void MapData::GetReadMapData()
 {
 	using namespace std;
-	std::vector<XMFLOAT3> vertex;
-	std::vector<int> index;
+
 	std::string line;
 	int vertexNum = 0;
 	int vertexNomalNum = 0;
@@ -36,12 +47,14 @@ void MapData::GetReadMapData()
 	inFile >> std::skipws;
 	int vertexCnt = -1;
 	inFile >> vertexCnt;
-	vertex.reserve(vertexCnt);
+	m_vertex.reserve(vertexCnt);
 	while (vertexCnt)
 	{
 		XMFLOAT3 v;
 		inFile >> v.x >> v.y >> v.z;
-		vertex.emplace_back(v.x, 0.0f, v.z);
+		/*v.x *= 30.0f;
+		v.z *= 30.0f;*/
+		m_vertex.emplace_back(v.x, 0.0f, v.z);
 		vertexCnt--;
 	}
 
@@ -54,13 +67,13 @@ void MapData::GetReadMapData()
 
 	int indexCnt = -1;
 	inFile >> indexCnt;
-	index.reserve(indexCnt);
+	m_index.reserve(indexCnt);
 	m_triangleMesh.reserve(indexCnt / 3);
 	while (indexCnt)
 	{
 		int i;
 		inFile >> i;
-		index.emplace_back(i);
+		m_index.emplace_back(i);
 		indexCnt--;
 	}
 
@@ -71,8 +84,8 @@ void MapData::GetReadMapData()
 	cout << "relation pos: " << inFile.tellg() << endl;
 	inFile >> std::skipws;
 
-	for (auto indexIter = index.begin(); indexIter != index.end(); indexIter += 3) {
-		m_triangleMesh.emplace_back(vertex[*indexIter], vertex[*(indexIter + 1)], vertex[*(indexIter + 2)], *indexIter, *(indexIter + 1), *(indexIter + 2));
+	for (auto indexIter = m_index.begin(); indexIter != m_index.end(); indexIter += 3) {
+		m_triangleMesh.emplace_back(m_vertex[*indexIter], m_vertex[*(indexIter + 1)], m_vertex[*(indexIter + 2)], *indexIter, *(indexIter + 1), *(indexIter + 2));
 	}
 
 	while (true)
@@ -84,7 +97,7 @@ void MapData::GetReadMapData()
 		inFile >> relationCnt;
 		vector<int> siblingNodeIndex;
 		if (relationCnt < 0)break;
-		siblingNodeIndex.reserve(relationCnt);//형제 노드들 인덱스 저장
+		siblingNodeIndex.reserve(relationCnt);//형제 노드들 인덱스 저장 - 2개임
 		for (int relationIdx = 0; relationIdx < relationCnt; relationIdx++) {
 			int idx = -1;
 			inFile >> idx;
@@ -100,86 +113,53 @@ void MapData::GetReadMapData()
 		}
 		if (inFile.eof())break;
 	}
-
+	float fltMx = FLT_MAX;
+	int idxM = -1;
+	int inIdx = -1;
+	int zeroIdx = -1;
+	//vector<int> m_zeroVertexIdxs;
+	for (int i = 0; i < m_index.size() / 3; i++) {
+		float dis = m_triangleMesh[i].GetDistance(300.0f, 0.0f, 100.0f);
+		if (fltMx > dis) {
+			fltMx = dis;
+			idxM = i;
+		}
+		if (m_triangleMesh[i].IsOnTriangleMesh(300.0f, 0.0f, 100.0f))
+			inIdx = i;
+		if (m_triangleMesh[i].IsOnTriangleMesh(0.0f, 0.0f, 0.0f))
+			m_zeroVertexIdxs.emplace_back(i);
+		//zeroIdx = i;
+	}
+	std::cout << "dis Min: " << idxM << "dis: " << fltMx << std::endl;
+	std::cout << "On idx: " << inIdx << std::endl;
+	//std::cout << "On ZeroIdx: " << zeroIdx << std::endl;
+	std::cout << "ZeroIdxs: ";
+	for (auto& i : m_zeroVertexIdxs)
+		std::cout << i << " ";
+	std::cout << std::endl;
 	std::cout << "map load end" << std::endl;
 }
 
-std::list<int> MapData::AStarLoad(int myTriangleIdx, float desX, float desZ)
-{
-	std::map<int, AstarNode> openList;
-	std::map<int, AstarNode> closeList;
-
-	openList.clear();
-	closeList.clear();
-	//nodeIdx cos dis res parent
-	closeList.try_emplace(myTriangleIdx, myTriangleIdx, 0, 0, 0, -1);
-	int currentTriangleIdx = myTriangleIdx;
-	while (true) {
-		auto relationTriangleIdx = m_triangleMesh[myTriangleIdx].m_relationMesh;
-		//openList update
-		for (auto& tri : relationTriangleIdx) {
-			if (openList.count(tri.first) == 0) {
-				float dis = m_triangleMesh[tri.first].GetDistance(desX, 0.0f, desZ);
-				openList.try_emplace(tri.first, tri.first, tri.second, dis, tri.second + dis, currentTriangleIdx);
-			}
-			else {
-				float dis = m_triangleMesh[tri.first].GetDistance(desX, 0.0f, desZ);
-				if (openList[tri.first].GetResValue() > dis + tri.second) {
-					openList[tri.first].RefreshNodeData(tri.first, tri.second, dis, tri.second + dis, currentTriangleIdx);
-				}
-			}
-		}
-
-		AstarNode minNode = AstarNode(-1, -1, -1, FLT_MAX, -1);
-		for (auto& openNode : openList) {
-			if (minNode < openNode.second)
-				minNode = openNode.second;
-		}
-
-		currentTriangleIdx = minNode.GetIdx();
-		closeList.try_emplace(currentTriangleIdx, minNode);
-		openList.erase(currentTriangleIdx);
-		if (m_triangleMesh[currentTriangleIdx].GetDistance(desX, 0.0f, desZ) < 45.0f) {
-			std::list<int> resList;
-			int currentIdx = currentTriangleIdx;
-			while (true) {
-				AstarNode currentNode = closeList[currentIdx];
-				if (currentIdx == myTriangleIdx) return resList;
-				resList.emplace_front(currentIdx);
-				currentIdx = currentNode.GetParentIdx();
-			}
-		}
-	}
-}
-
-MapData::MapData(std::string fileName, std::string collisionFileName) : m_navFileName(fileName), m_collisionFileName(collisionFileName)
-{
-	GetReadMapData();
-	GetReadCollisionData();
-}
-
-
 void MapData::GetReadCollisionData()
 {
-	std::string FileName = "CollisionData.txt";
 	std::ifstream objectFile(m_collisionFileName);
 
-	vector<XMFLOAT3> modelPosition;
-	vector<XMFLOAT4> quaternion;
+	std::vector<XMFLOAT3> modelPosition;
+	std::vector<XMFLOAT4> quaternion;
 
-	vector<XMFLOAT3> modelScale;
-	vector<XMFLOAT3> modelEulerRotate;
+	std::vector<XMFLOAT3> modelScale;
+	std::vector<XMFLOAT3> modelEulerRotate;
 
-	vector<XMFLOAT3> colliderWorldPosition;
-	vector<XMFLOAT3> colliderWorldBoundSize;
-	vector<XMFLOAT3> colliderWorldExtentSize;
-	vector<XMFLOAT3> colliderForwardVec;
-	vector<XMFLOAT3> colliderRightVec;
-	vector<float>	 forwardDot;
-	vector<float>	 rightDot;
+	std::vector<XMFLOAT3> colliderWorldPosition;
+	std::vector<XMFLOAT3> colliderWorldBoundSize;
+	std::vector<XMFLOAT3> colliderWorldExtentSize;
+	std::vector<XMFLOAT3> colliderForwardVec;
+	std::vector<XMFLOAT3> colliderRightVec;
+	std::vector<float>	 forwardDot;
+	std::vector<float>	 rightDot;
 
-	string temp;
-	vector<string> name;
+	std::string temp;
+	std::vector<std::string> name;
 	float number[3] = {};
 	float qnumber[4] = {};
 	while (!objectFile.eof())
@@ -305,4 +285,133 @@ void MapData::GetReadCollisionData()
 		}
 	}
 	return;
+}
+
+std::list<int> MapData::AStarLoad(int myTriangleIdx, float desX, float desZ)
+{
+	if (m_triangleMesh[myTriangleIdx].IsOnTriangleMesh(desX, 0.0f, desZ)) {
+		return std::list<int>{myTriangleIdx};
+	}
+	std::map<int, AstarNode> openList;
+	std::map<int, AstarNode> closeList;
+
+	openList.clear();
+	closeList.clear();
+	//nodeIdx cost dist res parent
+	closeList.try_emplace(myTriangleIdx, myTriangleIdx, 0, 0, 0, -1);
+	int currentTriangleIdx = myTriangleIdx;
+	while (true) {
+		auto relationTriangleIdx = m_triangleMesh[currentTriangleIdx].m_relationMesh;
+		//openList update
+		for (auto& triangle : relationTriangleIdx) {
+			if (closeList.count(triangle.first) == 1) continue;
+			float dis = m_triangleMesh[triangle.first].GetDistance(desX, 0.0f, desZ);
+			if (openList.count(triangle.first) == 0) {
+				openList.try_emplace(triangle.first, triangle.first, triangle.second, dis, triangle.second + dis, currentTriangleIdx);
+			}
+			else {
+				if (openList[triangle.first].GetResValue() > dis + triangle.second) {
+					openList[triangle.first].RefreshNodeData(triangle.first, triangle.second, dis, triangle.second + dis, currentTriangleIdx);
+				}
+			}
+		}
+
+		AstarNode minNode = AstarNode(-1, FLT_MAX, FLT_MAX, FLT_MAX, -1);
+		for (auto& openNode : openList) {
+			if (openNode.second < minNode)
+				minNode = openNode.second;
+		}
+		if (minNode.GetIdx() == -1) {
+			std::cout << "last Index: ";
+			for (auto& triangle : relationTriangleIdx) {
+				std::cout << triangle.first << " ";
+			}
+		}
+		std::cout << std::endl;
+		currentTriangleIdx = minNode.GetIdx();
+		closeList.try_emplace(currentTriangleIdx, minNode);
+		openList.erase(currentTriangleIdx);
+#ifdef _DEBUG
+		std::cout << "ID: " << minNode.GetIdx() << " Parent: " << minNode.GetParentIdx() << " Res: " << minNode.GetResValue() << "Dis: " << minNode.GetDistance() << std::endl;
+#endif
+		//if (m_triangleMesh[currentTriangleIdx].GetDistance(desX, 0.0f, desZ) < 80.0f) {
+		if (closeList[currentTriangleIdx].GetDistance() < 150.0f) {
+#ifdef _DEBUG
+			std::cout << "currentIdx: " << currentTriangleIdx;
+#endif
+			if (m_triangleMesh[currentTriangleIdx].IsOnTriangleMesh(desX, 0.0f, desZ)) {
+				std::list<int> resList;
+				int currentIdx = currentTriangleIdx;
+				//std::stack<int> resStack;
+				//resStack.push(currentIdx);
+				while (true) {
+					AstarNode currentNode = closeList[currentIdx];
+					//resStack.push(currentIdx);
+					if (currentIdx == myTriangleIdx) {
+#ifdef _DEBUG
+						std::cout << std::endl << std::endl;
+#endif
+						//findPath(resList);
+						//findPath(resStack);
+						return resList;
+					}
+					resList.emplace_front(currentIdx);
+					currentIdx = currentNode.GetParentIdx();
+				}
+			}
+		}
+	}
+}
+
+void MapData::GetReadMonsterData()
+{
+	std::ifstream objectFile(m_monsterDataFileName);
+
+	std::vector<XMFLOAT3> modelPosition;
+	std::vector<XMFLOAT3> modelEulerRotate;
+	std::string readData;
+	std::vector<std::string> name;
+
+	float qnumber[4] = {};
+	while (!objectFile.eof())
+	{
+		objectFile >> readData;
+		if (readData == "<position>:")
+		{
+			float number[3] = {};
+			for (int i = 0; i < 3; ++i)
+			{
+				objectFile >> readData;
+				number[i] = stof(readData);
+			}
+			modelPosition.emplace_back(number[0], number[1], number[2]);
+		}
+		else if (readData == "<quaternion>:")
+		{
+			for (int i = 0; i < 4; ++i)
+			{
+				objectFile >> readData;
+			}
+		}
+		else if (readData == "<rotation>:")
+		{
+			float number[3] = {};
+			for (int i = 0; i < 3; ++i)
+			{
+				objectFile >> readData;
+				number[i] = stof(readData);
+			}
+			modelEulerRotate.emplace_back(number[0], number[1], number[2]);
+		}
+		else if (readData == "<scale>:")
+		{
+			for (int i = 0; i < 3; ++i)
+			{
+				objectFile >> readData;
+			}
+		}
+		else name.emplace_back(readData);
+	}
+	for (int i = 0; i < modelPosition.size(); i++)
+		m_initMonsterDatas.emplace_back(modelPosition[i], modelEulerRotate[i]);
 }

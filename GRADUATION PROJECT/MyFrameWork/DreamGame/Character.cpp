@@ -70,6 +70,33 @@ bool Character::CheckAnimationEnd(int nAnimation)
 	return m_pSkinnedAnimationController->m_pAnimationTracks[nAnimation].m_bAnimationEnd;
 }
 
+void Character::InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos)
+{
+	XMFLOAT3 playerInterpolationVector = Vector3::Subtract(recvPos, m_position);
+	float playerPosDistance = Vector3::Length(playerInterpolationVector);
+	chrono::utc_clock::time_point playerCurrentUTC_Time = chrono::utc_clock::now();
+	double durationTime = chrono::duration_cast<chrono::microseconds>(playerCurrentUTC_Time - recvTime).count();
+	durationTime = (double)durationTime / 1000.0f;//microseconds to mill
+	durationTime = (double)durationTime / 1000.0f;//milliseconds to sec
+	float playerInterpolationDistance = playerPosDistance - (float)durationTime * 50.0f;//length - v*t
+
+	if (playerPosDistance < DBL_EPSILON) {
+		m_interpolationDistance = 0.0f;
+	}
+	else if (abs(playerInterpolationDistance) > 10.0f) {
+		//cout << "client playerPos: " << playerPos.x << ", " << playerPos.z << endl;
+		//cout << "server playerPos: " << recvPacket->userState[i].pos.x << ", " << recvPacket->userState[i].pos.z << endl;
+		SetPosition(recvPos);
+	}
+	else if (abs(playerInterpolationDistance) < 5.0f) {
+		m_interpolationDistance = 0.0f;
+	}
+	else {
+		m_interpolationDistance = abs(playerInterpolationDistance);
+		m_interpolationVector = Vector3::Normalize(playerInterpolationVector);
+	}
+}
+
 Warrior::Warrior() : Character()
 {
 	m_fHp = 400.0f;
@@ -1198,6 +1225,33 @@ void Monster::Animate(float fTimeElapsed)
 	Character::Animate(fTimeElapsed);
 }
 
+void Monster::InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos)
+{
+	XMFLOAT3 playerInterpolationVector = Vector3::Subtract(recvPos, m_position);
+	float playerPosDistance = Vector3::Length(playerInterpolationVector);
+	chrono::utc_clock::time_point playerCurrentUTC_Time = chrono::utc_clock::now();
+	double durationTime = chrono::duration_cast<chrono::microseconds>(playerCurrentUTC_Time - recvTime).count();
+	durationTime = (double)durationTime / 1000.0f;//microseconds to mill
+	durationTime = (double)durationTime / 1000.0f;//milliseconds to sec
+	float playerInterpolationDistance = playerPosDistance - (float)durationTime * 50.0f;//length - v*t
+
+	if (playerPosDistance < DBL_EPSILON) {
+		m_interpolationDistance = 0.0f;
+	}
+	else if (abs(playerInterpolationDistance) > 50.0f) {
+		//cout << "client playerPos: " << playerPos.x << ", " << playerPos.z << endl;
+		//cout << "server playerPos: " << recvPacket->userState[i].pos.x << ", " << recvPacket->userState[i].pos.z << endl;
+		SetPosition(recvPos);
+	}
+	else if (abs(playerInterpolationDistance) < 5.0f) {
+		m_interpolationDistance = 0.0f;
+	}
+	else {
+		m_interpolationDistance = abs(playerInterpolationDistance);
+		m_interpolationVector = Vector3::Normalize(playerInterpolationVector);
+	}
+}
+
 Projectile::Projectile(entity_id eid) : GameObject(eid)
 {
 	m_xmf3startPosition = XMFLOAT3(-1.0f, -1.0f, -1.0f);
@@ -1527,4 +1581,31 @@ void NormalMonster::Animate(float fTimeElapsed)
 	}
 
 	GameObject::Animate(fTimeElapsed);
+}
+
+void NormalMonster::InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos)
+{
+	XMFLOAT3 playerInterpolationVector = Vector3::Subtract(recvPos, m_position);
+	float playerPosDistance = Vector3::Length(playerInterpolationVector);
+	chrono::utc_clock::time_point playerCurrentUTC_Time = chrono::utc_clock::now();
+	double durationTime = chrono::duration_cast<chrono::microseconds>(playerCurrentUTC_Time - recvTime).count();
+	durationTime = (double)durationTime / 1000.0f;//microseconds to mill
+	durationTime = (double)durationTime / 1000.0f;//milliseconds to sec
+	float playerInterpolationDistance = playerPosDistance - (float)durationTime * 50.0f;//length - v*t
+
+	if (playerPosDistance < DBL_EPSILON) {
+		m_interpolationDistance = 0.0f;
+	}
+	else if (abs(playerInterpolationDistance) > 30.0f) {
+		//cout << "client playerPos: " << playerPos.x << ", " << playerPos.z << endl;
+		//cout << "server playerPos: " << recvPacket->userState[i].pos.x << ", " << recvPacket->userState[i].pos.z << endl;
+		SetPosition(recvPos);
+	}
+	else if (abs(playerInterpolationDistance) < 5.0f) {
+		m_interpolationDistance = 0.0f;
+	}
+	else {
+		m_interpolationDistance = abs(playerInterpolationDistance);
+		m_interpolationVector = Vector3::Normalize(playerInterpolationVector);
+	}
 }

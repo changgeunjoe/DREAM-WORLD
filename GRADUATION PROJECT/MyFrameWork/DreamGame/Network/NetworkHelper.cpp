@@ -240,3 +240,13 @@ void NetworkHelper::SendTestGameEndOKPacket()
 	sendPacket.type = CLIENT_PACKET::GAME_END_OK;
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
+
+void NetworkHelper::SendOnPositionTriggerBox1(bool isOn)
+{
+	CLIENT_PACKET::TriggerBoxPacket sendPacket;
+	sendPacket.size = 2;
+	if (isOn)
+		sendPacket.type = CLIENT_PACKET::TRIGGER_BOX_ON;
+	else sendPacket.type = CLIENT_PACKET::TRIGGER_BOX_OUT;
+	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
+}

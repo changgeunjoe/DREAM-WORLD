@@ -59,6 +59,16 @@ Room& Room::operator=(Room& rhs)
 	m_roomOwnerId = rhs.m_roomOwnerId;
 	return *this;
 }
+void Room::SetRoomId(int roomId)
+{
+	m_roomId = roomId;
+	m_boss.SetRoomId(m_roomId);	
+	for (auto& character : m_characterMap) {
+		character.second->SetRoomId(m_roomId);
+		character.second->SetRoomState(m_roomState);
+	}
+}
+
 void Room::SendAllPlayerInfo()
 {
 	std::map<ROLE, int> players;
@@ -157,7 +167,6 @@ void Room::DeleteDisconnectedPlayer(int playerId, std::wstring& name)
 
 void Room::CreateBossMonster()
 {
-	m_boss.SetRoomId(m_roomId);
 	//TIMER_EVENT firstEv{ std::chrono::system_clock::now() + std::chrono::milliseconds(200), m_roomId, -1,EV_FIND_PLAYER };
 	//g_Timer.InsertTimerQueue(firstEv);
 }
@@ -313,7 +322,7 @@ void Room::BossFindPlayer()
 		}
 		m_boss.ReserveAggroPlayerRole(m_inGamePlayers.begin()->first);
 		m_lockInGamePlayers.unlock();
-	}
+}
 	TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::seconds(5) + std::chrono::milliseconds(500), m_roomId ,EV_FIND_PLAYER };
 	g_Timer.InsertTimerQueue(new_ev);
 #endif // ALONE_TEST
@@ -364,7 +373,7 @@ void Room::UpdateGameStateForPlayer_STAGE1()
 			}
 			m_lockInGamePlayers.unlock();
 			if (npcComStart) {
-				m_stage1TrigerCnt = 0;				
+				m_stage1TrigerCnt = 0;
 			}
 		}
 
@@ -409,6 +418,7 @@ void Room::UpdateSmallMonster()
 	{
 		m_StageSmallMonster[i].SetDestinationPos(pos);
 	}
+
 	TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::milliseconds(30), m_roomId ,EV_SM_UPDATE };//GameState 30ms마다 전송하게 수정
 	g_Timer.InsertTimerQueue(new_ev);
 }

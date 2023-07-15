@@ -7,13 +7,13 @@ namespace CLIENT_PACKET {
 	constexpr unsigned char STOP = 3;
 	constexpr unsigned char ROTATE = 4;
 	constexpr unsigned char LOGIN = 5;
-	constexpr unsigned char MATCH = 6; 
+	constexpr unsigned char MATCH = 6;
 	constexpr unsigned char CREATE_ROOM = 7;
 	constexpr unsigned char REQUEST_ROOM_LIST = 8; // 방 리스트 요청
 	constexpr unsigned char PLAYER_APPLY_ROOM = 9; // 방 신청
 	constexpr unsigned char CANCEL_APPLY_ROOM = 10; // 신청 취소
 	constexpr unsigned char MOUSE_INPUT = 11;
-	constexpr unsigned char MATCH_REQUEST = 12;	
+	constexpr unsigned char MATCH_REQUEST = 12;
 	constexpr unsigned char SHOOTING_ARROW = 13;
 	constexpr unsigned char SHOOTING_BALL = 14;
 	constexpr unsigned char MELEE_ATTACK = 15;
@@ -21,7 +21,8 @@ namespace CLIENT_PACKET {
 	constexpr unsigned char TEST_GAME_END = 17; //임시로 클라에서 전송하여 게임 끝낼 수 있게
 
 	constexpr unsigned char SKILL_INPUT = 18;
-
+	constexpr unsigned char TRIGGER_BOX_ON = 19;
+	constexpr unsigned char TRIGGER_BOX_OUT = 20;
 
 
 	struct MovePacket
@@ -36,7 +37,7 @@ namespace CLIENT_PACKET {
 		short size;
 		char type;
 		ROTATE_AXIS axis;
-		float angle;		
+		float angle;
 	};
 
 	struct StopPacket {
@@ -84,7 +85,7 @@ namespace CLIENT_PACKET {
 		char type;
 		char roomId[40];
 	};
-	
+
 	struct MouseInputPacket {
 		short size;
 		char type;
@@ -116,6 +117,11 @@ namespace CLIENT_PACKET {
 		char type;
 		bool qSkill;
 		bool eSkill;
+	};
+
+	struct TriggerBoxPacket {
+		short size;
+		char type;
 	};
 }
 
@@ -151,7 +157,7 @@ namespace SERVER_PACKET {
 	constexpr unsigned char GAME_STATE_B = 86;
 	constexpr unsigned char GAME_STATE_S = 93;
 
-	constexpr unsigned char SKILL_INPUT = 93;
+	constexpr unsigned char SKILL_INPUT = 94;
 
 
 	struct MovePacket
@@ -252,11 +258,10 @@ namespace SERVER_PACKET {
 		int userId = -1;
 		int hp;
 		XMFLOAT3 pos;
-		XMFLOAT3 rot;		
+		XMFLOAT3 rot;
 	};
 
 	struct InGameSmallMonster {
-		int id;
 		int hp;
 		XMFLOAT3 pos;
 		XMFLOAT3 rot;
@@ -306,6 +311,12 @@ namespace SERVER_PACKET {
 		ROLE targetRole;
 		int nodeCnt;
 		int node[40];
+	};
+
+	struct SmallMonsterMovePacket {
+		short size;
+		char type;
+		XMFLOAT3 desPositions[15];
 	};
 
 	struct SkillInputPacket {

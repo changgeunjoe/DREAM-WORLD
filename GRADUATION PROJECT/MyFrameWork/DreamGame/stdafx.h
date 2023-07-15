@@ -216,7 +216,7 @@ struct CB_GAMEOBJECT_INFO
 	MATERIAL						m_material;
 	UINT							m_nType;
 	bool							m_bAnimateshader;
-	
+
 };
 
 struct CB_GAMEOBJECTWORLD_INFO
@@ -291,7 +291,7 @@ enum component_id
 	TRAILMESH_COMPONENT,
 	TRAILSHADER_COMPONENT,
 	HEIGHTMESH_COMPONENT,
-	TERRAINSHADER_COMPONENT,	
+	TERRAINSHADER_COMPONENT,
 	NAVIMESHSHADER_COMPONENT,
 	EFFECTSHADER_COMPONENT,
 	BLENDSHADER_COMPONENT,
@@ -333,7 +333,7 @@ enum GAME_STATE
 //NPCText
 enum TEXT
 {
-	NPC_TEXT=0,
+	NPC_TEXT = 0,
 	BOSS_TEXT = 1,
 	START_TEXT = 2
 };
@@ -760,10 +760,11 @@ public:
 	float GetResValue() { return m_res; }
 	int GetIdx() { return m_nodeIdx; }
 	int GetParentIdx() { return m_parentNodeIdx; }
+	float GetDistance() { return m_dis; }
 
 public:
 	constexpr bool operator< (const AstarNode& other)const {
-		return m_res < other.m_res;
+		return m_dis < other.m_dis;
 	}
 	AstarNode& operator= (const AstarNode& other) {
 		m_nodeIdx = other.m_nodeIdx;

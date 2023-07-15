@@ -45,6 +45,12 @@ public:
 	void SendMeleeAttackPacket(const XMFLOAT3& dir);
 	void SendTestGameEndPacket();
 	void SendTestGameEndOKPacket();
+
+public:
+	//Stage1
+	void SendOnPositionTriggerBox1(bool isOn);//트리거 박스 내부에 도착해서 상태 변화할때
+	
+
 private:
 	void ConstructPacket(int ioByte);
 private:

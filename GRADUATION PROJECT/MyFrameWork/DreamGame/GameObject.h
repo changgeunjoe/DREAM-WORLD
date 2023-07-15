@@ -332,10 +332,12 @@ public:
 
 	int								m_iObjType = 0;
 public:
+	virtual void InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos) {}
+protected:
 	float m_interpolationDistance = 0.0f;
 	XMFLOAT3 m_interpolationVector = XMFLOAT3{ 0,0,0 };
 	float m_interpolationRotateAngleY = 0.0f;
-
+public:
 	XMFLOAT3 m_xmf3RamdomDirection{};
 public:
 	GameObject* m_pHPBarUI{ NULL };

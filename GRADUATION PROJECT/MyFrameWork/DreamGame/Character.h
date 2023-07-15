@@ -18,7 +18,7 @@ public:
 	virtual void SecondSkillDown() { m_bESkillClicked = true; };
 	virtual void SecondSkillUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f }) {};
 	bool CheckAnimationEnd(int nAnimation);
-
+	void InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos) override;
 public:
 	bool GetQSkillState() { return m_bQSkillClicked; }
 	bool GetESkillState() { return m_bESkillClicked; }
@@ -101,6 +101,7 @@ public:
 	Monster();
 	virtual ~Monster();
 	virtual void Animate(float fTimeElapsed);
+	void InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos)override;
 public:
 	XMFLOAT3 m_xmf3rotateAngle = XMFLOAT3{ 0,0,0 };
 };
@@ -117,6 +118,7 @@ public:
 	NormalMonster();
 	virtual ~NormalMonster();
 	virtual void Animate(float fTimeElapsed);
+	void InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos)override;
 public:
 	XMFLOAT3 m_xmf3rotateAngle = XMFLOAT3{ 0,0,0 };
 };

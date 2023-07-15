@@ -72,7 +72,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	for (int i = 0; i < m_ppParticleObjects.size(); i++) {
 		m_ppParticleObjects[i]->SetLookAt(m_pCamera->GetPosition());
 		//m_ppParticleObjects[i]->SetPosition(XMFLOAT3(mfHittmp.x, mfHittmp.y+20, mfHittmp.z));
-		m_ppParticleObjects[i]->SetScale(m_ppParticleObjects[i]->m_xmf3Scale.x,	
+		m_ppParticleObjects[i]->SetScale(m_ppParticleObjects[i]->m_xmf3Scale.x,
 			m_ppParticleObjects[i]->m_xmf3Scale.y, m_ppParticleObjects[i]->m_xmf3Scale.z);
 		m_ppParticleObjects[i]->Rotate(0, 180, 0);
 		m_ppParticleObjects[i]->AnimateRowColumn(fTimeElapsed);
@@ -601,7 +601,7 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 				objectFile >> temp;
 			objCount++;
 		}
-	
+
 	}
 	GameObject** tempObject = new GameObject * [objCount];	// 멤버 변수로 교체 예정
 	float scale = 10.0f;
@@ -614,9 +614,8 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 		tempObject[i]->InsertComponent<RenderComponent>();
 		tempObject[i]->InsertComponent<CLoadedModelInfoCompnent>();
 		tempObject[i]->SetPosition(XMFLOAT3(modelPosition[i].x * scale, modelPosition[i].y * scale, modelPosition[i].z * scale));
-		tempObject[i]->SetModel(tempModel);
+		tempObject[i]->SetModel(modelName);
 		tempObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-		tempObject[i]->SetScale(tempScale[i].x * scale, tempScale[i].y * scale, tempScale[i].z * scale);
 		XMFLOAT3 Axis = XMFLOAT3(1, 0, 0);
 		tempObject[i]->Rotate(&Axis, modelEulerRotate[i].x);
 		Axis = tempObject[i]->GetUp();
@@ -634,9 +633,9 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 			tempBoundingBox->InsertComponent<RenderComponent>();
 			tempBoundingBox->InsertComponent<CubeMeshComponent>();
 			tempBoundingBox->InsertComponent<BoundingBoxShaderComponent>();
-			tempBoundingBox->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);			
+			tempBoundingBox->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
-			tempBoundingBox->SetPosition(tempCenterPos[i]);
+			tempBoundingBox->SetPosition(colliderWorldPosition[i]);
 			tempBoundingBox->Rotate(&quaternion[i]);
 			tempBoundingBox->SetScale(colliderWorldBoundSize[i].x, colliderWorldBoundSize[i].y, colliderWorldBoundSize[i].z);
 			m_ppObstacleBoundingBox.emplace_back(tempBoundingBox);
@@ -750,6 +749,7 @@ void GameobjectManager::ReadNormalMonsterFile(ID3D12Device* pd3dDevice, ID3D12Gr
 
 		m_ppNormalMonsterBoundingBox.emplace_back(MonsterBoundingSphere);
 		m_ppGameObjects.emplace_back(tempObject[i]);
+		g_Logic.m_SmallMonsterSession[i].SetGameObject(tempObject[i]);
 	}
 }
 
@@ -776,10 +776,14 @@ void GameobjectManager::EffectRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 
 void GameobjectManager::BuildBossStageObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock1.txt", "Model/Rock01.bin", 1);
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock2.txt", "Model/Rock02.bin", 1);
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock3.txt", "Model/Rock03.bin", 1);
-	ReadNormalMonsterFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/NormalMonster.txt", "Model/Death.bin", 0);
+	CLoadedModelInfoCompnent* Rock01Model = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock01.bin", NULL, true);
+	CLoadedModelInfoCompnent* Rock02Model = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock02.bin", NULL, true);
+	CLoadedModelInfoCompnent* Rock03Model = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock03.bin", NULL, true);
+	CLoadedModelInfoCompnent* DeathModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Death.bin", NULL, true);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock1.txt", Rock01Model, 1);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock2.txt", Rock02Model, 1);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock3.txt", Rock03Model, 1);
+	ReadNormalMonsterFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/NormalMonster.txt", DeathModel, 0);
 }
 
 void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -790,7 +794,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pCamera->SetPosition(XMFLOAT3(-1450, 18, -1490));
 	m_pCamera->Rotate(0, 90, 0);
 	CLoadedModelInfoCompnent* ArrowModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Arrow.bin", NULL, true);
-	
+
 	m_pPlaneObject = new GameObject(UNDEF_ENTITY);
 	m_pPlaneObject->InsertComponent<RenderComponent>();
 	m_pPlaneObject->InsertComponent<CLoadedModelInfoCompnent>();
@@ -983,10 +987,10 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	BuildStage1(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildNPC(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildShadow(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//무조건 마지막에 해줘야된다.
-// 서순을 잘챙기자 ㅋㅋ	
-	//m_pTextureToViewportComponent = new TextureToViewportComponent();
-	//m_pTextureToViewportComponent->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
-	//m_pTextureToViewportComponent->BuildObjects(pd3dDevice, pd3dCommandList, m_pDepthShaderComponent->GetDepthTexture());
+	// 서순을 잘챙기자 ㅋㅋ	
+		//m_pTextureToViewportComponent = new TextureToViewportComponent();
+		//m_pTextureToViewportComponent->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
+		//m_pTextureToViewportComponent->BuildObjects(pd3dDevice, pd3dCommandList, m_pDepthShaderComponent->GetDepthTexture());
 
 	BuildCharacterUI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildParticle(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -1990,13 +1994,13 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			m_iTEXTiIndex = 2;
 			break;
 		}
-	}
+		}
 	}
 	default:
 		break;
-}
-	return(false);
 	}
+	return(false);
+}
 
 bool GameobjectManager::onProcessingKeyboardMessageUI(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
@@ -2199,7 +2203,7 @@ void GameobjectManager::AddTextToUILayer(int& iIndex)
 	//pObj->SetActiveState(true);
 
 	queue<wstring> queueStr;
-	if (iIndex == START_TEXT )
+	if (iIndex == START_TEXT)
 	{
 		queueStr.emplace(L"안녕하세요! 드림월드에 오신 것을 환영해요");
 		queueStr.emplace(L"먼저 플레이 방법에 대해서 알려드릴게요!");

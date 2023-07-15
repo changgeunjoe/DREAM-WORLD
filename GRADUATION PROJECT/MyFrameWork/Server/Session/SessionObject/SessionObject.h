@@ -9,6 +9,7 @@ protected:
 	short	m_maxHp;
 	short	m_attackDamage;
 	float m_speed = 50.0f;
+	int m_roomId = -1;
 protected:
 	DirectX::XMFLOAT3 m_position;
 	DirectX::XMFLOAT3 m_rotateAngle = { 0,0,0 };
@@ -44,4 +45,5 @@ protected:
 	virtual void SetPosition(DirectX::XMFLOAT3& pos) { m_position = pos; }
 public:
 	void SetInitPosition(DirectX::XMFLOAT3& pos) { m_position = pos; }
+	void SetRoomId(int roomId) { m_roomId = roomId; }
 };

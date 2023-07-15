@@ -23,9 +23,10 @@ class Logic
 public:
 	std::array<Session, 4> m_inGamePlayerSession;
 	Session m_MonsterSession;
+	Session m_SmallMonsterSession[15];
 	int myId = -1;
 public:
-	CKeyInput*	m_KeyInput;
+	CKeyInput* m_KeyInput;
 	char		m_MouseInput;
 public:
 	Logic();
