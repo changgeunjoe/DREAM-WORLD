@@ -118,9 +118,10 @@ using Microsoft::WRL::ComPtr;
 
 //#define _WITH_SWAPCHAIN_FULLSCREEN_STATE
 #define PIXELCOUNT				257
-
-#define FRAME_BUFFER_WIDTH				1280/*640*/
-#define FRAME_BUFFER_HEIGHT				720/*480*/
+//#define FRAME_BUFFER_WIDTH		GetSystemMetrics(SM_CXSCREEN)
+//#define FRAME_BUFFER_HEIGHT		GetSystemMetrics(SM_CYSCREEN)
+#define FRAME_BUFFER_WIDTH		1280
+#define FRAME_BUFFER_HEIGHT		720
 
 
 #define _PLANE_WIDTH			300
@@ -333,7 +334,8 @@ enum GAME_STATE
 enum TEXT
 {
 	NPC_TEXT=0,
-	BOSS_TEXT = 1
+	BOSS_TEXT = 1,
+	START_TEXT = 2
 };
 
 

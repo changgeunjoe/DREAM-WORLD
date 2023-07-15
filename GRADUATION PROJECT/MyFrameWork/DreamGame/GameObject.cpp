@@ -122,7 +122,7 @@ void GameObject::SetLook(const XMFLOAT3& xmfLook)
 	m_xmf4x4ToParent._21 = xmftUp.x;	m_xmf4x4ToParent._22 = xmftUp.y;	m_xmf4x4ToParent._23 = xmftUp.z;
 	m_xmf4x4ToParent._31 = xmftLook.x;	m_xmf4x4ToParent._32 = xmftLook.y;	m_xmf4x4ToParent._33 = xmftLook.z;
 
-	XMMATRIX mtxScale = XMMatrixScaling(m_f3Scale.x, m_f3Scale.y, m_f3Scale.z);
+	XMMATRIX mtxScale = XMMatrixScaling(m_xmf3Scale.x, m_xmf3Scale.y, m_xmf3Scale.z);
 	m_xmf4x4ToParent = Matrix4x4::Multiply(mtxScale, m_xmf4x4ToParent);
 
 	UpdateTransform(NULL);
@@ -152,7 +152,7 @@ void GameObject::SetLookAt(XMFLOAT3& xmf3Target, XMFLOAT3& xmf3Up)
 
 void GameObject::SetScale(float x, float y, float z)
 {
-	m_f3Scale = XMFLOAT3(x, y, z);
+	m_xmf3Scale = XMFLOAT3(x, y, z);
 	XMMATRIX mtxScale = XMMatrixScaling(x, y, z);
 	m_xmf4x4ToParent = Matrix4x4::Multiply(mtxScale, m_xmf4x4ToParent);
 
@@ -170,7 +170,7 @@ void GameObject::SetinitScale(float x, float y, float z)
 
 void GameObject::SetScale(float fScale)
 {
-	m_f3Scale = XMFLOAT3(fScale, fScale, fScale);
+	m_xmf3Scale = XMFLOAT3(fScale, fScale, fScale);
 	m_fScale = fScale;
 	XMMATRIX mtxScale = XMMatrixScaling(fScale, fScale, fScale);
 	m_xmf4x4ToParent = Matrix4x4::Multiply(mtxScale, m_xmf4x4ToParent);
@@ -577,7 +577,7 @@ void GameObject::Animate(float fTimeElapsed)
 				GetPosition().z + m_VisualizeSPBB->m_xmf3BoundingSphereOffset.z));
 		}
 	}
-	
+
 	if (m_pSibling) m_pSibling->Animate(fTimeElapsed);
 	if (m_pChild) m_pChild->Animate(fTimeElapsed);
 }
@@ -1264,8 +1264,8 @@ void GameObject::MoveForward(float fDistance)
 	//		return;
 	//	}
 	//}
-	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, std::abs(fDistance));
-	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * std::abs(fDistance) / 50.0f);
+	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, fDistance);
+	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * fDistance / 50.0f);
 	GameObject::SetPosition(xmf3Position);
 	if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(xmf3Position, m_pCamera->GetOffset()));
 }

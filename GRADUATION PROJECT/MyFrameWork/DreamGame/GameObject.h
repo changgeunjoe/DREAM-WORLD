@@ -68,7 +68,7 @@ public:
 	virtual void MoveForward(float fDistance = 1.0f);
 	virtual void Move(DIRECTION direction, float fDistance = 1.0f);
 	virtual void Move(XMFLOAT3 direction, float fDistance = 1.0f);
-	virtual void MoveVelocity(XMFLOAT3 direction, float ftimeelapsed ,float fDistance = 1.0f);
+	virtual void MoveVelocity(XMFLOAT3 direction, float ftimeelapsed, float fDistance = 1.0f);
 
 	bool CheckIntersect(const GameObject* GameObject);	//수정필요
 
@@ -94,18 +94,18 @@ public:
 
 	void HandleMessage(string message);
 
-    virtual void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void BuildMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void BuildShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
-    virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,bool bPrerender=false);
-    virtual void InstanceRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, int nObjects,bool bPrerender = false);
-    virtual void ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent);
-    virtual void Animate(float fTimeElapsed);
-    virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
-    virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender = false);
+	virtual void InstanceRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, int nObjects, bool bPrerender = false);
+	virtual void ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent);
+	virtual void Animate(float fTimeElapsed);
+	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList, XMFLOAT4X4* pxmf4x4World, MaterialComponent* ppMaterialsComponent);
 	virtual void UpdateObjectVarialbes(XMFLOAT4X4* pxmf4x4World);
-    virtual void ReleaseShaderVariables();
+	virtual void ReleaseShaderVariables();
 	virtual void Reset() {};
 
 	virtual void Die(float ftimeelapsed);
@@ -202,46 +202,47 @@ public:
 
 	XMFLOAT4						m_xmf4Color{};
 
-	float                           m_fScale = 0.0f;
-	XMFLOAT3                        m_f3Scale{};
 	bool							m_bActive{ true };
+	float                           m_fScale = 0.0f;
 protected:
 
 	int								m_nReferences = 0;
 	UINT							m_nTextureType;
 	int                             m_nSamplers = 1;
 	int                             m_nRootParameter = 1;
-	
+public:
 
+	XMFLOAT3						m_xmf3Scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
+protected:
 	int								m_iVertexCount = 0;
 	entity_id m_entityID{};//object id 
 	XMFLOAT3 m_position{};
 	//Quaternion m_orientation;
 	float                           m_nRotateAngle = 0.0f;
 	float							m_fDistance = 0.0f;
-    wchar_t* pszFileNames{};
-    char* pszModelNames{};
+	wchar_t* pszFileNames{};
+	char* pszModelNames{};
 	LPCTSTR m_pFileName{};
-    
-    //////////////////////Component/////////////////////////////////
-    unordered_map<component_id, ComponentBase*> m_components;
-    MeshComponent* m_pMeshComponent{ nullptr };
-    TextureComponent* m_pTextureComponent{ nullptr };
-    CubeMeshComponent* m_pCubeComponent{ nullptr };
-    SkyBoxMeshComponent* m_pSkyboxComponent{ nullptr };
-    UIMeshComponent* m_pUiComponent{ nullptr };
-    ShaderComponent* m_pShaderComponent{ nullptr };
-    RenderComponent* m_pRenderComponent{ nullptr };
+
+	//////////////////////Component/////////////////////////////////
+	unordered_map<component_id, ComponentBase*> m_components;
+	MeshComponent* m_pMeshComponent{ nullptr };
+	TextureComponent* m_pTextureComponent{ nullptr };
+	CubeMeshComponent* m_pCubeComponent{ nullptr };
+	SkyBoxMeshComponent* m_pSkyboxComponent{ nullptr };
+	UIMeshComponent* m_pUiComponent{ nullptr };
+	ShaderComponent* m_pShaderComponent{ nullptr };
+	RenderComponent* m_pRenderComponent{ nullptr };
 	SphereMeshComponent* m_pSphereComponent{ nullptr };
 	TrailMeshComponent* m_pTrailMeshComponent{ nullptr };
 	CylinderMeshComponent* m_pCylinderMeshComponent{ nullptr };
 	SquareMeshComponent* m_pSquareMeshComponent{ nullptr };
 	HeihtMapMeshComponent* m_pHeihtMapMeshComponent{ nullptr };
-    InstanceRenderComponent* m_pInstanceRenderComponent{ nullptr };//인스턴스 렌더 추가 23.04.26 .ccg
-    
-    MaterialComponent** m_ppMaterialsComponent{ nullptr };
-    DepthRenderShaderComponent* m_pDepthShaderComponent{ nullptr };
-    ShadowMapShaderComponent* m_pShadowMapShaderComponent{ nullptr };
+	InstanceRenderComponent* m_pInstanceRenderComponent{ nullptr };//인스턴스 렌더 추가 23.04.26 .ccg
+
+	MaterialComponent** m_ppMaterialsComponent{ nullptr };
+	DepthRenderShaderComponent* m_pDepthShaderComponent{ nullptr };
+	ShadowMapShaderComponent* m_pShadowMapShaderComponent{ nullptr };
 public:
 	CLoadedModelInfoCompnent* m_pLoadedModelComponent{ nullptr };
 protected:
@@ -437,14 +438,14 @@ inline T* GameObject::ComponentType(component_id& componentID)
 	{
 		componentID = component_id::HEIGHTMESH_COMPONENT;
 	}
-    else if (typeid(T).name() == typeid(TextureComponent).name())
-    {
-        componentID = component_id::TEXTURE_COMPONENT;
-    }
-    else if (typeid(T).name() == typeid(CLoadedModelInfoCompnent).name())
-    {
-        componentID = component_id::LOADEDMODEL_COMPONET;
-    }
+	else if (typeid(T).name() == typeid(TextureComponent).name())
+	{
+		componentID = component_id::TEXTURE_COMPONENT;
+	}
+	else if (typeid(T).name() == typeid(CLoadedModelInfoCompnent).name())
+	{
+		componentID = component_id::LOADEDMODEL_COMPONET;
+	}
 	else if (typeid(T).name() == typeid(NaviMeshShaderComponent).name())
 	{
 		componentID = component_id::NAVIMESHSHADER_COMPONENT;
@@ -473,9 +474,9 @@ inline T* GameObject::ComponentType(component_id& componentID)
 	{
 		componentID = component_id::SQUARESHADER_COMPONENT;
 	}
-    else
-    {
-        componentID = component_id::UNDEF_COMPONENT;
-    }
-    return 0;
+	else
+	{
+		componentID = component_id::UNDEF_COMPONENT;
+	}
+	return 0;
 }

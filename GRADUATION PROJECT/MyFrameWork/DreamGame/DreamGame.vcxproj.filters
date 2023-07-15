@@ -269,21 +269,21 @@
     </ClInclude>
     <ClInclude Include="TerrainShaderComponent.h">
       <Filter>04.Component\ShaderComponent\TerrainShaderComponent</Filter>
-    </ClInclude>    
+    </ClInclude>
     <ClInclude Include="EffectObject.h">
       <Filter>03.GameObject\Effect</Filter>
     </ClInclude>
     <ClInclude Include="DebuffObject.h">
       <Filter>03.GameObject\Effect</Filter>
     </ClInclude>
-    <ClInclude Include="EffectShaderComponent.h">
-      <Filter>04.Component\ShaderComponent\EffectShaderComponent</Filter>
-    </ClInclude>
     <ClInclude Include="Network\MapData\MapCollide.h">
       <Filter>10.NetworkHelper\MapData</Filter>
     </ClInclude>
     <ClInclude Include="Network\MapData\MapData.h">
       <Filter>10.NetworkHelper\MapData</Filter>
+    </ClInclude>
+    <ClInclude Include="EffectShaderComponent.h">
+      <Filter>04.Component\ShaderComponent\EffectShaderComponent</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
