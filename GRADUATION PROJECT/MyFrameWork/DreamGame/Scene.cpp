@@ -332,6 +332,15 @@ void CScene::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCom
 
 	m_pObjectManager->Render(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 	
+	
+}
+
+void CScene::TalkUIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
+{
+	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
+	pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
+	if (pCamera) pCamera->UpdateShaderVariables(pd3dCommandList);
+	m_pObjectManager->TalkUIRender(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 }
 
 void CScene::UIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera,float ftimeElapsed)

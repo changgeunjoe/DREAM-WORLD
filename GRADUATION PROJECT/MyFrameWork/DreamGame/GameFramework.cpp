@@ -704,10 +704,10 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 
 void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
-	if (!m_bLobbyScene) {
+	if (m_bLobbyScene) {
 		m_pLobbyScene->onProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
 	}
-	else if (m_bLobbyScene) {
+	else if (!m_bLobbyScene) {
 		m_pScene->onProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
 	}
 	switch (nMessageID)
@@ -921,6 +921,7 @@ void CGameFramework::FrameAdvance()
 	
 
 		if (m_pScene) m_pScene->Render(m_pd3dDevice, m_pd3dCommandList, m_pCamera);
+		if (m_pScene) m_pScene->TalkUIRender(m_pd3dDevice, m_pd3dCommandList, m_pUICamera);
 
 	 if (m_bLobbyScene)
 	 {

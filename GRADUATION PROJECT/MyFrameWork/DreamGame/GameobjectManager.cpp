@@ -430,6 +430,11 @@ void GameobjectManager::CharacterUIRender(ID3D12Device* pd3dDevice, ID3D12Graphi
 		//if(m_fStroyTime> m_ppStoryUIObjects.size()* ScreenSTORY)
 		m_ppCharacterUIObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
+
+}
+
+void GameobjectManager::TalkUIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+{
 	if (m_bNPCscreen) {
 		m_pTalkUIObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pPressGUIObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -983,7 +988,8 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	// 플레이어가 캐릭터 선택하는 부분에 유사하게 넣을 예정
 	// m_pWarriorObject m_pArcherObject m_pTankerObject m_pPriestObject
 	m_pPlayerObject = new GameObject(UNDEF_ENTITY);
-	//m_pWarriorObject->SetCamera(m_pCamera);
+	m_pCamera->Rotate(0, -90, 0);
+	m_pWarriorObject->SetCamera(m_pCamera);
 	m_pPlayerObject = m_pWarriorObject;
 	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject = m_pPlayerObject;
 	g_Logic.m_inGamePlayerSession[0].m_isVisible = true;
@@ -1367,7 +1373,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pTalkUIObject->SetTexture(L"UI/Panel10Blue.dds", RESOURCE_TEXTURE2D, 3);
 	m_pTalkUIObject->SetPosition(XMFLOAT3(0.0, -0.45, 1.01));
 	m_pTalkUIObject->SetScale(0.23, 0.035, 1);
-	m_pTalkUIObject->SetColor(XMFLOAT4(0, 0, 0, 0.75));
+	m_pTalkUIObject->SetColor(XMFLOAT4(0, 0, 0, 0.0));
 	m_pTalkUIObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 	m_pPressGUIObject = new GameObject(UI_ENTITY);
@@ -1379,6 +1385,19 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pPressGUIObject->SetPosition(XMFLOAT3(0.56, -0.5, 1.00));
 	m_pPressGUIObject->SetScale(0.02, 0.02, 1);
 	m_pPressGUIObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+
+	////////////////////////skill/////////////////////////////////////////////////
+	m_pHealSkillUIObject = new GameObject(UI_ENTITY);
+	m_pHealSkillUIObject->InsertComponent<RenderComponent>();
+	m_pHealSkillUIObject->InsertComponent<UIMeshComponent>();
+	m_pHealSkillUIObject->InsertComponent<UiShaderComponent>();
+	m_pHealSkillUIObject->InsertComponent<TextureComponent>();
+	m_pHealSkillUIObject->SetTexture(L"UI/HealSkill.dds", RESOURCE_TEXTURE2D, 3);
+	m_pHealSkillUIObject->SetPosition(XMFLOAT3(-0.975, 0.2, 1.00));
+	m_pHealSkillUIObject->SetScale(0.02, 0.02, 1);
+	m_pHealSkillUIObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppCharacterUIObjects.emplace_back(m_pHealSkillUIObject);
+	/////////////////////////////////////////////////////////////////////////
 
 	m_pAttackUIObject = new GameObject(UI_ENTITY);
 	m_pAttackUIObject->InsertComponent<RenderComponent>();
@@ -1609,7 +1628,7 @@ void GameobjectManager::BuildNPC(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	m_pAngelNPCObject = new Warrior();//사각형 오브젝트를 만들겠다
 	m_pAngelNPCObject->InsertComponent<RenderComponent>();
 	m_pAngelNPCObject->InsertComponent<CLoadedModelInfoCompnent>();
-	m_pAngelNPCObject->SetPosition(XMFLOAT3(100.f, 0.f, 0.f));
+	m_pAngelNPCObject->SetPosition(XMFLOAT3(-1350.f, 0.f, -1500.f));
 	m_pAngelNPCObject->SetModel("Model/Angel.bin");
 	m_pAngelNPCObject->SetAnimationSets(1);
 	m_pAngelNPCObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);

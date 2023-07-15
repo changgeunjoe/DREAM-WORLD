@@ -649,7 +649,10 @@ void GameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandLis
 	}
 	if (m_pd3dcbGameObjectColor)
 	{
+		
 		::memcpy(&m_pcbMappedGameObjectsColor->m_xmf4Color, &m_xmf4Color, sizeof(XMFLOAT4));
+		m_fSkillTime = m_fSkillTime / 10;
+		::memcpy(&m_pcbMappedGameObjectsColor->m_fSkillTime, &m_fSkillTime, sizeof(float));
 		D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbGameObjectColor->GetGPUVirtualAddress();
 		pd3dCommandList->SetGraphicsRootConstantBufferView(22, d3dGpuVirtualAddress);
 	}

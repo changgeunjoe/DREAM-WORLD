@@ -33,6 +33,7 @@ public:
 	virtual void AstarRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void UIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void CharacterUIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void TalkUIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void StoryUIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float ftimeElapsed);
 	virtual void EffectRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float ftimeElapsed);
 	//Build
@@ -130,6 +131,13 @@ private: //active object
 	GameObject* m_pPressGUIObject{ NULL };
 	GameObject* m_pAttackUIObject{ NULL };
 
+	//Skill	
+	GameObject* m_pHealSkillUIObject{ NULL };
+	GameObject* m_pLightningSkillUIObject{ NULL };
+	GameObject* m_pShieldSkillUIObject{ NULL };
+	GameObject* m_pSwordSkillUIObject{ NULL };
+	GameObject* m_pArrowSkillUIObject{ NULL };
+
 	//SECTION 2
 	GameObject* m_pUIGameCreateObject{ NULL };
 	GameObject* m_pUIEnterRoomObject{ NULL };
@@ -197,9 +205,9 @@ public:
 	std::vector<int> m_VecNodeQueue;
 	std::mutex m_nodeLock;
 	UILayer* m_pUILayer{ NULL };
-	bool m_bNPCinteraction{false};
-	bool m_bNPCscreen{ false };
-	int m_iTEXTiIndex{ 0 };
+	bool m_bNPCinteraction{true};
+	bool m_bNPCscreen{ true };
+	int m_iTEXTiIndex{ 2 };
 public:
 	void SetPlayCharacter(Session* pSession);
 	void SetSection(int n) { m_nSection = n; }

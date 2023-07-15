@@ -204,6 +204,7 @@ public:
 
 	bool							m_bActive{ true };
 	float                           m_fScale = 0.0f;
+	float							m_fSkillTime = 7.0f;
 protected:
 
 	int								m_nReferences = 0;
