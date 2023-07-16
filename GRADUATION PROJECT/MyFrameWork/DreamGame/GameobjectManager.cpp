@@ -628,8 +628,7 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 		Axis = tempObject[i]->GetUp();
 		tempObject[i]->Rotate(&Axis, modelEulerRotate[i].y);
 		Axis = tempObject[i]->GetUp();
-		tempObject[i]->Rotate(&Axis, tempRotate[i].z);
-		tempObject[i]->SetPosition(XMFLOAT3(tempPos[i].x * scale, tempPos[i].y * scale, tempPos[i].z * scale));
+		tempObject[i]->Rotate(&Axis, modelEulerRotate[i].z);		
 		tempObject[i]->m_nStageType = stagetype;
 		if (type == 1)
 		{
@@ -790,7 +789,7 @@ void GameobjectManager::BuildBossStageObject(ID3D12Device* pd3dDevice, ID3D12Gra
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock1.txt", Rock01Model, 1, STAGE2);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock2.txt", Rock02Model, 1, STAGE2);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock3.txt", Rock03Model, 1, STAGE2);
-	ReadNormalMonsterFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/NormalMonster.txt", DeathModel, 0, STAGE2);
+	//ReadNormalMonsterFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/NormalMonster.txt", DeathModel, 0, STAGE2);
 }
 
 void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -1640,7 +1639,7 @@ void GameobjectManager::BuildNPC(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	m_pAngelNPCObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pAngelNPCObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1);
 	m_pAngelNPCObject->SetScale(30.0f);
-	m_ppGameObjects.emplace_back(m_pAngelNPCObject);
+	//m_ppGameObjects.emplace_back(m_pAngelNPCObject);
 }
 
 enum UI

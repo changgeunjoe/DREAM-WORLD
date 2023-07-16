@@ -62,7 +62,7 @@ Room& Room::operator=(Room& rhs)
 void Room::SetRoomId(int roomId)
 {
 	m_roomId = roomId;
-	m_boss.SetRoomId(m_roomId);	
+	m_boss.SetRoomId(m_roomId);
 	for (auto& character : m_characterMap) {
 		character.second->SetRoomId(m_roomId);
 		character.second->SetRoomState(m_roomState);
@@ -227,8 +227,45 @@ void Room::GameStart()
 	g_Timer.InsertTimerQueue(gameStateEvent);
 }
 
-void Room::BossStageStart()
+void Room::BossStageStart()//클라에서 받아서 서버로 왔고 -> 클라에서 움직임 막아줘야할듯?
 {
+	SERVER_PACKET::NotifyPacket sendPacket;
+	sendPacket.type = SERVER_PACKET::STAGE_CHANGING_BOSS;
+	sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
+	g_logic.BroadCastInRoom(m_roomId, &sendPacket);
+
+	for (auto& character : m_characterMap) {
+		character.second->StopMove();
+		character.second->SetBossStagePosition();
+	}
+
+	SERVER_PACKET::GameState_BOSS_INIT sendInitPacket;
+	sendInitPacket.type = SERVER_PACKET::STAGE_START_BOSS;
+	sendInitPacket.size = sizeof(SERVER_PACKET::GameState_BOSS_INIT);
+	int i = 0;
+	std::map<ROLE, int> playerMap;
+	{
+		std::lock_guard<std::mutex> lg{ m_lockInGamePlayers };
+		playerMap = m_inGamePlayers;
+	}
+	sendInitPacket.userState[0].userId = -1;
+	sendInitPacket.userState[1].userId = -1;
+	sendInitPacket.userState[2].userId = -1;
+	sendInitPacket.userState[3].userId = -1;
+	for (auto& p : playerMap) {
+		sendInitPacket.userState[i].userId = p.second;
+		sendInitPacket.userState[i].hp = m_characterMap[p.first]->GetHp();
+		sendInitPacket.userState[i].pos = m_characterMap[p.first]->GetPos();
+		sendInitPacket.userState[i].rot = m_characterMap[p.first]->GetRot();
+		++i;
+	}
+	g_logic.BroadCastInRoom(m_roomId, &sendInitPacket);
+
+	//boss Stage Start Packet send
+	//position 데이터 보내기
+
+	TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::milliseconds(1), m_roomId ,EV_GAME_STATE_B_SEND };//GameState 30ms마다 전송하게 수정
+	g_Timer.InsertTimerQueue(new_ev);
 	TIMER_EVENT findEv{ std::chrono::system_clock::now() + std::chrono::milliseconds(1), m_roomId ,EV_FIND_PLAYER };
 	g_Timer.InsertTimerQueue(findEv);
 	TIMER_EVENT bossStateEvent{ std::chrono::system_clock::now() + std::chrono::milliseconds(30), m_roomId, EV_BOSS_STATE };
@@ -322,7 +359,7 @@ void Room::BossFindPlayer()
 		}
 		m_boss.ReserveAggroPlayerRole(m_inGamePlayers.begin()->first);
 		m_lockInGamePlayers.unlock();
-}
+	}
 	TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::seconds(5) + std::chrono::milliseconds(500), m_roomId ,EV_FIND_PLAYER };
 	g_Timer.InsertTimerQueue(new_ev);
 #endif // ALONE_TEST
@@ -364,16 +401,23 @@ void Room::ChangeBossState()
 void Room::UpdateGameStateForPlayer_STAGE1()
 {
 	if (!m_isAlive) return;
+	if (m_roomState == ROOM_BOSS) return;
 	else {
-		bool npcComStart = false;//처음 트리거 박스
-		if (m_stage1TrigerCnt != 0) {
-			m_lockInGamePlayers.lock();
-			if (m_stage1TrigerCnt >= m_inGamePlayers.size()) {
-				npcComStart = true;
-			}
-			m_lockInGamePlayers.unlock();
-			if (npcComStart) {
-				m_stage1TrigerCnt = 0;
+		if (m_checkNpc) {
+			bool npcComStart = false;//처음 트리거 박스
+			if (m_stage1TrigerCnt != 0) {
+				m_lockInGamePlayers.lock();
+				if (m_stage1TrigerCnt >= m_inGamePlayers.size()) {
+					npcComStart = true;
+				}
+				m_lockInGamePlayers.unlock();
+				if (npcComStart) {
+					SERVER_PACKET::NotifyPacket sendPacket;
+					sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
+					sendPacket.type = SERVER_PACKET::START_NPC_COMMUNICATE;
+					g_logic.BroadCastInRoom(m_roomId, &sendPacket);
+					m_checkNpc = false;
+				}
 			}
 		}
 
@@ -568,4 +612,36 @@ bool Room::GetLeftAttackPlayCharacter(ROLE r)
 short Room::GetAttackDamagePlayCharacter(ROLE r)
 {
 	return m_characterMap[r]->GetAttackDamage();
+}
+
+void  Room::SetTriggerCntIncrease()
+{
+	m_stage1TrigerCnt += 1;
+}
+void  Room::SetTriggerCntDecrease()
+{
+	m_stage1TrigerCnt -= 1;
+}
+
+void Room::SkipNPC_Communication()
+{
+	m_skipNPC_COMMUNICATION += 1;
+	bool start = false;
+	m_lockInGamePlayers.lock();
+	if (m_skipNPC_COMMUNICATION == m_inGamePlayers.size())
+		start = true;
+	m_lockInGamePlayers.unlock();
+	if (start) {
+		TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::milliseconds(30), m_roomId ,EV_SM_UPDATE };//GameState 30ms마다 전송하게 수정
+		g_Timer.InsertTimerQueue(new_ev);
+	}
+}
+
+void Room::ChangeStageBoss()
+{
+	if (m_roomState == ROOM_STAGE1) {
+		m_roomState = ROOM_BOSS;
+		BossStageStart();
+	}
+
 }

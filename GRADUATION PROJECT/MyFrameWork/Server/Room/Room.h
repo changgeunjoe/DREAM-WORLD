@@ -22,7 +22,9 @@ private:
 	int m_roomOwnerId = -1;// 룸 생성한 자의 ID
 	ROOM_STATE m_roomState = ROOM_STAGE1;
 private:
-	int m_stage1TrigerCnt = 0;
+	bool m_checkNpc = true;
+	std::atomic_int	m_stage1TrigerCnt = 0;
+	std::atomic_int m_skipNPC_COMMUNICATION = 0;
 public:
 	void SetRoomId(int roomId);
 	bool IsArriveState() { return m_isAlive; }
@@ -94,4 +96,12 @@ public:
 	void UpdateGameStateForPlayer_BOSS();
 	void BossAttackExecute();
 
+public:
+	//stage1
+	void SetTriggerCntIncrease();
+	void SetTriggerCntDecrease();
+	void SkipNPC_Communication();
+	void ChangeStageBoss();
+public:
+	ROOM_STATE GetRoomState() { return m_roomState; }
 };

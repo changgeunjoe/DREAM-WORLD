@@ -243,10 +243,25 @@ void NetworkHelper::SendTestGameEndOKPacket()
 
 void NetworkHelper::SendOnPositionTriggerBox1(bool isOn)
 {
-	CLIENT_PACKET::TriggerBoxPacket sendPacket;
+	CLIENT_PACKET::NotifyPacket sendPacket;
 	sendPacket.size = 2;
-	if (isOn)
-		sendPacket.type = CLIENT_PACKET::TRIGGER_BOX_ON;
+	if (isOn) sendPacket.type = CLIENT_PACKET::TRIGGER_BOX_ON;
 	else sendPacket.type = CLIENT_PACKET::TRIGGER_BOX_OUT;
+	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
+}
+
+void NetworkHelper::SendSkipNPCCommunicate()
+{
+	CLIENT_PACKET::NotifyPacket sendPacket;
+	sendPacket.size = 2;
+	sendPacket.type = CLIENT_PACKET::SKIP_NPC_COMMUNICATION;
+	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
+}
+
+void NetworkHelper::SendChangeStage_B()
+{
+	CLIENT_PACKET::NotifyPacket sendPacket;
+	sendPacket.size = 2;
+	sendPacket.type = CLIENT_PACKET::STAGE_CHANGE_BOSS;
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }

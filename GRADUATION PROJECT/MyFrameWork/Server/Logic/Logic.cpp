@@ -412,6 +412,31 @@ void Logic::ProcessPacket(int userId, char* p)
 #endif
 		MultiCastOtherPlayerInRoom(userId, &sendPacket);
 	}
+	break;
+	case CLIENT_PACKET::TRIGGER_BOX_ON:
+	{
+		Room& roomRef = g_RoomManager.GetRunningRoomRef(g_iocpNetwork.m_session[userId].GetRoomId());
+		roomRef.SetTriggerCntIncrease();
+	}
+	break;
+	case CLIENT_PACKET::TRIGGER_BOX_OUT:
+	{
+		Room& roomRef = g_RoomManager.GetRunningRoomRef(g_iocpNetwork.m_session[userId].GetRoomId());
+		roomRef.SetTriggerCntDecrease();
+	}
+	break;
+	case CLIENT_PACKET::SKIP_NPC_COMMUNICATION:
+	{
+		Room& roomRef = g_RoomManager.GetRunningRoomRef(g_iocpNetwork.m_session[userId].GetRoomId());
+		roomRef.SkipNPC_Communication();
+	}
+	break;
+	case CLIENT_PACKET::STAGE_CHANGE_BOSS:
+	{
+		Room& roomRef = g_RoomManager.GetRunningRoomRef(g_iocpNetwork.m_session[userId].GetRoomId());
+		roomRef.ChangeStageBoss();
+	}
+	break;
 	default:
 		PrintCurrentTime();
 		std::cout << "unknown Packet" << std::endl;

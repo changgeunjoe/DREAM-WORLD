@@ -345,10 +345,8 @@ void Logic::ProcessPacket(char* p)
 	{
 		//로딩창이면 좋을듯?
 		gGameFramework.m_bLobbyScene = false;
-		gGameFramework.m_pLobbyScene->m_pObjectManager->SetInMatching(false);
-		gGameFramework.m_pLobbyScene->m_pObjectManager->SetUIActive();
-		gGameFramework.m_pScene->m_pObjectManager->SetStoryTime();
 		m_MonsterSession.m_isVisible = true;
+		//gGameFramework
 		cout << "start boss ratate angle: " << m_MonsterSession.m_rotateAngle.y << endl;
 		for (int i = 0; i < 4; i++) {
 			cout << "Session Index: " << i << " User Id: " << m_inGamePlayerSession[i].m_id << " User Role: " << (int)m_inGamePlayerSession[i].GetRole() << endl;
@@ -595,7 +593,35 @@ void Logic::ProcessPacket(char* p)
 		}
 	}
 	break;
+	case SERVER_PACKET::STAGE_CHANGING_BOSS:
+	{
+		//키 인풋 막아주기
+		//로딩 창 띄워주기
 
+	}
+	break;
+	case SERVER_PACKET::STAGE_START_BOSS:
+	{
+		//로딩 창 지우기
+		//키 인풋 할 수 있게 변경
+		SERVER_PACKET::GameState_BOSS_INIT* recvPacket = reinterpret_cast<SERVER_PACKET::GameState_BOSS_INIT*>(p);
+		for (int i = 0; i < 4; i++) {//그냥 4개 여서 도는 for문 주의			
+			if (-1 != recvPacket->userState[i].userId) {
+				//	std::cout << "ProcessPacket()::SERVER_PACKET::GAME_STATE - User ID: " << recvPacket->userState[i].userId << " HP: " << recvPacket->userState[i].hp << std::endl;
+					//playerSession에서 해당 플레이어 탐색
+				auto findRes = find_if(m_inGamePlayerSession.begin(), m_inGamePlayerSession.end(), [&recvPacket, &i](auto& fObj) {
+					if (fObj.m_id == recvPacket->userState[i].userId)
+						return true;
+					return false;
+					});
+				if (findRes == m_inGamePlayerSession.end())continue;
+				findRes->m_currentPlayGameObject->SetPosition(recvPacket->userState[i].pos);
+				float maxHp = findRes->m_currentPlayGameObject->GetMaxCurrentHP();
+				findRes->m_currentPlayGameObject->SetCurrentHP(recvPacket->userState[i].hp / maxHp * 100.0f);
+			}
+		}
+	}
+	break;
 
 
 	default:

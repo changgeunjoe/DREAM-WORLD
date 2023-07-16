@@ -23,6 +23,13 @@ namespace CLIENT_PACKET {
 	constexpr unsigned char SKILL_INPUT = 18;
 	constexpr unsigned char TRIGGER_BOX_ON = 19;
 	constexpr unsigned char TRIGGER_BOX_OUT = 20;
+	constexpr unsigned char NEXT_TRIGGER_BOX_ON = 21;
+	constexpr unsigned char NEXT_TRIGGER_BOX_OUT = 22;
+	constexpr unsigned char SKIP_NPC_COMMUNICATION = 23;
+	constexpr unsigned char STAGE_CHANGE_BOSS = 24;
+
+
+
 
 
 	struct MovePacket
@@ -119,10 +126,11 @@ namespace CLIENT_PACKET {
 		bool eSkill;
 	};
 
-	struct TriggerBoxPacket {
+	struct NotifyPacket {
 		short size;
 		char type;
 	};
+
 }
 
 namespace SERVER_PACKET {
@@ -156,8 +164,11 @@ namespace SERVER_PACKET {
 	constexpr unsigned char PRE_EXIST_LOGIN = 92; //이미 로그인된 아이디다
 	constexpr unsigned char GAME_STATE_B = 86;
 	constexpr unsigned char GAME_STATE_S = 93;
-
 	constexpr unsigned char SKILL_INPUT = 94;
+	constexpr unsigned char START_NPC_COMMUNICATE = 95;
+	constexpr unsigned char STAGE_CHANGING_BOSS = 96;
+	constexpr unsigned char STAGE_START_BOSS = 97;
+	
 
 
 	struct MovePacket
@@ -325,6 +336,12 @@ namespace SERVER_PACKET {
 		int userId;
 		bool qSkill;
 		bool eSkill;
+	};
+
+	struct GameState_BOSS_INIT {//Player State-> pos rot...추가하여 보정?
+		short size;
+		char type;
+		InGamePlayerState userState[4];		
 	};
 }
 
