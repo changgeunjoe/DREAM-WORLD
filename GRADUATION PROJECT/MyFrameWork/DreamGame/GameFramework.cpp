@@ -706,8 +706,9 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 {
 	if (m_bLobbyScene) {
 		m_pLobbyScene->onProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
+		m_pScene->onProcessingKeyboardMessageLobby(hWnd, nMessageID, wParam, lParam);
 	}
-	else if (!m_bLobbyScene) {
+	if (!m_bLobbyScene) {
 		m_pScene->onProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
 	}
 	switch (nMessageID)

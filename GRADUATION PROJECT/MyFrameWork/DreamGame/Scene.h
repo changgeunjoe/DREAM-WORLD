@@ -32,6 +32,8 @@ public:
 		LPARAM lParam);
 	bool onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,
 		LPARAM lParam);
+	bool onProcessingKeyboardMessageLobby(HWND hWnd, UINT nMessageID, WPARAM wParam,
+		LPARAM lParam);
 
 	void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera);
 	void ReleaseObjects();

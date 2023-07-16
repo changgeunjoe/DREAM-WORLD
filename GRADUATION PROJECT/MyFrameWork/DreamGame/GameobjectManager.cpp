@@ -72,7 +72,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	for (int i = 0; i < m_ppParticleObjects.size(); i++) {
 		m_ppParticleObjects[i]->SetLookAt(m_pCamera->GetPosition());
 		//m_ppParticleObjects[i]->SetPosition(XMFLOAT3(mfHittmp.x, mfHittmp.y+20, mfHittmp.z));
-		m_ppParticleObjects[i]->SetScale(m_ppParticleObjects[i]->m_xmf3Scale.x,	
+		m_ppParticleObjects[i]->SetScale(m_ppParticleObjects[i]->m_xmf3Scale.x,
 			m_ppParticleObjects[i]->m_xmf3Scale.y, m_ppParticleObjects[i]->m_xmf3Scale.z);
 		m_ppParticleObjects[i]->Rotate(0, 180, 0);
 		m_ppParticleObjects[i]->AnimateRowColumn(fTimeElapsed);
@@ -293,7 +293,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		{
 			p->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		}
-		for(auto& p : m_ppNormalMonsterBoundingBox)
+		for (auto& p : m_ppNormalMonsterBoundingBox)
 		{
 			p->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		}
@@ -343,9 +343,9 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 
 	if (m_pShadowmapShaderComponent)
 	{
-	
-		m_pShadowmapShaderComponent->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature, m_fTimeElapsed,m_nStageType);
-	
+
+		m_pShadowmapShaderComponent->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature, m_fTimeElapsed, m_nStageType);
+
 	}
 	/*for (int i = 0; i < 6; i++) {
 		if (m_pStage1Objects[i])
@@ -481,7 +481,7 @@ void GameobjectManager::StoryUIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 //	return XMFLOAT4(revW, revX, revY, revZ);
 //}
 
-void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, const char* fileName, CLoadedModelInfoCompnent* modelName, int type,int stagetype)
+void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, const char* fileName, CLoadedModelInfoCompnent* modelName, int type, int stagetype)
 {
 	ifstream objectFile(fileName);
 
@@ -639,7 +639,7 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 		{
 			XMFLOAT3 extentPos = XMFLOAT3(tempScale[i].x * tempExtentScale[i].x,
 				tempScale[i].y * tempExtentScale[i].y, tempScale[i].z * tempExtentScale[i].z);
-			XMFLOAT3 centerPos =  Vector3::Add(tempPos[i], tempLocalCenterPos[i]);
+			XMFLOAT3 centerPos = Vector3::Add(tempPos[i], tempLocalCenterPos[i]);
 			extentPos = XMFLOAT3(extentPos.x * 0.5f, extentPos.y * 0.5f, extentPos.z * 0.5f);
 			tempObject[i]->m_OBB = BoundingOrientedBox(tempCenterPos[i], extentPos, quaternion[i]);
 			m_ppObstacleObjects.emplace_back(tempObject[i]);
@@ -659,7 +659,7 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 	}
 }
 
-void GameobjectManager::ReadNormalMonsterFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, const char* fileName, CLoadedModelInfoCompnent* modelName, int type,int stagetype)
+void GameobjectManager::ReadNormalMonsterFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, const char* fileName, CLoadedModelInfoCompnent* modelName, int type, int stagetype)
 {
 	ifstream objectFile(fileName);
 
@@ -1002,12 +1002,11 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	// 플레이어가 캐릭터 선택하는 부분에 유사하게 넣을 예정
 	// m_pWarriorObject m_pArcherObject m_pTankerObject m_pPriestObject
 	m_pPlayerObject = new GameObject(UNDEF_ENTITY);
-	m_pCamera->Rotate(0, -90, 0);
-	m_pArcherObject->SetCamera(m_pCamera);
-	m_pPlayerObject = m_pArcherObject;
-	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject = m_pPlayerObject;
-	g_Logic.m_inGamePlayerSession[0].m_isVisible = true;
-	g_Logic.m_inGamePlayerSession[0].m_id = 0;
+	//m_pArcherObject->SetCamera(m_pCamera);
+	//m_pPlayerObject = m_pArcherObject;
+	//g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject = m_pPlayerObject;
+	//g_Logic.m_inGamePlayerSession[0].m_isVisible = true;
+	//g_Logic.m_inGamePlayerSession[0].m_id = 0;
 #endif // LOCAL_TASK
 
 	BuildNPC(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -1544,7 +1543,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pPriestObject->m_pSkillUI->SetPosition(XMFLOAT3(0.25, 0.5, 1.01));
 	m_pPriestObject->m_pSkillUI->SetScale(0.05, 0.025, 1);
 	m_pPriestObject->m_pSkillUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//m_ppCharacterUIObjects.emplace_back(m_pPriestObject->m_pSkillUI);
+	//m_ppCharacterUIObjects.emplace_back(z->m_pSkillUI);
 	////////////////////////////////////////////////////////////////
 	m_pWarriorObject->m_pHPBarUI = new GameObject(UI_ENTITY);
 	m_pWarriorObject->m_pHPBarUI->InsertComponent<RenderComponent>();
@@ -1848,6 +1847,16 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 	{
 		m_xmfMode = DISSOLVE_MODE;
 	}
+	if (nMessageID == WM_KEYDOWN && wParam == VK_F2)
+	{
+		m_pCamera->Rotate(0, -90, 0);
+		m_pArcherObject->SetCamera(m_pCamera);
+		m_pPlayerObject = m_pArcherObject;
+		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject = m_pPlayerObject;
+		g_Logic.m_inGamePlayerSession[0].m_isVisible = true;
+		g_Logic.m_inGamePlayerSession[0].m_id = 0;
+	}
+
 	if (g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetCurrentHP() < FLT_EPSILON)
 		return false;
 	switch (nMessageID)
@@ -1928,7 +1937,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		case VK_F1:
 			break;
 		case VK_F2:
-			break;
+			
 		case VK_F3:
 
 			break;
@@ -2030,20 +2039,42 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		{
 			m_bNPCinteraction = true;
 			m_iTEXTiIndex = 2;
+
 			break;
 		}
 		case 'T':
 		{
-			m_nStageType= 2;
+			if (m_nStageType == 1) {
+				m_nStageType = 2;
+				m_pPlayerObject->SetPosition(XMFLOAT3(0, 0, 0));
+			}
+			else if (m_nStageType == 2) {
+				m_nStageType = 1;
+				m_pPlayerObject->SetPosition(XMFLOAT3(-1400, 0, -1500));
+			}
 			break;
 		}
 		}
 	}
 	default:
 		break;
-		}
-	return(false);
 	}
+	return(false);
+}
+
+bool GameobjectManager::onProcessingKeyboardMessageLobby(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
+{
+	if (nMessageID == WM_KEYDOWN && wParam == VK_F2)
+	{
+		m_pCamera->Rotate(0, -90, 0);
+		m_pArcherObject->SetCamera(m_pCamera);
+		m_pPlayerObject = m_pArcherObject;
+		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject = m_pPlayerObject;
+		g_Logic.m_inGamePlayerSession[0].m_isVisible = true;
+		g_Logic.m_inGamePlayerSession[0].m_id = 0;
+	}
+	return false;
+}
 
 bool GameobjectManager::onProcessingKeyboardMessageUI(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
@@ -2220,7 +2251,7 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 			, g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_RMouseInput);
 #endif
 
-}
+	}
 
 void GameobjectManager::onProcessingMouseMessageUI(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
@@ -2248,7 +2279,7 @@ void GameobjectManager::AddTextToUILayer(int& iIndex)
 	//pObj->SetActiveState(true);
 
 	queue<wstring> queueStr;
-	if (iIndex == START_TEXT )
+	if (iIndex == START_TEXT)
 	{
 		queueStr.emplace(L"안녕하세요! 드림월드에 오신 것을 환영해요");
 		queueStr.emplace(L"먼저 플레이 방법에 대해서 알려드릴게요!");
