@@ -82,6 +82,7 @@ cbuffer cbGameObjectWorld : register(b10) //게임오브젝트 월드변환
 cbuffer cbGameObjectColor : register(b11) //캐릭터별 체력과 림라이트 활성화 여부 
 {
     float4 gmtxGameObjectColor : packoffset(c0);
+    float gmtxSkillTime : packoffset(c1.x);
 };
 struct INSTANCEDGAMEOBJECTINFO//인스턴싱 데이터를 위한 구조체이다
 {
@@ -311,6 +312,12 @@ float4 PSUITextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
   //  cColor.w = 0.5;
     if (!bUIActive && cColor.w!=0)
     {
+        float4 f = float4(0.5, 0.5, 0.5, 0);
+        return lerp(f, cColor, 0.4);
+    }
+    if (input.uv.y<gmtxSkillTime)
+    {
+        
         float4 f = float4(0.5, 0.5, 0.5, 1);
         return lerp(f, cColor, 0.4);
     }

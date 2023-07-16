@@ -204,6 +204,9 @@ public:
 
 	bool							m_bActive{ true };
 	float                           m_fScale = 0.0f;
+	float							m_fSkillTime = 7.0f;
+
+	int								m_nStageType = 0;
 protected:
 
 	int								m_nReferences = 0;

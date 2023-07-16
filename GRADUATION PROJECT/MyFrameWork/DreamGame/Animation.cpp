@@ -57,6 +57,19 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fTrackElapsedT
 			}
 		}
 		break;
+	case ANIMATION_TYPE_REVERSE:
+		if (m_bAnimationEnd) return 0.0f;
+		if (m_fPosition < 0.0f)	m_fPosition = fAnimationLength;
+		else
+		{
+			m_fPosition = fTrackPosition - TrackElapsedTime;
+			if (m_fPosition < 0.0f)
+			{
+				m_fPosition = -ANIMATION_CALLBACK_EPSILON;
+				m_bAnimationEnd = true;
+				return(0.0f);
+			}
+		}
 	}
 
 	return(m_fPosition);

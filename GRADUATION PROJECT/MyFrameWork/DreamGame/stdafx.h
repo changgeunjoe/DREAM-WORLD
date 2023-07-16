@@ -54,7 +54,7 @@ using namespace std;
 #ifdef _DEBUG
 #include <dxgidebug.h>
 #endif
-#define PLAYER_MAX_RANGE 288.0f
+#define PLAYER_MAX_RANGE 999288.0f
 //#ifndef LOCAL_TASK
 #define LOCAL_TASK 1
 //#endif // !LOCAL_TASK
@@ -111,6 +111,12 @@ enum ROLE :char {
 	RAND = 0x10
 };
 
+enum STAGE
+{
+	STAGE1 = 1,
+	STAGE2 = 2
+};
+
 using namespace DirectX;
 using namespace DirectX::PackedVector;
 
@@ -118,10 +124,10 @@ using Microsoft::WRL::ComPtr;
 
 //#define _WITH_SWAPCHAIN_FULLSCREEN_STATE
 #define PIXELCOUNT				257
-//#define FRAME_BUFFER_WIDTH		GetSystemMetrics(SM_CXSCREEN)
-//#define FRAME_BUFFER_HEIGHT		GetSystemMetrics(SM_CYSCREEN)
-#define FRAME_BUFFER_WIDTH		1280
-#define FRAME_BUFFER_HEIGHT		720
+#define FRAME_BUFFER_WIDTH		GetSystemMetrics(SM_CXSCREEN)
+#define FRAME_BUFFER_HEIGHT		GetSystemMetrics(SM_CYSCREEN)
+//#define FRAME_BUFFER_WIDTH		1280
+//#define FRAME_BUFFER_HEIGHT		720
 
 
 #define _PLANE_WIDTH			300
@@ -137,6 +143,7 @@ using Microsoft::WRL::ComPtr;
 #define ANIMATION_TYPE_ONCE				0
 #define ANIMATION_TYPE_LOOP				1
 #define ANIMATION_TYPE_HALF				2
+#define ANIMATION_TYPE_REVERSE			3
 
 #define DEFAULT_MODE			0
 #define CARTOON_MODE			1
@@ -226,6 +233,7 @@ struct CB_GAMEOBJECTWORLD_INFO
 struct CB_GAMEOBJECTCOLOR_INFO
 {
 	XMFLOAT4						m_xmf4Color;
+	float							m_fSkillTime;
 };
 
 struct CB_GAMEOBJECT_STAT
@@ -344,6 +352,22 @@ enum BOSS_ATTACK : char {
 	ATTACK_SPIN,
 	ATTACK_KICK,
 	ATTACK_COUNT//0~마지막 숫자 갯수
+};
+
+enum BOSS_ANIMATION : char {
+	BA_IDLE,
+	BA_MOVE,
+	BA_KICK_ATTACK,
+	BA_DIE,
+	BA_RIGHT_PUNCH,
+	BA_LEFT_PUNCH,
+	BA_SPIN_ATTACK,
+	BA_DASH_SKILL,
+	BA_PUNCHING_SKILL,
+	BA_CAST_SPELL,
+	BA_SPAWN,
+	BA_REVERSE_SPAWN,
+	BA_UNDERGROUND
 };
 
 struct VS_VB_INSTANCE
