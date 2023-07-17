@@ -213,13 +213,14 @@ void Logic::ProcessPacket(char* p)
 			}
 		}
 		//small monster
+		NormalMonster** smallMonsterArr = gGameFramework.GetScene()->GetObjectManager()->GetNormalMonsterArr();
 		for (int i = 0; i < 15; i++) {
-			/*if (m_SmallMonsterSession[i].m_currentPlayGameObject->GetCurrentHP() < 0.0f) {
-				m_SmallMonsterSession[i].m_currentPlayGameObject->InterpolateMove(recvPacket->time, recvPacket->smallMonster[i].pos);
-				m_SmallMonsterSession[i].m_currentPlayGameObject->SetCurrentHP(recvPacket->smallMonster[i].hp);
-				float maxHp = m_SmallMonsterSession[i].m_currentPlayGameObject->GetMaxCurrentHP();
-				m_SmallMonsterSession[i].m_currentPlayGameObject->SetCurrentHP(recvPacket->smallMonster[i].hp / maxHp * 100.0f);
-			}*/
+			if (smallMonsterArr[i]->GetCurrentHP() < 0.0f) {
+				smallMonsterArr[i]->InterpolateMove(recvPacket->time, recvPacket->smallMonster[i].pos);
+				smallMonsterArr[i]->SetCurrentHP(recvPacket->smallMonster[i].hp);
+				float maxHp = smallMonsterArr[i]->GetMaxCurrentHP();
+				smallMonsterArr[i]->SetCurrentHP(recvPacket->smallMonster[i].hp / maxHp * 100.0f);
+			}
 		}
 		recvPacket->time;
 		recvPacket->userState;
@@ -269,7 +270,7 @@ void Logic::ProcessPacket(char* p)
 				if (bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation != BOSS_ANIMATION::BA_RIGHT_PUNCH)
 				{
 					bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_RIGHT_PUNCH;
-					bossMonster->m_pSkinnedAnimationController-> SetTrackEnable(BOSS_ANIMATION::BA_RIGHT_PUNCH, 2);
+					bossMonster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_RIGHT_PUNCH, 2);
 				}
 				break;
 			case BOSS_ATTACK::ATTACK_SPIN:

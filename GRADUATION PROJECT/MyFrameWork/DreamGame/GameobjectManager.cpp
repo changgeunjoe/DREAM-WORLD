@@ -23,6 +23,7 @@ extern NetworkHelper g_NetworkHelper;
 extern Logic g_Logic;
 extern bool GameEnd;
 extern MapData g_bossMapData;
+extern MapData g_stage1MapData;
 extern CGameFramework gGameFramework;
 
 template<typename S>
@@ -262,7 +263,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	if (m_pShadowmapShaderComponent)
 	{
 		m_pShadowmapShaderComponent->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature, m_fTimeElapsed, m_nStageType);
-		
+
 	}
 	if (m_pMonsterHPBarObject) {
 		m_pMonsterHPBarObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -300,7 +301,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	EffectRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_fTime);
 
 	AstarRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	
+
 	//m_pNaviMeshObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//네비 메쉬
 	if (m_pTextureToViewportComponent)
 	{
@@ -555,8 +556,8 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 
 void GameobjectManager::ReadNormalMonsterFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, const char* fileName, CLoadedModelInfoCompnent* modelName, int type, int stagetype)
 {
+	m_ppNormalMonsterObject = new NormalMonster*[15];
 	ifstream objectFile(fileName);
-
 	int objCount = -1;
 	vector<XMFLOAT3> tempPos;
 	vector<XMFLOAT4> quaternion;
@@ -657,6 +658,7 @@ void GameobjectManager::ReadNormalMonsterFile(ID3D12Device* pd3dDevice, ID3D12Gr
 		tempObject[i]->SetBoundingBox(MonsterBoundingSphere);
 
 		m_ppNormalMonsterBoundingBox.emplace_back(MonsterBoundingSphere);
+		m_ppNormalMonsterObject[i] = tempObject[i];
 		m_ppGameObjects.emplace_back(tempObject[i]);
 	}
 }
@@ -1072,6 +1074,7 @@ void GameobjectManager::BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pStage1Objects[0]->SetRimLight(false);
 	m_pStage1Objects[0]->m_nStageType = STAGE1;
 	m_ppGameObjects.emplace_back(m_pStage1Objects[0]);
+
 	/*m_pStage1Objects[1] = new GameObject(UNDEF_ENTITY);
 	m_pStage1Objects[1]->InsertComponent<RenderComponent>();
 	m_pStage1Objects[1]->InsertComponent<CLoadedModelInfoCompnent>();
@@ -1695,7 +1698,7 @@ void GameobjectManager::ReleaseShaderVariables()
 bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
 	static XMFLOAT3 upVec = XMFLOAT3(0, 1, 0);
-	Character* myPlayCharacter = GetChracterInfo(g_Logic.GetMyRole());	
+	Character* myPlayCharacter = GetChracterInfo(g_Logic.GetMyRole());
 	if (nMessageID == WM_KEYDOWN && wParam == VK_F4)
 	{
 		g_NetworkHelper.SendTestGameEndPacket();
@@ -2136,7 +2139,7 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 			, myPlayCharacter->m_RMouseInput);
 #endif
 
-}
+	}
 
 void GameobjectManager::onProcessingMouseMessageUI(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {

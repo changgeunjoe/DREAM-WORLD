@@ -7,7 +7,7 @@ SmallMonsterSessionObject::SmallMonsterSessionObject() :SessionObject()
 	m_maxHp = m_hp = 100;
 }
 
-SmallMonsterSessionObject::SmallMonsterSessionObject(int roomId) :SessionObject(), m_roomId(roomId)
+SmallMonsterSessionObject::SmallMonsterSessionObject(int roomId) :SessionObject(15.0f), m_roomId(roomId)
 {
 	m_speed = 30.0f;
 	m_maxHp = m_hp = 100;
@@ -122,7 +122,7 @@ bool SmallMonsterSessionObject::Move(float elapsedTime)
 		}
 		m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, m_speed * elapsedTime, false));//틱마다 움직임
 		m_SPBB.Center = m_position;
-		m_SPBB.Center.y += 15.0f;
+		m_SPBB.Center.y += m_fBoundingSize;
 		return true;
 	}
 	return true;

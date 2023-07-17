@@ -1550,6 +1550,8 @@ void NormalMonster::Animate(float fTimeElapsed)
 		//		}
 		//	}
 		//}
+#else
+
 #endif
 	}
 	else
