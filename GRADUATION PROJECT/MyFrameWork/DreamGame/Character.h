@@ -4,11 +4,11 @@
 class Character : public GameObject
 {
 protected:
+	XMFLOAT3	m_xmf3RotateAxis;	// XMFLOAT3(0, 0, 1)로부터 회전한 각도	
 	bool m_bQSkillClicked;
 	bool m_bESkillClicked;
 	bool m_bOnAttack;
 	bool m_bOnSkill = false;
-	XMFLOAT3	m_xmf3RotateAxis;	// XMFLOAT3(0, 0, 1)로부터 회전한 각도	
 public:
 	Character();
 	virtual ~Character();

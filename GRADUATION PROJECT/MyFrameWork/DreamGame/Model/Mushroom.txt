@@ -1,35 +1,91 @@
 P_Mushroom_01 (6)
-<position>: -28.7 -0.21 -89.16 
+<position>: -287 -2.1 -891.6 
 <quaternion>: 0.07828706 0.173493 0.1061823 0.9759594 
 <rotation>: 6.659359 20.95796 13.65152 
 <scale>: 0.5645499 0.56455 0.56455 
+<BoxCollider>
+  <center>: -288.0167 3.348999 -890.5293 
+  <boundSize>: 0.5645499 0.56455 0.56455 
+  <extent>: 0.282275 0.282275 0.282275 
+  <forward>: 0.3552696 -0.1159662 0.9275427 
+  <right>: 0.9172511 0.2344237 -0.3220188 
+  <forwardDotRes>: 0.7038239 
+  <rightDotRes>: 0.7103745 
 P_Mushroom_01 (4)
-<position>: -62.889 -0.2657118 -74.82018 
+<position>: -628.89 -2.657118 -748.2018 
 <quaternion>: 0 0 0 1 
 <rotation>: 0 0 0 
 <scale>: 0.7289301 0.7289301 0.7289301 
+<BoxCollider>
+  <center>: -628.89 4.632187 -748.2018 
+  <boundSize>: 0.7289301 0.7289301 0.7289301 
+  <extent>: 0.364465 0.364465 0.364465 
+  <forward>: 0 0 1 
+  <right>: 1 0 0 
+  <forwardDotRes>: 0.7071068 
+  <rightDotRes>: 0.7071068 
 P_Mushroom_01 (5)
-<position>: -73.158 -0.3100004 -110.14 
+<position>: -731.58 -3.100004 -1101.4 
 <quaternion>: 0 0 0 1 
 <rotation>: 0 0 0 
 <scale>: 0.75465 0.75465 0.75465 
+<BoxCollider>
+  <center>: -731.58 4.446497 -1101.4 
+  <boundSize>: 0.75465 0.75465 0.75465 
+  <extent>: 0.377325 0.377325 0.377325 
+  <forward>: 0 0 1 
+  <right>: 1 0 0 
+  <forwardDotRes>: 0.707101 
+  <rightDotRes>: 0.7071125 
 P_Mushroom_01 (7)
-<position>: -79.66784 -0.3100004 -110.14 
+<position>: -796.6784 -3.100004 -1101.4 
 <quaternion>: 0 0 0 1 
 <rotation>: 0 0 0 
 <scale>: 0.75465 0.75465 0.75465 
+<BoxCollider>
+  <center>: -796.6784 4.446497 -1101.4 
+  <boundSize>: 0.75465 0.75465 0.75465 
+  <extent>: 0.377325 0.377325 0.377325 
+  <forward>: 0 0 1 
+  <right>: 1 0 0 
+  <forwardDotRes>: 0.707101 
+  <rightDotRes>: 0.7071125 
 P_Mushroom_01 (8)
-<position>: -55.49677 -0.2164278 -106.006 
+<position>: -554.9677 -2.164278 -1060.06 
 <quaternion>: 0 0 0 1 
 <rotation>: 0 0 0 
 <scale>: 0.7289301 0.7289301 0.7289301 
+<BoxCollider>
+  <center>: -554.9677 5.125027 -1060.06 
+  <boundSize>: 0.7289301 0.7289301 0.7289301 
+  <extent>: 0.364465 0.364465 0.364465 
+  <forward>: 0 0 1 
+  <right>: 1 0 0 
+  <forwardDotRes>: 0.7071068 
+  <rightDotRes>: 0.7071068 
 P_Mushroom_01 (9)
-<position>: -53.99088 -0.2492838 -108.399 
+<position>: -539.9088 -2.492838 -1083.99 
 <quaternion>: 0 0.1735576 0 0.9848238 
 <rotation>: 0 19.98946 0 
 <scale>: 0.72893 0.7289301 0.72893 
+<BoxCollider>
+  <center>: -539.9088 4.796467 -1083.99 
+  <boundSize>: 0.72893 0.7289301 0.72893 
+  <extent>: 0.364465 0.364465 0.364465 
+  <forward>: 0.3418472 0 0.9397556 
+  <right>: 0.9397556 0 -0.3418472 
+  <forwardDotRes>: 0.7071068 
+  <rightDotRes>: 0.7071068 
 P_Mushroom_01 (10)
-<position>: -57.59956 -0.1945238 -108.4538 
+<position>: -575.9955 -1.945238 -1084.538 
 <quaternion>: 0 0.1735576 0 0.9848238 
 <rotation>: 0 19.98946 0 
 <scale>: 0.72893 0.7289301 0.72893 
+<BoxCollider>
+  <center>: -575.9955 5.344067 -1084.538 
+  <boundSize>: 0.72893 0.7289301 0.72893 
+  <extent>: 0.364465 0.364465 0.364465 
+  <forward>: 0.3418472 0 0.9397556 
+  <right>: 0.9397556 0 -0.3418472 
+  <forwardDotRes>: 0.7071068 
+  <rightDotRes>: 0.7071068 

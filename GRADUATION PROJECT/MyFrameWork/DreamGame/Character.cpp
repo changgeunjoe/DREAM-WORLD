@@ -15,6 +15,7 @@ extern CGameFramework gGameFramework;
 
 Character::Character() : GameObject(UNDEF_ENTITY)
 {
+	m_xmf3RotateAxis = XMFLOAT3(0.0f, -90.0f, 0.0f);
 }
 
 Character::~Character()
@@ -613,7 +614,7 @@ void Archer::ShootArrow()
 			}
 
 			m_pProjectiles[m_nProjectiles]->m_xmf3direction = Vector3::Normalize(m_pProjectiles[m_nProjectiles]->m_xmf3direction);
-			m_pProjectiles[m_nProjectiles]->m_xmf3startPosition = Vector3::Add(Position, XMFLOAT3(0.0f, 5.0f, 0.0f));
+			m_pProjectiles[m_nProjectiles]->m_xmf3startPosition = XMFLOAT3(GetPosition().x, GetPosition().y + 4.0f, GetPosition().z);
 			m_pProjectiles[m_nProjectiles]->SetPosition(Vector3::Add(Position, XMFLOAT3(0.0f, 5.0f, 0.0f)));
 			m_pProjectiles[m_nProjectiles]->m_fSpeed = 250.0f;
 			m_pProjectiles[m_nProjectiles]->m_bActive = true;
@@ -638,7 +639,7 @@ void Archer::ShootArrow()
 			m_pProjectiles[m_nProjectiles]->m_xmf3direction = XMFLOAT3(GetObjectLook().x, -sin(m_projectilesLookY * 3.141592 / 180.0f), GetObjectLook().z);
 
 		m_pProjectiles[m_nProjectiles]->m_xmf3direction = Vector3::Normalize(m_pProjectiles[m_nProjectiles]->m_xmf3direction);
-		m_pProjectiles[m_nProjectiles]->m_xmf3startPosition = GetPosition();
+		m_pProjectiles[m_nProjectiles]->m_xmf3startPosition = XMFLOAT3(GetPosition().x, GetPosition().y + 4.0f, GetPosition().z);
 		m_pProjectiles[m_nProjectiles]->SetPosition(Vector3::Add(GetPosition(), XMFLOAT3(0.0f, 5.0f, 0.0f)));
 		m_pProjectiles[m_nProjectiles]->m_fSpeed = (chargingTime / fullTime > 0.5f) ? arrowSpeed * 400.0f : -1.0f;
 		static_cast<Arrow*>(m_pProjectiles[m_nProjectiles])->m_xmf3TargetPos = XMFLOAT3(0.0f, -1.0f, 0.0f);
@@ -669,7 +670,7 @@ void Archer::ShootArrow()
 			m_pProjectiles[m_nProjectiles]->m_xmf3direction = XMFLOAT3(GetObjectLook().x, -sin(m_projectilesLookY * 3.141592 / 180.0f), GetObjectLook().z);
 
 		m_pProjectiles[m_nProjectiles]->m_xmf3direction = Vector3::Normalize(m_pProjectiles[m_nProjectiles]->m_xmf3direction);
-		m_pProjectiles[m_nProjectiles]->m_xmf3startPosition = GetPosition();
+		m_pProjectiles[m_nProjectiles]->m_xmf3startPosition = XMFLOAT3(GetPosition().x, GetPosition().y + 4.0f, GetPosition().z);
 		m_pProjectiles[m_nProjectiles]->SetPosition(Vector3::Add(GetPosition(), XMFLOAT3(0.0f, 5.0f, 0.0f)));
 		m_pProjectiles[m_nProjectiles]->m_fSpeed = 150.0f;
 		m_pProjectiles[m_nProjectiles]->m_bActive = true;
@@ -1075,7 +1076,7 @@ void Priest::Attack(float fSpeed)
 		m_pProjectiles[m_nProjectiles]->m_xmf3direction = XMFLOAT3(GetObjectLook().x, -sin(m_projectilesLookY * 3.141592 / 180.0f), GetObjectLook().z);
 	}
 
-	m_pProjectiles[m_nProjectiles]->m_xmf3startPosition = GetPosition();
+	m_pProjectiles[m_nProjectiles]->m_xmf3startPosition = XMFLOAT3(GetPosition().x, GetPosition().y + 4.0f, GetPosition().z);
 	m_pProjectiles[m_nProjectiles]->SetPosition(Vector3::Add(GetPosition(), XMFLOAT3(0.0f, 5.0f, 0.0f)));
 	m_pProjectiles[m_nProjectiles]->m_fSpeed = fSpeed;
 	m_pProjectiles[m_nProjectiles]->m_bActive = true;
