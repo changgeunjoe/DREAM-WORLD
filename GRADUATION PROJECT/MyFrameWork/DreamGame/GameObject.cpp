@@ -67,11 +67,18 @@ void GameObject::SetPosition(const XMFLOAT3& position)
 	m_xmf4x4ToParent._42 = position.y;
 	m_xmf4x4ToParent._43 = position.z;
 
-	if (m_fBoundingSize > FLT_EPSILON)
-	{
-		m_SPBB.Center.x = position.x + m_xmf3BoundingSphereOffset.x;
-		m_SPBB.Center.y = position.y + m_xmf3BoundingSphereOffset.y + m_fBoundingSize;
-		m_SPBB.Center.z = position.z + m_xmf3BoundingSphereOffset.z;
+	if (gGameFramework.GetScene()->GetObjectManager()->m_nStageType == m_nStageType) {
+		if (m_fBoundingSize > FLT_EPSILON)
+		{
+			m_SPBB.Center.x = position.x + m_xmf3BoundingSphereOffset.x;
+			m_SPBB.Center.y = position.y + m_xmf3BoundingSphereOffset.y + m_fBoundingSize;
+			m_SPBB.Center.z = position.z + m_xmf3BoundingSphereOffset.z;
+		}
+	}
+	else {
+		m_SPBB.Center.x = 2000;
+		m_SPBB.Center.y = 2000;
+		m_SPBB.Center.z = 2000;
 	}
 	//if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(position, m_pCamera->GetOffset()));
 

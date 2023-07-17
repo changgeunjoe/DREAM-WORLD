@@ -80,8 +80,8 @@ void GameobjectManager::Animate(float fTimeElapsed)
 
 	//Effect
 	if (m_pSelectedObject) {
-		m_pEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 10);
-		//m_pLightEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 10);
+		//m_pEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 10);
+		m_pLightEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 10);
 	}
 	//m_pDebuffObject->AnimateEffect(m_pCamera, g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition(), fTimeElapsed, m_fTime * 10);
 	//m_pMonsterObject->Animate(fTimeElapsed);
@@ -277,6 +277,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 
 	UpdateShaderVariables(pd3dCommandList);
 	m_pSkyboxObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pMonsterCubeObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 	if (m_pDepthShaderComponent) {
 		m_pDepthShaderComponent->UpdateShaderVariables(pd3dCommandList);//오브젝트의 깊이값의 렌더입니다.
@@ -1849,12 +1850,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 	}
 	if (nMessageID == WM_KEYDOWN && wParam == VK_F2)
 	{
-		m_pCamera->Rotate(0, -90, 0);
-		m_pArcherObject->SetCamera(m_pCamera);
-		m_pPlayerObject = m_pArcherObject;
-		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject = m_pPlayerObject;
-		g_Logic.m_inGamePlayerSession[0].m_isVisible = true;
-		g_Logic.m_inGamePlayerSession[0].m_id = 0;
+	
 	}
 
 	if (g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetCurrentHP() < FLT_EPSILON)
@@ -2067,11 +2063,16 @@ bool GameobjectManager::onProcessingKeyboardMessageLobby(HWND hWnd, UINT nMessag
 	if (nMessageID == WM_KEYDOWN && wParam == VK_F2)
 	{
 		m_pCamera->Rotate(0, -90, 0);
-		m_pArcherObject->SetCamera(m_pCamera);
-		m_pPlayerObject = m_pArcherObject;
+		m_pTankerObject->SetCamera(m_pCamera);
+		m_pPlayerObject = m_pTankerObject;
 		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject = m_pPlayerObject;
 		g_Logic.m_inGamePlayerSession[0].m_isVisible = true;
 		g_Logic.m_inGamePlayerSession[0].m_id = 0;
+	}
+	if (nMessageID == WM_KEYDOWN && wParam == 'G')
+	{
+		m_bNPCinteraction = true;
+		m_bNPCscreen = true;
 	}
 	return false;
 }

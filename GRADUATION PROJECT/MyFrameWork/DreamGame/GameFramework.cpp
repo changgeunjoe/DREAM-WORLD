@@ -884,8 +884,7 @@ void CGameFramework::FrameAdvance()
 	hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 	//명령 할당자와 명령 리스트를 리셋한다.
 
-	if (m_bLobbyScene)
-		m_pScene->OnPreRender(m_pd3dDevice, m_pd3dCommandList, m_pCamera);
+	m_pScene->OnPreRender(m_pd3dDevice, m_pd3dCommandList, m_pCamera);
 
 	D3D12_RESOURCE_BARRIER d3dResourceBarrier;
 	::ZeroMemory(&d3dResourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));

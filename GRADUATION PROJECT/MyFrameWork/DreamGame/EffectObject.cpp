@@ -254,7 +254,7 @@ void LightningEffectObject::AnimateEffect(CCamera* pCamera, XMFLOAT3 xm3position
 		m_pLightningSpriteObject[i]->Rotate(0, 180, 0);
 		m_pLightningSpriteObject[i]->SetPosition(XMFLOAT3(
 			xm3position.x ,
-			xm3position.y +42,
+			xm3position.y +55,
 			xm3position.z ));
 		m_pLightningSpriteObject[i]->AnimateRowColumn(ftimeelapsed);
 	}
