@@ -527,6 +527,7 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 		Axis = tempObject[i]->GetUp();
 		tempObject[i]->Rotate(&Axis, modelEulerRotate[i].z);
 		tempObject[i]->m_nStageType = stagetype;
+		tempObject[i]->SetScale(modelScale[i].x * scale, modelScale[i].y * scale, modelScale[i].z * scale);
 		if (type == 1)
 		{
 			/*XMFLOAT3 extentPos = XMFLOAT3(tempScale[i].x * tempExtentScale[i].x,
@@ -719,7 +720,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	BuildLight();
 
-	m_pCamera->SetPosition(XMFLOAT3(-1450, 18, -1490));
+	m_pCamera->SetPosition(XMFLOAT3(-1550, 18, -1490));
 	m_pCamera->Rotate(0, 90, 0);
 	CLoadedModelInfoCompnent* ArrowModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Arrow.bin", NULL, true);
 
@@ -789,7 +790,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 		m_pArrowObjects[i]->SetModel(ArrowModel);
 		m_pArrowObjects[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pArrowObjects[i]->SetScale(30.0f);
-		m_pArrowObjects[i]->SetBoundingSize(0.2f);
+		m_pArrowObjects[i]->SetBoundingSize(4.0f);
 		static_cast<Archer*>(m_pArcherObject)->SetArrow(m_pArrowObjects[i]);
 	}
 
@@ -919,12 +920,11 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	// 플레이어가 캐릭터 선택하는 부분에 유사하게 넣을 예정
 	// m_pWarriorObject m_pArcherObject m_pTankerObject m_pPriestObject
 	// Archer Priest Tanker Warrior
-	m_pPlayerObject = new Archer();
-	m_pCamera->Rotate(0, -90, 0);
-	m_pArcherObject->SetCamera(m_pCamera);
-	m_pPlayerObject = m_pArcherObject;
+	m_pPlayerObject = new Tanker();
+	m_pTankerObject->SetCamera(m_pCamera);
+	m_pPlayerObject = m_pTankerObject;
+	g_Logic.SetMyRole(ROLE::TANKER);
 	// ARCHER PRIEST TANKER WARRIOR
-	g_Logic.SetMyRole(ROLE::ARCHER);
 #endif // LOCAL_TASK
 
 	BuildNPC(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -1732,17 +1732,6 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 	{
 		m_xmfMode = DISSOLVE_MODE;
 	}
-	if (nMessageID == WM_KEYDOWN && wParam == VK_F2)
-	{
-#ifdef LOCAL_TASK
-		m_nSetCharacter = true;
-		m_pCamera->Rotate(0, -90, 0);
-		m_pWarriorObject->SetCamera(m_pCamera);
-		m_pPlayerObject = m_pWarriorObject;
-		g_Logic.SetMyRole(ROLE::WARRIOR);
-
-#endif
-	}
 	if (myPlayCharacter->GetCurrentHP() < FLT_EPSILON)
 		return false;
 	switch (nMessageID)
@@ -1957,9 +1946,8 @@ bool GameobjectManager::onProcessingKeyboardMessageLobby(HWND hWnd, UINT nMessag
 	if (nMessageID == WM_KEYDOWN && wParam == VK_F2)
 	{
 		m_pCamera->Rotate(0, -90, 0);
-		g_Logic.SetMyRole(ROLE::TANKER);
-		m_pTankerObject->SetCamera(m_pCamera);
-		m_pPlayerObject = m_pTankerObject;
+		m_pPlayerObject->SetCamera(m_pCamera);
+		m_pTankerObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
 	}
 	if (nMessageID == WM_KEYDOWN && wParam == 'G')
 	{
