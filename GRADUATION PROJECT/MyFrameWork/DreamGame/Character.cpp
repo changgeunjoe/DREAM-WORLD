@@ -1146,87 +1146,110 @@ Monster::~Monster()
 
 void Monster::Animate(float fTimeElapsed)
 {
-	if (GameEnd)
+	if (m_fHp < FLT_EPSILON)
 	{
-		if (m_pSkinnedAnimationController->m_CurrentAnimation != 10)
+		if (m_pSkinnedAnimationController->m_CurrentAnimation != BOSS_ANIMATION::BA_DIE)
 		{
-			m_pSkinnedAnimationController->m_CurrentAnimation = 10;
-			m_pSkinnedAnimationController->SetTrackEnable(10, 2);
+			m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_DIE;
+			m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_DIE, 2);
 		}
 		GameObject::Animate(fTimeElapsed);
 		return;
 	}
+
 	if (m_bMoveState)	// 움직이는 중
 	{
-		XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f);
-		//XMFLOAT3 desPlayerPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
-		if (m_roleDesPlayer != ROLE::NONE_SELECT) {
-			XMFLOAT3 desPlayerPos = g_Logic.GetPostion(m_roleDesPlayer);
-			XMFLOAT3 desPlayerVector = Vector3::Subtract(desPlayerPos, GetPosition());
-			float playerDistance = Vector3::Length(desPlayerVector);
-			desPlayerVector = Vector3::Normalize(desPlayerVector);
-			m_lockBossRoute.lock();
-			if (playerDistance < 120.0f && m_BossRoute.empty()) {
-				m_lockBossRoute.unlock();
-				/*m_lockBossRoute.lock();
-				if (!m_BossRoute.empty())
-					int currentNodeIdx = m_BossRoute.front();
-				m_lockBossRoute.unlock();
-				bool bossAndPlayerOnSameIdx = g_bossMapData.GetTriangleMesh(currentNodeIdx).IsOnTriangleMesh(desPlayerPos);*/
-
-				//if (bossAndPlayerOnSameIdx) {
-				float ChangingAngle = Vector3::Angle(desPlayerVector, GetLook());
-				if (ChangingAngle > 1.6f) {
-					bool OnRight = (Vector3::DotProduct(GetRight(), desPlayerVector) > 0) ? true : false;
-					if (OnRight) {
-						Rotate(&up, 90.0f * fTimeElapsed);
-						m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
-					}
-					else {
-						Rotate(&up, -90.0f * fTimeElapsed);
-						m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
-					}
-				}
-				if (playerDistance >= 42.0f)
-					MoveForward(50 * fTimeElapsed);
-				GameObject::Animate(fTimeElapsed);
-				return;
-				//m_position = Vector3::Add(m_position, Vector3::ScalarProduct(desPlayerVector, fTimeElapsed, false));//틱마다 움직임					
-
-				//Rotate(&up, -90.0f * fTimeElapsed);
-				//m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
-				//임시로 했음 수정해야됨
-			//}
-			}
-			else {
-				//m_lockBossRoute.lock();
-				if (!m_BossRoute.empty()) {
-					int currentNodeIdx = m_BossRoute.front();
+		if (m_bOnSkill)
+		{
+			// 움직이는 스킬 (DASH_FORWARD)
+			// 이동방식 회의 후 구현 위치
+		}
+		else
+		{
+			XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f);
+			//XMFLOAT3 desPlayerPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
+			if (m_roleDesPlayer != ROLE::NONE_SELECT) {
+				XMFLOAT3 desPlayerPos = g_Logic.GetPostion(m_roleDesPlayer);
+				XMFLOAT3 desPlayerVector = Vector3::Subtract(desPlayerPos, GetPosition());
+				float playerDistance = Vector3::Length(desPlayerVector);
+				desPlayerVector = Vector3::Normalize(desPlayerVector);
+				m_lockBossRoute.lock();
+				if (playerDistance < 120.0f && m_BossRoute.empty()) {
 					m_lockBossRoute.unlock();
-					XMFLOAT3 destinationNodeCenter = g_bossMapData.GetTriangleMesh(currentNodeIdx).GetCenter();	//노드의 위치
-					m_xmf3Destination = destinationNodeCenter;
-					XMFLOAT3 desNodeVector = Vector3::Subtract(m_xmf3Destination, GetPosition());
-					float desNodeDistance = Vector3::Length(desNodeVector);
-					desNodeVector = Vector3::Normalize(desNodeVector);
-					bool OnRight = (Vector3::DotProduct(GetRight(), Vector3::Normalize(desNodeVector)) > 0) ? true : false;
-					float ChangingAngle = Vector3::Angle(desNodeVector, GetLook());
+					/*m_lockBossRoute.lock();
+					if (!m_BossRoute.empty())
+						int currentNodeIdx = m_BossRoute.front();
+					m_lockBossRoute.unlock();
+					bool bossAndPlayerOnSameIdx = g_bossMapData.GetTriangleMesh(currentNodeIdx).IsOnTriangleMesh(desPlayerPos);*/
 
-					bool isOnNode = g_bossMapData.GetTriangleMesh(currentNodeIdx).IsOnTriangleMesh(m_position);
+					//if (bossAndPlayerOnSameIdx) {
+					float ChangingAngle = Vector3::Angle(desPlayerVector, GetLook());
+					if (ChangingAngle > 1.6f) {
+						bool OnRight = (Vector3::DotProduct(GetRight(), desPlayerVector) > 0) ? true : false;
+						if (OnRight) {
+							Rotate(&up, 90.0f * fTimeElapsed);
+							m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
+						}
+						else {
+							Rotate(&up, -90.0f * fTimeElapsed);
+							m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
+						}
+					}
+					if (playerDistance >= 42.0f)
+						MoveForward(50 * fTimeElapsed);
+					Character::Animate(fTimeElapsed);
+					return;
+					//m_position = Vector3::Add(m_position, Vector3::ScalarProduct(desPlayerVector, fTimeElapsed, false));//틱마다 움직임					
 
-					if (desNodeDistance > 70.0f) { //목적지와 거리가 10이상 이라면
-						if (desNodeDistance > 50.0f) {
-							if (ChangingAngle > 40.0f) {
-								if (OnRight) {
-									Rotate(&up, 90.0f * fTimeElapsed);
-									m_xmf3rotateAngle.y += 90.0f * fTimeElapsed;
+					//Rotate(&up, -90.0f * fTimeElapsed);
+					//m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
+					//임시로 했음 수정해야됨
+				//}
+				}
+				else {
+					//m_lockBossRoute.lock();
+					if (!m_BossRoute.empty()) {
+						int currentNodeIdx = m_BossRoute.front();
+						m_lockBossRoute.unlock();
+						XMFLOAT3 destinationNodeCenter = g_bossMapData.GetTriangleMesh(currentNodeIdx).GetCenter();	//노드의 위치
+						m_xmf3Destination = destinationNodeCenter;
+						XMFLOAT3 desNodeVector = Vector3::Subtract(m_xmf3Destination, GetPosition());
+						float desNodeDistance = Vector3::Length(desNodeVector);
+						desNodeVector = Vector3::Normalize(desNodeVector);
+						bool OnRight = (Vector3::DotProduct(GetRight(), Vector3::Normalize(desNodeVector)) > 0) ? true : false;
+						float ChangingAngle = Vector3::Angle(desNodeVector, GetLook());
+
+						bool isOnNode = g_bossMapData.GetTriangleMesh(currentNodeIdx).IsOnTriangleMesh(m_position);
+
+						if (desNodeDistance > 70.0f) { //목적지와 거리가 10이상 이라면
+							if (desNodeDistance > 50.0f) {
+								if (ChangingAngle > 40.0f) {
+									if (OnRight) {
+										Rotate(&up, 90.0f * fTimeElapsed);
+										m_xmf3rotateAngle.y += 90.0f * fTimeElapsed;
+									}
+									else {
+										Rotate(&up, -90.0f * fTimeElapsed);
+										m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
+									}
 								}
 								else {
-									Rotate(&up, -90.0f * fTimeElapsed);
-									m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
+									if (ChangingAngle > 1.6f) {
+										if (OnRight) {
+											Rotate(&up, 90.0f * fTimeElapsed);
+											m_xmf3rotateAngle.y += 90.0f * fTimeElapsed;
+										}
+										else {
+											Rotate(&up, -90.0f * fTimeElapsed);
+											m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
+										}
+									}
+									MoveForward(50 * fTimeElapsed);
 								}
 							}
-							else {
-								if (ChangingAngle > 1.6f) {
+							else {//현재 노드에 가까울때
+								if (ChangingAngle > 1.6f)
+								{
 									if (OnRight) {
 										Rotate(&up, 90.0f * fTimeElapsed);
 										m_xmf3rotateAngle.y += 90.0f * fTimeElapsed;
@@ -1238,50 +1261,37 @@ void Monster::Animate(float fTimeElapsed)
 								}
 								MoveForward(50 * fTimeElapsed);
 							}
+							//std::cout << "BossPos: " << m_position.x << "0, " << m_position.z << std::endl;
 						}
-						else {//현재 노드에 가까울때
-							if (ChangingAngle > 1.6f)
-							{
-								if (OnRight) {
-									Rotate(&up, 90.0f * fTimeElapsed);
-									m_xmf3rotateAngle.y += 90.0f * fTimeElapsed;
-								}
-								else {
-									Rotate(&up, -90.0f * fTimeElapsed);
-									m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
-								}
+						else {
+							m_lockBossRoute.lock();
+							//m_onIdx = m_BossRoute.front();
+							m_BossRoute.pop();
+							if (m_BossRoute.size() != 0) {
+								DirectX::XMFLOAT3 center = g_bossMapData.GetTriangleMesh(m_BossRoute.front()).GetCenter();
+								m_xmf3Destination = center;//목적지 다음 노드의 센터
 							}
-							MoveForward(50 * fTimeElapsed);
+							m_lockBossRoute.unlock();
 						}
-						//std::cout << "BossPos: " << m_position.x << "0, " << m_position.z << std::endl;
-					}
-					else {
-						m_lockBossRoute.lock();
-						//m_onIdx = m_BossRoute.front();
-						m_BossRoute.pop();
-						if (m_BossRoute.size() != 0) {
-							DirectX::XMFLOAT3 center = g_bossMapData.GetTriangleMesh(m_BossRoute.front()).GetCenter();
-							m_xmf3Destination = center;//목적지 다음 노드의 센터
-						}
-						m_lockBossRoute.unlock();
-					}
 
 
+					}
+					else m_lockBossRoute.unlock();
+
+
+					//else if (Vector3::Length(des) >= 14.0f) {
+					//	//SetPosition(m_xmf3Destination);
+					//}
 				}
-				else m_lockBossRoute.unlock();
-
-
-				//else if (Vector3::Length(des) >= 14.0f) {
-				//	//SetPosition(m_xmf3Destination);
-				//}
 			}
 		}
+		GameObject::Animate(fTimeElapsed);
 	}
-	GameObject::Animate(fTimeElapsed);
 }
 
 void Monster::Move(float fDsitance)
 {
+
 }
 
 void Monster::InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos)

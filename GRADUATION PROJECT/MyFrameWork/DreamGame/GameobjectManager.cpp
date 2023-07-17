@@ -278,6 +278,19 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		}
 	}
 
+	if (m_pBossSkillRange)
+	{
+		if (m_pBossSkillRange->m_bActive)
+		{
+#ifdef LOCAL_TASK
+			XMFLOAT3 pos = m_pMonsterObject->GetPosition();
+			pos.y = 0.1f;
+			m_pBossSkillRange->SetPosition(pos);
+#endif
+			m_pBossSkillRange->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		}
+	}
+
 	for (int i = 0; i < m_ppParticleObjects.size(); i++) {
 		m_ppParticleObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//파티클
 	}
@@ -736,6 +749,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 		m_pBoundingBox[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pBoundingBox[i]->SetScale(1.f);
 	}
+
 	m_pWarriorObject = new Warrior();
 	m_pWarriorObject->InsertComponent<RenderComponent>();
 	m_pWarriorObject->InsertComponent<CLoadedModelInfoCompnent>();
@@ -815,11 +829,12 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pHealRange->InsertComponent<RenderComponent>();
 	m_pHealRange->InsertComponent<SquareMeshComponent>();
 	m_pHealRange->InsertComponent<SquareShaderComponent>();
+	m_pHealRange->SetSkillSize(150.0f);
 	m_pHealRange->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pHealRange->SetPosition(XMFLOAT3(0, 0.0f, 0));
 	m_pHealRange->SetScale(1.0f);
 	m_pHealRange->m_bActive = false;
-	static_cast<Priest*>(m_pPriestObject)->m_pHealRange = m_pHealRange;
+	m_pPriestObject->SetSkillRangeObject(m_pHealRange);
 
 	for (int i = 0; i < 10; ++i)
 	{
@@ -854,7 +869,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pMonsterObject = new Monster();
 	m_pMonsterObject->InsertComponent<RenderComponent>();
 	m_pMonsterObject->InsertComponent<CLoadedModelInfoCompnent>();
-	m_pMonsterObject->SetPosition(XMFLOAT3(500, 0, 0));
+	m_pMonsterObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pMonsterObject->SetModel("Model/Boss.bin");
 	m_pMonsterObject->SetAnimationSets(13);
 	m_pMonsterObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -862,13 +877,24 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pMonsterObject->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[BOSS_ANIMATION::BA_DIE]->m_nType = ANIMATION_TYPE_ONCE;
 	m_pMonsterObject->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[BOSS_ANIMATION::BA_UNDERGROUND]->m_nType = ANIMATION_TYPE_ONCE;
 	m_pMonsterObject->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[BOSS_ANIMATION::BA_REVERSE_SPAWN]->m_nType = ANIMATION_TYPE_REVERSE;
-	m_pMonsterObject->m_pSkinnedAnimationController->m_pAnimationTracks[BOSS_ANIMATION::BA_PUNCHING_SKILL].m_fSpeed = 2.0f;
-	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_PUNCHING_SKILL, 2);
 	m_pMonsterObject->SetScale(15.0f);
 	m_pMonsterObject->SetBoundingSize(30.0f);
 	m_pMonsterObject->SetBoundingBox(m_pBoundingBox[4]);
 	m_pMonsterObject->SetMoveState(false);
 	m_ppGameObjects.emplace_back(m_pMonsterObject);
+
+	//m_pBossSkillRange = new GameObject(SQUARE_ENTITY);
+	//m_pBossSkillRange->InsertComponent<RenderComponent>();
+	//m_pBossSkillRange->InsertComponent<SquareMeshComponent>();
+	//m_pBossSkillRange->InsertComponent<SquareShaderComponent>();	// 새로운 쉐이더 생성 필요 // 기존 MultiSprite는 2D 형태로만 보여줄 수 있음
+	//m_pBossSkillRange->InsertComponent<TextureComponent>();
+	//m_pBossSkillRange->SetSkillSize(200.0f);
+	//m_pBossSkillRange->SetTexture(L"UI/SkyBox.dds", RESOURCE_TEXTURE2D, 3);	// 알맞은 텍스처 추가 예정
+	//m_pBossSkillRange->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//m_pBossSkillRange->SetPosition(XMFLOAT3(0, 40, 100));
+	//m_pBossSkillRange->SetScale(1.0f);
+	//m_pBossSkillRange->SetRowColumn(8.0f, 2.0f, 999.0f);
+	//m_pMonsterObject->SetSkillRangeObject(m_pBossSkillRange);
 
 	m_pSkyboxObject = new GameObject(SQUARE_ENTITY);
 	m_pSkyboxObject->InsertComponent<RenderComponent>();
@@ -1498,7 +1524,7 @@ void GameobjectManager::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 
 void GameobjectManager::BuildNPC(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	m_pAngelNPCObject = new Warrior();//사각형 오브젝트를 만들겠다
+	m_pAngelNPCObject = new Warrior();
 	m_pAngelNPCObject->InsertComponent<RenderComponent>();
 	m_pAngelNPCObject->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pAngelNPCObject->SetPosition(XMFLOAT3(-1300.f, 0.f, -1400.f));
@@ -1762,8 +1788,8 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 
 			if (myPlayCharacter->GetQSkillState() == false && myPlayCharacter->GetOnAttack() == false)
 			{
-				g_NetworkHelper.SendSkillStatePacket(myPlayCharacter->GetQSkillState(), myPlayCharacter->GetESkillState());
 				myPlayCharacter->FirstSkillDown();
+				g_NetworkHelper.SendSkillStatePacket(myPlayCharacter->GetQSkillState(), myPlayCharacter->GetESkillState());
 			}
 			break;
 		}
@@ -1771,8 +1797,8 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		{
 			if (myPlayCharacter->GetESkillState() == false && myPlayCharacter->GetOnAttack() == false)
 			{
-				g_NetworkHelper.SendSkillStatePacket(myPlayCharacter->GetQSkillState(), myPlayCharacter->GetESkillState());
 				myPlayCharacter->SecondSkillDown();
+				g_NetworkHelper.SendSkillStatePacket(myPlayCharacter->GetQSkillState(), myPlayCharacter->GetESkillState());
 			}
 			break;
 		}
@@ -2186,24 +2212,28 @@ void GameobjectManager::SetPlayCharacter(Session* pSession) // 임시 함수
 	{
 		cliSession->SetGameObject(m_pArcherObject);
 		cliSession->m_currentPlayGameObject->SetPosition(XMFLOAT3(-200, 0, -40));
+		cliSession->m_currentPlayGameObject->SetScale(30.0f);
 	}
 	break;
 	case ROLE::PRIEST:
 	{
 		cliSession->SetGameObject(m_pPriestObject);
 		cliSession->m_currentPlayGameObject->SetPosition(XMFLOAT3(-270, 0, 40));
+		cliSession->m_currentPlayGameObject->SetScale(30.0f);
 	}
 	break;
 	case ROLE::TANKER:
 	{
 		cliSession->SetGameObject(m_pTankerObject);
 		cliSession->m_currentPlayGameObject->SetPosition(XMFLOAT3(150, 0, -60));
+		cliSession->m_currentPlayGameObject->SetScale(30.0f);
 	}
 	break;
 	case ROLE::WARRIOR:
 	{
 		cliSession->SetGameObject(m_pWarriorObject);
 		cliSession->m_currentPlayGameObject->SetPosition(XMFLOAT3(260, 0, 50));
+		cliSession->m_currentPlayGameObject->SetScale(30.0f);
 	}
 	break;
 	default:

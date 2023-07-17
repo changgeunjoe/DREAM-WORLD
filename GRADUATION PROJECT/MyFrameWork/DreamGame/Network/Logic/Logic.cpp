@@ -179,8 +179,8 @@ void Logic::ProcessPacket(char* p)
 		if (!bossMonster->GetMoveState())
 		{
 			bossMonster->SetMoveState(true);
-			bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ATTACK::ATTACK_COUNT;
-			bossMonster->m_pSkinnedAnimationController->SetTrackEnable(0, 2);
+			bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_MOVE;
+			bossMonster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_MOVE, 2);
 		}
 	}
 	break;
@@ -266,24 +266,50 @@ void Logic::ProcessPacket(char* p)
 			switch (recvPacket->bossAttackType)
 			{
 			case BOSS_ATTACK::ATTACK_PUNCH:
-				if (bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation != BOSS_ATTACK::ATTACK_PUNCH)
+				if (bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation != BOSS_ANIMATION::BA_RIGHT_PUNCH)
 				{
-					bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ATTACK::ATTACK_PUNCH;
-					bossMonster->m_pSkinnedAnimationController->SetTrackEnable(7, 2);
+					bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_RIGHT_PUNCH;
+					bossMonster->m_pSkinnedAnimationController-> SetTrackEnable(BOSS_ANIMATION::BA_RIGHT_PUNCH, 2);
 				}
 				break;
 			case BOSS_ATTACK::ATTACK_SPIN:
-				if (bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation != BOSS_ATTACK::ATTACK_SPIN)
+				if (bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation != BOSS_ANIMATION::BA_SPIN_ATTACK)
 				{
-					bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ATTACK::ATTACK_SPIN;
-					bossMonster->m_pSkinnedAnimationController->SetTrackEnable(2, 2);
+					bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_SPIN_ATTACK;
+					bossMonster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_SPIN_ATTACK, 2);
 				}
 				break;
 			case BOSS_ATTACK::ATTACK_KICK:
-				if (bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation != BOSS_ATTACK::ATTACK_KICK)
+				if (bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation != BOSS_ANIMATION::BA_KICK_ATTACK)
 				{
-					bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ATTACK::ATTACK_KICK;
-					bossMonster->m_pSkinnedAnimationController->SetTrackEnable(5, 2);
+					bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_KICK_ATTACK;
+					bossMonster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_KICK_ATTACK, 2);
+				}
+				break;
+			case BOSS_ATTACK::SKILL_DASH:
+				if (bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation != BOSS_ANIMATION::BA_DASH_SKILL)
+				{
+					bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_DASH_SKILL;
+					bossMonster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_DASH_SKILL, 2);
+					XMFLOAT3 xmf3BossPos = bossMonster->GetPosition();
+					XMFLOAT3 xmf3BossLook = bossMonster->GetLook();
+					XMFLOAT3 xmf3SkillPos = Vector3::Add(xmf3BossPos, xmf3BossLook, 160.0f);	// 보스가 스킬 써서 이동하는 거리의 1/2만큼 이동
+					static_cast<Monster*>(bossMonster)->m_pSkillRange->m_bActive = true;
+					static_cast<Monster*>(bossMonster)->m_pSkillRange->SetPosition(xmf3SkillPos);
+				}
+				break;
+			case BOSS_ATTACK::SKILL_PUNCH:
+				if (bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation != BOSS_ANIMATION::BA_PUNCHING_SKILL)
+				{
+					bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_PUNCHING_SKILL;
+					bossMonster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_PUNCHING_SKILL, 2);
+				}
+				break;
+			case BOSS_ATTACK::SKILL_CASTING:
+				if (bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation != BOSS_ANIMATION::BA_CAST_SPELL)
+				{
+					bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_CAST_SPELL;
+					bossMonster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_CAST_SPELL, 2);
 				}
 				break;
 			}
@@ -354,8 +380,8 @@ void Logic::ProcessPacket(char* p)
 		{
 			cout << "SERVER_PACKET::BOSS_MOVE_NODE - SetMoveState True" << endl;
 			bossMonster->SetMoveState(true);
-			bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ATTACK::ATTACK_COUNT;
-			bossMonster->m_pSkinnedAnimationController->SetTrackEnable(0, 2);
+			bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_MOVE;
+			bossMonster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_MOVE, 2);
 		}
 		bossMonster->SetMoveState(true);
 		cout << endl;

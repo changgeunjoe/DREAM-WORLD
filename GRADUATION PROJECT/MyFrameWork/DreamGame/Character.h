@@ -4,10 +4,11 @@
 class Character : public GameObject
 {
 protected:
-	XMFLOAT3	m_xmf3RotateAxis;	// XMFLOAT3(0, 0, 1)로부터 회전한 각도
-	bool		m_bQSkillClicked;
-	bool		m_bESkillClicked;
-	bool		m_bOnAttack;
+	bool m_bQSkillClicked;
+	bool m_bESkillClicked;
+	bool m_bOnAttack;
+	bool m_bOnSkill = false;
+	XMFLOAT3	m_xmf3RotateAxis;	// XMFLOAT3(0, 0, 1)로부터 회전한 각도	
 public:
 	Character();
 	virtual ~Character();
@@ -96,7 +97,7 @@ public:
 
 class Priest : public Character
 {
-public:
+private:
 	GameObject* m_pHealRange{ nullptr };
 	float		m_fHealTime{ 0.0f };
 public:
@@ -114,15 +115,20 @@ public:
 	virtual void FirstSkillUp();
 	virtual void SecondSkillDown() {};
 	virtual void SecondSkillUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f }) {};
+	virtual void SetSkillRangeObject(GameObject* obj) { m_pHealRange = obj; }
 	// virtual void ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent);
 };
 
 class Monster : public Character
 {
 public:
+	GameObject* m_pSkillRange{ nullptr };
+	float		m_fSkillTime{ 0.0f };
+public:
 	Monster();
 	virtual ~Monster();
 	virtual void Animate(float fTimeElapsed);
+	virtual void SetSkillRangeObject(GameObject* obj) { m_pSkillRange = obj; }
 	virtual void Move(float fDsitance)override;
 	void InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos)override;
 public:

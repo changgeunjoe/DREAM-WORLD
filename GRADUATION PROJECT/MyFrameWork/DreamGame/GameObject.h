@@ -207,8 +207,10 @@ public:
 	float							m_fSkillTime = 7.0f;
 
 	int								m_nStageType = 0;
+	float							m_fSkillSize = 0.0f;
 protected:
 
+protected:
 	int								m_nReferences = 0;
 	UINT							m_nTextureType;
 	int                             m_nSamplers = 1;
@@ -291,6 +293,7 @@ public:
 
 	virtual void RbuttonClicked(float fTimeElapsed) {};
 	virtual void RbuttonUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f }) {};
+	virtual void SetSkillRangeObject(GameObject* obj) {};
 
 	void SetFileName(LPCTSTR pFileName);
 
@@ -323,6 +326,8 @@ public:
 
 	void SetBoundingSize(float size);
 	void SetBoundingOffset(XMFLOAT3& boundingOffset);
+
+	void SetSkillSize(float size);
 
 	float GetBoundingSize() { return m_fBoundingSize; }
 	void SetProjectileY(float yLook) { m_projectilesLookY = yLook; }

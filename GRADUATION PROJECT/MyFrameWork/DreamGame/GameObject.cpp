@@ -372,9 +372,12 @@ void GameObject::BuildMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 	ComponentBase* pSquareMeshComponent = GetComponent(component_id::SQUAREMESH_COMPONENT);
 	if (pSquareMeshComponent != NULL)
 	{
-		m_pSquareMeshComponent = static_cast<SquareMeshComponent*>(pSquareMeshComponent);
-		m_pSquareMeshComponent->BuildObject(pd3dDevice, pd3dCommandList, 150.0f);
-		m_pMeshComponent = m_pSquareMeshComponent;
+		if (m_fSkillSize > FLT_EPSILON)
+		{
+			m_pSquareMeshComponent = static_cast<SquareMeshComponent*>(pSquareMeshComponent);
+			m_pSquareMeshComponent->BuildObject(pd3dDevice, pd3dCommandList, m_fSkillSize);
+			m_pMeshComponent = m_pSquareMeshComponent;
+		}
 	}
 }
 
@@ -1158,6 +1161,11 @@ void GameObject::SetBoundingSize(float size)
 void GameObject::SetBoundingOffset(XMFLOAT3& boundingOffset)
 {
 	m_xmf3BoundingSphereOffset = boundingOffset;
+}
+
+void GameObject::SetSkillSize(float size)
+{
+	m_fSkillSize = size;
 }
 
 void GameObject::MoveStrafe(float fDistance)
