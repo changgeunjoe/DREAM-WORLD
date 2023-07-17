@@ -24,6 +24,7 @@ extern Logic g_Logic;
 extern bool GameEnd;
 extern MapData g_bossMapData;
 extern CGameFramework gGameFramework;
+extern MapData g_stage1MapData;
 
 template<typename S>
 S* ComponentType(component_id componentID)
@@ -797,7 +798,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pTankerObject = new Tanker();
 	m_pTankerObject->InsertComponent<RenderComponent>();
 	m_pTankerObject->InsertComponent<CLoadedModelInfoCompnent>();
-	m_pTankerObject->SetPosition(XMFLOAT3(-1400.f, 0.f, -1480.f));
+	m_pTankerObject->SetPosition(XMFLOAT3(-1290, 0.f, -1470.0f));
 	// m_pTankerObject->SetPosition(XMFLOAT3(0.0f, 0.0f, 0.0f));
 	m_pTankerObject->SetModel("Model/Tanker.bin");
 	m_pTankerObject->SetAnimationSets(8);
@@ -1052,15 +1053,15 @@ void GameobjectManager::BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	CLoadedModelInfoCompnent* Death = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Death.bin", NULL, true);
 	CLoadedModelInfoCompnent* Cube = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Cube.bin", NULL, true);
 
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/BigMushroom.txt", BigMushroom, 0, STAGE1);
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Mushroom.txt", Mushroom, 0, STAGE1);
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/LongFence.txt", LongFence, 0, STAGE1);
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence1.txt", ShortFence01, 0, STAGE1);
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence2.txt", ShortFence02, 0, STAGE1);
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence3.txt", ShortFence03, 0, STAGE1);
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Tree.txt", Tree, 0, STAGE1);
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/OOBB.txt", Cube, 0, STAGE1);
-	ReadNormalMonsterFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/NormalMonsterS1.txt", Death, 1, STAGE1);
+	//ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/BigMushroom.txt", BigMushroom, 0, STAGE1);
+	//ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Mushroom.txt", Mushroom, 0, STAGE1);
+	//ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/LongFence.txt", LongFence, 0, STAGE1);
+	//ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence1.txt", ShortFence01, 0, STAGE1);
+	//ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence2.txt", ShortFence02, 0, STAGE1);
+	//ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence3.txt", ShortFence03, 0, STAGE1);
+	//ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Tree.txt", Tree, 0, STAGE1);
+	//ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/OOBB.txt", Cube, 0, STAGE1);
+	//ReadNormalMonsterFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/NormalMonsterS1.txt", Death, 1, STAGE1);
 	m_pStage1Objects[0] = new GameObject(UNDEF_ENTITY);
 	m_pStage1Objects[0]->InsertComponent<RenderComponent>();
 	m_pStage1Objects[0]->InsertComponent<CLoadedModelInfoCompnent>();
@@ -1072,6 +1073,23 @@ void GameobjectManager::BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pStage1Objects[0]->SetRimLight(false);
 	m_pStage1Objects[0]->m_nStageType = STAGE1;
 	m_ppGameObjects.emplace_back(m_pStage1Objects[0]);
+
+	vector<MapCollide>& collides = g_stage1MapData.GetCollideData();
+	for (auto& col : collides) {
+		auto& boundingBox = col.GetObb();
+		XMFLOAT4 q = boundingBox.Orientation;
+
+		GameObject* BoundingBox = new GameObject(SQUARE_ENTITY);
+		BoundingBox->InsertComponent<RenderComponent>();
+		BoundingBox->InsertComponent<CubeMeshComponent>();
+		BoundingBox->InsertComponent<BoundingBoxShaderComponent>();
+		BoundingBox->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+
+		BoundingBox->SetPosition(boundingBox.Center);
+		BoundingBox->Rotate(&q);
+		BoundingBox->SetScale(boundingBox.Extents.x * 2.0f, boundingBox.Extents.y * 2.0f, boundingBox.Extents.z * 2.0f);
+		m_ppObstacleBoundingBox.emplace_back(BoundingBox);
+	}
 	/*m_pStage1Objects[1] = new GameObject(UNDEF_ENTITY);
 	m_pStage1Objects[1]->InsertComponent<RenderComponent>();
 	m_pStage1Objects[1]->InsertComponent<CLoadedModelInfoCompnent>();
@@ -2256,7 +2274,6 @@ void GameobjectManager::SetUIActive()
 bool GameobjectManager::CheckCollision(vector<GameObject*> m_ppObjects)
 {
 	XMVECTOR rayOrigin = XMLoadFloat3(&XMFLOAT3(m_pCamera->GetPosition().x, m_pCamera->GetPosition().y - 10, m_pCamera->GetPosition().z));
-	cout << "x" << m_pCamera->GetPosition().x << "y " << m_pCamera->GetPosition().y;
 	XMVECTOR rayDirection = XMLoadFloat3(&m_pCamera->GetLookVector());
 	float rayDistance;
 	// 레이저와 BoundingSphere의 충돌 여부를 계산

@@ -1193,8 +1193,9 @@ void GameObject::MoveForward(float fDistance)
 	XMFLOAT3 xmf3Look = GetLook();
 	xmf3Look.y = 0.0f;
 	vector<MapCollide>& Collides = g_bossMapData.GetCollideData();
-	if(gGameFramework.GetScene()->GetObjectManager()->m_nStageType == 1)//stage1이라면
+	if (gGameFramework.GetScene()->GetObjectManager()->m_nStageType == 1)//stage1이라면
 		Collides = g_stage1MapData.GetCollideData();
+		
 
 	//if (Vector3::Length(xmf3Position) < PLAYER_MAX_RANGE)	GameObject::SetPosition(xmf3Position);
 	//vector<GameObject*> tempVector = gGameFramework.GetScene()->GetObjectManager()->GetObstacle();
