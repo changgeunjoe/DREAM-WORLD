@@ -67,7 +67,7 @@ void GameObject::SetPosition(const XMFLOAT3& position)
 	m_xmf4x4ToParent._42 = position.y;
 	m_xmf4x4ToParent._43 = position.z;
 
-	if (gGameFramework.GetScene()->GetObjectManager()->m_nStageType == m_nStageType) {
+	if (gGameFramework.GetScene()->GetObjectManager()->m_nStageType == m_nStageType|| m_nStageType==0) {
 		if (m_fBoundingSize > FLT_EPSILON)
 		{
 			m_SPBB.Center.x = position.x + m_xmf3BoundingSphereOffset.x;
@@ -79,6 +79,13 @@ void GameObject::SetPosition(const XMFLOAT3& position)
 		m_SPBB.Center.x = 2000;
 		m_SPBB.Center.y = 2000;
 		m_SPBB.Center.z = 2000;
+	}
+	{
+
+		//NPC바운딩박스
+		m_SPBBNPC.Center.x = position.x + m_xmf3BoundingSphereOffset.x;
+		m_SPBBNPC.Center.y = position.y + m_xmf3BoundingSphereOffset.y + m_fBoundingSize;
+		m_SPBBNPC.Center.z = position.z + m_xmf3BoundingSphereOffset.z;
 	}
 	//if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(position, m_pCamera->GetOffset()));
 
@@ -167,7 +174,7 @@ void GameObject::SetScale(float x, float y, float z)
 }
 void GameObject::SetinitScale(float x, float y, float z)
 {
-	
+
 	XMMATRIX mtxScale = XMMatrixScaling(x, y, z);
 	m_xmf4x4ToParent = Matrix4x4::Identity();
 	m_xmf4x4ToParent = Matrix4x4::Multiply(mtxScale, m_xmf4x4ToParent);
@@ -386,9 +393,9 @@ void GameObject::BuildShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	ComponentBase* pBlendShaderComponent = GetComponent(component_id::BLENDSHADER_COMPONENT);
 	ComponentBase* pCylinderShaderComponent = GetComponent(component_id::CYLINDERSHADER_COMPONENT);
 	ComponentBase* pSquareShaderComponent = GetComponent(component_id::SQUARESHADER_COMPONENT);
-	if (pShaderComponent != NULL || pSkyShaderComponent != NULL || pUiShaderComponent != NULL || pSpriteShaderComponent != NULL 
-		|| pBoundingBoxShaderComponent != NULL || pBlendingUiShaderComponent != NULL|| pTrailShaderComponent!=NULL
-		|| pTerrainShaderComponent!=NULL|| pEffectShaderComponent|| pBlendShaderComponent || pCylinderShaderComponent || pSquareShaderComponent)
+	if (pShaderComponent != NULL || pSkyShaderComponent != NULL || pUiShaderComponent != NULL || pSpriteShaderComponent != NULL
+		|| pBoundingBoxShaderComponent != NULL || pBlendingUiShaderComponent != NULL || pTrailShaderComponent != NULL
+		|| pTerrainShaderComponent != NULL || pEffectShaderComponent || pBlendShaderComponent || pCylinderShaderComponent || pSquareShaderComponent)
 	{
 		if (pShaderComponent != NULL)
 		{
@@ -656,7 +663,7 @@ void GameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandLis
 	}
 	if (m_pd3dcbGameObjectColor)
 	{
-		
+
 		::memcpy(&m_pcbMappedGameObjectsColor->m_xmf4Color, &m_xmf4Color, sizeof(XMFLOAT4));
 		m_fSkillTime = m_fSkillTime / 10;
 		::memcpy(&m_pcbMappedGameObjectsColor->m_fSkillTime, &m_fSkillTime, sizeof(float));
@@ -698,7 +705,7 @@ void GameObject::ReleaseShaderVariables()
 
 void GameObject::Die(float ftimeelapsed)
 {
-	m_xmf4Color.w += ftimeelapsed/10;
+	m_xmf4Color.w += ftimeelapsed / 10;
 	cout << m_xmf4Color.w << endl;
 }
 
@@ -810,7 +817,7 @@ CLoadedModelInfoCompnent* GameObject::LoadGeometryAndAnimationFromFile(ID3D12Dev
 #endif
 
 	return(pLoadedModel);
-}
+		}
 
 void GameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, GameObject* pParent, FILE* pInFile, ShaderComponent* pShader, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
@@ -961,8 +968,8 @@ void GameObject::LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfoCompnent* 
 				_stprintf_s(pstrDebug, 256, _T("AnimationBoneFrame:: Cache(%s) AnimationBone(%s)\n"), pwstrBoneCacheName, pwstrAnimationBoneName);
 				OutputDebugString(pstrDebug);
 #endif
-			}
 		}
+	}
 		else if (!strcmp(pstrToken, "<AnimationSet>:"))
 		{
 			int nAnimationSet = ::ReadIntegerFromFile(pInFile);
@@ -1003,8 +1010,8 @@ void GameObject::LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfoCompnent* 
 		{
 			break;
 		}
-	}
 }
+	}
 
 GameObject* GameObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, GameObject* pParent, FILE* pInFile, ShaderComponent* pShader, int* pnSkinnedMeshes)
 {
@@ -1075,14 +1082,14 @@ GameObject* GameObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice, ID3
 					_stprintf_s(pstrDebug, 256, "(Frame: %p) (Parent: %p)\n"), pChild, pGameObject);
 					OutputDebugString(pstrDebug);
 #endif
-				}
 			}
 		}
+	}
 		else if (!strcmp(pstrToken, "</Frame>"))
 		{
 			break;
 		}
-	}
+}
 	return(pGameObject);
 }
 
@@ -1328,7 +1335,7 @@ void GameObject::Move(XMFLOAT3 direction, float fDistance)
 	if (Vector3::Length(xmf3Position) < PLAYER_MAX_RANGE)	GameObject::SetPosition(xmf3Position);
 }
 
-void GameObject::MoveVelocity(XMFLOAT3 direction, float ftimeelapsed,float fDistance)
+void GameObject::MoveVelocity(XMFLOAT3 direction, float ftimeelapsed, float fDistance)
 {
 	const float fGravity = 9.8f;
 
@@ -1358,7 +1365,7 @@ void GameObject::MoveVelocity(XMFLOAT3 direction, float ftimeelapsed,float fDist
 	}
 
 	if (m_fTime == 10) {
-		GameObject::SetPosition(XMFLOAT3(0,0,0));
+		GameObject::SetPosition(XMFLOAT3(0, 0, 0));
 	}
 }
 

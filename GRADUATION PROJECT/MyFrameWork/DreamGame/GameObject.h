@@ -185,6 +185,7 @@ public:
 	float                           m_fBoundingSize{ 8.0f };
 	XMFLOAT3                        m_xmf3BoundingSphereOffset{ 0.0f, 0.0f, 0.0f };
 	BoundingSphere					m_SPBB = BoundingSphere(XMFLOAT3(0.0f, 0.0f, 0.0f), m_fBoundingSize);
+	BoundingSphere					m_SPBBNPC = BoundingSphere(XMFLOAT3(30.0f, 30.0f, 30.0f), m_fBoundingSize);
 	BoundingOrientedBox				m_OBB;
 	GameObject* m_VisualizeSPBB{ nullptr };
 

@@ -756,6 +756,19 @@ void GameobjectManager::ReadNormalMonsterFile(ID3D12Device* pd3dDevice, ID3D12Gr
 	}
 }
 
+bool GameobjectManager::CheckCollideNPC()
+{
+	if (m_pAngelNPCObject->m_SPBBNPC.Intersects(m_pPlayerObject->m_SPBB))
+	{
+		if (m_iTEXTiIndex != BOSS_TEXT)
+		{
+			m_iTEXTiIndex = BOSS_TEXT;
+			m_bNPCinteraction = true;
+		}
+	}
+	return	m_pAngelNPCObject->m_SPBBNPC.Intersects(m_pPlayerObject->m_SPBB);
+}
+
 GameObject* GameobjectManager::GetChracterInfo(ROLE r)
 {
 	if (r == ROLE::WARRIOR) return m_pWarriorObject;
@@ -1999,14 +2012,14 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		//NPC와 대화하거나 포털들어갈 때 상호작용 키  
 		case 'G':
 		{
-			m_bNPCinteraction = true;
-			m_bNPCscreen = true;
+			//g_NetworkHelper.SendonPosisotionTriggerBox1(CheckCollideNPC());
+			m_bNPCscreen = CheckCollideNPC();
 			break;
 		}
 		case 'V':
 		{
 			m_bNPCinteraction = true;
-			m_iTEXTiIndex = 2;
+			
 
 			break;
 		}
@@ -2173,7 +2186,7 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 		case WM_RBUTTONUP:
 		case WM_LBUTTONUP:
 			g_NetworkHelper.SendTestGameEndOKPacket();
-			g_NetworkHelper.SetRole(ROLE::NONE_SELECT);
+			g_NetworkHelper.SetRole(	ROLE::NONE_SELECT);
 			for (int i = 0; i < 4; ++i)
 				g_Logic.m_inGamePlayerSession[i].Reset();
 			ResetObject();
