@@ -160,4 +160,8 @@ public:
 public:
 	GAME_STATE GetCurrentGameState() { return m_gameState; }
 	void SetCurrentGameState(GAME_STATE gs) { m_gameState = gs; }
+	void SetLobbyScene() { m_bLobbyScene = !m_bLobbyScene; }
+	bool GetLobbyScene() { return m_bLobbyScene; }
+
+
 };
