@@ -708,8 +708,9 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 {
 	if (m_bLobbyScene) {
 		m_pLobbyScene->onProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
+		m_pScene->onProcessingKeyboardMessageLobby(hWnd, nMessageID, wParam, lParam);
 	}
-	else if (!m_bLobbyScene) {
+	if (!m_bLobbyScene) {
 		m_pScene->onProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
 	}
 	switch (nMessageID)
@@ -807,6 +808,7 @@ void CGameFramework::ProcessInput()
 			if (cxDelta || cyDelta)
 			{
 				Character* possessObj = m_pScene->GetObjectManager()->GetChracterInfo(g_Logic.GetMyRole());
+				if (!possessObj) return;
 				XMFLOAT3 RotateAngle = possessObj->GetRotateAxis();
 				RotateAngle.x += cyDelta;
 				RotateAngle.y += cxDelta;
@@ -877,8 +879,7 @@ void CGameFramework::FrameAdvance()
 	hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 	//명령 할당자와 명령 리스트를 리셋한다.
 
-	if (m_bLobbyScene)
-		m_pScene->OnPreRender(m_pd3dDevice, m_pd3dCommandList, m_pCamera);
+	m_pScene->OnPreRender(m_pd3dDevice, m_pd3dCommandList, m_pCamera);
 
 	D3D12_RESOURCE_BARRIER d3dResourceBarrier;
 	::ZeroMemory(&d3dResourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));

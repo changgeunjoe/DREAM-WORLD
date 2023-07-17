@@ -68,11 +68,25 @@ void GameObject::SetPosition(const XMFLOAT3& position)
 	m_xmf4x4ToParent._42 = position.y;
 	m_xmf4x4ToParent._43 = position.z;
 
-	if (m_fBoundingSize > FLT_EPSILON)
+	if (gGameFramework.GetScene()->GetObjectManager()->m_nStageType == m_nStageType|| m_nStageType==0) {
+		if (m_fBoundingSize > FLT_EPSILON)
+		{
+			m_SPBB.Center.x = position.x + m_xmf3BoundingSphereOffset.x;
+			m_SPBB.Center.y = position.y + m_xmf3BoundingSphereOffset.y + m_fBoundingSize;
+			m_SPBB.Center.z = position.z + m_xmf3BoundingSphereOffset.z;
+		}
+	}
+	else {
+		m_SPBB.Center.x = 2000;
+		m_SPBB.Center.y = 2000;
+		m_SPBB.Center.z = 2000;
+	}
 	{
-		m_SPBB.Center.x = position.x + m_xmf3BoundingSphereOffset.x;
-		m_SPBB.Center.y = position.y + m_xmf3BoundingSphereOffset.y + m_fBoundingSize;
-		m_SPBB.Center.z = position.z + m_xmf3BoundingSphereOffset.z;
+
+		//NPC바운딩박스
+		m_SPBBNPC.Center.x = position.x + m_xmf3BoundingSphereOffset.x;
+		m_SPBBNPC.Center.y = position.y + m_xmf3BoundingSphereOffset.y + m_fBoundingSize;
+		m_SPBBNPC.Center.z = position.z + m_xmf3BoundingSphereOffset.z;
 	}
 	//if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(position, m_pCamera->GetOffset()));
 
@@ -650,7 +664,7 @@ void GameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandLis
 	}
 	if (m_pd3dcbGameObjectColor)
 	{
-		
+
 		::memcpy(&m_pcbMappedGameObjectsColor->m_xmf4Color, &m_xmf4Color, sizeof(XMFLOAT4));
 		m_fSkillTime = m_fSkillTime / 10;
 		::memcpy(&m_pcbMappedGameObjectsColor->m_fSkillTime, &m_fSkillTime, sizeof(float));
@@ -804,7 +818,7 @@ CLoadedModelInfoCompnent* GameObject::LoadGeometryAndAnimationFromFile(ID3D12Dev
 #endif
 
 	return(pLoadedModel);
-}
+		}
 
 void GameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, GameObject* pParent, FILE* pInFile, ShaderComponent* pShader, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
@@ -955,8 +969,8 @@ void GameObject::LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfoCompnent* 
 				_stprintf_s(pstrDebug, 256, _T("AnimationBoneFrame:: Cache(%s) AnimationBone(%s)\n"), pwstrBoneCacheName, pwstrAnimationBoneName);
 				OutputDebugString(pstrDebug);
 #endif
-			}
 		}
+	}
 		else if (!strcmp(pstrToken, "<AnimationSet>:"))
 		{
 			int nAnimationSet = ::ReadIntegerFromFile(pInFile);
@@ -997,8 +1011,8 @@ void GameObject::LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfoCompnent* 
 		{
 			break;
 		}
-	}
 }
+	}
 
 GameObject* GameObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, GameObject* pParent, FILE* pInFile, ShaderComponent* pShader, int* pnSkinnedMeshes)
 {
@@ -1069,14 +1083,14 @@ GameObject* GameObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice, ID3
 					_stprintf_s(pstrDebug, 256, "(Frame: %p) (Parent: %p)\n"), pChild, pGameObject);
 					OutputDebugString(pstrDebug);
 #endif
-				}
 			}
 		}
+	}
 		else if (!strcmp(pstrToken, "</Frame>"))
 		{
 			break;
 		}
-	}
+}
 	return(pGameObject);
 }
 

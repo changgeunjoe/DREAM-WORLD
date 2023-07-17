@@ -24,6 +24,11 @@ bool CScene::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 	//m_pObjectManager->onProcessingKeyboardMessageUI(hWnd, nMessageID, wParam, lParam);
 	return false;
 }
+bool CScene::onProcessingKeyboardMessageLobby(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
+{
+	m_pObjectManager->onProcessingKeyboardMessageLobby(hWnd, nMessageID, wParam, lParam);
+	return false;
+}
 
 ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevice)
 {

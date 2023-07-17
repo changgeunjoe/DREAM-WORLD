@@ -42,6 +42,7 @@ public:
 	virtual void TalkUIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void StoryUIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float ftimeElapsed);
 	virtual void EffectRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float ftimeElapsed);
+	virtual void SkyboxRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	//Build
 	virtual void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
@@ -68,6 +69,7 @@ public:
 	virtual void ReleaseShaderVariables();
 
 	virtual bool onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
+	virtual bool onProcessingKeyboardMessageLobby(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	virtual bool onProcessingKeyboardMessageUI(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	virtual void onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	virtual void onProcessingMouseMessageUI(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
@@ -77,6 +79,7 @@ public:
 
 	void AddTextToUILayer(int& index);
 	float CalculateDistance(const XMFLOAT3& firstPosition, const XMFLOAT3& lastPosition);
+	
 
 private: //active object 
 	vector<GameObject*> m_ppGameObjects;
@@ -119,6 +122,7 @@ private: //active object
 
 	CLight* m_pLight{ NULL };
 	CCamera* m_pCamera{ NULL };
+	int m_nSetCharacter{0};
 
 
 
@@ -139,6 +143,7 @@ private: //active object
 	GameObject* m_pTalkUIObject{ NULL };
 	GameObject* m_pPressGUIObject{ NULL };
 	GameObject* m_pAttackUIObject{ NULL };
+	GameObject* m_pConditionUIObject{ NULL };
 
 	//Skill	
 	GameObject* m_pHealSkillUIObject{ NULL };
@@ -228,6 +233,7 @@ public:
 	void SetStoryTime() { m_fStroyTime = 0; };
 	void ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, const char* fileName, CLoadedModelInfoCompnent* modelName, int type, int stagetype);
 	void ReadNormalMonsterFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, const char* fileName, CLoadedModelInfoCompnent* modelName, int type, int stagetype);
+	bool CheckCollideNPC();
 	vector<GameObject*>& GetObstacle() { return m_ppObstacleObjects; }
 	Character* GetChracterInfo(ROLE r);
 	Monster* GetBossMonster() { return m_pMonsterObject; }
