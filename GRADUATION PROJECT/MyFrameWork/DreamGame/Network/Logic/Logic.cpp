@@ -55,7 +55,7 @@ void Logic::ProcessPacket(char* p)
 	{
 		SERVER_PACKET::RotatePacket* recvPacket = reinterpret_cast<SERVER_PACKET::RotatePacket*>(p);
 		Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->role);
-
+		XMFLOAT3 rotateAngle = possessObj->GetRotateAxis();
 		switch (recvPacket->axis)
 		{
 		case ROTATE_AXIS::X:
@@ -67,6 +67,8 @@ void Logic::ProcessPacket(char* p)
 		case ROTATE_AXIS::Y:
 		{
 			possessObj->Rotate(&upVec, recvPacket->angle);
+			rotateAngle.y += recvPacket->angle;
+			possessObj->SetRotateAxis(rotateAngle);
 			//findRes->m_ownerRotateAngle.y += recvPacket->angle;
 		}
 		break;
@@ -126,6 +128,7 @@ void Logic::ProcessPacket(char* p)
 		//이름 세팅 함수 필요
 		if (recvPacket->userId == myId) {
 			myRole = (ROLE)recvPacket->role;
+			gGameFramework.GetScene()->GetObjectManager()->SetPlayerCamera(possessObj);
 			//camera Set func필요
 			//m_inGamePlayerSession[0].SetName(recvPacket->name);
 		}

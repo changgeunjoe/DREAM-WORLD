@@ -1365,5 +1365,3 @@ void GameObject::SetRowColumn(float nRows, float nCols, float fSpeed)
 	m_nCols = nCols;
 	m_fSpeed = fSpeed;
 }
-
-#define PI 3.14159265359

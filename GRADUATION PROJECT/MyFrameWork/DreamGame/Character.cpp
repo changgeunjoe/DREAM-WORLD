@@ -66,6 +66,64 @@ void Character::Reset()
 	}
 }
 
+void Character::MoveObject()
+{
+	XMFLOAT3 xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
+	XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&xmf3Up), XMConvertToRadians(m_xmf3RotateAxis.y));
+	XMFLOAT3 xmf3Look = XMFLOAT3(0.0f, 0.0f, 1.0f);
+	xmf3Look = Vector3::TransformNormal(xmf3Look, xmmtxRotate);
+
+	XMFLOAT3 xmf3Rev = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	float fRotateAngle = -1.0f;
+
+	DIRECTION tempDir = m_currentDirection;
+
+	if (m_bRButtonClicked)
+	{
+		SetLook(xmf3Look);
+		return;
+	}
+
+	if (tempDir != DIRECTION::IDLE)
+	{
+		if (((tempDir & DIRECTION::LEFT) == DIRECTION::LEFT) &&
+			((tempDir & DIRECTION::RIGHT) == DIRECTION::RIGHT))
+		{
+			tempDir = (DIRECTION)(tempDir ^ DIRECTION::LEFT);
+			tempDir = (DIRECTION)(tempDir ^ DIRECTION::RIGHT);
+		}
+		if (((tempDir & DIRECTION::FRONT) == DIRECTION::FRONT) &&
+			((tempDir & DIRECTION::BACK) == DIRECTION::BACK))
+		{
+			tempDir = (DIRECTION)(tempDir ^ DIRECTION::FRONT);
+			tempDir = (DIRECTION)(tempDir ^ DIRECTION::BACK);
+		}
+		switch (tempDir)
+		{
+		case DIRECTION::FRONT:						fRotateAngle = 0.0f;	break;
+		case DIRECTION::LEFT | DIRECTION::FRONT:	fRotateAngle = 45.0f;	break;
+		case DIRECTION::LEFT:						fRotateAngle = 90.0f;	break;
+		case DIRECTION::BACK | DIRECTION::LEFT:		fRotateAngle = 135.0f;	break;
+		case DIRECTION::BACK:						fRotateAngle = 180.0f;	break;
+		case DIRECTION::RIGHT | DIRECTION::BACK:	fRotateAngle = 225.0f;	break;
+		case DIRECTION::RIGHT:						fRotateAngle = 270.0f;	break;
+		case DIRECTION::FRONT | DIRECTION::RIGHT:	fRotateAngle = 315.0f;	break;
+		default:
+			return;
+		}
+
+		fRotateAngle = fRotateAngle * (3.14159265359 / 180.0f);
+		xmf3Rev.x = xmf3Look.x * cos(fRotateAngle) - xmf3Look.z * sin(fRotateAngle);
+		xmf3Rev.z = xmf3Look.x * sin(fRotateAngle) + xmf3Look.z * cos(fRotateAngle);
+		xmf3Rev = Vector3::Normalize(xmf3Rev);
+	}
+
+	if ((xmf3Rev.x || xmf3Rev.y || xmf3Rev.z))
+	{
+		SetLook(xmf3Rev);
+	}
+}
+
 bool Character::CheckAnimationEnd(int nAnimation)
 {
 	return m_pSkinnedAnimationController->m_pAnimationTracks[nAnimation].m_bAnimationEnd;
@@ -277,6 +335,8 @@ void Warrior::Animate(float fTimeElapsed)
 		m_pSkinnedAnimationController->SetTrackEnable(AfterAnimation);
 	}
 
+	MoveObject();
+	Move(50 * fTimeElapsed);
 	GameObject::Animate(fTimeElapsed);
 }
 
@@ -453,6 +513,8 @@ void Archer::Animate(float fTimeElapsed)
 		m_pSkinnedAnimationController->SetTrackEnable(AfterAnimation);
 	}
 
+	MoveObject();
+	Move(50 * fTimeElapsed);
 	GameObject::Animate(fTimeElapsed);
 }
 
@@ -461,18 +523,12 @@ void Archer::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCom
 	GameObject::Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
 }
 
-void Archer::MoveObject(DIRECTION& currentDirection, const XMFLOAT3& CameraAxis)
+void Archer::MoveObject()
 {
 	XMFLOAT3 xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
-	XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&xmf3Up), XMConvertToRadians(CameraAxis.y));
+	XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&xmf3Up), XMConvertToRadians(m_xmf3RotateAxis.y));
 	XMFLOAT3 xmf3Look = XMFLOAT3(0.0f, 0.0f, 1.0f);
 	xmf3Look = Vector3::TransformNormal(xmf3Look, xmmtxRotate);
-
-	XMFLOAT3 xmf3Rev = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	float fRotateAngle = -1.0f;
-
-	DIRECTION tempDir = currentDirection;
-
 	SetLook(xmf3Look);
 }
 
@@ -824,6 +880,8 @@ void Tanker::Animate(float fTimeElapsed)
 		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_SECONDSKILL].m_bAnimationEnd = false;
 	}
 
+	MoveObject();
+	Move(50 * fTimeElapsed);
 	GameObject::Animate(fTimeElapsed);
 }
 
@@ -997,6 +1055,8 @@ void Priest::Animate(float fTimeElapsed)
 		if (m_pProjectiles[i]->m_bActive)
 			m_pProjectiles[i]->Animate(fTimeElapsed);
 
+	MoveObject();
+	Move(50 * fTimeElapsed);
 	GameObject::Animate(fTimeElapsed);
 }
 
@@ -1046,18 +1106,12 @@ void Priest::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCom
 	GameObject::Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
 }
 
-void Priest::MoveObject(DIRECTION& currentDirection, const XMFLOAT3& CameraAxis)
+void Priest::MoveObject()
 {
 	XMFLOAT3 xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
-	XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&xmf3Up), XMConvertToRadians(CameraAxis.y));
+	XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&xmf3Up), XMConvertToRadians(m_xmf3RotateAxis.y));
 	XMFLOAT3 xmf3Look = XMFLOAT3(0.0f, 0.0f, 1.0f);
 	xmf3Look = Vector3::TransformNormal(xmf3Look, xmmtxRotate);
-
-	XMFLOAT3 xmf3Rev = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	float fRotateAngle = -1.0f;
-
-	DIRECTION tempDir = currentDirection;
-
 	SetLook(xmf3Look);
 }
 
@@ -1099,7 +1153,7 @@ void Monster::Animate(float fTimeElapsed)
 			m_pSkinnedAnimationController->m_CurrentAnimation = 10;
 			m_pSkinnedAnimationController->SetTrackEnable(10, 2);
 		}
-		Character::Animate(fTimeElapsed);
+		GameObject::Animate(fTimeElapsed);
 		return;
 	}
 	if (m_bMoveState)	// 움직이는 중
@@ -1135,7 +1189,7 @@ void Monster::Animate(float fTimeElapsed)
 				}
 				if (playerDistance >= 42.0f)
 					MoveForward(50 * fTimeElapsed);
-				Character::Animate(fTimeElapsed);
+				GameObject::Animate(fTimeElapsed);
 				return;
 				//m_position = Vector3::Add(m_position, Vector3::ScalarProduct(desPlayerVector, fTimeElapsed, false));//틱마다 움직임					
 
@@ -1223,7 +1277,7 @@ void Monster::Animate(float fTimeElapsed)
 			}
 		}
 	}
-	Character::Animate(fTimeElapsed);
+	GameObject::Animate(fTimeElapsed);
 }
 
 void Monster::Move(float fDsitance)
@@ -1469,23 +1523,23 @@ void NormalMonster::Animate(float fTimeElapsed)
 			m_pSkinnedAnimationController->SetTrackEnable(NextAnimations);
 		}
 #ifdef LOCAL_TASK
-		if (!m_bHaveTarget)
-		{
-			XMFLOAT3 currentPos = GetPosition();
-			for (auto& session : g_Logic.m_inGamePlayerSession)
-			{
-				if (session.m_id == -1) continue;
-				XMFLOAT3 targetPos = session.m_currentPlayGameObject->GetPosition();
-				XMFLOAT3 toTarget = Vector3::Subtract(targetPos, currentPos);
-				float targetLength = Vector3::Length(toTarget);
-				if (targetLength < 200.0f)
-				{
-					m_iTargetID = session.m_id;
-					m_bHaveTarget = true;
-					break;
-				}
-			}
-		}
+		//if (!m_bHaveTarget)
+		//{
+		//	XMFLOAT3 currentPos = GetPosition();
+		//	for (auto& session : g_Logic.m_inGamePlayerSession)
+		//	{
+		//		if (session.m_id == -1) continue;
+		//		XMFLOAT3 targetPos = session.m_currentPlayGameObject->GetPosition();
+		//		XMFLOAT3 toTarget = Vector3::Subtract(targetPos, currentPos);
+		//		float targetLength = Vector3::Length(toTarget);
+		//		if (targetLength < 200.0f)
+		//		{
+		//			m_iTargetID = session.m_id;
+		//			m_bHaveTarget = true;
+		//			break;
+		//		}
+		//	}
+		//}
 #endif
 	}
 	else
@@ -1512,25 +1566,25 @@ void NormalMonster::Animate(float fTimeElapsed)
 				}
 			}
 #ifdef LOCAL_TASK
-			if (!m_bHaveTarget)
-			{
-				// 플레이어 4명 포지션과 거리 계산해서 목표 설정
-				XMFLOAT3 currentPos = GetPosition();
-				float farDistance = FLT_MAX;
-				for (auto& session : g_Logic.m_inGamePlayerSession)
-				{
-					if (session.m_id == -1) continue;
-					XMFLOAT3 targetPos = session.m_currentPlayGameObject->GetPosition();
-					XMFLOAT3 toTarget = Vector3::Subtract(targetPos, currentPos);
-					float targetLength = Vector3::Length(toTarget);
-					if (targetLength < farDistance)
-					{
-						m_bHaveTarget = true;
-						m_iTargetID = session.m_id;
-						farDistance = targetLength;
-					}
-				}
-			}
+			//if (!m_bHaveTarget)
+			//{
+			//	// 플레이어 4명 포지션과 거리 계산해서 목표 설정
+			//	XMFLOAT3 currentPos = GetPosition();
+			//	float farDistance = FLT_MAX;
+			//	for (auto& session : g_Logic.m_inGamePlayerSession)
+			//	{
+			//		if (session.m_id == -1) continue;
+			//		XMFLOAT3 targetPos = session.m_currentPlayGameObject->GetPosition();
+			//		XMFLOAT3 toTarget = Vector3::Subtract(targetPos, currentPos);
+			//		float targetLength = Vector3::Length(toTarget);
+			//		if (targetLength < farDistance)
+			//		{
+			//			m_bHaveTarget = true;
+			//			m_iTargetID = session.m_id;
+			//			farDistance = targetLength;
+			//		}
+			//	}
+			//}
 #endif
 		}
 	}

@@ -102,7 +102,6 @@ private: //active object
 	GameObject* m_pAnimationObject{ NULL };
 
 	Monster* m_pMonsterObject{ NULL };
-	GameObject* m_pMonsterCubeObject{ NULL };
 
 	GameObject* m_pPlayerObject{ NULL };
 	GameObject* m_pEnergyBallObject{ NULL };
@@ -222,7 +221,7 @@ public:
 public:
 	void SetPlayCharacter(Session* pSession);
 	void SetSection(int n) { m_nSection = n; }
-	void SetPlayerCamera(Session& mySession);
+	void SetPlayerCamera(GameObject* obj);
 	void ResetObject();
 	void SetInMatching(bool inMatching) { m_bInMatching = inMatching; }
 	void SetUIActive();

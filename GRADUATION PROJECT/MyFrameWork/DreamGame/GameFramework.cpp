@@ -1,8 +1,10 @@
 #include "stdafx.h"
 #include "GameFramework.h"
-#include"stdafx.h"
-#include"Camera.h"
+#include "stdafx.h"
+#include "Camera.h"
 #include "GameObject.h"
+#include "Character.h"
+#include "GameObjectManager.h"
 #include "Network/Logic/Logic.h"
 #include "Network/NetworkHelper.h"
 #include "UILayer.h"
@@ -804,31 +806,22 @@ void CGameFramework::ProcessInput()
 		{
 			if (cxDelta || cyDelta)
 			{
-				//if (pKeysBuffer[VK_RBUTTON] & 0xF0)
-				//	m_pCamera->Rotate(cyDelta, 0.0f, -cxDelta);
-				//else {
-					//g_Logic.
+				Character* possessObj = m_pScene->GetObjectManager()->GetChracterInfo(g_Logic.GetMyRole());
+				XMFLOAT3 RotateAngle = possessObj->GetRotateAxis();
+				RotateAngle.x += cyDelta;
+				RotateAngle.y += cxDelta;
 
-					/*g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetUp(), -30.0f * fTimeElapsed);
-					g_Logic.m_inGamePlayerSession[0].m_rotateAngle.y -= 30.0f * fTimeElapsed;
-					g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::Y, -30.0f * fTimeElapsed);*/
-					//g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->Rotate(&g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetUp(), cxDelta);
+				if (RotateAngle.x > 30.0f) RotateAngle.x = +30.0f;
+				if (RotateAngle.x < -20.0f) RotateAngle.x = -20.0f;
+				if (RotateAngle.y > 360.0f) RotateAngle.y -= 360.0f;
+				if (RotateAngle.y < 0.0f) RotateAngle.y += 360.0f;
 
-					/*g_Logic.m_inGamePlayerSession[0].m_ownerRotateAngle.x += cyDelta;
-					g_Logic.m_inGamePlayerSession[0].m_ownerRotateAngle.y += cxDelta;
-
-					if (g_Logic.m_inGamePlayerSession[0].m_ownerRotateAngle.x > 30.0f) g_Logic.m_inGamePlayerSession[0].m_ownerRotateAngle.x = +30.0f;
-					if (g_Logic.m_inGamePlayerSession[0].m_ownerRotateAngle.x < -20.0f) g_Logic.m_inGamePlayerSession[0].m_ownerRotateAngle.x = -20.0f;	
-					if (g_Logic.m_inGamePlayerSession[0].m_ownerRotateAngle.y > 360.0f) g_Logic.m_inGamePlayerSession[0].m_ownerRotateAngle.y -= 360.0f;
-					if (g_Logic.m_inGamePlayerSession[0].m_ownerRotateAngle.y < 0.0f) g_Logic.m_inGamePlayerSession[0].m_ownerRotateAngle.y += 360.0f;
-
-					g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::X, g_Logic.m_inGamePlayerSession[0].m_ownerRotateAngle.x);*/
-					g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::Y, cxDelta);
-					if (!m_bLobbyScene)
-					{
-						m_pCamera->Rotate(cyDelta, cxDelta, 0.0f);
-					}
-				//}
+				g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::Y, cxDelta);
+				possessObj->SetRotateAxis(RotateAngle);
+				if (!m_bLobbyScene)
+				{
+					m_pCamera->Rotate(cyDelta, cxDelta, 0.0f);
+				}
 			}
 			if (dwDirection != DIRECTION::IDLE) {
 				m_pCamera->Move(dwDirection, 1.21f, true);

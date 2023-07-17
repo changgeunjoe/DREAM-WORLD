@@ -4,9 +4,10 @@
 class Character : public GameObject
 {
 protected:
-	bool m_bQSkillClicked;
-	bool m_bESkillClicked;
-	bool m_bOnAttack;
+	XMFLOAT3	m_xmf3RotateAxis;	// XMFLOAT3(0, 0, 1)로부터 회전한 각도
+	bool		m_bQSkillClicked;
+	bool		m_bESkillClicked;
+	bool		m_bOnAttack;
 public:
 	Character();
 	virtual ~Character();
@@ -17,6 +18,7 @@ public:
 	virtual void FirstSkillUp() {};
 	virtual void SecondSkillDown() { m_bESkillClicked = true; };
 	virtual void SecondSkillUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f }) {};
+	virtual void MoveObject();
 	bool CheckAnimationEnd(int nAnimation);
 public:
 	virtual void InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos);
@@ -24,6 +26,8 @@ public:
 	bool GetQSkillState() { return m_bQSkillClicked; }
 	bool GetESkillState() { return m_bESkillClicked; }
 	bool GetOnAttack() { return m_bOnAttack; }
+	void SetRotateAxis(XMFLOAT3& xmf3RotateAxis) { m_xmf3RotateAxis = xmf3RotateAxis; }
+	XMFLOAT3& GetRotateAxis() { return m_xmf3RotateAxis; }
 public:
 	virtual void Move(float fDsitance) = 0;
 protected:
@@ -69,7 +73,7 @@ public:
 	virtual void Move(float fDsitance)override;
 	virtual void Animate(float fTimeElapsed);
 	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender = false);
-	virtual void MoveObject(DIRECTION& currentDirection, const XMFLOAT3& CameraAxis);
+	virtual void MoveObject();
 	virtual void FirstSkillDown();
 	virtual void FirstSkillUp();
 	virtual void SecondSkillDown();
@@ -105,7 +109,7 @@ public:
 	virtual void Move(float fDsitance)override;
 	virtual void Animate(float fTimeElapsed);
 	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender = false);
-	virtual void MoveObject(DIRECTION& currentDirection, const XMFLOAT3& CameraAxis);
+	virtual void MoveObject();
 	virtual void FirstSkillDown();
 	virtual void FirstSkillUp();
 	virtual void SecondSkillDown() {};

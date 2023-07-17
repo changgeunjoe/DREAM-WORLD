@@ -84,7 +84,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 		//m_pLightEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 10);
 	}
 	//m_pDebuffObject->AnimateEffect(m_pCamera, g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition(), fTimeElapsed, m_fTime * 10);
-	//m_pMonsterObject->Animate(fTimeElapsed);
+
 	//sword effect
 	//m_pSwordFireObject->SetPosition(XMFLOAT3(m_pWarriorObject->m_pLoadedModelComponent->m_pWeaponStart->GetPosition().x,
 	//	m_pWarriorObject->m_pLoadedModelComponent->m_pWeaponStart->GetPosition().y,
@@ -101,9 +101,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	m_pArcherObject->m_pHPBarUI->SetCurrentHP(m_pArcherObject->GetCurrentHP());
 	m_pWarriorObject->m_pHPBarUI->SetCurrentHP(m_pWarriorObject->GetCurrentHP());
 	m_pTankerObject->m_pHPBarUI->SetCurrentHP(m_pTankerObject->GetCurrentHP());
-	m_pPriestObject->m_pHPBarUI->SetCurrentHP(m_pPriestObject->GetCurrentHP());	
-	//session.m_currentPlayGameObject->MoveObject(session.m_currentDirection, session.m_ownerRotateAngle);
-	//session.m_currentPlayGameObject->Move(session.m_currentDirection, 50 * fTimeElapsed);
+	m_pPriestObject->m_pHPBarUI->SetCurrentHP(m_pPriestObject->GetCurrentHP());
 
 	CharacterUIAnimate(fTimeElapsed);
 	if (m_pTrailComponent) {
@@ -257,29 +255,6 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pEnergyBallObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 
-	//m_pMonsterCubeObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//for (auto& session : g_Logic.m_inGamePlayerSession) {
-	//	if (-1 != session.m_id && session.m_isVisible) {
-	//		session.m_currentPlayGameObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//		//if (session.m_currentPlayGameObject->m_SPBB.Intersects(m_pMonsterObject->m_SPBB))
-	//		//{
-	//		//	cout << "충돌 " << endl;
-	//		//}
-	//		//for (int i = 0; i < 10; ++i)
-	//		//{
-	//		//	if (session.m_currentPlayGameObject->m_pArrow[i]->m_bActive)
-	//		//	{
-	//		//		if (session.m_currentPlayGameObject->m_pArrow[i]->m_SPBB.Intersects(m_pMonsterObject->m_SPBB))
-	//		//		{
-	//		//			cout << i << "번째 화살 충돌 " << endl;
-	//		//			session.m_currentPlayGameObject->m_pArrow[i]->m_bActive = false;
-	//		//		}
-	//		//	}
-	//		//}
-	//	}
-	//}
-	//m_pMonsterObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-
 	//m_pUIGameSearchObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 	//for (int i = 0; i < m_ppUIObjects.size(); i++) {
@@ -396,35 +371,6 @@ void GameobjectManager::StoryUIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	//	m_ppStoryUIObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//}
 }
-
-//XMFLOAT4 GetQuaternion(float x, float y, float z)
-//{
-//	float x_half = x / 2;
-//	float y_half = y / 2;
-//	float z_half = z / 2;
-//
-//	float sin_x = sin(x_half);
-//	float cos_x = cos(x_half);
-//
-//	float sin_y = sin(y_half);
-//	float cos_y = cos(y_half);
-//
-//	float sin_z = sin(z_half);
-//	float cos_z = cos(z_half);
-//
-//	float revW = cos_x * cos_y * cos_z + sin_x * sin_y * sin_z;
-//	float revX = sin_x * cos_y * cos_z - cos_x * sin_y * sin_z;
-//	float revY = cos_x * sin_y * cos_z + sin_x * cos_y * sin_z;
-//	float revZ = cos_x * cos_y * sin_z - sin_x * sin_y * cos_z;
-//
-//	float magnitude = sqrt(revW * revW + revX * revX + revY * revY + revZ * revZ);
-//	revW /= magnitude;
-//	revX /= magnitude;
-//	revY /= magnitude;
-//	revZ /= magnitude;
-//
-//	return XMFLOAT4(revW, revX, revY, revZ);
-//}
 
 void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, const char* fileName, CLoadedModelInfoCompnent* modelName, int type, int stagetype)
 {
@@ -905,16 +851,6 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pMonsterObject->SetMoveState(false);
 	m_ppGameObjects.emplace_back(m_pMonsterObject);
 
-	m_pMonsterCubeObject = new GameObject(SQUARE_ENTITY);
-	m_pMonsterCubeObject->InsertComponent<RenderComponent>();
-	m_pMonsterCubeObject->InsertComponent<SkyBoxMeshComponent>();
-	m_pMonsterCubeObject->InsertComponent<SkyBoxShaderComponent>();
-	m_pMonsterCubeObject->InsertComponent<TextureComponent>();
-	m_pMonsterCubeObject->SetTexture(L"DreamWorld/DreamWorld.dds", RESOURCE_TEXTURE_CUBE, 12);
-	m_pMonsterCubeObject->SetPosition(XMFLOAT3(0, 0, 0));
-	m_pMonsterCubeObject->SetScale(10);
-	m_pMonsterCubeObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-
 	m_pSkyboxObject = new GameObject(SQUARE_ENTITY);
 	m_pSkyboxObject->InsertComponent<RenderComponent>();
 	m_pSkyboxObject->InsertComponent<SkyBoxMeshComponent>();
@@ -937,23 +873,23 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 #if LOCAL_TASK
 	// 플레이어가 캐릭터 선택하는 부분에 유사하게 넣을 예정
 	// m_pWarriorObject m_pArcherObject m_pTankerObject m_pPriestObject
-	m_pPlayerObject = new GameObject(UNDEF_ENTITY);
+	// Archer Priest Tanker Warrior
+	m_pPlayerObject = new Archer();
 	m_pCamera->Rotate(0, -90, 0);
 	m_pArcherObject->SetCamera(m_pCamera);
 	m_pPlayerObject = m_pArcherObject;
-	g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject = m_pPlayerObject;
-	g_Logic.m_inGamePlayerSession[0].m_isVisible = true;
-	g_Logic.m_inGamePlayerSession[0].m_id = 0;
+	// ARCHER PRIEST TANKER WARRIOR
+	g_Logic.SetMyRole(ROLE::ARCHER);
 #endif // LOCAL_TASK
 
 	BuildNPC(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	BuildCharacterUI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildShadow(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//무조건 마지막에 해줘야된다.
 	// 서순을 잘챙기자 ㅋㅋ	
 		//m_pTextureToViewportComponent = new TextureToViewportComponent();
 		//m_pTextureToViewportComponent->CreateGraphicsPipelineState(pd3dDevice, pd3dGraphicsRootSignature, 0);
 		//m_pTextureToViewportComponent->BuildObjects(pd3dDevice, pd3dCommandList, m_pDepthShaderComponent->GetDepthTexture());
 
-	BuildCharacterUI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildParticle(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//BuildInstanceObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//BuildStoryUI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -1992,7 +1928,7 @@ bool GameobjectManager::onProcessingKeyboardMessageUI(HWND hWnd, UINT nMessageID
 			if (m_pSelectedObject)
 			{
 				XMFLOAT3 TempPosition = m_pSelectedObject->GetPosition();
-				TempPosition.x += 0.01;
+				TempPosition.x += 0.01f;
 				m_pSelectedObject->SetPosition(TempPosition);
 
 			}
@@ -2003,7 +1939,7 @@ bool GameobjectManager::onProcessingKeyboardMessageUI(HWND hWnd, UINT nMessageID
 			if (m_pSelectedObject)
 			{
 				XMFLOAT3 TempPosition = m_pSelectedObject->GetPosition();
-				TempPosition.x -= 0.01;
+				TempPosition.x -= 0.01f;
 				m_pSelectedObject->SetPosition(TempPosition);
 			}
 		}
@@ -2014,7 +1950,7 @@ bool GameobjectManager::onProcessingKeyboardMessageUI(HWND hWnd, UINT nMessageID
 			if (m_pSelectedObject)
 			{
 				XMFLOAT3 TempPosition = m_pSelectedObject->GetPosition();
-				TempPosition.y += 0.01;
+				TempPosition.y += 0.01f;
 				m_pSelectedObject->SetPosition(TempPosition);
 			}
 		}
@@ -2025,7 +1961,7 @@ bool GameobjectManager::onProcessingKeyboardMessageUI(HWND hWnd, UINT nMessageID
 			if (m_pSelectedObject)
 			{
 				XMFLOAT3 TempPosition = m_pSelectedObject->GetPosition();
-				TempPosition.y -= 0.01;
+				TempPosition.y -= 0.01f;
 				m_pSelectedObject->SetPosition(TempPosition);
 			}
 		}
@@ -2246,18 +2182,12 @@ void GameobjectManager::SetPlayCharacter(Session* pSession) // 임시 함수
 	}
 }
 
-void GameobjectManager::SetPlayerCamera(Session& mySession)
+void GameobjectManager::SetPlayerCamera(GameObject* obj)
 {
-	mySession.m_currentPlayGameObject->SetCamera(m_pCamera);
-	mySession.m_currentPlayGameObject->m_pCamera->ReInitCamrea();
-	mySession.m_currentPlayGameObject->SetCamera(m_pCamera);
-	mySession.m_currentPlayGameObject->SetLookAt(XMFLOAT3(0, 0, 0));
-	auto mPos = mySession.m_currentPlayGameObject->GetPosition();
-	auto cPos = mySession.m_currentPlayGameObject->m_pCamera->GetPosition();
-	boolalpha(cout);
-	cout << "visbie: " << mySession.m_isVisible << endl;
-	cout << "MyPos: " << mPos.x << ", " << mPos.y << ", " << mPos.z << endl;
-	cout << "CameraPos: " << cPos.x << ", " << cPos.y << ", " << cPos.z << endl;
+	obj->SetCamera(m_pCamera);
+	obj->m_pCamera->ReInitCamrea();
+	obj->SetCamera(m_pCamera);
+	obj->SetLookAt(XMFLOAT3(0, 0, 0));
 }
 
 void GameobjectManager::ResetObject()
