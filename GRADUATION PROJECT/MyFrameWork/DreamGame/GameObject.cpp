@@ -357,9 +357,12 @@ void GameObject::BuildMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 	ComponentBase* pSquareMeshComponent = GetComponent(component_id::SQUAREMESH_COMPONENT);
 	if (pSquareMeshComponent != NULL)
 	{
-		m_pSquareMeshComponent = static_cast<SquareMeshComponent*>(pSquareMeshComponent);
-		m_pSquareMeshComponent->BuildObject(pd3dDevice, pd3dCommandList, 150.0f);
-		m_pMeshComponent = m_pSquareMeshComponent;
+		if (m_fSkillSize > FLT_EPSILON)
+		{
+			m_pSquareMeshComponent = static_cast<SquareMeshComponent*>(pSquareMeshComponent);
+			m_pSquareMeshComponent->BuildObject(pd3dDevice, pd3dCommandList, m_fSkillSize);
+			m_pMeshComponent = m_pSquareMeshComponent;
+		}
 	}
 }
 
@@ -1145,6 +1148,11 @@ void GameObject::SetBoundingOffset(XMFLOAT3& boundingOffset)
 	m_xmf3BoundingSphereOffset = boundingOffset;
 }
 
+void GameObject::SetSkillSize(float size)
+{
+	m_fSkillSize = size;
+}
+
 void GameObject::MoveStrafe(float fDistance)
 {
 	XMFLOAT3 xmf3Position = GetPosition();
@@ -1174,6 +1182,7 @@ void GameObject::MoveForward(float fDistance)
 	//vector<GameObject*> tempVector = gGameFramework.GetScene()->GetObjectManager()->GetObstacle();
 	//XMVECTOR tempPoint = XMVectorSet(xmf3Position.x, xmf3Position.y, xmf3Position.z, 0.0f);
 	if (fDistance < 0) xmf3Look = Vector3::ScalarProduct(xmf3Look, -1.0f, false);
+	fDistance = std::abs(fDistance);
 	//XMFLOAT3 futurePos = xmf3Position = Vector3::Add(xmf3Position, xmf3Look, fDistance);;
 	for (auto& collide : Collides) {
 		if (collide.GetObb().Intersects(m_SPBB)) {

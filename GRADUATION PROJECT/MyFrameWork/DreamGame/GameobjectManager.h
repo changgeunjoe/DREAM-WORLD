@@ -98,6 +98,7 @@ private: //active object
 	GameObject* m_pEnergyBallObject{ NULL };
 
 	GameObject* m_pHealRange{ NULL };
+	GameObject* m_pBossSkillRange{ NULL };
 	GameObject* m_pBarrierObject{ NULL };
 
 

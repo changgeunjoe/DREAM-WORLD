@@ -989,10 +989,12 @@ void CylinderMeshComponent::BuildObject(ID3D12Device* pd3dDevice, ID3D12Graphics
 void SquareMeshComponent::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float length)
 {
 	m_nVertices = 4;
-	m_nStride = sizeof(XMFLOAT3);
+	m_nStride = sizeof(Textured2DUIVertex);
 	m_nOffset = 0;
 	m_nSlot = 0;
 	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+
+
 	m_pxmf3Positions = new XMFLOAT3[m_nVertices];
 
 	m_pxmf3Positions[0] = XMFLOAT3(-length, 0.0f, +length);
@@ -1000,20 +1002,21 @@ void SquareMeshComponent::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	m_pxmf3Positions[2] = XMFLOAT3(+length, 0.0f, +length);
 	m_pxmf3Positions[3] = XMFLOAT3(+length, 0.0f, -length);
 
-	m_pd3dVertexBuffer = CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf3Positions, sizeof(XMFLOAT3) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dVertexUploadBuffer);
+	Textured2DUIVertex pVertices[6];
+	pVertices[0] = Textured2DUIVertex(m_pxmf3Positions[0], XMFLOAT2(0.0f, 0.0f));
+	pVertices[1] = Textured2DUIVertex(m_pxmf3Positions[1], XMFLOAT2(1.0f, 0.0f));
+	pVertices[2] = Textured2DUIVertex(m_pxmf3Positions[2], XMFLOAT2(0.0f, 1.0f));
+	pVertices[3] = Textured2DUIVertex(m_pxmf3Positions[3], XMFLOAT2(1.0f, 1.0f));
 
+	m_pd3dVertexBuffer = CreateBufferResource(pd3dDevice, pd3dCommandList, pVertices, sizeof(Textured2DUIVertex) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dVertexUploadBuffer);
 	m_d3dVertexBufferView.BufferLocation = m_pd3dVertexBuffer->GetGPUVirtualAddress();
-	m_d3dVertexBufferView.StrideInBytes = sizeof(XMFLOAT3);
-	m_d3dVertexBufferView.SizeInBytes = sizeof(XMFLOAT3) * m_nVertices;
+	m_d3dVertexBufferView.StrideInBytes = sizeof(Textured2DUIVertex);
+	m_d3dVertexBufferView.SizeInBytes = sizeof(Textured2DUIVertex) * m_nVertices;
 
 	m_nIndices = 6;
 	m_pnIndices = new UINT[m_nIndices];
-	m_pnIndices[0] = 0;
-	m_pnIndices[1] = 2;
-	m_pnIndices[2] = 1;
-	m_pnIndices[3] = 2;
-	m_pnIndices[4] = 3;
-	m_pnIndices[5] = 1;
+	m_pnIndices[0] = 0;	m_pnIndices[1] = 2;	m_pnIndices[2] = 1;
+	m_pnIndices[3] = 2;	m_pnIndices[4] = 3;	m_pnIndices[5] = 1;
 
 	m_pd3dIndexBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pnIndices, sizeof(UINT) * m_nIndices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_INDEX_BUFFER, &m_pd3dIndexUploadBuffer);
 

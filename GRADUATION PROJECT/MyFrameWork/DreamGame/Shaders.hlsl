@@ -528,7 +528,7 @@ float4 PSNaviMesh(VS_BOUNDING_BOX_OUTPUT input) : SV_TARGET
     return(float4(1.0f, 0.6f, 0.0f, 0.3f));
 }
 
-VS_HEAL_RANGE_OUTPUT VSHealRange(VS_SKYBOX_CUBEMAP_INPUT input)
+VS_HEAL_RANGE_OUTPUT VSHealRange(VS_TEXTURED_INPUT input)
 {
     VS_HEAL_RANGE_OUTPUT output;
     output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObjectWorld), gmtxView), gmtxProjection);
