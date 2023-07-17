@@ -7,7 +7,6 @@
 #include "TextureToViewportComponent.h"
 #include "UiShaderComponent.h"
 #include "MultiSpriteShaderComponent.h"
-#include "Character.h"
 #include "InstancingShaderComponent.h"
 #include "TrailShaderComponent.h"
 #include "TrailComponent.h"
@@ -18,6 +17,7 @@
 #include"DebuffObject.h"
 #include"UILayer.h"
 #include "GameFramework.h"
+#include "Character.h"
 
 extern NetworkHelper g_NetworkHelper;
 extern Logic g_Logic;
@@ -66,9 +66,9 @@ void GameobjectManager::Animate(float fTimeElapsed)
 			m_pMonsterObject->GetPosition().y + 70, m_pMonsterObject->GetPosition().z));
 		m_pMonsterHPBarObject->Rotate(0, 180, 0);
 		m_pMonsterHPBarObject->SetScale(10, 1, 1);
-		m_pMonsterHPBarObject->SetCurrentHP(g_Logic.m_MonsterSession.m_currentPlayGameObject->GetCurrentHP());
+		m_pMonsterHPBarObject->SetCurrentHP(m_pMonsterObject->GetCurrentHP());
 	}
-	XMFLOAT3 mfHittmp = g_Logic.m_MonsterSession.m_currentPlayGameObject->m_xmfHitPosition;
+	XMFLOAT3 mfHittmp = m_pMonsterObject->m_xmfHitPosition;
 	for (int i = 0; i < m_ppParticleObjects.size(); i++) {
 		m_ppParticleObjects[i]->SetLookAt(m_pCamera->GetPosition());
 		//m_ppParticleObjects[i]->SetPosition(XMFLOAT3(mfHittmp.x, mfHittmp.y+20, mfHittmp.z));
@@ -98,69 +98,13 @@ void GameobjectManager::Animate(float fTimeElapsed)
 			m_ppGameObjects[i]->Die(fTimeElapsed);
 	}
 
+	m_pArcherObject->m_pHPBarUI->SetCurrentHP(m_pArcherObject->GetCurrentHP());
+	m_pWarriorObject->m_pHPBarUI->SetCurrentHP(m_pWarriorObject->GetCurrentHP());
+	m_pTankerObject->m_pHPBarUI->SetCurrentHP(m_pTankerObject->GetCurrentHP());
+	m_pPriestObject->m_pHPBarUI->SetCurrentHP(m_pPriestObject->GetCurrentHP());	
+	//session.m_currentPlayGameObject->MoveObject(session.m_currentDirection, session.m_ownerRotateAngle);
+	//session.m_currentPlayGameObject->Move(session.m_currentDirection, 50 * fTimeElapsed);
 
-	for (auto& session : g_Logic.m_inGamePlayerSession) {
-		if (-1 != session.m_id && session.m_isVisible) {
-			switch (session.GetRole())
-			{
-			case ROLE::ARCHER:
-				m_pArcherObject->m_pHPBarUI->SetCurrentHP(session.m_currentPlayGameObject->GetCurrentHP());
-				break;
-			case ROLE::WARRIOR:
-				m_pWarriorObject->m_pHPBarUI->SetCurrentHP(session.m_currentPlayGameObject->GetCurrentHP());
-				break;
-			case ROLE::TANKER:
-				m_pTankerObject->m_pHPBarUI->SetCurrentHP(session.m_currentPlayGameObject->GetCurrentHP());
-				break;
-			case ROLE::PRIEST:
-				m_pPriestObject->m_pHPBarUI->SetCurrentHP(session.m_currentPlayGameObject->GetCurrentHP());
-				break;
-			}
-			if (session.m_currentDirection != DIRECTION::IDLE) {
-
-				//session.m_currentPlayGameObject->MoveForward(50.0f * fTimeElapsed);
-				session.m_currentPlayGameObject->MoveObject(session.m_currentDirection, session.m_ownerRotateAngle);
-				session.m_currentPlayGameObject->Move(session.m_currentDirection, 50 * fTimeElapsed);
-#ifdef _DEBUG
-				auto look = session.m_currentPlayGameObject->GetLook();
-				auto up = session.m_currentPlayGameObject->GetUp();
-				auto right = session.m_currentPlayGameObject->GetRight();
-				auto pos = session.m_currentPlayGameObject->GetPosition();
-				//cout << "GameobjectManager::Animate() SessionId: " << session.m_id << endl;
-				// cout << "GameobjectManager::Animate() Position: " << pos.x << ", 0, " << pos.z << endl;
-				//cout << "GameobjectManager::Animate() Look: " << look.x << ", " << look.y << ", " << look.z << endl;
-				//cout << "GameobjectManager::Animate() up: " << up.x << ", " << up.y << ", " << up.z << endl;
-				//cout << "GameobjectManager::Animate() right: " << right.x << ", " << right.y << ", " << right.z << endl;
-				// std::cout << "GameobjectManager::Animate() rotation angle: " << session.m_rotateAngle.x << ", " << session.m_rotateAngle.y << ", " << session.m_rotateAngle.z << std::endl;
-#endif
-
-			}
-			//if (session.m_currentPlayGameObject->GetRButtonClicked())
-			//	session.m_currentPlayGameObject->RbuttonClicked(fTimeElapsed);
-			//session.m_currentPlayGameObject->Animate(fTimeElapsed);
-		}
-	}
-
-#ifdef LOCAL_TASK
-	static int tempcount = 0;
-	if (tempcount % 900 == 0)
-	{
-		float y = 0.0f;
-		float z = 0.0f;
-		float x = 0.0f;
-
-		while (true)
-		{
-			x = 80.f * (2.f * (((float)rand() / (float)RAND_MAX)) - 1.f);
-			y = 0.0f;
-			z = 80.f * (2.f * (((float)rand() / (float)RAND_MAX)) - 1.f);
-			if (Vector3::Length(XMFLOAT3(x, y, z)) < 350.0f)
-				break;
-		}
-		g_Logic.m_MonsterSession.m_currentPlayGameObject->m_xmf3Destination = XMFLOAT3(x, y, z);
-	}
-	tempcount++;
-#endif
 	CharacterUIAnimate(fTimeElapsed);
 	if (m_pTrailComponent) {
 		TrailAnimate(fTimeElapsed);
@@ -173,9 +117,10 @@ void GameobjectManager::Animate(float fTimeElapsed)
 
 }
 
-void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)
+void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)//나중에 처리
 {
-	if (g_Logic.m_inGamePlayerSession[0].GetRole() == ROLE::ARCHER) {
+
+	if (g_Logic.GetMyRole() == ROLE::ARCHER) {
 		m_pArcherObject->m_pHPBarUI->SetinitScale(0.09, 0.0065, 1);
 		m_pArcherObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.57, 0.46, 1.00));
 		m_pArcherObject->m_pProfileUI->SetinitScale(0.04, 0.025, 1);
@@ -193,7 +138,7 @@ void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)
 		m_pWarriorObject->m_pProfileUI->SetinitScale(0.03, 0.015, 1);
 		m_pWarriorObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.14, 1.00));
 	}
-	else if (g_Logic.m_inGamePlayerSession[0].GetRole() == ROLE::TANKER) {
+	else if (g_Logic.GetMyRole() == ROLE::TANKER) {
 		m_pTankerObject->m_pHPBarUI->SetinitScale(0.09, 0.0065, 1);
 		m_pTankerObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.57, 0.46, 1.00));
 		m_pTankerObject->m_pProfileUI->SetinitScale(0.04, 0.025, 1);
@@ -211,7 +156,7 @@ void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)
 		m_pWarriorObject->m_pProfileUI->SetinitScale(0.03, 0.015, 1);
 		m_pWarriorObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.14, 1.00));
 	}
-	else if (g_Logic.m_inGamePlayerSession[0].GetRole() == ROLE::PRIEST) {
+	else if (g_Logic.GetMyRole() == ROLE::PRIEST) {
 		m_pPriestObject->m_pHPBarUI->SetinitScale(0.09, 0.0065, 1);
 		m_pPriestObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.57, 0.46, 1.00));
 		m_pPriestObject->m_pProfileUI->SetinitScale(0.04, 0.025, 1);
@@ -229,7 +174,7 @@ void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)
 		m_pWarriorObject->m_pProfileUI->SetinitScale(0.03, 0.015, 1);
 		m_pWarriorObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.14, 1.00));
 	}
-	else if (g_Logic.m_inGamePlayerSession[0].GetRole() == ROLE::WARRIOR) {
+	else if (g_Logic.GetMyRole() == ROLE::WARRIOR) {
 		m_pWarriorObject->m_pHPBarUI->SetinitScale(0.09, 0.0065, 1);
 		m_pWarriorObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.57, 0.46, 1.00));
 		m_pWarriorObject->m_pProfileUI->SetinitScale(0.04, 0.025, 1);
@@ -343,9 +288,9 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 
 	if (m_pShadowmapShaderComponent)
 	{
-	
-		m_pShadowmapShaderComponent->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature, m_fTimeElapsed,m_nStageType);
-	
+
+		m_pShadowmapShaderComponent->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature, m_fTimeElapsed, m_nStageType);
+
 	}
 	/*for (int i = 0; i < 6; i++) {
 		if (m_pStage1Objects[i])
@@ -481,7 +426,7 @@ void GameobjectManager::StoryUIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 //	return XMFLOAT4(revW, revX, revY, revZ);
 //}
 
-void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, const char* fileName, CLoadedModelInfoCompnent* modelName, int type,int stagetype)
+void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, const char* fileName, CLoadedModelInfoCompnent* modelName, int type, int stagetype)
 {
 	ifstream objectFile(fileName);
 
@@ -628,7 +573,7 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 		Axis = tempObject[i]->GetUp();
 		tempObject[i]->Rotate(&Axis, modelEulerRotate[i].y);
 		Axis = tempObject[i]->GetUp();
-		tempObject[i]->Rotate(&Axis, modelEulerRotate[i].z);		
+		tempObject[i]->Rotate(&Axis, modelEulerRotate[i].z);
 		tempObject[i]->m_nStageType = stagetype;
 		if (type == 1)
 		{
@@ -650,7 +595,7 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 	}
 }
 
-void GameobjectManager::ReadNormalMonsterFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, const char* fileName, CLoadedModelInfoCompnent* modelName, int type,int stagetype)
+void GameobjectManager::ReadNormalMonsterFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, const char* fileName, CLoadedModelInfoCompnent* modelName, int type, int stagetype)
 {
 	ifstream objectFile(fileName);
 
@@ -755,11 +700,10 @@ void GameobjectManager::ReadNormalMonsterFile(ID3D12Device* pd3dDevice, ID3D12Gr
 
 		m_ppNormalMonsterBoundingBox.emplace_back(MonsterBoundingSphere);
 		m_ppGameObjects.emplace_back(tempObject[i]);
-		g_Logic.m_SmallMonsterSession[i].SetGameObject(tempObject[i]);
 	}
 }
 
-GameObject* GameobjectManager::GetChracterInfo(ROLE r)
+Character* GameobjectManager::GetChracterInfo(ROLE r)
 {
 	if (r == ROLE::WARRIOR) return m_pWarriorObject;
 	if (r == ROLE::PRIEST) return m_pPriestObject;
@@ -960,7 +904,6 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pMonsterObject->SetBoundingBox(m_pBoundingBox[4]);
 	m_pMonsterObject->SetMoveState(false);
 	m_ppGameObjects.emplace_back(m_pMonsterObject);
-	g_Logic.m_MonsterSession.SetGameObject(m_pMonsterObject);
 
 	m_pMonsterCubeObject = new GameObject(SQUARE_ENTITY);
 	m_pMonsterCubeObject->InsertComponent<RenderComponent>();
@@ -1695,8 +1638,6 @@ void GameobjectManager::ProcessingUI(int n)
 
 #endif
 		m_pUIGameSearchObject->m_bUIActive = false;
-		cout << "request Room List" << endl;
-		g_NetworkHelper.SendRequestRoomList();
 		break;
 	}
 	case UI::UI_GAMEMATCHING:
@@ -1713,7 +1654,7 @@ void GameobjectManager::ProcessingUI(int n)
 	case UI::UI_WARRIORCHARACTER:
 	{
 		// 선택한 캐릭터 Warrior
-		g_NetworkHelper.SetRole(ROLE::WARRIOR);
+		g_Logic.SetMyRole(ROLE::WARRIOR);		
 		m_pUIWarriorCharacterObject->m_bUIActive = true;
 		m_pUIArcherCharacterObject->m_bUIActive = false;
 		m_pUITankerCharacterObject->m_bUIActive = false;
@@ -1724,7 +1665,7 @@ void GameobjectManager::ProcessingUI(int n)
 	case UI::UI_ARCHERCHARACTER:
 	{
 		// 선택한 캐릭터 Archer
-		g_NetworkHelper.SetRole(ROLE::ARCHER);
+		g_Logic.SetMyRole(ROLE::ARCHER);
 		m_pUIWarriorCharacterObject->m_bUIActive = false;
 		m_pUIArcherCharacterObject->m_bUIActive = true;
 		m_pUITankerCharacterObject->m_bUIActive = false;
@@ -1735,7 +1676,7 @@ void GameobjectManager::ProcessingUI(int n)
 	case UI::UI_TANKERCHARACTER:
 	{
 		// 선택한 캐릭터 tanker
-		g_NetworkHelper.SetRole(ROLE::TANKER);
+		g_Logic.SetMyRole(ROLE::TANKER);
 		m_pUIWarriorCharacterObject->m_bUIActive = false;
 		m_pUIArcherCharacterObject->m_bUIActive = false;
 		m_pUITankerCharacterObject->m_bUIActive = true;
@@ -1746,7 +1687,7 @@ void GameobjectManager::ProcessingUI(int n)
 	case UI::UI_PRIESTCHARACTER:
 	{
 		// 선택한 캐릭터 priest
-		g_NetworkHelper.SetRole(ROLE::PRIEST);
+		g_Logic.SetMyRole(ROLE::PRIEST);
 		m_pUIWarriorCharacterObject->m_bUIActive = false;
 		m_pUIArcherCharacterObject->m_bUIActive = false;
 		m_pUITankerCharacterObject->m_bUIActive = false;
@@ -1763,10 +1704,6 @@ void GameobjectManager::ProcessingUI(int n)
 	case UI::UI_CREATEROOM:
 	{
 		cout << "Create Room" << endl;
-		uniform_int_distribution<int> uid(0, 1000);
-		random_device rd;
-		default_random_engine dre(rd());
-		g_NetworkHelper.SendCreateRoomPacket(ROLE::ARCHER, L"testRoomCreate" + to_wstring(uid(dre)));
 		break;
 	}
 	default:
@@ -1805,10 +1742,11 @@ void GameobjectManager::ReleaseShaderVariables()
 bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
 	static XMFLOAT3 upVec = XMFLOAT3(0, 1, 0);
+	Character* myPlayCharacter = GetChracterInfo(g_Logic.GetMyRole());
 	if (nMessageID == WM_KEYDOWN && wParam == VK_F4)
 	{
 		g_NetworkHelper.SendTestGameEndPacket();
-		g_Logic.m_MonsterSession.m_currentPlayGameObject->SetCurrentHP(0.0f);
+		m_pMonsterObject->SetCurrentHP(0.0f);
 		GameEnd = true;
 	}
 	if (nMessageID == WM_KEYDOWN && wParam == VK_F3)
@@ -1841,7 +1779,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 	{
 		m_xmfMode = DISSOLVE_MODE;
 	}
-	if (g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetCurrentHP() < FLT_EPSILON)
+	if (myPlayCharacter->GetCurrentHP() < FLT_EPSILON)
 		return false;
 	switch (nMessageID)
 	{
@@ -1851,55 +1789,52 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		case 'W':
 		{
 			g_Logic.m_KeyInput->m_bWKey = true;
-			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetMoveState(true);
-			g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection | DIRECTION::FRONT);
+			myPlayCharacter->SetMoveState(true);
+			myPlayCharacter->AddDirection(DIRECTION::FRONT);
 			g_NetworkHelper.SendMovePacket(DIRECTION::FRONT);
-			cout << "x" << g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition().x << "z" << g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition().z << endl;
-
 		}
 		break;
 		case 'A':
 		{
 			g_Logic.m_KeyInput->m_bAKey = true;
-			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetMoveState(true);
-			g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection | DIRECTION::LEFT);
+			myPlayCharacter->SetMoveState(true);
+			myPlayCharacter->AddDirection(DIRECTION::LEFT);
 			g_NetworkHelper.SendMovePacket(DIRECTION::LEFT);
 		}
 		break;
 		case 'S':
 		{
 			g_Logic.m_KeyInput->m_bSKey = true;
-			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetMoveState(true);
-			g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection | DIRECTION::BACK);
+			myPlayCharacter->SetMoveState(true);
+			myPlayCharacter->AddDirection(DIRECTION::BACK);
 			g_NetworkHelper.SendMovePacket(DIRECTION::BACK);
 		}
 		break;
 		case 'D':
 		{
 			g_Logic.m_KeyInput->m_bDKey = true;
-			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetMoveState(true);
-			g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection | DIRECTION::RIGHT);
+			myPlayCharacter->SetMoveState(true);
+			myPlayCharacter->AddDirection(DIRECTION::RIGHT);
 			g_NetworkHelper.SendMovePacket(DIRECTION::RIGHT);
 		}
 		break;
 		case 'Q':
 		{
 			//g_Logic.m_KeyInput->m_bQKey = true;
-			Character* pcharacter = static_cast<Character*>(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject);
-			if (pcharacter->GetQSkillState() == false && pcharacter->GetOnAttack() == false)
+
+			if (myPlayCharacter->GetQSkillState() == false && myPlayCharacter->GetOnAttack() == false)
 			{
-				g_NetworkHelper.SendSkillStatePacket(pcharacter->GetQSkillState(), pcharacter->GetESkillState());
-				pcharacter->FirstSkillDown();
+				g_NetworkHelper.SendSkillStatePacket(myPlayCharacter->GetQSkillState(), myPlayCharacter->GetESkillState());
+				myPlayCharacter->FirstSkillDown();
 			}
 			break;
 		}
 		case 'E':
 		{
-			Character* pcharacter = static_cast<Character*>(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject);
-			if (pcharacter->GetESkillState() == false && pcharacter->GetOnAttack() == false)
+			if (myPlayCharacter->GetESkillState() == false && myPlayCharacter->GetOnAttack() == false)
 			{
-				g_NetworkHelper.SendSkillStatePacket(pcharacter->GetQSkillState(), pcharacter->GetESkillState());
-				pcharacter->SecondSkillDown();
+				g_NetworkHelper.SendSkillStatePacket(myPlayCharacter->GetQSkillState(), myPlayCharacter->GetESkillState());
+				myPlayCharacter->SecondSkillDown();
 			}
 			break;
 		}
@@ -1910,8 +1845,8 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			m_pPlayerObject->SetCamera(m_pCamera);
 #endif //  
 #ifndef LOCAL_TASK
-			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_pCamera->ReInitCamrea();
-			g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetCamera(m_pCamera);
+			myPlayCharacter->m_pCamera->ReInitCamrea();
+			myPlayCharacter->SetCamera(m_pCamera);
 #endif // !LOCAL_TASK
 
 			break;
@@ -1938,15 +1873,16 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			if (g_Logic.m_KeyInput->m_bWKey)
 			{
 				g_Logic.m_KeyInput->m_bWKey = false;
-				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection ^ DIRECTION::FRONT);
 				if (g_Logic.m_KeyInput->IsAllMovekeyUp())
 				{
-					g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetMoveState(false);
-					g_Logic.m_inGamePlayerSession[0].m_currentDirection = DIRECTION::IDLE;
-					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition()); //, g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate				
+					myPlayCharacter->SetMoveState(false);
+					myPlayCharacter->SetStopDirection();
+					g_NetworkHelper.SendStopPacket(myPlayCharacter->GetPosition()); //, g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate				
 				}
-				else
+				else {
+					myPlayCharacter->RemoveDIrection(DIRECTION::FRONT);
 					g_NetworkHelper.SendKeyUpPacket(DIRECTION::FRONT);
+				}
 			}
 		}
 		break;
@@ -1955,15 +1891,16 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			if (g_Logic.m_KeyInput->m_bAKey)
 			{
 				g_Logic.m_KeyInput->m_bAKey = false;
-				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection ^ DIRECTION::LEFT);
 				if (g_Logic.m_KeyInput->IsAllMovekeyUp())
 				{
-					g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetMoveState(false);
-					g_Logic.m_inGamePlayerSession[0].m_currentDirection = DIRECTION::IDLE;
-					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition()); //, g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate
+					myPlayCharacter->SetMoveState(false);
+					myPlayCharacter->SetStopDirection();
+					g_NetworkHelper.SendStopPacket(myPlayCharacter->GetPosition()); //, g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate				
 				}
-				else
+				else {
+					myPlayCharacter->RemoveDIrection(DIRECTION::LEFT);
 					g_NetworkHelper.SendKeyUpPacket(DIRECTION::LEFT);
+				}
 			}
 		}
 		break;
@@ -1972,15 +1909,16 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			if (g_Logic.m_KeyInput->m_bSKey)
 			{
 				g_Logic.m_KeyInput->m_bSKey = false;
-				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection ^ DIRECTION::BACK);
 				if (g_Logic.m_KeyInput->IsAllMovekeyUp())
 				{
-					g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetMoveState(false);
-					g_Logic.m_inGamePlayerSession[0].m_currentDirection = DIRECTION::IDLE;
-					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition()); // , g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate
+					myPlayCharacter->SetMoveState(false);
+					myPlayCharacter->SetStopDirection();
+					g_NetworkHelper.SendStopPacket(myPlayCharacter->GetPosition()); //, g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate				
 				}
-				else
+				else {
+					myPlayCharacter->RemoveDIrection(DIRECTION::BACK);
 					g_NetworkHelper.SendKeyUpPacket(DIRECTION::BACK);
+				}
 			}
 		}
 		break;
@@ -1989,27 +1927,29 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			if (g_Logic.m_KeyInput->m_bDKey)
 			{
 				g_Logic.m_KeyInput->m_bDKey = false;
-				g_Logic.m_inGamePlayerSession[0].m_currentDirection = (DIRECTION)(g_Logic.m_inGamePlayerSession[0].m_currentDirection ^ DIRECTION::RIGHT);
-				if (g_Logic.m_KeyInput->IsAllMovekeyUp()) {
-					g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetMoveState(false);
-					g_Logic.m_inGamePlayerSession[0].m_currentDirection = DIRECTION::IDLE;
-					g_NetworkHelper.SendStopPacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition()); //, g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate
+				if (g_Logic.m_KeyInput->IsAllMovekeyUp())
+				{
+					myPlayCharacter->SetMoveState(false);
+					myPlayCharacter->SetStopDirection();
+					g_NetworkHelper.SendStopPacket(myPlayCharacter->GetPosition()); //, g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate				
 				}
-				else
+				else {
+					myPlayCharacter->RemoveDIrection(DIRECTION::RIGHT);
 					g_NetworkHelper.SendKeyUpPacket(DIRECTION::RIGHT);
+				}
 			}
 		}
 		break;
 		case 'Q':
 		{
 			//g_Logic.m_KeyInput->m_bQKey = false;
-			static_cast<Character*>(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject)->FirstSkillUp();
+			myPlayCharacter->FirstSkillUp();
 			break;
 		}
 		case 'E':
 		{
 			//g_Logic.m_KeyInput->m_bEKey = false;
-			static_cast<Character*>(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject)->SecondSkillUp(g_Logic.m_inGamePlayerSession[0].m_ownerRotateAngle);
+			//myPlayCharacter->SecondSkillUp(g_Logic.m_inGamePlayerSession[0].m_ownerRotateAngle);
 			break;
 		}
 		//NPC와 대화하거나 포털들어갈 때 상호작용 키  
@@ -2027,7 +1967,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		}
 		case 'T':
 		{
-			m_nStageType= 2;
+			m_nStageType = 2;
 			break;
 		}
 		}
@@ -2098,18 +2038,11 @@ bool GameobjectManager::onProcessingKeyboardMessageUI(HWND hWnd, UINT nMessageID
 		case 'q':
 		case 'Q':
 		{
-			uniform_int_distribution<int> uid(0, 1000);
-			random_device rd;
-			default_random_engine dre(rd());
-			g_NetworkHelper.SendCreateRoomPacket(ROLE::ARCHER, L"testRoomCreate" + to_wstring(uid(dre)));
-			cout << "create Room" << endl;
 		}
 		break;
 		case 'w':
 		case 'W':
 		{
-			g_NetworkHelper.SendRequestRoomList();
-			cout << "request Room List" << endl;
 		}
 		break;
 		case 'r':
@@ -2154,6 +2087,7 @@ bool GameobjectManager::onProcessingKeyboardMessageUI(HWND hWnd, UINT nMessageID
 void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
 	bool SomethingChanging = false;
+	Character* myPlayCharacter = GetChracterInfo(g_Logic.GetMyRole());
 
 	if (GameEnd)
 	{
@@ -2162,9 +2096,7 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 		case WM_RBUTTONUP:
 		case WM_LBUTTONUP:
 			g_NetworkHelper.SendTestGameEndOKPacket();
-			g_NetworkHelper.SetRole(ROLE::NONE_SELECT);
-			for (int i = 0; i < 4; ++i)
-				g_Logic.m_inGamePlayerSession[i].Reset();
+			g_Logic.ResetMyRole();
 			ResetObject();
 			break;
 		}
@@ -2175,31 +2107,31 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 	{
 	case WM_LBUTTONDOWN:
 	{
-		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_LMouseInput = true;
-		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetLButtonClicked(true);
+		myPlayCharacter->m_LMouseInput = true;
+		myPlayCharacter->SetLButtonClicked(true);
 		SomethingChanging = true;
 		CheckCollision(m_ppGameObjects);
 		break;
 	}
 	case WM_LBUTTONUP:
 	{
-		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_LMouseInput = false;
-		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetLButtonClicked(false);
+		myPlayCharacter->m_LMouseInput = false;
+		myPlayCharacter->SetLButtonClicked(false);
 		SomethingChanging = true;
 		break;
 	}
 	case WM_RBUTTONDOWN:
 	{
-		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_RMouseInput = true;
-		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetRButtonClicked(true);
+		myPlayCharacter->m_RMouseInput = true;
+		myPlayCharacter->SetRButtonClicked(true);
 		SomethingChanging = true;
 		break;
 	}
 	case WM_RBUTTONUP:
 	{
-		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_RMouseInput = false;
-		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->SetRButtonClicked(false);
-		g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->RbuttonUp(g_Logic.m_inGamePlayerSession[0].m_ownerRotateAngle);
+		myPlayCharacter->m_RMouseInput = false;
+		myPlayCharacter->SetRButtonClicked(false);
+		//myPlayCharacter->RbuttonUp(g_Logic.m_inGamePlayerSession[0].m_ownerRotateAngle);
 		SomethingChanging = true;
 		break;
 	}
@@ -2209,8 +2141,8 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 
 #ifndef LOCAL_TASK
 	if (SomethingChanging)
-		g_NetworkHelper.SendMouseStatePacket(g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_LMouseInput
-			, g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->m_RMouseInput);
+		g_NetworkHelper.SendMouseStatePacket(myPlayCharacter->m_LMouseInput
+			, myPlayCharacter->m_RMouseInput);
 #endif
 
 }

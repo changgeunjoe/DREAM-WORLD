@@ -78,6 +78,7 @@ void Room::SendAllPlayerInfo()
 	}
 	for (auto& p : players) {
 		SERVER_PACKET::AddPlayerPacket playerInfo;
+		playerInfo.role = p.first;
 		playerInfo.userId = p.second;
 		//memcpy(playerInfo->name, m_playerName.c_str(), m_playerName.size() * 2);
 		//playerInfo->name[m_playerName.size()] = 0;
@@ -85,6 +86,9 @@ void Room::SendAllPlayerInfo()
 		playerInfo.rotate = m_characterMap[p.first]->GetRot();
 		playerInfo.type = SERVER_PACKET::ADD_PLAYER;
 		playerInfo.role = p.first;
+		std::wstring& name = g_iocpNetwork.m_session[p.second].GetName();
+		std::wmemcpy(playerInfo.name, name.c_str(), name.size());
+		playerInfo.name[name.size()] = L'\0';
 		playerInfo.size = sizeof(SERVER_PACKET::AddPlayerPacket);
 		for (auto& sendPlayer : players)
 			g_iocpNetwork.m_session[sendPlayer.second].Send(&playerInfo);
@@ -219,7 +223,7 @@ bool Room::MeleeAttack(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 pos)
 
 void Room::GameStart()
 {
-	m_isAlive = true;
+	//m_isAlive = true;
 	//monster Update
 	//TIMER_EVENT smallMonsterEvent{ std::chrono::system_clock::now() + std::chrono::seconds(1) + std::chrono::milliseconds(500), m_roomId ,EV_SM_UPDATE };
 	//g_Timer.InsertTimerQueue(smallMonsterEvent);
@@ -248,12 +252,12 @@ void Room::BossStageStart()//클라에서 받아서 서버로 왔고 -> 클라에서 움직임 막아
 		std::lock_guard<std::mutex> lg{ m_lockInGamePlayers };
 		playerMap = m_inGamePlayers;
 	}
-	sendInitPacket.userState[0].userId = -1;
-	sendInitPacket.userState[1].userId = -1;
-	sendInitPacket.userState[2].userId = -1;
-	sendInitPacket.userState[3].userId = -1;
+	sendInitPacket.userState[0].role = ROLE::NONE_SELECT;
+	sendInitPacket.userState[1].role = ROLE::NONE_SELECT;
+	sendInitPacket.userState[2].role = ROLE::NONE_SELECT;
+	sendInitPacket.userState[3].role = ROLE::NONE_SELECT;
 	for (auto& p : playerMap) {
-		sendInitPacket.userState[i].userId = p.second;
+		sendInitPacket.userState[i].role = p.first;
 		sendInitPacket.userState[i].hp = m_characterMap[p.first]->GetHp();
 		sendInitPacket.userState[i].pos = m_characterMap[p.first]->GetPos();
 		sendInitPacket.userState[i].rot = m_characterMap[p.first]->GetRot();
@@ -363,7 +367,7 @@ void Room::BossFindPlayer()
 	TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::seconds(5) + std::chrono::milliseconds(500), m_roomId ,EV_FIND_PLAYER };
 	g_Timer.InsertTimerQueue(new_ev);
 #endif // ALONE_TEST
-}
+	}
 
 void Room::ChangeBossState()
 {
@@ -431,12 +435,12 @@ void Room::UpdateGameStateForPlayer_STAGE1()
 			std::lock_guard<std::mutex> lg{ m_lockInGamePlayers };
 			playerMap = m_inGamePlayers;
 		}
-		sendPacket.userState[0].userId = -1;
-		sendPacket.userState[1].userId = -1;
-		sendPacket.userState[2].userId = -1;
-		sendPacket.userState[3].userId = -1;
+		sendPacket.userState[0].role = ROLE::NONE_SELECT;
+		sendPacket.userState[1].role = ROLE::NONE_SELECT;
+		sendPacket.userState[2].role = ROLE::NONE_SELECT;
+		sendPacket.userState[3].role = ROLE::NONE_SELECT;
 		for (auto& p : playerMap) {
-			sendPacket.userState[i].userId = p.second;
+			sendPacket.userState[i].role = p.first;
 			sendPacket.userState[i].hp = m_characterMap[p.first]->GetHp();
 			sendPacket.userState[i].pos = m_characterMap[p.first]->GetPos();
 			sendPacket.userState[i].rot = m_characterMap[p.first]->GetRot();
@@ -503,12 +507,12 @@ void Room::UpdateGameStateForPlayer_BOSS()
 			std::lock_guard<std::mutex> lg{ m_lockInGamePlayers };
 			playerMap = m_inGamePlayers;
 		}
-		sendPacket.userState[0].userId = -1;
-		sendPacket.userState[1].userId = -1;
-		sendPacket.userState[2].userId = -1;
-		sendPacket.userState[3].userId = -1;
+		sendPacket.userState[0].role = ROLE::NONE_SELECT;
+		sendPacket.userState[1].role = ROLE::NONE_SELECT;
+		sendPacket.userState[2].role = ROLE::NONE_SELECT;
+		sendPacket.userState[3].role = ROLE::NONE_SELECT;
 		for (auto& p : playerMap) {
-			sendPacket.userState[i].userId = p.second;
+			sendPacket.userState[i].role = p.first;
 			sendPacket.userState[i].hp = m_characterMap[p.first]->GetHp();
 			sendPacket.userState[i].pos = m_characterMap[p.first]->GetPos();
 			sendPacket.userState[i].rot = m_characterMap[p.first]->GetRot();

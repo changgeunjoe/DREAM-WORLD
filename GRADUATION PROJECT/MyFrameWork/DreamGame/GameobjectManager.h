@@ -1,10 +1,11 @@
 #pragma once
-#include"GameObject.h"
+//#include"GameObject.h"
 #include"ComponentBase.h"
 #include"RenderComponent.h"
 #include"ShaderComponent.h"
 #include"MeshComponent.h"
 #include"Light.h"
+#include"CLoadModelinfo.h"
 
 class Session;
 class ShadowMapShaderComponent;
@@ -15,7 +16,12 @@ class TrailComponent;
 class EffectObject;
 class DebuffObject;
 class UILayer;
-#include"CLoadModelinfo.h"
+class GameObject;
+class Character;
+class Projectile;
+class Monster;
+class NormalMonster;
+
 class GameobjectManager
 {
 public:
@@ -50,12 +56,12 @@ public:
 	virtual void BuildStoryUI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void BuildNPC(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
-	
+
 	virtual void BuildBossStageObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 
 	virtual void PickObjectByRayIntersection(int xClient, int yClient);
 	virtual void ProcessingUI(int n);
-	
+
 
 	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
@@ -65,11 +71,11 @@ public:
 	virtual bool onProcessingKeyboardMessageUI(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	virtual void onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	virtual void onProcessingMouseMessageUI(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
-	
+
 	bool CheckCollision(vector<GameObject*> m_ppObjects);
 
 
-	void AddTextToUILayer(int &index);
+	void AddTextToUILayer(int& index);
 	float CalculateDistance(const XMFLOAT3& firstPosition, const XMFLOAT3& lastPosition);
 
 private: //active object 
@@ -80,20 +86,24 @@ private: //active object
 	array<GameObject*, 10> m_pBoundingBox;
 	vector<GameObject*> m_ppObstacleBoundingBox;
 	vector<GameObject*> m_ppNormalMonsterBoundingBox;
+
 	int				m_nObjects{};
 	GameObject* m_pGameObject{ NULL };
 
-	GameObject* m_pWarriorObject{ NULL };
-	GameObject* m_pArcherObject{ NULL };
-	GameObject* m_pTankerObject{ NULL };
-	GameObject* m_pPriestObject{ NULL };
+	Character* m_pWarriorObject{ NULL };
+	Character* m_pArcherObject{ NULL };
+	Character* m_pTankerObject{ NULL };
+	Character* m_pPriestObject{ NULL };
+
 	GameObject* m_pPlaneObject{ NULL };
 	GameObject* m_pRockObject{ NULL };
 	GameObject* m_pSkyboxObject{ NULL };
 	GameObject* m_pNaviMeshObject{ NULL };
 	GameObject* m_pAnimationObject{ NULL };
-	GameObject* m_pMonsterObject{ NULL };
+
+	Monster* m_pMonsterObject{ NULL };
 	GameObject* m_pMonsterCubeObject{ NULL };
+
 	GameObject* m_pPlayerObject{ NULL };
 	GameObject* m_pEnergyBallObject{ NULL };
 
@@ -103,9 +113,9 @@ private: //active object
 
 
 	DepthRenderShaderComponent* m_pDepthShaderComponent{ NULL };
-	ShadowMapShaderComponent*   m_pShadowmapShaderComponent{ NULL };
+	ShadowMapShaderComponent* m_pShadowmapShaderComponent{ NULL };
 	TextureToViewportComponent* m_pTextureToViewportComponent{ NULL };
-	InstancingShaderComponent*  m_pInstancingShaderComponent{ NULL };
+	InstancingShaderComponent* m_pInstancingShaderComponent{ NULL };
 
 
 	CLight* m_pLight{ NULL };
@@ -117,7 +127,7 @@ private: //active object
 	vector<GameObject*> m_ppUIObjects;
 	int				m_nUIObjects{};
 	int				m_nSection = 0;
-	array<int, 3> Section{ 0, 6, 8};
+	array<int, 3> Section{ 0, 6, 8 };
 	//SECTION 1
 	GameObject* m_pUIGameSearchObject{ NULL };
 	GameObject* m_pUIGameChoiceObject{ NULL };
@@ -150,7 +160,7 @@ private: //active object
 	vector<GameObject*> m_ppCharacterUIObjects;
 	string m_sChooseCharcater{};
 	//ParticleObject-Particle -  23.04.13 .ccg
-	
+
 	vector<GameObject*>  m_pFireballSpriteObjects;
 	GameObject* m_pFireballSpriteObject{ NULL };
 	GameObject* m_pFireballEmissionSpriteObject{ NULL };
@@ -166,7 +176,7 @@ private: //active object
 	GameObject* m_pStroy3Object{ NULL };
 	GameObject* m_pStory4Object{ NULL };
 	vector<GameObject*> m_ppStoryUIObjects;
-	
+
 	//TrailObject
 	GameObject* m_pTrailObject{ NULL };
 	TrailComponent* m_pTrailComponent{ NULL };
@@ -177,8 +187,8 @@ private: //active object
 	//Effect
 	array<GameObject*, 10> m_pStage1Objects{ NULL };
 	GameObject* m_pStage1TerrainObject{ NULL };
-	
-	EffectObject* m_pEffectObject{NULL};
+
+	EffectObject* m_pEffectObject{ NULL };
 	EffectObject* m_pDebuffObject{ NULL };
 	EffectObject* m_pLightEffectObject{ NULL };
 	vector<EffectObject*> m_ppEffectObjects{};
@@ -200,15 +210,15 @@ private: //active object
 	//CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
 	CB_GAMEFRAMEWORK_INFO* m_pcbMappedGameObjects = nullptr;
 
-	
+
 public:
 	std::vector<int> m_VecNodeQueue;
 	std::mutex m_nodeLock;
 	UILayer* m_pUILayer{ NULL };
-	bool m_bNPCinteraction{true};
+	bool m_bNPCinteraction{ true };
 	bool m_bNPCscreen{ true };
 	int m_iTEXTiIndex{ 2 };
-	int m_nStageType=1;
+	int m_nStageType = 1;
 public:
 	void SetPlayCharacter(Session* pSession);
 	void SetSection(int n) { m_nSection = n; }
@@ -220,6 +230,8 @@ public:
 	void ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, const char* fileName, CLoadedModelInfoCompnent* modelName, int type, int stagetype);
 	void ReadNormalMonsterFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, const char* fileName, CLoadedModelInfoCompnent* modelName, int type, int stagetype);
 	vector<GameObject*>& GetObstacle() { return m_ppObstacleObjects; }
-	GameObject* GetChracterInfo(ROLE r);
+	Character* GetChracterInfo(ROLE r);
+	Monster* GetBossMonster() { return m_pMonsterObject; }
+	//NormalMonster** GetNormalMonsterArr();
 };
 

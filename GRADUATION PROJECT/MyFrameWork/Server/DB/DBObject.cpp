@@ -46,7 +46,7 @@ void DBObject::RunDBThread()
 					sendPacket.name[wst_nickName.size()] = 0;
 					/*std::string strId;
 					strId.assign(pInfo->PlayerLoginId.begin(), pInfo->PlayerLoginId.end());*/
-					g_logic.InsertInGameUserMap(pInfo->PlayerLoginId, currentEvent.userId);//로그인 성공 시 등록
+					g_logic.InsertInGameUserSet(pInfo->PlayerLoginId);//로그인 성공 시 등록
 					g_iocpNetwork.m_session[currentEvent.userId].Send(&sendPacket);
 
 

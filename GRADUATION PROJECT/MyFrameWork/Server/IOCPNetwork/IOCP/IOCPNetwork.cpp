@@ -181,6 +181,7 @@ void IOCPNetwork::DisconnectClient(int id)
 		Room& room = g_RoomManager.GetRunningRoomRef(m_session[id].GetRoomId());
 		room.InsertDisconnectedPlayer(id);
 	}
+	g_logic.DeleteInGameUserSet(m_session[id].GetName());//로직에 있는 인게임 유저 정보 삭제
 	m_session[id].ResetSession();
 	m_restClientId.push(id);
 }

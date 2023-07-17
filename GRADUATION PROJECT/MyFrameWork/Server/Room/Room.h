@@ -28,6 +28,7 @@ private:
 public:
 	void SetRoomId(int roomId);
 	bool IsArriveState() { return m_isAlive; }
+	void SetRoomInGame() { m_isAlive = true; }
 	//Player UserSession
 private:
 	//ingame Player

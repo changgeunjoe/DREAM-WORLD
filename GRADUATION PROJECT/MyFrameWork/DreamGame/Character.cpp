@@ -2,6 +2,7 @@
 #include "Character.h"
 #include "Animation.h"
 #include "GameFramework.h"
+#include "GameobjectManager.h"
 #include "Network/NetworkHelper.h"
 #include "Network/Logic/Logic.h"
 #include "Network/MapData/MapData.h"
@@ -130,9 +131,9 @@ void Warrior::RbuttonClicked(float fTimeElapsed)
 
 }
 
-void Warrior::Move(DIRECTION direction, float fDistance)
+void Warrior::Move(float fDistance)
 {
-	DIRECTION tempDir = direction;
+	DIRECTION tempDir = m_currentDirection;
 	if (((tempDir & DIRECTION::LEFT) == DIRECTION::LEFT) &&
 		((tempDir & DIRECTION::RIGHT) == DIRECTION::RIGHT))
 	{
@@ -321,10 +322,10 @@ void Archer::RbuttonUp(const XMFLOAT3& CameraAxis)
 {
 }
 
-void Archer::Move(DIRECTION direction, float fDistance)
+void Archer::Move(float fDistance)
 {
 	//fDistance *= m_fSpeed;
-	DIRECTION tempDir = direction;
+	DIRECTION tempDir = m_currentDirection;
 	if (((tempDir & DIRECTION::LEFT) == DIRECTION::LEFT) &&
 		((tempDir & DIRECTION::RIGHT) == DIRECTION::RIGHT))
 	{
@@ -357,19 +358,19 @@ void Archer::Move(DIRECTION direction, float fDistance)
 	//else
 	//{
 		//fDistance /= 3;
-		switch (tempDir)
-		{
-		case DIRECTION::IDLE: break;
-		case DIRECTION::FRONT: MoveForward(fDistance); break;
-		case DIRECTION::FRONT | DIRECTION::RIGHT: MoveDiagonal(1, 1, fDistance); break;
-		case DIRECTION::RIGHT: MoveStrafe(fDistance); break;
-		case DIRECTION::BACK | DIRECTION::RIGHT: MoveDiagonal(-1, 1, fDistance);  break;
-		case DIRECTION::BACK: MoveForward(-fDistance); break;
-		case DIRECTION::BACK | DIRECTION::LEFT: MoveDiagonal(-1, -1, fDistance); break;
-		case DIRECTION::LEFT: MoveStrafe(-fDistance); break;
-		case DIRECTION::FRONT | DIRECTION::LEFT: MoveDiagonal(1, -1, fDistance); break;
-		default: break;
-		}
+	switch (tempDir)
+	{
+	case DIRECTION::IDLE: break;
+	case DIRECTION::FRONT: MoveForward(fDistance); break;
+	case DIRECTION::FRONT | DIRECTION::RIGHT: MoveDiagonal(1, 1, fDistance); break;
+	case DIRECTION::RIGHT: MoveStrafe(fDistance); break;
+	case DIRECTION::BACK | DIRECTION::RIGHT: MoveDiagonal(-1, 1, fDistance);  break;
+	case DIRECTION::BACK: MoveForward(-fDistance); break;
+	case DIRECTION::BACK | DIRECTION::LEFT: MoveDiagonal(-1, -1, fDistance); break;
+	case DIRECTION::LEFT: MoveStrafe(-fDistance); break;
+	case DIRECTION::FRONT | DIRECTION::LEFT: MoveDiagonal(1, -1, fDistance); break;
+	default: break;
+	}
 	//}
 }
 
@@ -663,10 +664,10 @@ void Tanker::RbuttonUp(const XMFLOAT3& CameraAxis)
 	Character::RbuttonUp(CameraAxis);
 }
 
-void Tanker::Move(DIRECTION direction, float fDistance)
+void Tanker::Move(float fDistance)
 {
 	//fDistance *= m_fSpeed;
-	DIRECTION tempDir = direction;
+	DIRECTION tempDir = m_currentDirection;
 	if (((tempDir & DIRECTION::LEFT) == DIRECTION::LEFT) &&
 		((tempDir & DIRECTION::RIGHT) == DIRECTION::RIGHT))
 	{
@@ -842,10 +843,10 @@ void Priest::RbuttonClicked(float fTimeElapsed)
 {
 }
 
-void Priest::Move(DIRECTION direction, float fDistance)
+void Priest::Move(float fDistance)
 {
 	//fDistance *= m_fSpeed;
-	DIRECTION tempDir = direction;
+	DIRECTION tempDir = m_currentDirection;
 	if (((tempDir & DIRECTION::LEFT) == DIRECTION::LEFT) &&
 		((tempDir & DIRECTION::RIGHT) == DIRECTION::RIGHT))
 	{
@@ -1039,7 +1040,7 @@ void Priest::SetEnergyBall(Projectile* pEnergyBall)
 void Priest::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender)
 {
 	for (int i = 0; i < m_pProjectiles.size(); ++i)
-		if (m_pProjectiles[i]) 
+		if (m_pProjectiles[i])
 			m_pProjectiles[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
 
 	GameObject::Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
@@ -1225,6 +1226,10 @@ void Monster::Animate(float fTimeElapsed)
 	Character::Animate(fTimeElapsed);
 }
 
+void Monster::Move(float fDsitance)
+{
+}
+
 void Monster::InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos)
 {
 	XMFLOAT3 playerInterpolationVector = Vector3::Subtract(recvPos, m_position);
@@ -1352,7 +1357,8 @@ void Arrow::Animate(float fTimeElapsed)
 			return;
 		}
 
-		m_xmf3TargetPos = g_Logic.m_MonsterSession.m_currentPlayGameObject->GetPosition();
+		Monster* bossMonster = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster();
+		m_xmf3TargetPos = bossMonster->GetPosition();
 		XMFLOAT3 controlPoint = Vector3::Add(m_xmf3startPosition, m_xmf3direction, 100.0f);
 		XMFLOAT3 firstVec = Vector3::Subtract(controlPoint, m_xmf3startPosition);
 		XMFLOAT3 secondVec = Vector3::Subtract(m_xmf3TargetPos, controlPoint);
@@ -1404,6 +1410,13 @@ void EnergyBall::Animate(float fTimeElapsed)
 	{
 		m_bActive = false;
 	}
+}
+
+void EnergyBall::Move(XMFLOAT3 dir, float fDistance)
+{
+	XMFLOAT3 xmf3Position = GetPosition();
+	xmf3Position = Vector3::Add(xmf3Position, dir, fDistance);
+	if (Vector3::Length(xmf3Position) < PLAYER_MAX_RANGE)	GameObject::SetPosition(xmf3Position);
 }
 
 void EnergyBall::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender)
@@ -1503,7 +1516,7 @@ void NormalMonster::Animate(float fTimeElapsed)
 			{
 				// 플레이어 4명 포지션과 거리 계산해서 목표 설정
 				XMFLOAT3 currentPos = GetPosition();
-				float farDistance= FLT_MAX;
+				float farDistance = FLT_MAX;
 				for (auto& session : g_Logic.m_inGamePlayerSession)
 				{
 					if (session.m_id == -1) continue;
@@ -1524,12 +1537,6 @@ void NormalMonster::Animate(float fTimeElapsed)
 
 	if (m_bHaveTarget)
 	{
-		auto findRes = find_if(g_Logic.m_inGamePlayerSession.begin(), g_Logic.m_inGamePlayerSession.end(), [&](auto& fObj) {
-			return fObj.m_id == m_iTargetID;
-			});
-		if (findRes == g_Logic.m_inGamePlayerSession.end())
-			return;
-		m_xmf3Destination = findRes->m_currentPlayGameObject->GetPosition();
 
 		XMFLOAT3 MyPos = GetPosition();
 		XMFLOAT3 des = XMFLOAT3(m_xmf3Destination.x - MyPos.x, 0.0f, m_xmf3Destination.z - MyPos.z);
@@ -1581,6 +1588,10 @@ void NormalMonster::Animate(float fTimeElapsed)
 	}
 
 	GameObject::Animate(fTimeElapsed);
+}
+
+void NormalMonster::Move(float fDsitance)
+{
 }
 
 void NormalMonster::InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos)

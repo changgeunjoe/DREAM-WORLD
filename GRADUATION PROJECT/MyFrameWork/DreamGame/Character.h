@@ -18,11 +18,29 @@ public:
 	virtual void SecondSkillDown() { m_bESkillClicked = true; };
 	virtual void SecondSkillUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f }) {};
 	bool CheckAnimationEnd(int nAnimation);
-	void InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos) override;
+public:
+	virtual void InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos);
 public:
 	bool GetQSkillState() { return m_bQSkillClicked; }
 	bool GetESkillState() { return m_bESkillClicked; }
 	bool GetOnAttack() { return m_bOnAttack; }
+public:
+	virtual void Move(float fDsitance) = 0;
+protected:
+	DIRECTION m_currentDirection = DIRECTION::IDLE;
+public:
+	void AddDirection(DIRECTION d)
+	{
+		m_currentDirection = (DIRECTION)(m_currentDirection | d);
+	}
+	void RemoveDIrection(DIRECTION d)
+	{
+		m_currentDirection = (DIRECTION)(m_currentDirection ^ d);
+	}
+	void SetStopDirection() {
+		m_currentDirection = DIRECTION::IDLE;
+	}
+	//DIRECTION m_prevDirection = DIRECTION::IDLE;
 	//virtual void Move(DIRECTION direction, float fDistance);
 };
 
@@ -33,7 +51,7 @@ public:
 	virtual ~Warrior();
 	virtual void Attack(float fSpeed = 150.0f);
 	virtual void RbuttonClicked(float fTimeElapsed);
-	virtual void Move(DIRECTION direction, float fDsitance) override;
+	virtual void Move(float fDsitance)override;
 	virtual void Animate(float fTimeElapsed);
 };
 
@@ -48,7 +66,7 @@ public:
 	virtual void SetArrow(Projectile* pArrow);
 	virtual void RbuttonClicked(float fTimeElapsed);
 	virtual void RbuttonUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f });
-	virtual void Move(DIRECTION direction, float fDsitance) override;
+	virtual void Move(float fDsitance)override;
 	virtual void Animate(float fTimeElapsed);
 	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender = false);
 	virtual void MoveObject(DIRECTION& currentDirection, const XMFLOAT3& CameraAxis);
@@ -68,7 +86,7 @@ public:
 	virtual void Attack(float fSpeed = 150.0f);
 	virtual void RbuttonClicked(float fTimeElapsed);
 	virtual void RbuttonUp(const XMFLOAT3& CameraAxis);
-	virtual void Move(DIRECTION direction, float fDsitance) override;
+	virtual void Move(float fDsitance)override;
 	virtual void Animate(float fTimeElapsed);
 };
 
@@ -84,7 +102,7 @@ public:
 	virtual void RbuttonUp(const XMFLOAT3& CameraAxis);
 	virtual void Attack(float fSpeed = 150.0f);
 	virtual void SetEnergyBall(Projectile* pEnergyBall);
-	virtual void Move(DIRECTION direction, float fDsitance) override;
+	virtual void Move(float fDsitance)override;
 	virtual void Animate(float fTimeElapsed);
 	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender = false);
 	virtual void MoveObject(DIRECTION& currentDirection, const XMFLOAT3& CameraAxis);
@@ -101,6 +119,7 @@ public:
 	Monster();
 	virtual ~Monster();
 	virtual void Animate(float fTimeElapsed);
+	virtual void Move(float fDsitance)override;
 	void InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos)override;
 public:
 	XMFLOAT3 m_xmf3rotateAngle = XMFLOAT3{ 0,0,0 };
@@ -118,6 +137,7 @@ public:
 	NormalMonster();
 	virtual ~NormalMonster();
 	virtual void Animate(float fTimeElapsed);
+	virtual void Move(float fDsitance)override;
 	void InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos)override;
 public:
 	XMFLOAT3 m_xmf3rotateAngle = XMFLOAT3{ 0,0,0 };
@@ -133,6 +153,7 @@ public:
 	bool		m_bActive;
 	bool		m_RAttack;
 	float		m_Angle;
+
 public:
 	Projectile(entity_id eid = UNDEF_ENTITY);
 	virtual ~Projectile();
@@ -163,13 +184,14 @@ public:
 	EnergyBall();
 	virtual ~EnergyBall();
 	virtual void Animate(float fTimeElapsed);
+	void Move(XMFLOAT3 dir, float fDistance);
 	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender = false);
 };
 
 class TrailObject : public GameObject
 {
 public:
-	
+
 	float		m_Angle;
 public:
 	TrailObject(entity_id eid = UNDEF_ENTITY);

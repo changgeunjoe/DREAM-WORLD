@@ -21,10 +21,12 @@ public:
 class Logic
 {
 public:
-	std::array<Session, 4> m_inGamePlayerSession;
-	Session m_MonsterSession;
-	Session m_SmallMonsterSession[15];
+	//std::array<Session, 4> m_inGamePlayerSession;
+	//Session m_MonsterSession;
+	//Session m_SmallMonsterSession[15];
+private:
 	int myId = -1;
+	ROLE myRole = ROLE::NONE_SELECT;
 public:
 	CKeyInput* m_KeyInput;
 	char		m_MouseInput;
@@ -39,5 +41,11 @@ private:
 	chrono::high_resolution_clock::time_point attckPacketRecvTime;
 
 public:
+	ROLE GetMyRole() {
+		return myRole;
+	}
+	void ResetMyRole() { myRole = ROLE::NONE_SELECT; }
+	void SetMyRole(ROLE r) { myRole = r; }
+
 	HWND loginWnd;
 };

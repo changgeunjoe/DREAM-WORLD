@@ -27,7 +27,7 @@ private:
 	std::atomic_char m_MatchRole = 0x00;*/
 private:
 	std::mutex m_inGameUserLock;
-	std::map<std::wstring, int> m_inGameUser;//현재 게임에 접속한 유저에 대해서 key: id, value: server arr idx
+	std::set<std::wstring> m_inGameUser;//현재 게임에 접속한 유저에 대해서 key: id, value: server arr idx
 public:
 	void AcceptPlayer(UserSession* session, int userId, SOCKET& sock);
 	void ProcessPacket(int userId, char* p);
@@ -50,7 +50,6 @@ private:
 private:
 	std::string MakeRoomId();
 public://save InGamePlayerMap for db
-	void InsertInGameUserMap(std::wstring& id, int userId);
-	void DeleteInGameUserMap(std::wstring& id);
-	void DeleteInGameUserMap(const std::wstring id);
+	void InsertInGameUserSet(std::wstring& id);
+	void DeleteInGameUserSet(std::wstring& id);
 };

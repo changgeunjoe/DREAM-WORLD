@@ -60,14 +60,13 @@ public:
 	void SetMesh(MeshComponent* pMesh);
 	void SetCamera(CCamera* pCamera);
 	void SetRowColumn(float x, float y, float fSpeed = 0.1);
-	virtual void MoveObject(DIRECTION& currentDirection, const XMFLOAT3& CameraAxis);
+
 
 	void MoveStrafe(float fDistance = 1.0f);
 	void MoveUp(float fDistance = 1.0f);
 	void MoveDiagonal(int fowardDirection, int rightDirection, float distance = 1.0f);
 	virtual void MoveForward(float fDistance = 1.0f);
-	virtual void Move(DIRECTION direction, float fDistance = 1.0f);
-	virtual void Move(XMFLOAT3 direction, float fDistance = 1.0f);
+
 	virtual void MoveVelocity(XMFLOAT3 direction, float ftimeelapsed, float fDistance = 1.0f);
 
 	bool CheckIntersect(const GameObject* GameObject);	//수정필요
@@ -334,8 +333,6 @@ public:
 	bool                            m_bUIActive{ true };
 
 	int								m_iObjType = 0;
-public:
-	virtual void InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos) {}
 protected:
 	float m_interpolationDistance = 0.0f;
 	XMFLOAT3 m_interpolationVector = XMFLOAT3{ 0,0,0 };

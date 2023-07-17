@@ -1281,18 +1281,6 @@ void GameObject::UpdateTransform(XMFLOAT4X4* pxmf4x4Parent)
 	if (m_pChild) m_pChild->UpdateTransform(&m_xmf4x4World);
 }
 
-void GameObject::Move(DIRECTION direction, float fDistance)
-{
-
-
-}
-
-void GameObject::Move(XMFLOAT3 direction, float fDistance)
-{
-	XMFLOAT3 xmf3Position = GetPosition();
-	xmf3Position = Vector3::Add(xmf3Position, direction, fDistance);
-	if (Vector3::Length(xmf3Position) < PLAYER_MAX_RANGE)	GameObject::SetPosition(xmf3Position);
-}
 
 void GameObject::MoveVelocity(XMFLOAT3 direction, float ftimeelapsed, float fDistance)
 {
@@ -1379,64 +1367,3 @@ void GameObject::SetRowColumn(float nRows, float nCols, float fSpeed)
 }
 
 #define PI 3.14159265359
-
-void GameObject::MoveObject(DIRECTION& currentDirection, const XMFLOAT3& CameraAxis) // currentDirection : 향한 방향 
-{
-	XMFLOAT3 xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
-	XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&xmf3Up), XMConvertToRadians(CameraAxis.y));
-	XMFLOAT3 xmf3Look = XMFLOAT3(0.0f, 0.0f, 1.0f);
-	xmf3Look = Vector3::TransformNormal(xmf3Look, xmmtxRotate);
-
-	XMFLOAT3 xmf3Rev = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	float fRotateAngle = -1.0f;
-
-	DIRECTION tempDir = currentDirection;
-
-	if (m_bRButtonClicked)
-	{
-		SetLook(xmf3Look);
-		return;
-	}
-
-	if (tempDir != DIRECTION::IDLE)
-	{
-		if (((tempDir & DIRECTION::LEFT) == DIRECTION::LEFT) &&
-			((tempDir & DIRECTION::RIGHT) == DIRECTION::RIGHT))
-		{
-			tempDir = (DIRECTION)(tempDir ^ DIRECTION::LEFT);
-			tempDir = (DIRECTION)(tempDir ^ DIRECTION::RIGHT);
-		}
-		if (((tempDir & DIRECTION::FRONT) == DIRECTION::FRONT) &&
-			((tempDir & DIRECTION::BACK) == DIRECTION::BACK))
-		{
-			tempDir = (DIRECTION)(tempDir ^ DIRECTION::FRONT);
-			tempDir = (DIRECTION)(tempDir ^ DIRECTION::BACK);
-		}
-		switch (tempDir)
-		{
-		case DIRECTION::FRONT:						fRotateAngle = 0.0f;	break;
-		case DIRECTION::LEFT | DIRECTION::FRONT:	fRotateAngle = 45.0f;	break;
-		case DIRECTION::LEFT:						fRotateAngle = 90.0f;	break;
-		case DIRECTION::BACK | DIRECTION::LEFT:		fRotateAngle = 135.0f;	break;
-		case DIRECTION::BACK:						fRotateAngle = 180.0f;	break;
-		case DIRECTION::RIGHT | DIRECTION::BACK:	fRotateAngle = 225.0f;	break;
-		case DIRECTION::RIGHT:						fRotateAngle = 270.0f;	break;
-		case DIRECTION::FRONT | DIRECTION::RIGHT:	fRotateAngle = 315.0f;	break;
-		default:
-			tempDir = DIRECTION::IDLE;
-			MoveObject(tempDir, CameraAxis);
-			return;
-		}
-
-		fRotateAngle = fRotateAngle * (PI / 180.0f);
-		xmf3Rev.x = xmf3Look.x * cos(fRotateAngle) - xmf3Look.z * sin(fRotateAngle);
-		xmf3Rev.z = xmf3Look.x * sin(fRotateAngle) + xmf3Look.z * cos(fRotateAngle);
-		xmf3Rev = Vector3::Normalize(xmf3Rev);
-	}
-
-	if ((xmf3Rev.x || xmf3Rev.y || xmf3Rev.z))
-	{
-		SetLook(xmf3Rev);
-	}
-}
-
