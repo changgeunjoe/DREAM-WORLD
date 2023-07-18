@@ -100,11 +100,6 @@ void GameobjectManager::Animate(float fTimeElapsed)
 			m_ppGameObjects[i]->Die(fTimeElapsed);
 	}
 
-	m_pArcherObject->m_pHPBarUI->SetCurrentHP(m_pArcherObject->GetCurrentHP());
-	m_pWarriorObject->m_pHPBarUI->SetCurrentHP(m_pWarriorObject->GetCurrentHP());
-	m_pTankerObject->m_pHPBarUI->SetCurrentHP(m_pTankerObject->GetCurrentHP());
-	m_pPriestObject->m_pHPBarUI->SetCurrentHP(m_pPriestObject->GetCurrentHP());
-
 	CharacterUIAnimate(fTimeElapsed);
 	if (m_pTrailComponent) {
 		TrailAnimate(fTimeElapsed);
@@ -119,6 +114,10 @@ void GameobjectManager::Animate(float fTimeElapsed)
 
 void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)//나중에 처리
 {
+	m_pArcherObject->m_pHPBarUI->SetCurrentHP(m_pArcherObject->GetCurrentHP());
+	m_pWarriorObject->m_pHPBarUI->SetCurrentHP(m_pWarriorObject->GetCurrentHP());
+	m_pTankerObject->m_pHPBarUI->SetCurrentHP(m_pTankerObject->GetCurrentHP());
+	m_pPriestObject->m_pHPBarUI->SetCurrentHP(m_pPriestObject->GetCurrentHP());
 
 	if (g_Logic.GetMyRole() == ROLE::ARCHER) {
 		m_pArcherObject->m_pHPBarUI->SetinitScale(0.09, 0.0065, 1);

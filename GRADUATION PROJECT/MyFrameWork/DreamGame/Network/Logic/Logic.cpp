@@ -209,7 +209,7 @@ void Logic::ProcessPacket(char* p)
 				Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->userState[i].role);
 				possessObj->InterpolateMove(recvPacket->time, recvPacket->userState[i].pos);
 				float maxHp = possessObj->GetMaxHP();
-				possessObj->SetCurrentHP(recvPacket->userState[i].hp);
+				possessObj->SetCurrentHP(recvPacket->userState[i].hp / maxHp * 100.0f);
 			}
 		}
 		//small monster
@@ -218,7 +218,7 @@ void Logic::ProcessPacket(char* p)
 			smallMonsterArr[i]->InterpolateMove(recvPacket->time, recvPacket->smallMonster[i].pos);
 			if (smallMonsterArr[i]->GetCurrentHP() < 0.0f) {
 				smallMonsterArr[i]->SetCurrentHP(recvPacket->smallMonster[i].hp);
-				float maxHp = smallMonsterArr[i]->GetMaxCurrentHP();
+				float maxHp = smallMonsterArr[i]->GetMaxHP();
 				smallMonsterArr[i]->SetCurrentHP(recvPacket->smallMonster[i].hp / maxHp * 100.0f);
 			}
 		}
