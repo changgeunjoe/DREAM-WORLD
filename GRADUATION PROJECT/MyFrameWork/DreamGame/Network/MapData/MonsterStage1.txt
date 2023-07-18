@@ -1,75 +1,195 @@
-Death01
-<position>: -66.67 0 -132.38 
-<quaternion>: 0 -0.5988483 0 0.8008626 
-<rotation>: 0 286.4251 0 
-<scale>: 1 1 1 
-Death02
-<position>: -61.99 0 -124.3 
-<quaternion>: 0 -0.7484538 0 0.6631869 
-<rotation>: 0 263.0868 0 
-<scale>: 1 1 1 
-Death03
-<position>: -62.48997 0 -131.8163 
-<quaternion>: 0 -0.6299269 0 0.7766544 
-<rotation>: 0 281.9105 0 
-<scale>: 1 1 1 
-Death04
-<position>: -65.49001 0 -128.3 
-<quaternion>: 0 -0.6305773 0 0.7761264 
-<rotation>: 0 281.8145 0 
-<scale>: 1 1 1 
-Death05
-<position>: -60.32 0 -128.08 
-<quaternion>: 0 -0.6880782 0 0.7256365 
-<rotation>: 0 273.0436 0 
-<scale>: 1 1 1 
-Death06
-<position>: -61.502 0 -92.864 
-<quaternion>: 0 -0.9993495 0 0.03606448 
-<rotation>: 0 184.1336 0 
-<scale>: 1 1 1 
-Death07
-<position>: -58.18 0 -96.25 
-<quaternion>: 0 -0.9907307 0 0.1358408 
-<rotation>: 0 195.6145 0 
-<scale>: 1 1 1 
-Death08
-<position>: -65.83 0 -92.62 
-<quaternion>: 0 -0.9995903 0 -0.02862066 
-<rotation>: 0 176.7199 0 
-<scale>: 1 1 1 
-Death09
-<position>: -68.25961 0 -96.53877 
-<quaternion>: 0 -0.9964868 0 -0.08374992 
-<rotation>: 0 170.3917 0 
-<scale>: 1 1 1 
-Death10
-<position>: -21.15 0 -62.46 
-<quaternion>: 0 -0.9653269 0 0.2610443 
-<rotation>: 0 210.2641 0 
-<scale>: 1 1 1 
-Death11
-<position>: -23.89 0 -60.2 
-<quaternion>: 0 -0.9653269 0 0.2610443 
-<rotation>: 0 210.2641 0 
-<scale>: 1 1 1 
-Death12
-<position>: -24.45 0 -64.05 
-<quaternion>: 0 -0.9653269 0 0.2610443 
-<rotation>: 0 210.2641 0 
-<scale>: 1 1 1 
-Death13
-<position>: -9.54 0 -33.48 
-<quaternion>: 0 -0.990411 0 0.1381521 
-<rotation>: 0 195.8819 0 
-<scale>: 1 1 1 
-Death14
-<position>: -12.41 0 -32.19 
-<quaternion>: 0 -0.9955677 0 0.09404716 
-<rotation>: 0 190.793 0 
-<scale>: 1 1 1 
-Death15
-<position>: -12.27 0 -36.21 
-<quaternion>: 0 -0.9942175 0 0.1073857 
-<rotation>: 0 192.3293 0 
-<scale>: 1 1 1 
+Cube (0)
+<position>: -650 0 -1251 
+<quaternion>: 0 0 0 1 
+<rotation>: 0 0 0 
+<scale>: 10 10 10 
+<BoxCollider>
+  <center>: -650 0 -1251 
+  <boundSize>: 10 10 10 
+  <extent>: 5 5 5 
+  <forward>: 0 0 1 
+  <right>: 1 0 0 
+  <forwardDotRes>: 0.7071068 
+  <rightDotRes>: 0.7071068 
+Cube (1)
+<position>: -696 0 -1251 
+<quaternion>: 0 0 0 1 
+<rotation>: 0 0 0 
+<scale>: 10 10 10 
+<BoxCollider>
+  <center>: -696 0 -1251 
+  <boundSize>: 10 10 10 
+  <extent>: 5 5 5 
+  <forward>: 0 0 1 
+  <right>: 1 0 0 
+  <forwardDotRes>: 0.7071068 
+  <rightDotRes>: 0.7071068 
+Cube (2)
+<position>: -643 0 -1189 
+<quaternion>: 0 0 0 1 
+<rotation>: 0 0 0 
+<scale>: 10 10 10 
+<BoxCollider>
+  <center>: -643 0 -1189 
+  <boundSize>: 10 10 10 
+  <extent>: 5 5 5 
+  <forward>: 0 0 1 
+  <right>: 1 0 0 
+  <forwardDotRes>: 0.7071068 
+  <rightDotRes>: 0.7071068 
+Cube (3)
+<position>: -673 0 -1123 
+<quaternion>: 0 0 0 1 
+<rotation>: 0 0 0 
+<scale>: 10 10 10 
+<BoxCollider>
+  <center>: -673 0 -1123 
+  <boundSize>: 10 10 10 
+  <extent>: 5 5 5 
+  <forward>: 0 0 1 
+  <right>: 1 0 0 
+  <forwardDotRes>: 0.7071068 
+  <rightDotRes>: 0.7071068 
+Cube (4)
+<position>: -623 0 -948 
+<quaternion>: 0 0 0 1 
+<rotation>: 0 0 0 
+<scale>: 10 10 10 
+<BoxCollider>
+  <center>: -623 0 -948 
+  <boundSize>: 10 10 10 
+  <extent>: 5 5 5 
+  <forward>: 0 0 1 
+  <right>: 1 0 0 
+  <forwardDotRes>: 0.7071068 
+  <rightDotRes>: 0.7071068 
+Cube (5)
+<position>: -649 0 -979 
+<quaternion>: 0 0 0 1 
+<rotation>: 0 0 0 
+<scale>: 10 10 10 
+<BoxCollider>
+  <center>: -649 0 -979 
+  <boundSize>: 10 10 10 
+  <extent>: 5 5 5 
+  <forward>: 0 0 1 
+  <right>: 1 0 0 
+  <forwardDotRes>: 0.7071068 
+  <rightDotRes>: 0.7071068 
+Cube (6)
+<position>: -580 0 -870 
+<quaternion>: 0 0 0 1 
+<rotation>: 0 0 0 
+<scale>: 10 10 10 
+<BoxCollider>
+  <center>: -580 0 -870 
+  <boundSize>: 10 10 10 
+  <extent>: 5 5 5 
+  <forward>: 0 0 1 
+  <right>: 1 0 0 
+  <forwardDotRes>: 0.7071068 
+  <rightDotRes>: 0.7071068 
+Cube (7)
+<position>: -507 0 -833 
+<quaternion>: 0 0 0 1 
+<rotation>: 0 0 0 
+<scale>: 10 10 10 
+<BoxCollider>
+  <center>: -507 0 -833 
+  <boundSize>: 10 10 10 
+  <extent>: 5 5 5 
+  <forward>: 0 0 1 
+  <right>: 1 0 0 
+  <forwardDotRes>: 0.7071068 
+  <rightDotRes>: 0.7071068 
+Cube (8)
+<position>: -326 0 -767.0001 
+<quaternion>: 0 0 0 1 
+<rotation>: 0 0 0 
+<scale>: 10 10 10 
+<BoxCollider>
+  <center>: -326 0 -767.0001 
+  <boundSize>: 10 10 10 
+  <extent>: 5 5 5 
+  <forward>: 0 0 1 
+  <right>: 1 0 0 
+  <forwardDotRes>: 0.7071068 
+  <rightDotRes>: 0.7071068 
+Cube (9)
+<position>: -260 0 -729 
+<quaternion>: 0 0 0 1 
+<rotation>: 0 0 0 
+<scale>: 10 10 10 
+<BoxCollider>
+  <center>: -260 0 -729 
+  <boundSize>: 10 10 10 
+  <extent>: 5 5 5 
+  <forward>: 0 0 1 
+  <right>: 1 0 0 
+  <forwardDotRes>: 0.7071068 
+  <rightDotRes>: 0.7071068 
+Cube (10)
+<position>: -286 0 -716 
+<quaternion>: 0 0 0 1 
+<rotation>: 0 0 0 
+<scale>: 10 10 10 
+<BoxCollider>
+  <center>: -286 0 -716 
+  <boundSize>: 10 10 10 
+  <extent>: 5 5 5 
+  <forward>: 0 0 1 
+  <right>: 1 0 0 
+  <forwardDotRes>: 0.7071068 
+  <rightDotRes>: 0.7071068 
+Cube (11)
+<position>: -232 0 -648 
+<quaternion>: 0 0 0 1 
+<rotation>: 0 0 0 
+<scale>: 10 10 10 
+<BoxCollider>
+  <center>: -232 0 -648 
+  <boundSize>: 10 10 10 
+  <extent>: 5 5 5 
+  <forward>: 0 0 1 
+  <right>: 1 0 0 
+  <forwardDotRes>: 0.7071068 
+  <rightDotRes>: 0.7071068 
+Cube (12)
+<position>: -194 0 -562.0001 
+<quaternion>: 0 0 0 1 
+<rotation>: 0 0 0 
+<scale>: 10 10 10 
+<BoxCollider>
+  <center>: -194 0 -562.0001 
+  <boundSize>: 10 10 10 
+  <extent>: 5 5 5 
+  <forward>: 0 0 1 
+  <right>: 1 0 0 
+  <forwardDotRes>: 0.7071068 
+  <rightDotRes>: 0.7071068 
+Cube (13)
+<position>: -227 0 -602.9999 
+<quaternion>: 0 0 0 1 
+<rotation>: 0 0 0 
+<scale>: 10 10 10 
+<BoxCollider>
+  <center>: -227 0 -602.9999 
+  <boundSize>: 10 10 10 
+  <extent>: 5 5 5 
+  <forward>: 0 0 1 
+  <right>: 1 0 0 
+  <forwardDotRes>: 0.7071068 
+  <rightDotRes>: 0.7071068 
+Cube (14)
+<position>: -396 0 -804 
+<quaternion>: 0 0 0 1 
+<rotation>: 0 0 0 
+<scale>: 10 10 10 
+<BoxCollider>
+  <center>: -396 0 -804 
+  <boundSize>: 10 10 10 
+  <extent>: 5 5 5 
+  <forward>: 0 0 1 
+  <right>: 1 0 0 
+  <forwardDotRes>: 0.7071068 
+  <rightDotRes>: 0.7071068 

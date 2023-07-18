@@ -26,4 +26,5 @@ public:
 public:
 	void SetZeroHp() { m_hp = 0; }
 	void SetRoomId(int roomId) { m_roomId = roomId; }
+	XMFLOAT3 GetDesPos() { return m_desPos; }
 };

@@ -17,7 +17,7 @@ extern CGameFramework gGameFramework;
 
 
 BYTE ReadStringFromFile(FILE* pInFile, char* pstrToken)
-{	
+{
 	BYTE nStrLength = 0;
 	UINT nReads = 0;
 
@@ -68,7 +68,7 @@ void GameObject::SetPosition(const XMFLOAT3& position)
 	m_xmf4x4ToParent._42 = position.y;
 	m_xmf4x4ToParent._43 = position.z;
 
-	if (gGameFramework.GetScene()->GetObjectManager()->m_nStageType == m_nStageType|| m_nStageType==0) {
+	if (gGameFramework.GetScene()->GetObjectManager()->m_nStageType == m_nStageType || m_nStageType == 0) {
 		if (m_fBoundingSize > FLT_EPSILON)
 		{
 			m_SPBB.Center.x = position.x + m_xmf3BoundingSphereOffset.x;
@@ -821,7 +821,7 @@ CLoadedModelInfoCompnent* GameObject::LoadGeometryAndAnimationFromFile(ID3D12Dev
 #endif
 
 	return(pLoadedModel);
-		}
+}
 
 void GameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, GameObject* pParent, FILE* pInFile, ShaderComponent* pShader, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
@@ -972,8 +972,8 @@ void GameObject::LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfoCompnent* 
 				_stprintf_s(pstrDebug, 256, _T("AnimationBoneFrame:: Cache(%s) AnimationBone(%s)\n"), pwstrBoneCacheName, pwstrAnimationBoneName);
 				OutputDebugString(pstrDebug);
 #endif
+			}
 		}
-	}
 		else if (!strcmp(pstrToken, "<AnimationSet>:"))
 		{
 			int nAnimationSet = ::ReadIntegerFromFile(pInFile);
@@ -1014,8 +1014,8 @@ void GameObject::LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfoCompnent* 
 		{
 			break;
 		}
-}
 	}
+}
 
 GameObject* GameObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, GameObject* pParent, FILE* pInFile, ShaderComponent* pShader, int* pnSkinnedMeshes)
 {
@@ -1086,14 +1086,14 @@ GameObject* GameObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice, ID3
 					_stprintf_s(pstrDebug, 256, "(Frame: %p) (Parent: %p)\n"), pChild, pGameObject);
 					OutputDebugString(pstrDebug);
 #endif
+				}
 			}
 		}
-	}
 		else if (!strcmp(pstrToken, "</Frame>"))
 		{
 			break;
 		}
-}
+	}
 	return(pGameObject);
 }
 
@@ -1195,7 +1195,7 @@ void GameObject::MoveForward(float fDistance)
 	vector<MapCollide>& Collides = g_bossMapData.GetCollideData();
 	if (gGameFramework.GetScene()->GetObjectManager()->m_nStageType == 1)//stage1¿Ã∂Û∏È
 		Collides = g_stage1MapData.GetCollideData();
-		
+
 
 	//if (Vector3::Length(xmf3Position) < PLAYER_MAX_RANGE)	GameObject::SetPosition(xmf3Position);
 	//vector<GameObject*> tempVector = gGameFramework.GetScene()->GetObjectManager()->GetObstacle();
@@ -1263,7 +1263,7 @@ void GameObject::MoveForward(float fDistance)
 			if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(xmf3Position, m_pCamera->GetOffset()));
 			return;
 		}
-	}	
+	}
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, fDistance);
 	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * fDistance / 50.0f);
 	GameObject::SetPosition(xmf3Position);

@@ -15,7 +15,7 @@ extern CGameFramework gGameFramework;
 
 Character::Character() : GameObject(UNDEF_ENTITY)
 {
-	m_xmf3RotateAxis = XMFLOAT3(0.0f, -90.0f, 0.0f);
+	//m_xmf3RotateAxis = XMFLOAT3(0.0f, -90.0f, 0.0f);
 }
 
 Character::~Character()
@@ -132,7 +132,7 @@ bool Character::CheckAnimationEnd(int nAnimation)
 
 void Character::InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos)
 {
-	XMFLOAT3 playerInterpolationVector = Vector3::Subtract(recvPos, m_position);
+	XMFLOAT3 playerInterpolationVector = Vector3::Subtract(recvPos, GetPosition());
 	float playerPosDistance = Vector3::Length(playerInterpolationVector);
 	chrono::utc_clock::time_point playerCurrentUTC_Time = chrono::utc_clock::now();
 	double durationTime = chrono::duration_cast<chrono::microseconds>(playerCurrentUTC_Time - recvTime).count();
@@ -143,12 +143,12 @@ void Character::InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT
 	if (playerPosDistance < DBL_EPSILON) {
 		m_interpolationDistance = 0.0f;
 	}
-	else if (abs(playerInterpolationDistance) > 10.0f) {
+	else if (abs(playerInterpolationDistance) > 5.0f) {
 		//cout << "client playerPos: " << playerPos.x << ", " << playerPos.z << endl;
 		//cout << "server playerPos: " << recvPacket->userState[i].pos.x << ", " << recvPacket->userState[i].pos.z << endl;
 		SetPosition(recvPos);
 	}
-	else if (abs(playerInterpolationDistance) < 5.0f) {
+	else if (abs(playerInterpolationDistance) < 3.0f) {
 		m_interpolationDistance = 0.0f;
 	}
 	else {
@@ -1297,7 +1297,7 @@ void Monster::Move(float fDsitance)
 
 void Monster::InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos)
 {
-	XMFLOAT3 playerInterpolationVector = Vector3::Subtract(recvPos, m_position);
+	XMFLOAT3 playerInterpolationVector = Vector3::Subtract(recvPos, GetPosition());
 	float playerPosDistance = Vector3::Length(playerInterpolationVector);
 	chrono::utc_clock::time_point playerCurrentUTC_Time = chrono::utc_clock::now();
 	double durationTime = chrono::duration_cast<chrono::microseconds>(playerCurrentUTC_Time - recvTime).count();
@@ -1515,24 +1515,125 @@ NormalMonster::~NormalMonster()
 
 void NormalMonster::Animate(float fTimeElapsed)
 {
-	if (m_fHp < FLT_EPSILON)
-	{
-		if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CA_DIE)
+	//	if (m_fHp < FLT_EPSILON)
+	//	{
+	//		if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CA_DIE)
+	//		{
+	//			pair<CharacterAnimation, CharacterAnimation> NextAnimations = { CharacterAnimation::CA_DIE, CharacterAnimation::CA_DIE };
+	//			m_pSkinnedAnimationController->m_CurrentAnimations = NextAnimations;
+	//			m_pSkinnedAnimationController->SetTrackEnable(NextAnimations);
+	//		}
+	//		return;
+	//	}
+	//	if (gGameFramework.GetCurrentGameState() == GAME_STATE::GS_FIRST_STAGE)
+	//	{
+	//		if (CheckAnimationEnd(CA_FIRSTSKILL) == true)
+	//		{
+	//			pair<CharacterAnimation, CharacterAnimation> NextAnimations = { CharacterAnimation::CA_IDLE, CharacterAnimation::CA_IDLE };
+	//			m_pSkinnedAnimationController->m_CurrentAnimations = NextAnimations;
+	//			m_pSkinnedAnimationController->SetTrackEnable(NextAnimations);
+	//		}
+	//
+	//	}
+	//	else
+	//	{
+	//		if (gGameFramework.GetCurrentGameState() == GAME_STATE::GS_SECOND_STAGE_FIRST_PHASE)
+	//		{
+	//			return;
+	//		}
+	//		else
+	//		{
+	//			if (m_bCanActive == false)
+	//			{
+	//				if (CheckAnimationEnd(CA_FIRSTSKILL) == true)
+	//				{
+	//					m_bCanActive = true;
+	//					pair<CharacterAnimation, CharacterAnimation> NextAnimations = { CharacterAnimation::CA_IDLE, CharacterAnimation::CA_IDLE };
+	//					m_pSkinnedAnimationController->m_CurrentAnimations = NextAnimations;
+	//					m_pSkinnedAnimationController->SetTrackEnable(NextAnimations);
+	//				}
+	//				else
+	//				{
+	//					GameObject::Animate(fTimeElapsed);
+	//					return;
+	//				}
+	//			}
+	//#ifdef LOCAL_TASK
+	//			//if (!m_bHaveTarget)
+	//			//{
+	//			//	// 플레이어 4명 포지션과 거리 계산해서 목표 설정
+	//			//	XMFLOAT3 currentPos = GetPosition();
+	//			//	float farDistance = FLT_MAX;
+	//			//	for (auto& session : g_Logic.m_inGamePlayerSession)
+	//			//	{
+	//			//		if (session.m_id == -1) continue;
+	//			//		XMFLOAT3 targetPos = session.m_currentPlayGameObject->GetPosition();
+	//			//		XMFLOAT3 toTarget = Vector3::Subtract(targetPos, currentPos);
+	//			//		float targetLength = Vector3::Length(toTarget);
+	//			//		if (targetLength < farDistance)
+	//			//		{
+	//			//			m_bHaveTarget = true;
+	//			//			m_iTargetID = session.m_id;
+	//			//			farDistance = targetLength;
+	//			//		}
+	//			//	}
+	//			//}
+	//#endif
+	//		}
+	//	}
+
+		/*if (m_bHaveTarget)
 		{
-			pair<CharacterAnimation, CharacterAnimation> NextAnimations = { CharacterAnimation::CA_DIE, CharacterAnimation::CA_DIE };
+
+			XMFLOAT3 MyPos = GetPosition();
+			XMFLOAT3 des = XMFLOAT3(m_xmf3Destination.x - MyPos.x, 0.0f, m_xmf3Destination.z - MyPos.z);
+			float distance = Vector3::Length(des);
+
+			if (distance < 30.0f)
+			{
+				m_bMoveState = false;
+				m_bOnAttack = true;
+			}
+			else if (distance >= 30.0f)
+			{
+				m_bOnAttack = false;
+				m_bMoveState = true;
+				SetLook(Vector3::Normalize(des));
+				MoveForward(25 * fTimeElapsed);
+			}
+		}
+		else
+		{
+			m_bMoveState = false;
+			m_bOnAttack = false;
+		}
+
+		pair<CharacterAnimation, CharacterAnimation> NextAnimations = { CharacterAnimation::CA_NOTHING, CharacterAnimation::CA_NOTHING };
+		if (m_bMoveState)
+		{
+			if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CA_MOVE)
+				NextAnimations = { CharacterAnimation::CA_MOVE, CharacterAnimation::CA_MOVE };
+		}
+		else if (m_bOnAttack)
+		{
+			if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CA_ATTACK)
+			{
+				NextAnimations = { CharacterAnimation::CA_ATTACK, CharacterAnimation::CA_ATTACK };
+				m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_fPosition = -ANIMATION_CALLBACK_EPSILON;
+			}
+		}
+		else
+		{
+			if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CA_IDLE)
+				NextAnimations = { CharacterAnimation::CA_IDLE, CharacterAnimation::CA_IDLE };
+		}
+
+		if (NextAnimations.first != CharacterAnimation::CA_NOTHING)
+		{
 			m_pSkinnedAnimationController->m_CurrentAnimations = NextAnimations;
 			m_pSkinnedAnimationController->SetTrackEnable(NextAnimations);
-		}
-		return;
-	}
-	if (gGameFramework.GetCurrentGameState() == GAME_STATE::GS_FIRST_STAGE)
-	{
-		if (CheckAnimationEnd(CA_FIRSTSKILL) == true)
-		{
-			pair<CharacterAnimation, CharacterAnimation> NextAnimations = { CharacterAnimation::CA_IDLE, CharacterAnimation::CA_IDLE };
-			m_pSkinnedAnimationController->m_CurrentAnimations = NextAnimations;
-			m_pSkinnedAnimationController->SetTrackEnable(NextAnimations);
-		}
+		}*/
+
 #ifdef LOCAL_TASK
 		//if (!m_bHaveTarget)
 		//{
@@ -1552,107 +1653,60 @@ void NormalMonster::Animate(float fTimeElapsed)
 		//	}
 		//}
 #else
+static XMFLOAT3 up = XMFLOAT3(0, 1, 0);
+	XMFLOAT3 rightVector = GetRight();
+	XMFLOAT3 MyPos = GetPosition();
+	XMFLOAT3 myLook = GetLook();
+	XMFLOAT3 desVector = Vector3::Subtract(m_desPos, MyPos);
+	//std::cout << "Look: " << myLook.x << ", " << myLook.y << ", " << myLook.z << endl;
+	float desDis = Vector3::Length(desVector);
+	float frontDotRes = Vector3::DotProduct(desVector, GetLook());
+	desVector = Vector3::Normalize(desVector);	
+	//std::cout << "desVector: " << desVector.x << ", " << desVector.y << ", " << desVector.z << endl;
 
-#endif
+	if (desDis >= 80.0f) {		
+		MyPos = Vector3::Add(MyPos, m_interpolationVector, m_interpolationDistance * fTimeElapsed);
+		SetPosition(MyPos);
+		return;
 	}
-	else
-	{
-		if (gGameFramework.GetCurrentGameState() == GAME_STATE::GS_SECOND_STAGE_FIRST_PHASE)
-		{
+
+	if (desDis <= 50.0f) {//근접 했을때
+		if (frontDotRes <= MONSTER_ABLE_ATTACK_COS_VALUE) {//방향 바꿔야됨 - 방향이 맞지 않음
+			float rightDotRes = Vector3::DotProduct(desVector, rightVector);
+			if (rightDotRes >= 0) {
+				Rotate(&up, 90.0f * fTimeElapsed);
+				m_xmf3rotateAngle.y += 90.0f * fTimeElapsed;
+				 
+			}
+			else {
+				Rotate(&up, -90.0f * fTimeElapsed);
+				m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
+			}
 			return;
 		}
-		else
-		{
-			if (m_bCanActive == false)
-			{
-				if (CheckAnimationEnd(CA_FIRSTSKILL) == true)
-				{
-					m_bCanActive = true;
-					pair<CharacterAnimation, CharacterAnimation> NextAnimations = { CharacterAnimation::CA_IDLE, CharacterAnimation::CA_IDLE };
-					m_pSkinnedAnimationController->m_CurrentAnimations = NextAnimations;
-					m_pSkinnedAnimationController->SetTrackEnable(NextAnimations);
-				}
-				else
-				{
-					GameObject::Animate(fTimeElapsed);
-					return;
-				}
+
+	}
+	else {
+		if (frontDotRes <= MONSTER_ABLE_ATTACK_COS_VALUE) {//방향 바꿔야됨
+			float rightDotRes = Vector3::DotProduct(desVector, rightVector);
+			if (rightDotRes >= 0) {
+				Rotate(&up, 90.0f * fTimeElapsed);
+				m_xmf3rotateAngle.y += 90.0f * fTimeElapsed;
+
 			}
-#ifdef LOCAL_TASK
-			//if (!m_bHaveTarget)
-			//{
-			//	// 플레이어 4명 포지션과 거리 계산해서 목표 설정
-			//	XMFLOAT3 currentPos = GetPosition();
-			//	float farDistance = FLT_MAX;
-			//	for (auto& session : g_Logic.m_inGamePlayerSession)
-			//	{
-			//		if (session.m_id == -1) continue;
-			//		XMFLOAT3 targetPos = session.m_currentPlayGameObject->GetPosition();
-			//		XMFLOAT3 toTarget = Vector3::Subtract(targetPos, currentPos);
-			//		float targetLength = Vector3::Length(toTarget);
-			//		if (targetLength < farDistance)
-			//		{
-			//			m_bHaveTarget = true;
-			//			m_iTargetID = session.m_id;
-			//			farDistance = targetLength;
-			//		}
-			//	}
-			//}
+			else {
+				Rotate(&up, -90.0f * fTimeElapsed);
+				m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
+			}
+		}
+		MyPos = Vector3::Add(MyPos, Vector3::ScalarProduct(GetLook(), 30.0f * fTimeElapsed, false));//틱마다 움직임
+		MyPos = Vector3::Add(MyPos, m_interpolationVector, m_interpolationDistance * fTimeElapsed);
+		SetPosition(MyPos);
+		return;
+	}
+	return;
+
 #endif
-		}
-	}
-
-	if (m_bHaveTarget)
-	{
-
-		XMFLOAT3 MyPos = GetPosition();
-		XMFLOAT3 des = XMFLOAT3(m_xmf3Destination.x - MyPos.x, 0.0f, m_xmf3Destination.z - MyPos.z);
-		float distance = Vector3::Length(des);
-
-		if (distance < 30.0f)
-		{
-			m_bMoveState = false;
-			m_bOnAttack = true;
-		}
-		else if (distance >= 30.0f)
-		{
-			m_bOnAttack = false;
-			m_bMoveState = true;
-			SetLook(Vector3::Normalize(des));
-			MoveForward(25 * fTimeElapsed);
-		}
-	}
-	else
-	{
-		m_bMoveState = false;
-		m_bOnAttack = false;
-	}
-
-	pair<CharacterAnimation, CharacterAnimation> NextAnimations = { CharacterAnimation::CA_NOTHING, CharacterAnimation::CA_NOTHING };
-	if (m_bMoveState)
-	{
-		if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CA_MOVE)
-			NextAnimations = { CharacterAnimation::CA_MOVE, CharacterAnimation::CA_MOVE };
-	}
-	else if (m_bOnAttack)
-	{
-		if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CA_ATTACK)
-		{
-			NextAnimations = { CharacterAnimation::CA_ATTACK, CharacterAnimation::CA_ATTACK };
-			m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_fPosition = -ANIMATION_CALLBACK_EPSILON;
-		}
-	}
-	else
-	{
-		if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CA_IDLE)
-			NextAnimations = { CharacterAnimation::CA_IDLE, CharacterAnimation::CA_IDLE };
-	}
-
-	if (NextAnimations.first != CharacterAnimation::CA_NOTHING)
-	{
-		m_pSkinnedAnimationController->m_CurrentAnimations = NextAnimations;
-		m_pSkinnedAnimationController->SetTrackEnable(NextAnimations);
-	}
 
 	GameObject::Animate(fTimeElapsed);
 }
@@ -1663,13 +1717,13 @@ void NormalMonster::Move(float fDsitance)
 
 void NormalMonster::InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos)
 {
-	XMFLOAT3 playerInterpolationVector = Vector3::Subtract(recvPos, m_position);
+	XMFLOAT3 playerInterpolationVector = Vector3::Subtract(recvPos, GetPosition());
 	float playerPosDistance = Vector3::Length(playerInterpolationVector);
 	chrono::utc_clock::time_point playerCurrentUTC_Time = chrono::utc_clock::now();
 	double durationTime = chrono::duration_cast<chrono::microseconds>(playerCurrentUTC_Time - recvTime).count();
 	durationTime = (double)durationTime / 1000.0f;//microseconds to mill
 	durationTime = (double)durationTime / 1000.0f;//milliseconds to sec
-	float playerInterpolationDistance = playerPosDistance - (float)durationTime * 50.0f;//length - v*t
+	float playerInterpolationDistance = playerPosDistance - (float)durationTime * 30.0f;//length - v*t
 
 	if (playerPosDistance < DBL_EPSILON) {
 		m_interpolationDistance = 0.0f;

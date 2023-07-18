@@ -168,6 +168,7 @@ namespace SERVER_PACKET {
 	constexpr unsigned char START_NPC_COMMUNICATE = 95;
 	constexpr unsigned char STAGE_CHANGING_BOSS = 96;
 	constexpr unsigned char STAGE_START_BOSS = 97;
+	constexpr unsigned char SMALL_MONSTER_MOVE = 98;
 	
 
 
@@ -344,6 +345,8 @@ namespace SERVER_PACKET {
 		char type;
 		InGamePlayerState userState[4];		
 	};
+
+
 }
 
 #pragma pack (pop)

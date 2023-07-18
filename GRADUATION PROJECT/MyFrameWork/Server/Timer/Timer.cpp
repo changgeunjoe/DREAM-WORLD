@@ -81,6 +81,13 @@ void Timer::TimerThreadFunc()
 				//}
 			}
 			break;
+			case EV_GAME_STATE_S_SEND:
+			{
+				ExpOver* ov = new ExpOver();
+				ov->m_opCode = OP_GAME_STATE_S_SEND;
+				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, ev.targetId, &ov->m_overlap);
+			}
+			break;
 			case EV_BOSS_KICK:
 			{
 				ExpOver* ov = new ExpOver();

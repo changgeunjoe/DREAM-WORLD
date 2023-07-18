@@ -215,15 +215,24 @@ void Logic::ProcessPacket(char* p)
 		//small monster
 		NormalMonster** smallMonsterArr = gGameFramework.GetScene()->GetObjectManager()->GetNormalMonsterArr();
 		for (int i = 0; i < 15; i++) {
+			smallMonsterArr[i]->InterpolateMove(recvPacket->time, recvPacket->smallMonster[i].pos);
 			if (smallMonsterArr[i]->GetCurrentHP() < 0.0f) {
-				smallMonsterArr[i]->InterpolateMove(recvPacket->time, recvPacket->smallMonster[i].pos);
 				smallMonsterArr[i]->SetCurrentHP(recvPacket->smallMonster[i].hp);
 				float maxHp = smallMonsterArr[i]->GetMaxCurrentHP();
 				smallMonsterArr[i]->SetCurrentHP(recvPacket->smallMonster[i].hp / maxHp * 100.0f);
 			}
 		}
-		recvPacket->time;
-		recvPacket->userState;
+	}
+	break;
+	case SERVER_PACKET::SMALL_MONSTER_MOVE:
+	{
+		SERVER_PACKET::SmallMonsterMovePacket* recvPacket = reinterpret_cast<SERVER_PACKET::SmallMonsterMovePacket*>(p);
+		NormalMonster** smallMonsterArr = gGameFramework.GetScene()->GetObjectManager()->GetNormalMonsterArr();
+		for (int i = 0; i < 15; i++) {
+			smallMonsterArr[i]->SetDesPos(recvPacket->desPositions[i]);
+			if (smallMonsterArr[i]->GetCurrentHP() < 0.0f) {
+			}
+		}
 	}
 	break;
 	case SERVER_PACKET::GAME_STATE_B:
