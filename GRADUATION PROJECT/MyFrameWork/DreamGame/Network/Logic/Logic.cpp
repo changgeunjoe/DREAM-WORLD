@@ -187,9 +187,9 @@ void Logic::ProcessPacket(char* p)
 	case SERVER_PACKET::SHOOTING_ARROW://È­»ì
 	{
 		SERVER_PACKET::ShootingObject* recvPacket = reinterpret_cast<SERVER_PACKET::ShootingObject*>(p);
-		recvPacket->dir;
-		recvPacket->srcPos;
-		recvPacket->speed;
+
+		Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo(ROLE::ARCHER);
+		static_cast<Archer*>(possessObj)->ShootArrow(recvPacket->srcPos, recvPacket->dir, recvPacket->speed);
 	}
 	break;
 	case SERVER_PACKET::SHOOTING_BALL://°ø
@@ -408,8 +408,14 @@ void Logic::ProcessPacket(char* p)
 		if (recvPacket->qSkill == true) {
 			possessChracter->FirstSkillDown();
 		}
+		else{
+			possessChracter->FirstSkillUp();
+		}
 		if (recvPacket->eSkill == true) {
 			possessChracter->SecondSkillDown();
+		}
+		else {
+			possessChracter->SecondSkillUp();
 		}
 	}
 	break;
@@ -435,8 +441,6 @@ void Logic::ProcessPacket(char* p)
 		}
 	}
 	break;
-
-
 	default:
 	{
 		std::cout << "Unknown Packet Recv" << std::endl;

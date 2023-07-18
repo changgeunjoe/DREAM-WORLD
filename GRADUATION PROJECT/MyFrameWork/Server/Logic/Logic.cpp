@@ -221,6 +221,14 @@ void Logic::ProcessPacket(int userId, char* p)
 	{
 		CLIENT_PACKET::ShootingObject* recvPacket = reinterpret_cast<CLIENT_PACKET::ShootingObject*>(p);
 		g_RoomManager.GetRunningRoomRef(g_iocpNetwork.m_session[userId].GetRoomId()).ShootArrow(recvPacket->dir, recvPacket->pos, recvPacket->speed);
+
+		SERVER_PACKET::ShootingObject sendPacket;
+		sendPacket.srcPos = recvPacket->pos;
+		sendPacket.dir = recvPacket->dir;
+		sendPacket.speed = recvPacket->speed;
+		sendPacket.type = SERVER_PACKET::SHOOTING_ARROW;
+		sendPacket.size = sizeof(SERVER_PACKET::ShootingObject);
+		MultiCastOtherPlayerInRoom(userId, &sendPacket);
 	}
 	break;
 	case CLIENT_PACKET::SHOOTING_BALL:
@@ -267,7 +275,7 @@ void Logic::ProcessPacket(int userId, char* p)
 		SERVER_PACKET::SkillInputPacket sendPacket;
 		sendPacket.qSkill = recvPacket->qSkill;
 		sendPacket.eSkill = recvPacket->eSkill;
-		sendPacket.userId = userId;
+		sendPacket.role = g_iocpNetwork.m_session[userId].GetRole();
 		sendPacket.type = SERVER_PACKET::SKILL_INPUT;
 		sendPacket.size = sizeof(SERVER_PACKET::SkillInputPacket);
 		MultiCastOtherPlayerInRoom(userId, &sendPacket);

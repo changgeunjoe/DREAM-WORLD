@@ -1920,7 +1920,11 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		case 'E':
 		{
 			//g_Logic.m_KeyInput->m_bEKey = false;
-			//myPlayCharacter->SecondSkillUp(g_Logic.m_inGamePlayerSession[0].m_ownerRotateAngle);
+			myPlayCharacter->SecondSkillUp(myPlayCharacter->GetRotateAxis());
+			if (myPlayCharacter == GetChracterInfo(ROLE::ARCHER))
+			{
+				g_NetworkHelper.SendSkillStatePacket(myPlayCharacter->GetQSkillState(), false);
+			}
 			break;
 		}
 		//NPC와 대화하거나 포털들어갈 때 상호작용 키  

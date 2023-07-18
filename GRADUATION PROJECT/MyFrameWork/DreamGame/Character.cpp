@@ -469,7 +469,10 @@ void Archer::Animate(float fTimeElapsed)
 	{
 		if (CheckAnimationEnd(CA_ATTACK))
 		{
-			ShootArrow();
+			if (m_pCamera)
+			{
+				ShootArrow();
+			}
 			m_bOnAttack = false;
 			m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd = false;
 		}
@@ -584,6 +587,8 @@ void Archer::SecondSkillUp(const XMFLOAT3& CameraAxis)
 		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd = true;
 		m_CameraLook = CameraAxis;
 	}
+	if (m_pCamera == nullptr)
+		m_bESkillClicked = false;
 }
 
 void Archer::ShootArrow()
@@ -594,35 +599,42 @@ void Archer::ShootArrow()
 		for (int i = 0; i < 3; ++i)
 		{
 			m_nProjectiles = (m_nProjectiles < MAX_ARROW) ? m_nProjectiles : m_nProjectiles % MAX_ARROW;
-			XMFLOAT3 tempLook = GetObjectLook();
-			XMFLOAT3 Position = GetPosition();
-			XMFLOAT3 targetPos = Vector3::Add(Position, tempLook, 150.0f);
-			// 임시 목표 설정
-			if (m_pCamera)
-			{
-				m_pProjectiles[m_nProjectiles]->m_xmf3direction = XMFLOAT3(tempLook.x, m_pCamera->GetLookVector().y, tempLook.z);
-				m_pProjectiles[m_nProjectiles]->m_xmf3direction.x = tempLook.x * cos((1 - i) * (3.14 / 6)) - tempLook.z * sin((1 - i) * (3.14 / 6));
-				m_pProjectiles[m_nProjectiles]->m_xmf3direction.z = tempLook.x * sin((1 - i) * (3.14 / 6)) + tempLook.z * cos((1 - i) * (3.14 / 6));
-				m_pProjectiles[m_nProjectiles]->m_xmf3direction.y = m_pCamera->GetLookVector().y + 0.5f;
-			}
-			else
-			{
-				m_pProjectiles[m_nProjectiles]->m_xmf3direction = XMFLOAT3(GetObjectLook().x, -sin(m_projectilesLookY * 3.141592 / 180.0f), GetObjectLook().z);
-				m_pProjectiles[m_nProjectiles]->m_xmf3direction.x = tempLook.x * cos((1 - i) * (3.14 / 6)) - tempLook.z * sin((1 - i) * (3.14 / 6));
-				m_pProjectiles[m_nProjectiles]->m_xmf3direction.z = tempLook.x * sin((1 - i) * (3.14 / 6)) + tempLook.z * cos((1 - i) * (3.14 / 6));
-				m_pProjectiles[m_nProjectiles]->m_xmf3direction.y = -sin(m_projectilesLookY * 3.141592 / 180.0f) + 0.5f;
-			}
+			XMFLOAT3 objectLook = GetObjectLook();
+			XMFLOAT3 objectRight = GetRight();
+			XMFLOAT3 objPosition = GetPosition();
+			// XMFLOAT3 targetPos = Vector3::Add(objPosition, objectLook, 150.0f);
+			//if (m_pCamera)
+			//{
+			//	m_pProjectiles[m_nProjectiles]->m_xmf3direction = XMFLOAT3(objectLook.x, m_pCamera->GetLookVector().y, objectLook.z);
+			//	m_pProjectiles[m_nProjectiles]->m_xmf3direction.x = objectLook.x * cos((1 - i) * (3.14 / 6)) - objectLook.z * sin((1 - i) * (3.14 / 6));
+			//	m_pProjectiles[m_nProjectiles]->m_xmf3direction.z = objectLook.x * sin((1 - i) * (3.14 / 6)) + objectLook.z * cos((1 - i) * (3.14 / 6));
+			//	m_pProjectiles[m_nProjectiles]->m_xmf3direction.y = m_pCamera->GetLookVector().y + 0.5f;
+			//}
+			//else
+			//{
+			//	m_pProjectiles[m_nProjectiles]->m_xmf3direction = XMFLOAT3(GetObjectLook().x, -sin(m_xmf3RotateAxis.y * 3.141592 / 180.0f), GetObjectLook().z);
+			//	m_pProjectiles[m_nProjectiles]->m_xmf3direction.x = objectLook.x * cos((1 - i) * (3.14 / 6)) - objectLook.z * sin((1 - i) * (3.14 / 6));
+			//	m_pProjectiles[m_nProjectiles]->m_xmf3direction.z = objectLook.x * sin((1 - i) * (3.14 / 6)) + objectLook.z * cos((1 - i) * (3.14 / 6));
+			//	m_pProjectiles[m_nProjectiles]->m_xmf3direction.y = -sin(m_xmf3RotateAxis.y * 3.141592 / 180.0f) + 0.5f;
+			//}
+			objPosition.y = 6.0f + (i % 2) * 4.0f;
+			objPosition = Vector3::Add(objPosition, objectRight, (1 - i) * 4.0f);
+			objPosition = Vector3::Add(objPosition, objectLook, 1.0f);
 
-			m_pProjectiles[m_nProjectiles]->m_xmf3direction = Vector3::Normalize(m_pProjectiles[m_nProjectiles]->m_xmf3direction);
-			m_pProjectiles[m_nProjectiles]->m_xmf3startPosition = XMFLOAT3(GetPosition().x, GetPosition().y + 4.0f, GetPosition().z);
-			m_pProjectiles[m_nProjectiles]->SetPosition(Vector3::Add(Position, XMFLOAT3(0.0f, 5.0f, 0.0f)));
+			m_pProjectiles[m_nProjectiles]->m_xmf3direction = Vector3::Normalize(objectLook);
+			m_pProjectiles[m_nProjectiles]->m_xmf3startPosition = objPosition;
+			m_pProjectiles[m_nProjectiles]->SetPosition(objPosition);
 			m_pProjectiles[m_nProjectiles]->m_fSpeed = 250.0f;
 			m_pProjectiles[m_nProjectiles]->m_bActive = true;
-			static_cast<Arrow*>(m_pProjectiles[m_nProjectiles])->m_xmf3TargetPos = targetPos;
-			static_cast<Arrow*>(m_pProjectiles[m_nProjectiles])->m_ArrowType = 1;
-			static_cast<Arrow*>(m_pProjectiles[m_nProjectiles])->m_ArrowPos = 0.0f;
+			// static_cast<Arrow*>(m_pProjectiles[m_nProjectiles])->m_xmf3TargetPos = targetPos;
+			// static_cast<Arrow*>(m_pProjectiles[m_nProjectiles])->m_ArrowType = 1;
+			// static_cast<Arrow*>(m_pProjectiles[m_nProjectiles])->m_ArrowPos = 0.0f;
+			g_NetworkHelper.SendArrowAttackPacket(objPosition, m_pProjectiles[m_nProjectiles]->m_xmf3direction, 
+					m_pProjectiles[m_nProjectiles]->m_fSpeed);
+
 			m_nProjectiles++;
 		}
+
 		m_bQSkillClicked = false;
 	}
 	else if (m_bESkillClicked == true)
@@ -640,7 +652,7 @@ void Archer::ShootArrow()
 
 		m_pProjectiles[m_nProjectiles]->m_xmf3direction = Vector3::Normalize(m_pProjectiles[m_nProjectiles]->m_xmf3direction);
 		m_pProjectiles[m_nProjectiles]->m_xmf3startPosition = XMFLOAT3(GetPosition().x, GetPosition().y + 4.0f, GetPosition().z);
-		m_pProjectiles[m_nProjectiles]->SetPosition(Vector3::Add(GetPosition(), XMFLOAT3(0.0f, 5.0f, 0.0f)));
+		m_pProjectiles[m_nProjectiles]->SetPosition(m_pProjectiles[m_nProjectiles]->m_xmf3startPosition);
 		m_pProjectiles[m_nProjectiles]->m_fSpeed = (chargingTime / fullTime > 0.5f) ? arrowSpeed * 400.0f : -1.0f;
 		static_cast<Arrow*>(m_pProjectiles[m_nProjectiles])->m_xmf3TargetPos = XMFLOAT3(0.0f, -1.0f, 0.0f);
 		static_cast<Arrow*>(m_pProjectiles[m_nProjectiles])->m_ArrowType = 0;
@@ -650,10 +662,8 @@ void Archer::ShootArrow()
 		if (m_pProjectiles[m_nProjectiles]->m_fSpeed > 10)
 		{
 			m_pProjectiles[m_nProjectiles]->m_bActive = true;
-
-			if (m_pCamera)
-				g_NetworkHelper.SendArrowAttackPacket(m_pProjectiles[m_nProjectiles]->m_xmf3startPosition, m_pProjectiles[m_nProjectiles]->m_xmf3direction, m_pProjectiles[m_nProjectiles]->m_fSpeed);
-
+			g_NetworkHelper.SendArrowAttackPacket(m_pProjectiles[m_nProjectiles]->m_xmf3startPosition, 
+				m_pProjectiles[m_nProjectiles]->m_xmf3direction, m_pProjectiles[m_nProjectiles]->m_fSpeed);
 			m_nProjectiles++;
 		}
 
@@ -671,13 +681,57 @@ void Archer::ShootArrow()
 
 		m_pProjectiles[m_nProjectiles]->m_xmf3direction = Vector3::Normalize(m_pProjectiles[m_nProjectiles]->m_xmf3direction);
 		m_pProjectiles[m_nProjectiles]->m_xmf3startPosition = XMFLOAT3(GetPosition().x, GetPosition().y + 4.0f, GetPosition().z);
-		m_pProjectiles[m_nProjectiles]->SetPosition(Vector3::Add(GetPosition(), XMFLOAT3(0.0f, 5.0f, 0.0f)));
+		m_pProjectiles[m_nProjectiles]->SetPosition(m_pProjectiles[m_nProjectiles]->m_xmf3startPosition);
 		m_pProjectiles[m_nProjectiles]->m_fSpeed = 150.0f;
 		m_pProjectiles[m_nProjectiles]->m_bActive = true;
 		static_cast<Arrow*>(m_pProjectiles[m_nProjectiles])->m_xmf3TargetPos = XMFLOAT3(0.0f, -1.0f, 0.0f);
 		static_cast<Arrow*>(m_pProjectiles[m_nProjectiles])->m_ArrowType = 0;
-		if (m_pCamera)
-			g_NetworkHelper.SendArrowAttackPacket(m_pProjectiles[m_nProjectiles]->m_xmf3startPosition, m_pProjectiles[m_nProjectiles]->m_xmf3direction, m_pProjectiles[m_nProjectiles]->m_fSpeed);
+		g_NetworkHelper.SendArrowAttackPacket(m_pProjectiles[m_nProjectiles]->m_xmf3startPosition, 
+			m_pProjectiles[m_nProjectiles]->m_xmf3direction, m_pProjectiles[m_nProjectiles]->m_fSpeed);
+		m_nProjectiles++;
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_ATTACK]->m_fPosition = -ANIMATION_CALLBACK_EPSILON;
+	}
+}
+
+void Archer::ShootArrow(const XMFLOAT3& xmf3StartPos, const XMFLOAT3& xmf3Direction, const float fSpeed)
+{
+	// 플레이어 캐릭터가 아닐 때
+	m_nProjectiles = (m_nProjectiles < MAX_ARROW) ? m_nProjectiles : m_nProjectiles % MAX_ARROW;
+	if (m_bQSkillClicked == true)
+	{
+		for (int i = 0; i < 3; ++i)
+		{
+			m_nProjectiles = (m_nProjectiles < MAX_ARROW) ? m_nProjectiles : m_nProjectiles % MAX_ARROW;
+			m_pProjectiles[m_nProjectiles]->m_xmf3direction = xmf3Direction;
+			m_pProjectiles[m_nProjectiles]->m_xmf3startPosition = xmf3StartPos;
+			m_pProjectiles[m_nProjectiles]->SetPosition(xmf3StartPos);
+			m_pProjectiles[m_nProjectiles]->m_fSpeed = 250.0f;
+			m_pProjectiles[m_nProjectiles]->m_bActive = true;
+			m_nProjectiles++;
+		}
+		m_bQSkillClicked = false;
+	}
+	else if (m_bESkillClicked == true)
+	{
+		m_pProjectiles[m_nProjectiles]->m_xmf3direction = xmf3Direction;
+		m_pProjectiles[m_nProjectiles]->m_xmf3startPosition = xmf3StartPos;
+		m_pProjectiles[m_nProjectiles]->SetPosition(xmf3StartPos);
+		m_pProjectiles[m_nProjectiles]->m_fSpeed = fSpeed;
+		m_pProjectiles[m_nProjectiles]->m_bActive = true;
+
+		m_nProjectiles++;
+		m_bESkillClicked = false;
+
+		Character::RbuttonUp();
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_ATTACK]->m_fPosition = -ANIMATION_CALLBACK_EPSILON;
+	}
+	else if (m_bOnAttack == true)
+	{
+		m_pProjectiles[m_nProjectiles]->m_xmf3direction = xmf3Direction;
+		m_pProjectiles[m_nProjectiles]->m_xmf3startPosition = xmf3StartPos;
+		m_pProjectiles[m_nProjectiles]->SetPosition(xmf3StartPos);
+		m_pProjectiles[m_nProjectiles]->m_fSpeed = fSpeed;
+		m_pProjectiles[m_nProjectiles]->m_bActive = true;
 		m_nProjectiles++;
 		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_ATTACK]->m_fPosition = -ANIMATION_CALLBACK_EPSILON;
 	}
@@ -1399,6 +1453,7 @@ Arrow::~Arrow()
 
 void Arrow::Animate(float fTimeElapsed)
 {
+	if (m_bActive == false) return;
 	XMFLOAT3 xmf3CurrentPos = GetPosition();
 	float moveDist = Vector3::Length(Vector3::Subtract(xmf3CurrentPos, m_xmf3startPosition));
 	if (moveDist > 200.0f)
@@ -1414,33 +1469,33 @@ void Arrow::Animate(float fTimeElapsed)
 		m_RAttack = false;
 	}
 
-	if (m_ArrowType == 1)
-	{
-		if (m_ArrowPos > 1.0f)
-		{
-			m_bActive = false;
-			return;
-		}
+	//if (m_ArrowType == 1)
+	//{
+	//	if (m_ArrowPos > 1.0f)
+	//	{
+	//		m_bActive = false;
+	//		return;
+	//	}
 
-		Monster* bossMonster = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster();
-		m_xmf3TargetPos = bossMonster->GetPosition();
-		XMFLOAT3 controlPoint = Vector3::Add(m_xmf3startPosition, m_xmf3direction, 100.0f);
-		XMFLOAT3 firstVec = Vector3::Subtract(controlPoint, m_xmf3startPosition);
-		XMFLOAT3 secondVec = Vector3::Subtract(m_xmf3TargetPos, controlPoint);
+	//	Monster* bossMonster = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster();
+	//	m_xmf3TargetPos = bossMonster->GetPosition();
+	//	XMFLOAT3 controlPoint = Vector3::Add(m_xmf3startPosition, m_xmf3direction, 100.0f);
+	//	XMFLOAT3 firstVec = Vector3::Subtract(controlPoint, m_xmf3startPosition);
+	//	XMFLOAT3 secondVec = Vector3::Subtract(m_xmf3TargetPos, controlPoint);
 
-		XMFLOAT3 tempPoint1 = Vector3::Add(Vector3::ScalarProduct(m_xmf3startPosition, (1 - m_ArrowPos), false), Vector3::ScalarProduct(controlPoint, m_ArrowPos, false));
-		XMFLOAT3 tempPoint2 = Vector3::Add(Vector3::ScalarProduct(controlPoint, (1 - m_ArrowPos), false), Vector3::ScalarProduct(m_xmf3TargetPos, m_ArrowPos, false));
-		XMFLOAT3 curPos = Vector3::Add(Vector3::ScalarProduct(tempPoint1, (1 - m_ArrowPos), false), Vector3::ScalarProduct(tempPoint2, m_ArrowPos, false));
+	//	XMFLOAT3 tempPoint1 = Vector3::Add(Vector3::ScalarProduct(m_xmf3startPosition, (1 - m_ArrowPos), false), Vector3::ScalarProduct(controlPoint, m_ArrowPos, false));
+	//	XMFLOAT3 tempPoint2 = Vector3::Add(Vector3::ScalarProduct(controlPoint, (1 - m_ArrowPos), false), Vector3::ScalarProduct(m_xmf3TargetPos, m_ArrowPos, false));
+	//	XMFLOAT3 curPos = Vector3::Add(Vector3::ScalarProduct(tempPoint1, (1 - m_ArrowPos), false), Vector3::ScalarProduct(tempPoint2, m_ArrowPos, false));
 
-		SetPosition(curPos);
-		SetLook(Vector3::Subtract(tempPoint2, tempPoint1));
-		m_ArrowPos += fTimeElapsed;	// 스플라인 곡선에서의 t의 역할
-	}
-	else
-	{
+	//	SetPosition(curPos);
+	//	SetLook(Vector3::Subtract(tempPoint2, tempPoint1));
+	//	m_ArrowPos += fTimeElapsed;	// 스플라인 곡선에서의 t의 역할
+	//}
+	//else
+	//{
 		SetLook(m_xmf3direction);
 		MoveForward(fTimeElapsed * m_fSpeed);
-	}
+	//}
 
 	if (m_VisualizeSPBB) m_VisualizeSPBB->SetPosition(XMFLOAT3(GetPosition().x, GetPosition().y, GetPosition().z));
 }
