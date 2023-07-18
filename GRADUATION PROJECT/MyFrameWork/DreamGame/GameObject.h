@@ -124,6 +124,7 @@ public:
 
 	void SetRimLight(bool bRimLight);
 	void SetCurrentHP(float fHP);
+	void SetSkillTime(float fHp);
 	float GetCurrentHP() { return m_fHp; }
 	float GetMaxCurrentHP() { return m_fMaxHp; }
 	MeshComponent* GetMesh() { return m_pMeshComponent; }
@@ -349,6 +350,7 @@ public:
 	GameObject* m_pHPBarUI{ NULL };
 	GameObject* m_pProfileUI{ NULL };
 	GameObject* m_pSkillUI{ NULL };
+	GameObject* m_pSkillUI2{ NULL };
 	GameObject* m_pTrailStart{ NULL };
 	GameObject* m_pTrailEnd{ NULL };
 	std::queue<int> m_BossRoute;

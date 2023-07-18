@@ -144,6 +144,8 @@ void TrailComponent::RenderTrail(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	
 	m_pTrailObject->GetMesh()->SetVertices(pVertices, iVertexCount);
 	m_pTrailObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature); //렌더링은 한번만
+
+	delete[] pVertices;
 }
 
 void TrailComponent::RenderAstar(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, vector<int>& vecNodeQueue)

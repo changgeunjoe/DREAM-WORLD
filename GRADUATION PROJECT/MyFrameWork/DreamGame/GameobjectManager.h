@@ -145,6 +145,7 @@ private: //active object
 	GameObject* m_pPressGUIObject{ NULL };
 	GameObject* m_pAttackUIObject{ NULL };
 	GameObject* m_pConditionUIObject{ NULL };
+	GameObject* m_pSceneChangeUIObject{ NULL };
 
 	//Skill	
 	GameObject* m_pHealSkillUIObject{ NULL };
@@ -185,6 +186,8 @@ private: //active object
 	//TrailObject
 	GameObject* m_pTrailObject{ NULL };
 	TrailComponent* m_pTrailComponent{ NULL };
+	array<GameObject*,10> m_pTrailArrowObject{ NULL };
+	array<TrailComponent*, 10>m_pTrailArrowComponent{ NULL };
 	//
 	//AstarObject
 	GameObject* m_pAstarObject{ NULL };
