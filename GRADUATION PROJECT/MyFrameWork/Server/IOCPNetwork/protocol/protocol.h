@@ -278,6 +278,8 @@ namespace SERVER_PACKET {
 		XMFLOAT3 pos;
 		XMFLOAT3 rot;
 		XMFLOAT3 directionVector;
+		char idxSize;
+		char nearIdx[15];
 	};
 
 	struct InGameBossState {
@@ -328,7 +330,7 @@ namespace SERVER_PACKET {
 	struct SmallMonsterMovePacket {
 		short size;
 		char type;
-		XMFLOAT3 desPositions[15];
+		XMFLOAT3 desPositions[15];		
 	};
 
 	struct SkillInputPacket {

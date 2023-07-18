@@ -11,6 +11,7 @@ extern Logic g_Logic;
 extern NetworkHelper g_NetworkHelper;
 extern bool GameEnd;
 extern MapData g_bossMapData;
+extern MapData g_stage1MapData;
 extern CGameFramework gGameFramework;
 
 Character::Character() : GameObject(UNDEF_ENTITY)
@@ -1634,31 +1635,87 @@ void NormalMonster::Animate(float fTimeElapsed)
 			m_pSkinnedAnimationController->SetTrackEnable(NextAnimations);
 		}*/
 
-#ifdef LOCAL_TASK
-		//if (!m_bHaveTarget)
-		//{
-		//	XMFLOAT3 currentPos = GetPosition();
-		//	for (auto& session : g_Logic.m_inGamePlayerSession)
-		//	{
-		//		if (session.m_id == -1) continue;
-		//		XMFLOAT3 targetPos = session.m_currentPlayGameObject->GetPosition();
-		//		XMFLOAT3 toTarget = Vector3::Subtract(targetPos, currentPos);
-		//		float targetLength = Vector3::Length(toTarget);
-		//		if (targetLength < 200.0f)
-		//		{
-		//			m_iTargetID = session.m_id;
-		//			m_bHaveTarget = true;
-		//			break;
-		//		}
-		//	}
-		//}
-#else
 	static XMFLOAT3 up = XMFLOAT3(0, 1, 0);
+#ifdef LOCAL_TASK
+	NormalMonster** monsterArr = gGameFramework.GetScene()->GetObjectManager()->GetNormalMonsterArr();
+	GameObject* player = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::TANKER);
+	auto& collisionData = g_stage1MapData.GetCollideData();
+	/*std::set<int> nearM;
+	m_nearMonsterLock.lock();
+	nearM = m_nearMonster;
+	m_nearMonsterLock.unlock();*/
+	bool isCollideNPC = false;
+	for (int i = 0; i < 15; i++) {
+		if (i == m_nID) continue;
+		auto normalVecRes = GetNormalVectorSphere(monsterArr[i]->GetPosition());
+		if (normalVecRes.first >= 16.0f)continue;
+		XMFLOAT3 normalVec = normalVecRes.second;
+		XMFLOAT3 slidingVec = XMFLOAT3(-normalVec.z, 0.0f, normalVec.x);
+		float normalSize = 16.0f - normalVecRes.first;
+		float directionVectorDotslidingVec = Vector3::DotProduct(slidingVec, GetLook());
+		if (directionVectorDotslidingVec < 0)slidingVec = Vector3::ScalarProduct(slidingVec, -1.0f, false);
+		m_position = GetPosition();
+		m_position = Vector3::Add(m_position, Vector3::ScalarProduct(slidingVec, 30.0f * fTimeElapsed, false));//틱마다 움직임
+		m_position = Vector3::Add(m_position, Vector3::ScalarProduct(normalVec, normalSize, false));//틱마다 움직임		
+		isCollideNPC = true;
+	}
+	if (isCollideNPC) {
+		for (auto& collide : collisionData) {
+			if (collide.GetObb().Intersects(m_SPBB)) {
+				std::vector<int>& relationIdxsVector = collide.GetRelationCollisionIdxs();
+				int secondCollide = -1;
+				for (auto& otherCol : relationIdxsVector) {
+					if (collisionData[otherCol].GetObb().Intersects(m_SPBB)) {
+						secondCollide = otherCol;
+						break;
+					}
+				}
+				if (secondCollide == -1) {
+					auto CollidePolygonNormalVector = collide.CalSlidingVector(m_SPBB, m_position, GetLook());//노말, 슬라이딩, 노말이 가져야할 크기 를 반환
+					XMFLOAT3 collideNormalVector = std::get<0>(CollidePolygonNormalVector);//노말 벡터
+					XMFLOAT3 collideSlidingVector = std::get<1>(CollidePolygonNormalVector);//슬라이딩 벡터
+					float normalVectorDotProductReslut = std::get<2>(CollidePolygonNormalVector);
+					float slidingVectorDotProductReslut = std::get<3>(CollidePolygonNormalVector);//슬라이딩 벡터와 무브 벡터 내적 값
+					m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideSlidingVector, slidingVectorDotProductReslut * 30.0f * fTimeElapsed));
+					m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideNormalVector, 0.2f * normalVectorDotProductReslut * 30.0f * fTimeElapsed));
+				}
+				else {
+					auto CollidePolygonNormalVector1 = collide.CalSlidingVector(m_SPBB, m_position, GetLook());
+					auto CollidePolygonNormalVector2 = collisionData[secondCollide].CalSlidingVector(m_SPBB, m_position, GetLook());
+
+					XMFLOAT3 collideNormalVector1 = std::get<0>(CollidePolygonNormalVector1);//노말 벡터
+					XMFLOAT3 collideSlidingVector1 = std::get<1>(CollidePolygonNormalVector1);//슬라이딩 벡터
+					float normalVectorDotProductResult1 = std::get<2>(CollidePolygonNormalVector1);
+					float slidingVectorDotProductResult1 = std::get<3>(CollidePolygonNormalVector1);//슬라이딩 벡터와 무브 벡터 내적 값
+
+					XMFLOAT3 collideNormalVector2 = std::get<0>(CollidePolygonNormalVector2);//노말 벡터
+					XMFLOAT3 collideSlidingVector2 = std::get<1>(CollidePolygonNormalVector2);//슬라이딩 벡터
+					float normalVectorDotProductResult2 = std::get<2>(CollidePolygonNormalVector2);
+					float slidingVectorDotProductResult2 = std::get<3>(CollidePolygonNormalVector2);//슬라이딩 벡터와 무브 벡터 내적 값
+
+					XMFLOAT3 resultSlidingVector = Vector3::Normalize(Vector3::Subtract(collide.GetObb().Center, collisionData[secondCollide].GetObb().Center));
+					resultSlidingVector.y = 0.0f;
+					float dotRes = Vector3::DotProduct(resultSlidingVector, GetLook());
+					if (dotRes < 0)resultSlidingVector = Vector3::ScalarProduct(resultSlidingVector, -1.0f, false);
+
+					m_position = Vector3::Add(m_position, Vector3::ScalarProduct(resultSlidingVector, 30.0f * fTimeElapsed));
+					m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideNormalVector1, 0.3f * normalVectorDotProductResult1 * 30.0f * fTimeElapsed));
+					m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideNormalVector2, 0.3f * normalVectorDotProductResult2 * 30.0f * fTimeElapsed));
+				}
+				break;
+			}
+		}
+		SetPosition(m_position);
+		m_SPBB.Center = m_position;
+		m_SPBB.Center.y += m_fBoundingSize;
+		GameObject::Animate(fTimeElapsed);
+		return;
+	}
 
 	XMFLOAT3 rightVector = GetRight();
 	XMFLOAT3 MyPos = GetPosition();
 	XMFLOAT3 myLook = GetLook();
-	XMFLOAT3 desVector = Vector3::Subtract(m_desPos, MyPos);
+	XMFLOAT3 desVector = Vector3::Subtract(player->GetPosition(), MyPos);
 	float desDis = Vector3::Length(desVector);
 	desVector = Vector3::Normalize(desVector);
 	float frontDotRes = Vector3::DotProduct(desVector, myLook);
@@ -1696,6 +1753,67 @@ void NormalMonster::Animate(float fTimeElapsed)
 		}
 	}
 	else {
+		m_position = GetPosition();
+		for (auto& collide : collisionData) {
+			if (collide.GetObb().Intersects(m_SPBB)) {
+				std::vector<int>& relationIdxsVector = collide.GetRelationCollisionIdxs();
+				int secondCollide = -1;
+				for (auto& otherCol : relationIdxsVector) {
+					if (collisionData[otherCol].GetObb().Intersects(m_SPBB)) {
+						secondCollide = otherCol;
+						break;
+					}
+				}
+				if (secondCollide == -1) {
+					auto CollidePolygonNormalVector = collide.CalSlidingVector(m_SPBB, m_position, GetLook());//노말, 슬라이딩, 노말이 가져야할 크기 를 반환
+					XMFLOAT3 collideNormalVector = std::get<0>(CollidePolygonNormalVector);//노말 벡터
+					XMFLOAT3 collideSlidingVector = std::get<1>(CollidePolygonNormalVector);//슬라이딩 벡터
+					float normalVectorDotProductReslut = std::get<2>(CollidePolygonNormalVector);
+					float slidingVectorDotProductReslut = std::get<3>(CollidePolygonNormalVector);//슬라이딩 벡터와 무브 벡터 내적 값
+					m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideSlidingVector, slidingVectorDotProductReslut * 30.0f * fTimeElapsed));
+					m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideNormalVector, 0.2f * normalVectorDotProductReslut * 30.0f * fTimeElapsed));
+				}
+				else {
+					auto CollidePolygonNormalVector1 = collide.CalSlidingVector(m_SPBB, m_position, GetLook());
+					auto CollidePolygonNormalVector2 = collisionData[secondCollide].CalSlidingVector(m_SPBB, m_position, GetLook());
+
+					XMFLOAT3 collideNormalVector1 = std::get<0>(CollidePolygonNormalVector1);//노말 벡터
+					XMFLOAT3 collideSlidingVector1 = std::get<1>(CollidePolygonNormalVector1);//슬라이딩 벡터
+					float normalVectorDotProductResult1 = std::get<2>(CollidePolygonNormalVector1);
+					float slidingVectorDotProductResult1 = std::get<3>(CollidePolygonNormalVector1);//슬라이딩 벡터와 무브 벡터 내적 값
+
+					XMFLOAT3 collideNormalVector2 = std::get<0>(CollidePolygonNormalVector2);//노말 벡터
+					XMFLOAT3 collideSlidingVector2 = std::get<1>(CollidePolygonNormalVector2);//슬라이딩 벡터
+					float normalVectorDotProductResult2 = std::get<2>(CollidePolygonNormalVector2);
+					float slidingVectorDotProductResult2 = std::get<3>(CollidePolygonNormalVector2);//슬라이딩 벡터와 무브 벡터 내적 값
+
+					XMFLOAT3 resultSlidingVector = Vector3::Normalize(Vector3::Subtract(collide.GetObb().Center, collisionData[secondCollide].GetObb().Center));
+					resultSlidingVector.y = 0.0f;
+					float dotRes = Vector3::DotProduct(resultSlidingVector, GetLook());
+					if (dotRes < 0)resultSlidingVector = Vector3::ScalarProduct(resultSlidingVector, -1.0f, false);
+
+					m_position = Vector3::Add(m_position, Vector3::ScalarProduct(resultSlidingVector, 30.0f * fTimeElapsed));
+					m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideNormalVector1, 0.3f * normalVectorDotProductResult1 * 30.0f * fTimeElapsed));
+					m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideNormalVector2, 0.3f * normalVectorDotProductResult2 * 30.0f * fTimeElapsed));
+				}
+				float rightDotRes = Vector3::DotProduct(desVector, rightVector);
+				if (rightDotRes >= 0) {
+					Rotate(&up, 90.0f * fTimeElapsed);
+					m_xmf3rotateAngle.y += 90.0f * fTimeElapsed;
+				}
+				else {
+					Rotate(&up, -90.0f * fTimeElapsed);
+					m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
+				}
+				SetPosition(m_position);
+				m_SPBB.Center = m_position;
+				m_SPBB.Center.y += m_fBoundingSize;
+				GameObject::Animate(fTimeElapsed);
+				return;
+			}
+		}
+
+
 		if (frontDotRes <= MONSTER_ABLE_ATTACK_COS_VALUE) {//방향 바꿔야됨
 			//std::cout << "Look1: " << myLook.x << ", " << myLook.y << ", " << myLook.z << endl;
 			//std::cout << "SmallMonsterSessionObject::Move() - elapsedTime: " << fTimeElapsed << std::endl;
@@ -1710,18 +1828,218 @@ void NormalMonster::Animate(float fTimeElapsed)
 				Rotate(&up, -90.0f * fTimeElapsed);
 				m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
 			}
-		myLook = GetLook();
-		//PrintCurrentTime();
-		//std::cout << "Look2: " << myLook.x << ", " << myLook.y << ", " << myLook.z << endl << endl;
+			myLook = GetLook();
+			//PrintCurrentTime();
+			//std::cout << "Look2: " << myLook.x << ", " << myLook.y << ", " << myLook.z << endl << endl;
 		}
 		MyPos = Vector3::Add(MyPos, Vector3::ScalarProduct(GetLook(), 30.0f * fTimeElapsed, false));//틱마다 움직임
 		MyPos = Vector3::Add(MyPos, m_interpolationVector, m_interpolationDistance * fTimeElapsed);
 		SetPosition(MyPos);
 	}
+#else
+NormalMonster** monsterArr = gGameFramework.GetScene()->GetObjectManager()->GetNormalMonsterArr();
+GameObject* player = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::TANKER);
+auto& collisionData = g_stage1MapData.GetCollideData();
+/*std::set<int> nearM;
+m_nearMonsterLock.lock();
+nearM = m_nearMonster;
+m_nearMonsterLock.unlock();*/
+bool isCollideNPC = false;
+for (int i = 0; i < 15; i++) {
+	if (i == m_nID) continue;
+	auto normalVecRes = GetNormalVectorSphere(monsterArr[i]->GetPosition());
+	if (normalVecRes.first >= 16.0f)continue;
+	XMFLOAT3 normalVec = normalVecRes.second;
+	XMFLOAT3 slidingVec = XMFLOAT3(-normalVec.z, 0.0f, normalVec.x);
+	float normalSize = 16.0f - normalVecRes.first;
+	float directionVectorDotslidingVec = Vector3::DotProduct(slidingVec, GetLook());
+	if (directionVectorDotslidingVec < 0)slidingVec = Vector3::ScalarProduct(slidingVec, -1.0f, false);
+	m_position = GetPosition();
+	m_position = Vector3::Add(m_position, Vector3::ScalarProduct(slidingVec, 30.0f * fTimeElapsed, false));//틱마다 움직임
+	m_position = Vector3::Add(m_position, Vector3::ScalarProduct(normalVec, normalSize, false));//틱마다 움직임		
+	isCollideNPC = true;
+}
+if (isCollideNPC) {
+	for (auto& collide : collisionData) {
+		if (collide.GetObb().Intersects(m_SPBB)) {
+			std::vector<int>& relationIdxsVector = collide.GetRelationCollisionIdxs();
+			int secondCollide = -1;
+			for (auto& otherCol : relationIdxsVector) {
+				if (collisionData[otherCol].GetObb().Intersects(m_SPBB)) {
+					secondCollide = otherCol;
+					break;
+				}
+			}
+			if (secondCollide == -1) {
+				auto CollidePolygonNormalVector = collide.CalSlidingVector(m_SPBB, m_position, GetLook());//노말, 슬라이딩, 노말이 가져야할 크기 를 반환
+				XMFLOAT3 collideNormalVector = std::get<0>(CollidePolygonNormalVector);//노말 벡터
+				XMFLOAT3 collideSlidingVector = std::get<1>(CollidePolygonNormalVector);//슬라이딩 벡터
+				float normalVectorDotProductReslut = std::get<2>(CollidePolygonNormalVector);
+				float slidingVectorDotProductReslut = std::get<3>(CollidePolygonNormalVector);//슬라이딩 벡터와 무브 벡터 내적 값
+				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideSlidingVector, slidingVectorDotProductReslut * 30.0f * fTimeElapsed));
+				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideNormalVector, 0.2f * normalVectorDotProductReslut * 30.0f * fTimeElapsed));
+			}
+			else {
+				auto CollidePolygonNormalVector1 = collide.CalSlidingVector(m_SPBB, m_position, GetLook());
+				auto CollidePolygonNormalVector2 = collisionData[secondCollide].CalSlidingVector(m_SPBB, m_position, GetLook());
+
+				XMFLOAT3 collideNormalVector1 = std::get<0>(CollidePolygonNormalVector1);//노말 벡터
+				XMFLOAT3 collideSlidingVector1 = std::get<1>(CollidePolygonNormalVector1);//슬라이딩 벡터
+				float normalVectorDotProductResult1 = std::get<2>(CollidePolygonNormalVector1);
+				float slidingVectorDotProductResult1 = std::get<3>(CollidePolygonNormalVector1);//슬라이딩 벡터와 무브 벡터 내적 값
+
+				XMFLOAT3 collideNormalVector2 = std::get<0>(CollidePolygonNormalVector2);//노말 벡터
+				XMFLOAT3 collideSlidingVector2 = std::get<1>(CollidePolygonNormalVector2);//슬라이딩 벡터
+				float normalVectorDotProductResult2 = std::get<2>(CollidePolygonNormalVector2);
+				float slidingVectorDotProductResult2 = std::get<3>(CollidePolygonNormalVector2);//슬라이딩 벡터와 무브 벡터 내적 값
+
+				XMFLOAT3 resultSlidingVector = Vector3::Normalize(Vector3::Subtract(collide.GetObb().Center, collisionData[secondCollide].GetObb().Center));
+				resultSlidingVector.y = 0.0f;
+				float dotRes = Vector3::DotProduct(resultSlidingVector, GetLook());
+				if (dotRes < 0)resultSlidingVector = Vector3::ScalarProduct(resultSlidingVector, -1.0f, false);
+
+				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(resultSlidingVector, 30.0f * fTimeElapsed));
+				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideNormalVector1, 0.3f * normalVectorDotProductResult1 * 30.0f * fTimeElapsed));
+				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideNormalVector2, 0.3f * normalVectorDotProductResult2 * 30.0f * fTimeElapsed));
+			}
+			break;
+		}
+	}
+	SetPosition(m_position);
+	m_SPBB.Center = m_position;
+	m_SPBB.Center.y += m_fBoundingSize;
+	GameObject::Animate(fTimeElapsed);
+	return;
+}
+
+XMFLOAT3 rightVector = GetRight();
+XMFLOAT3 MyPos = GetPosition();
+XMFLOAT3 myLook = GetLook();
+XMFLOAT3 desVector = Vector3::Subtract(m_desPos, MyPos);
+float desDis = Vector3::Length(desVector);
+desVector = Vector3::Normalize(desVector);
+float frontDotRes = Vector3::DotProduct(desVector, myLook);
+//std::cout << "desVector: " << desVector.x << ", " << desVector.y << ", " << desVector.z << endl;
+
+if (desDis >= 120.0f) {
+	GameObject::Animate(fTimeElapsed);
+	if (frontDotRes <= MONSTER_ABLE_ATTACK_COS_VALUE) {//방향 바꿔야됨 - 방향이 맞지 않음
+		float rightDotRes = Vector3::DotProduct(desVector, rightVector);
+		if (rightDotRes >= 0) {
+			Rotate(&up, 90.0f * fTimeElapsed);
+			m_xmf3rotateAngle.y += 90.0f * fTimeElapsed;
+
+		}
+		else {
+			Rotate(&up, -90.0f * fTimeElapsed);
+			m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
+		}
+	}
+	return;
+}
+
+else if (desDis <= 40.0f) {//근접 했을때
+	if (frontDotRes <= MONSTER_ABLE_ATTACK_COS_VALUE) {//방향 바꿔야됨 - 방향이 맞지 않음
+		float rightDotRes = Vector3::DotProduct(desVector, rightVector);
+		if (rightDotRes >= 0) {
+			Rotate(&up, 90.0f * fTimeElapsed);
+			m_xmf3rotateAngle.y += 90.0f * fTimeElapsed;
+
+		}
+		else {
+			Rotate(&up, -90.0f * fTimeElapsed);
+			m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
+		}
+	}
+}
+else {
+	m_position = GetPosition();
+	for (auto& collide : collisionData) {
+		if (collide.GetObb().Intersects(m_SPBB)) {
+			std::vector<int>& relationIdxsVector = collide.GetRelationCollisionIdxs();
+			int secondCollide = -1;
+			for (auto& otherCol : relationIdxsVector) {
+				if (collisionData[otherCol].GetObb().Intersects(m_SPBB)) {
+					secondCollide = otherCol;
+					break;
+				}
+			}
+			if (secondCollide == -1) {
+				auto CollidePolygonNormalVector = collide.CalSlidingVector(m_SPBB, m_position, GetLook());//노말, 슬라이딩, 노말이 가져야할 크기 를 반환
+				XMFLOAT3 collideNormalVector = std::get<0>(CollidePolygonNormalVector);//노말 벡터
+				XMFLOAT3 collideSlidingVector = std::get<1>(CollidePolygonNormalVector);//슬라이딩 벡터
+				float normalVectorDotProductReslut = std::get<2>(CollidePolygonNormalVector);
+				float slidingVectorDotProductReslut = std::get<3>(CollidePolygonNormalVector);//슬라이딩 벡터와 무브 벡터 내적 값
+				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideSlidingVector, slidingVectorDotProductReslut * 30.0f * fTimeElapsed));
+				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideNormalVector, 0.2f * normalVectorDotProductReslut * 30.0f * fTimeElapsed));
+			}
+			else {
+				auto CollidePolygonNormalVector1 = collide.CalSlidingVector(m_SPBB, m_position, GetLook());
+				auto CollidePolygonNormalVector2 = collisionData[secondCollide].CalSlidingVector(m_SPBB, m_position, GetLook());
+
+				XMFLOAT3 collideNormalVector1 = std::get<0>(CollidePolygonNormalVector1);//노말 벡터
+				XMFLOAT3 collideSlidingVector1 = std::get<1>(CollidePolygonNormalVector1);//슬라이딩 벡터
+				float normalVectorDotProductResult1 = std::get<2>(CollidePolygonNormalVector1);
+				float slidingVectorDotProductResult1 = std::get<3>(CollidePolygonNormalVector1);//슬라이딩 벡터와 무브 벡터 내적 값
+
+				XMFLOAT3 collideNormalVector2 = std::get<0>(CollidePolygonNormalVector2);//노말 벡터
+				XMFLOAT3 collideSlidingVector2 = std::get<1>(CollidePolygonNormalVector2);//슬라이딩 벡터
+				float normalVectorDotProductResult2 = std::get<2>(CollidePolygonNormalVector2);
+				float slidingVectorDotProductResult2 = std::get<3>(CollidePolygonNormalVector2);//슬라이딩 벡터와 무브 벡터 내적 값
+
+				XMFLOAT3 resultSlidingVector = Vector3::Normalize(Vector3::Subtract(collide.GetObb().Center, collisionData[secondCollide].GetObb().Center));
+				resultSlidingVector.y = 0.0f;
+				float dotRes = Vector3::DotProduct(resultSlidingVector, GetLook());
+				if (dotRes < 0)resultSlidingVector = Vector3::ScalarProduct(resultSlidingVector, -1.0f, false);
+
+				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(resultSlidingVector, 30.0f * fTimeElapsed));
+				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideNormalVector1, 0.3f * normalVectorDotProductResult1 * 30.0f * fTimeElapsed));
+				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideNormalVector2, 0.3f * normalVectorDotProductResult2 * 30.0f * fTimeElapsed));
+			}
+			float rightDotRes = Vector3::DotProduct(desVector, rightVector);
+			if (rightDotRes >= 0) {
+				Rotate(&up, 90.0f * fTimeElapsed);
+				m_xmf3rotateAngle.y += 90.0f * fTimeElapsed;
+			}
+			else {
+				Rotate(&up, -90.0f * fTimeElapsed);
+				m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
+			}
+			SetPosition(m_position);
+			m_SPBB.Center = m_position;
+			m_SPBB.Center.y += m_fBoundingSize;
+			GameObject::Animate(fTimeElapsed);
+			return;
+		}
+	}
+
+
+	if (frontDotRes <= MONSTER_ABLE_ATTACK_COS_VALUE) {//방향 바꿔야됨
+		//std::cout << "Look1: " << myLook.x << ", " << myLook.y << ", " << myLook.z << endl;
+		//std::cout << "SmallMonsterSessionObject::Move() - elapsedTime: " << fTimeElapsed << std::endl;
+
+		float rightDotRes = Vector3::DotProduct(desVector, rightVector);
+		if (rightDotRes >= 0) {
+			Rotate(&up, 90.0f * fTimeElapsed);
+			m_xmf3rotateAngle.y += 90.0f * fTimeElapsed;
+
+		}
+		else {
+			Rotate(&up, -90.0f * fTimeElapsed);
+			m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
+		}
+		myLook = GetLook();
+		//PrintCurrentTime();
+		//std::cout << "Look2: " << myLook.x << ", " << myLook.y << ", " << myLook.z << endl << endl;
+	}
+	MyPos = Vector3::Add(MyPos, Vector3::ScalarProduct(GetLook(), 30.0f * fTimeElapsed, false));//틱마다 움직임
+	MyPos = Vector3::Add(MyPos, m_interpolationVector, m_interpolationDistance * fTimeElapsed);
+	SetPosition(MyPos);
+}
 #endif
 
 	GameObject::Animate(fTimeElapsed);
-}
+			}
 
 void NormalMonster::Move(float fDsitance)
 {
@@ -1752,4 +2070,24 @@ void NormalMonster::InterpolateMove(chrono::utc_clock::time_point& recvTime, XMF
 		m_interpolationDistance = abs(playerInterpolationDistance);
 		m_interpolationVector = Vector3::Normalize(playerInterpolationVector);
 	}
+}
+
+void NormalMonster::SetNearMonster(std::set<int>& newNearMonster)
+{
+	std::lock_guard<mutex> lg{m_nearMonsterLock};
+	m_nearMonster = newNearMonster;
+}
+
+void NormalMonster::ResetNearMonster()
+{
+	std::lock_guard<mutex> lg{m_nearMonsterLock};
+	m_nearMonster.clear();
+}
+
+std::pair<float, XMFLOAT3> NormalMonster::GetNormalVectorSphere(const XMFLOAT3& point)
+{
+	XMFLOAT3 normalVec = Vector3::Subtract(GetPosition(), point);
+	float normalSize = Vector3::Length(normalVec);
+	normalVec = Vector3::Normalize(normalVec);
+	return std::pair<float, XMFLOAT3>(normalSize, normalVec);
 }

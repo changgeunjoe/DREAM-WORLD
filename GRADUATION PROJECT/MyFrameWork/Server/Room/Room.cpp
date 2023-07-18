@@ -27,6 +27,7 @@ Room::Room() :m_boss(MonsterSessionObject(m_roomId))
 	for (int i = 0; i < 15; i++) {
 		m_StageSmallMonster[i].SetInitPosition(monsterData[i].position);
 		m_StageSmallMonster[i].Rotate(ROTATE_AXIS::Y, monsterData[i].eulerRotate.y);
+		m_StageSmallMonster[i].SetId(i);
 	}
 
 	while (!g_bossMapData.GetCompleteState());
@@ -34,6 +35,7 @@ Room::Room() :m_boss(MonsterSessionObject(m_roomId))
 	for (int i = 0; i < 15; i++) {
 		m_BossSmallMonster[i].SetInitPosition(bossMonsterData[i].position);
 		m_BossSmallMonster[i].Rotate(ROTATE_AXIS::Y, bossMonsterData[i].eulerRotate.y);
+		m_BossSmallMonster[i].SetId(i);
 	}
 }
 
@@ -66,6 +68,9 @@ void Room::SetRoomId(int roomId)
 	for (auto& character : m_characterMap) {
 		character.second->SetRoomId(m_roomId);
 		character.second->SetRoomState(m_roomState);
+	}
+	for (int i = 0; i < 15; i++) {
+		m_StageSmallMonster[i].SetRoomId(m_roomId);
 	}
 }
 
@@ -452,7 +457,18 @@ void Room::UpdateGameStateForPlayer_STAGE1()
 			sendPacket.smallMonster[i].pos = m_StageSmallMonster[i].GetPos();
 			sendPacket.smallMonster[i].rot = m_StageSmallMonster[i].GetRot();
 			sendPacket.smallMonster[i].directionVector = m_StageSmallMonster[i].GetDirectionVector();
-
+			std::set<int> nearSet;
+			int idxSize = 0;
+			for (int j = 0; j < 15; j++) {
+				if (i == j)continue;
+				if (m_StageSmallMonster[i].GetDistance(m_StageSmallMonster[j].GetPos()) < 16.0f) {
+					nearSet.insert(j);
+					sendPacket.smallMonster[i].nearIdx[idxSize] = j;
+					idxSize++;
+				}
+			}
+			m_StageSmallMonster[i].ChangeNearMontser(nearSet);
+			sendPacket.smallMonster[i].idxSize = idxSize;
 		}
 		sendPacket.time = std::chrono::utc_clock::now();
 		g_logic.BroadCastInRoom(m_roomId, &sendPacket);

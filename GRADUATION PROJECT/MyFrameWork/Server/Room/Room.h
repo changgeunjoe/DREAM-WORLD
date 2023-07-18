@@ -105,4 +105,6 @@ public:
 	void ChangeStageBoss();
 public:
 	ROOM_STATE GetRoomState() { return m_roomState; }
+	SmallMonsterSessionObject* GetStageMonsterArr() { return m_StageSmallMonster; }
+	SmallMonsterSessionObject* GetBossMonsterArr() { return m_BossSmallMonster; }
 };

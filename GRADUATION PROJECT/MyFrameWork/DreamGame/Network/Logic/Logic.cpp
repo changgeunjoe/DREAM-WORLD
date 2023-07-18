@@ -223,6 +223,16 @@ void Logic::ProcessPacket(char* p)
 				smallMonsterArr[i]->SetCurrentHP(recvPacket->smallMonster[i].hp);
 				float maxHp = smallMonsterArr[i]->GetMaxCurrentHP();
 				smallMonsterArr[i]->SetCurrentHP(recvPacket->smallMonster[i].hp / maxHp * 100.0f);
+				if (recvPacket->smallMonster[i].idxSize == 0) {
+					smallMonsterArr[i]->ResetNearMonster();
+				}
+				else {
+					std::set<int> nearSet;
+					for (int n = 0; n < recvPacket->smallMonster[i].idxSize; n++) {
+						nearSet.insert(recvPacket->smallMonster[i].nearIdx[n]);
+					}
+					smallMonsterArr[i]->SetNearMonster(nearSet);
+				}
 			}
 		}
 	}

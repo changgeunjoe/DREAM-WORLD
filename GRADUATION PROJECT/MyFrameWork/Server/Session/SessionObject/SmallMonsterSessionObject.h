@@ -9,8 +9,11 @@ public:
 	SmallMonsterSessionObject(int roomId);
 	virtual ~SmallMonsterSessionObject();
 private:
-	int m_roomId = -1;
-	XMFLOAT3 m_desPos = XMFLOAT3(0, 0, 0);	
+	int m_id = -1;
+	XMFLOAT3 m_desPos = XMFLOAT3(0, 0, 0);
+private:
+	std::set<int> m_nearMonsterSet;
+	std::mutex m_nearMonsterSetLock;
 public:
 	std::chrono::high_resolution_clock::time_point m_lastAttackTime = std::chrono::high_resolution_clock::now();
 	bool isMove = false;
@@ -25,6 +28,9 @@ public:
 	DirectX::XMFLOAT3 GetLook() { return m_directionVector; }
 public:
 	void SetZeroHp() { m_hp = 0; }
-	void SetRoomId(int roomId) { m_roomId = roomId; }
+	void SetId(int id) { m_id = id; }
 	XMFLOAT3 GetDesPos() { return m_desPos; }
+	void ChangeNearMontser(std::set<int>& newSet) { m_nearMonsterSet = newSet; }
+	float GetDistance(XMFLOAT3& point);
+	std::pair<float, XMFLOAT3> GetNormalVectorSphere(XMFLOAT3& point);
 };

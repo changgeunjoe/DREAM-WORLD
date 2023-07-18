@@ -658,8 +658,8 @@ void GameobjectManager::ReadNormalMonsterFile(ID3D12Device* pd3dDevice, ID3D12Gr
 		MonsterBoundingSphere->InsertComponent<RenderComponent>();
 		MonsterBoundingSphere->InsertComponent<SphereMeshComponent>();
 		MonsterBoundingSphere->InsertComponent<BoundingBoxShaderComponent>();
-		MonsterBoundingSphere->SetBoundingSize(15.0f);
-		MonsterBoundingSphere->SetBoundingOffset(XMFLOAT3(0.0f, 18.0f, 0.0f));
+		MonsterBoundingSphere->SetBoundingSize(8.0f);
+		MonsterBoundingSphere->SetBoundingOffset(XMFLOAT3(0.0f, 8.0f, 0.0f));
 		MonsterBoundingSphere->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		MonsterBoundingSphere->SetScale(1.f);
 		tempObject[i]->SetBoundingBox(MonsterBoundingSphere);
