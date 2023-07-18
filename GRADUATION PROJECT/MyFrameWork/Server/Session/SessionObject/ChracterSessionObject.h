@@ -10,6 +10,11 @@ class ChracterSessionObject : public SessionObject
 private:
 	bool	m_leftmouseInput;
 	bool	m_rightmouseInput;
+protected:
+	std::array<std::chrono::seconds, 2> m_skillDuration;
+	std::array<std::chrono::seconds, 2> m_skillCoolTime;
+	std::array<std::chrono::high_resolution_clock::time_point, 2> m_skillInputTime;
+
 private:
 	ROLE m_InGameRole = ROLE::NONE_SELECT;
 private:
@@ -55,6 +60,8 @@ public:
 	}
 	bool GetLeftAttack() { return m_leftmouseInput; }
 	void SetRoomState(ROOM_STATE rState) { m_roomState = rState; }
+	std::chrono::seconds GetSkillDuration(int i) { return m_skillDuration[i]; }
+	std::chrono::high_resolution_clock::time_point GetSkillInputTime(int i) { return m_skillInputTime[i]; }
 public:
 	virtual void Skill_1() = 0;
 	virtual void Skill_2() = 0;

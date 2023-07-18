@@ -301,7 +301,7 @@ float4 PSUITextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
     //  float4 outlineColor = float4(1, 0, 0, 
     if (input.uv.x > gfCharactertHP)
     {
-        cColor = float4(0, 0, 0, 1);
+        return cColor = float4(0, 0, 0, 1);
     }
     //if (cColor.x < 0.1 || cColor.y < 0.1 || cColor.z < 0.1 )
     //{

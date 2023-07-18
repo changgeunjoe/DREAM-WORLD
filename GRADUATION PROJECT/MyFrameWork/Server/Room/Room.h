@@ -85,6 +85,9 @@ public:
 	void SetMouseInputPlayCharacter(ROLE r, bool left, bool right);
 	bool GetLeftAttackPlayCharacter(ROLE r);
 	short GetAttackDamagePlayCharacter(ROLE r);
+	void StartFirstSkillPlayCharacter(ROLE r);
+	void StartSecondSkillPlayCharacter(ROLE r);
+
 public:
 	void GameStart();
 	void BossStageStart();
@@ -96,6 +99,7 @@ public:
 	void UpdateSmallMonster();
 	void UpdateGameStateForPlayer_BOSS();
 	void BossAttackExecute();
+	void HealPlayerCharacter();
 
 public:
 	//stage1

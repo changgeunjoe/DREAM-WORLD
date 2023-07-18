@@ -31,6 +31,7 @@ public:
 	void UpdateGameStateForPlayer(int roomId);
 	void UpdateSmallMonster(int roomId);
 	void BossAttackExecute(int roomId);
+	void HealPlayer(int roomId);
 public:
 	friend Logic;
 };

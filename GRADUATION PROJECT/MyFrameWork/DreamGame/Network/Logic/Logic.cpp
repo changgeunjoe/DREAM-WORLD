@@ -208,8 +208,8 @@ void Logic::ProcessPacket(char* p)
 			if (recvPacket->userState[i].role != ROLE::NONE_SELECT) {
 				Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->userState[i].role);
 				possessObj->InterpolateMove(recvPacket->time, recvPacket->userState[i].pos);
-				float maxHp = possessObj->GetMaxCurrentHP();
-				possessObj->SetCurrentHP(recvPacket->userState[i].hp / maxHp * 100.0f);
+				float maxHp = possessObj->GetMaxHP();
+				possessObj->SetCurrentHP(recvPacket->userState[i].hp);
 			}
 		}
 		//small monster
@@ -247,7 +247,7 @@ void Logic::ProcessPacket(char* p)
 			if (recvPacket->userState[i].role != ROLE::NONE_SELECT) {
 				Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->userState[i].role);
 				possessObj->InterpolateMove(recvPacket->time, recvPacket->userState[i].pos);
-				float maxHp = possessObj->GetMaxCurrentHP();
+				float maxHp = possessObj->GetMaxHP();
 				possessObj->SetCurrentHP(recvPacket->userState[i].hp / maxHp * 100.0f);
 			}
 		}
@@ -435,7 +435,7 @@ void Logic::ProcessPacket(char* p)
 			if (recvPacket->userState[i].role != ROLE::NONE_SELECT) {
 				GameObject* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->userState[i].role);
 				possessObj->SetPosition(recvPacket->userState[i].pos);
-				float maxHp = possessObj->GetMaxCurrentHP();
+				float maxHp = possessObj->GetMaxHP();
 				possessObj->SetCurrentHP(recvPacket->userState[i].hp / maxHp * 100.0f);
 			}
 		}

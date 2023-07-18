@@ -98,3 +98,12 @@ void RoomManager::BossAttackExecute(int roomId)
 	}
 	m_roomArr[roomId].BossAttackExecute();
 }
+
+void RoomManager::HealPlayer(int roomId)
+{
+	{
+		std::lock_guard<std::mutex> lg{ m_runningRoomSetLock };
+		if (!m_runningRoomIdSet.count(roomId)) return;
+	}
+	m_roomArr[roomId].HealPlayerCharacter();
+}

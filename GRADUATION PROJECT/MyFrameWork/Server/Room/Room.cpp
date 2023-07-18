@@ -573,6 +573,26 @@ void Room::BossAttackExecute()
 	//m_boss.AttackPlayer();
 }
 
+void Room::HealPlayerCharacter()
+{
+	auto roomPlayermap = GetPlayerMap();
+	XMFLOAT3 xmf3MagePos = m_characterMap[ROLE::PRIEST]->GetPos();
+	for (auto& p : roomPlayermap)
+	{
+		XMFLOAT3 xmf3CharacterPos = m_characterMap[p.first]->GetPos();
+		if (Vector3::Length(Vector3::Subtract(xmf3CharacterPos, xmf3MagePos)) < 150.0f) {	// HealRange == 150.0f
+			m_characterMap[p.first]->HealHp(100.0f);
+		}
+	}
+	
+	auto durationTime = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - m_characterMap[ROLE::PRIEST]->GetSkillInputTime(0));
+	if (m_characterMap[ROLE::PRIEST]->GetSkillDuration(0) > durationTime)
+	{
+		TIMER_EVENT gameStateEvent{ std::chrono::system_clock::now() + std::chrono::seconds(1), m_roomId ,EV_MAGE_HEAL };
+		g_Timer.InsertTimerQueue(gameStateEvent);
+	}
+}
+
 void Room::ChangeDirectionPlayCharacter(ROLE r, DIRECTION d)
 {
 	m_characterMap[r]->ChangeDirection(d);
@@ -616,6 +636,16 @@ bool Room::GetLeftAttackPlayCharacter(ROLE r)
 short Room::GetAttackDamagePlayCharacter(ROLE r)
 {
 	return m_characterMap[r]->GetAttackDamage();
+}
+
+void Room::StartFirstSkillPlayCharacter(ROLE r)
+{
+	m_characterMap[r]->Skill_1();
+}
+
+void Room::StartSecondSkillPlayCharacter(ROLE r)
+{
+	m_characterMap[r]->Skill_2();
 }
 
 void  Room::SetTriggerCntIncrease()

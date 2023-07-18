@@ -5,10 +5,12 @@
 #include "../../IOCPNetwork/protocol/protocol.h"
 #include "../../MapData/MapData.h"
 #include "../../Room/Room.h"
+#include "../../Timer/Timer.h"
 
 extern Logic g_logic;
 extern MapData g_bossMapData;
 extern MapData g_stage1MapData;
+extern Timer g_Timer;
 
 ChracterSessionObject::ChracterSessionObject(ROLE r) : SessionObject()
 {
@@ -320,7 +322,12 @@ void WarriorSessionObject::SetBossStagePosition()
 
 void MageSessionObject::Skill_1()
 {
-
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	auto durationTime = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[0]);
+	if (m_skillCoolTime[0] > durationTime)	return;
+	m_skillInputTime[0] = currentTime;
+	TIMER_EVENT gameStateEvent{ std::chrono::system_clock::now(), m_roomId ,EV_MAGE_HEAL };
+	g_Timer.InsertTimerQueue(gameStateEvent);
 }
 
 void MageSessionObject::Skill_2()
@@ -333,6 +340,13 @@ void MageSessionObject::SetStage_1Position()
 	SetPosition(XMFLOAT3(-1370.45, 0, -1450.89f));
 	m_maxHp = m_hp = 480;
 	m_attackDamage = 30;
+
+	m_skillCoolTime[0] = std::chrono::seconds(20);
+	m_skillCoolTime[1] = std::chrono::seconds(10);
+	m_skillDuration[0] = std::chrono::seconds(10);
+	m_skillDuration[1] = std::chrono::seconds(10);
+	m_skillInputTime[0] = std::chrono::high_resolution_clock::now();
+	m_skillInputTime[1] = std::chrono::high_resolution_clock::now();
 }
 
 void MageSessionObject::SetBossStagePosition()

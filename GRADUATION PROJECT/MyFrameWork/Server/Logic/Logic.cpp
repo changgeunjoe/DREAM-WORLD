@@ -272,6 +272,16 @@ void Logic::ProcessPacket(int userId, char* p)
 	{
 		CLIENT_PACKET::SkillInputPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::SkillInputPacket*>(p);
 
+		if (recvPacket->qSkill == true) {
+			g_RoomManager.GetRunningRoomRef(g_iocpNetwork.m_session[userId].GetRoomId()).
+				StartFirstSkillPlayCharacter(g_iocpNetwork.m_session[userId].GetRole());
+		}
+
+		if (recvPacket->eSkill == true) {
+			g_RoomManager.GetRunningRoomRef(g_iocpNetwork.m_session[userId].GetRoomId()).
+				StartSecondSkillPlayCharacter(g_iocpNetwork.m_session[userId].GetRole());
+		}
+
 		SERVER_PACKET::SkillInputPacket sendPacket;
 		sendPacket.qSkill = recvPacket->qSkill;
 		sendPacket.eSkill = recvPacket->eSkill;

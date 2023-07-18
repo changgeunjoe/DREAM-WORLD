@@ -125,7 +125,7 @@ public:
 	void SetRimLight(bool bRimLight);
 	void SetCurrentHP(float fHP);
 	float GetCurrentHP() { return m_fHp; }
-	float GetMaxCurrentHP() { return m_fMaxHp; }
+	float GetMaxHP() { return m_fMaxHp; }
 	MeshComponent* GetMesh() { return m_pMeshComponent; }
 
 	float GetDistance() const { return m_fDistance; } //카메라와 오브젝트의 거리
