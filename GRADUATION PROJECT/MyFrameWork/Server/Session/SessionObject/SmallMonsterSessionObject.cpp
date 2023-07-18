@@ -82,18 +82,28 @@ void SmallMonsterSessionObject::Rotate(ROTATE_AXIS axis, float angle)
 bool SmallMonsterSessionObject::Move(float elapsedTime)
 {
 	CalcRightVector();
-	XMFLOAT3 desVector = Vector3::Subtract(m_desPos, m_position);
+	XMFLOAT3 desVector = Vector3::Subtract(m_desPos, m_position);	
 	//std::cout << "Look: " << m_directionVector.x << ", " << m_directionVector.y << ", " << m_directionVector.z << std::endl;
 	float desDis = Vector3::Length(desVector);
 	desVector = Vector3::Normalize(desVector);
 	float frontDotRes = Vector3::DotProduct(desVector, m_directionVector);
 	//std::cout << "desVector: " << desVector.x << ", " << desVector.y << ", " << desVector.z << std::endl;
 
-	if (desDis >= 80.0f) {
+	if (desDis >= 120.0f) {
+		//멀리 있음
+		if (frontDotRes <= MONSTER_ABLE_ATTACK_COS_VALUE) {//방향 바꿔야됨 - 방향이 맞지 않음
+			float rightDotRes = Vector3::DotProduct(desVector, m_rightVector);
+			if (rightDotRes >= 0) {
+				Rotate(ROTATE_AXIS::Y, elapsedTime * 90.0f);
+			}
+			else {
+				Rotate(ROTATE_AXIS::Y, elapsedTime * -90.0f);
+			}
+		}
 		return true;
 	}
 
-	if (desDis <= 50.0f) {//근접 했을때
+	if (desDis <= 25.0f) {//근접 했을때
 		if (frontDotRes <= MONSTER_ABLE_ATTACK_COS_VALUE) {//방향 바꿔야됨 - 방향이 맞지 않음
 			float rightDotRes = Vector3::DotProduct(desVector, m_rightVector);
 			if (rightDotRes >= 0) {
@@ -114,6 +124,7 @@ bool SmallMonsterSessionObject::Move(float elapsedTime)
 		return true;
 	}
 	else {
+		//멀리와 근접 사이에 움직여야함
 		if (frontDotRes <= MONSTER_ABLE_ATTACK_COS_VALUE) {//방향 바꿔야됨
 			float rightDotRes = Vector3::DotProduct(desVector, m_rightVector);
 			if (rightDotRes >= 0) {
@@ -123,6 +134,10 @@ bool SmallMonsterSessionObject::Move(float elapsedTime)
 				Rotate(ROTATE_AXIS::Y, elapsedTime * -90.0f);
 			}
 		}
+		//std::cout << "SmallMonsterSessionObject::Move() - elapsedTime: " << elapsedTime << std::endl;
+		//PrintCurrentTime();
+		//std::cout << "Look: " << m_directionVector.x << ", " << m_directionVector.y << ", " << m_directionVector.z << std::endl << std::endl;
+
 		m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, m_speed * elapsedTime, false));//틱마다 움직임
 		m_SPBB.Center = m_position;
 		m_SPBB.Center.y += m_fBoundingSize;

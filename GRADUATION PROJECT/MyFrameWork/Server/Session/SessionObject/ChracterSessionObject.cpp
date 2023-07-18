@@ -112,7 +112,7 @@ bool ChracterSessionObject::CheckMove_Boss(float fDistance)
 				float normalVectorDotProductReslut = std::get<2>(CollidePolygonNormalVector);
 				float slidingVectorDotProductReslut = std::get<3>(CollidePolygonNormalVector);//슬라이딩 벡터와 무브 벡터 내적 값
 				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideSlidingVector, slidingVectorDotProductReslut * fDistance));
-				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideNormalVector, normalVectorDotProductReslut * fDistance));
+				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideNormalVector, 0.2f * normalVectorDotProductReslut * fDistance));
 			}
 			else {
 				auto CollidePolygonNormalVector1 = collide.CalSlidingVector(m_SPBB, m_position, m_directionVector);
@@ -134,8 +134,8 @@ bool ChracterSessionObject::CheckMove_Boss(float fDistance)
 				if (dotRes < 0)resultSlidingVector = Vector3::ScalarProduct(resultSlidingVector, -1.0f, false);
 
 				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(resultSlidingVector, fDistance));
-				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideNormalVector1, normalVectorDotProductResult1 * fDistance));
-				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideNormalVector2, normalVectorDotProductResult2 * fDistance));
+				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideNormalVector1, 0.3f * normalVectorDotProductResult1 * fDistance));
+				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideNormalVector2, 0.3f * normalVectorDotProductResult2 * fDistance));
 
 			}
 			std::cout << " Player Get Collision " << std::endl;
@@ -183,7 +183,7 @@ bool ChracterSessionObject::CheckMove_Stage1(float fDistance)
 				float normalVectorDotProductReslut = std::get<2>(CollidePolygonNormalVector);
 				float slidingVectorDotProductReslut = std::get<3>(CollidePolygonNormalVector);//슬라이딩 벡터와 무브 벡터 내적 값
 				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideSlidingVector, slidingVectorDotProductReslut * fDistance));
-				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideNormalVector, normalVectorDotProductReslut * fDistance));
+				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideNormalVector, 0.2f * normalVectorDotProductReslut * fDistance));
 			}
 			else {
 				auto CollidePolygonNormalVector1 = collide.CalSlidingVector(m_SPBB, m_position, m_directionVector);
@@ -205,8 +205,8 @@ bool ChracterSessionObject::CheckMove_Stage1(float fDistance)
 				if (dotRes < 0)resultSlidingVector = Vector3::ScalarProduct(resultSlidingVector, -1.0f, false);
 
 				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(resultSlidingVector, fDistance));
-				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideNormalVector1, normalVectorDotProductResult1 * fDistance));
-				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideNormalVector2, normalVectorDotProductResult2 * fDistance));
+				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideNormalVector1, 0.3f * normalVectorDotProductResult1 * fDistance));
+				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideNormalVector2, 0.3f * normalVectorDotProductResult2 * fDistance));
 
 			}
 			std::cout << " Player Get Collision " << std::endl;
@@ -238,7 +238,7 @@ bool ChracterSessionObject::Move(float elapsedTime)
 	if (m_inputDirection != DIRECTION::IDLE)
 	{
 #ifdef _DEBUG
-		std::cout << "character::Move() - elapsedTime: " << elapsedTime << std::endl;
+		//std::cout << "character::Move() - elapsedTime: " << elapsedTime << std::endl;
 #endif 		 
 		if (m_roomState == ROOM_BOSS) {
 			if (CheckMove_Boss(elapsedTime * m_speed)) {

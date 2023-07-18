@@ -647,7 +647,7 @@ void GameobjectManager::ReadNormalMonsterFile(ID3D12Device* pd3dDevice, ID3D12Gr
 		Axis = tempObject[i]->GetUp();
 		//tempObject[i]->Rotate(&Axis, tempRotate[i].y);
 		tempObject[i]->Rotate(&Axis, monsterDatas[i].eulerRotate.y);
-		Axis = tempObject[i]->GetUp();
+		Axis = tempObject[i]->GetRight();
 		//tempObject[i]->Rotate(&Axis, tempRotate[i].z);
 		tempObject[i]->Rotate(&Axis, monsterDatas[i].eulerRotate.z);
 		tempObject[i]->SetScale(tempScale[i].x, tempScale[i].y, tempScale[i].z);

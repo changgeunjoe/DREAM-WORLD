@@ -88,10 +88,12 @@ void Logic::ProcessPacket(char* p)
 		XMFLOAT3 rightVec = XMFLOAT3(1, 0, 0);
 		XMFLOAT3 dirVec = XMFLOAT3(0, 0, 1);
 		SERVER_PACKET::StopPacket* recvPacket = reinterpret_cast<SERVER_PACKET::StopPacket*>(p);
-		Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->role);
-		possessObj->SetStopDirection();
-		possessObj->SetPosition(recvPacket->position);
-		possessObj->SetMoveState(false);
+		if ((ROLE)recvPacket->role != myRole) {
+			Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->role);
+			possessObj->SetStopDirection();
+			possessObj->SetPosition(recvPacket->position);
+			possessObj->SetMoveState(false);
+		}
 	}
 	break;
 	case SERVER_PACKET::LOGIN_OK:
@@ -216,6 +218,7 @@ void Logic::ProcessPacket(char* p)
 		NormalMonster** smallMonsterArr = gGameFramework.GetScene()->GetObjectManager()->GetNormalMonsterArr();
 		for (int i = 0; i < 15; i++) {
 			smallMonsterArr[i]->InterpolateMove(recvPacket->time, recvPacket->smallMonster[i].pos);
+			smallMonsterArr[i]->SetLook(recvPacket->smallMonster[i].directionVector);
 			if (smallMonsterArr[i]->GetCurrentHP() < 0.0f) {
 				smallMonsterArr[i]->SetCurrentHP(recvPacket->smallMonster[i].hp);
 				float maxHp = smallMonsterArr[i]->GetMaxCurrentHP();

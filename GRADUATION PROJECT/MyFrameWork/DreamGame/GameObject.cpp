@@ -1231,7 +1231,7 @@ void GameObject::MoveForward(float fDistance)
 				cout << "NormalDotProductRes: (" << normalVectorDotProductReslut << ")" << endl;
 				cout << "slidingDotProductRes: (" << slidingVectorDotProductReslut << ")" << endl;
 				xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(collideSlidingVector, slidingVectorDotProductReslut * fDistance));
-				xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(collideNormalVector, /*collideNormalSize * slidingVectorDotProductReslut * */normalVectorDotProductReslut * fDistance));
+				xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(collideNormalVector, 0.2f * normalVectorDotProductReslut * fDistance));
 				//if (collideNormalSize > 0.0f)
 				//float dotRes = Vector3::DotProduct(collideNormalVector, xmf3Look);
 				//dotRes = std::abs(dotRes);
@@ -1255,8 +1255,8 @@ void GameObject::MoveForward(float fDistance)
 				if (dotRes < 0)resultSlidingVector = Vector3::ScalarProduct(resultSlidingVector, -1.0f, false);
 
 				xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(resultSlidingVector, fDistance));
-				xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(collideNormalVector1, normalVectorDotProductResult1 * fDistance));
-				xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(collideNormalVector2, normalVectorDotProductResult2 * fDistance));
+				xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(collideNormalVector1, 0.3f * normalVectorDotProductResult1 * fDistance));
+				xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(collideNormalVector2, 0.3f * normalVectorDotProductResult2 * fDistance));
 			}
 			xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * fDistance / 50.0f);
 			GameObject::SetPosition(xmf3Position);
@@ -1265,6 +1265,7 @@ void GameObject::MoveForward(float fDistance)
 		}
 	}
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, fDistance);
+	//cout << "m_interpolationVectorSize: " << m_interpolationDistance << endl;
 	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * fDistance / 50.0f);
 	GameObject::SetPosition(xmf3Position);
 	if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(xmf3Position, m_pCamera->GetOffset()));
