@@ -151,6 +151,7 @@ public:
 	virtual void Animate(float fTimeElapsed) override;
 	virtual void Move(float fDsitance)override;
 	void InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos)override;
+	void SetAnimation();
 public:
 	XMFLOAT3 m_xmf3rotateAngle = XMFLOAT3{ 0,0,0 };
 };
