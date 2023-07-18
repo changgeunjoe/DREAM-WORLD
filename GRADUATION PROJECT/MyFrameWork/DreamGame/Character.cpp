@@ -1653,6 +1653,12 @@ void NormalMonster::Animate(float fTimeElapsed)
 		}
 		return;
 	}
+	if (CheckAnimationEnd(CharacterAnimation::CA_ATTACK) && m_bOnAttack)
+	{
+		m_bOnAttack = false;
+		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd = false;
+	}
+
 	static XMFLOAT3 up = XMFLOAT3(0, 1, 0);
 
 	XMFLOAT3 rightVector = GetRight();

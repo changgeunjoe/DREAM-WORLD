@@ -27,6 +27,7 @@ public:
 	bool GetQSkillState() { return m_bQSkillClicked; }
 	bool GetESkillState() { return m_bESkillClicked; }
 	bool GetOnAttack() { return m_bOnAttack; }
+	void SetOnAttack(bool onAttack) { m_bOnAttack = onAttack; }
 	void SetRotateAxis(XMFLOAT3& xmf3RotateAxis) { m_xmf3RotateAxis = xmf3RotateAxis; }
 	XMFLOAT3& GetRotateAxis() { return m_xmf3RotateAxis; }
 public:
