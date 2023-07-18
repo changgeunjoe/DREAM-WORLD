@@ -3,7 +3,7 @@
 #include "MonsterSessionObject.h"
 #include "../UserSession.h"
 
-ShootingSessionObject::ShootingSessionObject() : SessionObject()
+ShootingSessionObject::ShootingSessionObject() : SessionObject(4.0f)
 {
 	m_speed = 100.0f;
 }
@@ -30,13 +30,13 @@ void ShootingSessionObject::SetSpeed(float speed)
 
 int ShootingSessionObject::DetectCollision(MonsterSessionObject* m_bossSession)
 {
-	if (m_SPBB.Intersects(m_bossSession->m_SPBB))
-	{
-		// 보스 체력 -
-		std::cout << "충돌체크 완료" << std::endl;
-		m_active = false;	// 추후 생명주기 관리에 사용
-		return m_id;
-	}
+	//if (m_SPBB.Intersects(m_bossSession->m_SPBB))
+	//{
+	//	// 보스 체력 -
+	//	std::cout << "충돌체크 완료" << std::endl;
+	//	m_active = false;	// 추후 생명주기 관리에 사용
+	//	return m_id;
+	//}
 	return -1;
 }
 
@@ -47,13 +47,13 @@ void ShootingSessionObject::SetStart(XMFLOAT3& dir, XMFLOAT3& srcPos, float spee
 	m_position = srcPos;
 	m_directionVector = dir;
 	m_speed = speed;
-	m_SPBB = BoundingSphere(XMFLOAT3(srcPos.x, srcPos.y + 4.0f, srcPos.z), 4.0f);
+	m_SPBB.Center = srcPos;
 }
 
 bool ShootingSessionObject::Move(float elapsedTime)
 {
 	m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, elapsedTime * m_speed));
-	m_SPBB = BoundingSphere(XMFLOAT3(m_position.x, m_position.y + 4.0f, m_position.z), 4.0f);
+	m_SPBB.Center = m_position;
 	//순수 가상함수 Move에 추가하자 밑에 부분
 	m_distance += elapsedTime * m_speed;
 	if (m_distance > 250.0f) m_active = false;	// 추후 수정 //생명주기 관리에 사용	

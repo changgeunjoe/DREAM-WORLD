@@ -76,7 +76,11 @@ void RoomManager::UpdateGameStateForPlayer(int roomId)
 		std::lock_guard<std::mutex> lg{ m_runningRoomSetLock };
 		if (!m_runningRoomIdSet.count(roomId)) return;
 	}
-	//m_roomArr[roomId].GetRoomState();
+	;
+	if (m_roomArr[roomId].GetRoomState() == ROOM_STAGE1) {
+		m_roomArr[roomId].UpdateGameStateForPlayer_STAGE1();
+		return;
+	}
 	m_roomArr[roomId].UpdateGameStateForPlayer_BOSS();
 }
 

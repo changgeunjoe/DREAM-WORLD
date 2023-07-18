@@ -23,6 +23,7 @@ extern NetworkHelper g_NetworkHelper;
 extern Logic g_Logic;
 extern bool GameEnd;
 extern MapData g_bossMapData;
+extern MapData g_stage1MapData;
 extern CGameFramework gGameFramework;
 extern MapData g_stage1MapData;
 
@@ -263,7 +264,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	if (m_pShadowmapShaderComponent)
 	{
 		m_pShadowmapShaderComponent->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature, m_fTimeElapsed, m_nStageType);
-		
+
 	}
 	if (m_pMonsterHPBarObject) {
 		m_pMonsterHPBarObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -301,7 +302,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	EffectRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_fTime);
 
 	AstarRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	
+
 	//m_pNaviMeshObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//네비 메쉬
 	if (m_pTextureToViewportComponent)
 	{
@@ -557,8 +558,8 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 
 void GameobjectManager::ReadNormalMonsterFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, const char* fileName, CLoadedModelInfoCompnent* modelName, int type, int stagetype)
 {
+	m_ppNormalMonsterObject = new NormalMonster * [15];
 	ifstream objectFile(fileName);
-
 	int objCount = -1;
 	vector<XMFLOAT3> tempPos;
 	vector<XMFLOAT4> quaternion;
@@ -617,6 +618,7 @@ void GameobjectManager::ReadNormalMonsterFile(ID3D12Device* pd3dDevice, ID3D12Gr
 	}
 	NormalMonster** tempObject = new NormalMonster * [objCount];
 	m_ppNormalMonsterBoundingBox.reserve(sizeof(size_t) * objCount);
+	vector<MonsterInitData>& monsterDatas = g_stage1MapData.GetMonsterData();
 	float fScale = 1.0f;
 	if (type == 1)
 		fScale = 10.0f;
@@ -627,7 +629,8 @@ void GameobjectManager::ReadNormalMonsterFile(ID3D12Device* pd3dDevice, ID3D12Gr
 		tempObject[i]->InsertComponent<RenderComponent>();
 		tempObject[i]->InsertComponent<CLoadedModelInfoCompnent>();
 		tempObject[i]->SetModel(modelName);
-		tempObject[i]->SetPosition(XMFLOAT3(tempPos[i].x * fScale, tempPos[i].y - 12.0f, tempPos[i].z * fScale));
+		//tempObject[i]->SetPosition(XMFLOAT3(tempPos[i].x * fScale, tempPos[i].y, tempPos[i].z * fScale));		
+		tempObject[i]->SetPosition(monsterDatas[i].position);
 		tempObject[i]->SetAnimationSets(6);
 		tempObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		tempObject[i]->m_pSkinnedAnimationController->SetTrackAnimationSet(6);
@@ -639,11 +642,14 @@ void GameobjectManager::ReadNormalMonsterFile(ID3D12Device* pd3dDevice, ID3D12Gr
 		tempObject[i]->m_pSkinnedAnimationController->SetTrackEnable(StartAnimations);
 		tempObject[i]->SetMoveState(true);
 		XMFLOAT3 Axis = XMFLOAT3(1, 0, 0);
-		tempObject[i]->Rotate(&Axis, tempRotate[i].x);
+		//tempObject[i]->Rotate(&Axis, tempRotate[i].x);
+		tempObject[i]->Rotate(&Axis, monsterDatas[i].eulerRotate.x);
 		Axis = tempObject[i]->GetUp();
-		tempObject[i]->Rotate(&Axis, tempRotate[i].y);
+		//tempObject[i]->Rotate(&Axis, tempRotate[i].y);
+		tempObject[i]->Rotate(&Axis, monsterDatas[i].eulerRotate.y);
 		Axis = tempObject[i]->GetUp();
-		tempObject[i]->Rotate(&Axis, tempRotate[i].z);
+		//tempObject[i]->Rotate(&Axis, tempRotate[i].z);
+		tempObject[i]->Rotate(&Axis, monsterDatas[i].eulerRotate.z);
 		tempObject[i]->SetScale(tempScale[i].x, tempScale[i].y, tempScale[i].z);
 		XMFLOAT3 t = tempObject[i]->GetPosition();
 		tempObject[i]->m_nStageType = stagetype;
@@ -659,6 +665,7 @@ void GameobjectManager::ReadNormalMonsterFile(ID3D12Device* pd3dDevice, ID3D12Gr
 		tempObject[i]->SetBoundingBox(MonsterBoundingSphere);
 
 		m_ppNormalMonsterBoundingBox.emplace_back(MonsterBoundingSphere);
+		m_ppNormalMonsterObject[i] = tempObject[i];
 		m_ppGameObjects.emplace_back(tempObject[i]);
 	}
 }
@@ -1061,7 +1068,7 @@ void GameobjectManager::BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	//ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence3.txt", ShortFence03, 0, STAGE1);
 	//ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Tree.txt", Tree, 0, STAGE1);
 	//ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/OOBB.txt", Cube, 0, STAGE1);
-	//ReadNormalMonsterFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/NormalMonsterS1.txt", Death, 1, STAGE1);
+	ReadNormalMonsterFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/NormalMonsterS1.txt", Death, 1, STAGE1);
 	m_pStage1Objects[0] = new GameObject(UNDEF_ENTITY);
 	m_pStage1Objects[0]->InsertComponent<RenderComponent>();
 	m_pStage1Objects[0]->InsertComponent<CLoadedModelInfoCompnent>();
@@ -1679,7 +1686,7 @@ void GameobjectManager::ProcessingUI(int n)
 	}
 	default:
 		break;
-	}
+}
 }
 void GameobjectManager::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
@@ -1713,7 +1720,7 @@ void GameobjectManager::ReleaseShaderVariables()
 bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
 	static XMFLOAT3 upVec = XMFLOAT3(0, 1, 0);
-	Character* myPlayCharacter = GetChracterInfo(g_Logic.GetMyRole());	
+	Character* myPlayCharacter = GetChracterInfo(g_Logic.GetMyRole());
 	if (nMessageID == WM_KEYDOWN && wParam == VK_F4)
 	{
 		g_NetworkHelper.SendTestGameEndPacket();
@@ -1833,7 +1840,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			break;
 		default:
 			break;
-		}
+	}
 		break;
 	case WM_KEYUP:
 	{
@@ -1951,11 +1958,11 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			else if (m_nStageType == 2) {
 				m_nStageType = 1;
 				m_pPlayerObject->SetPosition(XMFLOAT3(-1400, 0, -1500));
-			}
+		}
 #endif
 			break;
-		}
-		}
+	}
+}
 	}
 	default:
 		break;
@@ -1967,10 +1974,18 @@ bool GameobjectManager::onProcessingKeyboardMessageLobby(HWND hWnd, UINT nMessag
 {
 	if (nMessageID == WM_KEYDOWN && wParam == VK_F2)
 	{
+#ifdef LOCAL_TASK
 		m_pCamera->Rotate(0, -90, 0);
 		m_pPlayerObject->SetCamera(m_pCamera);
 		m_pTankerObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
-	}
+#else
+		g_Logic.SetMyRole(ROLE::TANKER);
+		m_pTankerObject->SetCamera(m_pCamera);
+		m_pTankerObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
+		m_pTankerObject->SetLook(XMFLOAT3(0, 0, 1));
+		g_NetworkHelper.SendMatchRequestPacket();
+#endif
+}
 	if (nMessageID == WM_KEYDOWN && wParam == 'G')
 	{
 		m_bNPCinteraction = true;

@@ -10,9 +10,7 @@ public:
 	virtual ~SmallMonsterSessionObject();
 private:
 	int m_roomId = -1;
-	XMFLOAT3 m_desPos = XMFLOAT3(0, 0, 0);
-	//float m_desDis = 0.0f;
-	DirectX::BoundingSphere m_SPBB = BoundingSphere(DirectX::XMFLOAT3(0.0f, 15.0f, 0.0f), 15.0f);
+	XMFLOAT3 m_desPos = XMFLOAT3(0, 0, 0);	
 public:
 	std::chrono::high_resolution_clock::time_point m_lastAttackTime = std::chrono::high_resolution_clock::now();
 	bool isMove = false;
@@ -28,4 +26,5 @@ public:
 public:
 	void SetZeroHp() { m_hp = 0; }
 	void SetRoomId(int roomId) { m_roomId = roomId; }
+	XMFLOAT3 GetDesPos() { return m_desPos; }
 };

@@ -57,7 +57,7 @@ public:
 	virtual void Attack(float fSpeed = 150.0f);
 	virtual void RbuttonClicked(float fTimeElapsed);
 	virtual void Move(float fDsitance)override;
-	virtual void Animate(float fTimeElapsed);
+	virtual void Animate(float fTimeElapsed) override;
 };
 
 class Archer : public Character
@@ -142,12 +142,14 @@ private:
 	bool	m_bHaveTarget{ false };
 	bool	m_bCanActive{ false };
 	int		m_iTargetID{ -1 };
+	XMFLOAT3 m_desPos = XMFLOAT3(0, 0, 0);
+public:
+	void SetDesPos(XMFLOAT3& desPos) { m_desPos = desPos; }
 public:
 	int		m_nID = -1;
-
 	NormalMonster();
 	virtual ~NormalMonster();
-	virtual void Animate(float fTimeElapsed);
+	virtual void Animate(float fTimeElapsed) override;
 	virtual void Move(float fDsitance)override;
 	void InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos)override;
 public:

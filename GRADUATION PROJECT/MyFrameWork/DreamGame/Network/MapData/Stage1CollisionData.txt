@@ -9,8 +9,8 @@ OOBB28
   <extent>: 114.3892 11.19139 8.280293 
   <forward>: -0.8494807 0 -0.5276197 
   <right>: -0.5276197 0 0.8494807 
-  <forwardDotRes>: 0.8332058 
-  <rightDotRes>: 0.5529631 
+  <forwardDotRes>: 0.07219806 
+  <rightDotRes>: 0.9973903 
 OOBB30
 <position>: -240.6 5.5 172.1999 
 <quaternion>: 0 -0.3607086 0 0.9326786 
@@ -22,8 +22,8 @@ OOBB30
   <extent>: 111.8369 11.19139 8.280293 
   <forward>: -0.6728503 0 0.7397786 
   <right>: 0.7397786 0 0.6728503 
-  <forwardDotRes>: 0.677659 
-  <rightDotRes>: 0.7353763 
+  <forwardDotRes>: 0.07383686 
+  <rightDotRes>: 0.9972703 
 OOBB4
 <position>: -1384.4 10 -1542.4 
 <quaternion>: 0 0.4444931 0 0.8957824 
@@ -35,8 +35,8 @@ OOBB4
   <extent>: 83.64594 11.19139 8.246845 
   <forward>: 0.7963381 0 0.6048518 
   <right>: 0.6048518 0 -0.7963381 
-  <forwardDotRes>: 0.7814981 
-  <rightDotRes>: 0.6239077 
+  <forwardDotRes>: 0.09811655 
+  <rightDotRes>: 0.9951749 
 OOBB12
 <position>: -583.2 5.5 -1209.1 
 <quaternion>: 0 -0.7640244 0 0.6451874 
@@ -48,8 +48,8 @@ OOBB12
   <extent>: 92.72708 11.19139 6.872726 
   <forward>: -0.9858779 0 -0.1674666 
   <right>: -0.1674666 0 0.9858779 
-  <forwardDotRes>: 0.9721774 
-  <rightDotRes>: 0.2342459 
+  <forwardDotRes>: 0.07391508 
+  <rightDotRes>: 0.9972646 
 OOBB34
 <position>: 144.2001 6.4 84.99985 
 <quaternion>: 0 0.9199755 0 0.3919759 
@@ -61,8 +61,8 @@ OOBB34
   <extent>: 56.00362 11.19139 8.280293 
   <forward>: 0.7212165 0 -0.6927099 
   <right>: -0.6927099 0 -0.7212165 
-  <forwardDotRes>: 0.7176101 
-  <rightDotRes>: 0.6964452 
+  <forwardDotRes>: 0.1462628 
+  <rightDotRes>: 0.9892458 
 OOBB19
 <position>: -721.9999 5.5 -1194.3 
 <quaternion>: 0 -0.5344762 0 0.8451836 
@@ -74,8 +74,8 @@ OOBB19
   <extent>: 20.25341 11.19139 7.738744 
   <forward>: -0.9034609 0 0.4286705 
   <right>: 0.4286705 0 0.9034609 
-  <forwardDotRes>: 0.8095662 
-  <rightDotRes>: 0.5870286 
+  <forwardDotRes>: 0.3569279 
+  <rightDotRes>: 0.9341319 
 OOBB32
 <position>: 68.40005 6.1 302.5999 
 <quaternion>: 0 0.4229504 0 0.9061528 
@@ -87,8 +87,8 @@ OOBB32
   <extent>: 76.48126 11.19139 8.280293 
   <forward>: 0.7665154 0 0.642226 
   <right>: 0.642226 0 -0.7665154 
-  <forwardDotRes>: 0.755403 
-  <rightDotRes>: 0.6552605 
+  <forwardDotRes>: 0.1076367 
+  <rightDotRes>: 0.9941903 
 OOBB14
 <position>: -569.2 5.5 -960.4001 
 <quaternion>: 0 -0.4743564 0 0.8803329 
@@ -100,8 +100,8 @@ OOBB14
   <extent>: 51.88949 11.19139 5.621425 
   <forward>: -0.8351831 0 0.5499719 
   <right>: 0.5499719 0 0.8351831 
-  <forwardDotRes>: 0.8131597 
-  <rightDotRes>: 0.5820406 
+  <forwardDotRes>: 0.1077044 
+  <rightDotRes>: 0.9941829 
 OOBB9
 <position>: -899.3998 5.5 -1318.8 
 <quaternion>: 0 0.04169345 0 0.9991304 
@@ -113,8 +113,8 @@ OOBB9
   <extent>: 99.90413 11.19139 6.872725 
   <forward>: 0.08331439 0 0.9965233 
   <right>: 0.9965233 0 -0.08331439 
-  <forwardDotRes>: 0.1498162 
-  <rightDotRes>: 0.9887139 
+  <forwardDotRes>: 0.06863102 
+  <rightDotRes>: 0.9976421 
 OOBB24
 <position>: -279.7 5.5 -651.0001 
 <quaternion>: 0 -0.4311016 0 0.9023034 
@@ -126,8 +126,8 @@ OOBB24
   <extent>: 34.95261 11.19139 7.016742 
   <forward>: -0.7779689 0 0.6283027 
   <right>: 0.6283027 0 0.7779689 
-  <forwardDotRes>: 0.7553064 
-  <rightDotRes>: 0.6553719 
+  <forwardDotRes>: 0.1968233 
+  <rightDotRes>: 0.980439 
 OOBB31
 <position>: -95.59998 6.1 304.8998 
 <quaternion>: 0 0.004319645 0 0.9999907 
@@ -139,8 +139,8 @@ OOBB31
   <extent>: 105.676 11.19139 8.280293 
   <forward>: 0.008639209 0 0.9999627 
   <right>: 0.9999627 0 -0.008639209 
-  <forwardDotRes>: 0.08660939 
-  <rightDotRes>: 0.9962423 
+  <forwardDotRes>: 0.0781161 
+  <rightDotRes>: 0.9969442 
 OOBB11
 <position>: -589.1 5.5 -1267.2 
 <quaternion>: 0 -0.4295278 0 0.9030536 
@@ -152,8 +152,8 @@ OOBB11
   <extent>: 36.01431 11.19139 6.872725 
   <forward>: -0.7757733 0 0.6310117 
   <right>: 0.6310117 0 0.7757733 
-  <forwardDotRes>: 0.7547067 
-  <rightDotRes>: 0.6560622 
+  <forwardDotRes>: 0.1874506 
+  <rightDotRes>: 0.9822741 
 OOBB5
 <position>: -1392.6 10 -1441.9 
 <quaternion>: 0 0.8800562 0 0.4748695 
@@ -165,8 +165,8 @@ OOBB5
   <extent>: 46.71317 11.19139 8.246845 
   <forward>: 0.8358238 0 -0.5489979 
   <right>: -0.5489979 0 -0.8358238 
-  <forwardDotRes>: 0.8012369 
-  <rightDotRes>: 0.5983473 
+  <forwardDotRes>: 0.1738537 
+  <rightDotRes>: 0.9847715 
 OOBB17
 <position>: -234.8 5.5 -760.7001 
 <quaternion>: 0 -0.5564876 0 0.8308559 
@@ -178,8 +178,8 @@ OOBB17
   <extent>: 429.3042 11.19139 5.96736 
   <forward>: -0.9247221 0 0.3806431 
   <right>: 0.3806431 0 0.9247221 
-  <forwardDotRes>: 0.9209567 
-  <rightDotRes>: 0.389665 
+  <forwardDotRes>: 0.01389872 
+  <rightDotRes>: 0.9999034 
 OOBB18
 <position>: -901.9999 5.5 -1215.1 
 <quaternion>: 0 0.03199007 0 0.9994882 
@@ -191,8 +191,8 @@ OOBB18
   <extent>: 101.042 11.19139 6.284375 
   <forward>: 0.0639474 0 0.9979533 
   <right>: 0.9979533 0 -0.0639474 
-  <forwardDotRes>: 0.12479 
-  <rightDotRes>: 0.9921831 
+  <forwardDotRes>: 0.06207569 
+  <rightDotRes>: 0.9980714 
 OOBB29
 <position>: -244.3 5.5 -37.90009 
 <quaternion>: 0 -0.693644 0 0.720318 
@@ -204,8 +204,8 @@ OOBB29
   <extent>: 111.6379 11.19139 8.280294 
   <forward>: -0.9992886 0 0.03771585 
   <right>: 0.03771585 0 0.9992886 
-  <forwardDotRes>: 0.9938301 
-  <rightDotRes>: 0.1109127 
+  <forwardDotRes>: 0.07396787 
+  <rightDotRes>: 0.9972606 
 OOBB27
 <position>: -187 5.5 -467.1 
 <quaternion>: 0 -0.636404 0 0.7713559 
@@ -217,8 +217,8 @@ OOBB27
   <extent>: 144.4839 11.19139 8.280293 
   <forward>: -0.981788 0 0.1899798 
   <right>: 0.1899798 0 0.981788 
-  <forwardDotRes>: 0.9705834 
-  <rightDotRes>: 0.2407654 
+  <forwardDotRes>: 0.0572155 
+  <rightDotRes>: 0.9983618 
 OOBB22
 <position>: -590.3999 5.5 -832.9001 
 <quaternion>: 0 -0.1964329 0 0.9805173 
@@ -230,8 +230,8 @@ OOBB22
   <extent>: 103.6147 11.19139 7.481924 
   <forward>: -0.3852117 0 0.9228283 
   <right>: 0.9228283 0 0.3852117 
-  <forwardDotRes>: 0.4292834 
-  <rightDotRes>: 0.9031698 
+  <forwardDotRes>: 0.07202162 
+  <rightDotRes>: 0.9974031 
 OOBB33
 <position>: 138.6001 6.1 219.2 
 <quaternion>: 0 0.6923825 0 0.7215306 
@@ -243,8 +243,8 @@ OOBB33
   <extent>: 76.48126 11.19139 8.280293 
   <forward>: 0.9991503 0 0.04121292 
   <right>: 0.04121292 0 -0.9991503 
-  <forwardDotRes>: 0.9891027 
-  <rightDotRes>: 0.1472269 
+  <forwardDotRes>: 0.1076367 
+  <rightDotRes>: 0.9941903 
 OOBB8
 <position>: -928.9999 5.5 -1214.5 
 <quaternion>: 0 -0.1662449 0 0.9860845 
@@ -256,8 +256,8 @@ OOBB8
   <extent>: 24.38164 11.19139 6.284375 
   <forward>: -0.327863 0 0.9447253 
   <right>: 0.9447253 0 0.327863 
-  <forwardDotRes>: 0.4853659 
-  <rightDotRes>: 0.8743111 
+  <forwardDotRes>: 0.2495928 
+  <rightDotRes>: 0.9683509 
 OOBB3
 <position>: -1270.6 10 -1558.2 
 <quaternion>: 0 -0.3126612 0 0.9498648 
@@ -269,8 +269,8 @@ OOBB3
   <extent>: 64.45877 11.19139 8.246845 
   <forward>: -0.5939717 0 0.8044859 
   <right>: 0.8044859 0 0.5939717 
-  <forwardDotRes>: 0.6206213 
-  <rightDotRes>: 0.7841105 
+  <forwardDotRes>: 0.1269055 
+  <rightDotRes>: 0.9919148 
 OOBB6
 <position>: -1125.6 5.5 -1481.6 
 <quaternion>: 0 -0.3394985 0 0.9406066 
@@ -282,8 +282,8 @@ OOBB6
   <extent>: 159.4687 11.19139 8.927584 
   <forward>: -0.638669 0 0.7694816 
   <right>: 0.7694816 0 0.638669 
-  <forwardDotRes>: 0.6461592 
-  <rightDotRes>: 0.7632026 
+  <forwardDotRes>: 0.05589582 
+  <rightDotRes>: 0.9984366 
 OOBB13
 <position>: -597.2999 5.5 -1049.6 
 <quaternion>: 0 -0.6235884 0 0.7817529 
@@ -295,8 +295,8 @@ OOBB13
   <extent>: 55.50391 11.19139 6.641872 
   <forward>: -0.9749841 0 0.2222749 
   <right>: 0.2222749 0 0.9749841 
-  <forwardDotRes>: 0.9472305 
-  <rightDotRes>: 0.3205532 
+  <forwardDotRes>: 0.1188173 
+  <rightDotRes>: 0.9929162 
 OOBB23
 <position>: -408.1 5.5 -748.8 
 <quaternion>: 0 -0.2909184 0 0.9567479 
@@ -308,8 +308,8 @@ OOBB23
   <extent>: 83.95407 11.19139 7.615837 
   <forward>: -0.5566711 0 0.830733 
   <right>: 0.830733 0 0.5566711 
-  <forwardDotRes>: 0.5828122 
-  <rightDotRes>: 0.8126069 
+  <forwardDotRes>: 0.09034334 
+  <rightDotRes>: 0.9959107 
 OOBB21
 <position>: -653.0999 5.5 -905.1001 
 <quaternion>: 0 -0.4353426 0 0.9002649 
@@ -321,8 +321,8 @@ OOBB21
   <extent>: 81.61452 11.19139 7.481924 
   <forward>: -0.7838473 0 0.6209536 
   <right>: 0.6209536 0 0.7838473 
-  <forwardDotRes>: 0.7717451 
-  <rightDotRes>: 0.635932 
+  <forwardDotRes>: 0.09129118 
+  <rightDotRes>: 0.9958242 
 OOBB7
 <position>: -1211 5.5 -1528.1 
 <quaternion>: 0 -0.1671999 0 0.9859231 
@@ -334,8 +334,8 @@ OOBB7
   <extent>: 55.39652 11.19139 9.477535 
   <forward>: -0.3296925 0 0.9440883 
   <right>: 0.9440883 0 0.3296925 
-  <forwardDotRes>: 0.4407163 
-  <rightDotRes>: 0.8976464 
+  <forwardDotRes>: 0.1686352 
+  <rightDotRes>: 0.9856786 
 OOBB2
 <position>: -1300.7 10 -1432.7 
 <quaternion>: 0 0.1062258 0 0.994342 
@@ -347,8 +347,8 @@ OOBB2
   <extent>: 67.40622 11.19139 8.246845 
   <forward>: 0.2112496 0 0.9774321 
   <right>: 0.9774321 0 -0.2112496 
-  <forwardDotRes>: 0.3131662 
-  <rightDotRes>: 0.9496983 
+  <forwardDotRes>: 0.1214399 
+  <rightDotRes>: 0.9925988 
 OOBB10
 <position>: -712.3998 5.5 -1326.5 
 <quaternion>: 0 -0.1518427 0 0.9884047 
@@ -360,8 +360,8 @@ OOBB10
   <extent>: 71.20013 11.19139 6.872725 
   <forward>: -0.3001641 0 0.9538876 
   <right>: 0.9538876 0 0.3001641 
-  <forwardDotRes>: 0.3706532 
-  <rightDotRes>: 0.9287714 
+  <forwardDotRes>: 0.09608023 
+  <rightDotRes>: 0.9953736 
 OOBB25
 <position>: -248.7 5.5 -601.6001 
 <quaternion>: 0 -0.472943 0 0.881093 
@@ -373,8 +373,8 @@ OOBB25
   <extent>: 32.08629 11.19139 8.351874 
   <forward>: -0.8334135 0 0.5526499 
   <right>: 0.5526499 0 0.8334135 
-  <forwardDotRes>: 0.7856416 
-  <rightDotRes>: 0.6186819 
+  <forwardDotRes>: 0.2519004 
+  <rightDotRes>: 0.9677531 
 OOBB15
 <position>: -515.3 5.5 -899.6001 
 <quaternion>: 0 -0.1587861 0 0.987313 
@@ -386,8 +386,8 @@ OOBB15
   <extent>: 101.4165 11.19139 5.96736 
   <forward>: -0.3135431 0 0.9495739 
   <right>: 0.9495739 0 0.3135431 
-  <forwardDotRes>: 0.3565393 
-  <rightDotRes>: 0.9342803 
+  <forwardDotRes>: 0.05873857 
+  <rightDotRes>: 0.9982734 
 OOBB16
 <position>: -355.0999 5.5 -846.7 
 <quaternion>: 0 -0.2753734 0 0.9613373 
@@ -399,8 +399,8 @@ OOBB16
   <extent>: 101.4165 11.19139 5.96736 
   <forward>: -0.5294535 0 0.848339 
   <right>: 0.848339 0 0.5294535 
-  <forwardDotRes>: 0.5501179 
-  <rightDotRes>: 0.8350871 
+  <forwardDotRes>: 0.05873857 
+  <rightDotRes>: 0.9982734 
 OOBB1
 <position>: -1242.8 5.5 -1433.3 
 <quaternion>: 0 -0.3103437 0 0.9506244 
@@ -412,8 +412,8 @@ OOBB1
   <extent>: 199.3457 11.19139 8.246845 
   <forward>: -0.5900407 0 0.8073735 
   <right>: 0.8073735 0 0.5900407 
-  <forwardDotRes>: 0.5997561 
-  <rightDotRes>: 0.8001829 
+  <forwardDotRes>: 0.04133425 
+  <rightDotRes>: 0.9991454 
 OOBB20
 <position>: -715.2997 5.5 -1163.5 
 <quaternion>: 0 -0.6281851 0 0.778064 
@@ -425,8 +425,8 @@ OOBB20
   <extent>: 158.4081 11.19139 7.481925 
   <forward>: -0.9775364 0 0.210767 
   <right>: 0.210767 0 0.9775364 
-  <forwardDotRes>: 0.9677771 
-  <rightDotRes>: 0.2518086 
+  <forwardDotRes>: 0.0471793 
+  <rightDotRes>: 0.9988864 
 OOBB26
 <position>: -225.2 5.5 -558.1 
 <quaternion>: 0 -0.5466162 0 0.8373833 
@@ -438,5 +438,5 @@ OOBB26
   <extent>: 63.92918 11.19139 8.351874 
   <forward>: -0.9154546 0 0.4024215 
   <right>: 0.4024215 0 0.9154546 
-  <forwardDotRes>: 0.8801775 
-  <rightDotRes>: 0.4746447 
+  <forwardDotRes>: 0.1295418 
+  <rightDotRes>: 0.991574 

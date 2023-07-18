@@ -105,6 +105,7 @@ private: //active object
 	GameObject* m_pAnimationObject{ NULL };
 
 	Monster* m_pMonsterObject{ NULL };
+	NormalMonster** m_ppNormalMonsterObject = nullptr;
 
 	GameObject* m_pPlayerObject{ NULL };
 	GameObject* m_pEnergyBallObject{ NULL };
@@ -238,6 +239,6 @@ public:
 	vector<GameObject*>& GetObstacle() { return m_ppObstacleObjects; }
 	Character* GetChracterInfo(ROLE r);
 	Monster* GetBossMonster() { return m_pMonsterObject; }
-	//NormalMonster** GetNormalMonsterArr();
+	NormalMonster** GetNormalMonsterArr() { return m_ppNormalMonsterObject; };
 };
 

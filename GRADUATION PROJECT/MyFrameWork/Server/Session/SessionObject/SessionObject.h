@@ -18,8 +18,12 @@ protected:
 
 	DirectX::XMFLOAT4X4 m_worldMatrix = Matrix4x4::Identity();
 	std::chrono::high_resolution_clock::time_point m_lastMoveTime;
+
+	float                           m_fBoundingSize{ 8.0f };
+	BoundingSphere					m_SPBB = BoundingSphere(XMFLOAT3(0.0f, 0.0f, 0.0f), m_fBoundingSize);
 public:
 	SessionObject();
+	SessionObject(float boundingSize);
 	virtual ~SessionObject();
 public:
 	short GetHp() { return m_hp; }

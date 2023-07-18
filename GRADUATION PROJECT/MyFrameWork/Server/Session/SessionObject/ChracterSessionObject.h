@@ -17,9 +17,6 @@ protected:
 
 private:
 	ROLE m_InGameRole = ROLE::NONE_SELECT;
-private:
-	float                           m_fBoundingSize{ 8.0f };
-	BoundingSphere					m_SPBB = BoundingSphere(XMFLOAT3(0.0f, 0.0f, 0.0f), m_fBoundingSize);
 public:
 	DIRECTION						m_inputDirection = DIRECTION::IDLE;
 	DIRECTION						m_prevDirection = DIRECTION::IDLE;
@@ -32,6 +29,7 @@ protected:
 	virtual void SetPosition(DirectX::XMFLOAT3& pos) override {
 		m_position = pos;
 		m_SPBB.Center = pos;
+		m_SPBB.Center.y = m_fBoundingSize;
 	}
 public:
 	bool AdjustPlayerInfo(DirectX::XMFLOAT3& position); // , DirectX::XMFLOAT3& rotate

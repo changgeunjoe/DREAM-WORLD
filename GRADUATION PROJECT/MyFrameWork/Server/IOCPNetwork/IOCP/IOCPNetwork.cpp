@@ -144,6 +144,14 @@ void IOCPNetwork::WorkerThread()
 				delete ex_over;
 		}
 		break;
+		case OP_GAME_STATE_S_SEND:
+		{
+			g_RoomManager.UpdateGameStateForPlayer(key);
+			if (ex_over != nullptr)
+				delete ex_over;
+		}
+
+		break; 
 		case OP_BOSS_ATTACK_EXECUTE:
 		{
 			g_RoomManager.BossAttackExecute(key);

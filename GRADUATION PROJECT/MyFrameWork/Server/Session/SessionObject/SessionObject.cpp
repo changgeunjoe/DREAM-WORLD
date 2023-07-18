@@ -7,6 +7,11 @@ SessionObject::SessionObject()
 	m_rotateAngle = XMFLOAT3(0, 0, 0);
 }
 
+SessionObject::SessionObject(float boundingSize) :m_position(XMFLOAT3(0, 0, 0)), m_rotateAngle(XMFLOAT3(0, 0, 0)), m_SPBB(BoundingSphere(XMFLOAT3(0.0f, boundingSize, 0.0f), boundingSize)), m_fBoundingSize(boundingSize)
+{
+
+}
+
 SessionObject::~SessionObject()
 {
 

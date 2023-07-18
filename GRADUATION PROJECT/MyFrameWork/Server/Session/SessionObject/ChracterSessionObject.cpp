@@ -12,7 +12,7 @@ extern MapData g_bossMapData;
 extern MapData g_stage1MapData;
 extern Timer g_Timer;
 
-ChracterSessionObject::ChracterSessionObject(ROLE r) : SessionObject()
+ChracterSessionObject::ChracterSessionObject(ROLE r) : SessionObject(15.0f)
 {
 	m_hp = 0;
 	m_maxHp = 0;
@@ -142,6 +142,7 @@ bool ChracterSessionObject::CheckMove_Boss(float fDistance)
 			}
 			std::cout << " Player Get Collision " << std::endl;
 			m_SPBB.Center = m_position;
+			m_SPBB.Center.y = m_fBoundingSize;
 			return false;
 		}
 	}
@@ -212,6 +213,7 @@ bool ChracterSessionObject::CheckMove_Stage1(float fDistance)
 			}
 			std::cout << " Player Get Collision " << std::endl;
 			m_SPBB.Center = m_position;
+			m_SPBB.Center.y = m_fBoundingSize;
 			return false;
 		}
 	}
@@ -244,6 +246,7 @@ bool ChracterSessionObject::Move(float elapsedTime)
 			if (CheckMove_Boss(elapsedTime * m_speed)) {
 				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, elapsedTime * m_speed));
 				m_SPBB.Center = m_position;
+				m_SPBB.Center.y = m_fBoundingSize;
 			}
 			return true;
 		}
@@ -251,6 +254,7 @@ bool ChracterSessionObject::Move(float elapsedTime)
 			if (CheckMove_Stage1(elapsedTime * m_speed)) {
 				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, elapsedTime * m_speed));
 				m_SPBB.Center = m_position;
+				m_SPBB.Center.y = m_fBoundingSize;
 			}
 			return true;
 		}

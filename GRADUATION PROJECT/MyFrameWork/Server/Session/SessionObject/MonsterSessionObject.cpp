@@ -15,7 +15,7 @@ extern IOCPNetwork g_iocpNetwork;
 extern RoomManager g_RoomManager;
 extern MapData g_bossMapData;
 
-MonsterSessionObject::MonsterSessionObject() : SessionObject()
+MonsterSessionObject::MonsterSessionObject() : SessionObject(30.0f)
 {
 	m_speed = 50.0f;
 	m_maxHp = m_hp = 2500;
@@ -97,7 +97,7 @@ bool MonsterSessionObject::Move(float elapsedTime)
 		if (playerDistance >= 42.0f) {
 			m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, m_speed * elapsedTime, false));//틱마다 움직임
 			m_SPBB.Center = m_position;
-			m_SPBB.Center.y += 30.0f;
+			m_SPBB.Center.y = m_fBoundingSize;
 		}
 		return true;
 	}
@@ -127,7 +127,7 @@ bool MonsterSessionObject::Move(float elapsedTime)
 						}
 						m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, m_speed * elapsedTime, false));//틱마다 움직임
 						m_SPBB.Center = m_position;
-						m_SPBB.Center.y += 30.0f;
+						m_SPBB.Center.y += m_fBoundingSize;
 						//m_SPBB = BoundingSphere(DirectX::XMFLOAT3(m_position.x, m_position.y + 30.0f, m_position.z), 30.0f);
 					}
 				}
@@ -138,7 +138,7 @@ bool MonsterSessionObject::Move(float elapsedTime)
 					}
 					m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, m_speed * elapsedTime, false));//틱마다 움직임
 					m_SPBB.Center = m_position;
-					m_SPBB.Center.y += 30.0f;
+					m_SPBB.Center.y += m_fBoundingSize;
 					//m_SPBB = BoundingSphere(DirectX::XMFLOAT3(m_position.x, m_position.y + 30.0f, m_position.z), 30.0f);
 				}
 				//std::cout << "BossPos: " << m_position.x << "0, " << m_position.z << std::endl;
