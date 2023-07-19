@@ -227,6 +227,8 @@ public:
 	bool m_bNPCscreen{ true };
 	int m_iTEXTiIndex{ 2 };
 	int m_nStageType = 1;
+	int m_bSkipText{ false };
+	bool m_bSendNpccollisionPK{ false };
 public:
 	void SetPlayCharacter(Session* pSession);
 	void SetSection(int n) { m_nSection = n; }

@@ -700,7 +700,7 @@ bool GameobjectManager::CheckCollideNPC()
 {
 	if (m_pAngelNPCObject->m_SPBBNPC.Intersects(m_pPlayerObject->m_SPBB))
 	{
-		if (m_iTEXTiIndex != NPC_TEXT)
+		if (m_iTEXTiIndex != NPC_TEXT&&m_bSendNpccollisionPK==false)
 		{
 			m_iTEXTiIndex = NPC_TEXT;
 			m_bNPCinteraction = true;
@@ -1711,7 +1711,7 @@ void GameobjectManager::BuildNPC(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	m_pAngelNPCObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1);
 	m_pAngelNPCObject->SetScale(10.0f);
 	m_pAngelNPCObject->Rotate(0, -90, 0);
-	//m_ppGameObjects.emplace_back(m_pAngelNPCObject);
+	m_ppGameObjects.emplace_back(m_pAngelNPCObject);
 }
 
 enum UI
@@ -2085,8 +2085,22 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		//NPC와 대화하거나 포털들어갈 때 상호작용 키  
 		case 'G':
 		{
-			//g_NetworkHelper.SendonPosisotionTriggerBox1(CheckCollideNPC());
-			m_bNPCscreen = CheckCollideNPC();
+			if (!m_bSendNpccollisionPK)
+			{
+				g_NetworkHelper.SendOnPositionTriggerBox1(CheckCollideNPC());
+				//m_bNPCinteraction = CheckCollideNPC();
+				m_bNPCscreen = CheckCollideNPC();
+				m_bSendNpccollisionPK = true;
+			}
+			m_bNPCscreen = true;
+			m_bNPCinteraction = true;
+			
+			
+			break;
+		}
+		case 'H' :
+		{
+			m_bSkipText = true;
 			break;
 		}
 		case 'V':
