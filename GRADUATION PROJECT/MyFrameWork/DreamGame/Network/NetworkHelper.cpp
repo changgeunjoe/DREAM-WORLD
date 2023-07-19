@@ -213,24 +213,24 @@ void NetworkHelper::SendTestGameEndPacket()
 void NetworkHelper::SendTestGameEndOKPacket()
 {
 	CLIENT_PACKET::GameEndPacket sendPacket;
-	sendPacket.size = 3;
+	sendPacket.size = sizeof(CLIENT_PACKET::GameEndPacket);
 	sendPacket.type = CLIENT_PACKET::GAME_END_OK;
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
-void NetworkHelper::SendOnPositionTriggerBox1(bool isOn)
+void NetworkHelper::SendOnPositionTriggerBox1()
 {
 	CLIENT_PACKET::NotifyPacket sendPacket;
-	sendPacket.size = 2;
-	if (isOn) sendPacket.type = CLIENT_PACKET::TRIGGER_BOX_ON;
-	else sendPacket.type = CLIENT_PACKET::TRIGGER_BOX_OUT;
+	sendPacket.size = sizeof(CLIENT_PACKET::NotifyPacket);
+	sendPacket.type = CLIENT_PACKET::TRIGGER_BOX_ON;
+	//else sendPacket.type = CLIENT_PACKET::TRIGGER_BOX_OUT;
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
 void NetworkHelper::SendSkipNPCCommunicate()
 {
 	CLIENT_PACKET::NotifyPacket sendPacket;
-	sendPacket.size = 2;
+	sendPacket.size = sizeof(CLIENT_PACKET::NotifyPacket);
 	sendPacket.type = CLIENT_PACKET::SKIP_NPC_COMMUNICATION;
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
@@ -238,7 +238,7 @@ void NetworkHelper::SendSkipNPCCommunicate()
 void NetworkHelper::SendChangeStage_B()
 {
 	CLIENT_PACKET::NotifyPacket sendPacket;
-	sendPacket.size = 2;
+	sendPacket.size = sizeof(CLIENT_PACKET::NotifyPacket);
 	sendPacket.type = CLIENT_PACKET::STAGE_CHANGE_BOSS;
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }

@@ -32,6 +32,8 @@ public:
 	virtual void CharacterUIAnimate(float fTimeElapsed);
 	virtual void TrailAnimate(float fTimeElapsed);
 	virtual void StoryUIAnimate(float fTimeElapsed);
+	virtual void ConditionAnimate(float fTimeElapsed);
+	virtual void SceneSwapAnimate(float fTimeElapsed);
 	//Render
 	virtual void OnPreRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
@@ -78,6 +80,7 @@ public:
 
 
 	void AddTextToUILayer(int& index);
+	void AddDamageFontToUiLayer();
 	float CalculateDistance(const XMFLOAT3& firstPosition, const XMFLOAT3& lastPosition);
 	
 
@@ -146,6 +149,7 @@ private: //active object
 	GameObject* m_pPressGUIObject{ NULL };
 	GameObject* m_pAttackUIObject{ NULL };
 	GameObject* m_pConditionUIObject{ NULL };
+	GameObject* m_pSceneChangeUIObject{ NULL };
 
 	//Skill	
 	GameObject* m_pHealSkillUIObject{ NULL };
@@ -186,6 +190,8 @@ private: //active object
 	//TrailObject
 	GameObject* m_pTrailObject{ NULL };
 	TrailComponent* m_pTrailComponent{ NULL };
+	array<GameObject*,10> m_pTrailArrowObject{ NULL };
+	array<TrailComponent*, 10>m_pTrailArrowComponent{ NULL };
 	//
 	//AstarObject
 	GameObject* m_pAstarObject{ NULL };
@@ -225,6 +231,9 @@ public:
 	bool m_bNPCscreen{ true };
 	int m_iTEXTiIndex{ 2 };
 	int m_nStageType = 1;
+	int m_bSkipText{ false };
+	bool m_bSendNpccollisionPK{ false };
+	bool m_bSceneSwap{ false };
 public:
 	void SetPlayCharacter(Session* pSession);
 	void SetSection(int n) { m_nSection = n; }

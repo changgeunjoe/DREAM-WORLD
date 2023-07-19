@@ -230,8 +230,8 @@ void Room::GameStart()
 {
 	m_isAlive = true;
 	//monster Update
-	TIMER_EVENT smallMonsterEvent{ std::chrono::system_clock::now() + std::chrono::seconds(1) + std::chrono::milliseconds(500), m_roomId ,EV_SM_UPDATE };
-	g_Timer.InsertTimerQueue(smallMonsterEvent);
+	//TIMER_EVENT smallMonsterEvent{ std::chrono::system_clock::now() + std::chrono::seconds(1) + std::chrono::milliseconds(500), m_roomId ,EV_SM_UPDATE };
+	//g_Timer.InsertTimerQueue(smallMonsterEvent);
 	TIMER_EVENT gameStateEvent{ std::chrono::system_clock::now() + std::chrono::milliseconds(500), m_roomId ,EV_GAME_STATE_S_SEND };
 	g_Timer.InsertTimerQueue(gameStateEvent);
 }
@@ -412,24 +412,6 @@ void Room::UpdateGameStateForPlayer_STAGE1()
 	if (!m_isAlive) return;
 	if (m_roomState == ROOM_BOSS) return;
 	else {
-		if (m_checkNpc) {
-			bool npcComStart = false;//처음 트리거 박스
-			if (m_stage1TrigerCnt != 0) {
-				m_lockInGamePlayers.lock();
-				if (m_stage1TrigerCnt >= m_inGamePlayers.size()) {
-					npcComStart = true;
-				}
-				m_lockInGamePlayers.unlock();
-				if (npcComStart) {
-					SERVER_PACKET::NotifyPacket sendPacket;
-					sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
-					sendPacket.type = SERVER_PACKET::START_NPC_COMMUNICATE;
-					g_logic.BroadCastInRoom(m_roomId, &sendPacket);
-					m_checkNpc = false;
-				}
-			}
-		}
-
 		//std::cout << "bossHp : " << refRoom.GetBoss().GetHp() << std::endl;
 		SERVER_PACKET::GameState_STAGE1 sendPacket;
 		sendPacket.type = SERVER_PACKET::GAME_STATE_S;
@@ -648,12 +630,13 @@ void Room::SkipNPC_Communication()
 	m_skipNPC_COMMUNICATION += 1;
 	bool start = false;
 	m_lockInGamePlayers.lock();
-	if (m_skipNPC_COMMUNICATION == m_inGamePlayers.size())
+	if (m_skipNPC_COMMUNICATION >= m_inGamePlayers.size())
 		start = true;
 	m_lockInGamePlayers.unlock();
 	if (start) {
 		TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::milliseconds(30), m_roomId ,EV_SM_UPDATE };//GameState 30ms마다 전송하게 수정
 		g_Timer.InsertTimerQueue(new_ev);
+		std::cout << "Room::SkipNPC_Communication() - RoomId: " << m_roomId << ", " << "gameStart" << std::endl;
 	}
 }
 

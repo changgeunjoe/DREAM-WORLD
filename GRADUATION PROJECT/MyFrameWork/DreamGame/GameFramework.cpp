@@ -729,6 +729,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		case VK_F2:
 #ifdef LOCAL_TASK
 			m_bLobbyScene = !m_bLobbyScene;
+
 #endif
 			break;
 		case VK_F8:

@@ -299,15 +299,26 @@ float4 PSUITextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
        // Sample the texture 
     float4 cColor = shaderTexture.Sample(gWrapSamplerState, input.uv);
     //  float4 outlineColor = float4(1, 0, 0, 
-    if (input.uv.x > gfCharactertHP)
+   
+    if (gmtxGameObjectColor.x == 0.02 && gmtxGameObjectColor.y == 0.08)
     {
-        cColor = float4(0, 0, 0, 1);
+        if (cColor.x < 0.1 || cColor.y < 0.1 || cColor.z < 0.1  )
+        {
+            if (input.uv.x > gfCharactertHP)
+            return float4(0,0,0,0);
+        }
     }
-    //if (cColor.x < 0.1 || cColor.y < 0.1 || cColor.z < 0.1 )
-    //{
-    //    cColor.w = 0;
-    //}
-    if (gmtxGameObjectColor.w > 0.5)
+    if (gmtxGameObjectColor.x == 0.06 && gmtxGameObjectColor.y == 0.05)
+    {
+       
+        if (input.uv.y > 1-gfCharactertHP && cColor.x > 0.1 && cColor.y > 0.1 && cColor.z > 0.1)
+                return float4(cColor.xyz, 0.3);
+        
+    }
+    
+    
+
+    if (gmtxGameObjectColor.w !=0)
         cColor.w= gmtxGameObjectColor.w;
   //  cColor.w = 0.5;
     if (!bUIActive && cColor.w!=0)
@@ -315,15 +326,20 @@ float4 PSUITextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
         float4 f = float4(0.5, 0.5, 0.5, 0);
         return lerp(f, cColor, 0.4);
     }
-    if (input.uv.y<gmtxSkillTime)
-    {
+    //if (input.uv.y<gmtxSkillTime)
+    //{
         
-        float4 f = float4(0.5, 0.5, 0.5, 1);
-        return lerp(f, cColor, 0.4);
-    }
+    //    float4 f = float4(0.5, 0.5, 0.5, 1);
+    //    return lerp(f, cColor, 0.4);
+    //}
+     
     //else
-    cColor.xyz += gmtxGameObjectColor.xyz;
+
+    {
+        cColor.xyz += gmtxGameObjectColor.xyz;
         return (cColor);
+    }
+
 }
 
 struct VS_STANDARD_INPUT

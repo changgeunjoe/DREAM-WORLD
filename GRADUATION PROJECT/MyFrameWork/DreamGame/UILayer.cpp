@@ -1,6 +1,11 @@
 #include "stdafx.h"
 #include "UILayer.h"
 #include "Camera.h"
+#include "GameobjectManager.h"
+#include "GameFramework.h"
+#include "Network/NetworkHelper.h"
+extern NetworkHelper g_NetworkHelper;
+extern CGameFramework gGameFramework;
 using namespace std;
 
 UILayer::UILayer(UINT nFrame, ID3D12Device* pd3dDevice, ID3D12CommandQueue* pd3dCommandQueue)
@@ -208,30 +213,45 @@ void UILayer::Resize(ID3D12Resource** ppd3dRenderTargets, UINT nWidth, UINT nHei
 		//m_vecTextBlocks[TEXT_NPC].emplace_back(pTb);
 }
 
-void UILayer::Update(const float& fTimeElapsed,bool& binteraction,bool& bscreen)
+void UILayer::Update(const float& fTimeElapsed, bool& binteraction, bool& bscreen)
 {
-	for (int j = 0; j < TEXT_TYPE::TEXT_END; ++j)
-	{
-		auto it = m_vecTextBlocks[j].begin();
-		while (it != m_vecTextBlocks[j].end()&& binteraction)
-		{
-			(*it)->Update(fTimeElapsed, binteraction, bscreen);
 
-			if ((*it)->m_isDead)
-			{
-				delete (*it); 
-				it=m_vecTextBlocks[j].erase(it);
-			}
-			else
-				++it;
+	auto it = m_vecTextBlocks[TEXT_TYPE::TEXT_NPC].begin();
+	while (it != m_vecTextBlocks[TEXT_TYPE::TEXT_NPC].end() && binteraction)
+	{
+		(*it)->Update(fTimeElapsed, binteraction, bscreen);
+
+		if ((*it)->m_isDead)
+		{
+			delete (*it);
+			it = m_vecTextBlocks[TEXT_NPC].erase(it);
 		}
+		else
+			++it;
 	}
+	auto it2 = m_vecTextBlocks[TEXT_TYPE::TEXT_DAMAGE].begin();
+	while (it2 != m_vecTextBlocks[TEXT_TYPE::TEXT_DAMAGE].end())
+	{
+		(*it2)->Update(fTimeElapsed, binteraction, bscreen);
+
+		if ((*it2)->m_isDead)
+		{
+			delete (*it2);
+			it2 = m_vecTextBlocks[TEXT_DAMAGE].erase(it2);
+		}
+		else
+			++it2;
+	}
+
+
 }
 
 void UILayer::AddDamageFont(XMFLOAT3 xmf3WorldPos, wstring strText)
 {
-	CTextBlock* pTb = new CDamageTextBlock(m_pdwTextFormat, D2D1::RectF(0.f, 0.f, m_fWidth, m_fHeight), strText, xmf3WorldPos);
+	CTextBlock* pTb = new CDamageTextBlock(m_pdwDamageFontFormat, D2D1::RectF(0.f, 0.f, m_fWidth, m_fHeight), strText, xmf3WorldPos);
+	//pTb->m_eColor = TEXT_WHITE;
 	m_vecTextBlocks[TEXT_DAMAGE].emplace_back(pTb);
+
 
 }
 
@@ -248,7 +268,7 @@ void UILayer::AddTextFont(queue<wstring>& queueStr)
 
 XMFLOAT3 UILayer::WorldToScreen(XMFLOAT3& xmf3WorldPos)
 {
-	CCamera* pCamera{}; //= CGameMgr::GetInstance()->GetCamera();
+	CCamera* pCamera= gGameFramework.GetCamera();
 	XMFLOAT4X4 xmf4x4View = pCamera->GetViewMatrix();
 	XMFLOAT4X4 xmf4x4Proj = pCamera->GetProjectionMatrix();
 
@@ -302,12 +322,12 @@ CDamageTextBlock::CDamageTextBlock(IDWriteTextFormat* pdwFormat, D2D1_RECT_F& d2
 	:CTextBlock(pdwFormat, d2dLayoutRect, strText)
 {
 	m_xmf3WorldPos = xmf3WorldPos;
-	m_fLifeTime = 2.f;
+	m_fLifeTime = 0.45f;
 
-	m_xmf3Velocity = { RandomValue(-0.1f, 0.1f), 0.3f, RandomValue(-0.1f, 0.1f) };
+	m_xmf3Velocity = { RandomValue(-0.4f, 0.4f), 0.3f, RandomValue(-0.4f, 0.4f) };
 	// m_xmf3Velocity = Vector3::Normalize(m_xmf3Velocity);
 
-	m_xmf3Accel = { 0.f, -1.f, 0.f };
+	m_xmf3Accel = { 0.f, 1.f, 0.f };
 }
 
 CDamageTextBlock::~CDamageTextBlock()
@@ -355,17 +375,28 @@ CNPCTextBlock::~CNPCTextBlock()
 }
 #define CHARACTHER_DELAY 0.1f
 #define SENTENCE_DELAY 1.5f
-void CNPCTextBlock::Update(const float& fTimeElapsed,bool& bInteraction,bool& bscreen)
+void CNPCTextBlock::Update(const float& fTimeElapsed, bool& bInteraction, bool& bscreen)
 {
-	
+
 	m_fTime += fTimeElapsed;
-	if (m_qTotalText.empty()) {
+	if (m_qTotalText.empty()) {//npc대화 끝날때
 		bscreen = false;
 		bInteraction = false;
+		if (gGameFramework.GetScene()->GetObjectManager()->m_iTEXTiIndex == NPC_TEXT) {
+			g_NetworkHelper.SendSkipNPCCommunicate();//소켓 전송
+		}
+	}
+	if (gGameFramework.GetScene()->GetObjectManager()->m_bSkipText) {//H누르면 강제 스킵 //아 텍스트는 남아있네 .. ㅠㅠ h키누르고 안없어지면 g키 한번 더 
+		//눌러주세요 스킵은 된겁니다 잔상만 남아있으
+		bscreen = false;
+		bInteraction = false;
+		//m_strText.clear();
+		g_NetworkHelper.SendSkipNPCCommunicate();//소켓 전송
+		gGameFramework.GetScene()->GetObjectManager()->m_bSkipText = false;
 	}
 	if (m_fTime > CHARACTHER_DELAY && !m_qTotalText.empty())
 	{
-		wstring curTotalStr = m_qTotalText.front(); 
+		wstring curTotalStr = m_qTotalText.front();
 		//m_strText.assign(m_strTotalText, 0, ++m_iIndex);
 		if (!m_bInitSentences) {
 			m_strText.append(curTotalStr, m_iIndex++, 1);
@@ -382,18 +413,21 @@ void CNPCTextBlock::Update(const float& fTimeElapsed,bool& bInteraction,bool& bs
 			m_bInitSentences = true;
 			//m_isSentenceEnd = true;
 		}
-		if (bInteraction && m_bInitSentences) {
+		if (bInteraction && m_bInitSentences) {//
 			m_strText.clear();
 			m_qTotalText.pop();
 			m_bInitSentences = false;
-			
+
+
+
+
 		}
 		m_fTime = 0.f;
 
 	}
 }
 
-CLobbyTextBlock::CLobbyTextBlock(IDWriteTextFormat* pdwFormat, D2D1_RECT_F& d2dLayoutRect, queue<wstring>& queueStr,XMFLOAT2 mf2LayoutRect)
+CLobbyTextBlock::CLobbyTextBlock(IDWriteTextFormat* pdwFormat, D2D1_RECT_F& d2dLayoutRect, queue<wstring>& queueStr, XMFLOAT2 mf2LayoutRect)
 {
 	m_pdwFormat = pdwFormat;
 	m_d2dLayoutRect = d2dLayoutRect;

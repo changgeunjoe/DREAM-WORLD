@@ -21,8 +21,7 @@ private:
 	std::wstring m_roomName;
 	int m_roomOwnerId = -1;// 룸 생성한 자의 ID
 	ROOM_STATE m_roomState = ROOM_STAGE1;
-private:
-	bool m_checkNpc = true;
+private:	
 	std::atomic_int	m_stage1TrigerCnt = 0;
 	std::atomic_int m_skipNPC_COMMUNICATION = 0;
 public:
