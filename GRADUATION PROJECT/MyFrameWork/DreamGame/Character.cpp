@@ -1516,124 +1516,27 @@ NormalMonster::~NormalMonster()
 
 void NormalMonster::Animate(float fTimeElapsed)
 {
-	//	if (m_fHp < FLT_EPSILON)
-	//	{
-	//		if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CA_DIE)
-	//		{
-	//			pair<CharacterAnimation, CharacterAnimation> NextAnimations = { CharacterAnimation::CA_DIE, CharacterAnimation::CA_DIE };
-	//			m_pSkinnedAnimationController->m_CurrentAnimations = NextAnimations;
-	//			m_pSkinnedAnimationController->SetTrackEnable(NextAnimations);
-	//		}
-	//		return;
-	//	}
-	//	if (gGameFramework.GetCurrentGameState() == GAME_STATE::GS_FIRST_STAGE)
-	//	{
-	//		if (CheckAnimationEnd(CA_FIRSTSKILL) == true)
-	//		{
-	//			pair<CharacterAnimation, CharacterAnimation> NextAnimations = { CharacterAnimation::CA_IDLE, CharacterAnimation::CA_IDLE };
-	//			m_pSkinnedAnimationController->m_CurrentAnimations = NextAnimations;
-	//			m_pSkinnedAnimationController->SetTrackEnable(NextAnimations);
-	//		}
-	//
-	//	}
-	//	else
-	//	{
-	//		if (gGameFramework.GetCurrentGameState() == GAME_STATE::GS_SECOND_STAGE_FIRST_PHASE)
-	//		{
-	//			return;
-	//		}
-	//		else
-	//		{
-	//			if (m_bCanActive == false)
-	//			{
-	//				if (CheckAnimationEnd(CA_FIRSTSKILL) == true)
-	//				{
-	//					m_bCanActive = true;
-	//					pair<CharacterAnimation, CharacterAnimation> NextAnimations = { CharacterAnimation::CA_IDLE, CharacterAnimation::CA_IDLE };
-	//					m_pSkinnedAnimationController->m_CurrentAnimations = NextAnimations;
-	//					m_pSkinnedAnimationController->SetTrackEnable(NextAnimations);
-	//				}
-	//				else
-	//				{
-	//					GameObject::Animate(fTimeElapsed);
-	//					return;
-	//				}
-	//			}
-	//#ifdef LOCAL_TASK
-	//			//if (!m_bHaveTarget)
-	//			//{
-	//			//	// 플레이어 4명 포지션과 거리 계산해서 목표 설정
-	//			//	XMFLOAT3 currentPos = GetPosition();
-	//			//	float farDistance = FLT_MAX;
-	//			//	for (auto& session : g_Logic.m_inGamePlayerSession)
-	//			//	{
-	//			//		if (session.m_id == -1) continue;
-	//			//		XMFLOAT3 targetPos = session.m_currentPlayGameObject->GetPosition();
-	//			//		XMFLOAT3 toTarget = Vector3::Subtract(targetPos, currentPos);
-	//			//		float targetLength = Vector3::Length(toTarget);
-	//			//		if (targetLength < farDistance)
-	//			//		{
-	//			//			m_bHaveTarget = true;
-	//			//			m_iTargetID = session.m_id;
-	//			//			farDistance = targetLength;
-	//			//		}
-	//			//	}
-	//			//}
-	//#endif
-	//		}
-	//	}
-
-		/*if (m_bHaveTarget)
+	if (m_fHp < FLT_EPSILON)
+	{
+		if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CA_DIE)
 		{
-
-			XMFLOAT3 MyPos = GetPosition();
-			XMFLOAT3 des = XMFLOAT3(m_xmf3Destination.x - MyPos.x, 0.0f, m_xmf3Destination.z - MyPos.z);
-			float distance = Vector3::Length(des);
-
-			if (distance < 30.0f)
-			{
-				m_bMoveState = false;
-				m_bOnAttack = true;
-			}
-			else if (distance >= 30.0f)
-			{
-				m_bOnAttack = false;
-				m_bMoveState = true;
-				SetLook(Vector3::Normalize(des));
-				MoveForward(25 * fTimeElapsed);
-			}
-		}
-		else
-		{
-			m_bMoveState = false;
-			m_bOnAttack = false;
-		}
-
-		pair<CharacterAnimation, CharacterAnimation> NextAnimations = { CharacterAnimation::CA_NOTHING, CharacterAnimation::CA_NOTHING };
-		if (m_bMoveState)
-		{
-			if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CA_MOVE)
-				NextAnimations = { CharacterAnimation::CA_MOVE, CharacterAnimation::CA_MOVE };
-		}
-		else if (m_bOnAttack)
-		{
-			if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CA_ATTACK)
-			{
-				NextAnimations = { CharacterAnimation::CA_ATTACK, CharacterAnimation::CA_ATTACK };
-				m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_fPosition = -ANIMATION_CALLBACK_EPSILON;
-			}
-		}
-		else
-		{
-			if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CA_IDLE)
-				NextAnimations = { CharacterAnimation::CA_IDLE, CharacterAnimation::CA_IDLE };
-		}
-
-		if (NextAnimations.first != CharacterAnimation::CA_NOTHING)
-		{
+			pair<CharacterAnimation, CharacterAnimation> NextAnimations = { CharacterAnimation::CA_DIE, CharacterAnimation::CA_DIE };
 			m_pSkinnedAnimationController->m_CurrentAnimations = NextAnimations;
 			m_pSkinnedAnimationController->SetTrackEnable(NextAnimations);
-		}*/
+		}
+		return;
+	}
+
+	if (CheckAnimationEnd(CharacterAnimation::CA_ATTACK) && m_bOnAttack)
+	{
+		m_bOnAttack = false;
+		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd = false;
+	}
+
+	if (m_bOnAttack) {
+		GameObject::Animate(fTimeElapsed);
+		return;
+	}
 
 	static XMFLOAT3 up = XMFLOAT3(0, 1, 0);
 #ifdef LOCAL_TASK
@@ -1748,6 +1651,7 @@ void NormalMonster::Animate(float fTimeElapsed)
 		SetPosition(m_position);
 		m_SPBB.Center = m_position;
 		m_SPBB.Center.y += m_fBoundingSize;
+		SetAnimation();
 		GameObject::Animate(fTimeElapsed);
 		return;
 	}
@@ -1762,6 +1666,7 @@ void NormalMonster::Animate(float fTimeElapsed)
 	//std::cout << "desVector: " << desVector.x << ", " << desVector.y << ", " << desVector.z << endl;
 
 	if (desDis <= 30.0f) {//근접 했을때
+		m_bOnAttack = true;
 		if (frontDotRes <= MONSTER_ABLE_ATTACK_COS_VALUE) {//방향 바꿔야됨 - 방향이 맞지 않음
 			float rightDotRes = Vector3::DotProduct(desVector, rightVector);
 			if (rightDotRes >= 0) {
@@ -1776,6 +1681,7 @@ void NormalMonster::Animate(float fTimeElapsed)
 		}
 	}
 	else if (desDis <= 80.0f) {
+		m_bMoveState = true;
 		m_position = GetPosition();
 		for (auto& collide : collisionData) {
 			if (collide.GetObb().Intersects(m_SPBB)) {
@@ -1829,6 +1735,7 @@ void NormalMonster::Animate(float fTimeElapsed)
 					m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
 				}
 				SetPosition(m_position);
+				SetAnimation();
 				GameObject::Animate(fTimeElapsed);
 				return;
 			}
@@ -1870,6 +1777,7 @@ void NormalMonster::Animate(float fTimeElapsed)
 				m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
 			}
 		}
+		SetAnimation();
 		GameObject::Animate(fTimeElapsed);
 		return;
 	}
@@ -1985,6 +1893,7 @@ void NormalMonster::Animate(float fTimeElapsed)
 		SetPosition(m_position);
 		m_SPBB.Center = m_position;
 		m_SPBB.Center.y += m_fBoundingSize;
+		SetAnimation();
 		GameObject::Animate(fTimeElapsed);
 		return;
 	}
@@ -2013,6 +1922,7 @@ void NormalMonster::Animate(float fTimeElapsed)
 		}
 	}
 	else if (desDis <= 80.0f) {
+		m_bMoveState = true;
 		m_position = GetPosition();
 		for (auto& collide : collisionData) {
 			if (collide.GetObb().Intersects(m_SPBB)) {
@@ -2106,15 +2016,44 @@ void NormalMonster::Animate(float fTimeElapsed)
 				Rotate(&up, -90.0f * fTimeElapsed);
 				m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
 			}
-		}		
+		}
 	}
 #endif
-
+	SetAnimation();
 	GameObject::Animate(fTimeElapsed);
 }
 
 void NormalMonster::Move(float fDsitance)
 {
+}
+
+void NormalMonster::SetAnimation()
+{
+	pair<CharacterAnimation, CharacterAnimation> NextAnimations = { CharacterAnimation::CA_NOTHING, CharacterAnimation::CA_NOTHING };
+	if (m_bOnAttack)
+	{
+		if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CA_ATTACK)
+		{
+			NextAnimations = { CharacterAnimation::CA_ATTACK, CharacterAnimation::CA_ATTACK };
+			m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_fPosition = -ANIMATION_CALLBACK_EPSILON;
+		}
+	}
+	else if (m_bMoveState)
+	{
+		if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CharacterAnimation::CA_MOVE)
+			NextAnimations = { CharacterAnimation::CA_MOVE, CharacterAnimation::CA_MOVE };
+	}
+	else
+	{
+		if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CA_IDLE)
+			NextAnimations = { CharacterAnimation::CA_IDLE, CharacterAnimation::CA_IDLE };
+	}
+
+	if (NextAnimations.first != CharacterAnimation::CA_NOTHING)
+	{
+		m_pSkinnedAnimationController->m_CurrentAnimations = NextAnimations;
+		m_pSkinnedAnimationController->SetTrackEnable(NextAnimations);
+	}
 }
 
 void NormalMonster::InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos)

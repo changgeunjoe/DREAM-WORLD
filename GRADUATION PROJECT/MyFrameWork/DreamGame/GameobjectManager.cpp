@@ -636,7 +636,6 @@ void GameobjectManager::ReadNormalMonsterFile(ID3D12Device* pd3dDevice, ID3D12Gr
 		tempObject[i]->m_pSkinnedAnimationController->SetTrackAnimationSet(6);
 		tempObject[i]->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_DIE]->m_nType = ANIMATION_TYPE_ONCE;
 		tempObject[i]->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_FIRSTSKILL]->m_nType = ANIMATION_TYPE_ONCE;
-		tempObject[i]->SetMoveState(true);
 		XMFLOAT3 Axis = XMFLOAT3(1, 0, 0);
 		//tempObject[i]->Rotate(&Axis, tempRotate[i].x);
 		tempObject[i]->Rotate(&Axis, monsterDatas[i].eulerRotate.x);
