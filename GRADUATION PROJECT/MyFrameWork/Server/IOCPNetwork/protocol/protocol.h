@@ -279,7 +279,6 @@ namespace SERVER_PACKET {
 		XMFLOAT3 rot;
 		XMFLOAT3 directionVector;
 		char idxSize;
-		char nearIdx[15];
 	};
 
 	struct InGameBossState {

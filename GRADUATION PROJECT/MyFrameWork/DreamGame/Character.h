@@ -141,9 +141,7 @@ private:
 	bool	m_bHaveTarget{ false };
 	bool	m_bCanActive{ false };
 	int		m_iTargetID{ -1 };
-	XMFLOAT3 m_desPos = XMFLOAT3(0, 0, 0);
-	std::mutex m_nearMonsterLock;
-	std::set<int> m_nearMonster;
+	XMFLOAT3 m_desPos = XMFLOAT3(0, 0, 0);	
 public:
 	void SetDesPos(XMFLOAT3& desPos) { m_desPos = desPos; }
 public:
@@ -153,8 +151,6 @@ public:
 	virtual void Animate(float fTimeElapsed) override;
 	virtual void Move(float fDsitance)override;
 	void InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos)override;
-	void SetNearMonster(std::set<int>& newNearMonster);
-	void ResetNearMonster();
 public:
 	XMFLOAT3 m_xmf3rotateAngle = XMFLOAT3{ 0,0,0 };
 private:

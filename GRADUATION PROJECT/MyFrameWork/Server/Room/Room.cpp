@@ -456,19 +456,7 @@ void Room::UpdateGameStateForPlayer_STAGE1()
 			sendPacket.smallMonster[i].hp = m_StageSmallMonster[i].GetHp();
 			sendPacket.smallMonster[i].pos = m_StageSmallMonster[i].GetPos();
 			sendPacket.smallMonster[i].rot = m_StageSmallMonster[i].GetRot();
-			sendPacket.smallMonster[i].directionVector = m_StageSmallMonster[i].GetDirectionVector();
-			std::set<int> nearSet;
-			int idxSize = 0;
-			for (int j = 0; j < 15; j++) {
-				if (i == j)continue;
-				if (m_StageSmallMonster[i].GetDistance(m_StageSmallMonster[j].GetPos()) < 16.0f) {
-					nearSet.insert(j);
-					sendPacket.smallMonster[i].nearIdx[idxSize] = j;
-					idxSize++;
-				}
-			}
-			m_StageSmallMonster[i].ChangeNearMontser(nearSet);
-			sendPacket.smallMonster[i].idxSize = idxSize;
+			sendPacket.smallMonster[i].directionVector = m_StageSmallMonster[i].GetDirectionVector();			
 		}
 		sendPacket.time = std::chrono::utc_clock::now();
 		g_logic.BroadCastInRoom(m_roomId, &sendPacket);
