@@ -67,6 +67,7 @@ protected:
 
 	CCamera* m_pCamera{ NULL };
 	//2dpont ui
+	
 
 
 

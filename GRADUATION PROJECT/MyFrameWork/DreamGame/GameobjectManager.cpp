@@ -57,8 +57,8 @@ void GameobjectManager::Animate(float fTimeElapsed)
 {
 	m_fTime += fTimeElapsed;
 	m_fTimeElapsed = fTimeElapsed;
-	//m_pConditionUIObject->SetColor(XMFLOAT4(0, 0, 0, sin(m_fTime)+0.2));
-	m_pSceneChangeUIObject->SetColor(XMFLOAT4(0, 0, 0, sin(m_fTime) ));
+	/*m_pConditionUIObject->SetColor(XMFLOAT4(0, 0, 0, sin(m_fTime)+0.2));
+	*/
 	m_pSkyboxObject->SetPosition(m_pCamera->GetPosition());
 	m_pLight->UpdatePosition(XMFLOAT3(m_pCamera->GetPosition().x,
 		m_pCamera->GetPosition().y + 600, m_pCamera->GetPosition().z));
@@ -80,7 +80,11 @@ void GameobjectManager::Animate(float fTimeElapsed)
 		m_ppParticleObjects[i]->Rotate(0, 180, 0);
 		m_ppParticleObjects[i]->AnimateRowColumn(fTimeElapsed);
 	}
-
+	SceneSwapAnimate(fTimeElapsed);
+	//if (int(m_fTime) % 5 > 3)
+	//{
+	//	AddDamageFontToUiLayer();
+	//}
 	//Effect
 	if (m_pSelectedObject) {
 		//m_pEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 10);
@@ -230,6 +234,23 @@ void GameobjectManager::TrailAnimate(float fTimeElapsed)
 void GameobjectManager::StoryUIAnimate(float fTimeElapsed)
 {
 
+}
+
+void GameobjectManager::ConditionAnimate(float fTimeElapsed)
+{
+}
+
+void GameobjectManager::SceneSwapAnimate(float fTimeElapsed)
+{
+	if (m_bSceneSwap)
+	{
+		float mftime = float(fTimeElapsed / 5);
+		m_pSceneChangeUIObject->m_fTime += mftime;
+		m_pSceneChangeUIObject->SetColor(XMFLOAT4(0, 0, 0, sin(m_fTime)));
+		if (sin(m_fTime) < 0) {
+			m_bSceneSwap = false;
+		}
+	}
 }
 
 void GameobjectManager::OnPreRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -542,7 +563,7 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 
 	}
 	GameObject** tempObject = new GameObject * [objCount];	// 멤버 변수로 교체 예정
-	float scale = 10.0f;
+	float scale = 1.0f;
 	if (type == 1)
 		scale = 1.0f;
 
@@ -1108,7 +1129,7 @@ void GameobjectManager::BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	//ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence1.txt", ShortFence01, 0, STAGE1);
 	//ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence2.txt", ShortFence02, 0, STAGE1);
 	//ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence3.txt", ShortFence03, 0, STAGE1);
-	//ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Tree.txt", Tree, 0, STAGE1);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Tree.txt", Tree, 0, STAGE1);
 	//ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/OOBB.txt", Cube, 0, STAGE1);
 	//ReadNormalMonsterFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/NormalMonsterS1.txt", Death, 1, STAGE1);
 	m_pStage1Objects[0] = new GameObject(UNDEF_ENTITY);
@@ -1642,7 +1663,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pSceneChangeUIObject->SetColor(XMFLOAT4(0.4f, 0.0f, 0.0f, 0.0f));
 	m_pSceneChangeUIObject->SetScale(0.44f, 0.24f, 1.0f);
 	m_pSceneChangeUIObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//m_ppCharacterUIObjects.emplace_back(m_pSceneChangeUIObject);
+	m_ppCharacterUIObjects.emplace_back(m_pSceneChangeUIObject);
 
 	m_pVictoryUIObject = new GameObject(UI_ENTITY);
 	m_pVictoryUIObject->InsertComponent<RenderComponent>();
@@ -2110,6 +2131,12 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 
 			break;
 		}
+		case 'U':
+		{
+			AddDamageFontToUiLayer();
+			break;
+		}
+	
 		case 'T':
 		{
 #ifdef LOCAL_TASK
@@ -2143,6 +2170,7 @@ bool GameobjectManager::onProcessingKeyboardMessageLobby(HWND hWnd, UINT nMessag
 		m_pCamera->Rotate(0, -90, 0);
 		m_pPlayerObject->SetCamera(m_pCamera);
 		m_pTankerObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
+		m_bSceneSwap = true;
 	}
 	if (nMessageID == WM_KEYDOWN && wParam == 'G')
 	{
@@ -2465,4 +2493,12 @@ bool GameobjectManager::CheckCollision(vector<GameObject*> m_ppObjects)
 	}
 	return false;
 }
+
+void GameobjectManager::AddDamageFontToUiLayer()
+{
+	XMFLOAT3 xmf3Pos = XMFLOAT3(-1400, 10, -1500);//충돌 포지션
+	float	fDamage = 300;
+	m_pUILayer->AddDamageFont(xmf3Pos, to_wstring(fDamage));
+}
+
 

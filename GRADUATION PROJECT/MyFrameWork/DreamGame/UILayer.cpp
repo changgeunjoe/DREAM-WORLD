@@ -215,28 +215,43 @@ void UILayer::Resize(ID3D12Resource** ppd3dRenderTargets, UINT nWidth, UINT nHei
 
 void UILayer::Update(const float& fTimeElapsed, bool& binteraction, bool& bscreen)
 {
-	for (int j = 0; j < TEXT_TYPE::TEXT_END; ++j)
-	{
-		auto it = m_vecTextBlocks[j].begin();
-		while (it != m_vecTextBlocks[j].end() && binteraction)
-		{
-			(*it)->Update(fTimeElapsed, binteraction, bscreen);
 
-			if ((*it)->m_isDead)
-			{
-				delete (*it);
-				it = m_vecTextBlocks[j].erase(it);
-			}
-			else
-				++it;
+	auto it = m_vecTextBlocks[TEXT_TYPE::TEXT_NPC].begin();
+	while (it != m_vecTextBlocks[TEXT_TYPE::TEXT_NPC].end() && binteraction)
+	{
+		(*it)->Update(fTimeElapsed, binteraction, bscreen);
+
+		if ((*it)->m_isDead)
+		{
+			delete (*it);
+			it = m_vecTextBlocks[TEXT_NPC].erase(it);
 		}
+		else
+			++it;
 	}
+	auto it2 = m_vecTextBlocks[TEXT_TYPE::TEXT_DAMAGE].begin();
+	while (it2 != m_vecTextBlocks[TEXT_TYPE::TEXT_DAMAGE].end())
+	{
+		(*it2)->Update(fTimeElapsed, binteraction, bscreen);
+
+		if ((*it2)->m_isDead)
+		{
+			delete (*it2);
+			it2 = m_vecTextBlocks[TEXT_DAMAGE].erase(it2);
+		}
+		else
+			++it2;
+	}
+
+
 }
 
 void UILayer::AddDamageFont(XMFLOAT3 xmf3WorldPos, wstring strText)
 {
-	CTextBlock* pTb = new CDamageTextBlock(m_pdwTextFormat, D2D1::RectF(0.f, 0.f, m_fWidth, m_fHeight), strText, xmf3WorldPos);
+	CTextBlock* pTb = new CDamageTextBlock(m_pdwDamageFontFormat, D2D1::RectF(0.f, 0.f, m_fWidth, m_fHeight), strText, xmf3WorldPos);
+	//pTb->m_eColor = TEXT_WHITE;
 	m_vecTextBlocks[TEXT_DAMAGE].emplace_back(pTb);
+
 
 }
 
@@ -253,7 +268,7 @@ void UILayer::AddTextFont(queue<wstring>& queueStr)
 
 XMFLOAT3 UILayer::WorldToScreen(XMFLOAT3& xmf3WorldPos)
 {
-	CCamera* pCamera{}; //= CGameMgr::GetInstance()->GetCamera();
+	CCamera* pCamera= gGameFramework.GetCamera();
 	XMFLOAT4X4 xmf4x4View = pCamera->GetViewMatrix();
 	XMFLOAT4X4 xmf4x4Proj = pCamera->GetProjectionMatrix();
 
@@ -307,12 +322,12 @@ CDamageTextBlock::CDamageTextBlock(IDWriteTextFormat* pdwFormat, D2D1_RECT_F& d2
 	:CTextBlock(pdwFormat, d2dLayoutRect, strText)
 {
 	m_xmf3WorldPos = xmf3WorldPos;
-	m_fLifeTime = 2.f;
+	m_fLifeTime = 0.45f;
 
-	m_xmf3Velocity = { RandomValue(-0.1f, 0.1f), 0.3f, RandomValue(-0.1f, 0.1f) };
+	m_xmf3Velocity = { RandomValue(-0.4f, 0.4f), 0.3f, RandomValue(-0.4f, 0.4f) };
 	// m_xmf3Velocity = Vector3::Normalize(m_xmf3Velocity);
 
-	m_xmf3Accel = { 0.f, -1.f, 0.f };
+	m_xmf3Accel = { 0.f, 1.f, 0.f };
 }
 
 CDamageTextBlock::~CDamageTextBlock()
