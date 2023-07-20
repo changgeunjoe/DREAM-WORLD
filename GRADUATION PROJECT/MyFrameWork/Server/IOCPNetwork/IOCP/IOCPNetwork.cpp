@@ -151,7 +151,7 @@ void IOCPNetwork::WorkerThread()
 				delete ex_over;
 		}
 
-		break; 
+		break;
 		case OP_BOSS_ATTACK_EXECUTE:
 		{
 			g_RoomManager.BossAttackExecute(key);
@@ -187,9 +187,9 @@ void IOCPNetwork::DisconnectClient(int id)
 	//만약 인게임 중에 disconnect 된다면.
 	if (m_session[id].GetPlayerState() == PLAYER_STATE::IN_GAME_ROOM) {
 		Room& room = g_RoomManager.GetRunningRoomRef(m_session[id].GetRoomId());
-		room.InsertDisconnectedPlayer(id);
+		room.DeleteInGamePlayer(id);
 	}
-	g_logic.DeleteInGameUserSet(m_session[id].GetName());//로직에 있는 인게임 유저 정보 삭제
+	g_logic.DeleteInGameUserSet(m_session[id].GetLoginId());//로직에 있는 인게임 유저 정보 삭제
 	m_session[id].ResetSession();
 	m_restClientId.push(id);
 }

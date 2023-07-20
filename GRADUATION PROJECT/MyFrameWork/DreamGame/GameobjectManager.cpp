@@ -736,7 +736,7 @@ bool GameobjectManager::CheckCollideNPC()
 	return	m_pAngelNPCObject->m_SPBBNPC.Intersects(myCharacter->m_SPBB);
 }
 
-Character* GameobjectManager::GetChracterInfo(ROLE r)
+Character* GameobjectManager::GetChracterInfo(ROLE r)	
 {
 	if (r == ROLE::WARRIOR) return m_pWarriorObject;
 	if (r == ROLE::PRIEST) return m_pPriestObject;
@@ -2173,10 +2173,10 @@ bool GameobjectManager::onProcessingKeyboardMessageLobby(HWND hWnd, UINT nMessag
 		m_pPlayerObject->SetCamera(m_pCamera);
 		m_pArcherObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
 #else
-		g_Logic.SetMyRole(ROLE::TANKER);
-		m_pTankerObject->SetCamera(m_pCamera);
-		m_pTankerObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
-		m_pTankerObject->SetLook(XMFLOAT3(0, 0, 1));
+		g_Logic.SetMyRole(ROLE::ARCHER);
+		m_pArcherObject->SetCamera(m_pCamera);
+		m_pArcherObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
+		m_pArcherObject->SetLook(XMFLOAT3(0, 0, 1));
 		g_NetworkHelper.SendMatchRequestPacket();
 #endif
 		m_bSceneSwap = true;//페이드 인 아웃
@@ -2185,6 +2185,14 @@ bool GameobjectManager::onProcessingKeyboardMessageLobby(HWND hWnd, UINT nMessag
 	{
 		m_bNPCinteraction = true;
 		m_bNPCscreen = true;
+	}
+	if (nMessageID == WM_KEYDOWN && wParam == 'I')
+	{
+		g_Logic.SetMyRole(ROLE::TANKER);
+		m_pTankerObject->SetCamera(m_pCamera);
+		m_pTankerObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
+		m_pTankerObject->SetLook(XMFLOAT3(0, 0, 1));
+		g_NetworkHelper.SendMatchRequestPacket();
 	}
 	return false;
 }
@@ -2242,8 +2250,7 @@ bool GameobjectManager::onProcessingKeyboardMessageUI(HWND hWnd, UINT nMessageID
 		}
 		break;
 		case 'I':
-		{
-
+		{		
 		}
 		break;
 		case 'q':

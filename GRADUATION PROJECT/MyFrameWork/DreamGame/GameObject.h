@@ -61,15 +61,12 @@ public:
 	void SetCamera(CCamera* pCamera);
 	void SetRowColumn(float x, float y, float fSpeed = 0.1);
 
-
-	void MoveStrafe(float fDistance = 1.0f);
+	virtual void MoveForward(int forwardDirection = 1, float ftimeElapsed = 0.01768f);
+	virtual void MoveStrafe(int rightDirection = 1, float ftimeElapsed = 0.01768f);
+	virtual void MoveDiagonal(int fowardDirection, int rightDirection, float ftimeElapsed = 0.01768f);
 	void MoveUp(float fDistance = 1.0f);
-	void MoveDiagonal(int fowardDirection, int rightDirection, float distance = 1.0f);
-	virtual void MoveForward(float fDistance = 1.0f);
 
 	virtual void MoveVelocity(XMFLOAT3 direction, float ftimeelapsed, float fDistance = 1.0f);
-
-	bool CheckIntersect(const GameObject* GameObject);	//수정필요
 
 	void Rotate(float fPitch = 10.0f, float fYaw = 10.0f, float fRoll = 10.0f);
 	void Rotate(XMFLOAT3* pxmf3Axis, float fAngle);

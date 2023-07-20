@@ -21,22 +21,20 @@ private:
 	std::wstring m_roomName;
 	int m_roomOwnerId = -1;// 룸 생성한 자의 ID
 	ROOM_STATE m_roomState = ROOM_STAGE1;
-private:	
+private:
+	std::chrono::high_resolution_clock::time_point roomStartGameTime;
+	std::atomic_bool m_stageStart = false;
+private:
 	std::atomic_int	m_stage1TrigerCnt = 0;
 	std::atomic_int m_skipNPC_COMMUNICATION = 0;
 public:
 	void SetRoomId(int roomId);
-	bool IsArriveState() { return m_isAlive; }
-	void SetRoomInGame() { m_isAlive = true; }
+	bool IsArriveState() { return m_isAlive; }	
 	//Player UserSession
 private:
 	//ingame Player
 	std::mutex m_lockInGamePlayers;
 	std::map<ROLE, int> m_inGamePlayers;
-
-	//disconnect Player에 대해서 저장, logic클래스에서도 Player_State가 INGameRoom일때 nickName저장 후, 함
-	std::mutex m_lockdisconnectedPlayer;
-	std::map<std::wstring, ROLE> m_disconnectedPlayers;//key: nickName, value: Role
 private:
 	std::map<ROLE, ChracterSessionObject*> m_characterMap;
 
@@ -48,12 +46,6 @@ public:
 	void DeleteInGamePlayer(int playerId);
 	std::map<ROLE, int> GetPlayerMap();
 	int GetPlayerNum() { return m_inGamePlayers.size(); }
-public:
-	//disconnect Player
-	void InsertDisconnectedPlayer(int id);
-	bool CheckDisconnectedPlayer(std::wstring& name);
-private:
-	void DeleteDisconnectedPlayer(int playerId, std::wstring& name);
 	//Monster UserSession
 private:
 	MonsterSessionObject m_boss;
@@ -100,10 +92,12 @@ public:
 	//stage1
 	void SetTriggerCntIncrease();
 	void SetTriggerCntDecrease();
-	void SkipNPC_Communication();
+	void Recv_SkipNPC_Communication();
+	void SkipNPC_Communication();	
 	void ChangeStageBoss();
 public:
 	ROOM_STATE GetRoomState() { return m_roomState; }
 	SmallMonsterSessionObject* GetStageMonsterArr() { return m_StageSmallMonster; }
 	SmallMonsterSessionObject* GetBossMonsterArr() { return m_BossSmallMonster; }
+	std::map<ROLE, ChracterSessionObject*>& GetPlayCharacters();
 };

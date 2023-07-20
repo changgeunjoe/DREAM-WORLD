@@ -27,6 +27,7 @@ void DBObject::RunDBThread()
 				if (pInfo->PlayerLoginId.find(L"module", 0) != std::wstring::npos) {
 					g_iocpNetwork.m_session[currentEvent.userId].SetInGameState();
 					g_iocpNetwork.m_session[currentEvent.userId].SetName(pInfo->PlayerLoginId);
+					g_iocpNetwork.m_session[currentEvent.userId].SetLoginId(pInfo->PlayerLoginId);
 					SERVER_PACKET::LoginPacket sendPacket;
 					sendPacket.type = SERVER_PACKET::LOGIN_OK;
 					sendPacket.size = sizeof(SERVER_PACKET::LoginPacket);
@@ -37,6 +38,7 @@ void DBObject::RunDBThread()
 				}
 				else if (GetPlayerInfo(pInfo->PlayerLoginId, pInfo->pw, wst_nickName)) {
 					g_iocpNetwork.m_session[currentEvent.userId].SetInGameState();
+					g_iocpNetwork.m_session[currentEvent.userId].SetLoginId(pInfo->PlayerLoginId);
 					g_iocpNetwork.m_session[currentEvent.userId].SetName(wst_nickName);
 					SERVER_PACKET::LoginPacket sendPacket;
 					sendPacket.type = SERVER_PACKET::LOGIN_OK;

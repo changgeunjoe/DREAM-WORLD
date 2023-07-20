@@ -4,13 +4,14 @@
 #include "../../Logic/Logic.h"
 #include "../../IOCPNetwork/protocol/protocol.h"
 #include "../../MapData/MapData.h"
-#include "../../Room/Room.h"
+#include "../../Room/RoomManager.h"
 
 extern Logic g_logic;
 extern MapData g_bossMapData;
 extern MapData g_stage1MapData;
+extern RoomManager g_RoomManager;
 
-ChracterSessionObject::ChracterSessionObject(ROLE r) : SessionObject(15.0f)
+ChracterSessionObject::ChracterSessionObject(ROLE r) : SessionObject(8.0f)
 {
 	m_hp = 0;
 	m_maxHp = 0;
@@ -160,6 +161,40 @@ void ChracterSessionObject::StartMove(DIRECTION d)
 bool ChracterSessionObject::CheckMove_Stage1(float fDistance)
 {
 	auto& allCollisionVec = g_stage1MapData.GetCollideData();
+	Room& roomRef = g_RoomManager.GetRunningRoomRef(m_roomId);
+	auto& roomCharacters = roomRef.GetPlayCharacters();
+	XMFLOAT3 futurePosition = m_position;
+	int characterCollideCnt = 0;
+	std::vector < std::pair<XMFLOAT3, XMFLOAT3> > myCollideDataCharacter(4);//normal sliding
+	for (auto& character : roomCharacters) {
+		if (m_InGameRole == character.first) continue;
+		auto characterNormalRes = GetNormalVectorSphere(character.second->GetPos());
+		if (characterNormalRes.first >= 30.0f) continue;
+		if (characterCollideCnt == 2)break;
+		characterCollideCnt++;
+		XMFLOAT3 normalVec = characterNormalRes.second;
+		XMFLOAT3 slidingVec = XMFLOAT3(-normalVec.z, 0.0f, normalVec.x);
+		float directionVectorDotslidingVec = Vector3::DotProduct(slidingVec, m_directionVector);
+		if (directionVectorDotslidingVec < 0)slidingVec = Vector3::ScalarProduct(slidingVec, -1.0f, false);
+		myCollideDataCharacter.emplace_back(normalVec, slidingVec);
+	}
+
+	XMFLOAT3 normalVecResult = XMFLOAT3(0, 0, 0);
+	XMFLOAT3 slidingVecResult = XMFLOAT3(0, 0, 0);
+
+	for (auto& collideResult : myCollideDataCharacter) {
+		normalVecResult = Vector3::Add(normalVecResult, collideResult.first);
+		slidingVecResult = Vector3::Add(slidingVecResult, collideResult.second);
+	}
+	if (characterCollideCnt) {
+		normalVecResult = Vector3::Normalize(normalVecResult);
+		slidingVecResult = Vector3::Normalize(slidingVecResult);
+		/*futurePosition = Vector3::Add(futurePosition, Vector3::ScalarProduct(normalVecResult, fDistance));
+		futurePosition = Vector3::Add(futurePosition, Vector3::ScalarProduct(slidingVecResult, fDistance));*/
+	}
+	XMFLOAT3 collideCharacterMoveDir = Vector3::Normalize(Vector3::Add(normalVecResult, slidingVecResult));
+	//CharacterCollideRes
+
 	for (auto& collide : allCollisionVec)
 	{
 		if (collide.GetObb().Intersects(m_SPBB))
@@ -182,6 +217,10 @@ bool ChracterSessionObject::CheckMove_Stage1(float fDistance)
 				XMFLOAT3 collideSlidingVector = std::get<1>(CollidePolygonNormalVector);//슬라이딩 벡터
 				float normalVectorDotProductReslut = std::get<2>(CollidePolygonNormalVector);
 				float slidingVectorDotProductReslut = std::get<3>(CollidePolygonNormalVector);//슬라이딩 벡터와 무브 벡터 내적 값
+				float dotProductResult = Vector3::DotProduct(collideCharacterMoveDir, Vector3::Add(collideSlidingVector, collideNormalVector));
+				if (dotProductResult > 0) {
+					m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideCharacterMoveDir, fDistance));
+				}
 				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideSlidingVector, slidingVectorDotProductReslut * fDistance));
 				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideNormalVector, 0.2f * normalVectorDotProductReslut * fDistance));
 			}
@@ -203,7 +242,10 @@ bool ChracterSessionObject::CheckMove_Stage1(float fDistance)
 				resultSlidingVector.y = 0.0f;
 				float dotRes = Vector3::DotProduct(resultSlidingVector, m_directionVector);
 				if (dotRes < 0)resultSlidingVector = Vector3::ScalarProduct(resultSlidingVector, -1.0f, false);
-
+				float dotProductResult = Vector3::DotProduct(collideCharacterMoveDir, Vector3::Add(resultSlidingVector, Vector3::Add(collideNormalVector1, collideNormalVector2)));
+				if (dotProductResult > 0) {
+					m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideCharacterMoveDir, fDistance));
+				}
 				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(resultSlidingVector, fDistance));
 				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideNormalVector1, 0.3f * normalVectorDotProductResult1 * fDistance));
 				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(collideNormalVector2, 0.3f * normalVectorDotProductResult2 * fDistance));
@@ -297,6 +339,15 @@ void ChracterSessionObject::Rotate(ROTATE_AXIS axis, float angle)
 	//std::cout << "current direction " << m_directionVector.x << " " << m_directionVector.y << " " << m_directionVector.z << std::endl;
 	//std::cout << "rotate angle" << m_rotateAngle.x << " " << m_rotateAngle.y << " " << m_rotateAngle.z << std::endl;
 }
+
+std::pair<float, XMFLOAT3> ChracterSessionObject::GetNormalVectorSphere(XMFLOAT3& point)
+{
+	XMFLOAT3 normalVec = Vector3::Subtract(m_position, point);
+	float normalSize = Vector3::Length(normalVec);
+	normalVec = Vector3::Normalize(normalVec);
+	return std::pair<float, XMFLOAT3>(normalSize, normalVec);
+}
+
 
 void WarriorSessionObject::Skill_1()
 {

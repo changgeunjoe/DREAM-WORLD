@@ -14,6 +14,8 @@ private:
 	SOCKET				m_socket;
 	int					m_prevBufferSize;
 	std::wstring		m_playerName;
+	std::wstring		m_loginId;
+
 	ROLE				m_role;
 private:
 	ChracterSessionObject* m_sessionObject;
@@ -51,6 +53,11 @@ public:
 		m_playerName = inputWst;
 	}
 	std::wstring& GetName() { return m_playerName; }
+	void SetLoginId(std::wstring& lgId)
+	{
+		m_loginId = lgId;
+	}
+	std::wstring& GetLoginId() { return m_loginId; }
 public:
 	ChracterSessionObject* SetPlaySessionObject(ChracterSessionObject* pSession);
 	void PlayCharacterMove();

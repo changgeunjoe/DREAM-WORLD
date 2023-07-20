@@ -117,61 +117,28 @@ void Room::InsertInGamePlayer(ROLE r, int playerId)
 
 void Room::DeleteInGamePlayer(int playerId)
 {
+	m_lockInGamePlayers.lock();
 	auto findPlayerIter = std::find_if(m_inGamePlayers.begin(), m_inGamePlayers.end(), [&playerId](std::pair<ROLE, int> p)
 		{ // playerId가 같은 것을 찾아 제거
 			return p.second == playerId;
 		}
 	);
-	//{//diconnected Player 저장
-	//	std::lock_guard<std::mutex> lg{ m_lockdisconnectedPlayer };
-	//	m_disconnectedPlayers.insert(std::make_pair(g_iocpNetwork.m_session[playerId].GetName(), g_iocpNetwork.m_session[playerId].GetRole() ));
-	//}
-	std::lock_guard<std::mutex> lg{ m_lockInGamePlayers };
-	m_inGamePlayers.erase(findPlayerIter);//disconnected된 플레이어 처리
+	if (findPlayerIter == m_inGamePlayers.end()) {
+		m_lockInGamePlayers.unlock();
+		return;
+	}
+	m_lockInGamePlayers.unlock();
+	{
+		std::lock_guard<std::mutex> lg{ m_lockInGamePlayers };
+		m_inGamePlayers.erase(findPlayerIter);//disconnected된 플레이어 처리
+	}
+	SkipNPC_Communication();
 }
 
 std::map<ROLE, int> Room::GetPlayerMap()
 {
 	std::lock_guard<std::mutex> lg{ m_lockInGamePlayers };
 	return m_inGamePlayers;
-}
-
-void Room::InsertDisconnectedPlayer(int id)
-{
-	auto findPlayer = std::find_if(m_inGamePlayers.begin(), m_inGamePlayers.end(), [&id](std::pair<ROLE, int> p)
-		{
-			return p.second == id;
-		}
-	);
-	{// playerId find
-		std::lock_guard<std::mutex> lg{ m_lockInGamePlayers };
-		if (findPlayer == m_inGamePlayers.end()) return;
-	}
-	{//desconneced Player insert
-		std::lock_guard<std::mutex> lg{ m_lockdisconnectedPlayer };
-		m_disconnectedPlayers.try_emplace(g_iocpNetwork.m_session[id].GetName(), findPlayer->first);
-	}
-	//ingame Player erase
-	std::lock_guard<std::mutex> lg{ m_lockInGamePlayers };
-	m_inGamePlayers.erase(findPlayer);
-}
-
-bool Room::CheckDisconnectedPlayer(std::wstring& name)
-{
-	{	//desconneced Player find
-		std::lock_guard<std::mutex> lg{ m_lockdisconnectedPlayer };
-		if (m_disconnectedPlayers.count(name) == 1) {
-			return true;
-		}
-	}
-	return false;
-}
-
-void Room::DeleteDisconnectedPlayer(int playerId, std::wstring& name)
-{
-	if (CheckDisconnectedPlayer(name)) {//disconnected Player find
-
-	}
 }
 
 void Room::CreateBossMonster()
@@ -229,6 +196,7 @@ bool Room::MeleeAttack(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 pos)
 void Room::GameStart()
 {
 	m_isAlive = true;
+	m_stageStart = false;
 	//monster Update
 	//TIMER_EVENT smallMonsterEvent{ std::chrono::system_clock::now() + std::chrono::seconds(1) + std::chrono::milliseconds(500), m_roomId ,EV_SM_UPDATE };
 	//g_Timer.InsertTimerQueue(smallMonsterEvent);
@@ -438,7 +406,7 @@ void Room::UpdateGameStateForPlayer_STAGE1()
 			sendPacket.smallMonster[i].hp = m_StageSmallMonster[i].GetHp();
 			sendPacket.smallMonster[i].pos = m_StageSmallMonster[i].GetPos();
 			sendPacket.smallMonster[i].rot = m_StageSmallMonster[i].GetRot();
-			sendPacket.smallMonster[i].directionVector = m_StageSmallMonster[i].GetDirectionVector();			
+			sendPacket.smallMonster[i].directionVector = m_StageSmallMonster[i].GetDirectionVector();
 		}
 		sendPacket.time = std::chrono::utc_clock::now();
 		g_logic.BroadCastInRoom(m_roomId, &sendPacket);
@@ -478,11 +446,6 @@ void Room::UpdateGameStateForPlayer_BOSS()
 	}
 	if (m_boss.GetHp() <= 0)m_boss.isBossDie = true;
 	if (m_boss.isBossDie) {
-		//disconnect Player Set Clear
-		{
-			std::lock_guard<std::mutex>disconnectedPlayerLock{ m_lockdisconnectedPlayer };
-			m_disconnectedPlayers.clear();
-		}
 		m_boss.SetZeroHp();
 		SERVER_PACKET::NotifyPacket sendPacket;
 		sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
@@ -571,6 +534,17 @@ void Room::BossAttackExecute()
 	//m_boss.AttackPlayer();
 }
 
+void Room::Recv_SkipNPC_Communication()
+{
+	m_skipNPC_COMMUNICATION += 1;
+	SkipNPC_Communication();
+}
+
+std::map<ROLE, ChracterSessionObject*>& Room::GetPlayCharacters()
+{
+	return m_characterMap;
+}
+
 void Room::ChangeDirectionPlayCharacter(ROLE r, DIRECTION d)
 {
 	m_characterMap[r]->ChangeDirection(d);
@@ -627,13 +601,12 @@ void  Room::SetTriggerCntDecrease()
 
 void Room::SkipNPC_Communication()
 {
-	m_skipNPC_COMMUNICATION += 1;
-	bool start = false;
+	if (m_stageStart) return;
 	m_lockInGamePlayers.lock();
 	if (m_skipNPC_COMMUNICATION >= m_inGamePlayers.size())
-		start = true;
+		m_stageStart = true;
 	m_lockInGamePlayers.unlock();
-	if (start) {
+	if (m_stageStart) {
 		TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::milliseconds(30), m_roomId ,EV_SM_UPDATE };//GameState 30ms마다 전송하게 수정
 		g_Timer.InsertTimerQueue(new_ev);
 		std::cout << "Room::SkipNPC_Communication() - RoomId: " << m_roomId << ", " << "gameStart" << std::endl;

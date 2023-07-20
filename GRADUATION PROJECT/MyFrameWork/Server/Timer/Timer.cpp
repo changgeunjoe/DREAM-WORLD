@@ -115,7 +115,7 @@ void Timer::TimerThreadFunc()
 				ov->m_opCode = OP_UPDATE_SMALL_MONSTER;
 				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, ev.targetId, &ov->m_overlap);
 			}
-			break;
+			break;		
 			default: break;
 			}
 			continue;		// 즉시 다음 작업 꺼내기

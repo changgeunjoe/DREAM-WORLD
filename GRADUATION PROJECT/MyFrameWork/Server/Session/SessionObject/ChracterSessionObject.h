@@ -53,6 +53,8 @@ public:
 	}
 	bool GetLeftAttack() { return m_leftmouseInput; }
 	void SetRoomState(ROOM_STATE rState) { m_roomState = rState; }
+protected:
+	std::pair<float, XMFLOAT3> GetNormalVectorSphere(XMFLOAT3& point);
 public:
 	virtual void Skill_1() = 0;
 	virtual void Skill_2() = 0;
@@ -112,7 +114,7 @@ public:
 	{
 		SetStage_1Position();
 	}
-	~ArcherSessionObject() {}
+	~ArcherSessionObject() {}	
 public:
 	void SetStage_1Position()override;
 	void SetBossStagePosition()override;

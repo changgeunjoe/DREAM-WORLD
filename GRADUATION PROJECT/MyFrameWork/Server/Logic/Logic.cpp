@@ -144,6 +144,7 @@ void Logic::ProcessPacket(int userId, char* p)
 	case CLIENT_PACKET::LOGIN:
 	{
 		CLIENT_PACKET::LoginPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::LoginPacket*>(p);
+		recvPacket->id;
 		DB_STRUCT::PlayerInfo* pInfo = new DB_STRUCT::PlayerInfo(recvPacket->id, recvPacket->pw);
 		//std::string tempId = recvPacket->id;
 		std::set<std::wstring>::iterator playerMapFindRes = m_inGameUser.end();
@@ -156,7 +157,7 @@ void Logic::ProcessPacket(int userId, char* p)
 			SERVER_PACKET::NotifyPacket preExistPacket;
 			preExistPacket.type = SERVER_PACKET::PRE_EXIST_LOGIN;
 			preExistPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
-			g_iocpNetwork.m_session[userId].Send(&preExistPacket);//pre_exist notify		
+			g_iocpNetwork.m_session[userId].Send(&preExistPacket);//pre_exist notify
 		}
 		else {
 			/*pInfo->PlayerLoginId.assign(tempId.begin(), tempId.end());
@@ -288,7 +289,7 @@ void Logic::ProcessPacket(int userId, char* p)
 	case CLIENT_PACKET::SKIP_NPC_COMMUNICATION:
 	{
 		Room& roomRef = g_RoomManager.GetRunningRoomRef(g_iocpNetwork.m_session[userId].GetRoomId());
-		roomRef.SkipNPC_Communication();
+		roomRef.Recv_SkipNPC_Communication();
 	}
 	break;
 	case CLIENT_PACKET::STAGE_CHANGE_BOSS:
@@ -384,7 +385,7 @@ void Logic::MatchMaking()
 		//아무도 없을 때, 
 		if (restRole.size() == 4) {}
 		//모두가 Role을 가지고 돌렸을때
-		else if (restRole.size() == 0) {
+		else if (restRole.size() == 2) {
 			std::map<ROLE, int> matchPlayer;
 			if (warriorPlayerIdQueue.unsafe_size() > 0) {
 				int playerId = -1;
@@ -421,12 +422,11 @@ void Logic::MatchMaking()
 					g_iocpNetwork.m_session[p.second].SetRoomId(newRoomId);
 				}
 				roomRef.SendAllPlayerInfo();
-
 				SERVER_PACKET::NotifyPacket sendPacket;
 				sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
 				sendPacket.type = SERVER_PACKET::INTO_GAME;
 				BroadCastInRoom(newRoomId, &sendPacket);
-				roomRef.SetRoomInGame();
+				roomRef.GameStart();
 			}
 		}
 	}

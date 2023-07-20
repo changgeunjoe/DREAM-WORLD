@@ -19,10 +19,21 @@ public:
 	virtual void FirstSkillUp() {};
 	virtual void SecondSkillDown() { m_bESkillClicked = true; };
 	virtual void SecondSkillUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f }) {};
-	virtual void MoveObject();
 	bool CheckAnimationEnd(int nAnimation);
-public:
+
+public://move
+	virtual void SetLookDirection();
+	virtual void Move(float fTimeElapsed) = 0;
+	virtual void MoveForward(int forwardDirection = 1, float ftimeElapsed = 0.01768f) override;
+	virtual void MoveStrafe(int rightDirection = 1, float ftimeElapsed = 0.01768f)override;
+	virtual void MoveDiagonal(int fowardDirection, int rightDirection, float ftimeElapsed = 0.01768f)override;
 	virtual void InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos);
+
+protected://collision check
+	virtual std::pair<bool, XMFLOAT3> CheckCollisionMap(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
+	virtual std::pair<bool, XMFLOAT3> CheckCollisionCharacter(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
+	virtual std::pair<bool, XMFLOAT3> CheckCollisionNormalMonster(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
+	virtual bool CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
 public:
 	bool GetQSkillState() { return m_bQSkillClicked; }
 	bool GetESkillState() { return m_bESkillClicked; }
@@ -30,8 +41,8 @@ public:
 	void SetOnAttack(bool onAttack) { m_bOnAttack = onAttack; }
 	void SetRotateAxis(XMFLOAT3& xmf3RotateAxis) { m_xmf3RotateAxis = xmf3RotateAxis; }
 	XMFLOAT3& GetRotateAxis() { return m_xmf3RotateAxis; }
-public:
-	virtual void Move(float fDsitance) = 0;
+
+	//movedir
 protected:
 	DIRECTION m_currentDirection = DIRECTION::IDLE;
 public:
@@ -48,6 +59,8 @@ public:
 	}
 	//DIRECTION m_prevDirection = DIRECTION::IDLE;
 	//virtual void Move(DIRECTION direction, float fDistance);
+protected:
+	std::pair<float, XMFLOAT3> GetNormalVectorSphere(const XMFLOAT3& point);
 };
 
 class Warrior : public Character
@@ -57,7 +70,7 @@ public:
 	virtual ~Warrior();
 	virtual void Attack(float fSpeed = 150.0f);
 	virtual void RbuttonClicked(float fTimeElapsed);
-	virtual void Move(float fDsitance)override;
+	virtual void Move(float fTimeElapsed)override;
 	virtual void Animate(float fTimeElapsed) override;
 };
 
@@ -72,10 +85,10 @@ public:
 	virtual void SetArrow(Projectile* pArrow);
 	virtual void RbuttonClicked(float fTimeElapsed);
 	virtual void RbuttonUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f });
-	virtual void Move(float fDsitance)override;
+	virtual void Move(float fTimeElapsed)override;
 	virtual void Animate(float fTimeElapsed);
 	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender = false);
-	virtual void MoveObject();
+	virtual void SetLookDirection() override;
 	virtual void FirstSkillDown();
 	virtual void FirstSkillUp();
 	virtual void SecondSkillDown();
@@ -92,7 +105,7 @@ public:
 	virtual void Attack(float fSpeed = 150.0f);
 	virtual void RbuttonClicked(float fTimeElapsed);
 	virtual void RbuttonUp(const XMFLOAT3& CameraAxis);
-	virtual void Move(float fDsitance)override;
+	virtual void Move(float fTimeElapsed)override;
 	virtual void Animate(float fTimeElapsed);
 };
 
@@ -108,10 +121,10 @@ public:
 	virtual void RbuttonUp(const XMFLOAT3& CameraAxis);
 	virtual void Attack(float fSpeed = 150.0f);
 	virtual void SetEnergyBall(Projectile* pEnergyBall);
-	virtual void Move(float fDsitance)override;
+	virtual void Move(float fTimeElapsed)override;
 	virtual void Animate(float fTimeElapsed);
 	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender = false);
-	virtual void MoveObject();
+	virtual void SetLookDirection() override;
 	virtual void FirstSkillDown();
 	virtual void FirstSkillUp();
 	virtual void SecondSkillDown() {};
@@ -130,7 +143,7 @@ public:
 	virtual ~Monster();
 	virtual void Animate(float fTimeElapsed);
 	virtual void SetSkillRangeObject(GameObject* obj) { m_pSkillRange = obj; }
-	virtual void Move(float fDsitance)override;
+	virtual void Move(float fTimeElapsed)override;
 	void InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos)override;
 public:
 	XMFLOAT3 m_xmf3rotateAngle = XMFLOAT3{ 0,0,0 };
@@ -142,7 +155,7 @@ private:
 	bool	m_bHaveTarget{ false };
 	bool	m_bCanActive{ false };
 	int		m_iTargetID{ -1 };
-	XMFLOAT3 m_desPos = XMFLOAT3(0, 0, 0);	
+	XMFLOAT3 m_desPos = XMFLOAT3(0, 0, 0);
 public:
 	void SetDesPos(XMFLOAT3& desPos) { m_desPos = desPos; }
 public:
@@ -150,13 +163,15 @@ public:
 	NormalMonster();
 	virtual ~NormalMonster();
 	virtual void Animate(float fTimeElapsed) override;
-	virtual void Move(float fDsitance)override;
+	virtual void Move(float fTimeElapsed)override;
 	void SetAnimation();
 	void InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos)override;
 public:
 	XMFLOAT3 m_xmf3rotateAngle = XMFLOAT3{ 0,0,0 };
 private:
-	std::pair<float, XMFLOAT3> GetNormalVectorSphere(const XMFLOAT3& point);
+	virtual std::pair<bool, XMFLOAT3> CheckCollisionCharacter(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
+	virtual std::pair<bool, XMFLOAT3> CheckCollisionNormalMonster(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f) override;
+	virtual bool CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f) override;
 };
 
 class Projectile : public GameObject
