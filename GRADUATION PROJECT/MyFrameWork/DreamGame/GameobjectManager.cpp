@@ -306,8 +306,17 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		{
 			if (m_pArrowObjects[i]->m_bActive)
 			{
+				m_pTrailArrowObject[i]->m_bActive = true;
 				m_pArrowObjects[i]->Animate(m_fTimeElapsed);
 				m_pArrowObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+			}
+			else
+			{
+				if (m_pArcherObject)
+				{
+					m_pArrowObjects[i]->SetPosition(m_pArcherObject->GetPosition());
+					m_pTrailArrowObject[i]->m_bActive = false;
+				}
 			}
 		}
 	}
@@ -390,12 +399,10 @@ void GameobjectManager::TrailRender(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	}
 	for (int i = 0; i < m_pTrailArrowObject.size(); i++) {
 		if (m_pTrailArrowObject[i]) {
-			m_pTrailArrowObject[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-		}
-	}
-	for (int i = 0; i < m_pTrailArrowComponent.size(); i++) {
-		if (m_pTrailArrowComponent[i]) {
-			m_pTrailArrowComponent[i]->RenderTrail(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+			if (m_pTrailArrowObject[i]->m_bActive) {
+				m_pTrailArrowObject[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+				m_pTrailArrowComponent[i]->RenderTrail(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+			}
 		}
 	}
 }
@@ -1116,6 +1123,7 @@ void GameobjectManager::BuildTrail(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 		m_pTrailArrowObject[i]->SetColor(XMFLOAT4(1.0f, 0.3f, 0.0f, 0.0f));
 		m_pTrailArrowObject[i]->SetScale(1);
 		m_pTrailArrowObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		m_pTrailArrowObject[i]->m_bActive = true;
 		m_pTrailArrowComponent[i] = new TrailComponent();
 		m_pTrailArrowComponent[i]->ReadyComponent(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pTrailArrowObject[i]);
 	}

@@ -176,6 +176,7 @@ public:
 	virtual void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void SetRButtonClicked(bool clicked) {};
 	virtual bool GetRButtonClicked() { return false; }
+	virtual void Move(XMFLOAT3 dir, float fDistance);
 };
 
 class Arrow : public Projectile
@@ -200,7 +201,6 @@ public:
 	EnergyBall();
 	virtual ~EnergyBall();
 	virtual void Animate(float fTimeElapsed);
-	void Move(XMFLOAT3 dir, float fDistance);
 	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender = false);
 };
 

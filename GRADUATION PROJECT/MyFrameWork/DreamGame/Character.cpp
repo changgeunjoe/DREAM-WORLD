@@ -1385,6 +1385,14 @@ void Projectile::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
+void Projectile::Move(XMFLOAT3 dir, float fDistance)
+{
+	XMFLOAT3 xmf3Position = GetPosition();
+	xmf3Position = Vector3::Add(xmf3Position, dir, fDistance);
+	if (Vector3::Length(xmf3Position) < PLAYER_MAX_RANGE)	GameObject::SetPosition(xmf3Position);
+}
+
+
 Arrow::Arrow() : Projectile()
 {
 	m_fSpeed = 150.0f;
@@ -1440,7 +1448,7 @@ void Arrow::Animate(float fTimeElapsed)
 	else
 	{
 		SetLook(m_xmf3direction);
-		MoveForward(fTimeElapsed * m_fSpeed);
+		Move(m_xmf3direction, fTimeElapsed * m_fSpeed);
 	}
 
 	if (m_VisualizeSPBB) m_VisualizeSPBB->SetPosition(XMFLOAT3(GetPosition().x, GetPosition().y, GetPosition().z));
@@ -1476,13 +1484,6 @@ void EnergyBall::Animate(float fTimeElapsed)
 	{
 		m_bActive = false;
 	}
-}
-
-void EnergyBall::Move(XMFLOAT3 dir, float fDistance)
-{
-	XMFLOAT3 xmf3Position = GetPosition();
-	xmf3Position = Vector3::Add(xmf3Position, dir, fDistance);
-	if (Vector3::Length(xmf3Position) < PLAYER_MAX_RANGE)	GameObject::SetPosition(xmf3Position);
 }
 
 void EnergyBall::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender)
