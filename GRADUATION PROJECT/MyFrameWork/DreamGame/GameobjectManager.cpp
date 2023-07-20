@@ -212,14 +212,30 @@ void GameobjectManager::TrailAnimate(float fTimeElapsed)
 {
 	for (int i = 0; i < m_pTrailArrowComponent.size(); i++) {
 		if (m_pTrailArrowComponent[i]) {
-			m_pTrailArrowComponent[i]->AddTrail(XMFLOAT3(m_pArrowObjects[i]->GetPosition().x,
-				m_pArrowObjects[i]->GetPosition().y,
-				m_pArrowObjects[i]->GetPosition().z),
-				XMFLOAT3(m_pArrowObjects[i]->GetPosition().x,
-					m_pArrowObjects[i]->GetPosition().y + 0.5,
-					m_pArrowObjects[i]->GetPosition().z));
+			if (!m_pArrowObjects[i]->m_bActive)
+			{
+				m_pTrailArrowComponent[i]->m_fRenderTime + fTimeElapsed;
+			}
+			if (m_pArrowObjects[i]->m_bActive)
+			{
+				m_pTrailArrowComponent[i]->m_fRenderTime = 0;
+			}
+			if (m_pTrailArrowComponent[i]->m_fRenderTime > 3) {
+
+			}
+			else {
+				{
+					m_pTrailArrowComponent[i]->AddTrail(XMFLOAT3(m_pArrowObjects[i]->GetPosition().x,
+						m_pArrowObjects[i]->GetPosition().y,
+						m_pArrowObjects[i]->GetPosition().z),
+						XMFLOAT3(m_pArrowObjects[i]->GetPosition().x,
+							m_pArrowObjects[i]->GetPosition().y + 0.5,
+							m_pArrowObjects[i]->GetPosition().z));
+				}
+			}
 		}
 	}
+
 	if (m_pTrailComponent)
 	{
 		m_pTrailComponent->AddTrail(XMFLOAT3(m_pWarriorObject->m_pLoadedModelComponent->m_pWeaponStart->GetPosition().x,
@@ -564,7 +580,7 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 
 	}
 	GameObject** tempObject = new GameObject * [objCount];	// 멤버 변수로 교체 예정
-	float scale = 1.0f;
+	float scale = 1 ;
 	if (type == 1)
 		scale = 1.0f;
 
@@ -573,15 +589,16 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 		tempObject[i] = new GameObject(UNDEF_ENTITY);
 		tempObject[i]->InsertComponent<RenderComponent>();
 		tempObject[i]->InsertComponent<CLoadedModelInfoCompnent>();
-		tempObject[i]->SetPosition(XMFLOAT3(modelPosition[i].x * scale, modelPosition[i].y * scale, modelPosition[i].z * scale));
+		tempObject[i]->SetPosition(XMFLOAT3(modelPosition[i].x , modelPosition[i].y, modelPosition[i].z ));
 		tempObject[i]->SetModel(modelName);
 		tempObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-		XMFLOAT3 Axis = XMFLOAT3(1, 0, 0);
-		tempObject[i]->Rotate(&Axis, modelEulerRotate[i].x);
+		//XMFLOAT3 Axis = XMFLOAT3(1, 0, 0);
+		/*tempObject[i]->Rotate(&Axis, modelEulerRotate[i].x);
 		Axis = tempObject[i]->GetUp();
 		tempObject[i]->Rotate(&Axis, modelEulerRotate[i].y);
-		Axis = tempObject[i]->GetUp();
-		tempObject[i]->Rotate(&Axis, modelEulerRotate[i].z);
+		Axis = tempObject[i]->GetRight();
+		tempObject[i]->Rotate(&Axis, modelEulerRotate[i].z);*/
+		tempObject[i]->Rotate(&quaternion[i]);
 		tempObject[i]->m_nStageType = stagetype;
 		tempObject[i]->SetScale(modelScale[i].x * scale, modelScale[i].y * scale, modelScale[i].z * scale);
 		if (type == 1)
@@ -815,7 +832,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pWarriorObject = new Warrior();
 	m_pWarriorObject->InsertComponent<RenderComponent>();
 	m_pWarriorObject->InsertComponent<CLoadedModelInfoCompnent>();
-	m_pWarriorObject->SetPosition(XMFLOAT3(-1400.f, 0.f, -1500.f));
+	m_pWarriorObject->SetPosition(XMFLOAT3(-1400.f, 0.f, -1460.f));
 	// m_pWarriorObject->SetPosition(XMFLOAT3(0.0f, 0.0f, 0.0f));
 	m_pWarriorObject->SetModel("Model/Warrior.bin");
 	m_pWarriorObject->SetAnimationSets(6);
@@ -830,7 +847,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pArcherObject = new Archer();
 	m_pArcherObject->InsertComponent<RenderComponent>();
 	m_pArcherObject->InsertComponent<CLoadedModelInfoCompnent>();
-	m_pArcherObject->SetPosition(XMFLOAT3(-1400.f, 0.f, -1520.f));
+	m_pArcherObject->SetPosition(XMFLOAT3(-1400.f, 0.f, -1480.f));
 	// m_pArcherObject->SetPosition(XMFLOAT3(0.0f, 0.0f, 0.0f));
 	m_pArcherObject->SetModel("Model/Archer.bin");
 	m_pArcherObject->SetAnimationSets(5);
@@ -858,7 +875,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pTankerObject = new Tanker();
 	m_pTankerObject->InsertComponent<RenderComponent>();
 	m_pTankerObject->InsertComponent<CLoadedModelInfoCompnent>();
-	m_pTankerObject->SetPosition(XMFLOAT3(-1290, 0.f, -1470.0f));
+	m_pTankerObject->SetPosition(XMFLOAT3(-1400.f, 0.f, -1500.0f));
 	// m_pTankerObject->SetPosition(XMFLOAT3(0.0f, 0.0f, 0.0f));
 	m_pTankerObject->SetModel("Model/Tanker.bin");
 	m_pTankerObject->SetAnimationSets(8);
@@ -875,7 +892,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPriestObject = new Priest();
 	m_pPriestObject->InsertComponent<RenderComponent>();
 	m_pPriestObject->InsertComponent<CLoadedModelInfoCompnent>();
-	m_pPriestObject->SetPosition(XMFLOAT3(-1400.f, 0.f, -1460.f));
+	m_pPriestObject->SetPosition(XMFLOAT3(-1400.f, 0.f, -1520.f));
 	// m_pPriestObject->SetPosition(XMFLOAT3(0.0f, 0.0f, 0.0f));
 	m_pPriestObject->SetModel("Model/Priests.bin");
 	m_pPriestObject->SetAnimationSets(5);
@@ -1128,14 +1145,16 @@ void GameobjectManager::BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	CLoadedModelInfoCompnent* Tree = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Tree.bin", NULL, true);
 	CLoadedModelInfoCompnent* Death = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Death.bin", NULL, true);
 	CLoadedModelInfoCompnent* Cube = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Cube.bin", NULL, true);
+	CLoadedModelInfoCompnent* BigRock = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/BigRock.bin", NULL, true);
 
-	//ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/BigMushroom.txt", BigMushroom, 0, STAGE1);
-	//ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Mushroom.txt", Mushroom, 0, STAGE1);
-	//ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/LongFence.txt", LongFence, 0, STAGE1);
-	//ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence1.txt", ShortFence01, 0, STAGE1);
-	//ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence2.txt", ShortFence02, 0, STAGE1);
-	//ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence3.txt", ShortFence03, 0, STAGE1);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/BigMushroom.txt", BigMushroom, 0, STAGE1);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Mushroom.txt", Mushroom, 0, STAGE1);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/LongFence.txt", LongFence, 0, STAGE1);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence1.txt", ShortFence01, 0, STAGE1);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence2.txt", ShortFence02, 0, STAGE1);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence3.txt", ShortFence03, 0, STAGE1);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Tree.txt", Tree, 0, STAGE1);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/BigRock.txt", BigRock, 0, STAGE1);
 	//ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/OOBB.txt", Cube, 0, STAGE1);
 	ReadNormalMonsterFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/NormalMonsterS1.txt", Death, 1, STAGE1);
 	m_pStage1Objects[0] = new GameObject(UNDEF_ENTITY);
@@ -1350,9 +1369,9 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pTalkUIObject->InsertComponent<UIMeshComponent>();
 	m_pTalkUIObject->InsertComponent<UiShaderComponent>();
 	m_pTalkUIObject->InsertComponent<TextureComponent>();
-	m_pTalkUIObject->SetTexture(L"UI/Panel10Blue.dds", RESOURCE_TEXTURE2D, 3);
-	m_pTalkUIObject->SetPosition(XMFLOAT3(0.0, -0.45, 1.01));
-	m_pTalkUIObject->SetScale(0.23, 0.035, 1);
+	m_pTalkUIObject->SetTexture(L"UI/TalkUI.dds", RESOURCE_TEXTURE2D, 3);
+	m_pTalkUIObject->SetPosition(XMFLOAT3(0.0, -0.47, 1.01));
+	m_pTalkUIObject->SetScale(0.34, 0.28, 1);
 	m_pTalkUIObject->SetColor(XMFLOAT4(0, 0, 0, 0.0));
 	m_pTalkUIObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
@@ -1362,7 +1381,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pPressGUIObject->InsertComponent<UiShaderComponent>();
 	m_pPressGUIObject->InsertComponent<TextureComponent>();
 	m_pPressGUIObject->SetTexture(L"UI/PressGPink.dds", RESOURCE_TEXTURE2D, 3);
-	m_pPressGUIObject->SetPosition(XMFLOAT3(0.56, -0.5, 1.005));
+	m_pPressGUIObject->SetPosition(XMFLOAT3(0.63, -0.52, 1.005));
 	m_pPressGUIObject->SetScale(0.02, 0.02, 1);
 	m_pPressGUIObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
@@ -1865,7 +1884,7 @@ void GameobjectManager::ProcessingUI(int n)
 	}
 	default:
 		break;
-}
+	}
 }
 void GameobjectManager::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
@@ -2019,7 +2038,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			break;
 		default:
 			break;
-	}
+		}
 		break;
 	case WM_KEYUP:
 	{
@@ -2150,17 +2169,17 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			else if (m_nStageType == 2) {
 				m_nStageType = 1;
 				m_pPlayerObject->SetPosition(XMFLOAT3(-1400, 0, -1500));
-		}
+			}
 #endif
 			break;
-	}
-}
 		}
+		}
+	}
 	default:
 		break;
-		}
-	return(false);
 	}
+	return(false);
+}
 
 bool GameobjectManager::onProcessingKeyboardMessageLobby(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
@@ -2180,7 +2199,7 @@ bool GameobjectManager::onProcessingKeyboardMessageLobby(HWND hWnd, UINT nMessag
 		g_NetworkHelper.SendMatchRequestPacket();
 #endif
 		m_bSceneSwap = true;//페이드 인 아웃
-}
+	}
 	if (nMessageID == WM_KEYDOWN && wParam == 'G')
 	{
 		m_bNPCinteraction = true;
@@ -2386,14 +2405,15 @@ void GameobjectManager::AddTextToUILayer(int& iIndex)
 	{
 		queueStr.emplace(L"안녕하세요! 드림월드에 오신 것을 환영해요");
 		queueStr.emplace(L"먼저 플레이 방법에 대해서 알려드릴게요!");
-		queueStr.emplace(L"앞에 보이는 캐릭터들 중 원하는 캐릭터를 선택하신 후에");
-		queueStr.emplace(L"게임 시작을 누르시면 선택한 캐릭터를 플레이 하실 수 있어요!");
+		queueStr.emplace(L"앞에 보이는 캐릭터들 중 원하는 캐릭터를");
+		queueStr.emplace(L"선택하신 후에 게임 시작을 누르시면");
+		queueStr.emplace(L"선택한 캐릭터를 플레이 하실 수 있어요!");
 	}
 	if (iIndex == NPC_TEXT)
 	{
-		queueStr.emplace(L"용사님들 드디어 오셧군요");
-		queueStr.emplace(L"저희 꿈마을을 지켜주세요!");
-		queueStr.emplace(L"앞에 있는 악몽들을 처치해주세요!");
+		queueStr.emplace(L"용사님들 꿈마을이 악몽에게 공격을 받았어요");
+		queueStr.emplace(L"꿈마을을 악몽들을 처치하여 지켜주세요!");
+		//queueStr.emplace(L"앞에 있는 악몽들을 처치해주세요!");
 	}
 	if (iIndex == BOSS_TEXT)
 	{

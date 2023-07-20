@@ -163,7 +163,7 @@ void UILayer::Resize(ID3D12Resource** ppd3dRenderTargets, UINT nWidth, UINT nHei
 	m_pd2dDevice->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &m_pd2dDeviceContext);
 	m_pd2dDeviceContext->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_GRAYSCALE);
 	if (m_pd2dTextBrush) m_pd2dTextBrush->Release();
-	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Brown), &m_pd2dTextBrush);
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black), &m_pd2dTextBrush);
 
 	const float fFontSize = m_fHeight / 20.0f;
 	const float fSmallFontSize = m_fHeight / 30.0f;
@@ -364,9 +364,8 @@ CNPCTextBlock::CNPCTextBlock(IDWriteTextFormat* pdwFormat, D2D1_RECT_F& d2dLayou
 	m_pdwFormat = pdwFormat;
 	m_d2dLayoutRect = d2dLayoutRect;
 	m_qTotalText = queueStr;
-	//m_strTotalText = L"승붕게이야 카톡읽으면 답장해라...";
 
-	m_d2dLayoutRect.left = FRAME_BUFFER_WIDTH * 0.27f;
+	m_d2dLayoutRect.left = FRAME_BUFFER_WIDTH * 0.25f;
 	m_d2dLayoutRect.top = FRAME_BUFFER_HEIGHT * 0.85f;
 }
 

@@ -1,105 +1,235 @@
-forestpack_tree_fir_tall (1)
-<position>: -120.6681 5.540006 -478.5001 
+Tree (21)
+<position>: -679 1.100006 -914.1 
+<quaternion>: 0 -0.9987438 0 -0.05010934 
+<rotation>: 0 174.2555 0 
+<scale>: 30 30 30 
+Tree (22)
+<position>: -411.5859 1.100006 -1100.3 
+<quaternion>: 0 -0.6474848 0 0.7620783 
+<rotation>: 0 279.2955 0 
+<scale>: 30 30 30 
+Tree (14)
+<position>: -576.7518 1.100006 -774.9276 
+<quaternion>: 0 -0.935837 0 -0.3524332 
+<rotation>: 0 138.7276 0 
+<scale>: 30.00001 30 30.00001 
+Tree (0)
+<position>: -154.8681 1.100006 -813 
 <quaternion>: 0 0 0 1 
 <rotation>: 0 0 0 
-<scale>: 1 1 1 
-forestpack_tree_fir_tall (2)
-<position>: -97.77808 13.76001 -431.73 
-<quaternion>: 0.05488379 0.008451361 0.1519578 0.9868258 
-<rotation>: 6.070551 1.922532 17.60999 
-<scale>: 1 1 1 
-forestpack_tree_fir_tall (3)
-<position>: -198.0681 20.6 -415.5 
-<quaternion>: 0 0 -0.1633034 0.986576 
-<rotation>: 0 0 341.2026 
-<scale>: 1 1 1 
-forestpack_tree_fir_tall (4)
-<position>: -295.5281 59.50596 -460.0936 
-<quaternion>: -0.006250695 -0.33345 -0.01766918 0.9425815 
-<rotation>: 358.6496 321.0559 358.3297 
-<scale>: 1 1 1 
-forestpack_tree_fir_tall (5)
-<position>: -253.5681 52.40001 -406.86 
-<quaternion>: 0 0 -0.01874223 0.9998243 
-<rotation>: 0 0 357.8522 
-<scale>: 1 1 1 
-forestpack_tree_fir_tall (6)
-<position>: -244.0581 49.55001 -351.33 
-<quaternion>: 0 0 -0.01874223 0.9998243 
-<rotation>: 0 0 357.8522 
-<scale>: 1 1 1 
-forestpack_tree_fir_tall (7)
-<position>: -233.5281 36.77 -283.32 
-<quaternion>: 0 0 -0.01874223 0.9998243 
-<rotation>: 0 0 357.8522 
-<scale>: 1 1 1 
-forestpack_tree_fir_tall (8)
-<position>: -184.5681 23.30001 -281.7001 
-<quaternion>: 0.03363639 0.5615492 -0.07991876 0.8228877 
-<rotation>: 8.343914 68.22336 354.5628 
-<scale>: 1 1 1 
-forestpack_tree_fir_tall (9)
-<position>: -192.7199 26.87947 -351.5236 
-<quaternion>: 0.002419086 0.1290487 -0.01858545 0.9914612 
-<rotation>: 0.5496881 14.82191 357.9237 
-<scale>: 1 1 1 
-forestpack_tree_fir_tall (10)
-<position>: -20.16808 17.21001 -337.2 
-<quaternion>: 0.05438338 0.01122964 0.1016109 0.9932732 
-<rotation>: 6.070552 1.922532 11.78393 
-<scale>: 1 1 1 
-forestpack_tree_fir_tall (11)
-<position>: -191.1981 23.87001 -241.44 
-<quaternion>: 0.03363639 0.5615492 -0.07991876 0.8228877 
-<rotation>: 8.343914 68.22336 354.5628 
-<scale>: 1 1 1 
-forestpack_tree_fir_tall (12)
-<position>: -633.6681 0.8000061 -704.7 
-<quaternion>: 0 0 0.03424057 0.9994136 
-<rotation>: 0 0 3.924448 
-<scale>: 1 1 1 
-forestpack_tree_fir_tall (13)
-<position>: -670.868 -1.899994 -738.3 
-<quaternion>: 0.007179312 -0.2095497 0.03347946 0.9771983 
-<rotation>: 1.608071 335.8439 3.580329 
-<scale>: 1 1 1 
-forestpack_tree_fir_tall (14)
-<position>: -458.7681 -0.09999387 -942.9 
-<quaternion>: 0 0 0.03424057 0.9994136 
-<rotation>: 0 0 3.924448 
-<scale>: 1 1 1 
-forestpack_tree_fir_tall (15)
-<position>: -458.7681 -0.09999387 -1014.6 
-<quaternion>: 0.01427537 -0.4166695 0.03112283 0.9084129 
-<rotation>: 2.973366 310.7867 2.562475 
-<scale>: 1 1 1 
-forestpack_tree_fir_tall (16)
-<position>: -333.3681 0.8000061 -675.3 
-<quaternion>: 0 0 0.03424057 0.9994136 
-<rotation>: 0 0 3.924448 
-<scale>: 1 1 1 
-forestpack_tree_fir_tall (17)
-<position>: -248.1681 2.900006 -775.2001 
-<quaternion>: 0 0 0.03424057 0.9994136 
-<rotation>: 0 0 3.924448 
-<scale>: 1 1 1 
-forestpack_tree_fir_tall (18)
-<position>: -207.6381 3.620006 -740.8801 
-<quaternion>: 0 0 0.03424057 0.9994136 
-<rotation>: 0 0 3.924448 
-<scale>: 1 1 1 
-forestpack_tree_fir_tall (19)
-<position>: -196.9581 3.260006 -681.6 
-<quaternion>: 0 0 0.03424057 0.9994136 
-<rotation>: 0 0 3.924448 
-<scale>: 1 1 1 
-forestpack_tree_fir_tall (20)
-<position>: -290.1681 11.60001 -837.6 
-<quaternion>: 0 0 0.03424057 0.9994136 
-<rotation>: 0 0 3.924448 
-<scale>: 1 1 1 
-forestpack_tree_fir_tall (21)
-<position>: -453.0681 13.10001 -721.2 
-<quaternion>: 0 0 0.03424057 0.9994136 
-<rotation>: 0 0 3.924448 
-<scale>: 1 1 1 
+<scale>: 30 30 30 
+Tree (29)
+<position>: -6.590301 49.7 -457.2 
+<quaternion>: 0.03403632 0.2088833 0.1571802 0.9646263 
+<rotation>: 0 24.43674 18.50936 
+<scale>: 30 30 30 
+Tree (45)
+<position>: -240.3353 38.5 -454.2518 
+<quaternion>: -0.1700617 -0.983834 0.04509432 -0.03341156 
+<rotation>: 5.744624 177.0962 19.4683 
+<scale>: 30 30 30.00001 
+Tree (38)
+<position>: -369.5 74.4 -457.1 
+<quaternion>: 0 -0.8937483 0 0.4485689 
+<rotation>: 0 233.3038 0 
+<scale>: 30.00002 30 30.00002 
+Tree (1)
+<position>: -156.0524 1.100006 -867.5 
+<quaternion>: 0 -0.2632152 0 0.9647371 
+<rotation>: 0 329.4781 0 
+<scale>: 30 30 30 
+Tree (31)
+<position>: -1053.3 1.100006 -1414.5 
+<quaternion>: 0 -0.8895508 0 -0.4568364 
+<rotation>: 0 125.6337 0 
+<scale>: 30 30 30 
+Tree (12)
+<position>: -631.0377 1.100006 -724.5108 
+<quaternion>: 0 -0.9987438 0 -0.05010934 
+<rotation>: 0 174.2555 0 
+<scale>: 30 30 30 
+Tree (8)
+<position>: -355.4 1.100006 -967.4189 
+<quaternion>: 0 -0.6474848 0 0.7620783 
+<rotation>: 0 279.2955 0 
+<scale>: 30 30 30 
+Tree (39)
+<position>: -446.3 76.9 -483.1 
+<quaternion>: 0 -0.8937483 0 0.4485689 
+<rotation>: 0 233.3038 0 
+<scale>: 30.00002 30 30.00002 
+Tree (25)
+<position>: -467.9 1.100006 -1176.268 
+<quaternion>: 0 -0.8835263 0 0.4683817 
+<rotation>: 0 235.8586 0 
+<scale>: 30 30 30 
+Tree (35)
+<position>: -399.2 74.7 -358.6 
+<quaternion>: 0 -0.5580355 0 0.8298171 
+<rotation>: 0 292.1599 0 
+<scale>: 30 30 30 
+Tree (18)
+<position>: -895.2991 1.100006 -1106.892 
+<quaternion>: 0 -0.4847358 0 -0.8746607 
+<rotation>: 0 57.99033 0 
+<scale>: 30 30 30 
+Tree (3)
+<position>: -196.9 1.100006 -916.4 
+<quaternion>: 0 -0.2632152 0 0.9647371 
+<rotation>: 0 329.4781 0 
+<scale>: 30 30 30 
+Tree (28)
+<position>: -6.590301 35.4 -388.2978 
+<quaternion>: 0.03403632 0.2088833 0.1571802 0.9646263 
+<rotation>: 0 24.43674 18.50936 
+<scale>: 30 30 30 
+Tree (9)
+<position>: -272.9 1.100006 -850.5 
+<quaternion>: 0 -0.2632152 0 0.9647371 
+<rotation>: 0 329.4781 0 
+<scale>: 30 30 30 
+Tree (15)
+<position>: -731.5 1.100006 -914.1 
+<quaternion>: 0 -0.9987438 0 -0.05010934 
+<rotation>: 0 174.2555 0 
+<scale>: 30 30 30 
+Tree (41)
+<position>: -358.9 70.7 -324.1 
+<quaternion>: 0 -0.8937483 0 0.4485689 
+<rotation>: 0 233.3038 0 
+<scale>: 30.00002 30 30.00002 
+Tree (34)
+<position>: -190.4 25.5941 -306.5 
+<quaternion>: 0.1235183 0.5241153 -0.0501593 0.8411483 
+<rotation>: 15.09219 64.20832 2.676901 
+<scale>: 30 30 30 
+Tree (5)
+<position>: -338.3 1.100006 -916.4 
+<quaternion>: 0 -0.2632152 0 0.9647371 
+<rotation>: 0 329.4781 0 
+<scale>: 30 30 30 
+Tree (32)
+<position>: -1015.5 1.100006 -1382.5 
+<quaternion>: 0 -0.8895508 0 -0.4568364 
+<rotation>: 0 125.6337 0 
+<scale>: 30 30 30 
+Tree (37)
+<position>: -454.5 78.4 -415.8 
+<quaternion>: 0 -0.5580355 0 0.8298171 
+<rotation>: 0 292.1599 0 
+<scale>: 30 30 30 
+Tree (33)
+<position>: -205.799 32.7 -350.8292 
+<quaternion>: 0.1090419 0.5273172 -0.02698245 0.8422105 
+<rotation>: 12.24716 64.54031 4.08115 
+<scale>: 30 30 30 
+Tree (42)
+<position>: -297.8 62.5 -412.7 
+<quaternion>: 0 -0.8937483 0 0.4485689 
+<rotation>: 0 233.3038 0 
+<scale>: 30.00002 30 30.00002 
+Tree (4)
+<position>: -272.9 1.100006 -916.4 
+<quaternion>: 0 -0.2632152 0 0.9647371 
+<rotation>: 0 329.4781 0 
+<scale>: 30 30 30 
+Tree (30)
+<position>: -33.6 14.3 -330.5 
+<quaternion>: 0.01970197 0.1209129 0.1596111 0.979549 
+<rotation>: 6.403303E-07 14.07368 18.50928 
+<scale>: 30 30 30 
+Tree (46)
+<position>: -303.4 50.4 -324.1 
+<quaternion>: 0 -0.8937483 0 0.4485689 
+<rotation>: 0 233.3038 0 
+<scale>: 30.00002 30 30.00002 
+Tree (27)
+<position>: -67.39999 14.7 -385.4 
+<quaternion>: 0.01970197 0.1209129 0.1596111 0.979549 
+<rotation>: 6.403303E-07 14.07368 18.50928 
+<scale>: 30 30 30 
+Tree (23)
+<position>: -83.56064 25.1 -506.3 
+<quaternion>: 0 0 0.1608225 0.9869834 
+<rotation>: 0 0 18.50928 
+<scale>: 30 30 30 
+Tree (20)
+<position>: -1116.3 1.100006 -1326.4 
+<quaternion>: 0 -0.8895508 0 -0.4568364 
+<rotation>: 0 125.6337 0 
+<scale>: 30 30 30 
+Tree (43)
+<position>: -240.8047 46.9 -413.2929 
+<quaternion>: 0 -0.9533987 0 0.3017134 
+<rotation>: 0 215.1211 0 
+<scale>: 30 30 30 
+Tree (2)
+<position>: -195.4048 1.100006 -867.5265 
+<quaternion>: 0 0.07200228 0 0.9974045 
+<rotation>: 0 8.258 0 
+<scale>: 30 30 30 
+Tree (17)
+<position>: -883.3 1.100006 -1176.8 
+<quaternion>: 0 -0.8895508 0 -0.4568364 
+<rotation>: 0 125.6337 0 
+<scale>: 30 30 30 
+Tree (7)
+<position>: -411.5859 1.100006 -967.4189 
+<quaternion>: 0 -0.6474848 0 0.7620783 
+<rotation>: 0 279.2955 0 
+<scale>: 30 30 30 
+Tree (44)
+<position>: -240.8047 48.9 -365.7 
+<quaternion>: 0 -0.9533987 0 0.3017134 
+<rotation>: 0 215.1211 0 
+<scale>: 30 30 30 
+Tree (24)
+<position>: -411.5759 1.100006 -1176.268 
+<quaternion>: 0 -0.8835263 0 0.4683817 
+<rotation>: 0 235.8586 0 
+<scale>: 30 30 30 
+Tree (11)
+<position>: -560.3448 1.100006 -723.8467 
+<quaternion>: 0 -0.9575086 0 0.2884048 
+<rotation>: 0 213.5249 0 
+<scale>: 30 30 30 
+Tree (26)
+<position>: -83.56064 19.7 -443.3 
+<quaternion>: 0 0 0.1608225 0.9869834 
+<rotation>: 0 0 18.50928 
+<scale>: 30 30 30 
+Tree (13)
+<position>: -631.0377 1.100006 -801.2 
+<quaternion>: 0 -0.9987438 0 -0.05010934 
+<rotation>: 0 174.2555 0 
+<scale>: 30 30 30 
+Tree (19)
+<position>: -1159 1.100006 -1357.8 
+<quaternion>: 0 -0.8895508 0 -0.4568364 
+<rotation>: 0 125.6337 0 
+<scale>: 30 30 30 
+Tree (36)
+<position>: -454.5 74.7 -306.7 
+<quaternion>: 0 -0.5580355 0 0.8298171 
+<rotation>: 0 292.1599 0 
+<scale>: 30 30 30 
+Tree (10)
+<position>: -452.9 1.100006 -721 
+<quaternion>: 0 -0.5580355 0 0.8298171 
+<rotation>: 0 292.1599 0 
+<scale>: 30 30 30 
+Tree (40)
+<position>: -345.6 74.8 -412.7 
+<quaternion>: 0 -0.8937483 0 0.4485689 
+<rotation>: 0 233.3038 0 
+<scale>: 30.00002 30 30.00002 
+Tree (16)
+<position>: -700.7 1.100006 -1109.327 
+<quaternion>: 0 -0.8895508 0 -0.4568364 
+<rotation>: 0 125.6337 0 
+<scale>: 30 30 30 
+Tree (6)
+<position>: -411.3502 1.100006 -917.272 
+<quaternion>: 0 -0.5580355 0 0.8298171 
+<rotation>: 0 292.1599 0 
+<scale>: 30 30 30 

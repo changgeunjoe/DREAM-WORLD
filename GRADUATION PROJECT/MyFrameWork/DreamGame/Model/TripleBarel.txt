@@ -1,0 +1,20 @@
+P_TripleBarel (1)
+<position>: -404.8492 4.500015 -890.1 
+<quaternion>: 0 -0.2295427 0 0.9732986 
+<rotation>: 0 333.4597 0 
+<scale>: 5 5 5 
+P_TripleBarel (0)
+<position>: -404.8492 4.500015 -706.6 
+<quaternion>: 0 -0.2295427 0 0.9732986 
+<rotation>: 0 333.4597 0 
+<scale>: 5 5 5 
+P_TripleBarel (3)
+<position>: -744.8 4.500015 -1064.7 
+<quaternion>: 0 -0.2295427 0 0.9732986 
+<rotation>: 0 333.4597 0 
+<scale>: 5 5 5 
+P_TripleBarel (2)
+<position>: -467.8 4.500015 -1002.9 
+<quaternion>: 0 -0.2295427 0 0.9732986 
+<rotation>: 0 333.4597 0 
+<scale>: 5 5 5 
