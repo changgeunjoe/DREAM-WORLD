@@ -116,10 +116,17 @@ void Timer::TimerThreadFunc()
 				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, ev.targetId, &ov->m_overlap);
 			}
 			break;
-			case EV_MAGE_HEAL:
+			case EV_MAGE_FSKILL_ACTIVE:
 			{
 				ExpOver* ov = new ExpOver();
 				ov->m_opCode = OP_PLAYER_HEAL;
+				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, ev.targetId, &ov->m_overlap);
+			}
+			break;
+			case EV_TANKER_FSKILL_START:
+			{
+				ExpOver* ov = new ExpOver();
+				ov->m_opCode = OP_SET_BARRIER;
 				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, ev.targetId, &ov->m_overlap);
 			}
 			break;

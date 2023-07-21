@@ -14,7 +14,10 @@ protected:
 	std::array<std::chrono::seconds, 2> m_skillDuration;
 	std::array<std::chrono::seconds, 2> m_skillCoolTime;
 	std::array<std::chrono::high_resolution_clock::time_point, 2> m_skillInputTime;
-
+protected:
+	float	m_defensivePower;
+	float	m_Shield;
+	bool	m_ShieldActivation = false;
 private:
 	ROLE m_InGameRole = ROLE::NONE_SELECT;
 public:
@@ -31,6 +34,7 @@ protected:
 		m_SPBB.Center = pos;
 		m_SPBB.Center.y = m_fBoundingSize;
 	}
+
 public:
 	bool AdjustPlayerInfo(DirectX::XMFLOAT3& position); // , DirectX::XMFLOAT3& rotate
 public:
@@ -38,6 +42,8 @@ public:
 	virtual void StartMove(DIRECTION d);
 	virtual void StopMove();
 	virtual void ChangeDirection(DIRECTION d);
+	virtual void SetShield(bool active);
+	virtual void AttackedHp(short damage) override;
 public:
 	bool Move(float elapsedTime) override;
 	void SetDirection(DIRECTION d);
@@ -60,6 +66,9 @@ public:
 	void SetRoomState(ROOM_STATE rState) { m_roomState = rState; }
 	std::chrono::seconds GetSkillDuration(int i) { return m_skillDuration[i]; }
 	std::chrono::high_resolution_clock::time_point GetSkillInputTime(int i) { return m_skillInputTime[i]; }
+	float GetDefencePower() { return m_defensivePower; }
+	float GetShield() { return m_Shield; }
+	bool GetShieldActivation() { return m_ShieldActivation; }
 public:
 	virtual void Skill_1() = 0;
 	virtual void Skill_2() = 0;

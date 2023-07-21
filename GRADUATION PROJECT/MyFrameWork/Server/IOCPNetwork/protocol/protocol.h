@@ -169,6 +169,9 @@ namespace SERVER_PACKET {
 	constexpr unsigned char STAGE_CHANGING_BOSS = 96;
 	constexpr unsigned char STAGE_START_BOSS = 97;
 	constexpr unsigned char SMALL_MONSTER_MOVE = 98;
+	constexpr unsigned char START_EFFECT = 99;
+	constexpr unsigned char END_EFFECT = 100;
+	constexpr unsigned char SET_SHIELD = 101;
 	
 
 
@@ -346,7 +349,25 @@ namespace SERVER_PACKET {
 		InGamePlayerState userState[4];		
 	};
 
+	struct StartEffectPacket {
+		short size;
+		char type;
+		char role;
+		char skillNum;
+	};
 
+	struct SetSheidPacket {
+		short size;
+		char type;
+		float shield[4];
+	};
+
+	struct EndEffectPacket {
+		short size;
+		char type;
+		char role;
+		char skillNum;
+	};
 }
 
 #pragma pack (pop)

@@ -173,6 +173,13 @@ void IOCPNetwork::WorkerThread()
 				delete ex_over;
 		}
 		break;
+		case OP_SET_BARRIER:
+		{
+			g_RoomManager.SetBarrier(key);
+			if (ex_over != nullptr)
+				delete ex_over;
+		}
+		break;
 		default: break;
 		}
 	}

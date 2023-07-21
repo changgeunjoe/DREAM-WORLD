@@ -100,6 +100,10 @@ public:
 	void UpdateGameStateForPlayer_BOSS();
 	void BossAttackExecute();
 	void HealPlayerCharacter();
+	void StartHealPlayerCharacter();
+	void UpdateShieldData();
+	void PutBarrierOnPlayer();
+	void RemoveBarrier();
 
 public:
 	//stage1

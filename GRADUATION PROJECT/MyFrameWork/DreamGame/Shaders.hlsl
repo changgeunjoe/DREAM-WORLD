@@ -520,7 +520,7 @@ float4 PSBoundingBox(VS_BOUNDING_BOX_OUTPUT input) : SV_TARGET
 
 float4 PSSphere(VS_BOUNDING_BOX_OUTPUT input) : SV_TARGET
 {
-    return(float4(0.97f, 0.99f, 0.73f, 1.0f));
+    return(float4(0.97f, 0.99f, 0.73f, 0.5f));
 }
 
 float4 PSNaviMesh(VS_BOUNDING_BOX_OUTPUT input) : SV_TARGET

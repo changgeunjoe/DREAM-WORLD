@@ -80,11 +80,26 @@ void GameobjectManager::Animate(float fTimeElapsed)
 		m_ppParticleObjects[i]->AnimateRowColumn(fTimeElapsed);
 	}
 
-	//Effect
-	if (m_pSelectedObject) {
-		//m_pEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 10);
-		m_pLightEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 10);
+	for (auto& effect : m_ppShieldEffectObject)
+	{
+		if (effect == nullptr) continue;
+		if (effect->m_bActive == false) continue;
+		Character* possessChracter = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(effect->m_hostObject);
+		effect->AnimateEffect(m_pCamera, possessChracter->GetPosition(), fTimeElapsed, m_fTime * 10);
 	}
+	for (auto& effect : m_ppHealingEffectObject)
+	{
+		if (effect == nullptr) continue;
+		if (effect->m_bActive == false) continue;
+		Character* possessChracter = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(effect->m_hostObject);
+		effect->AnimateEffect(m_pCamera, possessChracter->GetPosition(), fTimeElapsed, m_fTime * 10);
+	}
+
+	//Effect
+	// if (m_pSelectedObject) {
+		// 힐 이펙트
+		// m_pLightEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 10);
+	// }
 	//m_pDebuffObject->AnimateEffect(m_pCamera, g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition(), fTimeElapsed, m_fTime * 10);
 
 	//sword effect
@@ -239,20 +254,6 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 			p->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		}
 	}
-	//오브젝트들 렌더 정리 필요
-	for (int i = 0; i < m_pArrowObjects.size(); i++) {
-		if (m_pArrowObjects[i])
-		{
-			if (m_pArrowObjects[i]->m_bActive)
-			{
-				m_pArrowObjects[i]->Animate(m_fTimeElapsed);
-				m_pArrowObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-			}
-		}
-	}
-	for (int i = 0; i < m_pEnergyBallObjects.size(); i++) {
-		m_pEnergyBallObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	}
 
 	//m_pUIGameSearchObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
@@ -277,6 +278,23 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 			m_pHealRange->SetPosition(pos);
 			m_pHealRange->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		}
+	}
+		//오브젝트들 렌더 정리 필요
+	for (int i = 0; i < m_pArrowObjects.size(); ++i) {
+		if (m_pArrowObjects[i])
+		{
+			if (m_pArrowObjects[i]->m_bActive)
+			{
+				m_pArrowObjects[i]->Animate(m_fTimeElapsed);
+				m_pArrowObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+			}
+		}
+	}
+	for (int i = 0; i < m_pEnergyBallObjects.size(); ++i) {
+		m_pEnergyBallObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
+	for (int i = 0; i < m_pTankerSkillEffects.size(); ++i)	{
+		m_pTankerSkillEffects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 
 	if (m_pBossSkillRange)
@@ -693,8 +711,17 @@ Character* GameobjectManager::GetChracterInfo(ROLE r)
 
 void GameobjectManager::EffectRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float ftimeElapsed)
 {
-	if (m_pEffectObject) {
-		m_pEffectObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	for (auto& effect : m_ppShieldEffectObject)
+	{
+		if (effect == nullptr) continue;
+		if (effect->m_bActive == false) continue;
+		effect->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
+	for (auto& effect : m_ppHealingEffectObject)
+	{
+		if (effect == nullptr) continue;
+		if (effect->m_bActive == false) continue;
+		effect->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 	if (m_pDebuffObject) {
 		m_pDebuffObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -818,6 +845,19 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pTankerObject->SetBoundingBox(m_pBoundingBox[2]);
 	m_ppGameObjects.emplace_back(m_pTankerObject);
 
+	for (int i = 0; i < 4; ++i)
+	{
+		m_pTankerSkillEffects[i] = new EnergyBall();
+		m_pTankerSkillEffects[i]->InsertComponent<RenderComponent>();
+		m_pTankerSkillEffects[i]->InsertComponent<SphereMeshComponent>();
+		m_pTankerSkillEffects[i]->InsertComponent<SphereShaderComponent>();
+		m_pTankerSkillEffects[i]->SetPosition(XMFLOAT3(0.0f, 0.0f, 0.0f));
+		m_pTankerSkillEffects[i]->SetBoundingSize(8);
+		m_pTankerSkillEffects[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		m_pTankerSkillEffects[i]->SetScale(1.0f);
+		static_cast<Tanker*>(m_pTankerObject)->SetSkillBall(m_pTankerSkillEffects[i]);
+	}
+
 	m_pPriestObject = new Priest();
 	m_pPriestObject->InsertComponent<RenderComponent>();
 	m_pPriestObject->InsertComponent<CLoadedModelInfoCompnent>();
@@ -837,7 +877,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pHealRange->InsertComponent<RenderComponent>();
 	m_pHealRange->InsertComponent<SquareMeshComponent>();
 	m_pHealRange->InsertComponent<SquareShaderComponent>();
-	m_pHealRange->SetSkillSize(150.0f);
+	m_pHealRange->SetSkillSize(75.0f);
 	m_pHealRange->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pHealRange->SetPosition(XMFLOAT3(0, 0.0f, 0));
 	m_pHealRange->SetScale(1.0f);
@@ -909,7 +949,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pSkyboxObject->InsertComponent<SkyBoxMeshComponent>();
 	m_pSkyboxObject->InsertComponent<SkyBoxShaderComponent>();
 	m_pSkyboxObject->InsertComponent<TextureComponent>();
-	m_pSkyboxObject->SetTexture(L"DreamWorld/SkyBox.dds", RESOURCE_TEXTURE_CUBE, 12);
+	m_pSkyboxObject->SetTexture(L"DreamWorld/Stage1SkyBox.dds", RESOURCE_TEXTURE_CUBE, 12);
 	m_pSkyboxObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pSkyboxObject->SetScale(1, 1, 1);
 	m_pSkyboxObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -927,7 +967,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	// 플레이어가 캐릭터 선택하는 부분에 유사하게 넣을 예정
 	// m_pWarriorObject m_pArcherObject m_pTankerObject m_pPriestObject
 	// Archer Priest Tanker Warrior
-	m_pPlayerObject = new Tanker();
+	m_pPlayerObject = new Priest();
 	m_pTankerObject->SetCamera(m_pCamera);
 	m_pPlayerObject = m_pTankerObject;
 	g_Logic.SetMyRole(ROLE::TANKER);
@@ -1535,8 +1575,19 @@ void GameobjectManager::BuildStoryUI(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 
 void GameobjectManager::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	m_pEffectObject = new EffectObject;
-	m_pEffectObject->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	for (int i = 0; i < 4; ++i)
+	{
+		m_ppShieldEffectObject[i] = new EffectObject;
+		m_ppShieldEffectObject[i]->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		m_ppShieldEffectObject[i]->m_hostObject = static_cast<ROLE>(0x01 << i);
+	}
+
+	for (int i = 0; i < 4; ++i)
+	{
+		m_ppHealingEffectObject[i] = new EffectObject;
+		m_ppHealingEffectObject[i]->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		m_ppHealingEffectObject[i]->m_hostObject = static_cast<ROLE>(0x01 << i);
+	}
 
 	m_pDebuffObject = new DebuffObject;
 	m_pDebuffObject->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -2146,7 +2197,7 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 	{
 		myPlayCharacter->m_RMouseInput = false;
 		myPlayCharacter->SetRButtonClicked(false);
-		//myPlayCharacter->RbuttonUp(g_Logic.m_inGamePlayerSession[0].m_ownerRotateAngle);
+		myPlayCharacter->RbuttonUp(myPlayCharacter->GetRotateAxis());
 		SomethingChanging = true;
 		break;
 	}

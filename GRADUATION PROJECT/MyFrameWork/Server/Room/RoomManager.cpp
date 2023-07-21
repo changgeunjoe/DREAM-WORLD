@@ -77,6 +77,7 @@ void RoomManager::UpdateGameStateForPlayer(int roomId)
 		if (!m_runningRoomIdSet.count(roomId)) return;
 	}
 	;
+	m_roomArr[roomId].UpdateShieldData();
 	if (m_roomArr[roomId].GetRoomState() == ROOM_STAGE1) {
 		m_roomArr[roomId].UpdateGameStateForPlayer_STAGE1();
 		return;
@@ -110,4 +111,13 @@ void RoomManager::HealPlayer(int roomId)
 		if (!m_runningRoomIdSet.count(roomId)) return;
 	}
 	m_roomArr[roomId].HealPlayerCharacter();
+}
+
+void RoomManager::SetBarrier(int roomId)
+{
+	{
+		std::lock_guard<std::mutex> lg{ m_runningRoomSetLock };
+		if (!m_runningRoomIdSet.count(roomId)) return;
+	}
+	m_roomArr[roomId].PutBarrierOnPlayer();
 }

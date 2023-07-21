@@ -3,6 +3,7 @@
 #include "Animation.h"
 #include "GameFramework.h"
 #include "GameobjectManager.h"
+#include "EffectObject.h"
 #include "Network/NetworkHelper.h"
 #include "Network/Logic/Logic.h"
 #include "Network/MapData/MapData.h"
@@ -16,6 +17,9 @@ extern CGameFramework gGameFramework;
 Character::Character() : GameObject(UNDEF_ENTITY)
 {
 	//m_xmf3RotateAxis = XMFLOAT3(0.0f, -90.0f, 0.0f);
+	m_skillDuration = { std::chrono::seconds(0), std::chrono::seconds(0) };
+	m_skillCoolTime = { std::chrono::seconds(0), std::chrono::seconds(0) };
+	m_skillInputTime = { std::chrono::high_resolution_clock::now(), std::chrono::high_resolution_clock::now() };
 }
 
 Character::~Character()
@@ -654,8 +658,8 @@ void Archer::ShootArrow()
 		m_pProjectiles[m_nProjectiles]->m_xmf3startPosition = XMFLOAT3(GetPosition().x, GetPosition().y + 4.0f, GetPosition().z);
 		m_pProjectiles[m_nProjectiles]->SetPosition(m_pProjectiles[m_nProjectiles]->m_xmf3startPosition);
 		m_pProjectiles[m_nProjectiles]->m_fSpeed = (chargingTime / fullTime > 0.5f) ? arrowSpeed * 400.0f : -1.0f;
-		static_cast<Arrow*>(m_pProjectiles[m_nProjectiles])->m_xmf3TargetPos = XMFLOAT3(0.0f, -1.0f, 0.0f);
-		static_cast<Arrow*>(m_pProjectiles[m_nProjectiles])->m_ArrowType = 0;
+		//static_cast<Arrow*>(m_pProjectiles[m_nProjectiles])->m_xmf3TargetPos = XMFLOAT3(0.0f, -1.0f, 0.0f);
+		//static_cast<Arrow*>(m_pProjectiles[m_nProjectiles])->m_ArrowType = 0;
 		// 최대 화살 속도 400
 
 		// 추후 화살 데미지 설정 추가
@@ -684,8 +688,8 @@ void Archer::ShootArrow()
 		m_pProjectiles[m_nProjectiles]->SetPosition(m_pProjectiles[m_nProjectiles]->m_xmf3startPosition);
 		m_pProjectiles[m_nProjectiles]->m_fSpeed = 150.0f;
 		m_pProjectiles[m_nProjectiles]->m_bActive = true;
-		static_cast<Arrow*>(m_pProjectiles[m_nProjectiles])->m_xmf3TargetPos = XMFLOAT3(0.0f, -1.0f, 0.0f);
-		static_cast<Arrow*>(m_pProjectiles[m_nProjectiles])->m_ArrowType = 0;
+		//static_cast<Arrow*>(m_pProjectiles[m_nProjectiles])->m_xmf3TargetPos = XMFLOAT3(0.0f, -1.0f, 0.0f);
+		//static_cast<Arrow*>(m_pProjectiles[m_nProjectiles])->m_ArrowType = 0;
 		g_NetworkHelper.SendArrowAttackPacket(m_pProjectiles[m_nProjectiles]->m_xmf3startPosition, 
 			m_pProjectiles[m_nProjectiles]->m_xmf3direction, m_pProjectiles[m_nProjectiles]->m_fSpeed);
 		m_nProjectiles++;
@@ -748,6 +752,10 @@ Tanker::Tanker() : Character()
 	m_fMaxHp = 600.0f;
 	m_fSpeed = 75.0f;
 	m_fDamage = 50.0f;
+
+	m_skillCoolTime = { std::chrono::seconds(15), std::chrono::seconds(0) };
+	m_skillDuration = { std::chrono::seconds(5), std::chrono::seconds(0) };
+	m_skillInputTime = { std::chrono::high_resolution_clock::now() - m_skillCoolTime[0], std::chrono::high_resolution_clock::now() - m_skillCoolTime[1] };
 }
 
 Tanker::~Tanker()
@@ -773,6 +781,19 @@ void Tanker::RbuttonClicked(float fTimeElapsed)
 void Tanker::RbuttonUp(const XMFLOAT3& CameraAxis)
 {
 	Character::RbuttonUp(CameraAxis);
+}
+
+void Tanker::FirstSkillDown()
+{
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[0]);
+	if (m_skillCoolTime[0] > duration) return;
+	m_bQSkillClicked = true;
+	m_skillInputTime[0] = std::chrono::high_resolution_clock::now();
+
+#ifdef LOCAL_TASK
+	StartEffect(0);
+#endif
 }
 
 void Tanker::Move(float fDistance)
@@ -931,13 +952,73 @@ void Tanker::Animate(float fTimeElapsed)
 	}
 	if (CheckAnimationEnd(CA_SECONDSKILL) == true)
 	{
+		for (int i = 0; i < 4; ++i)
+		{
+			m_pProjectiles[i]->m_bActive = true;
+			m_pProjectiles[i]->m_xmf3startPosition = GetPosition();
+			m_pProjectiles[i]->m_xmf3startPosition.y += 16.0f;
+		}
 		m_bQSkillClicked = false;
 		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_SECONDSKILL].m_bAnimationEnd = false;
+	}
+
+	for (int i = 0; i < m_pProjectiles.size(); ++i)
+	{
+		if (m_pProjectiles[i])
+		{
+			float fProgress = static_cast<EnergyBall*>(m_pProjectiles[i])->m_fProgress;
+			fProgress = std::clamp(fProgress / (1.0f - 0.3f), 0.3f, 1.0f);
+			m_pProjectiles[i]->SetinitScale(fProgress, fProgress, fProgress);
+			m_pProjectiles[i]->Animate(fTimeElapsed);
+		}
 	}
 
 	MoveObject();
 	Move(50 * fTimeElapsed);
 	GameObject::Animate(fTimeElapsed);
+}
+
+void Tanker::SetSkillBall(Projectile* pBall)
+{
+	if (m_nProjectiles < 4)
+	{
+		m_pProjectiles[m_nProjectiles] = pBall;
+		m_pProjectiles[m_nProjectiles]->SetPosition(Vector3::Add(GetPosition(), XMFLOAT3(0.0f, 16.0f, 0.0f)));
+		m_pProjectiles[m_nProjectiles]->SetLook(GetObjectLook());
+		m_pProjectiles[m_nProjectiles]->m_bActive = false;
+		static_cast<EnergyBall*>(m_pProjectiles[m_nProjectiles])->SetHostRole(ROLE::TANKER);
+		switch (m_nProjectiles)
+		{
+		case 0: static_cast<EnergyBall*>(m_pProjectiles[0])->SetTarget(ROLE::WARRIOR); break;
+		case 1: static_cast<EnergyBall*>(m_pProjectiles[1])->SetTarget(ROLE::ARCHER); break;
+		case 2: static_cast<EnergyBall*>(m_pProjectiles[2])->SetTarget(ROLE::PRIEST); break;
+		case 3: static_cast<EnergyBall*>(m_pProjectiles[3])->SetTarget(ROLE::TANKER); break;
+		default: break;
+		}
+		m_nProjectiles++;
+	}
+}
+
+void Tanker::StartEffect(int nSkillNum)
+{
+	// 모든 플레이어 버프 표시 활성화
+	// HP 바에 실드 부분 추가
+	EffectObject** shieldEffects = gGameFramework.GetScene()->GetObjectManager()->GetShieldEffectArr();
+	for (int i = 0; i < 4; ++i)
+	{
+		shieldEffects[i]->m_bActive = true;
+	}
+}
+
+void Tanker::EndEffect(int nSkillNum)
+{
+	// 이펙트 렌더 비활성화
+	// 실드(HP바) UI 비활성화
+	EffectObject** shieldEffects = gGameFramework.GetScene()->GetObjectManager()->GetShieldEffectArr();
+	for (int i = 0; i < 4; ++i)
+	{
+		shieldEffects[i]->m_bActive = false;
+	}
 }
 
 Priest::Priest() : Character()
@@ -946,6 +1027,10 @@ Priest::Priest() : Character()
 	m_fMaxHp = 480.0f;
 	m_fSpeed = 150.0f;
 	m_fDamage = 80.0f;
+
+	m_skillCoolTime = { std::chrono::seconds(15), std::chrono::seconds(7) };
+	m_skillDuration = { std::chrono::seconds(9), std::chrono::seconds(3) };
+	m_skillInputTime = { std::chrono::high_resolution_clock::now() - m_skillCoolTime[0], std::chrono::high_resolution_clock::now() - m_skillCoolTime[1] };
 }
 
 Priest::~Priest()
@@ -1102,13 +1187,17 @@ void Priest::Animate(float fTimeElapsed)
 
 	if (CheckAnimationEnd(CA_ATTACK) == true)
 	{
-		Attack();
+		if(m_pCamera) Attack();
 		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd = false;
 	}
 
+	if (m_pHealRange->m_bActive)
+	{
+		UpdateEffect();
+	}
+
 	for (int i = 0; i < m_pProjectiles.size(); ++i)
-		if (m_pProjectiles[i]->m_bActive)
-			m_pProjectiles[i]->Animate(fTimeElapsed);
+		if(m_pProjectiles[i]) m_pProjectiles[i]->Animate(fTimeElapsed);
 
 	MoveObject();
 	Move(50 * fTimeElapsed);
@@ -1122,20 +1211,23 @@ void Priest::RbuttonUp(const XMFLOAT3& CameraAxis)
 void Priest::Attack(float fSpeed)
 {
 	m_nProjectiles = (m_nProjectiles < 10) ? m_nProjectiles : m_nProjectiles % 10;
-
-	if (m_pCamera)
-		m_pProjectiles[m_nProjectiles]->m_xmf3direction = XMFLOAT3(GetObjectLook().x, m_pCamera->GetLookVector().y, GetObjectLook().z);
-	else
-	{
-		m_pProjectiles[m_nProjectiles]->m_xmf3direction = XMFLOAT3(GetObjectLook().x, -sin(m_projectilesLookY * 3.141592 / 180.0f), GetObjectLook().z);
-	}
-
+	m_pProjectiles[m_nProjectiles]->m_xmf3direction = XMFLOAT3(GetObjectLook().x, m_pCamera->GetLookVector().y, GetObjectLook().z);
 	m_pProjectiles[m_nProjectiles]->m_xmf3startPosition = XMFLOAT3(GetPosition().x, GetPosition().y + 4.0f, GetPosition().z);
-	m_pProjectiles[m_nProjectiles]->SetPosition(Vector3::Add(GetPosition(), XMFLOAT3(0.0f, 5.0f, 0.0f)));
+	m_pProjectiles[m_nProjectiles]->SetPosition(m_pProjectiles[m_nProjectiles]->m_xmf3startPosition);
 	m_pProjectiles[m_nProjectiles]->m_fSpeed = fSpeed;
 	m_pProjectiles[m_nProjectiles]->m_bActive = true;
-	if (m_pCamera)
-		g_NetworkHelper.SendBallAttackPacket(m_pProjectiles[m_nProjectiles]->m_xmf3startPosition, m_pProjectiles[m_nProjectiles]->m_xmf3direction, fSpeed);
+	g_NetworkHelper.SendBallAttackPacket(m_pProjectiles[m_nProjectiles]->m_xmf3startPosition, m_pProjectiles[m_nProjectiles]->m_xmf3direction, fSpeed);
+	m_nProjectiles++;
+}
+
+void Priest::Attack(const XMFLOAT3& xmf3StartPos, const XMFLOAT3& xmf3Direction, const float fSpeed)
+{
+	m_nProjectiles = (m_nProjectiles < 10) ? m_nProjectiles : m_nProjectiles % 10;
+	m_pProjectiles[m_nProjectiles]->m_xmf3direction = xmf3Direction;
+	m_pProjectiles[m_nProjectiles]->m_xmf3startPosition = xmf3StartPos;
+	m_pProjectiles[m_nProjectiles]->SetPosition(xmf3StartPos);
+	m_pProjectiles[m_nProjectiles]->m_fSpeed = fSpeed;
+	m_pProjectiles[m_nProjectiles]->m_bActive = true;
 	m_nProjectiles++;
 }
 
@@ -1148,6 +1240,7 @@ void Priest::SetEnergyBall(Projectile* pEnergyBall)
 		m_pProjectiles[m_nProjectiles]->SetPosition(Vector3::Add(GetPosition(), XMFLOAT3(0.0f, 7.5f, 100.0f)));
 		m_pProjectiles[m_nProjectiles]->SetLook(GetObjectLook());
 		m_pProjectiles[m_nProjectiles]->m_bActive = false;
+		static_cast<EnergyBall*>(m_pProjectiles[m_nProjectiles])->SetHostRole(ROLE::PRIEST);
 		m_nProjectiles++;
 	}
 }
@@ -1172,12 +1265,55 @@ void Priest::MoveObject()
 
 void Priest::FirstSkillDown()
 {
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[0]);
+	if (m_skillCoolTime[0] > duration) return;
 	m_bQSkillClicked = true;
-	m_pHealRange->m_bActive = true;
+	m_skillInputTime[0] = std::chrono::high_resolution_clock::now();
+#ifdef LOCAL_TASK
+	StartEffect(0);
+#endif
 }
 
 void Priest::FirstSkillUp()
 {
+}
+
+void Priest::StartEffect(int nSkillNum)
+{
+	m_pHealRange->m_bActive = true;
+	UpdateEffect();
+}
+
+void Priest::EndEffect(int nSkillNum)
+{
+	m_pHealRange->m_bActive = false;
+	EffectObject** HealingEffects = gGameFramework.GetScene()->GetObjectManager()->GetHealingEffectArr();
+	for (int i = 0; i < 4; ++i)
+	{
+		HealingEffects[i]->m_bActive = false;
+	}
+	m_bQSkillClicked = false;
+}
+
+void Priest::UpdateEffect()
+{
+	array<Character*, 4> pOtherCharacter;
+	pOtherCharacter[0] = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::WARRIOR);
+	pOtherCharacter[1] = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::PRIEST);
+	pOtherCharacter[2] = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::TANKER);
+	pOtherCharacter[3] = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::ARCHER);
+
+	XMFLOAT3 myPos = GetPosition();
+
+	int i = 0;
+	for (auto p : pOtherCharacter)
+	{
+		XMFLOAT3 targetPos = p->GetPosition();
+		float distance = Vector3::Length(Vector3::Subtract(targetPos, myPos));
+		EffectObject** HealingEffects = gGameFramework.GetScene()->GetObjectManager()->GetHealingEffectArr();
+		HealingEffects[i++]->m_bActive = static_cast<bool>(distance < 75.0f);
+	}
 }
 
 //void Priest::ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent)
@@ -1441,9 +1577,9 @@ void Projectile::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 Arrow::Arrow() : Projectile()
 {
 	m_fSpeed = 150.0f;
-	m_xmf3TargetPos = XMFLOAT3(0.0f, -1.0f, 0.0f);
-	m_ArrowType = 0;
-	m_ArrowPos = 0;
+	//m_xmf3TargetPos = XMFLOAT3(0.0f, -1.0f, 0.0f);
+	//m_ArrowType = 0;
+	//m_ArrowPos = 0;
 	// Y값이 마우스 회전 범위 안쪽이면 일반 화살 아니면 꺾이는 화살
 }
 
@@ -1508,6 +1644,7 @@ void Arrow::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComm
 EnergyBall::EnergyBall() : Projectile(SQUARE_ENTITY)
 {
 	m_fSpeed = 75.0f;
+	m_fProgress = 0.0f;
 }
 
 EnergyBall::~EnergyBall()
@@ -1516,27 +1653,63 @@ EnergyBall::~EnergyBall()
 
 void EnergyBall::Animate(float fTimeElapsed)
 {
-	XMFLOAT3 rev = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	m_Angle += 1280.0f * fTimeElapsed * (3.14 / 180.0f);
-	rev.x = m_xmf3direction.x * cos(m_Angle) - m_xmf3direction.z * sin(m_Angle);
-	rev.z = m_xmf3direction.x * sin(m_Angle) + m_xmf3direction.z * cos(m_Angle);
-	rev = Vector3::Normalize(rev);
-	SetLook(rev);
-	Move(m_xmf3direction, fTimeElapsed * m_fSpeed);
-	XMFLOAT3 xmf3CurrentPos = GetPosition();
-	if (m_VisualizeSPBB) m_VisualizeSPBB->SetPosition(XMFLOAT3(GetPosition().x, GetPosition().y, GetPosition().z));
-	if (Vector3::Length(xmf3CurrentPos) >= PLAYER_MAX_RANGE) m_bActive = false;
-	if (Vector3::Length(Vector3::Subtract(xmf3CurrentPos, m_xmf3startPosition)) > 200.0f)
+	if (m_bActive == false) return;
+	switch (m_HostRole)
 	{
-		m_bActive = false;
+	case ROLE::PRIEST:
+	{
+		XMFLOAT3 rev = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		m_Angle += 1280.0f * fTimeElapsed * (3.14 / 180.0f);
+		rev.x = m_xmf3direction.x * cos(m_Angle) - m_xmf3direction.z * sin(m_Angle);
+		rev.z = m_xmf3direction.x * sin(m_Angle) + m_xmf3direction.z * cos(m_Angle);
+		rev = Vector3::Normalize(rev);
+		SetLook(rev);
+		Move(m_xmf3direction, fTimeElapsed * m_fSpeed);
+		XMFLOAT3 xmf3CurrentPos = GetPosition();
+		if (Vector3::Length(xmf3CurrentPos) >= PLAYER_MAX_RANGE) m_bActive = false;
+		if (Vector3::Length(Vector3::Subtract(xmf3CurrentPos, m_xmf3startPosition)) > 200.0f)
+		{
+			m_bActive = false;
+		}
 	}
+	break;
+	case ROLE::TANKER:
+	{
+		if (m_fProgress > 1.0f)
+		{
+			m_bActive = false;
+			m_fProgress = 0.0f;
+			return;
+		}
+
+		Character* Target = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(m_Target);
+		XMFLOAT3 TargetPos = Target->GetPosition();
+		TargetPos.y += 8.0f;
+		m_xmf3direction = Vector3::Normalize(Vector3::Subtract(TargetPos, m_xmf3startPosition));
+		m_xmf3direction.y = 0.6f;
+
+		XMFLOAT3 controlPoint = Vector3::Add(m_xmf3startPosition, m_xmf3direction, 100.0f);
+		XMFLOAT3 firstVec = Vector3::Subtract(controlPoint, m_xmf3startPosition);
+		XMFLOAT3 secondVec = Vector3::Subtract(TargetPos, controlPoint);
+
+		XMFLOAT3 FirstLinePoint= Vector3::Add(Vector3::ScalarProduct(m_xmf3startPosition, (1 - m_fProgress), false), Vector3::ScalarProduct(controlPoint, m_fProgress, false));
+		XMFLOAT3 SecondLinePoint = Vector3::Add(Vector3::ScalarProduct(controlPoint, (1 - m_fProgress), false), Vector3::ScalarProduct(TargetPos, m_fProgress, false));
+		XMFLOAT3 curPos = Vector3::Add(Vector3::ScalarProduct(FirstLinePoint, (1 - m_fProgress), false), Vector3::ScalarProduct(SecondLinePoint, m_fProgress, false));
+
+		SetPosition(curPos);
+		// SetLook(Vector3::Subtract(SecondLinePoint, FirstLinePoint));
+		m_fProgress += fTimeElapsed * 0.8f;
+	}
+	break;
+	}
+	if (m_VisualizeSPBB) m_VisualizeSPBB->SetPosition(XMFLOAT3(GetPosition().x, GetPosition().y, GetPosition().z));
 }
 
 void EnergyBall::Move(XMFLOAT3 dir, float fDistance)
 {
 	XMFLOAT3 xmf3Position = GetPosition();
 	xmf3Position = Vector3::Add(xmf3Position, dir, fDistance);
-	if (Vector3::Length(xmf3Position) < PLAYER_MAX_RANGE)	GameObject::SetPosition(xmf3Position);
+	GameObject::SetPosition(xmf3Position);
 }
 
 void EnergyBall::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender)

@@ -9,6 +9,12 @@ protected:
 	bool m_bESkillClicked;
 	bool m_bOnAttack;
 	bool m_bOnSkill = false;
+	bool m_bShieldActive = false;
+	float m_fShield = false;
+protected:
+	std::array<std::chrono::seconds, 2> m_skillDuration;
+	std::array<std::chrono::seconds, 2> m_skillCoolTime;
+	std::array<std::chrono::high_resolution_clock::time_point, 2> m_skillInputTime;
 public:
 	Character();
 	virtual ~Character();
@@ -20,6 +26,8 @@ public:
 	virtual void SecondSkillDown() { m_bESkillClicked = true; };
 	virtual void SecondSkillUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f }) {};
 	virtual void MoveObject();
+	virtual void StartEffect(int nSkillNum) {};
+	virtual void EndEffect(int nSkillNum) {};
 	bool CheckAnimationEnd(int nAnimation);
 public:
 	virtual void InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos);
@@ -27,8 +35,13 @@ public:
 	bool GetQSkillState() { return m_bQSkillClicked; }
 	bool GetESkillState() { return m_bESkillClicked; }
 	bool GetOnAttack() { return m_bOnAttack; }
-	void SetRotateAxis(XMFLOAT3& xmf3RotateAxis) { m_xmf3RotateAxis = xmf3RotateAxis; }
+	bool GetShieldActive() { return m_bShieldActive; }
+	float GetShield() { return m_fShield; }
 	XMFLOAT3& GetRotateAxis() { return m_xmf3RotateAxis; }
+public:
+	void SetRotateAxis(XMFLOAT3& xmf3RotateAxis) { m_xmf3RotateAxis = xmf3RotateAxis; }
+	void SetShieldActive(bool bActive) { m_bShieldActive = bActive; }
+	void SetShield(float fShield) { m_fShield = fShield; }
 public:
 	virtual void Move(float fDsitance) = 0;
 protected:
@@ -92,8 +105,12 @@ public:
 	virtual void Attack(float fSpeed = 150.0f);
 	virtual void RbuttonClicked(float fTimeElapsed);
 	virtual void RbuttonUp(const XMFLOAT3& CameraAxis);
+	virtual void FirstSkillDown();
 	virtual void Move(float fDsitance)override;
 	virtual void Animate(float fTimeElapsed);
+	virtual void SetSkillBall(Projectile* pBall);
+	virtual void StartEffect(int nSkillNum);
+	virtual void EndEffect(int nSkillNum);
 };
 
 class Priest : public Character
@@ -107,6 +124,7 @@ public:
 	virtual void RbuttonClicked(float fTimeElapsed);
 	virtual void RbuttonUp(const XMFLOAT3& CameraAxis);
 	virtual void Attack(float fSpeed = 150.0f);
+	virtual void Attack(const XMFLOAT3& xmf3StartPos, const XMFLOAT3& xmf3Direction, const float fSpeed);
 	virtual void SetEnergyBall(Projectile* pEnergyBall);
 	virtual void Move(float fDsitance)override;
 	virtual void Animate(float fTimeElapsed);
@@ -117,6 +135,9 @@ public:
 	virtual void SecondSkillDown() {};
 	virtual void SecondSkillUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f }) {};
 	virtual void SetSkillRangeObject(GameObject* obj) { m_pHealRange = obj; }
+	virtual void StartEffect(int nSkillNum);
+	virtual void EndEffect(int nSkillNum);
+	void UpdateEffect();
 	// virtual void ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent);
 };
 
@@ -178,10 +199,7 @@ public:
 class Arrow : public Projectile
 {
 public:
-	int			m_ArrowType;
-	float		m_ArrowPos;
 	bool		m_RButtonClicked;
-	XMFLOAT3	m_xmf3TargetPos;
 public:
 	Arrow();
 	virtual ~Arrow();
@@ -194,17 +212,22 @@ public:
 class EnergyBall : public Projectile
 {
 public:
+	float		m_fProgress;
+	ROLE		m_Target;
+	ROLE		m_HostRole{ ROLE::NONE_SELECT };
+public:
 	EnergyBall();
 	virtual ~EnergyBall();
 	virtual void Animate(float fTimeElapsed);
 	void Move(XMFLOAT3 dir, float fDistance);
+	void SetHostRole(ROLE r) { m_HostRole = r; }
+	void SetTarget(ROLE r) { m_Target = r; }
 	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender = false);
 };
 
 class TrailObject : public GameObject
 {
 public:
-
 	float		m_Angle;
 public:
 	TrailObject(entity_id eid = UNDEF_ENTITY);

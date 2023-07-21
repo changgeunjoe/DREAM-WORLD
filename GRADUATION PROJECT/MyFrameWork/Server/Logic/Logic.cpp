@@ -235,6 +235,14 @@ void Logic::ProcessPacket(int userId, char* p)
 	{
 		CLIENT_PACKET::ShootingObject* recvPacket = reinterpret_cast<CLIENT_PACKET::ShootingObject*>(p);
 		g_RoomManager.GetRunningRoomRef(g_iocpNetwork.m_session[userId].GetRoomId()).ShootBall(recvPacket->dir, recvPacket->pos, recvPacket->speed);
+
+		SERVER_PACKET::ShootingObject sendPacket;
+		sendPacket.srcPos = recvPacket->pos;
+		sendPacket.dir = recvPacket->dir;
+		sendPacket.speed = recvPacket->speed;
+		sendPacket.type = SERVER_PACKET::SHOOTING_BALL;
+		sendPacket.size = sizeof(SERVER_PACKET::ShootingObject);
+		MultiCastOtherPlayerInRoom(userId, &sendPacket);
 	}
 	break;
 	case CLIENT_PACKET::MELEE_ATTACK:
