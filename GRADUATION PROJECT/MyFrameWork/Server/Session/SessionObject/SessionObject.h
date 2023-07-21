@@ -45,9 +45,18 @@ protected:
 		m_rightVector = Vector3::CrossProduct(DirectX::XMFLOAT3(0, 1, 0), m_directionVector);
 	}
 protected:
-	virtual void SetPosition(DirectX::XMFLOAT3 pos) { m_position = pos; }
-	virtual void SetPosition(DirectX::XMFLOAT3& pos) { m_position = pos; }
+	virtual void SetPosition(DirectX::XMFLOAT3& pos) 
+	{
+		m_position = pos; 
+		m_SPBB.Center = pos;
+		m_SPBB.Center.y = 0.0f;
+	}
 public:
-	void SetInitPosition(DirectX::XMFLOAT3& pos) { m_position = pos; }
+	void SetInitPosition(DirectX::XMFLOAT3& pos)
+	{ 
+		m_position = pos; 
+		m_SPBB.Center = pos;
+		m_SPBB.Center.y = 0.0f;
+	}
 	void SetRoomId(int roomId) { m_roomId = roomId; }
 };

@@ -252,6 +252,9 @@ void Room::BossStageStart()//클라에서 받아서 서버로 왔고 -> 클라에서 움직임 막아
 
 void Room::GameRunningLogic()
 {
+	for (auto& playCharacter : m_characterMap) {//플레이어 무브		
+		playCharacter.second->AutoMove();
+	}
 	if (m_roomState == ROOM_STATE::ROOM_STAGE1) {
 		for (int i = 0; i < 15; i++) {
 			m_StageSmallMonster[i].AutoMove();
@@ -268,9 +271,7 @@ void Room::GameRunningLogic()
 		if (m_boss.isMove)
 			m_boss.AutoMove();//보스 무브
 	}
-	for (auto& playCharacter : m_characterMap) {//플레이어 무브		
-		playCharacter.second->AutoMove();
-	}
+	
 	//여기에 화살이나 ball 오브젝트 이동 구현
 	for (auto& arrow : m_arrows)
 	{

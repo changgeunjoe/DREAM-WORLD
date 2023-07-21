@@ -37,8 +37,7 @@ public:
 	bool Move(float elapsedTime) override;
 	void SetDirection(DIRECTION d);
 	void SetMouseInput(bool LmouseInput, bool RmouseInput);
-	bool CheckMove_Boss(float fDistance);
-	bool CheckMove_Stage1(float fDistance);
+
 public:
 	virtual void Rotate(ROTATE_AXIS axis, float angle) override;
 public:
@@ -58,6 +57,11 @@ protected:
 public:
 	virtual void Skill_1() = 0;
 	virtual void Skill_2() = 0;
+protected:
+	virtual std::pair<bool, XMFLOAT3> CheckCollisionMap(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
+	virtual std::pair<bool, XMFLOAT3> CheckCollisionCharacter(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
+	virtual std::pair<bool, XMFLOAT3> CheckCollisionNormalMonster(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
+	virtual bool CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
 };
 
 

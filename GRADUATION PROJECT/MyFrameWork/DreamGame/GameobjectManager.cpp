@@ -745,6 +745,22 @@ Character* GameobjectManager::GetChracterInfo(ROLE r)
 	return nullptr;
 }
 
+void GameobjectManager::SetCharactersStage1Postion()
+{
+	m_pArcherObject->SetStage1Position();
+	m_pTankerObject->SetStage1Position();
+	m_pPriestObject->SetStage1Position();
+	m_pWarriorObject->SetStage1Position();
+}
+
+void GameobjectManager::SetCharactersBossStagePostion()
+{
+	m_pArcherObject->SetBossStagePostion();
+	m_pTankerObject->SetBossStagePostion();
+	m_pPriestObject->SetBossStagePostion();
+	m_pWarriorObject->SetBossStagePostion();
+}
+
 void GameobjectManager::EffectRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float ftimeElapsed)
 {
 	if (m_pEffectObject) {

@@ -479,4 +479,4 @@ public:
 
 
 void PrintCurrentTime();
-void DisplayWsaGetLastError(int Errcode);
+bool DisplayWsaGetLastError(int Errcode);

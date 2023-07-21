@@ -72,6 +72,9 @@ public:
 	virtual void RbuttonClicked(float fTimeElapsed);
 	virtual void Move(float fTimeElapsed)override;
 	virtual void Animate(float fTimeElapsed) override;
+public:
+	void SetStage1Position();
+	void SetBossStagePostion();
 };
 
 class Archer : public Character
@@ -95,6 +98,9 @@ public:
 	virtual void SecondSkillUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f });
 	virtual void ShootArrow();
 	// virtual void ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent);
+public:
+	void SetStage1Position();
+	void SetBossStagePostion();
 };
 
 class Tanker : public Character
@@ -107,6 +113,9 @@ public:
 	virtual void RbuttonUp(const XMFLOAT3& CameraAxis);
 	virtual void Move(float fTimeElapsed)override;
 	virtual void Animate(float fTimeElapsed);
+public:
+	void SetStage1Position();
+	void SetBossStagePostion();
 };
 
 class Priest : public Character
@@ -131,6 +140,9 @@ public:
 	virtual void SecondSkillUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f }) {};
 	virtual void SetSkillRangeObject(GameObject* obj) { m_pHealRange = obj; }
 	// virtual void ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent);
+public:
+	void SetStage1Position();
+	void SetBossStagePostion();
 };
 
 class Monster : public Character

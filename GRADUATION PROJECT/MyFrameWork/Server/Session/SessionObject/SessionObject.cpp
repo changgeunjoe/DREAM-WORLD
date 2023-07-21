@@ -23,6 +23,6 @@ void SessionObject::AutoMove()
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	double durationTime = std::chrono::duration_cast<std::chrono::microseconds>(currentTime - m_lastMoveTime).count();
 	durationTime = (double)durationTime / 1000.0f;
-	if (Move(((float)durationTime / 1000.0f)))
-		m_lastMoveTime = currentTime;
+	Move(((float)durationTime / 1000.0f));
+	m_lastMoveTime = currentTime;
 }

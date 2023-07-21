@@ -21,6 +21,10 @@ class Character;
 class Projectile;
 class Monster;
 class NormalMonster;
+class Warrior;
+class Archer ;
+class Tanker ;
+class Priest ;
 
 class GameobjectManager
 {
@@ -96,10 +100,10 @@ private: //active object
 	int				m_nObjects{};
 	GameObject* m_pGameObject{ NULL };
 
-	Character* m_pWarriorObject{ NULL };
-	Character* m_pArcherObject{ NULL };
-	Character* m_pTankerObject{ NULL };
-	Character* m_pPriestObject{ NULL };
+	Warrior* m_pWarriorObject{ NULL };
+	Archer* m_pArcherObject{ NULL };
+	Tanker* m_pTankerObject{ NULL };
+	Priest* m_pPriestObject{ NULL };
 
 	GameObject* m_pPlaneObject{ NULL };
 	GameObject* m_pRockObject{ NULL };
@@ -249,5 +253,7 @@ public:
 	Character* GetChracterInfo(ROLE r);
 	Monster* GetBossMonster() { return m_pMonsterObject; }
 	NormalMonster** GetNormalMonsterArr() { return m_ppNormalMonsterObject; };
+	void SetCharactersStage1Postion();
+	void SetCharactersBossStagePostion();
 };
 

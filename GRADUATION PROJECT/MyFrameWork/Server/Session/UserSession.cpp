@@ -2,9 +2,9 @@
 #include "UserSession.h"
 #include "SessionObject/ChracterSessionObject.h"
 #include "../Logic/Logic.h"
-
+#include "../IOCPNetwork/IOCP/IOCPNetwork.h"
 extern Logic g_logic;
-
+extern IOCPNetwork g_iocpNetwork;
 
 UserSession::UserSession()
 {
@@ -35,8 +35,10 @@ void UserSession::Recv()
 	m_exOver.m_wsaBuf.len = MAX_BUF_SIZE - m_prevBufferSize;
 	m_exOver.m_wsaBuf.buf = m_exOver.m_buffer + m_prevBufferSize;
 	int resRet = WSARecv(m_socket, &m_exOver.m_wsaBuf, 1, 0, &recv_flag, &m_exOver.m_overlap, 0);
-	if (resRet)
-		DisplayWsaGetLastError(WSAGetLastError());
+	if (resRet) {
+		if(DisplayWsaGetLastError(WSAGetLastError()))
+			g_iocpNetwork.DisconnectClient(m_id);
+	}
 }
 
 void UserSession::Send(void* p)
@@ -45,8 +47,10 @@ void UserSession::Send(void* p)
 	ExpOver* sendOverlap = new ExpOver(reinterpret_cast<char*>(p));
 	//std::cout << "send: " << (int)sendOverlap->m_buffer[2] << std::endl;
 	int resRet = WSASend(m_socket, &(sendOverlap->m_wsaBuf), 1, &sendByte, 0, &(sendOverlap->m_overlap), 0);
-	if (resRet)
-		DisplayWsaGetLastError(WSAGetLastError());
+	if (resRet) {
+		if (DisplayWsaGetLastError(WSAGetLastError()))
+			g_iocpNetwork.DisconnectClient(m_id);
+	}
 	//std::cout << "sendByte: " << sendByte << std::endl;
 }
 
