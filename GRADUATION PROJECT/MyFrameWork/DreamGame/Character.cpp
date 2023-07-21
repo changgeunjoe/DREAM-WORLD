@@ -7,6 +7,7 @@
 #include "Network/NetworkHelper.h"
 #include "Network/Logic/Logic.h"
 #include "Network/MapData/MapData.h"
+#include "TrailComponent.h"
 
 extern Logic g_Logic;
 extern NetworkHelper g_NetworkHelper;
@@ -279,6 +280,7 @@ void Warrior::Animate(float fTimeElapsed)
 		if (CheckAnimationEnd(CA_FIRSTSKILL) == false)
 		{
 			UpperLock = true;
+			m_bOnAttack = true;
 		}
 		break;
 	}
@@ -287,6 +289,7 @@ void Warrior::Animate(float fTimeElapsed)
 		if (CheckAnimationEnd(CA_ATTACK) == false)
 		{
 			UpperLock = true;
+			m_bOnAttack = true;
 		}
 		break;
 	}
@@ -294,6 +297,7 @@ void Warrior::Animate(float fTimeElapsed)
 	if (CheckAnimationEnd(CA_ATTACK) || CheckAnimationEnd(CA_FIRSTSKILL))
 	{
 		Attack();
+		m_bOnAttack = false;
 		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd = false;
 	}
 
@@ -339,7 +343,10 @@ void Warrior::Animate(float fTimeElapsed)
 		m_pSkinnedAnimationController->m_CurrentAnimations = AfterAnimation;
 		m_pSkinnedAnimationController->SetTrackEnable(AfterAnimation);
 	}
-
+	if (m_pTrail)
+	{
+		m_pTrail->SetRenderingTrail(m_bOnAttack);
+	}
 	MoveObject();
 	Move(50 * fTimeElapsed);
 	GameObject::Animate(fTimeElapsed);
@@ -885,6 +892,7 @@ void Tanker::Animate(float fTimeElapsed)
 	{
 		if (CheckAnimationEnd(CA_ATTACK) == false)
 		{
+			m_bOnAttack = true;
 			UpperLock = true;
 		}
 		break;
@@ -948,6 +956,7 @@ void Tanker::Animate(float fTimeElapsed)
 	if (CheckAnimationEnd(CA_ATTACK) == true)
 	{
 		Attack();
+		m_bOnAttack = false;
 		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd = false;
 	}
 	if (CheckAnimationEnd(CA_SECONDSKILL) == true)
@@ -973,6 +982,10 @@ void Tanker::Animate(float fTimeElapsed)
 		}
 	}
 
+	if (m_pTrail)
+	{
+		m_pTrail->SetRenderingTrail(m_bOnAttack);
+	}
 	MoveObject();
 	Move(50 * fTimeElapsed);
 	GameObject::Animate(fTimeElapsed);

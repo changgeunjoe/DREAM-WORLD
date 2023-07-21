@@ -24,6 +24,7 @@ class Projectile;
 class InstanceRenderComponent;
 class TrailShaderComponent;
 class TerrainShaderComponent;
+class TrailComponent;
 
 
 #define MATERIAL_ALBEDO_MAP				0x01
@@ -346,11 +347,12 @@ protected:
 public:
 	XMFLOAT3 m_xmf3RamdomDirection{};
 public:
-	GameObject* m_pHPBarUI{ NULL };
-	GameObject* m_pProfileUI{ NULL };
-	GameObject* m_pSkillUI{ NULL };
-	GameObject* m_pTrailStart{ NULL };
-	GameObject* m_pTrailEnd{ NULL };
+	GameObject* m_pHPBarUI{ nullptr };
+	GameObject* m_pProfileUI{ nullptr };
+	GameObject* m_pSkillUI{ nullptr };
+	GameObject* m_pTrailStart{ nullptr };
+	GameObject* m_pTrailEnd{ nullptr };
+	TrailComponent* m_pTrail{ nullptr };
 	std::queue<int> m_BossRoute;
 	std::mutex m_lockBossRoute;
 };

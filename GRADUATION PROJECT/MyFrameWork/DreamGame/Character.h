@@ -7,7 +7,7 @@ protected:
 	XMFLOAT3	m_xmf3RotateAxis;	// XMFLOAT3(0, 0, 1)로부터 회전한 각도	
 	bool m_bQSkillClicked;
 	bool m_bESkillClicked;
-	bool m_bOnAttack;
+	bool m_bOnAttack = false;
 	bool m_bOnSkill = false;
 	bool m_bShieldActive = false;
 	float m_fShield = false;
@@ -28,6 +28,8 @@ public:
 	virtual void MoveObject();
 	virtual void StartEffect(int nSkillNum) {};
 	virtual void EndEffect(int nSkillNum) {};
+	virtual std::chrono::seconds GetSkillCoolTime(int i) { return m_skillCoolTime[i]; }
+	virtual std::chrono::high_resolution_clock::time_point GetSkillInputTime(int i) { return m_skillInputTime[i]; }
 	bool CheckAnimationEnd(int nAnimation);
 public:
 	virtual void InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos);

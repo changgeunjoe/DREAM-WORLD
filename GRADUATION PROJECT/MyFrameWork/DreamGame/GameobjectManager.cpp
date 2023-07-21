@@ -339,9 +339,9 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 
 void GameobjectManager::TrailRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {//트레일 오브젝트 렌더입니다.
-	if (m_pTrailObject) {
-		m_pTrailObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	}
+	//if (m_pTrailObject) {
+		//m_pTrailObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//}
 	if (m_pTrailComponent) {
 		m_pTrailComponent->RenderTrail(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
@@ -1072,6 +1072,7 @@ void GameobjectManager::BuildTrail(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	m_pTrailObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pTrailComponent = new TrailComponent();
 	m_pTrailComponent->ReadyComponent(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pTrailObject);
+	m_pWarriorObject->m_pTrail = m_pTrailComponent;
 }
 void GameobjectManager::BuildAstar(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
