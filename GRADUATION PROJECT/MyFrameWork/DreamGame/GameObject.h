@@ -209,6 +209,8 @@ public:
 
 	int								m_nStageType = 0;
 	float							m_fSkillSize = 0.0f;
+
+	float							m_fObjectType = 0.0f;
 protected:
 
 protected:

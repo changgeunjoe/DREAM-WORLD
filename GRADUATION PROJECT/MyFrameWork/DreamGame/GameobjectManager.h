@@ -95,7 +95,6 @@ private: //active object
 
 	int				m_nObjects{};
 	GameObject* m_pGameObject{ NULL };
-
 	Character* m_pWarriorObject{ NULL };
 	Character* m_pArcherObject{ NULL };
 	Character* m_pTankerObject{ NULL };
@@ -150,14 +149,12 @@ private: //active object
 	GameObject* m_pAttackUIObject{ NULL };
 	GameObject* m_pConditionUIObject{ NULL };
 	GameObject* m_pSceneChangeUIObject{ NULL };
-
 	//Skill	
 	GameObject* m_pHealSkillUIObject{ NULL };
 	GameObject* m_pLightningSkillUIObject{ NULL };
 	GameObject* m_pShieldSkillUIObject{ NULL };
 	GameObject* m_pSwordSkillUIObject{ NULL };
 	GameObject* m_pArrowSkillUIObject{ NULL };
-
 	//SECTION 2
 	GameObject* m_pUIGameCreateObject{ NULL };
 	GameObject* m_pUIEnterRoomObject{ NULL };
@@ -203,6 +200,7 @@ private: //active object
 	EffectObject* m_pEffectObject{ NULL };
 	EffectObject* m_pDebuffObject{ NULL };
 	EffectObject* m_pLightEffectObject{ NULL };
+	EffectObject* m_pSheildEffectObject{ NULL };
 	vector<EffectObject*> m_ppEffectObjects{};
 
 	//NPC Object 
@@ -234,6 +232,7 @@ public:
 	int m_bSkipText{ false };
 	bool m_bSendNpccollisionPK{ false };
 	bool m_bSceneSwap{ false };
+	bool m_bPickingenemy{ false };
 public:
 	void SetPlayCharacter(Session* pSession);
 	void SetSection(int n) { m_nSection = n; }

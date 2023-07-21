@@ -226,7 +226,7 @@ float4 PSTexturedTrail(VS_TEXTURED_OUTPUT input) : SV_TARGET
        // Sample the texture
     float4 cColor = shaderTexture.Sample(gWrapSamplerState, input.uv);
     cColor += gmtxGameObjectColor;
-    cColor.w = 0.4;
+   cColor.w -= 0.4;
     return (cColor);
 }
 VS_TEXTURED_OUTPUT VSBlendTextured(VS_TEXTURED_INPUT input)
@@ -243,6 +243,7 @@ float4 PSBlendTextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
     float4 cColor = shaderTexture.Sample(gWrapSamplerState, input.uv);
     //cColor += gmtxGameObjectColor;
     //cColor.w = 0.4;
+    cColor += gmtxGameObjectColor;
     return (cColor);
 }
 VS_TEXTURED_OUTPUT VSEffect(VS_TEXTURED_INPUT input)

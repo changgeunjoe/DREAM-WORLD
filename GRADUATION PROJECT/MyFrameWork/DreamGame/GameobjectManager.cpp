@@ -87,9 +87,19 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	//	AddDamageFontToUiLayer();
 	//}
 	//Effect
-	if (m_pSelectedObject) {
+	if (m_bPickingenemy) {
+		if (g_Logic.GetMyRole() == ROLE::PRIEST) {
+					m_pLightEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 5);
+		m_pLightningSpriteObject->SetPosition(XMFLOAT3(
+			m_pSelectedObject->GetPosition().x,
+			m_pSelectedObject->GetPosition().y + 40,
+			m_pSelectedObject->GetPosition().z));
+		}
 		//m_pEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 10);
-		m_pLightEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 10);
+		//라이트닝
+
+		//m_pLightningSpriteObject->SetScale(7.0f, 20.0f, 7.0f);
+		//m_pSheildEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 10);
 	}
 	//m_pDebuffObject->AnimateEffect(m_pCamera, g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition(), fTimeElapsed, m_fTime * 10);
 
@@ -261,11 +271,12 @@ void GameobjectManager::SceneSwapAnimate(float fTimeElapsed)
 {
 	if (m_bSceneSwap)
 	{
-		float mftime = float(fTimeElapsed / 5);
+		float mftime = float(fTimeElapsed / 2);
 		m_pSceneChangeUIObject->m_fTime += mftime;
-		m_pSceneChangeUIObject->SetColor(XMFLOAT4(0, 0, 0, sin(m_fTime)));
-		if (sin(m_fTime) < 0) {
+		m_pSceneChangeUIObject->SetColor(XMFLOAT4(0, 0, 0, sin(m_pSceneChangeUIObject->m_fTime)));
+		if (sin(m_pSceneChangeUIObject->m_fTime) < 0) {
 			m_bSceneSwap = false;
+			m_pSceneChangeUIObject->m_fTime = 0;
 		}
 	}
 }
@@ -703,6 +714,7 @@ void GameobjectManager::ReadNormalMonsterFile(ID3D12Device* pd3dDevice, ID3D12Gr
 	for (int i = 0; i < objCount; ++i)
 	{
 		tempObject[i] = new NormalMonster();
+		tempObject[i]->m_fObjectType = 1;
 		tempObject[i]->m_nID = i;
 		tempObject[i]->InsertComponent<RenderComponent>();
 		tempObject[i]->InsertComponent<CLoadedModelInfoCompnent>();
@@ -779,6 +791,9 @@ void GameobjectManager::EffectRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 	}
 	if (m_pLightEffectObject) {
 		m_pLightEffectObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
+	if (m_pSheildEffectObject) {
+		m_pSheildEffectObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 }
 
@@ -934,7 +949,6 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 		m_pEnergyBallObjects[i]->SetBoundingSize(4);
 		static_cast<Priest*>(m_pPriestObject)->SetEnergyBall(m_pEnergyBallObjects[i]);
 	}
-
 	m_pEnergyBallObject = new EnergyBall();
 	m_pEnergyBallObject->InsertComponent<RenderComponent>();
 	m_pEnergyBallObject->InsertComponent<SphereMeshComponent>();
@@ -964,6 +978,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pMonsterObject->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[BOSS_ANIMATION::BA_UNDERGROUND]->m_nType = ANIMATION_TYPE_ONCE;
 	m_pMonsterObject->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[BOSS_ANIMATION::BA_REVERSE_SPAWN]->m_nType = ANIMATION_TYPE_REVERSE;
 	m_pMonsterObject->SetScale(15.0f);
+	m_pMonsterObject->m_fObjectType = 1;
 	m_pMonsterObject->SetBoundingSize(30.0f);
 	m_pMonsterObject->SetBoundingBox(m_pBoundingBox[4]);
 	m_pMonsterObject->SetMoveState(false);
@@ -1048,7 +1063,7 @@ void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	m_pLightningSpriteObject->InsertComponent<TextureComponent>();
 	m_pLightningSpriteObject->SetTexture(L"MagicEffect/Lightning_2x2.dds", RESOURCE_TEXTURE2D, 3);
 	m_pLightningSpriteObject->SetPosition(XMFLOAT3(0, 40, 100));
-	m_pLightningSpriteObject->SetScale(7.0f, 12.0f, 7.0f);
+	m_pLightningSpriteObject->SetScale(7.0f, 20.0f, 7.0f);
 	m_pLightningSpriteObject->SetRowColumn(2.0f, 2.0f, 0.06f);
 	m_pLightningSpriteObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppParticleObjects.emplace_back(m_pLightningSpriteObject);
@@ -1103,9 +1118,9 @@ void GameobjectManager::BuildTrail(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	m_pTrailObject->InsertComponent<TrailMeshComponent>();
 	m_pTrailObject->InsertComponent<TrailShaderComponent>();
 	m_pTrailObject->InsertComponent<TextureComponent>();
-	m_pTrailObject->SetTexture(L"Trail/Trail.dds", RESOURCE_TEXTURE2D, 3);
+	m_pTrailObject->SetTexture(L"Trail/FireTrail4.dds", RESOURCE_TEXTURE2D, 3);
 	m_pTrailObject->SetPosition(XMFLOAT3(0, 0, 0));
-	m_pTrailObject->SetColor(XMFLOAT4(1.0f, 0.3f, 0.0f, 0.0f));
+	//m_pTrailObject->SetColor(XMFLOAT4(1.0f, 0.3f, 0.0f, 0.0f));
 	m_pTrailObject->SetScale(1);
 	m_pTrailObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pTrailComponent = new TrailComponent();
@@ -1118,7 +1133,7 @@ void GameobjectManager::BuildTrail(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 		m_pTrailArrowObject[i]->InsertComponent<TrailMeshComponent>();
 		m_pTrailArrowObject[i]->InsertComponent<TrailShaderComponent>();
 		m_pTrailArrowObject[i]->InsertComponent<TextureComponent>();
-		m_pTrailArrowObject[i]->SetTexture(L"Trail/Ramp03.dds", RESOURCE_TEXTURE2D, 3);
+		m_pTrailArrowObject[i]->SetTexture(L"Trail/FireTrail.dds", RESOURCE_TEXTURE2D, 3);
 		m_pTrailArrowObject[i]->SetPosition(XMFLOAT3(0, 0, 0));
 		m_pTrailArrowObject[i]->SetColor(XMFLOAT4(1.0f, 0.3f, 0.0f, 0.0f));
 		m_pTrailArrowObject[i]->SetScale(1);
@@ -1154,6 +1169,7 @@ void GameobjectManager::BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	CLoadedModelInfoCompnent* Death = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Death.bin", NULL, true);
 	CLoadedModelInfoCompnent* Cube = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Cube.bin", NULL, true);
 	CLoadedModelInfoCompnent* BigRock = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/BigRock.bin", NULL, true);
+	CLoadedModelInfoCompnent* TripleBarel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/TripleBarel.bin", NULL, true);
 
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/BigMushroom.txt", BigMushroom, 0, STAGE1);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Mushroom.txt", Mushroom, 0, STAGE1);
@@ -1163,6 +1179,7 @@ void GameobjectManager::BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence3.txt", ShortFence03, 0, STAGE1);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Tree.txt", Tree, 0, STAGE1);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/BigRock.txt", BigRock, 0, STAGE1);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/TripleBarel.txt", TripleBarel, 0, STAGE1);
 	//ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/OOBB.txt", Cube, 0, STAGE1);
 	ReadNormalMonsterFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/NormalMonsterS1.txt", Death, 1, STAGE1);
 	m_pStage1Objects[0] = new GameObject(UNDEF_ENTITY);
@@ -1504,7 +1521,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pArcherObject->m_pProfileUI->InsertComponent<UIMeshComponent>();
 	m_pArcherObject->m_pProfileUI->InsertComponent<UiShaderComponent>();
 	m_pArcherObject->m_pProfileUI->InsertComponent<TextureComponent>();
-	m_pArcherObject->m_pProfileUI->SetTexture(L"UI/Archer.dds", RESOURCE_TEXTURE2D, 3);
+	m_pArcherObject->m_pProfileUI->SetTexture(L"UI/ArcherUI.dds", RESOURCE_TEXTURE2D, 3);
 	m_pArcherObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.2, 1.00));
 	m_pArcherObject->m_pProfileUI->SetScale(0.03, 0.015, 1);
 	m_pArcherObject->m_pProfileUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -1554,7 +1571,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pTankerObject->m_pProfileUI->InsertComponent<UIMeshComponent>();
 	m_pTankerObject->m_pProfileUI->InsertComponent<UiShaderComponent>();
 	m_pTankerObject->m_pProfileUI->InsertComponent<TextureComponent>();
-	m_pTankerObject->m_pProfileUI->SetTexture(L"UI/Tanker.dds", RESOURCE_TEXTURE2D, 3);
+	m_pTankerObject->m_pProfileUI->SetTexture(L"UI/TankerUI.dds", RESOURCE_TEXTURE2D, 3);
 	m_pTankerObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.08, 1.01));
 	m_pTankerObject->m_pProfileUI->SetScale(0.03, 0.015, 1);
 	m_pTankerObject->m_pProfileUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -1599,7 +1616,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pPriestObject->m_pProfileUI->InsertComponent<UIMeshComponent>();
 	m_pPriestObject->m_pProfileUI->InsertComponent<UiShaderComponent>();
 	m_pPriestObject->m_pProfileUI->InsertComponent<TextureComponent>();
-	m_pPriestObject->m_pProfileUI->SetTexture(L"UI/Priest.dds", RESOURCE_TEXTURE2D, 3);
+	m_pPriestObject->m_pProfileUI->SetTexture(L"UI/PriestUI.dds", RESOURCE_TEXTURE2D, 3);
 	m_pPriestObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, -0.04, 1.01));
 	m_pPriestObject->m_pProfileUI->SetScale(0.03, 0.015, 1);
 	m_pPriestObject->m_pProfileUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -1644,7 +1661,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pWarriorObject->m_pProfileUI->InsertComponent<UIMeshComponent>();
 	m_pWarriorObject->m_pProfileUI->InsertComponent<UiShaderComponent>();
 	m_pWarriorObject->m_pProfileUI->InsertComponent<TextureComponent>();
-	m_pWarriorObject->m_pProfileUI->SetTexture(L"UI/Warrior.dds", RESOURCE_TEXTURE2D, 3);
+	m_pWarriorObject->m_pProfileUI->SetTexture(L"UI/WarriorUI.dds", RESOURCE_TEXTURE2D, 3);
 	m_pWarriorObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, -0.16, 1.01));
 	m_pWarriorObject->m_pProfileUI->SetScale(0.03, 0.015, 1);
 	m_pWarriorObject->m_pProfileUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -1750,6 +1767,9 @@ void GameobjectManager::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 
 	m_pLightEffectObject = new LightningEffectObject;
 	m_pLightEffectObject->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+
+	m_pSheildEffectObject = new SheildEffectObject;
+	m_pSheildEffectObject->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 }
 
@@ -2194,11 +2214,11 @@ bool GameobjectManager::onProcessingKeyboardMessageLobby(HWND hWnd, UINT nMessag
 	if (nMessageID == WM_KEYDOWN && wParam == VK_F2)
 	{
 #ifdef LOCAL_TASK
-		g_Logic.SetMyRole(ROLE::ARCHER);
+		g_Logic.SetMyRole(ROLE::PRIEST);
 		m_pCamera->Rotate(0, -90, 0);
-		m_pPlayerObject = m_pArcherObject;
+		m_pPlayerObject = m_pPriestObject;
 		m_pPlayerObject->SetCamera(m_pCamera);
-		m_pArcherObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
+		m_pPriestObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
 #else
 		g_Logic.SetMyRole(ROLE::TANKER);
 		m_pTankerObject->SetCamera(m_pCamera);
@@ -2348,7 +2368,7 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 		myPlayCharacter->m_LMouseInput = true;
 		myPlayCharacter->SetLButtonClicked(true);
 		SomethingChanging = true;
-		CheckCollision(m_ppGameObjects);
+		m_bPickingenemy=CheckCollision(m_ppGameObjects);
 		break;
 	}
 	case WM_LBUTTONUP:
@@ -2521,7 +2541,7 @@ bool GameobjectManager::CheckCollision(vector<GameObject*> m_ppObjects)
 	// 레이저와 BoundingSphere의 충돌 여부를 계산
 	for (int i = 0; i < m_ppObjects.size(); i++)
 	{
-		if (m_ppObjects[i]->m_SPBB.Intersects(rayOrigin, rayDirection, rayDistance))
+		if (m_ppObjects[i]->m_SPBB.Intersects(rayOrigin, rayDirection, rayDistance)&& m_ppObjects[i]->m_fObjectType==1)
 		{
 			m_pSelectedObject = m_ppObjects[i];
 			rayDistance = rayDistance;

@@ -1313,36 +1313,16 @@ void GameObject::UpdateTransform(XMFLOAT4X4* pxmf4x4Parent)
 
 void GameObject::MoveVelocity(XMFLOAT3 direction, float ftimeelapsed, float fDistance)
 {
-	const float fGravity = 9.8f;
+	//m_fLifeTime -= ftimeelapsed;
 
-	if (m_fTime < 5)
-	{
-		// 위로 올라가는 구간
-		m_fTime += ftimeelapsed;
-		float fVelocityY = fDistance / 5.0f; // 위로 올라갈 속도 계산
-		float fGravityDistance = fVelocityY * m_fTime - 0.5f * fGravity * m_fTime * m_fTime; // 중력에 의한 이동 거리 계산
-
-		XMFLOAT3 xmf3Position = GetPosition();
-		xmf3Position = Vector3::Add(xmf3Position, direction, fGravityDistance);
-		GameObject::SetPosition(xmf3Position);
+	m_fTime += ftimeelapsed;
+	float t = m_fTime, tt = t * t * 0.5f;
+	if (GetPosition().y < 0) {
+		m_fTime = 0;
 	}
-	else
-	{
-		// 아래로 떨어지는 구간
-		float fTimeAfter5Seconds = m_fTime - 5.0f;
-		float fVelocityY = fDistance / 5.0f; // 아래로 떨어질 속도 계산
-		float fGravityDistance = fVelocityY * fTimeAfter5Seconds + 0.5f * fGravity * fTimeAfter5Seconds * fTimeAfter5Seconds; // 중력에 의한 이동 거리 계산
-
-		XMFLOAT3 xmf3Position = GetPosition();
-		xmf3Position = Vector3::Add(xmf3Position, direction, fGravityDistance);
-		GameObject::SetPosition(xmf3Position);
-
-		m_fTime += ftimeelapsed;
-	}
-
-	if (m_fTime == 10) {
-		GameObject::SetPosition(XMFLOAT3(0, 0, 0));
-	}
+	XMFLOAT3 mxmf3Accel = { 0.f, -0.8f, 0.f };
+	SetPosition(Vector3::Add(GetPosition(), Vector3::Add(Vector3::ScalarProduct(mxmf3Accel, tt, false), Vector3::ScalarProduct(direction, t, false))));
+	SetScale(sin(m_fTime) + 1);
 }
 
 void GameObject::MoveDiagonal(int fowardDirection, int rightDirection, float distance)
