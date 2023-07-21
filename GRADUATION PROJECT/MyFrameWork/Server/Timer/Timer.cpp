@@ -115,7 +115,21 @@ void Timer::TimerThreadFunc()
 				ov->m_opCode = OP_UPDATE_SMALL_MONSTER;
 				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, ev.targetId, &ov->m_overlap);
 			}
-			break;		
+			break;
+			case EV_MAGE_FSKILL_ACTIVE:
+			{
+				ExpOver* ov = new ExpOver();
+				ov->m_opCode = OP_PLAYER_HEAL;
+				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, ev.targetId, &ov->m_overlap);
+			}
+			break;
+			case EV_TANKER_FSKILL_START:
+			{
+				ExpOver* ov = new ExpOver();
+				ov->m_opCode = OP_SET_BARRIER;
+				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, ev.targetId, &ov->m_overlap);
+			}
+			break;
 			default: break;
 			}
 			continue;		// 즉시 다음 작업 꺼내기

@@ -90,8 +90,8 @@ void TrailComponent::AddTrail( const XMFLOAT3& xmf3Top,const XMFLOAT3& xmf3Botto
 void TrailComponent::RenderTrail(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
 	//나중에 렌더링을 끊기 보다는 자연스럽게 사라지도록 할 것.
-	//if (!m_bRender)
-	//	return;
+	if (!m_bRender)
+		return;
 
 	size_t iCount = m_listRomPos.size();
 	if (iCount <= 1)

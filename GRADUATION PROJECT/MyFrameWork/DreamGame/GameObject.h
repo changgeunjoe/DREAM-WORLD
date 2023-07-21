@@ -24,6 +24,7 @@ class Projectile;
 class InstanceRenderComponent;
 class TrailShaderComponent;
 class TerrainShaderComponent;
+class TrailComponent;
 
 
 #define MATERIAL_ALBEDO_MAP				0x01
@@ -123,7 +124,7 @@ public:
 	void SetCurrentHP(float fHP);
 	void SetSkillTime(float fHp);
 	float GetCurrentHP() { return m_fHp; }
-	float GetMaxCurrentHP() { return m_fMaxHp; }
+	float GetMaxHP() { return m_fMaxHp; }
 	MeshComponent* GetMesh() { return m_pMeshComponent; }
 
 	float GetDistance() const { return m_fDistance; } //카메라와 오브젝트의 거리
@@ -332,7 +333,7 @@ public:
 public:
 	XMFLOAT3						m_xmfHitPosition;
 	XMFLOAT3                        m_xmf3Destination = XMFLOAT3{ 0,0,0 };
-	ROLE								m_roleDesPlayer = ROLE::NONE_SELECT;
+	ROLE							m_roleDesPlayer = ROLE::NONE_SELECT;
 	float                           m_UIScale = 10.0f;
 	bool                            m_bUIActive{ true };
 
@@ -344,12 +345,12 @@ protected:
 public:
 	XMFLOAT3 m_xmf3RamdomDirection{};
 public:
-	GameObject* m_pHPBarUI{ NULL };
-	GameObject* m_pProfileUI{ NULL };
-	GameObject* m_pSkillUI{ NULL };
-	GameObject* m_pSkillUI2{ NULL };
-	GameObject* m_pTrailStart{ NULL };
-	GameObject* m_pTrailEnd{ NULL };
+	GameObject* m_pHPBarUI{ nullptr };
+	GameObject* m_pProfileUI{ nullptr };
+	GameObject* m_pSkillUI{ nullptr };
+	GameObject* m_pTrailStart{ nullptr };
+	GameObject* m_pTrailEnd{ nullptr };
+	TrailComponent* m_pTrail{ nullptr };
 	std::queue<int> m_BossRoute;
 	std::mutex m_lockBossRoute;
 };

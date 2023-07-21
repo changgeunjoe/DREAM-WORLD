@@ -313,6 +313,7 @@ float4 PSUITextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
        
         if (input.uv.y > 1-gfCharactertHP && cColor.x > 0.1 && cColor.y > 0.1 && cColor.z > 0.1)
                 return float4(cColor.xyz, 0.3);
+        //return cColor = float4(0, 0, 0, 1);//conflict
         
     }
     
@@ -536,7 +537,7 @@ float4 PSBoundingBox(VS_BOUNDING_BOX_OUTPUT input) : SV_TARGET
 
 float4 PSSphere(VS_BOUNDING_BOX_OUTPUT input) : SV_TARGET
 {
-    return(float4(0.97f, 0.99f, 0.73f, 1.0f));
+    return(float4(0.97f, 0.99f, 0.73f, 0.5f));
 }
 
 float4 PSNaviMesh(VS_BOUNDING_BOX_OUTPUT input) : SV_TARGET

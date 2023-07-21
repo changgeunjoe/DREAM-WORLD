@@ -31,11 +31,12 @@ public:
 	XMFLOAT3& GetRot() { return m_rotateAngle; }
 	XMFLOAT3& GetDirectionVector() { return m_directionVector; }
 
-	void AttackedHp(short damage) { m_hp -= damage; };
+	void HealHp(float heal) { if(m_hp < m_maxHp) m_hp += heal; }
 	short GetAttackDamage() { return m_attackDamage; }
 public:
 	void AutoMove();
 	virtual bool Move(float elapsedTime) = 0;
+	virtual void AttackedHp(short damage) { m_hp -= damage; }
 public:
 public:
 	virtual void Rotate(ROTATE_AXIS axis, float angle) = 0;

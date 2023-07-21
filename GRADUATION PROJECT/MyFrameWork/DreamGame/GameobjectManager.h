@@ -93,6 +93,7 @@ private: //active object
 	vector<GameObject*> m_ppObstacleObjects;
 	array<Projectile*, 10> m_pArrowObjects;
 	array<Projectile*, 10> m_pEnergyBallObjects;
+	array<Projectile*, 4> m_pTankerSkillEffects;
 	array<GameObject*, 10> m_pBoundingBox;
 	vector<GameObject*> m_ppObstacleBoundingBox;
 	vector<GameObject*> m_ppNormalMonsterBoundingBox;
@@ -204,10 +205,10 @@ private: //active object
 	array<GameObject*, 10> m_pStage1Objects{ NULL };
 	GameObject* m_pStage1TerrainObject{ NULL };
 
-	EffectObject* m_pEffectObject{ NULL };
+	array<EffectObject*, 4> m_ppShieldEffectObject{ NULL };
+	array<EffectObject*, 4> m_ppHealingEffectObject{ NULL };
 	EffectObject* m_pDebuffObject{ NULL };
 	EffectObject* m_pLightEffectObject{ NULL };
-	vector<EffectObject*> m_ppEffectObjects{};
 
 	//NPC Object 
 	GameObject* m_pAngelNPCObject{ NULL };
@@ -253,6 +254,8 @@ public:
 	Character* GetChracterInfo(ROLE r);
 	Monster* GetBossMonster() { return m_pMonsterObject; }
 	NormalMonster** GetNormalMonsterArr() { return m_ppNormalMonsterObject; };
+	EffectObject** GetShieldEffectArr() { return &m_ppShieldEffectObject[0]; }
+	EffectObject** GetHealingEffectArr() { return &m_ppHealingEffectObject[0]; }
 	void SetCharactersStage1Postion();
 	void SetCharactersBossStagePostion();
 };

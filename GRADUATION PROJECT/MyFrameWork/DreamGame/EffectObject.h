@@ -19,8 +19,10 @@ public:
 	
 public:
 
-	float m_fgravity = 50;
-	float m_ftime = 0.0f;
+	float	m_fgravity = 50;
+	float	m_ftime = 0.0f;
+	bool	m_bActive = false;
+	ROLE	m_hostObject = ROLE::NONE_SELECT;
 
 	vector< GameObject*> m_pEffectObjects;
 	array<GameObject*, 10> m_pSmokeObject;

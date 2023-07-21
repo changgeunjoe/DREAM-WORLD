@@ -189,17 +189,17 @@ void Logic::ProcessPacket(char* p)
 	case SERVER_PACKET::SHOOTING_ARROW://È­»ì
 	{
 		SERVER_PACKET::ShootingObject* recvPacket = reinterpret_cast<SERVER_PACKET::ShootingObject*>(p);
-		recvPacket->dir;
-		recvPacket->srcPos;
-		recvPacket->speed;
+
+		Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo(ROLE::ARCHER);
+		static_cast<Archer*>(possessObj)->ShootArrow(recvPacket->srcPos, recvPacket->dir, recvPacket->speed);
 	}
 	break;
 	case SERVER_PACKET::SHOOTING_BALL://°ø
 	{
 		SERVER_PACKET::ShootingObject* recvPacket = reinterpret_cast<SERVER_PACKET::ShootingObject*>(p);
-		recvPacket->dir;
-		recvPacket->srcPos;
-		recvPacket->speed;
+
+		Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo(ROLE::PRIEST);
+		static_cast<Priest*>(possessObj)->Attack(recvPacket->srcPos, recvPacket->dir, recvPacket->speed);
 	}
 	break;
 	case SERVER_PACKET::GAME_STATE_S:
@@ -210,7 +210,7 @@ void Logic::ProcessPacket(char* p)
 			if (recvPacket->userState[i].role != ROLE::NONE_SELECT) {
 				Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->userState[i].role);
 				possessObj->InterpolateMove(recvPacket->time, recvPacket->userState[i].pos);
-				float maxHp = possessObj->GetMaxCurrentHP();
+				float maxHp = possessObj->GetMaxHP();
 				possessObj->SetCurrentHP(recvPacket->userState[i].hp / maxHp * 100.0f);
 			}
 		}
@@ -221,8 +221,9 @@ void Logic::ProcessPacket(char* p)
 			smallMonsterArr[i]->SetLook(recvPacket->smallMonster[i].directionVector);
 			if (smallMonsterArr[i]->GetCurrentHP() < 0.0f) {
 				smallMonsterArr[i]->SetCurrentHP(recvPacket->smallMonster[i].hp);
-				float maxHp = smallMonsterArr[i]->GetMaxCurrentHP();
-				smallMonsterArr[i]->SetCurrentHP(recvPacket->smallMonster[i].hp / maxHp * 100.0f);				
+				//float maxHp = smallMonsterArr[i]->GetMaxCurrentHP(); //conflict
+				float maxHp = smallMonsterArr[i]->GetMaxHP();
+				smallMonsterArr[i]->SetCurrentHP(recvPacket->smallMonster[i].hp / maxHp * 100.0f);
 			}
 		}
 	}
@@ -260,7 +261,7 @@ void Logic::ProcessPacket(char* p)
 			if (recvPacket->userState[i].role != ROLE::NONE_SELECT) {
 				Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->userState[i].role);
 				possessObj->InterpolateMove(recvPacket->time, recvPacket->userState[i].pos);
-				float maxHp = possessObj->GetMaxCurrentHP();
+				float maxHp = possessObj->GetMaxHP();
 				possessObj->SetCurrentHP(recvPacket->userState[i].hp / maxHp * 100.0f);
 			}
 		}
@@ -421,8 +422,14 @@ void Logic::ProcessPacket(char* p)
 		if (recvPacket->qSkill == true) {
 			possessChracter->FirstSkillDown();
 		}
+		else{
+			possessChracter->FirstSkillUp();
+		}
 		if (recvPacket->eSkill == true) {
 			possessChracter->SecondSkillDown();
+		}
+		else {
+			possessChracter->SecondSkillUp();
 		}
 	}
 	break;
@@ -442,14 +449,36 @@ void Logic::ProcessPacket(char* p)
 			if (recvPacket->userState[i].role != ROLE::NONE_SELECT) {
 				GameObject* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->userState[i].role);
 				possessObj->SetPosition(recvPacket->userState[i].pos);
-				float maxHp = possessObj->GetMaxCurrentHP();
+				float maxHp = possessObj->GetMaxHP();
 				possessObj->SetCurrentHP(recvPacket->userState[i].hp / maxHp * 100.0f);
 			}
 		}
 	}
 	break;
-
-
+	case SERVER_PACKET::START_EFFECT:
+	{
+		SERVER_PACKET::StartEffectPacket* recvPacket = reinterpret_cast<SERVER_PACKET::StartEffectPacket*>(p);
+		Character* possessChracter = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo((ROLE)recvPacket->role);
+		possessChracter->StartEffect(recvPacket->skillNum);
+	}
+	break;
+	case SERVER_PACKET::END_EFFECT:
+	{
+		SERVER_PACKET::EndEffectPacket* recvPacket = reinterpret_cast<SERVER_PACKET::EndEffectPacket*>(p);
+		Character* possessChracter = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo((ROLE)recvPacket->role);
+		possessChracter->EndEffect(recvPacket->skillNum);
+	}
+	break;
+	case SERVER_PACKET::SET_SHIELD:
+	{
+		SERVER_PACKET::SetSheidPacket* recvPacket = reinterpret_cast<SERVER_PACKET::SetSheidPacket*>(p);
+		for (int i = 0; i < 4; ++i) {
+			Character* pCharacter = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(static_cast<ROLE>(0x01 << i));
+			pCharacter->SetShieldActive(true);
+			pCharacter->SetShield(recvPacket->shield[i]);
+		}
+	}
+	break;
 	default:
 	{
 		std::cout << "Unknown Packet Recv" << std::endl;

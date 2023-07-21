@@ -5,11 +5,13 @@
 #include "../../IOCPNetwork/protocol/protocol.h"
 #include "../../MapData/MapData.h"
 #include "../../Room/RoomManager.h"
+#include "../../Timer/Timer.h"
 
 extern Logic g_logic;
 extern MapData g_bossMapData;
 extern MapData g_stage1MapData;
 extern RoomManager g_RoomManager;
+extern Timer g_Timer;
 
 //#define CHARCTER_MOVE_LOG 1
 
@@ -18,6 +20,7 @@ ChracterSessionObject::ChracterSessionObject(ROLE r) : SessionObject(8.0f)
 	m_hp = 0;
 	m_maxHp = 0;
 	m_attackDamage = 0;
+	m_defensivePower = 0.0f;
 	m_speed = 50.0f;
 	SetRole(r);
 }
@@ -26,6 +29,18 @@ ChracterSessionObject::~ChracterSessionObject()
 {
 }
 
+void ChracterSessionObject::AttackedHp(short damage)
+{
+	if (m_Shield > FLT_EPSILON)	{
+		m_Shield -= damage;
+		if (m_Shield < 0.0f) {
+			damage = -m_Shield;
+		}
+		else
+			return;
+	}
+	m_hp -= damage * (1.0f - m_defensivePower);
+}
 
 bool ChracterSessionObject::AdjustPlayerInfo(DirectX::XMFLOAT3& position) // , DirectX::XMFLOAT3& rotate
 {
@@ -112,6 +127,13 @@ void ChracterSessionObject::ChangeDirection(DIRECTION d)
 {
 	m_inputDirection = (DIRECTION)(m_inputDirection ^ d);
 	SetDirection(m_inputDirection);
+}
+
+void ChracterSessionObject::SetShield(bool active)
+{
+	m_ShieldActivation = active;
+	m_defensivePower + (0.4f * active - 0.2f);	// active : 0.2f 데미지 20% 감소 // inactive : -0.2f 원상복구
+	m_Shield = active * 200.0f;
 }
 
 bool ChracterSessionObject::Move(float elapsedTime)
@@ -518,6 +540,7 @@ void WarriorSessionObject::SetStage_1Position()
 	SetPosition(XMFLOAT3(-1290.0f, 0, -1470.0f));
 	m_maxHp = m_hp = 400;
 	m_attackDamage = 150;
+	m_defensivePower = 0.3f;
 }
 
 void WarriorSessionObject::SetBossStagePosition()
@@ -529,7 +552,13 @@ void WarriorSessionObject::SetBossStagePosition()
 
 void MageSessionObject::Skill_1()
 {
-
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	auto durationTime = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[0]);
+	if (m_skillCoolTime[0] > durationTime)	return;
+	m_skillInputTime[0] = currentTime;
+	g_RoomManager.GetRunningRoomRef(m_roomId).StartHealPlayerCharacter();
+	TIMER_EVENT gameStateEvent{ std::chrono::system_clock::now(), m_roomId ,EV_MAGE_FSKILL_ACTIVE };
+	g_Timer.InsertTimerQueue(gameStateEvent);
 }
 
 void MageSessionObject::Skill_2()
@@ -541,7 +570,14 @@ void MageSessionObject::SetStage_1Position()
 {
 	SetPosition(XMFLOAT3(-1370.45, 0, -1450.89f));
 	m_maxHp = m_hp = 480;
+	m_hp = 100.0f;
 	m_attackDamage = 30;
+	m_defensivePower = 0.0f;
+
+	m_skillCoolTime = { std::chrono::seconds(15), std::chrono::seconds(7) };
+	m_skillDuration = { std::chrono::seconds(9), std::chrono::seconds(3) };
+	m_skillInputTime = { std::chrono::high_resolution_clock::now() - m_skillCoolTime[0],
+		std::chrono::high_resolution_clock::now() - m_skillCoolTime[1] };
 }
 
 void MageSessionObject::SetBossStagePosition()
@@ -553,7 +589,12 @@ void MageSessionObject::SetBossStagePosition()
 
 void TankerSessionObject::Skill_1()
 {
-
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	auto durationTime = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[0]);
+	if (m_skillCoolTime[0] > durationTime)	return;
+	m_skillInputTime[0] = currentTime;
+	TIMER_EVENT gameStateEvent{ std::chrono::system_clock::now() + std::chrono::milliseconds(2400), m_roomId ,EV_TANKER_FSKILL_START };	//애니메이션 진행 시간 1.4초 + 공 날아가는 시간 1초
+	g_Timer.InsertTimerQueue(gameStateEvent);
 }
 
 void TankerSessionObject::Skill_2()
@@ -566,6 +607,13 @@ void TankerSessionObject::SetStage_1Position()
 	SetPosition(XMFLOAT3(-1260.3f, 0, -1510.7f));
 	m_maxHp = m_hp = 600;
 	m_attackDamage = 60;
+	m_defensivePower = 0.5f;
+
+
+	m_skillCoolTime = { std::chrono::seconds(15), std::chrono::seconds(0) };
+	m_skillDuration = { std::chrono::seconds(5), std::chrono::seconds(0) };
+	m_skillInputTime = { std::chrono::high_resolution_clock::now() - m_skillCoolTime[0],
+		std::chrono::high_resolution_clock::now() - m_skillCoolTime[1] };
 }
 
 void TankerSessionObject::SetBossStagePosition()
@@ -573,6 +621,7 @@ void TankerSessionObject::SetBossStagePosition()
 	SetPosition(XMFLOAT3(82, 0, -223.0f));
 	m_maxHp = m_hp = 600;
 	m_attackDamage = 60;
+	m_defensivePower = 0.0f;
 }
 
 void ArcherSessionObject::Skill_1()
