@@ -419,7 +419,7 @@ void Logic::ProcessPacket(char* p)
 	{
 		//키 인풋 막아주기
 		//로딩 창 띄워주기
-
+		gGameFramework.GetScene()->GetObjectManager()->SetPortalCheck(true);
 	}
 	break;
 	case SERVER_PACKET::STAGE_START_BOSS:

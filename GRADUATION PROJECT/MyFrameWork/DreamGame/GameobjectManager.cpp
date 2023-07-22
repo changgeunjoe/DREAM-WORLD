@@ -100,11 +100,11 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	//Effect
 	if (m_bPickingenemy) {
 		if (g_Logic.GetMyRole() == ROLE::PRIEST) {
-					m_pLightEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 5);
-		m_pLightningSpriteObject->SetPosition(XMFLOAT3(
-			m_pSelectedObject->GetPosition().x,
-			m_pSelectedObject->GetPosition().y + 40,
-			m_pSelectedObject->GetPosition().z));
+			m_pLightEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 5);
+			m_pLightningSpriteObject->SetPosition(XMFLOAT3(
+				m_pSelectedObject->GetPosition().x,
+				m_pSelectedObject->GetPosition().y + 40,
+				m_pSelectedObject->GetPosition().z));
 		}
 		//m_pEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 10);
 		//라이트닝
@@ -127,7 +127,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 		effect->AnimateEffect(m_pCamera, possessChracter->GetPosition(), fTimeElapsed, m_fTime * 10);
 	}
 
-	 m_pPortalEffectObject->AnimateEffect(m_pCamera, XMFLOAT3(0,0,0), fTimeElapsed, m_fTime * 5);
+	m_pPortalEffectObject->AnimateEffect(m_pCamera, XMFLOAT3(0, 0, 0), fTimeElapsed, m_fTime * 5);
 	//Effect
 	// if (m_pSelectedObject) {
 		// 힐 이펙트
@@ -297,7 +297,7 @@ void GameobjectManager::StoryUIAnimate(float fTimeElapsed)
 
 void GameobjectManager::ConditionAnimate(float fTimeElapsed)
 {
-	m_pConditionUIObject->m_fTime+= fTimeElapsed;
+	m_pConditionUIObject->m_fTime += fTimeElapsed;
 	m_pConditionUIObject->SetColor(XMFLOAT4(10, 0, 0, 0));
 }
 
@@ -626,7 +626,7 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 
 	}
 	GameObject** tempObject = new GameObject * [objCount];	// 멤버 변수로 교체 예정
-	float scale = 1 ;
+	float scale = 1;
 	if (type == 1)
 		scale = 1.0f;
 
@@ -635,7 +635,7 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 		tempObject[i] = new GameObject(UNDEF_ENTITY);
 		tempObject[i]->InsertComponent<RenderComponent>();
 		tempObject[i]->InsertComponent<CLoadedModelInfoCompnent>();
-		tempObject[i]->SetPosition(XMFLOAT3(modelPosition[i].x , modelPosition[i].y, modelPosition[i].z ));
+		tempObject[i]->SetPosition(XMFLOAT3(modelPosition[i].x, modelPosition[i].y, modelPosition[i].z));
 		tempObject[i]->SetModel(modelName);
 		tempObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		//XMFLOAT3 Axis = XMFLOAT3(1, 0, 0);
@@ -809,10 +809,11 @@ void GameobjectManager::CheckCollidePortal()
 	if (myCharacter == nullptr) {
 		exit(0);
 	}
-	if (m_SPBBPortal.Intersects(myCharacter->m_SPBB) && m_bPortalCheck == false) 
-		{
-			m_bPortalCheck = true;
-		}
+	if (m_SPBBPortal.Intersects(myCharacter->m_SPBB) && m_bPortalCheck == false)
+	{
+		m_bPortalCheck = true;
+		g_NetworkHelper.SendChangeStage_B();
+	}
 }
 
 Character* GameobjectManager::GetChracterInfo(ROLE r)
@@ -863,7 +864,7 @@ void GameobjectManager::EffectRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 	if (m_pSheildEffectObject) {
 		m_pSheildEffectObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
-	if (m_pPortalEffectObject)	{
+	if (m_pPortalEffectObject) {
 		m_pPortalEffectObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 }
@@ -1799,7 +1800,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pSceneChangeUIObject->SetColor(XMFLOAT4(0.4f, 0.0f, 0.0f, 0.0f));
 	m_pSceneChangeUIObject->SetScale(0.44f, 0.24f, 1.0f);
 	m_pSceneChangeUIObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-//	m_ppCharacterUIObjects.emplace_back(m_pSceneChangeUIObject);
+	//	m_ppCharacterUIObjects.emplace_back(m_pSceneChangeUIObject);
 
 	m_pVictoryUIObject = new GameObject(UI_ENTITY);
 	m_pVictoryUIObject->InsertComponent<RenderComponent>();
@@ -2013,7 +2014,7 @@ void GameobjectManager::ProcessingUI(int n)
 	}
 	default:
 		break;
-	}
+}
 }
 void GameobjectManager::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
@@ -2167,7 +2168,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			break;
 		default:
 			break;
-		}
+	}
 		break;
 	case WM_KEYUP:
 	{
@@ -2266,7 +2267,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		{
 			bool isCollideNPC = CheckCollideNPC();
 			if (isCollideNPC) {
-				
+
 				m_bSendNpccollisionPK = true;
 				m_bNPCinteraction = true;
 			}
@@ -2301,11 +2302,11 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			else if (m_nStageType == 2) {
 				//m_nStageType = 1;
 				m_pPlayerObject->SetPosition(XMFLOAT3(-1400, 0, -1500));
-			}
+		}
 #endif
 			break;
-		}
-		}
+	}
+}
 	}
 	default:
 		break;
@@ -2331,7 +2332,7 @@ bool GameobjectManager::onProcessingKeyboardMessageLobby(HWND hWnd, UINT nMessag
 		g_NetworkHelper.SendMatchRequestPacket();
 #endif
 		m_bSceneSwap = true;//페이드 인 아웃
-	}
+}
 	if (nMessageID == WM_KEYDOWN && wParam == 'G')
 	{
 		m_bNPCinteraction = true;
@@ -2481,7 +2482,7 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 		myPlayCharacter->m_LMouseInput = true;
 		myPlayCharacter->SetLButtonClicked(true);
 		SomethingChanging = true;
-		m_bPickingenemy=CheckCollision(m_ppGameObjects);
+		m_bPickingenemy = CheckCollision(m_ppGameObjects);
 		break;
 	}
 	case WM_LBUTTONUP:
@@ -2648,7 +2649,7 @@ void GameobjectManager::SetUIActive()
 
 void GameobjectManager::ChangeStage1ToStage2(float fTimeelpased)
 {
-	if (m_bPortalCheck){
+	if (m_bPortalCheck) {
 		m_fStroyTime += fTimeelpased;
 		if (m_fStroyTime < 6) {
 			for (int i = 0; i < m_ppGameObjects.size(); ++i)
@@ -2662,13 +2663,13 @@ void GameobjectManager::ChangeStage1ToStage2(float fTimeelpased)
 			for (int i = 0; i < m_ppGameObjects.size(); ++i)
 			{
 				if (m_ppGameObjects[i]->m_nStageType == STAGE2)
-					{
-						m_ppGameObjects[i]->Die(1 - (m_fStroyTime-6) / 5);
-					}
+				{
+					m_ppGameObjects[i]->Die(1 - (m_fStroyTime - 6) / 5);
+				}
 			}
 		}
 	}
-	
+
 }
 
 bool GameobjectManager::CheckCollision(vector<GameObject*> m_ppObjects)
@@ -2679,7 +2680,7 @@ bool GameobjectManager::CheckCollision(vector<GameObject*> m_ppObjects)
 	// 레이저와 BoundingSphere의 충돌 여부를 계산
 	for (int i = 0; i < m_ppObjects.size(); i++)
 	{
-		if (m_ppObjects[i]->m_SPBB.Intersects(rayOrigin, rayDirection, rayDistance)&& m_ppObjects[i]->m_fObjectType==1)
+		if (m_ppObjects[i]->m_SPBB.Intersects(rayOrigin, rayDirection, rayDistance) && m_ppObjects[i]->m_fObjectType == 1)
 		{
 			m_pSelectedObject = m_ppObjects[i];
 			rayDistance = rayDistance;

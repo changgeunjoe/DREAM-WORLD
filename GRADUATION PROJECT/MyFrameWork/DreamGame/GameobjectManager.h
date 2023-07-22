@@ -22,9 +22,9 @@ class Projectile;
 class Monster;
 class NormalMonster;
 class Warrior;
-class Archer ;
-class Tanker ;
-class Priest ;
+class Archer;
+class Tanker;
+class Priest;
 
 class GameobjectManager
 {
@@ -88,7 +88,7 @@ public:
 	void AddTextToUILayer(int& index);
 	void AddDamageFontToUiLayer();
 	float CalculateDistance(const XMFLOAT3& firstPosition, const XMFLOAT3& lastPosition);
-	
+
 
 private: //active object 
 	vector<GameObject*> m_ppGameObjects;
@@ -134,7 +134,7 @@ private: //active object
 
 	CLight* m_pLight{ NULL };
 	CCamera* m_pCamera{ NULL };
-	int m_nSetCharacter{0};
+	int m_nSetCharacter{ 0 };
 
 
 
@@ -196,7 +196,7 @@ private: //active object
 	//TrailObject
 	GameObject* m_pTrailObject{ NULL };
 	TrailComponent* m_pTrailComponent{ NULL };
-	array<GameObject*,10> m_pTrailArrowObject{ NULL };
+	array<GameObject*, 10> m_pTrailArrowObject{ NULL };
 	array<TrailComponent*, 10>m_pTrailArrowComponent{ NULL };
 	//
 	//AstarObject
@@ -231,7 +231,7 @@ private: //active object
 	//CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
 	CB_GAMEFRAMEWORK_INFO* m_pcbMappedGameObjects = nullptr;
 
-	BoundingSphere		m_SPBBPortal= BoundingSphere(XMFLOAT3(0.0f, 0.0f, 0.0f), 30);
+	BoundingSphere		m_SPBBPortal = BoundingSphere(XMFLOAT3(0.0f, 0.0f, 0.0f), 30);
 	float				m_fStageChangeTime = 0.0f;
 	bool				m_bPortalCheck = false;
 
@@ -269,5 +269,6 @@ public:
 	EffectObject** GetHealingEffectArr() { return &m_ppHealingEffectObject[0]; }
 	void SetCharactersStage1Postion();
 	void SetCharactersBossStagePostion();
+	void SetPortalCheck(bool b) { m_bPortalCheck = b; }
 };
 
