@@ -80,6 +80,8 @@ public:
 	virtual void onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	virtual void onProcessingMouseMessageUI(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
+
+	void ChangeStage1ToStage2(float fTimeelpased);
 	bool CheckCollision(vector<GameObject*> m_ppObjects);
 
 
@@ -154,15 +156,14 @@ private: //active object
 	GameObject* m_pPressGUIObject{ NULL };
 	GameObject* m_pAttackUIObject{ NULL };
 	GameObject* m_pConditionUIObject{ NULL };
+	GameObject* m_pConditionHealUIObject{ NULL };
 	GameObject* m_pSceneChangeUIObject{ NULL };
-
 	//Skill	
 	GameObject* m_pHealSkillUIObject{ NULL };
 	GameObject* m_pLightningSkillUIObject{ NULL };
 	GameObject* m_pShieldSkillUIObject{ NULL };
 	GameObject* m_pSwordSkillUIObject{ NULL };
 	GameObject* m_pArrowSkillUIObject{ NULL };
-
 	//SECTION 2
 	GameObject* m_pUIGameCreateObject{ NULL };
 	GameObject* m_pUIEnterRoomObject{ NULL };
@@ -209,6 +210,9 @@ private: //active object
 	array<EffectObject*, 4> m_ppHealingEffectObject{ NULL };
 	EffectObject* m_pDebuffObject{ NULL };
 	EffectObject* m_pLightEffectObject{ NULL };
+	EffectObject* m_pSheildEffectObject{ NULL };
+	EffectObject* m_pPortalEffectObject{ NULL };
+	vector<EffectObject*> m_ppEffectObjects{};
 
 	//NPC Object 
 	GameObject* m_pAngelNPCObject{ NULL };
@@ -227,6 +231,9 @@ private: //active object
 	//CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
 	CB_GAMEFRAMEWORK_INFO* m_pcbMappedGameObjects = nullptr;
 
+	BoundingSphere		m_SPBBPortal= BoundingSphere(XMFLOAT3(0.0f, 0.0f, 0.0f), 30);
+	float				m_fStageChangeTime = 0.0f;
+	bool				m_bPortalCheck = false;
 
 public:
 	std::vector<int> m_VecNodeQueue;
@@ -237,8 +244,11 @@ public:
 	int m_iTEXTiIndex{ 2 };
 	int m_nStageType = 1;
 	int m_bSkipText{ false };
+	int m_bSendNPCPK{ false };
 	bool m_bSendNpccollisionPK{ false };
 	bool m_bSceneSwap{ false };
+	bool m_bPickingenemy{ false };
+	bool m_bLobbyTalkScreenSend{ true };
 public:
 	void SetPlayCharacter(Session* pSession);
 	void SetSection(int n) { m_nSection = n; }
@@ -250,6 +260,7 @@ public:
 	void ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, const char* fileName, CLoadedModelInfoCompnent* modelName, int type, int stagetype);
 	void ReadNormalMonsterFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, const char* fileName, CLoadedModelInfoCompnent* modelName, int type, int stagetype);
 	bool CheckCollideNPC();
+	void CheckCollidePortal();
 	vector<GameObject*>& GetObstacle() { return m_ppObstacleObjects; }
 	Character* GetChracterInfo(ROLE r);
 	Monster* GetBossMonster() { return m_pMonsterObject; }

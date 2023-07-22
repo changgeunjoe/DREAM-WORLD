@@ -183,7 +183,8 @@ public:
 	float                           m_fBoundingSize{ 8.0f };
 	XMFLOAT3                        m_xmf3BoundingSphereOffset{ 0.0f, 0.0f, 0.0f };
 	BoundingSphere					m_SPBB = BoundingSphere(XMFLOAT3(0.0f, 0.0f, 0.0f), m_fBoundingSize);
-	BoundingSphere					m_SPBBNPC = BoundingSphere(XMFLOAT3(30.0f, 30.0f, 30.0f), m_fBoundingSize);
+	BoundingSphere					m_SPBBNPC = BoundingSphere(XMFLOAT3(30.0f, 30.0f, 30.0f), 30);
+	
 	BoundingOrientedBox				m_OBB;
 	GameObject* m_VisualizeSPBB{ nullptr };
 
@@ -207,6 +208,8 @@ public:
 
 	int								m_nStageType = 0;
 	float							m_fSkillSize = 0.0f;
+
+	float							m_fObjectType = 0.0f;
 protected:
 
 protected:
@@ -345,11 +348,12 @@ protected:
 public:
 	XMFLOAT3 m_xmf3RamdomDirection{};
 public:
-	GameObject* m_pHPBarUI{ nullptr };
-	GameObject* m_pProfileUI{ nullptr };
-	GameObject* m_pSkillUI{ nullptr };
-	GameObject* m_pTrailStart{ nullptr };
-	GameObject* m_pTrailEnd{ nullptr };
+	GameObject* m_pHPBarUI{ NULL };
+	GameObject* m_pProfileUI{ NULL };
+	GameObject* m_pSkillQUI{ NULL };
+	GameObject* m_pSkillEUI{ NULL };
+	GameObject* m_pTrailStart{ NULL };
+	GameObject* m_pTrailEnd{ NULL };
 	TrailComponent* m_pTrail{ nullptr };
 	std::queue<int> m_BossRoute;
 	std::mutex m_lockBossRoute;

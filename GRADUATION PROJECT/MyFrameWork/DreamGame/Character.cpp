@@ -1144,8 +1144,8 @@ void Archer::ShootArrow()
 			// static_cast<Arrow*>(m_pProjectiles[m_nProjectiles])->m_xmf3TargetPos = targetPos;
 			// static_cast<Arrow*>(m_pProjectiles[m_nProjectiles])->m_ArrowType = 1;
 			// static_cast<Arrow*>(m_pProjectiles[m_nProjectiles])->m_ArrowPos = 0.0f;
-			g_NetworkHelper.SendArrowAttackPacket(objPosition, m_pProjectiles[m_nProjectiles]->m_xmf3direction, 
-					m_pProjectiles[m_nProjectiles]->m_fSpeed);
+			g_NetworkHelper.SendArrowAttackPacket(objPosition, m_pProjectiles[m_nProjectiles]->m_xmf3direction,
+				m_pProjectiles[m_nProjectiles]->m_fSpeed);
 
 			m_nProjectiles++;
 		}
@@ -1177,7 +1177,7 @@ void Archer::ShootArrow()
 		if (m_pProjectiles[m_nProjectiles]->m_fSpeed > 10)
 		{
 			m_pProjectiles[m_nProjectiles]->m_bActive = true;
-			g_NetworkHelper.SendArrowAttackPacket(m_pProjectiles[m_nProjectiles]->m_xmf3startPosition, 
+			g_NetworkHelper.SendArrowAttackPacket(m_pProjectiles[m_nProjectiles]->m_xmf3startPosition,
 				m_pProjectiles[m_nProjectiles]->m_xmf3direction, m_pProjectiles[m_nProjectiles]->m_fSpeed);
 			m_nProjectiles++;
 		}
@@ -1201,7 +1201,7 @@ void Archer::ShootArrow()
 		m_pProjectiles[m_nProjectiles]->m_bActive = true;
 		//static_cast<Arrow*>(m_pProjectiles[m_nProjectiles])->m_xmf3TargetPos = XMFLOAT3(0.0f, -1.0f, 0.0f);
 		//static_cast<Arrow*>(m_pProjectiles[m_nProjectiles])->m_ArrowType = 0;
-		g_NetworkHelper.SendArrowAttackPacket(m_pProjectiles[m_nProjectiles]->m_xmf3startPosition, 
+		g_NetworkHelper.SendArrowAttackPacket(m_pProjectiles[m_nProjectiles]->m_xmf3startPosition,
 			m_pProjectiles[m_nProjectiles]->m_xmf3direction, m_pProjectiles[m_nProjectiles]->m_fSpeed);
 		m_nProjectiles++;
 		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_ATTACK]->m_fPosition = -ANIMATION_CALLBACK_EPSILON;
@@ -1745,7 +1745,7 @@ void Priest::Animate(float fTimeElapsed)
 
 	if (CheckAnimationEnd(CA_ATTACK) == true)
 	{
-		if(m_pCamera) Attack();
+		if (m_pCamera) Attack();
 		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd = false;
 	}
 
@@ -1755,7 +1755,7 @@ void Priest::Animate(float fTimeElapsed)
 	}
 
 	for (int i = 0; i < m_pProjectiles.size(); ++i)
-		if(m_pProjectiles[i]) m_pProjectiles[i]->Animate(fTimeElapsed);
+		if (m_pProjectiles[i]) m_pProjectiles[i]->Animate(fTimeElapsed);
 
 	SetLookDirection();
 	Move(fTimeElapsed);
@@ -2134,6 +2134,14 @@ void Projectile::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
+void Projectile::Move(XMFLOAT3 dir, float fDistance)
+{
+	XMFLOAT3 xmf3Position = GetPosition();
+	xmf3Position = Vector3::Add(xmf3Position, dir, fDistance);
+	if (Vector3::Length(xmf3Position) < PLAYER_MAX_RANGE)	GameObject::SetPosition(xmf3Position);
+}
+
+
 Arrow::Arrow() : Projectile()
 {
 	m_fSpeed = 150.0f;
@@ -2189,8 +2197,8 @@ void Arrow::Animate(float fTimeElapsed)
 	//}
 	//else
 	//{
-		SetLook(m_xmf3direction);
-		MoveForward(fTimeElapsed * m_fSpeed);
+	SetLook(m_xmf3direction);
+	Move(m_xmf3direction, fTimeElapsed * m_fSpeed);
 	//}
 
 	if (m_VisualizeSPBB) m_VisualizeSPBB->SetPosition(XMFLOAT3(GetPosition().x, GetPosition().y, GetPosition().z));
@@ -2252,7 +2260,7 @@ void EnergyBall::Animate(float fTimeElapsed)
 		XMFLOAT3 firstVec = Vector3::Subtract(controlPoint, m_xmf3startPosition);
 		XMFLOAT3 secondVec = Vector3::Subtract(TargetPos, controlPoint);
 
-		XMFLOAT3 FirstLinePoint= Vector3::Add(Vector3::ScalarProduct(m_xmf3startPosition, (1 - m_fProgress), false), Vector3::ScalarProduct(controlPoint, m_fProgress, false));
+		XMFLOAT3 FirstLinePoint = Vector3::Add(Vector3::ScalarProduct(m_xmf3startPosition, (1 - m_fProgress), false), Vector3::ScalarProduct(controlPoint, m_fProgress, false));
 		XMFLOAT3 SecondLinePoint = Vector3::Add(Vector3::ScalarProduct(controlPoint, (1 - m_fProgress), false), Vector3::ScalarProduct(TargetPos, m_fProgress, false));
 		XMFLOAT3 curPos = Vector3::Add(Vector3::ScalarProduct(FirstLinePoint, (1 - m_fProgress), false), Vector3::ScalarProduct(SecondLinePoint, m_fProgress, false));
 
@@ -2262,14 +2270,6 @@ void EnergyBall::Animate(float fTimeElapsed)
 	}
 	break;
 	}
-	if (m_VisualizeSPBB) m_VisualizeSPBB->SetPosition(XMFLOAT3(GetPosition().x, GetPosition().y, GetPosition().z));
-}
-
-void EnergyBall::Move(XMFLOAT3 dir, float fDistance)
-{
-	XMFLOAT3 xmf3Position = GetPosition();
-	xmf3Position = Vector3::Add(xmf3Position, dir, fDistance);
-	GameObject::SetPosition(xmf3Position);
 }
 
 void EnergyBall::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender)

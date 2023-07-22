@@ -1,0 +1,5 @@
+PortalRock
+<position>: -21.0803 -4.199997 97.8 
+<quaternion>: 0 -0.1088771 0 0.9940553 
+<rotation>: 0 347.4988 0 
+<scale>: 10 10 10 
