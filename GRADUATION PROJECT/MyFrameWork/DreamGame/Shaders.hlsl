@@ -780,13 +780,17 @@ float4 PSShadowMapShadow(VS_SHADOW_MAP_OUTPUT input) : SV_TARGET
     
     ////////////////////////////////////////////////////
         // Dissolve 효과를 위한 변수
-    float dissolveAmount = 0.0f; // Dissolve 정도
-    if (cColor.w < 0.1f && gmtxGameObjectColor.a != 1)
+   // float dissolveAmount = 0.0f; // Dissolve 정도
+    if (cColor.w < 0.1f && gmtxGameObjectColor.z != 102.7)
         return cColor;
-    //if (cGammaColor.y < gmtxGameObjectColor.w)
-    //{
-    //    return float4(cGammaColor, 0);
-    //}
+    if (gmtxGameObjectColor.w == 102.7)
+    {
+        return float4(cGammaColor, 1);
+    }
+    if ( cGammaColor.y < gmtxGameObjectColor.w )
+    {
+        return float4(cGammaColor, 0);
+    }
     // Dissolve 활성화 여부를 확인
     //if (cAlbedoColor.r < gmtxGameObjectColor.w && gfMode == DISSOLVE_MODE)
     //{

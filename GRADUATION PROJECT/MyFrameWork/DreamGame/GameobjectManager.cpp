@@ -111,17 +111,13 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	//g_Logic.m_MonsterSession.m_currentPlayGameObject->Animate(fTimeElapsed);
 	//auto pos = g_Logic.m_MonsterSession.m_currentPlayGameObject->GetPosition();
 	//cout << "GameobjectManager::Boss Position: " << pos.x << ", 0, " << pos.z << endl;
-	for (int i = 0; i < m_ppGameObjects.size(); ++i)
-	{
-		if (m_xmfMode == DISSOLVE_MODE)
-			m_ppGameObjects[i]->Die(fTimeElapsed);
-	}
+
 
 	m_pArcherObject->m_pHPBarUI->SetCurrentHP(m_pArcherObject->GetCurrentHP());
 	m_pWarriorObject->m_pHPBarUI->SetCurrentHP(m_pWarriorObject->GetCurrentHP());
 	m_pTankerObject->m_pHPBarUI->SetCurrentHP(m_pTankerObject->GetCurrentHP());
 	m_pPriestObject->m_pHPBarUI->SetCurrentHP(m_pPriestObject->GetCurrentHP());
-
+	ChangeStage1ToStage2(fTimeElapsed);//포탈과 상호작용시에 스테이지 1이 사라지고 보스스테이지 2가 나오는 함수
 	CharacterUIAnimate(fTimeElapsed);
 	TrailAnimate(fTimeElapsed);
 	//TextUI Update
@@ -778,6 +774,18 @@ bool GameobjectManager::CheckCollideNPC()
 	return	m_pAngelNPCObject->m_SPBBNPC.Intersects(myCharacter->m_SPBB);
 }
 
+void GameobjectManager::CheckCollidePortal()
+{
+	Character* myCharacter = GetChracterInfo(g_Logic.GetMyRole());
+	if (myCharacter == nullptr) {
+		exit(0);
+	}
+	if (m_SPBBPortal.Intersects(myCharacter->m_SPBB) && m_bPortalCheck == false) 
+		{
+			m_bPortalCheck = true;
+		}
+}
+
 Character* GameobjectManager::GetChracterInfo(ROLE r)
 {
 	if (r == ROLE::WARRIOR) return m_pWarriorObject;
@@ -1198,7 +1206,7 @@ void GameobjectManager::BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pStage1Objects[0]->SetModel("Model/New_Terrain.bin");
 	m_pStage1Objects[0]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pStage1Objects[0]->SetScale(10);
-	m_pStage1Objects[0]->SetColor(XMFLOAT4(0, 1.0f, 1.0f, 1));
+	m_pStage1Objects[0]->SetColor(XMFLOAT4(0, 1.0f, 102.7f, 0));
 	m_pStage1Objects[0]->SetRimLight(false);
 	m_pStage1Objects[0]->m_nStageType = STAGE1;
 	m_ppGameObjects.emplace_back(m_pStage1Objects[0]);
@@ -2180,6 +2188,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 				m_bSendNpccollisionPK = true;
 				m_bNPCinteraction = true;
 			}
+			CheckCollidePortal();
 			break;
 		}
 		case 'H':
@@ -2204,11 +2213,11 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		{
 #ifdef LOCAL_TASK
 			if (m_nStageType == 1) {
-				m_nStageType = 2;
+				//m_nStageType = 2;
 				m_pPlayerObject->SetPosition(XMFLOAT3(0, 0, 0));
 			}
 			else if (m_nStageType == 2) {
-				m_nStageType = 1;
+				//m_nStageType = 1;
 				m_pPlayerObject->SetPosition(XMFLOAT3(-1400, 0, -1500));
 			}
 #endif
@@ -2546,6 +2555,31 @@ void GameobjectManager::SetUIActive()
 	m_pUIArcherCharacterObject->m_bUIActive = true;
 	m_pUITankerCharacterObject->m_bUIActive = true;
 	m_pUIPriestCharacterObject->m_bUIActive = true;
+}
+
+void GameobjectManager::ChangeStage1ToStage2(float fTimeelpased)
+{
+	if (m_bPortalCheck){
+		m_fStroyTime += fTimeelpased;
+		if (m_fStroyTime < 6) {
+			for (int i = 0; i < m_ppGameObjects.size(); ++i)
+			{
+				if (m_ppGameObjects[i]->m_nStageType == STAGE1)
+					m_ppGameObjects[i]->Die(m_fStroyTime / 13);
+			}
+		}
+		if (m_fStroyTime > 6) {
+			m_nStageType = 2;
+			for (int i = 0; i < m_ppGameObjects.size(); ++i)
+			{
+				if (m_ppGameObjects[i]->m_nStageType == STAGE2)
+					{
+						m_ppGameObjects[i]->Die(1 - (m_fStroyTime-6) / 5);
+					}
+			}
+		}
+	}
+	
 }
 
 bool GameobjectManager::CheckCollision(vector<GameObject*> m_ppObjects)

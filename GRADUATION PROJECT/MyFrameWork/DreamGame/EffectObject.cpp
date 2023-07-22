@@ -383,10 +383,10 @@ void PortalEffectObject::AnimateEffect(CCamera* pCamera, XMFLOAT3 xm3position, f
 	if (m_pPortalEffectObject) {
 		m_pPortalEffectObject->SetLookAt(pCamera->GetPosition());
 		m_pPortalEffectObject->SetPosition(XMFLOAT3(
-			xm3position.x,
-			xm3position.y + 5,
+			xm3position.x+20,
+			xm3position.y + 20,
 			xm3position.z));
-		m_pPortalEffectObject->Rotate(0, 180, fTime);
+		m_pPortalEffectObject->Rotate(0, 180, fTime*1.5);
 		m_pPortalEffectObject->SetScale(3, 3, 1);
 		//m_pPortalEffectObject->SetColor(XMFLOAT4(0, 1, 0, 0.4));
 		m_pPortalEffectObject->SetCurrentHP(100);

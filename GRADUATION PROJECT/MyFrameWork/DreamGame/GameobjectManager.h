@@ -76,6 +76,8 @@ public:
 	virtual void onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	virtual void onProcessingMouseMessageUI(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
+
+	void ChangeStage1ToStage2(float fTimeelpased);
 	bool CheckCollision(vector<GameObject*> m_ppObjects);
 
 
@@ -222,6 +224,9 @@ private: //active object
 	//CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
 	CB_GAMEFRAMEWORK_INFO* m_pcbMappedGameObjects = nullptr;
 
+	BoundingSphere		m_SPBBPortal= BoundingSphere(XMFLOAT3(0.0f, 0.0f, 0.0f), 30);
+	float				m_fStageChangeTime = 0.0f;
+	bool				m_bPortalCheck = false;
 
 public:
 	std::vector<int> m_VecNodeQueue;
@@ -248,6 +253,7 @@ public:
 	void ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, const char* fileName, CLoadedModelInfoCompnent* modelName, int type, int stagetype);
 	void ReadNormalMonsterFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, const char* fileName, CLoadedModelInfoCompnent* modelName, int type, int stagetype);
 	bool CheckCollideNPC();
+	void CheckCollidePortal();
 	vector<GameObject*>& GetObstacle() { return m_ppObstacleObjects; }
 	Character* GetChracterInfo(ROLE r);
 	Monster* GetBossMonster() { return m_pMonsterObject; }
