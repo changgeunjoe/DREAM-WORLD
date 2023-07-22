@@ -351,8 +351,8 @@ public:
 public:
 	GameObject* m_pHPBarUI{ NULL };
 	GameObject* m_pProfileUI{ NULL };
-	GameObject* m_pSkillUI{ NULL };
-	GameObject* m_pSkillUI2{ NULL };
+	GameObject* m_pSkillQUI{ NULL };
+	GameObject* m_pSkillEUI{ NULL };
 	GameObject* m_pTrailStart{ NULL };
 	GameObject* m_pTrailEnd{ NULL };
 	std::queue<int> m_BossRoute;

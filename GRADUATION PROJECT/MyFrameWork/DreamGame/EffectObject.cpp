@@ -91,7 +91,7 @@ void EffectObject::RenderEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandL
 {
 	SortEffect();//카메라 거리별로 Sort후 렌더
 	for (int i = 0; i < m_pEffectObjects.size(); i++) {
-			m_pEffectObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		m_pEffectObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 
 }
@@ -219,139 +219,177 @@ void EffectObject::Particle(CCamera* pCamera, float fTimeElapsed, XMFLOAT3& xm3p
 			}
 		}
 		else if (m_fLifetime > 3) {
-		
+
 			m_fLifetime = 0;
 			gGameFramework.GetScene()->GetObjectManager()->m_bPickingenemy = false;
 		}
 	}
 }
 
-	//void EffectObject::ParticleReset(float fTimeElapsed)
-	//{
-	//	//if (m_fLifetime > 5) {
-	//	//	m_fLifetime = 0;
-	//	//	for (int i = 0; i < m_ppParticleObjects.size(); i++) {
-	//	//		m_ppParticleObjects[i]->m_fTime = 0;
-	//	//	
-	//	//	
-	//
-	//	//		//빌드 오브젝트
-	//	//		//m_ppParticleObjects[i]->MoveVelocity(m_ppParticleObjects[i]->m_xmf3RamdomDirection, 0.01);
-	//	//	}
-	//	//}
-	//}
+//void EffectObject::ParticleReset(float fTimeElapsed)
+//{
+//	//if (m_fLifetime > 5) {
+//	//	m_fLifetime = 0;
+//	//	for (int i = 0; i < m_ppParticleObjects.size(); i++) {
+//	//		m_ppParticleObjects[i]->m_fTime = 0;
+//	//	
+//	//	
+//
+//	//		//빌드 오브젝트
+//	//		//m_ppParticleObjects[i]->MoveVelocity(m_ppParticleObjects[i]->m_xmf3RamdomDirection, 0.01);
+//	//	}
+//	//}
+//}
 
 
-	bool CompareGameObjects(const GameObject * obj1, const GameObject * obj2)
-	{
-		return obj1->GetDistance() > obj2->GetDistance();
+bool CompareGameObjects(const GameObject* obj1, const GameObject* obj2)
+{
+	return obj1->GetDistance() > obj2->GetDistance();
+}
+
+LightningEffectObject::LightningEffectObject()
+{
+}
+
+LightningEffectObject::~LightningEffectObject()
+{
+}
+
+void LightningEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+{
+	for (int i = 0; i < m_pLightningSpriteObject.size(); i++) {
+		m_pLightningSpriteObject[i] = new GameObject(UNDEF_ENTITY);
+		m_pLightningSpriteObject[i]->InsertComponent<RenderComponent>();
+		m_pLightningSpriteObject[i]->InsertComponent<UIMeshComponent>();
+		m_pLightningSpriteObject[i]->InsertComponent<MultiSpriteShaderComponent>();
+		m_pLightningSpriteObject[i]->InsertComponent<TextureComponent>();
+		m_pLightningSpriteObject[i]->SetTexture(L"MagicEffect/Lightning_2x2.dds", RESOURCE_TEXTURE2D, 3);
+		m_pLightningSpriteObject[i]->SetPosition(XMFLOAT3(0, 40, 100 + 10 * i));
+		m_pLightningSpriteObject[i]->SetScale(7.0f, 12.0f, 7.0f);
+		m_pLightningSpriteObject[i]->SetRowColumn(2.0f, 2.0f, 0.06f + 0.5 * i);
+		m_pLightningSpriteObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		m_pLightningSpriteObject[i]->m_fTime = RandF(0, 10);
+		m_pEffectObjects.push_back(m_pLightningSpriteObject[i]);
 	}
 
-	LightningEffectObject::LightningEffectObject()
-	{
+	for (int i = 0; i < m_ppParticleObjects.size(); i++) {
+		m_ppParticleObjects[i] = new GameObject(UNDEF_ENTITY);
+		m_ppParticleObjects[i]->InsertComponent<RenderComponent>();
+		m_ppParticleObjects[i]->InsertComponent<UIMeshComponent>();
+		m_ppParticleObjects[i]->InsertComponent<EffectShaderComponent>();
+		m_ppParticleObjects[i]->InsertComponent<TextureComponent>();
+		m_ppParticleObjects[i]->SetTexture(L"MagicEffect/Flare.dds", RESOURCE_TEXTURE2D, 3);
+		m_ppParticleObjects[i]->SetAddPosition(XMFLOAT3(RandF(-5, 5), RandF(-5, 5), RandF(-5, 5)));
+		m_ppParticleObjects[i]->SetPosition(XMFLOAT3(0, 0, 0));
+		m_ppParticleObjects[i]->SetColor(XMFLOAT4(0.2666f, 0.58039f, 0.8862f, 0));
+		m_ppParticleObjects[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		m_ppParticleObjects[i]->m_fTime = 0;
+		m_ppParticleObjects[i]->m_xmf3RamdomDirection = XMFLOAT3(RandF(-0.3, 0.3), RandF(0, 0.6), RandF(-0.3, 0.3));
+		m_pEffectObjects.push_back(m_ppParticleObjects[i]);
+	}
+}
+
+
+void LightningEffectObject::AnimateEffect(CCamera* pCamera, XMFLOAT3 xm3position, float ftimeelapsed, float fTime)
+{
+
+	Particle(pCamera, ftimeelapsed, xm3position);
+	for (int i = 0; i < m_pEffectObjects.size(); i++) {
+		m_pEffectObjects[i]->CalculateDistance(pCamera->GetPosition());
 	}
 
-	LightningEffectObject::~LightningEffectObject()
-	{
+}
+void LightningEffectObject::AnimateLight(CCamera* pCamera, XMFLOAT3 xm3position, float ftimeelapsed, float fTime)
+{
+	for (int i = 0; i < m_pLightningSpriteObject.size(); i++) {
+
+		m_pLightningSpriteObject[i]->SetLookAt(pCamera->GetPosition());
+		m_pLightningSpriteObject[i]->SetScale(7.0f, 20.0f, 7.0f);
+		m_pLightningSpriteObject[i]->Rotate(0, 100 * i * 30, 0);
+		m_pLightningSpriteObject[i]->SetPosition(XMFLOAT3(
+			xm3position.x,
+			xm3position.y + 40,
+			xm3position.z + i * 2));
+		m_pLightningSpriteObject[i]->AnimateRowColumn(ftimeelapsed);
 	}
 
-	void LightningEffectObject::BuildEffect(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, ID3D12RootSignature * pd3dGraphicsRootSignature)
-	{
-		for (int i = 0; i < m_pLightningSpriteObject.size(); i++) {
-			m_pLightningSpriteObject[i] = new GameObject(UNDEF_ENTITY);
-			m_pLightningSpriteObject[i]->InsertComponent<RenderComponent>();
-			m_pLightningSpriteObject[i]->InsertComponent<UIMeshComponent>();
-			m_pLightningSpriteObject[i]->InsertComponent<MultiSpriteShaderComponent>();
-			m_pLightningSpriteObject[i]->InsertComponent<TextureComponent>();
-			m_pLightningSpriteObject[i]->SetTexture(L"MagicEffect/Lightning_2x2.dds", RESOURCE_TEXTURE2D, 3);
-			m_pLightningSpriteObject[i]->SetPosition(XMFLOAT3(0, 40, 100 + 10 * i));
-			m_pLightningSpriteObject[i]->SetScale(7.0f, 12.0f, 7.0f);
-			m_pLightningSpriteObject[i]->SetRowColumn(2.0f, 2.0f, 0.06f + 0.5 * i);
-			m_pLightningSpriteObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-			m_pLightningSpriteObject[i]->m_fTime = RandF(0, 10);
-			m_pEffectObjects.push_back(m_pLightningSpriteObject[i]);
+}
+
+SheildEffectObject::SheildEffectObject()
+{
+}
+
+SheildEffectObject::~SheildEffectObject()
+{
+}
+
+void SheildEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+{
+	for (int i = 0; i < m_pSheildEffectObject.size(); i++) {
+		m_pSheildEffectObject[i] = new GameObject(UNDEF_ENTITY);
+		m_pSheildEffectObject[i]->InsertComponent<RenderComponent>();
+		m_pSheildEffectObject[i]->InsertComponent<UIMeshComponent>();
+		m_pSheildEffectObject[i]->InsertComponent <BlendShaderComponent>();
+		m_pSheildEffectObject[i]->InsertComponent<TextureComponent>();
+		m_pSheildEffectObject[i]->SetTexture(L"UI/Shield.dds", RESOURCE_TEXTURE2D, 3);
+		m_pSheildEffectObject[i]->SetPosition(XMFLOAT3(0, 40, 100));
+		m_pSheildEffectObject[i]->SetScale(10);
+		m_pSheildEffectObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		m_pEffectObjects.push_back(m_pSheildEffectObject[i]);
+	}
+}
+
+void SheildEffectObject::AnimateEffect(CCamera* pCamera, XMFLOAT3 xm3position, float ftimeelapsed, float fTime)
+{
+	for (int i = 0; i < m_pSheildEffectObject.size(); i++) {
+		if (m_pSheildEffectObject[i]) {
+			m_pSheildEffectObject[i]->SetLookAt(pCamera->GetPosition());
+			m_pSheildEffectObject[i]->SetPosition(XMFLOAT3(
+				xm3position.x + 5 * i,
+				xm3position.y + 5,
+				xm3position.z));
+			m_pSheildEffectObject[i]->Rotate(0, 180, 0);
+			m_pSheildEffectObject[i]->SetScale(3, 3, 1);
+			m_pSheildEffectObject[i]->SetColor(XMFLOAT4(0, 1, 0, 0.4));
+			m_pSheildEffectObject[i]->SetCurrentHP(100);
 		}
+	}
+}
 
-		for (int i = 0; i < m_ppParticleObjects.size(); i++) {
-			m_ppParticleObjects[i] = new GameObject(UNDEF_ENTITY);
-			m_ppParticleObjects[i]->InsertComponent<RenderComponent>();
-			m_ppParticleObjects[i]->InsertComponent<UIMeshComponent>();
-			m_ppParticleObjects[i]->InsertComponent<EffectShaderComponent>();
-			m_ppParticleObjects[i]->InsertComponent<TextureComponent>();
-			m_ppParticleObjects[i]->SetTexture(L"MagicEffect/Flare.dds", RESOURCE_TEXTURE2D, 3);
-			m_ppParticleObjects[i]->SetAddPosition(XMFLOAT3(RandF(-5, 5), RandF(-5, 5), RandF(-5, 5)));
-			m_ppParticleObjects[i]->SetPosition(XMFLOAT3(0, 0, 0));
-			m_ppParticleObjects[i]->SetColor(XMFLOAT4(0.2666f, 0.58039f, 0.8862f, 0));
-			m_ppParticleObjects[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-			m_ppParticleObjects[i]->m_fTime = 0;
-			m_ppParticleObjects[i]->m_xmf3RamdomDirection = XMFLOAT3(RandF(-0.3, 0.3), RandF(0, 0.6), RandF(-0.3, 0.3));
-			m_pEffectObjects.push_back(m_ppParticleObjects[i]);
-		}
+PortalEffectObject::PortalEffectObject()
+{
+}
+
+PortalEffectObject::~PortalEffectObject()
+{
+}
+
+void PortalEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+{
+	m_pPortalEffectObject = new GameObject(UNDEF_ENTITY);
+	m_pPortalEffectObject->InsertComponent<RenderComponent>();
+	m_pPortalEffectObject->InsertComponent<UIMeshComponent>();
+	m_pPortalEffectObject->InsertComponent <BlendShaderComponent>();
+	m_pPortalEffectObject->InsertComponent<TextureComponent>();
+	m_pPortalEffectObject->SetTexture(L"MagicEffect/Portal.dds", RESOURCE_TEXTURE2D, 3);
+	m_pPortalEffectObject->SetPosition(XMFLOAT3(0, 40, 100));
+	m_pPortalEffectObject->SetScale(10);
+	m_pPortalEffectObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pEffectObjects.push_back(m_pPortalEffectObject);
+}
+
+void PortalEffectObject::AnimateEffect(CCamera* pCamera, XMFLOAT3 xm3position, float ftimeelapsed, float fTime)
+{
+	if (m_pPortalEffectObject) {
+		m_pPortalEffectObject->SetLookAt(pCamera->GetPosition());
+		m_pPortalEffectObject->SetPosition(XMFLOAT3(
+			xm3position.x,
+			xm3position.y + 5,
+			xm3position.z));
+		m_pPortalEffectObject->Rotate(0, 180, fTime);
+		m_pPortalEffectObject->SetScale(3, 3, 1);
+		//m_pPortalEffectObject->SetColor(XMFLOAT4(0, 1, 0, 0.4));
+		m_pPortalEffectObject->SetCurrentHP(100);
 	}
 
-
-	void LightningEffectObject::AnimateEffect(CCamera * pCamera, XMFLOAT3 xm3position, float ftimeelapsed, float fTime)
-	{
-	
-		Particle(pCamera, ftimeelapsed, xm3position);
-		for (int i = 0; i < m_pEffectObjects.size(); i++) {
-			m_pEffectObjects[i]->CalculateDistance(pCamera->GetPosition());
-		}
-
-	}
-	void LightningEffectObject::AnimateLight(CCamera * pCamera, XMFLOAT3 xm3position, float ftimeelapsed, float fTime)
-	{
-		for (int i = 0; i < m_pLightningSpriteObject.size(); i++) {
-
-			m_pLightningSpriteObject[i]->SetLookAt(pCamera->GetPosition());
-			m_pLightningSpriteObject[i]->SetScale(7.0f, 20.0f, 7.0f);
-			m_pLightningSpriteObject[i]->Rotate(0, 100*i*30, 0);
-			m_pLightningSpriteObject[i]->SetPosition(XMFLOAT3(
-				xm3position.x,
-				xm3position.y + 40,
-				xm3position.z+i*2));
-			m_pLightningSpriteObject[i]->AnimateRowColumn(ftimeelapsed);
-		}
-
-	}
-
-	SheildEffectObject::SheildEffectObject()
-	{
-	}
-
-	SheildEffectObject::~SheildEffectObject()
-	{
-	}
-
-	void SheildEffectObject::BuildEffect(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, ID3D12RootSignature * pd3dGraphicsRootSignature)
-	{
-		for (int i = 0; i < m_pSheildEffectObject.size(); i++) {
-			m_pSheildEffectObject[i] = new GameObject(UNDEF_ENTITY);
-			m_pSheildEffectObject[i]->InsertComponent<RenderComponent>();
-			m_pSheildEffectObject[i]->InsertComponent<UIMeshComponent>();
-			m_pSheildEffectObject[i]->InsertComponent <BlendShaderComponent>();
-			m_pSheildEffectObject[i]->InsertComponent<TextureComponent>();
-			m_pSheildEffectObject[i]->SetTexture(L"UI/Shield.dds", RESOURCE_TEXTURE2D, 3);
-			m_pSheildEffectObject[i]->SetPosition(XMFLOAT3(0, 40, 100));
-			m_pSheildEffectObject[i]->SetScale(10);
-			m_pSheildEffectObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-			m_pEffectObjects.push_back(m_pSheildEffectObject[i]);
-		}
-	}
-
-	void SheildEffectObject::AnimateEffect(CCamera * pCamera, XMFLOAT3 xm3position, float ftimeelapsed, float fTime)
-	{
-		for (int i = 0; i < m_pSheildEffectObject.size(); i++) {
-			if (m_pSheildEffectObject[i]) {
-				m_pSheildEffectObject[i]->SetLookAt(pCamera->GetPosition());
-				m_pSheildEffectObject[i]->SetPosition(XMFLOAT3(
-					xm3position.x + 5 * i,
-					xm3position.y + 5,
-					xm3position.z));
-				m_pSheildEffectObject[i]->Rotate(0, 180, 0);
-				m_pSheildEffectObject[i]->SetScale(3, 3, 1);
-				m_pSheildEffectObject[i]->SetColor(XMFLOAT4(0, 1, 0, 0.4));
-				m_pSheildEffectObject[i]->SetCurrentHP(100);
-			}
-		}
-	}
+}

@@ -148,6 +148,7 @@ private: //active object
 	GameObject* m_pPressGUIObject{ NULL };
 	GameObject* m_pAttackUIObject{ NULL };
 	GameObject* m_pConditionUIObject{ NULL };
+	GameObject* m_pConditionHealUIObject{ NULL };
 	GameObject* m_pSceneChangeUIObject{ NULL };
 	//Skill	
 	GameObject* m_pHealSkillUIObject{ NULL };
@@ -201,6 +202,7 @@ private: //active object
 	EffectObject* m_pDebuffObject{ NULL };
 	EffectObject* m_pLightEffectObject{ NULL };
 	EffectObject* m_pSheildEffectObject{ NULL };
+	EffectObject* m_pPortalEffectObject{ NULL };
 	vector<EffectObject*> m_ppEffectObjects{};
 
 	//NPC Object 
@@ -230,9 +232,11 @@ public:
 	int m_iTEXTiIndex{ 2 };
 	int m_nStageType = 1;
 	int m_bSkipText{ false };
+	int m_bSendNPCPK{ false };
 	bool m_bSendNpccollisionPK{ false };
 	bool m_bSceneSwap{ false };
 	bool m_bPickingenemy{ false };
+	bool m_bLobbyTalkScreenSend{ true };
 public:
 	void SetPlayCharacter(Session* pSession);
 	void SetSection(int n) { m_nSection = n; }

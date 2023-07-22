@@ -58,8 +58,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 {
 	m_fTime += fTimeElapsed;
 	m_fTimeElapsed = fTimeElapsed;
-	/*m_pConditionUIObject->SetColor(XMFLOAT4(0, 0, 0, sin(m_fTime)+0.2));
-	*/
+	
 	m_pSkyboxObject->SetPosition(m_pCamera->GetPosition());
 	m_pLight->UpdatePosition(XMFLOAT3(m_pCamera->GetPosition().x,
 		m_pCamera->GetPosition().y + 600, m_pCamera->GetPosition().z));
@@ -101,6 +100,8 @@ void GameobjectManager::Animate(float fTimeElapsed)
 		//m_pLightningSpriteObject->SetScale(7.0f, 20.0f, 7.0f);
 		//m_pSheildEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 10);
 	}
+	//////
+	m_pPortalEffectObject->AnimateEffect(m_pCamera, XMFLOAT3(0,0,0), fTimeElapsed, m_fTime * 5);
 	//m_pDebuffObject->AnimateEffect(m_pCamera, g_Logic.m_inGamePlayerSession[0].m_currentPlayGameObject->GetPosition(), fTimeElapsed, m_fTime * 10);
 
 	//sword effect
@@ -125,8 +126,8 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	TrailAnimate(fTimeElapsed);
 	//TextUI Update
 	{//서순 중요 AddText
-		AddTextToUILayer(m_iTEXTiIndex);
 		m_pUILayer->Update(fTimeElapsed, m_bNPCinteraction, m_bNPCscreen);
+		AddTextToUILayer(m_iTEXTiIndex);
 	}
 
 }
@@ -135,30 +136,30 @@ void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)//나중에 처리
 {
 
 	if (g_Logic.GetMyRole() == ROLE::ARCHER) {
-		m_pArcherObject->m_pHPBarUI->SetinitScale(0.09, 0.0065, 1);
-		m_pArcherObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.57, 0.46, 1.005));
-		m_pArcherObject->m_pProfileUI->SetinitScale(0.04, 0.025, 1);
-		m_pArcherObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.91, 0.5, 1.005));
+		m_pArcherObject->m_pHPBarUI->SetinitScale(0.07, 0.005, 1);
+		m_pArcherObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.48, 1.005));
+		m_pArcherObject->m_pProfileUI->SetinitScale(0.03, 0.015, 1);
+		m_pArcherObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.5, 1.005));
 		m_pTankerObject->m_pHPBarUI->SetinitScale(0.07, 0.005, 1);
-		m_pTankerObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.36, 1.005));
+		m_pTankerObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.38, 1.005));
 		m_pTankerObject->m_pProfileUI->SetinitScale(0.03, 0.015, 1);
-		m_pTankerObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.38, 1.005));
+		m_pTankerObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.4, 1.005));
 		m_pPriestObject->m_pHPBarUI->SetinitScale(0.07, 0.005, 1);
-		m_pPriestObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.24, 1.005));
+		m_pPriestObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.26, 1.005));
 		m_pPriestObject->m_pProfileUI->SetinitScale(0.03, 0.015, 1);
-		m_pPriestObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.26, 1.005));
+		m_pPriestObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.28, 1.005));
 		m_pWarriorObject->m_pHPBarUI->SetinitScale(0.07, 0.005, 1);
-		m_pWarriorObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.12, 1.005));
+		m_pWarriorObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.14, 1.005));
 		m_pWarriorObject->m_pProfileUI->SetinitScale(0.03, 0.015, 1);
-		m_pWarriorObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.14, 1.005));
-		m_pArcherObject->m_pSkillUI->SetPosition(XMFLOAT3(0.975, 0.1, 1.005));
-		m_pArcherObject->m_pSkillUI2->SetPosition(XMFLOAT3(0.975, 0.0, 1.005));
+		m_pWarriorObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.16, 1.005));
+		m_pArcherObject->m_pSkillQUI->SetPosition(XMFLOAT3(-0.975, 0.0, 1.005));
+		m_pArcherObject->m_pSkillEUI->SetPosition(XMFLOAT3(-0.975, -0.1, 1.005));
 	}
 	else if (g_Logic.GetMyRole() == ROLE::TANKER) {
-		m_pTankerObject->m_pHPBarUI->SetinitScale(0.09, 0.0065, 1);
-		m_pTankerObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.57, 0.46, 1.005));
-		m_pTankerObject->m_pProfileUI->SetinitScale(0.04, 0.025, 1);
-		m_pTankerObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.91, 0.5, 1.005));
+		m_pTankerObject->m_pHPBarUI->SetinitScale(0.07, 0.005, 1);
+		m_pTankerObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.46, 1.005));
+		m_pTankerObject->m_pProfileUI->SetinitScale(0.03, 0.015, 1);
+		m_pTankerObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.48, 1.005));
 		m_pArcherObject->m_pHPBarUI->SetinitScale(0.07, 0.005, 1);
 		m_pArcherObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.36, 1.005));
 		m_pArcherObject->m_pProfileUI->SetinitScale(0.03, 0.015, 1);
@@ -171,14 +172,14 @@ void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)//나중에 처리
 		m_pWarriorObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.12, 1.005));
 		m_pWarriorObject->m_pProfileUI->SetinitScale(0.03, 0.015, 1);
 		m_pWarriorObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.14, 1.005));
-		m_pTankerObject->m_pSkillUI->SetPosition(XMFLOAT3(0.975, 0.1, 1.005));
-		m_pTankerObject->m_pSkillUI2->SetPosition(XMFLOAT3(0.975, 0.0, 1.005));
+		m_pTankerObject->m_pSkillQUI->SetPosition(XMFLOAT3(0.975, 0.1, 1.005));
+		m_pTankerObject->m_pSkillEUI->SetPosition(XMFLOAT3(0.975, 0.0, 1.005));
 	}
 	else if (g_Logic.GetMyRole() == ROLE::PRIEST) {
-		m_pPriestObject->m_pHPBarUI->SetinitScale(0.09, 0.0065, 1);
-		m_pPriestObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.57, 0.46, 1.005));
-		m_pPriestObject->m_pProfileUI->SetinitScale(0.04, 0.025, 1);
-		m_pPriestObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.91, 0.5, 1.005));
+		m_pPriestObject->m_pHPBarUI->SetinitScale(0.07, 0.005, 1);
+		m_pPriestObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.46, 1.005));
+		m_pPriestObject->m_pProfileUI->SetinitScale(0.03, 0.015, 1);
+		m_pPriestObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.48, 1.005));
 		m_pTankerObject->m_pHPBarUI->SetinitScale(0.07, 0.005, 1);
 		m_pTankerObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.36, 1.005));
 		m_pTankerObject->m_pProfileUI->SetinitScale(0.03, 0.015, 1);
@@ -191,15 +192,15 @@ void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)//나중에 처리
 		m_pWarriorObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.12, 1.005));
 		m_pWarriorObject->m_pProfileUI->SetinitScale(0.03, 0.015, 1);
 		m_pWarriorObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.14, 1.005));
-		m_pPriestObject->m_pSkillUI->SetPosition(XMFLOAT3(-0.975, -0.2, 1.005));
-		m_pPriestObject->m_pSkillUI->SetPosition(XMFLOAT3(0.975, 0.1, 1.005));
-		m_pPriestObject->m_pSkillUI2->SetPosition(XMFLOAT3(0.975, 0.0, 1.005));
+		m_pPriestObject->m_pSkillQUI->SetPosition(XMFLOAT3(-0.975, -0.2, 1.005));
+		m_pPriestObject->m_pSkillQUI->SetPosition(XMFLOAT3(0.975, 0.1, 1.005));
+		m_pPriestObject->m_pSkillEUI->SetPosition(XMFLOAT3(0.975, 0.0, 1.005));
 	}
 	else if (g_Logic.GetMyRole() == ROLE::WARRIOR) {
-		m_pWarriorObject->m_pHPBarUI->SetinitScale(0.09, 0.0065, 1);
-		m_pWarriorObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.57, 0.46, 1.005));
-		m_pWarriorObject->m_pProfileUI->SetinitScale(0.04, 0.025, 1);
-		m_pWarriorObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.91, 0.5, 1.005));
+		m_pWarriorObject->m_pHPBarUI->SetinitScale(0.07, 0.005, 1);
+		m_pWarriorObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.46, 1.005));
+		m_pWarriorObject->m_pProfileUI->SetinitScale(0.03, 0.015, 1);
+		m_pWarriorObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.48, 1.005));
 		m_pTankerObject->m_pHPBarUI->SetinitScale(0.07, 0.005, 1);
 		m_pTankerObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.36, 1.005));
 		m_pTankerObject->m_pProfileUI->SetinitScale(0.03, 0.015, 1);
@@ -212,9 +213,9 @@ void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)//나중에 처리
 		m_pArcherObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.12, 1.005));
 		m_pArcherObject->m_pProfileUI->SetinitScale(0.03, 0.015, 1);
 		m_pArcherObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.14, 1.005));
-		m_pWarriorObject->m_pSkillUI->SetPosition(XMFLOAT3(-0.975, -0.2, 1.005));
-		m_pWarriorObject->m_pSkillUI->SetPosition(XMFLOAT3(0.975, 0.1, 1.005));
-		m_pWarriorObject->m_pSkillUI2->SetPosition(XMFLOAT3(0.975, 0.0, 1.005));
+		m_pWarriorObject->m_pSkillQUI->SetPosition(XMFLOAT3(-0.975, -0.2, 1.005));
+		m_pWarriorObject->m_pSkillQUI->SetPosition(XMFLOAT3(0.975, 0.1, 1.005));
+		m_pWarriorObject->m_pSkillEUI->SetPosition(XMFLOAT3(0.975, 0.0, 1.005));
 	}
 }
 
@@ -265,6 +266,8 @@ void GameobjectManager::StoryUIAnimate(float fTimeElapsed)
 
 void GameobjectManager::ConditionAnimate(float fTimeElapsed)
 {
+	m_pConditionUIObject->m_fTime+= fTimeElapsed;
+	m_pConditionUIObject->SetColor(XMFLOAT4(10, 0, 0, 0));
 }
 
 void GameobjectManager::SceneSwapAnimate(float fTimeElapsed)
@@ -765,7 +768,10 @@ bool GameobjectManager::CheckCollideNPC()
 	{
 		if (m_iTEXTiIndex != NPC_TEXT && m_bSendNpccollisionPK == false)
 		{
+			m_bNPCscreen = true;
 			m_iTEXTiIndex = NPC_TEXT;
+			m_bSendNPCPK = true;
+			AddTextToUILayer(m_iTEXTiIndex);
 			m_bNPCinteraction = true;
 		}
 	}
@@ -794,6 +800,9 @@ void GameobjectManager::EffectRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 	}
 	if (m_pSheildEffectObject) {
 		m_pSheildEffectObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
+	if (m_pPortalEffectObject)	{
+		m_pPortalEffectObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 }
 
@@ -1527,31 +1536,31 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pArcherObject->m_pProfileUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppCharacterUIObjects.emplace_back(m_pArcherObject->m_pProfileUI);
 
-	m_pArcherObject->m_pSkillUI = new GameObject(UI_ENTITY);
-	m_pArcherObject->m_pSkillUI->InsertComponent<RenderComponent>();
-	m_pArcherObject->m_pSkillUI->InsertComponent<UIMeshComponent>();
-	m_pArcherObject->m_pSkillUI->InsertComponent<UiShaderComponent>();
-	m_pArcherObject->m_pSkillUI->InsertComponent<TextureComponent>();
-	m_pArcherObject->m_pSkillUI->SetTexture(L"UI/ArrowSkill.dds", RESOURCE_TEXTURE2D, 3);
-	m_pArcherObject->m_pSkillUI->SetPosition(XMFLOAT3(5, 5, 1.00));
-	m_pArcherObject->m_pSkillUI->SetScale(0.02, 0.02, 1);
-	m_pArcherObject->m_pSkillUI->SetCurrentHP(70);
-	m_pArcherObject->m_pSkillUI->SetColor(XMFLOAT4(0.06f, 0.05f, 0, 0));
-	m_pArcherObject->m_pSkillUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppCharacterUIObjects.emplace_back(m_pArcherObject->m_pSkillUI);
+	m_pArcherObject->m_pSkillQUI = new GameObject(UI_ENTITY);
+	m_pArcherObject->m_pSkillQUI->InsertComponent<RenderComponent>();
+	m_pArcherObject->m_pSkillQUI->InsertComponent<UIMeshComponent>();
+	m_pArcherObject->m_pSkillQUI->InsertComponent<UiShaderComponent>();
+	m_pArcherObject->m_pSkillQUI->InsertComponent<TextureComponent>();
+	m_pArcherObject->m_pSkillQUI->SetTexture(L"UI/ArrowSkill.dds", RESOURCE_TEXTURE2D, 3);
+	m_pArcherObject->m_pSkillQUI->SetPosition(XMFLOAT3(5, 5, 1.00));
+	m_pArcherObject->m_pSkillQUI->SetScale(0.02, 0.02, 1);
+	m_pArcherObject->m_pSkillQUI->SetCurrentHP(70);
+	m_pArcherObject->m_pSkillQUI->SetColor(XMFLOAT4(0.06f, 0.05f, 0, 0));
+	m_pArcherObject->m_pSkillQUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppCharacterUIObjects.emplace_back(m_pArcherObject->m_pSkillQUI);
 
-	m_pArcherObject->m_pSkillUI2 = new GameObject(UI_ENTITY);
-	m_pArcherObject->m_pSkillUI2->InsertComponent<RenderComponent>();
-	m_pArcherObject->m_pSkillUI2->InsertComponent<UIMeshComponent>();
-	m_pArcherObject->m_pSkillUI2->InsertComponent<UiShaderComponent>();
-	m_pArcherObject->m_pSkillUI2->InsertComponent<TextureComponent>();
-	m_pArcherObject->m_pSkillUI2->SetTexture(L"UI/ArrowSkill.dds", RESOURCE_TEXTURE2D, 3);
-	m_pArcherObject->m_pSkillUI2->SetPosition(XMFLOAT3(5, 5, 1.00));
-	m_pArcherObject->m_pSkillUI2->SetScale(0.02, 0.02, 1);
+	m_pArcherObject->m_pSkillEUI = new GameObject(UI_ENTITY);
+	m_pArcherObject->m_pSkillEUI->InsertComponent<RenderComponent>();
+	m_pArcherObject->m_pSkillEUI->InsertComponent<UIMeshComponent>();
+	m_pArcherObject->m_pSkillEUI->InsertComponent<UiShaderComponent>();
+	m_pArcherObject->m_pSkillEUI->InsertComponent<TextureComponent>();
+	m_pArcherObject->m_pSkillEUI->SetTexture(L"UI/ArrowSkill.dds", RESOURCE_TEXTURE2D, 3);
+	m_pArcherObject->m_pSkillEUI->SetPosition(XMFLOAT3(5, 5, 1.00));
+	m_pArcherObject->m_pSkillEUI->SetScale(0.02, 0.02, 1);
 
-	m_pArcherObject->m_pSkillUI2->SetCurrentHP(70);
-	m_pArcherObject->m_pSkillUI2->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppCharacterUIObjects.emplace_back(m_pArcherObject->m_pSkillUI2);
+	m_pArcherObject->m_pSkillEUI->SetCurrentHP(70);
+	m_pArcherObject->m_pSkillEUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppCharacterUIObjects.emplace_back(m_pArcherObject->m_pSkillEUI);
 
 	///////////////////////////////////////////////////////
 	m_pTankerObject->m_pHPBarUI = new GameObject(UI_ENTITY);
@@ -1577,27 +1586,27 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pTankerObject->m_pProfileUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppCharacterUIObjects.emplace_back(m_pTankerObject->m_pProfileUI);
 
-	m_pTankerObject->m_pSkillUI = new GameObject(UI_ENTITY);
-	m_pTankerObject->m_pSkillUI->InsertComponent<RenderComponent>();
-	m_pTankerObject->m_pSkillUI->InsertComponent<UIMeshComponent>();
-	m_pTankerObject->m_pSkillUI->InsertComponent<UiShaderComponent>();
-	m_pTankerObject->m_pSkillUI->InsertComponent<TextureComponent>();
-	m_pTankerObject->m_pSkillUI->SetTexture(L"UI/ShieldSkill.dds", RESOURCE_TEXTURE2D, 3);
-	m_pTankerObject->m_pSkillUI->SetPosition(XMFLOAT3(5, 5, 1.00));
-	m_pTankerObject->m_pSkillUI->SetScale(0.02, 0.02, 1);
-	m_pTankerObject->m_pSkillUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppCharacterUIObjects.emplace_back(m_pTankerObject->m_pSkillUI);
+	m_pTankerObject->m_pSkillQUI = new GameObject(UI_ENTITY);
+	m_pTankerObject->m_pSkillQUI->InsertComponent<RenderComponent>();
+	m_pTankerObject->m_pSkillQUI->InsertComponent<UIMeshComponent>();
+	m_pTankerObject->m_pSkillQUI->InsertComponent<UiShaderComponent>();
+	m_pTankerObject->m_pSkillQUI->InsertComponent<TextureComponent>();
+	m_pTankerObject->m_pSkillQUI->SetTexture(L"UI/ShieldSkill.dds", RESOURCE_TEXTURE2D, 3);
+	m_pTankerObject->m_pSkillQUI->SetPosition(XMFLOAT3(5, 5, 1.00));
+	m_pTankerObject->m_pSkillQUI->SetScale(0.02, 0.02, 1);
+	m_pTankerObject->m_pSkillQUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppCharacterUIObjects.emplace_back(m_pTankerObject->m_pSkillQUI);
 
-	m_pTankerObject->m_pSkillUI2 = new GameObject(UI_ENTITY);
-	m_pTankerObject->m_pSkillUI2->InsertComponent<RenderComponent>();
-	m_pTankerObject->m_pSkillUI2->InsertComponent<UIMeshComponent>();
-	m_pTankerObject->m_pSkillUI2->InsertComponent<UiShaderComponent>();
-	m_pTankerObject->m_pSkillUI2->InsertComponent<TextureComponent>();
-	m_pTankerObject->m_pSkillUI2->SetTexture(L"UI/ShieldSkill.dds", RESOURCE_TEXTURE2D, 3);
-	m_pTankerObject->m_pSkillUI2->SetPosition(XMFLOAT3(5, 5, 1.00));
-	m_pTankerObject->m_pSkillUI2->SetScale(0.02, 0.02, 1);
-	m_pTankerObject->m_pSkillUI2->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppCharacterUIObjects.emplace_back(m_pTankerObject->m_pSkillUI2);
+	m_pTankerObject->m_pSkillEUI = new GameObject(UI_ENTITY);
+	m_pTankerObject->m_pSkillEUI->InsertComponent<RenderComponent>();
+	m_pTankerObject->m_pSkillEUI->InsertComponent<UIMeshComponent>();
+	m_pTankerObject->m_pSkillEUI->InsertComponent<UiShaderComponent>();
+	m_pTankerObject->m_pSkillEUI->InsertComponent<TextureComponent>();
+	m_pTankerObject->m_pSkillEUI->SetTexture(L"UI/ShieldSkill.dds", RESOURCE_TEXTURE2D, 3);
+	m_pTankerObject->m_pSkillEUI->SetPosition(XMFLOAT3(5, 5, 1.00));
+	m_pTankerObject->m_pSkillEUI->SetScale(0.02, 0.02, 1);
+	m_pTankerObject->m_pSkillEUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppCharacterUIObjects.emplace_back(m_pTankerObject->m_pSkillEUI);
 	////////////////////////////////////////////////////////////////
 	m_pPriestObject->m_pHPBarUI = new GameObject(UI_ENTITY);
 	m_pPriestObject->m_pHPBarUI->InsertComponent<RenderComponent>();
@@ -1622,27 +1631,27 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pPriestObject->m_pProfileUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppCharacterUIObjects.emplace_back(m_pPriestObject->m_pProfileUI);
 
-	m_pPriestObject->m_pSkillUI = new GameObject(UI_ENTITY);
-	m_pPriestObject->m_pSkillUI->InsertComponent<RenderComponent>();
-	m_pPriestObject->m_pSkillUI->InsertComponent<UIMeshComponent>();
-	m_pPriestObject->m_pSkillUI->InsertComponent<UiShaderComponent>();
-	m_pPriestObject->m_pSkillUI->InsertComponent<TextureComponent>();
-	m_pPriestObject->m_pSkillUI->SetTexture(L"UI/HealSkill.dds", RESOURCE_TEXTURE2D, 3);
-	m_pPriestObject->m_pSkillUI->SetPosition(XMFLOAT3(5, 5, 1.00));
-	m_pPriestObject->m_pSkillUI->SetScale(0.02, 0.02, 1);
-	m_pPriestObject->m_pSkillUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppCharacterUIObjects.emplace_back(m_pPriestObject->m_pSkillUI);
+	m_pPriestObject->m_pSkillQUI = new GameObject(UI_ENTITY);
+	m_pPriestObject->m_pSkillQUI->InsertComponent<RenderComponent>();
+	m_pPriestObject->m_pSkillQUI->InsertComponent<UIMeshComponent>();
+	m_pPriestObject->m_pSkillQUI->InsertComponent<UiShaderComponent>();
+	m_pPriestObject->m_pSkillQUI->InsertComponent<TextureComponent>();
+	m_pPriestObject->m_pSkillQUI->SetTexture(L"UI/HealSkill.dds", RESOURCE_TEXTURE2D, 3);
+	m_pPriestObject->m_pSkillQUI->SetPosition(XMFLOAT3(5, 5, 1.00));
+	m_pPriestObject->m_pSkillQUI->SetScale(0.02, 0.02, 1);
+	m_pPriestObject->m_pSkillQUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppCharacterUIObjects.emplace_back(m_pPriestObject->m_pSkillQUI);
 
-	m_pPriestObject->m_pSkillUI2 = new GameObject(UI_ENTITY);
-	m_pPriestObject->m_pSkillUI2->InsertComponent<RenderComponent>();
-	m_pPriestObject->m_pSkillUI2->InsertComponent<UIMeshComponent>();
-	m_pPriestObject->m_pSkillUI2->InsertComponent<UiShaderComponent>();
-	m_pPriestObject->m_pSkillUI2->InsertComponent<TextureComponent>();
-	m_pPriestObject->m_pSkillUI2->SetTexture(L"UI/HealSkill.dds", RESOURCE_TEXTURE2D, 3);
-	m_pPriestObject->m_pSkillUI2->SetPosition(XMFLOAT3(5, 5, 1.00));
-	m_pPriestObject->m_pSkillUI2->SetScale(0.02, 0.02, 1);
-	m_pPriestObject->m_pSkillUI2->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppCharacterUIObjects.emplace_back(m_pPriestObject->m_pSkillUI2);
+	m_pPriestObject->m_pSkillEUI = new GameObject(UI_ENTITY);
+	m_pPriestObject->m_pSkillEUI->InsertComponent<RenderComponent>();
+	m_pPriestObject->m_pSkillEUI->InsertComponent<UIMeshComponent>();
+	m_pPriestObject->m_pSkillEUI->InsertComponent<UiShaderComponent>();
+	m_pPriestObject->m_pSkillEUI->InsertComponent<TextureComponent>();
+	m_pPriestObject->m_pSkillEUI->SetTexture(L"UI/LightningSkill.dds", RESOURCE_TEXTURE2D, 3);
+	m_pPriestObject->m_pSkillEUI->SetPosition(XMFLOAT3(5, 5, 1.00));
+	m_pPriestObject->m_pSkillEUI->SetScale(0.02, 0.02, 1);
+	m_pPriestObject->m_pSkillEUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppCharacterUIObjects.emplace_back(m_pPriestObject->m_pSkillEUI);
 	////////////////////////////////////////////////////////////////
 	m_pWarriorObject->m_pHPBarUI = new GameObject(UI_ENTITY);
 	m_pWarriorObject->m_pHPBarUI->InsertComponent<RenderComponent>();
@@ -1667,29 +1676,29 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pWarriorObject->m_pProfileUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppCharacterUIObjects.emplace_back(m_pWarriorObject->m_pProfileUI);
 
-	m_pWarriorObject->m_pSkillUI = new GameObject(UI_ENTITY);
-	m_pWarriorObject->m_pSkillUI->InsertComponent<RenderComponent>();
-	m_pWarriorObject->m_pSkillUI->InsertComponent<UIMeshComponent>();
-	m_pWarriorObject->m_pSkillUI->InsertComponent<UiShaderComponent>();
-	m_pWarriorObject->m_pSkillUI->InsertComponent<TextureComponent>();
-	m_pWarriorObject->m_pSkillUI->SetTexture(L"UI/ShieldSkill.dds", RESOURCE_TEXTURE2D, 3);
-	m_pWarriorObject->m_pSkillUI->SetPosition(XMFLOAT3(5, 5, 1.00));
-	m_pWarriorObject->m_pSkillUI->SetScale(0.02, 0.02, 1);
-	m_pWarriorObject->m_pSkillUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppCharacterUIObjects.emplace_back(m_pWarriorObject->m_pSkillUI);
+	m_pWarriorObject->m_pSkillQUI = new GameObject(UI_ENTITY);
+	m_pWarriorObject->m_pSkillQUI->InsertComponent<RenderComponent>();
+	m_pWarriorObject->m_pSkillQUI->InsertComponent<UIMeshComponent>();
+	m_pWarriorObject->m_pSkillQUI->InsertComponent<UiShaderComponent>();
+	m_pWarriorObject->m_pSkillQUI->InsertComponent<TextureComponent>();
+	m_pWarriorObject->m_pSkillQUI->SetTexture(L"UI/ShieldSkill.dds", RESOURCE_TEXTURE2D, 3);
+	m_pWarriorObject->m_pSkillQUI->SetPosition(XMFLOAT3(5, 5, 1.00));
+	m_pWarriorObject->m_pSkillQUI->SetScale(0.02, 0.02, 1);
+	m_pWarriorObject->m_pSkillQUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppCharacterUIObjects.emplace_back(m_pWarriorObject->m_pSkillQUI);
 
-	m_pWarriorObject->m_pSkillUI2 = new GameObject(UI_ENTITY);
-	m_pWarriorObject->m_pSkillUI2->InsertComponent<RenderComponent>();
-	m_pWarriorObject->m_pSkillUI2->InsertComponent<UIMeshComponent>();
-	m_pWarriorObject->m_pSkillUI2->InsertComponent<UiShaderComponent>();
-	m_pWarriorObject->m_pSkillUI2->InsertComponent<TextureComponent>();
-	m_pWarriorObject->m_pSkillUI2->SetTexture(L"UI/ShieldSkill.dds", RESOURCE_TEXTURE2D, 3);
-	m_pWarriorObject->m_pSkillUI2->SetPosition(XMFLOAT3(5, 5, 1.00));
-	m_pWarriorObject->m_pSkillUI2->SetScale(0.02, 0.02, 1);
-	m_pWarriorObject->m_pSkillUI2->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppCharacterUIObjects.emplace_back(m_pWarriorObject->m_pSkillUI2);
+	m_pWarriorObject->m_pSkillEUI = new GameObject(UI_ENTITY);
+	m_pWarriorObject->m_pSkillEUI->InsertComponent<RenderComponent>();
+	m_pWarriorObject->m_pSkillEUI->InsertComponent<UIMeshComponent>();
+	m_pWarriorObject->m_pSkillEUI->InsertComponent<UiShaderComponent>();
+	m_pWarriorObject->m_pSkillEUI->InsertComponent<TextureComponent>();
+	m_pWarriorObject->m_pSkillEUI->SetTexture(L"UI/ShieldSkill.dds", RESOURCE_TEXTURE2D, 3);
+	m_pWarriorObject->m_pSkillEUI->SetPosition(XMFLOAT3(5, 5, 1.00));
+	m_pWarriorObject->m_pSkillEUI->SetScale(0.02, 0.02, 1);
+	m_pWarriorObject->m_pSkillEUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppCharacterUIObjects.emplace_back(m_pWarriorObject->m_pSkillEUI);
 
-	//m_ppCharacterUIObjects.emplace_back(m_pArcherObject->m_pSkillUI);
+	//m_ppCharacterUIObjects.emplace_back(m_pArcherObject->m_pSkillQUI);
 	m_pConditionUIObject = new GameObject(UI_ENTITY);
 	m_pConditionUIObject->InsertComponent<RenderComponent>();
 	m_pConditionUIObject->InsertComponent<UIMeshComponent>();
@@ -1700,7 +1709,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pConditionUIObject->SetColor(XMFLOAT4(0.4f, 0.0f, 0.0f, 0.0f));
 	m_pConditionUIObject->SetScale(0.44f, 0.24f, 1.0f);
 	m_pConditionUIObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//m_ppCharacterUIObjects.emplace_back(m_pConditionUIObject);
+	m_ppCharacterUIObjects.emplace_back(m_pConditionUIObject);
 
 
 	m_pSceneChangeUIObject = new GameObject(UI_ENTITY);
@@ -1713,7 +1722,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pSceneChangeUIObject->SetColor(XMFLOAT4(0.4f, 0.0f, 0.0f, 0.0f));
 	m_pSceneChangeUIObject->SetScale(0.44f, 0.24f, 1.0f);
 	m_pSceneChangeUIObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppCharacterUIObjects.emplace_back(m_pSceneChangeUIObject);
+//	m_ppCharacterUIObjects.emplace_back(m_pSceneChangeUIObject);
 
 	m_pVictoryUIObject = new GameObject(UI_ENTITY);
 	m_pVictoryUIObject->InsertComponent<RenderComponent>();
@@ -1770,6 +1779,10 @@ void GameobjectManager::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 
 	m_pSheildEffectObject = new SheildEffectObject;
 	m_pSheildEffectObject->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+
+
+	m_pPortalEffectObject = new PortalEffectObject;
+	m_pPortalEffectObject->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 }
 
@@ -2163,7 +2176,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		{
 			bool isCollideNPC = CheckCollideNPC();
 			if (isCollideNPC) {
-				m_bNPCscreen = true;
+				
 				m_bSendNpccollisionPK = true;
 				m_bNPCinteraction = true;
 			}
@@ -2214,11 +2227,11 @@ bool GameobjectManager::onProcessingKeyboardMessageLobby(HWND hWnd, UINT nMessag
 	if (nMessageID == WM_KEYDOWN && wParam == VK_F2)
 	{
 #ifdef LOCAL_TASK
-		g_Logic.SetMyRole(ROLE::PRIEST);
+		g_Logic.SetMyRole(ROLE::ARCHER);
 		m_pCamera->Rotate(0, -90, 0);
-		m_pPlayerObject = m_pPriestObject;
+		m_pPlayerObject = m_pArcherObject;
 		m_pPlayerObject->SetCamera(m_pCamera);
-		m_pPriestObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
+		m_pArcherObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
 #else
 		g_Logic.SetMyRole(ROLE::TANKER);
 		m_pTankerObject->SetCamera(m_pCamera);
@@ -2231,7 +2244,10 @@ bool GameobjectManager::onProcessingKeyboardMessageLobby(HWND hWnd, UINT nMessag
 	if (nMessageID == WM_KEYDOWN && wParam == 'G')
 	{
 		m_bNPCinteraction = true;
-		m_bNPCscreen = true;
+		if (m_bLobbyTalkScreenSend) {
+			m_bLobbyTalkScreenSend = false;
+			m_bNPCscreen = true;
+		}
 	}
 	return false;
 }
@@ -2246,7 +2262,6 @@ bool GameobjectManager::onProcessingKeyboardMessageUI(HWND hWnd, UINT nMessageID
 		{
 		case 'P':
 		{
-
 			if (m_pSelectedObject)
 			{
 				XMFLOAT3 TempPosition = m_pSelectedObject->GetPosition();

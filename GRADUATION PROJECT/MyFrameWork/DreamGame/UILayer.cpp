@@ -378,13 +378,7 @@ void CNPCTextBlock::Update(const float& fTimeElapsed, bool& bInteraction, bool& 
 {
 
 	m_fTime += fTimeElapsed;
-	if (m_qTotalText.empty()) {//npc대화 끝날때
-		bscreen = false;
-		bInteraction = false;
-		if (gGameFramework.GetScene()->GetObjectManager()->m_iTEXTiIndex == NPC_TEXT) {
-			g_NetworkHelper.SendSkipNPCCommunicate();//소켓 전송
-		}
-	}
+	
 	if (gGameFramework.GetScene()->GetObjectManager()->m_bSkipText) {//H누르면 강제 스킵 //아 텍스트는 남아있네 .. ㅠㅠ h키누르고 안없어지면 g키 한번 더 
 		//눌러주세요 스킵은 된겁니다 잔상만 남아있으
 		bscreen = false;
@@ -416,10 +410,15 @@ void CNPCTextBlock::Update(const float& fTimeElapsed, bool& bInteraction, bool& 
 			m_strText.clear();
 			m_qTotalText.pop();
 			m_bInitSentences = false;
-
-
-
-
+		}
+		if (m_qTotalText.empty()) {//npc대화 끝날때
+			bscreen = false;
+			bInteraction = false;
+			if (gGameFramework.GetScene()->GetObjectManager()->m_bSendNPCPK) {
+				cout << "소켓전송" << endl;
+				g_NetworkHelper.SendSkipNPCCommunicate();//소켓 전송
+				gGameFramework.GetScene()->GetObjectManager()->m_bSendNPCPK = false;
+			}
 		}
 		m_fTime = 0.f;
 
