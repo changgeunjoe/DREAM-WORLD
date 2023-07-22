@@ -5,9 +5,9 @@
 class SessionObject
 {
 protected:
-	short	m_hp;
-	short	m_maxHp;
-	short	m_attackDamage;
+	float	m_hp;
+	float	m_maxHp;
+	float	m_attackDamage;
 	float m_speed = 50.0f;
 	int m_roomId = -1;
 protected:
@@ -26,17 +26,17 @@ public:
 	SessionObject(float boundingSize);
 	virtual ~SessionObject();
 public:
-	short GetHp() { return m_hp; }
+	float GetHp() { return m_hp; }
 	XMFLOAT3& GetPos() { return m_position; }
 	XMFLOAT3& GetRot() { return m_rotateAngle; }
 	XMFLOAT3& GetDirectionVector() { return m_directionVector; }
 
 	void HealHp(float heal) { if(m_hp < m_maxHp) m_hp += heal; }
-	short GetAttackDamage() { return m_attackDamage; }
+	float GetAttackDamage() { return m_attackDamage; }
 public:
 	void AutoMove();
 	virtual bool Move(float elapsedTime) = 0;
-	virtual void AttackedHp(short damage) { m_hp -= damage; }
+	virtual void AttackedHp(float damage) { m_hp -= damage; }
 public:
 public:
 	virtual void Rotate(ROTATE_AXIS axis, float angle) = 0;

@@ -414,25 +414,7 @@ void Logic::ProcessPacket(char* p)
 	//	EndDialog(g_wnd, IDCANCEL);
 
 	//}
-	//break;
-	case SERVER_PACKET::SKILL_INPUT:
-	{
-		SERVER_PACKET::SkillInputPacket* recvPacket = reinterpret_cast<SERVER_PACKET::SkillInputPacket*>(p);
-		Character* possessChracter = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo((ROLE)recvPacket->role);
-		if (recvPacket->qSkill == true) {
-			possessChracter->FirstSkillDown();
-		}
-		else{
-			possessChracter->FirstSkillUp();
-		}
-		if (recvPacket->eSkill == true) {
-			possessChracter->SecondSkillDown();
-		}
-		else {
-			possessChracter->SecondSkillUp();
-		}
-	}
-	break;
+	//break;	
 	case SERVER_PACKET::STAGE_CHANGING_BOSS:
 	{
 		//≈∞ ¿Œ«≤ ∏∑æ∆¡÷±‚
@@ -455,27 +437,43 @@ void Logic::ProcessPacket(char* p)
 		}
 	}
 	break;
-	case SERVER_PACKET::START_EFFECT:
+	case SERVER_PACKET::HEAL_START:
 	{
-		SERVER_PACKET::StartEffectPacket* recvPacket = reinterpret_cast<SERVER_PACKET::StartEffectPacket*>(p);
-		Character* possessChracter = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo((ROLE)recvPacket->role);
-		possessChracter->StartEffect(recvPacket->skillNum);
+		//»˙¿Â∆« ¿Ã∆Â∆Æ Ω√¿€
 	}
 	break;
-	case SERVER_PACKET::END_EFFECT:
+	case SERVER_PACKET::HEAL_END:
 	{
-		SERVER_PACKET::EndEffectPacket* recvPacket = reinterpret_cast<SERVER_PACKET::EndEffectPacket*>(p);
-		Character* possessChracter = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo((ROLE)recvPacket->role);
-		possessChracter->EndEffect(recvPacket->skillNum);
+		//»˙¿Â∆« ¿Ã∆Â∆Æ ≥°
 	}
 	break;
-	case SERVER_PACKET::SET_SHIELD:
+	case SERVER_PACKET::SHIELD_START:
 	{
-		SERVER_PACKET::SetSheidPacket* recvPacket = reinterpret_cast<SERVER_PACKET::SetSheidPacket*>(p);
-		for (int i = 0; i < 4; ++i) {
-			Character* pCharacter = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(static_cast<ROLE>(0x01 << i));
-			pCharacter->SetShieldActive(true);
-			pCharacter->SetShield(recvPacket->shield[i]);
+		//ΩØµÂ ¿Ã∆Â∆Æ √‚πﬂ «ÿº≠ ¿˚øÎ
+	}
+	break;
+	case SERVER_PACKET::SHIELD_END:
+	{
+		//ΩØµÂ ≥°
+	}
+	break;
+	case SERVER_PACKET::NOTIFY_HEAL_HP:
+	{
+		SERVER_PACKET::NotifyHealPacket* recvPacket = reinterpret_cast<SERVER_PACKET::NotifyHealPacket*>(p);
+		for (int i = 0; i < 4; i++) {
+			Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo((ROLE)recvPacket->applyHealPlayerInfo[i].role);
+			if (possessObj)
+				possessObj->SetCurrentHP(recvPacket->applyHealPlayerInfo[i].hp);
+		}
+	}
+	break;
+	case SERVER_PACKET::NOTIFY_SHIELD_APPLY:
+	{
+		SERVER_PACKET::NotifyShieldPacket* recvPacket = reinterpret_cast<SERVER_PACKET::NotifyShieldPacket*>(p);
+		for (int i = 0; i < 4; i++) {
+			Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo((ROLE)recvPacket->applyShieldPlayerInfo[i].role);
+			if (possessObj)
+				possessObj->SetShield(recvPacket->applyShieldPlayerInfo[i].shield);
 		}
 	}
 	break;

@@ -31,6 +31,7 @@ public:
 	void UpdateGameStateForPlayer(int roomId);
 	void UpdateSmallMonster(int roomId);
 	void BossAttackExecute(int roomId);
+public://character Skill
 	void HealPlayer(int roomId);
 	void SetBarrier(int roomId);
 public:

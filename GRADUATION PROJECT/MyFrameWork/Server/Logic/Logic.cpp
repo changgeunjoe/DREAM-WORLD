@@ -277,27 +277,16 @@ void Logic::ProcessPacket(int userId, char* p)
 		}
 	}
 	break;
-	case CLIENT_PACKET::SKILL_INPUT:
+	case CLIENT_PACKET::SKILL_INPUT_Q:
+	{		
+		g_RoomManager.GetRunningRoomRef(g_iocpNetwork.m_session[userId].GetRoomId()).
+			StartFirstSkillPlayCharacter(g_iocpNetwork.m_session[userId].GetRole());		
+	}
+	break;
+	case CLIENT_PACKET::SKILL_INPUT_E:
 	{
-		CLIENT_PACKET::SkillInputPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::SkillInputPacket*>(p);
-
-		if (recvPacket->qSkill == true) {
-			g_RoomManager.GetRunningRoomRef(g_iocpNetwork.m_session[userId].GetRoomId()).
-				StartFirstSkillPlayCharacter(g_iocpNetwork.m_session[userId].GetRole());
-		}
-
-		if (recvPacket->eSkill == true) {
-			g_RoomManager.GetRunningRoomRef(g_iocpNetwork.m_session[userId].GetRoomId()).
-				StartSecondSkillPlayCharacter(g_iocpNetwork.m_session[userId].GetRole());
-		}
-
-		SERVER_PACKET::SkillInputPacket sendPacket;
-		sendPacket.qSkill = recvPacket->qSkill;
-		sendPacket.eSkill = recvPacket->eSkill;
-		sendPacket.role = g_iocpNetwork.m_session[userId].GetRole();
-		sendPacket.type = SERVER_PACKET::SKILL_INPUT;
-		sendPacket.size = sizeof(SERVER_PACKET::SkillInputPacket);
-		MultiCastOtherPlayerInRoom(userId, &sendPacket);
+		g_RoomManager.GetRunningRoomRef(g_iocpNetwork.m_session[userId].GetRoomId()).
+			StartSecondSkillPlayCharacter(g_iocpNetwork.m_session[userId].GetRole());	
 	}
 	break;
 	case CLIENT_PACKET::TRIGGER_BOX_ON:

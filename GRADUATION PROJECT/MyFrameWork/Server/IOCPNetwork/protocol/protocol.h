@@ -12,6 +12,10 @@ namespace CLIENT_PACKET {
 	//constexpr unsigned char REQUEST_ROOM_LIST = 8; // 방 리스트 요청
 	//constexpr unsigned char PLAYER_APPLY_ROOM = 9; // 방 신청
 	//constexpr unsigned char CANCEL_APPLY_ROOM = 10; // 신청 취소
+
+	constexpr unsigned char SKILL_INPUT_Q = 7;
+	constexpr unsigned char SKILL_INPUT_E = 8;
+
 	constexpr unsigned char MOUSE_INPUT = 11;
 	constexpr unsigned char MATCH_REQUEST = 12;
 	constexpr unsigned char SHOOTING_ARROW = 13;
@@ -20,10 +24,9 @@ namespace CLIENT_PACKET {
 	constexpr unsigned char GAME_END_OK = 16;
 	constexpr unsigned char TEST_GAME_END = 17; //임시로 클라에서 전송하여 게임 끝낼 수 있게
 
-	constexpr unsigned char SKILL_INPUT = 18;
 	constexpr unsigned char TRIGGER_BOX_ON = 19;
 	constexpr unsigned char TRIGGER_BOX_OUT = 20;
-	
+
 	constexpr unsigned char SKIP_NPC_COMMUNICATION = 23;
 	constexpr unsigned char STAGE_CHANGE_BOSS = 24;
 
@@ -118,18 +121,10 @@ namespace CLIENT_PACKET {
 		char type;
 	};
 
-	struct SkillInputPacket {
-		short size;
-		char type;
-		bool qSkill;
-		bool eSkill;
-	};
-
 	struct NotifyPacket {
 		short size;
 		char type;
 	};
-
 }
 
 namespace SERVER_PACKET {
@@ -149,28 +144,30 @@ namespace SERVER_PACKET {
 	//constexpr unsigned char NOT_FOUND_ROOM = 78; // 신청한 방이 사라짐
 	//
 	//constexpr unsigned char PLAYER_APPLY_ROOM = 79; // 신청자 정보 방장(방)한테 전송
-	//constexpr unsigned char PLAYER_CANCEL_ROOM = 80; // 신청 취소 정보 방장(방)한테 전송
+	//constexpr unsigned char PLAYER_CANCEL_ROOM = 80; // 신청 취소 정보 방장(방)한테 전송	
+
 	constexpr unsigned char MOUSE_INPUT = 81;
 	constexpr unsigned char INTO_GAME = 82;
 	constexpr unsigned char BOSS_CHANGE_STATE_MOVE_DES = 83;
 	constexpr unsigned char SHOOTING_ARROW = 84;
 	constexpr unsigned char SHOOTING_BALL = 85;
 	constexpr unsigned char BOSS_ATTACK = 87;
+	constexpr unsigned char GAME_STATE_B = 86;
 	constexpr unsigned char HIT_BOSS_MAGE = 88;
 	constexpr unsigned char GAME_END = 89;
 	constexpr unsigned char BOSS_MOVE_NODE = 90;
 	constexpr unsigned char DUPLICATED_LOGIN = 91;//중복된 로그인이 들어왔다
 	constexpr unsigned char PRE_EXIST_LOGIN = 92; //이미 로그인된 아이디다
-	constexpr unsigned char GAME_STATE_B = 86;
 	constexpr unsigned char GAME_STATE_S = 93;
-	constexpr unsigned char SKILL_INPUT = 94;	
 	constexpr unsigned char STAGE_CHANGING_BOSS = 96;
 	constexpr unsigned char STAGE_START_BOSS = 97;
 	constexpr unsigned char SMALL_MONSTER_MOVE = 98;
-	constexpr unsigned char START_EFFECT = 99;
-	constexpr unsigned char END_EFFECT = 100;
-	constexpr unsigned char SET_SHIELD = 101;
-	
+	constexpr unsigned char HEAL_START = 99;
+	constexpr unsigned char HEAL_END = 100;
+	constexpr unsigned char SHIELD_START = 101;
+	constexpr unsigned char SHIELD_END = 102;
+	constexpr unsigned char NOTIFY_HEAL_HP = 103;
+	constexpr unsigned char NOTIFY_SHIELD_APPLY = 104;
 
 
 	struct MovePacket
@@ -270,8 +267,19 @@ namespace SERVER_PACKET {
 	struct InGamePlayerState {
 		char role;
 		int hp;
+		float shield;
 		XMFLOAT3 pos;
 		XMFLOAT3 rot;
+	};
+
+	struct ApplyHealForPlayer {
+		char role;
+		float hp;
+	};
+
+	struct ApplyShieldForPlayer {
+		char role;
+		float shield;
 	};
 
 	struct InGameSmallMonster {
@@ -330,43 +338,27 @@ namespace SERVER_PACKET {
 	struct SmallMonsterMovePacket {
 		short size;
 		char type;
-		XMFLOAT3 desPositions[15];		
-	};
-
-	struct SkillInputPacket {
-		short size;
-		char type;
-		char role;
-		int userId;
-		bool qSkill;
-		bool eSkill;
+		XMFLOAT3 desPositions[15];
 	};
 
 	struct GameState_BOSS_INIT {//Player State-> pos rot...추가하여 보정?
 		short size;
 		char type;
-		InGamePlayerState userState[4];		
+		InGamePlayerState userState[4];
 	};
 
-	struct StartEffectPacket {
+	struct NotifyHealPacket {
 		short size;
 		char type;
-		char role;
-		char skillNum;
+		ApplyHealForPlayer applyHealPlayerInfo[4];
 	};
 
-	struct SetSheidPacket {
+	struct NotifyShieldPacket {
 		short size;
 		char type;
-		float shield[4];
+		ApplyShieldForPlayer applyShieldPlayerInfo[4];
 	};
 
-	struct EndEffectPacket {
-		short size;
-		char type;
-		char role;
-		char skillNum;
-	};
 }
 
 #pragma pack (pop)

@@ -2057,7 +2057,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			if (myPlayCharacter->GetQSkillState() == false && myPlayCharacter->GetOnAttack() == false)
 			{
 				myPlayCharacter->FirstSkillDown();
-				g_NetworkHelper.SendSkillStatePacket(myPlayCharacter->GetQSkillState(), myPlayCharacter->GetESkillState());
+				g_NetworkHelper.Send_SkillExecute_Q();
 			}
 			break;
 		}
@@ -2066,7 +2066,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			if (myPlayCharacter->GetESkillState() == false && myPlayCharacter->GetOnAttack() == false)
 			{
 				myPlayCharacter->SecondSkillDown();
-				g_NetworkHelper.SendSkillStatePacket(myPlayCharacter->GetQSkillState(), myPlayCharacter->GetESkillState());
+				g_NetworkHelper.Send_SkillExecute_E();
 			}
 			break;
 		}
@@ -2184,11 +2184,11 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			myPlayCharacter->SecondSkillUp(myPlayCharacter->GetRotateAxis());
 			if (myPlayCharacter == GetChracterInfo(ROLE::ARCHER))
 			{
-				g_NetworkHelper.SendSkillStatePacket(myPlayCharacter->GetQSkillState(), false);
+				//g_NetworkHelper.SendSkillStatePacket(myPlayCharacter->GetQSkillState(), false);
 			}
 			break;
 		}
-		//NPC와 대화하거나 포털들어갈 때 상호작용 키  
+		//NPC와 대화하거나 포털들어갈 때 상호작용 키
 		case 'G':
 		{
 			bool isCollideNPC = CheckCollideNPC();

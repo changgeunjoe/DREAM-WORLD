@@ -20,7 +20,6 @@ ChracterSessionObject::ChracterSessionObject(ROLE r) : SessionObject(8.0f)
 	m_hp = 0;
 	m_maxHp = 0;
 	m_attackDamage = 0;
-	m_defensivePower = 0.0f;
 	m_speed = 50.0f;
 	SetRole(r);
 }
@@ -29,17 +28,17 @@ ChracterSessionObject::~ChracterSessionObject()
 {
 }
 
-void ChracterSessionObject::AttackedHp(short damage)
+void ChracterSessionObject::AttackedHp(float damage)
 {
-	if (m_Shield > FLT_EPSILON)	{
-		m_Shield -= damage;
+	if (m_Shield > FLT_EPSILON) {
+		m_Shield -= damage * (1.0f - m_damageRedutionRate);
 		if (m_Shield < 0.0f) {
-			damage = -m_Shield;
+			m_hp += m_Shield;
+			m_Shield = 0.0f;
 		}
-		else
-			return;
+		return;
 	}
-	m_hp -= damage * (1.0f - m_defensivePower);
+	m_hp -= damage * (1.0f - m_damageRedutionRate);
 }
 
 bool ChracterSessionObject::AdjustPlayerInfo(DirectX::XMFLOAT3& position) // , DirectX::XMFLOAT3& rotate
@@ -131,9 +130,15 @@ void ChracterSessionObject::ChangeDirection(DIRECTION d)
 
 void ChracterSessionObject::SetShield(bool active)
 {
-	m_ShieldActivation = active;
-	m_defensivePower + (0.4f * active - 0.2f);	// active : 0.2f 데미지 20% 감소 // inactive : -0.2f 원상복구
-	m_Shield = active * 200.0f;
+	if (active) {
+		m_Shield = 200.0f;
+		m_damageRedutionRate = 0.2f;
+		return;
+	}
+	m_Shield = 0.0f;
+	m_damageRedutionRate = 0.0f;
+	//(0.4f * active - 0.2f);	// active : 0.2f 데미지 20% 감소 // inactive : -0.2f 원상복구
+
 }
 
 bool ChracterSessionObject::Move(float elapsedTime)
@@ -196,6 +201,20 @@ std::pair<float, XMFLOAT3> ChracterSessionObject::GetNormalVectorSphere(XMFLOAT3
 	float normalSize = Vector3::Length(normalVec);
 	normalVec = Vector3::Normalize(normalVec);
 	return std::pair<float, XMFLOAT3>(normalSize, normalVec);
+}
+
+bool ChracterSessionObject::IsDurationEndTimeSkill_1()
+{
+	auto durationTime = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - m_prevSkillInputTime[0]);
+	if (m_skillDuration[0] < durationTime) return true;
+	return false;
+}
+
+bool ChracterSessionObject::IsDurationEndTimeSkill_2()
+{
+	auto durationTime = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - m_prevSkillInputTime[1]);
+	if (m_skillDuration[1] < durationTime) return true;
+	return false;
 }
 
 std::pair<bool, XMFLOAT3> ChracterSessionObject::CheckCollisionMap(XMFLOAT3& moveDirection, float ftimeElapsed)
@@ -510,7 +529,7 @@ bool ChracterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ftimeE
 		PrintCurrentTime();
 		std::cout << "monster Move" << std::endl;
 		std::cout << "collision slidingVec: " << normalMonsterCollide.second.x << ", " << normalMonsterCollide.second.y << ", " << normalMonsterCollide.second.z << std::endl;
-		std::cout << "collision slidingSize: " << Vector3::Length(slidingVec) << std::endl;		
+		std::cout << "collision slidingSize: " << Vector3::Length(slidingVec) << std::endl;
 		std::cout << "collision prev position: " << m_position.x << ", " << m_position.y << ", " << m_position.z << std::endl;
 #endif
 		m_position = Vector3::Add(m_position, slidingVec);
@@ -540,7 +559,6 @@ void WarriorSessionObject::SetStage_1Position()
 	SetPosition(XMFLOAT3(-1290.0f, 0, -1470.0f));
 	m_maxHp = m_hp = 400;
 	m_attackDamage = 150;
-	m_defensivePower = 0.3f;
 }
 
 void WarriorSessionObject::SetBossStagePosition()
@@ -553,12 +571,10 @@ void WarriorSessionObject::SetBossStagePosition()
 void MageSessionObject::Skill_1()
 {
 	auto currentTime = std::chrono::high_resolution_clock::now();
-	auto durationTime = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[0]);
+	auto durationTime = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_prevSkillInputTime[0]);
 	if (m_skillCoolTime[0] > durationTime)	return;
-	m_skillInputTime[0] = currentTime;
+	m_prevSkillInputTime[0] = currentTime;
 	g_RoomManager.GetRunningRoomRef(m_roomId).StartHealPlayerCharacter();
-	TIMER_EVENT gameStateEvent{ std::chrono::system_clock::now(), m_roomId ,EV_MAGE_FSKILL_ACTIVE };
-	g_Timer.InsertTimerQueue(gameStateEvent);
 }
 
 void MageSessionObject::Skill_2()
@@ -572,12 +588,6 @@ void MageSessionObject::SetStage_1Position()
 	m_maxHp = m_hp = 480;
 	m_hp = 100.0f;
 	m_attackDamage = 30;
-	m_defensivePower = 0.0f;
-
-	m_skillCoolTime = { std::chrono::seconds(15), std::chrono::seconds(7) };
-	m_skillDuration = { std::chrono::seconds(9), std::chrono::seconds(3) };
-	m_skillInputTime = { std::chrono::high_resolution_clock::now() - m_skillCoolTime[0],
-		std::chrono::high_resolution_clock::now() - m_skillCoolTime[1] };
 }
 
 void MageSessionObject::SetBossStagePosition()
@@ -590,11 +600,15 @@ void MageSessionObject::SetBossStagePosition()
 void TankerSessionObject::Skill_1()
 {
 	auto currentTime = std::chrono::high_resolution_clock::now();
-	auto durationTime = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[0]);
+	auto durationTime = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_prevSkillInputTime[0]);
 	if (m_skillCoolTime[0] > durationTime)	return;
-	m_skillInputTime[0] = currentTime;
-	TIMER_EVENT gameStateEvent{ std::chrono::system_clock::now() + std::chrono::milliseconds(2400), m_roomId ,EV_TANKER_FSKILL_START };	//애니메이션 진행 시간 1.4초 + 공 날아가는 시간 1초
+	m_prevSkillInputTime[0] = currentTime;
+	TIMER_EVENT gameStateEvent{ std::chrono::system_clock::now() + std::chrono::milliseconds(2400), m_roomId ,EV_TANKER_SHIELD_START };	//애니메이션 진행 시간 1.4초 + 공 날아가는 시간 1초
 	g_Timer.InsertTimerQueue(gameStateEvent);
+	SERVER_PACKET::NotifyPacket sendPacket;
+	sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
+	sendPacket.type = SERVER_PACKET::SHIELD_START;
+	g_logic.BroadCastInRoom(m_roomId, &sendPacket);
 }
 
 void TankerSessionObject::Skill_2()
@@ -607,13 +621,6 @@ void TankerSessionObject::SetStage_1Position()
 	SetPosition(XMFLOAT3(-1260.3f, 0, -1510.7f));
 	m_maxHp = m_hp = 600;
 	m_attackDamage = 60;
-	m_defensivePower = 0.5f;
-
-
-	m_skillCoolTime = { std::chrono::seconds(15), std::chrono::seconds(0) };
-	m_skillDuration = { std::chrono::seconds(5), std::chrono::seconds(0) };
-	m_skillInputTime = { std::chrono::high_resolution_clock::now() - m_skillCoolTime[0],
-		std::chrono::high_resolution_clock::now() - m_skillCoolTime[1] };
 }
 
 void TankerSessionObject::SetBossStagePosition()
@@ -621,7 +628,6 @@ void TankerSessionObject::SetBossStagePosition()
 	SetPosition(XMFLOAT3(82, 0, -223.0f));
 	m_maxHp = m_hp = 600;
 	m_attackDamage = 60;
-	m_defensivePower = 0.0f;
 }
 
 void ArcherSessionObject::Skill_1()

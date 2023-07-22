@@ -152,13 +152,19 @@ void NetworkHelper::SendMouseStatePacket(bool LClickedButton, bool RClickedButto
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
-void NetworkHelper::SendSkillStatePacket(bool qSkill, bool eSkill)
+void NetworkHelper::Send_SkillExecute_Q()
 {
-	CLIENT_PACKET::SkillInputPacket sendPacket;
-	sendPacket.qSkill = qSkill;
-	sendPacket.eSkill = eSkill;
-	sendPacket.type = CLIENT_PACKET::SKILL_INPUT;
-	sendPacket.size = sizeof(CLIENT_PACKET::SkillInputPacket);
+	CLIENT_PACKET::NotifyPacket sendPacket;
+	sendPacket.size = sizeof(CLIENT_PACKET::NotifyPacket);
+	sendPacket.type = CLIENT_PACKET::SKILL_INPUT_Q;
+	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
+}
+
+void NetworkHelper::Send_SkillExecute_E()
+{
+	CLIENT_PACKET::NotifyPacket sendPacket;
+	sendPacket.size = sizeof(CLIENT_PACKET::NotifyPacket);
+	sendPacket.type = CLIENT_PACKET::SKILL_INPUT_E;
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 

@@ -13,11 +13,10 @@ private:
 protected:
 	std::array<std::chrono::seconds, 2> m_skillDuration;
 	std::array<std::chrono::seconds, 2> m_skillCoolTime;
-	std::array<std::chrono::high_resolution_clock::time_point, 2> m_skillInputTime;
+	std::array<std::chrono::high_resolution_clock::time_point, 2> m_prevSkillInputTime;
 protected:
-	float	m_defensivePower;
-	float	m_Shield;
-	bool	m_ShieldActivation = false;
+	float	m_Shield = 0.0f;	
+	float	m_damageRedutionRate = 0.0f;
 private:
 	ROLE m_InGameRole = ROLE::NONE_SELECT;
 public:
@@ -43,7 +42,7 @@ public:
 	virtual void StopMove();
 	virtual void ChangeDirection(DIRECTION d);
 	virtual void SetShield(bool active);
-	virtual void AttackedHp(short damage) override;
+	virtual void AttackedHp(float damage) override;
 public:
 	bool Move(float elapsedTime) override;
 	void SetDirection(DIRECTION d);
@@ -62,18 +61,16 @@ public:
 		return m_InGameRole;
 	}
 	bool GetLeftAttack() { return m_leftmouseInput; }
-	void SetRoomState(ROOM_STATE rState) { m_roomState = rState; }
-	std::chrono::seconds GetSkillDuration(int i) { return m_skillDuration[i]; }
-	std::chrono::high_resolution_clock::time_point GetSkillInputTime(int i) { return m_skillInputTime[i]; }
-	float GetDefencePower() { return m_defensivePower; }
-	float GetShield() { return m_Shield; }
-	bool GetShieldActivation() { return m_ShieldActivation; }
+	void SetRoomState(ROOM_STATE rState) { m_roomState = rState; }	
+	float GetShield() { return m_Shield; }	
 protected:
 	std::pair<float, XMFLOAT3> GetNormalVectorSphere(XMFLOAT3& point);
 public:
 	virtual void Skill_1() = 0;
 	virtual void Skill_2() = 0;
-protected:
+	bool IsDurationEndTimeSkill_1();
+	bool IsDurationEndTimeSkill_2();
+protected://collision
 	virtual std::pair<bool, XMFLOAT3> CheckCollisionMap(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
 	virtual std::pair<bool, XMFLOAT3> CheckCollisionCharacter(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
 	virtual std::pair<bool, XMFLOAT3> CheckCollisionNormalMonster(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
@@ -102,6 +99,10 @@ class MageSessionObject : public ChracterSessionObject
 public:
 	MageSessionObject(int id) :ChracterSessionObject(ROLE::PRIEST)
 	{
+		m_skillCoolTime = { std::chrono::seconds(15), std::chrono::seconds(7) };
+		m_skillDuration = { std::chrono::seconds(9), std::chrono::seconds(3) };
+		m_prevSkillInputTime = { std::chrono::high_resolution_clock::now() - m_skillCoolTime[0],
+			std::chrono::high_resolution_clock::now() - m_skillCoolTime[1] };
 		SetStage_1Position();
 	}
 	~MageSessionObject() {}
@@ -117,6 +118,10 @@ class TankerSessionObject : public ChracterSessionObject
 public:
 	TankerSessionObject(int id) :ChracterSessionObject(ROLE::TANKER)
 	{
+		m_skillCoolTime = { std::chrono::seconds(15), std::chrono::seconds(0) };
+		m_skillDuration = { std::chrono::seconds(5), std::chrono::seconds(0) };
+		m_prevSkillInputTime = { std::chrono::high_resolution_clock::now() - m_skillCoolTime[0],
+			std::chrono::high_resolution_clock::now() - m_skillCoolTime[1] };
 		SetStage_1Position();
 	}
 	~TankerSessionObject() {}

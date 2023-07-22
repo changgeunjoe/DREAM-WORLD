@@ -35,7 +35,8 @@ public:
 	void SendKeyUpPacket(DIRECTION d);
 	void SendLoginData(char* loginId, char* pw);
 	void SendMouseStatePacket(bool LClickedButton, bool RClickedButton);
-	void SendSkillStatePacket(bool qSkill, bool eSkill);
+	void Send_SkillExecute_Q();
+	void Send_SkillExecute_E();	
 	void SendMatchRequestPacket();
 	void SendArrowAttackPacket(const XMFLOAT3& pos, const XMFLOAT3& dir, float speed);
 	void SendBallAttackPacket(const XMFLOAT3& pos, const XMFLOAT3& dir, float speed);

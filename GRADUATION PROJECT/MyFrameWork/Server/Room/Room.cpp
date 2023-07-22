@@ -271,7 +271,7 @@ void Room::GameRunningLogic()
 		if (m_boss.isMove)
 			m_boss.AutoMove();//보스 무브
 	}
-	
+
 	//여기에 화살이나 ball 오브젝트 이동 구현
 	for (auto& arrow : m_arrows)
 	{
@@ -537,63 +537,47 @@ void Room::BossAttackExecute()
 
 void Room::HealPlayerCharacter()
 {
-	auto roomPlayermap = GetPlayerMap();
-	XMFLOAT3 xmf3MagePos = m_characterMap[ROLE::PRIEST]->GetPos();
-	for (auto& p : roomPlayermap) {
-		XMFLOAT3 xmf3CharacterPos = m_characterMap[p.first]->GetPos();
-		if (Vector3::Length(Vector3::Subtract(xmf3CharacterPos, xmf3MagePos)) < 75.0f) {	// HealRange Radius == 75.0f
-			m_characterMap[p.first]->HealHp(10.0f);
+	if (!m_characterMap[ROLE::TANKER]->IsDurationEndTimeSkill_1()) {
+		XMFLOAT3 xmf3MagePos = m_characterMap[ROLE::PRIEST]->GetPos();
+		for (auto& p : m_characterMap) {
+			XMFLOAT3 xmf3CharacterPos = p.second->GetPos();
+			if (Vector3::Length(Vector3::Subtract(xmf3CharacterPos, xmf3MagePos)) <= 75.0f) {	// HealRange Radius == 75.0f
+				p.second->HealHp(10.0f);
+			}
 		}
-	}
-
-	auto durationTime = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - m_characterMap[ROLE::PRIEST]->GetSkillInputTime(0));
-	if (m_characterMap[ROLE::PRIEST]->GetSkillDuration(0) > durationTime) {
-		TIMER_EVENT gameStateEvent{ std::chrono::system_clock::now() + std::chrono::seconds(1), m_roomId ,EV_MAGE_FSKILL_ACTIVE };
+		TIMER_EVENT gameStateEvent{ std::chrono::system_clock::now() + std::chrono::seconds(1), m_roomId ,EV_HEAL };
 		g_Timer.InsertTimerQueue(gameStateEvent);
+		SERVER_PACKET::NotifyHealPacket sendPacket;
+		sendPacket.size = sizeof(SERVER_PACKET::NotifyHealPacket);
+		sendPacket.type = SERVER_PACKET::NOTIFY_HEAL_HP;
+		int i = 0;
+		for (auto& playCharcter : m_characterMap) {
+			sendPacket.applyHealPlayerInfo[i].hp = playCharcter.second->GetHp();
+			sendPacket.applyHealPlayerInfo[i].role = playCharcter.first;
+			++i;
+		}
+		g_logic.BroadCastInRoom(m_roomId, &sendPacket);
 	}
-
 	else {
-		SERVER_PACKET::EndEffectPacket sendPacket;
-		sendPacket.role = ROLE::PRIEST;
-		sendPacket.skillNum = 0;
-		sendPacket.type = SERVER_PACKET::END_EFFECT;
-		sendPacket.size = sizeof(SERVER_PACKET::EndEffectPacket);
-		g_logic.BroadCastInRoomByPlayer(m_inGamePlayers[ROLE::PRIEST], &sendPacket);
+		SERVER_PACKET::NotifyPacket sendPacket;
+		sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
+		sendPacket.type = SERVER_PACKET::HEAL_END;
+		g_logic.BroadCastInRoom(m_roomId, &sendPacket);
 	}
 }
 
 void Room::StartHealPlayerCharacter()
 {
-	SERVER_PACKET::StartEffectPacket sendPacket;
-	sendPacket.role = ROLE::PRIEST;
-	sendPacket.skillNum = 0;
-	sendPacket.type = SERVER_PACKET::START_EFFECT;
-	sendPacket.size = sizeof(SERVER_PACKET::StartEffectPacket);
-	g_logic.BroadCastInRoomByPlayer(m_inGamePlayers[ROLE::PRIEST], &sendPacket);
+	SERVER_PACKET::NotifyPacket sendPacket;
+	sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
+	sendPacket.type = SERVER_PACKET::HEAL_START;
+	g_logic.BroadCastInRoom(m_roomId, &sendPacket);
+	HealPlayerCharacter();
 }
 
 void Room::UpdateShieldData()
 {
-	if (m_characterMap[ROLE::TANKER]->GetShieldActivation() == false) return;
-	
-	auto durationTime = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - m_characterMap[ROLE::TANKER]->GetSkillInputTime(0));
-	if (m_characterMap[ROLE::TANKER]->GetSkillDuration(0) < durationTime) {
-		RemoveBarrier();
-		return;
-	}
-
-	SERVER_PACKET::SetSheidPacket sendPacket;
-	int i = 0;
-	float TotalOfShield = 0.0f;
-	for (auto& p : m_characterMap) {
-		sendPacket.shield[i++] = p.second->GetShield();
-		TotalOfShield += p.second->GetShield();
-	}
-	if (TotalOfShield < FLT_EPSILON) return;
-
-	sendPacket.type = SERVER_PACKET::SET_SHIELD;
-	sendPacket.size = sizeof(SERVER_PACKET::SetSheidPacket);
-	g_logic.BroadCastInRoomByPlayer(m_inGamePlayers[ROLE::TANKER], &sendPacket);
+	if (m_characterMap[ROLE::TANKER]->IsDurationEndTimeSkill_1()) RemoveBarrier();
 }
 
 void Room::PutBarrierOnPlayer()
@@ -601,13 +585,16 @@ void Room::PutBarrierOnPlayer()
 	for (auto& p : m_characterMap) {
 		p.second->SetShield(true);
 	}
-
-	SERVER_PACKET::StartEffectPacket sendPacket;
-	sendPacket.role = ROLE::TANKER;
-	sendPacket.skillNum = 0;
-	sendPacket.type = SERVER_PACKET::START_EFFECT;
-	sendPacket.size = sizeof(SERVER_PACKET::StartEffectPacket);
-	g_logic.BroadCastInRoomByPlayer(m_inGamePlayers[ROLE::TANKER], &sendPacket);
+	SERVER_PACKET::NotifyShieldPacket sendPacket;
+	sendPacket.size = sizeof(SERVER_PACKET::NotifyShieldPacket);
+	sendPacket.type = SERVER_PACKET::NOTIFY_SHIELD_APPLY;
+	int i = 0;
+	for (auto& playCharcter : m_characterMap) {
+		sendPacket.applyShieldPlayerInfo[i].shield = playCharcter.second->GetShield();
+		sendPacket.applyShieldPlayerInfo[i].role = playCharcter.first;
+		++i;
+	}
+	g_logic.BroadCastInRoom(m_roomId, &sendPacket);
 }
 
 void Room::RemoveBarrier()
@@ -615,13 +602,10 @@ void Room::RemoveBarrier()
 	for (auto& p : m_characterMap) {
 		p.second->SetShield(false);
 	}
-
-	SERVER_PACKET::EndEffectPacket sendPacket;
-	sendPacket.role = ROLE::TANKER;
-	sendPacket.skillNum = 0;
-	sendPacket.type = SERVER_PACKET::END_EFFECT;
-	sendPacket.size = sizeof(SERVER_PACKET::EndEffectPacket);
-	g_logic.BroadCastInRoomByPlayer(m_inGamePlayers[ROLE::TANKER], &sendPacket);
+	SERVER_PACKET::NotifyPacket sendPacket;
+	sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
+	sendPacket.type = SERVER_PACKET::SHIELD_END;
+	g_logic.BroadCastInRoom(m_roomId, &sendPacket);
 }
 
 void Room::Recv_SkipNPC_Communication()
