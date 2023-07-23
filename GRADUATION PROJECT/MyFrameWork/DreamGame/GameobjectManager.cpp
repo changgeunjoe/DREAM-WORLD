@@ -18,6 +18,7 @@
 #include"UILayer.h"
 #include "GameFramework.h"
 #include "Character.h"
+#include "sound/GameSound.h"
 
 extern NetworkHelper g_NetworkHelper;
 extern Logic g_Logic;
@@ -26,6 +27,7 @@ extern MapData g_bossMapData;
 extern MapData g_stage1MapData;
 extern CGameFramework gGameFramework;
 extern MapData g_stage1MapData;
+extern GameSound g_sound;
 
 
 
@@ -2033,7 +2035,7 @@ void GameobjectManager::ProcessingUI(int n)
 	}
 	default:
 		break;
-}
+	}
 }
 void GameobjectManager::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
@@ -2187,7 +2189,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			break;
 		default:
 			break;
-	}
+		}
 		break;
 	case WM_KEYUP:
 	{
@@ -2305,6 +2307,16 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 
 			break;
 		}
+		case 'P':
+		{
+			g_sound.Play("testSound");
+		}
+		break;
+		case 'O':
+		{
+			g_sound.Pause("testSound");
+		}
+		break;
 		case 'U':
 		{
 			AddDamageFontToUiLayer();
@@ -2321,11 +2333,11 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			else if (m_nStageType == 2) {
 				//m_nStageType = 1;
 				m_pPlayerObject->SetPosition(XMFLOAT3(-1400, 0, -1500));
-		}
+			}
 #endif
 			break;
-	}
-}
+		}
+		}
 	}
 	default:
 		break;
@@ -2351,7 +2363,7 @@ bool GameobjectManager::onProcessingKeyboardMessageLobby(HWND hWnd, UINT nMessag
 		g_NetworkHelper.SendMatchRequestPacket();
 #endif
 		m_bSceneSwap = true;//페이드 인 아웃
-}
+	}
 	if (nMessageID == WM_KEYDOWN && wParam == 'G')
 	{
 		m_bNPCinteraction = true;
@@ -2536,7 +2548,7 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 			, myPlayCharacter->m_RMouseInput);
 #endif
 
-}
+	}
 
 void GameobjectManager::onProcessingMouseMessageUI(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
