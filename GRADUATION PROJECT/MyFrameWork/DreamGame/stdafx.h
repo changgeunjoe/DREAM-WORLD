@@ -55,7 +55,7 @@ using namespace std;
 #include <dxgidebug.h>
 #endif
 #define PLAYER_MAX_RANGE 999288.0f
-const float MONSTER_ABLE_ATTACK_COS_VALUE = std::cos(15.0f * 3.14f / 180.0f);
+const float MONSTER_ABLE_ATTACK_COS_VALUE = std::cos(20.0f * 3.14f / 180.0f);
 
 //#ifndef LOCAL_TASK
 #define LOCAL_TASK 1
@@ -89,6 +89,11 @@ const float MONSTER_ABLE_ATTACK_COS_VALUE = std::cos(15.0f * 3.14f / 180.0f);
 
 #pragma comment(lib, "ws2_32") // ws2_32.lib ¸µÅ©
 ///////////////////////////////////////////
+#pragma comment (lib, "fmod_vc.lib")
+
+
+//sound fmod 
+
 
 enum DIRECTION : char
 {

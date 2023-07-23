@@ -9,7 +9,7 @@
 #include "Network/Logic/Logic.h"
 #include "Network/Room/RoomManger.h"
 #include "Network/MapData/MapData.h"
-
+#include "sound/GameSound.h"
 
 //#ifdef _DEBUG
 #ifdef UNICODE
@@ -25,6 +25,8 @@ Logic g_Logic;
 RoomManger g_RoomManager;
 MapData		g_bossMapData{ std::filesystem::current_path().string().append("\\\Network\\\MapData\\\BossRoom.txt"),std::filesystem::current_path().string().append("\\\Network\\\MapData\\\BossCollisionData.txt"),std::filesystem::current_path().string().append("\\\Network\\\MapData\\\MonsterBoss.txt") };
 MapData		g_stage1MapData{ "NONE",std::filesystem::current_path().string().append("\\\Network\\\MapData\\\Stage1CollisionData.txt"),std::filesystem::current_path().string().append("\\\Network\\\MapData\\\MonsterStage1.txt") };
+GameSound g_sound;
+
 
 bool GameEnd = false;
 

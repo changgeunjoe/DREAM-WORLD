@@ -136,6 +136,9 @@
     <Filter Include="10.NetworkHelper\MapData">
       <UniqueIdentifier>{80961179-1fbb-4289-9c68-f88f90b588a7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="11.Sound">
+      <UniqueIdentifier>{4101ddff-7b27-4299-9d53-3433a475e817}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -285,6 +288,9 @@
     <ClInclude Include="EffectShaderComponent.h">
       <Filter>04.Component\ShaderComponent\EffectShaderComponent</Filter>
     </ClInclude>
+    <ClInclude Include="sound\GameSound.h">
+      <Filter>11.Sound</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -424,6 +430,9 @@
     </ClCompile>
     <ClCompile Include="EffectShaderComponent.cpp">
       <Filter>04.Component\ShaderComponent\EffectShaderComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="sound\GameSound.cpp">
+      <Filter>11.Sound</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
