@@ -201,25 +201,25 @@ void NetworkHelper::SendBallAttackPacket(const XMFLOAT3& pos, const XMFLOAT3& di
 
 void NetworkHelper::SendMeleeAttackPacket(const XMFLOAT3& dir)
 {
-	CLIENT_PACKET::MeleeAttackPacket sendPacket;
-	sendPacket.size = sizeof(CLIENT_PACKET::MeleeAttackPacket);
-	sendPacket.type = CLIENT_PACKET::MELEE_ATTACK;
-	sendPacket.dir = dir;
-	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
+	//CLIENT_PACKET::MeleeAttackPacket sendPacket;
+	//sendPacket.size = sizeof(CLIENT_PACKET::MeleeAttackPacket);
+	//sendPacket.type = CLIENT_PACKET::MELEE_ATTACK;
+	//sendPacket.dir = dir;
+	//send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
 void NetworkHelper::SendTestGameEndPacket()
 {
-	CLIENT_PACKET::GameEndPacket sendPacket;
-	sendPacket.size = sizeof(CLIENT_PACKET::GameEndPacket);
+	CLIENT_PACKET::NotifyPacket sendPacket;
+	sendPacket.size = sizeof(CLIENT_PACKET::NotifyPacket);
 	sendPacket.type = CLIENT_PACKET::TEST_GAME_END;
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
 void NetworkHelper::SendTestGameEndOKPacket()
 {
-	CLIENT_PACKET::GameEndPacket sendPacket;
-	sendPacket.size = sizeof(CLIENT_PACKET::GameEndPacket);
+	CLIENT_PACKET::NotifyPacket sendPacket;
+	sendPacket.size = sizeof(CLIENT_PACKET::NotifyPacket);
 	sendPacket.type = CLIENT_PACKET::GAME_END_OK;
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
@@ -241,10 +241,22 @@ void NetworkHelper::SendSkipNPCCommunicate()
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
-void NetworkHelper::SendChangeStage_B()
+void NetworkHelper::SendChangeStage_BOSS()
 {
 	CLIENT_PACKET::NotifyPacket sendPacket;
 	sendPacket.size = sizeof(CLIENT_PACKET::NotifyPacket);
 	sendPacket.type = CLIENT_PACKET::STAGE_CHANGE_BOSS;
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
+}
+
+void NetworkHelper::SendCommonAttack(const XMFLOAT3& attackDirection, int power)
+{
+	CLIENT_PACKET::PlayerCommonAttackPacket sendPacket;
+	sendPacket.size = sizeof(CLIENT_PACKET::PlayerCommonAttackPacket);
+	sendPacket.type = CLIENT_PACKET::PLAYER_COMMON_ATTACK;
+	sendPacket.role = g_Logic.GetMyRole();
+	sendPacket.dir = attackDirection;
+	sendPacket.power = power;
+	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
+
 }

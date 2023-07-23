@@ -36,6 +36,7 @@ public:
 	void BroadCastPacket(void* p);
 	void MultiCastOtherPlayer(int userId, void* p);
 	void MultiCastOtherPlayerInRoom(int userId, void* p);
+	void MultiCastOtherPlayerInRoom_R(int roomId, ROLE role, void* p);
 	void BroadCastInRoomByPlayer(int userId, void* p);
 	//Boss Broad Cast
 	void BroadCastInRoom(int roomId, void* p);

@@ -15,7 +15,10 @@ protected:
 	std::array<std::chrono::seconds, 2> m_skillCoolTime;
 	std::array<std::chrono::high_resolution_clock::time_point, 2> m_prevSkillInputTime;
 protected:
-	float	m_Shield = 0.0f;	
+	std::chrono::seconds m_CommonAttackCoolTime = std::chrono::seconds(1);
+	std::chrono::high_resolution_clock::time_point m_prevCommonAttackTime;
+protected:
+	float	m_Shield = 0.0f;
 	float	m_damageRedutionRate = 0.0f;
 private:
 	ROLE m_InGameRole = ROLE::NONE_SELECT;
@@ -61,8 +64,8 @@ public:
 		return m_InGameRole;
 	}
 	bool GetLeftAttack() { return m_leftmouseInput; }
-	void SetRoomState(ROOM_STATE rState) { m_roomState = rState; }	
-	float GetShield() { return m_Shield; }	
+	void SetRoomState(ROOM_STATE rState) { m_roomState = rState; }
+	float GetShield() { return m_Shield; }
 protected:
 	std::pair<float, XMFLOAT3> GetNormalVectorSphere(XMFLOAT3& point);
 public:
@@ -70,6 +73,7 @@ public:
 	virtual void Skill_2() = 0;
 	bool IsDurationEndTimeSkill_1();
 	bool IsDurationEndTimeSkill_2();
+	virtual void ExecuteCommonAttack(XMFLOAT3& attackDir, int power) = 0;
 protected://collision
 	virtual std::pair<bool, XMFLOAT3> CheckCollisionMap(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
 	virtual std::pair<bool, XMFLOAT3> CheckCollisionCharacter(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
@@ -92,6 +96,7 @@ public:
 
 	void Skill_1()override;
 	void Skill_2()override;
+	virtual void ExecuteCommonAttack(XMFLOAT3& attackDir, int power) override;
 };
 
 class MageSessionObject : public ChracterSessionObject
@@ -103,6 +108,8 @@ public:
 		m_skillDuration = { std::chrono::seconds(9), std::chrono::seconds(3) };
 		m_prevSkillInputTime = { std::chrono::high_resolution_clock::now() - m_skillCoolTime[0],
 			std::chrono::high_resolution_clock::now() - m_skillCoolTime[1] };
+		m_CommonAttackCoolTime = std::chrono::seconds(1);
+		m_prevCommonAttackTime = std::chrono::high_resolution_clock::now() - m_CommonAttackCoolTime;
 		SetStage_1Position();
 	}
 	~MageSessionObject() {}
@@ -111,6 +118,7 @@ public:
 	void SetBossStagePosition()override;
 	void Skill_1()override;
 	void Skill_2()override;
+	virtual void ExecuteCommonAttack(XMFLOAT3& attackDir, int power) override;
 };
 
 class TankerSessionObject : public ChracterSessionObject
@@ -122,6 +130,8 @@ public:
 		m_skillDuration = { std::chrono::seconds(5), std::chrono::seconds(0) };
 		m_prevSkillInputTime = { std::chrono::high_resolution_clock::now() - m_skillCoolTime[0],
 			std::chrono::high_resolution_clock::now() - m_skillCoolTime[1] };
+		m_CommonAttackCoolTime = std::chrono::seconds(1);
+		m_prevCommonAttackTime = std::chrono::high_resolution_clock::now() - m_CommonAttackCoolTime;
 		SetStage_1Position();
 	}
 	~TankerSessionObject() {}
@@ -130,6 +140,7 @@ public:
 	void SetBossStagePosition()override;
 	void Skill_1()override;
 	void Skill_2()override;
+	virtual void ExecuteCommonAttack(XMFLOAT3& attackDir, int power) override;
 };
 
 class ArcherSessionObject : public ChracterSessionObject
@@ -139,10 +150,11 @@ public:
 	{
 		SetStage_1Position();
 	}
-	~ArcherSessionObject() {}	
+	~ArcherSessionObject() {}
 public:
 	void SetStage_1Position()override;
 	void SetBossStagePosition()override;
 	void Skill_1()override;
 	void Skill_2()override;
+	virtual void ExecuteCommonAttack(XMFLOAT3& attackDir, int power) override;
 };

@@ -554,6 +554,13 @@ void WarriorSessionObject::Skill_2()
 
 }
 
+void WarriorSessionObject::ExecuteCommonAttack(XMFLOAT3& attackDir, int power)
+{
+	Room& roomRef = g_RoomManager.GetRunningRoomRef(m_roomId);
+	roomRef.MeleeAttack(ROLE::WARRIOR, attackDir, m_position, power);
+
+}
+
 void WarriorSessionObject::SetStage_1Position()
 {
 	SetPosition(XMFLOAT3(-1290.0f, 0, -1470.0f));
@@ -580,6 +587,13 @@ void MageSessionObject::Skill_1()
 void MageSessionObject::Skill_2()
 {
 
+}
+
+void MageSessionObject::ExecuteCommonAttack(XMFLOAT3& attackDir, int power)
+{
+	Room& roomRef = g_RoomManager.GetRunningRoomRef(m_roomId);
+	//offset 적용 안됨
+	roomRef.ShootBall(attackDir, m_position);
 }
 
 void MageSessionObject::SetStage_1Position()
@@ -616,6 +630,13 @@ void TankerSessionObject::Skill_2()
 
 }
 
+void TankerSessionObject::ExecuteCommonAttack(XMFLOAT3& attackDir, int power)
+{
+	Room& roomRef = g_RoomManager.GetRunningRoomRef(m_roomId);
+	roomRef.MeleeAttack(ROLE::TANKER, attackDir, m_position, 0);
+	//공격 애니메이션 패킷
+}
+
 void TankerSessionObject::SetStage_1Position()
 {
 	SetPosition(XMFLOAT3(-1260.3f, 0, -1510.7f));
@@ -638,6 +659,21 @@ void ArcherSessionObject::Skill_1()
 void ArcherSessionObject::Skill_2()
 {
 
+}
+
+void ArcherSessionObject::ExecuteCommonAttack(XMFLOAT3& attackDir, int power)
+{
+	Room& roomRef = g_RoomManager.GetRunningRoomRef(m_roomId);
+	//offset 적용 안됨
+	if (power == 0) {
+		roomRef.ShootArrow(attackDir, m_position, 100.0f, 100.0f);
+	}
+	else if (power == 1) {
+		roomRef.ShootArrow(attackDir, m_position, 140.0f, 140.0f);
+	}
+	else if (power == 2) {
+		roomRef.ShootArrow(attackDir, m_position, 200.0f, 200.0f);
+	}
 }
 
 void ArcherSessionObject::SetStage_1Position()

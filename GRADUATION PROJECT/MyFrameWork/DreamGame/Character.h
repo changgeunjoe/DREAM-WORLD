@@ -27,9 +27,8 @@ public:
 	virtual void SecondSkillUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f }) {};
 	virtual void StartEffect(int nSkillNum) {};
 	virtual void EndEffect(int nSkillNum) {};
-	virtual std::chrono::seconds GetSkillCoolTime(int i) { return m_skillCoolTime[i]; }
-	virtual std::chrono::high_resolution_clock::time_point GetSkillInputTime(int i) { return m_skillInputTime[i]; }
 	bool CheckAnimationEnd(int nAnimation);
+protected:
 
 public://move
 	virtual void SetLookDirection();
@@ -45,6 +44,8 @@ protected://collision check
 	virtual std::pair<bool, XMFLOAT3> CheckCollisionNormalMonster(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
 	virtual bool CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
 public:
+	virtual void ExecuteSkill_Q();
+	virtual void ExecuteSkill_E();
 	bool GetQSkillState() { return m_bQSkillClicked; }
 	bool GetESkillState() { return m_bESkillClicked; }
 	bool GetOnAttack() { return m_bOnAttack; }
@@ -82,13 +83,18 @@ class Warrior : public Character
 public:
 	Warrior();
 	virtual ~Warrior();
-	virtual void Attack(float fSpeed = 150.0f);
+	virtual void Attack();
 	virtual void RbuttonClicked(float fTimeElapsed);
 	virtual void Move(float fTimeElapsed)override;
 	virtual void Animate(float fTimeElapsed) override;
 public:
 	void SetStage1Position();
 	void SetBossStagePostion();
+
+//attack
+public:
+	virtual void ExecuteSkill_Q();
+	virtual void ExecuteSkill_E();
 };
 
 class Archer : public Character
@@ -98,7 +104,7 @@ private:
 public:
 	Archer();
 	virtual ~Archer();
-	virtual void Attack(float fSpeed = 150.0f);
+	virtual void Attack();
 	virtual void SetArrow(Projectile* pArrow);
 	virtual void RbuttonClicked(float fTimeElapsed);
 	virtual void RbuttonUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f });
@@ -116,6 +122,10 @@ public:
 public:
 	void SetStage1Position();
 	void SetBossStagePostion();
+	//attack
+public:
+	virtual void ExecuteSkill_Q();
+	virtual void ExecuteSkill_E();
 };
 
 class Tanker : public Character
@@ -123,7 +133,7 @@ class Tanker : public Character
 public:
 	Tanker();
 	virtual ~Tanker();
-	virtual void Attack(float fSpeed = 150.0f);
+	virtual void Attack();
 	virtual void RbuttonClicked(float fTimeElapsed);
 	virtual void RbuttonUp(const XMFLOAT3& CameraAxis);
 	virtual void FirstSkillDown();
@@ -135,6 +145,10 @@ public:
 public:
 	void SetStage1Position();
 	void SetBossStagePostion();
+	//attack
+public:
+	virtual void ExecuteSkill_Q();
+	virtual void ExecuteSkill_E();
 };
 
 class Priest : public Character
@@ -147,7 +161,7 @@ public:
 	virtual ~Priest();
 	virtual void RbuttonClicked(float fTimeElapsed);
 	virtual void RbuttonUp(const XMFLOAT3& CameraAxis);
-	virtual void Attack(float fSpeed = 150.0f);
+	virtual void Attack();
 	virtual void Attack(const XMFLOAT3& xmf3StartPos, const XMFLOAT3& xmf3Direction, const float fSpeed);
 	virtual void SetEnergyBall(Projectile* pEnergyBall);
 	virtual void Move(float fTimeElapsed)override;
@@ -166,6 +180,10 @@ public:
 public:
 	void SetStage1Position();
 	void SetBossStagePostion();
+	//attack
+public:
+	virtual void ExecuteSkill_Q();
+	virtual void ExecuteSkill_E();
 };
 
 class Monster : public Character

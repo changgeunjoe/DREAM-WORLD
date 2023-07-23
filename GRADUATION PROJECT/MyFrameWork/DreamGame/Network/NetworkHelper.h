@@ -43,12 +43,12 @@ public:
 	void SendMeleeAttackPacket(const XMFLOAT3& dir);
 	void SendTestGameEndPacket();
 	void SendTestGameEndOKPacket();
-	void SendChangeStage_B();
 public:
 	//Stage1
 	void SendOnPositionTriggerBox1();//트리거 박스 내부에 도착해서 상태 변화할때
 	void SendSkipNPCCommunicate();
-
+	void SendChangeStage_BOSS();
+	void SendCommonAttack(const XMFLOAT3& attackDirection, int power);
 private:
 	void ConstructPacket(int ioByte);
 private:

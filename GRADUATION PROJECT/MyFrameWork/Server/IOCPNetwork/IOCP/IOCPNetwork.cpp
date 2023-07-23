@@ -199,6 +199,7 @@ int IOCPNetwork::GetUserId()
 void IOCPNetwork::DisconnectClient(int id)
 {
 	//만약 인게임 중에 disconnect 된다면.
+	if (id < 0)return;
 	if (m_session[id].GetPlayerState() == PLAYER_STATE::IN_GAME_ROOM) {
 		Room& room = g_RoomManager.GetRunningRoomRef(m_session[id].GetRoomId());
 		room.DeleteInGamePlayer(id);

@@ -2,6 +2,15 @@
 #include "ShootingSessionObject.h"
 #include "MonsterSessionObject.h"
 #include "../UserSession.h"
+#include "../../Room/RoomManager.h"
+#include "../../Room/MapData.h"
+#include "../../IOCPNetwork/protocol/protocol.h"
+#include "../../IOCPNetwork/IOCP/IOCPNetwork.h"
+
+extern IOCPNetwork g_iocpNetwork;
+extern RoomManager g_RoomManager;
+extern MapData g_bossMapData;
+extern MapData g_stage1MapData;
 
 ShootingSessionObject::ShootingSessionObject() : SessionObject(4.0f)
 {
@@ -52,10 +61,39 @@ void ShootingSessionObject::SetStart(XMFLOAT3& dir, XMFLOAT3& srcPos, float spee
 
 bool ShootingSessionObject::Move(float elapsedTime)
 {
+	if (!m_active)return true;
+	Room& roomRef = g_RoomManager.GetRunningRoomRef(m_roomId);
+	SmallMonsterSessionObject* monsters = roomRef.GetStageMonsterArr();
 	m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, elapsedTime * m_speed));
 	m_SPBB.Center = m_position;
-	//순수 가상함수 Move에 추가하자 밑에 부분
 	m_distance += elapsedTime * m_speed;
-	if (m_distance > 250.0f) m_active = false;	// 추후 수정 //생명주기 관리에 사용	
+
+	bool isMonsterCollide = false;
+	for (int i = 0; i < 15; i++) {
+		if (m_SPBB.Intersects(monsters[i].GetSpbb())) {
+			monsters[i].AttackedHp(m_damage);
+			SERVER_PACKET::ProjectileDamagePacket sendPacket;
+			sendPacket.size = sizeof(SERVER_PACKET::ProjectileDamagePacket);
+
+			if (m_OwnerRole == ROLE::PRIEST)
+				sendPacket.type = SERVER_PACKET::MONSTER_DAMAGED_BALL;
+			if (m_isSkill)
+				sendPacket.type = SERVER_PACKET::MONSTER_DAMAGED_ARROW_SKILL;
+			else
+				sendPacket.type = SERVER_PACKET::MONSTER_DAMAGED_ARROW;
+
+			sendPacket.projectileId = m_id;
+			sendPacket.position = m_position;
+			sendPacket.damage = m_damage;
+			ExpOver* postOver = new ExpOver(reinterpret_cast<char*>(&sendPacket));
+			PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, m_roomId, &postOver->m_overlap);
+			break;
+		}
+	}
+	if (isMonsterCollide || m_distance > 250.0f) {
+		m_active = false;
+
+	}
 	return true;
 }
+;

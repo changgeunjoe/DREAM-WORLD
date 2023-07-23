@@ -598,6 +598,14 @@ bool Character::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
 	return false;
 }
 
+void Character::ExecuteSkill_Q()
+{
+}
+
+void Character::ExecuteSkill_E()
+{
+}
+
 void Character::InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos)
 {
 	XMFLOAT3 playerInterpolationVector = Vector3::Subtract(recvPos, GetPosition());
@@ -646,7 +654,7 @@ Warrior::~Warrior()
 {
 }
 
-void Warrior::Attack(float fSpeed)
+void Warrior::Attack()
 {
 	if (m_bQSkillClicked)
 	{
@@ -657,8 +665,10 @@ void Warrior::Attack(float fSpeed)
 	}
 	else if (m_bLButtonClicked)
 	{
-		if (m_pCamera)
-			g_NetworkHelper.SendMeleeAttackPacket(GetLook());
+		if (m_pCamera) {
+
+			g_NetworkHelper.SendCommonAttack(GetLook());			
+		}
 	}
 }
 
@@ -850,6 +860,18 @@ void Warrior::SetBossStagePostion()
 	SetPosition(XMFLOAT3(0, 0, -211.0f));
 }
 
+void Warrior::ExecuteSkill_Q()
+{
+	if (m_bQSkillClicked && m_bESkillClicked) {
+		m_bQSkillClicked = true;
+		g_NetworkHelper.Send_SkillExecute_Q();
+	}
+}
+
+void Warrior::ExecuteSkill_E()
+{//None
+}
+
 Archer::Archer() : Character()
 {
 	m_fHp = 250.0f;
@@ -868,8 +890,12 @@ Archer::~Archer()
 	}
 }
 
-void Archer::Attack(float fSpeed)
+void Archer::Attack()
 {
+	if (m_pCamera) {
+		//줌인에 대한 정보 필요할듯함
+		g_NetworkHelper.SendCommonAttack(GetLook());
+	}
 }
 
 void Archer::SetArrow(Projectile* pArrow)
@@ -1262,6 +1288,14 @@ void Archer::SetBossStagePostion()
 	SetPosition(XMFLOAT3(123, 0, -293));
 }
 
+void Archer::ExecuteSkill_Q()
+{
+}
+
+void Archer::ExecuteSkill_E()
+{
+}
+
 //void Archer::ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent)
 //{
 //	GameObject::ShadowRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender, pShaderComponent);
@@ -1284,10 +1318,11 @@ Tanker::~Tanker()
 
 }
 
-void Tanker::Attack(float fSpeed)
-{
-	if (m_pCamera)
-		g_NetworkHelper.SendMeleeAttackPacket(GetLook());
+void Tanker::Attack()
+{	
+		if (m_pCamera) {
+			g_NetworkHelper.SendCommonAttack(GetLook());
+		}
 }
 
 void Tanker::RbuttonClicked(float fTimeElapsed)
@@ -1573,6 +1608,14 @@ void Tanker::SetBossStagePostion()
 	SetPosition(XMFLOAT3(82, 0, -223.0f));
 }
 
+void Tanker::ExecuteSkill_Q()
+{
+}
+
+void Tanker::ExecuteSkill_E()
+{
+}
+
 Priest::Priest() : Character()
 {
 	m_fHp = 480.0f;
@@ -1766,15 +1809,18 @@ void Priest::RbuttonUp(const XMFLOAT3& CameraAxis)
 {
 }
 
-void Priest::Attack(float fSpeed)
+void Priest::Attack()
 {
+	if (m_pCamera) {
+		g_NetworkHelper.SendCommonAttack(GetLook());
+	}
 	m_nProjectiles = (m_nProjectiles < 10) ? m_nProjectiles : m_nProjectiles % 10;
 	m_pProjectiles[m_nProjectiles]->m_xmf3direction = XMFLOAT3(GetObjectLook().x, m_pCamera->GetLookVector().y, GetObjectLook().z);
 	m_pProjectiles[m_nProjectiles]->m_xmf3startPosition = XMFLOAT3(GetPosition().x, GetPosition().y + 4.0f, GetPosition().z);
 	m_pProjectiles[m_nProjectiles]->SetPosition(m_pProjectiles[m_nProjectiles]->m_xmf3startPosition);
-	m_pProjectiles[m_nProjectiles]->m_fSpeed = fSpeed;
+	//m_pProjectiles[m_nProjectiles]->m_fSpeed = fSpeed;
 	m_pProjectiles[m_nProjectiles]->m_bActive = true;
-	g_NetworkHelper.SendBallAttackPacket(m_pProjectiles[m_nProjectiles]->m_xmf3startPosition, m_pProjectiles[m_nProjectiles]->m_xmf3direction, fSpeed);
+	//g_NetworkHelper.SendBallAttackPacket(m_pProjectiles[m_nProjectiles]->m_xmf3startPosition, m_pProjectiles[m_nProjectiles]->m_xmf3direction, fSpeed);
 	m_nProjectiles++;
 }
 
@@ -1882,6 +1928,14 @@ void Priest::SetStage1Position()
 void Priest::SetBossStagePostion()
 {
 	SetPosition(XMFLOAT3(20, 0, -285));
+}
+
+void Priest::ExecuteSkill_Q()
+{
+}
+
+void Priest::ExecuteSkill_E()
+{
 }
 
 //void Priest::ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent)

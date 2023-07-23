@@ -26,12 +26,13 @@ public:
 	SessionObject(float boundingSize);
 	virtual ~SessionObject();
 public:
+	BoundingSphere& GetSpbb() { return m_SPBB; }
 	float GetHp() { return m_hp; }
 	XMFLOAT3& GetPos() { return m_position; }
 	XMFLOAT3& GetRot() { return m_rotateAngle; }
 	XMFLOAT3& GetDirectionVector() { return m_directionVector; }
 
-	void HealHp(float heal) { if(m_hp < m_maxHp) m_hp += heal; }
+	void HealHp(float heal) { if (m_hp < m_maxHp) m_hp += heal; }
 	float GetAttackDamage() { return m_attackDamage; }
 public:
 	void AutoMove();
@@ -46,16 +47,16 @@ protected:
 		m_rightVector = Vector3::CrossProduct(DirectX::XMFLOAT3(0, 1, 0), m_directionVector);
 	}
 protected:
-	virtual void SetPosition(DirectX::XMFLOAT3& pos) 
+	virtual void SetPosition(DirectX::XMFLOAT3& pos)
 	{
-		m_position = pos; 
+		m_position = pos;
 		m_SPBB.Center = pos;
 		m_SPBB.Center.y = 0.0f;
 	}
 public:
 	void SetInitPosition(DirectX::XMFLOAT3& pos)
-	{ 
-		m_position = pos; 
+	{
+		m_position = pos;
 		m_SPBB.Center = pos;
 		m_SPBB.Center.y = 0.0f;
 	}
