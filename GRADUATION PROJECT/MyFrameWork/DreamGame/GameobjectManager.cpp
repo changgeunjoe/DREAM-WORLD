@@ -61,9 +61,12 @@ void GameobjectManager::Animate(float fTimeElapsed)
 {
 	m_fTime += fTimeElapsed;
 	m_fTimeElapsed = fTimeElapsed;
+//<<<<<<< Updated upstream
 	/*m_pConditionUIObject->SetColor(XMFLOAT4(0, 0, 0, sin(m_fTime)+0.2));
 	*/
 	//SortEffect(); // 게임 오브젝트를 카메라와 거리별로 sort하는 함수입니다.->이펙트가 블랜드가 꼬이는 걸 막기위한 소트
+//=======
+//>>>>>>> Stashed changes
 	SceneSwapAnimate(fTimeElapsed);
 	//if (int(m_fTime) % 5 > 3)
 	//{
@@ -301,8 +304,8 @@ void GameobjectManager::StoryUIAnimate(float fTimeElapsed)
 
 void GameobjectManager::ConditionAnimate(float fTimeElapsed)
 {
-	m_pConditionUIObject->m_fTime += fTimeElapsed;
-	m_pConditionUIObject->SetColor(XMFLOAT4(10, 0, 0, 0));
+	//m_pConditionUIObject->m_fTime+= fTimeElapsed;
+	//m_pConditionUIObject->SetColor(XMFLOAT4(10, 0, 0, 0));
 }
 
 void GameobjectManager::SceneSwapAnimate(float fTimeElapsed)
@@ -879,7 +882,7 @@ void GameobjectManager::EffectRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 		m_pLightEffectObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 	if (m_pSheildEffectObject) {
-		m_pSheildEffectObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//	m_pSheildEffectObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 	if (m_pPortalEffectObject) {
 		m_pPortalEffectObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -1104,7 +1107,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pSkyboxObject->InsertComponent<SkyBoxMeshComponent>();
 	m_pSkyboxObject->InsertComponent<SkyBoxShaderComponent>();
 	m_pSkyboxObject->InsertComponent<TextureComponent>();
-	m_pSkyboxObject->SetTexture(L"DreamWorld/Stage1SkyBox.dds", RESOURCE_TEXTURE_CUBE, 12);
+	m_pSkyboxObject->SetTexture(L"DreamWorld/DreamWorld.dds", RESOURCE_TEXTURE_CUBE, 12);
 	m_pSkyboxObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pSkyboxObject->SetScale(1, 1, 1);
 	m_pSkyboxObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -1122,10 +1125,10 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	// 플레이어가 캐릭터 선택하는 부분에 유사하게 넣을 예정
 	// m_pWarriorObject m_pArcherObject m_pTankerObject m_pPriestObject
 	// Archer Priest Tanker Warrior
-	m_pPlayerObject = new Priest();
-	m_pTankerObject->SetCamera(m_pCamera);
-	m_pPlayerObject = m_pTankerObject;
-	g_Logic.SetMyRole(ROLE::TANKER);
+	//m_pPlayerObject = new Priest();
+	//m_pTankerObject->SetCamera(m_pCamera);
+	//m_pPlayerObject = m_pTankerObject;
+	//g_Logic.SetMyRole(ROLE::TANKER);
 	// ARCHER PRIEST TANKER WARRIOR
 #endif // LOCAL_TASK
 
@@ -1146,17 +1149,17 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 }
 void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	m_pFireballSpriteObject = new GameObject(UNDEF_ENTITY);
-	m_pFireballSpriteObject->InsertComponent<RenderComponent>();
-	m_pFireballSpriteObject->InsertComponent<UIMeshComponent>();
-	m_pFireballSpriteObject->InsertComponent<MultiSpriteShaderComponent>();
-	m_pFireballSpriteObject->InsertComponent<TextureComponent>();
-	m_pFireballSpriteObject->SetTexture(L"MagicEffect/CandleFlame.dds", RESOURCE_TEXTURE2D, 3);
-	m_pFireballSpriteObject->SetPosition(XMFLOAT3(100, 40, 100));
-	m_pFireballSpriteObject->SetScale(10);
-	m_pFireballSpriteObject->SetRowColumn(16, 8, 0);
-	m_pFireballSpriteObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppParticleObjects.emplace_back(m_pFireballSpriteObject);
+	//m_pFireballSpriteObject = new GameObject(UNDEF_ENTITY);
+	//m_pFireballSpriteObject->InsertComponent<RenderComponent>();
+	//m_pFireballSpriteObject->InsertComponent<UIMeshComponent>();
+	//m_pFireballSpriteObject->InsertComponent<MultiSpriteShaderComponent>();
+	//m_pFireballSpriteObject->InsertComponent<TextureComponent>();
+	//m_pFireballSpriteObject->SetTexture(L"MagicEffect/CandleFlame.dds", RESOURCE_TEXTURE2D, 3);
+	//m_pFireballSpriteObject->SetPosition(XMFLOAT3(100, 40, 100));
+	//m_pFireballSpriteObject->SetScale(10);
+	//m_pFireballSpriteObject->SetRowColumn(16, 8, 0);
+	//m_pFireballSpriteObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//m_ppParticleObjects.emplace_back(m_pFireballSpriteObject);
 
 	m_pLightningSpriteObject = new GameObject(UNDEF_ENTITY);
 	m_pLightningSpriteObject->InsertComponent<RenderComponent>();
@@ -1170,17 +1173,17 @@ void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	m_pLightningSpriteObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppParticleObjects.emplace_back(m_pLightningSpriteObject);
 
-	m_pMosterdebuffSpriteObject = new GameObject(UNDEF_ENTITY);
-	m_pMosterdebuffSpriteObject->InsertComponent<RenderComponent>();
-	m_pMosterdebuffSpriteObject->InsertComponent<UIMeshComponent>();
-	m_pMosterdebuffSpriteObject->InsertComponent<MultiSpriteShaderComponent>();
-	m_pMosterdebuffSpriteObject->InsertComponent<TextureComponent>();
-	m_pMosterdebuffSpriteObject->SetTexture(L"MagicEffect/Monsterdebuff_5x6.dds", RESOURCE_TEXTURE2D, 3);
-	m_pMosterdebuffSpriteObject->SetPosition(XMFLOAT3(0, 40, 130));
-	m_pMosterdebuffSpriteObject->SetScale(2);
-	m_pMosterdebuffSpriteObject->SetRowColumn(5, 6, 0.03);
-	m_pMosterdebuffSpriteObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppParticleObjects.emplace_back(m_pMosterdebuffSpriteObject);
+	//m_pMosterdebuffSpriteObject = new GameObject(UNDEF_ENTITY);
+	//m_pMosterdebuffSpriteObject->InsertComponent<RenderComponent>();
+	//m_pMosterdebuffSpriteObject->InsertComponent<UIMeshComponent>();
+	//m_pMosterdebuffSpriteObject->InsertComponent<MultiSpriteShaderComponent>();
+	//m_pMosterdebuffSpriteObject->InsertComponent<TextureComponent>();
+	//m_pMosterdebuffSpriteObject->SetTexture(L"MagicEffect/Monsterdebuff_5x6.dds", RESOURCE_TEXTURE2D, 3);
+	//m_pMosterdebuffSpriteObject->SetPosition(XMFLOAT3(0, 40, 130));
+	//m_pMosterdebuffSpriteObject->SetScale(2);
+	//m_pMosterdebuffSpriteObject->SetRowColumn(5, 6, 0.03);
+	//m_pMosterdebuffSpriteObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//m_ppParticleObjects.emplace_back(m_pMosterdebuffSpriteObject);
 
 
 	//m_pSwordFireObject = new GameObject(UNDEF_ENTITY);
@@ -1794,17 +1797,17 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_ppCharacterUIObjects.emplace_back(m_pWarriorObject->m_pSkillEUI);
 
 	//m_ppCharacterUIObjects.emplace_back(m_pArcherObject->m_pSkillQUI);
-	m_pConditionUIObject = new GameObject(UI_ENTITY);
-	m_pConditionUIObject->InsertComponent<RenderComponent>();
-	m_pConditionUIObject->InsertComponent<UIMeshComponent>();
-	m_pConditionUIObject->InsertComponent<UiShaderComponent>();
-	m_pConditionUIObject->InsertComponent<TextureComponent>();
-	m_pConditionUIObject->SetTexture(L"UI/Condition.dds", RESOURCE_TEXTURE2D, 3);
-	m_pConditionUIObject->SetPosition(XMFLOAT3(0.0, 0.0, 1.00));
-	m_pConditionUIObject->SetColor(XMFLOAT4(0.4f, 0.0f, 0.0f, 0.0f));
-	m_pConditionUIObject->SetScale(0.44f, 0.24f, 1.0f);
-	m_pConditionUIObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppCharacterUIObjects.emplace_back(m_pConditionUIObject);
+	//m_pConditionUIObject = new GameObject(UI_ENTITY);
+	//m_pConditionUIObject->InsertComponent<RenderComponent>();
+	//m_pConditionUIObject->InsertComponent<UIMeshComponent>();
+	//m_pConditionUIObject->InsertComponent<UiShaderComponent>();
+	//m_pConditionUIObject->InsertComponent<TextureComponent>();
+	//m_pConditionUIObject->SetTexture(L"UI/Condition.dds", RESOURCE_TEXTURE2D, 3);
+	//m_pConditionUIObject->SetPosition(XMFLOAT3(0.0, 0.0, 1.00));
+	//m_pConditionUIObject->SetColor(XMFLOAT4(0.4f, 0.0f, 0.0f, 0.0f));
+	//m_pConditionUIObject->SetScale(0.44f, 0.24f, 1.0f);
+	//m_pConditionUIObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//m_ppCharacterUIObjects.emplace_back(m_pConditionUIObject);
 
 
 	m_pSceneChangeUIObject = new GameObject(UI_ENTITY);
@@ -1953,7 +1956,7 @@ void GameobjectManager::ProcessingUI(int n)
 {
 	switch (n)
 	{
-	case UI::UI_GAMESEARCHING:
+	case UI::UI_GAMEMATCHING:
 	{
 #ifdef LOCAL_TASK
 		m_nSection = 1;
@@ -1963,8 +1966,7 @@ void GameobjectManager::ProcessingUI(int n)
 		m_pUIGameSearchObject->m_bUIActive = false;
 		break;
 	}
-	case UI::UI_GAMEMATCHING:
-	{
+	case UI::UI_GAMESEARCHING:	{
 		m_pUIGameEndObject->m_bUIActive = false;
 		if (!m_bInMatching)
 		{
