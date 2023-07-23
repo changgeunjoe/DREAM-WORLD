@@ -27,7 +27,10 @@ extern MapData g_stage1MapData;
 extern CGameFramework gGameFramework;
 extern MapData g_stage1MapData;
 
+
+
 template<typename S>
+
 S* ComponentType(component_id componentID)
 {
 	if (typeid(S).name() == typeid(RenderComponent).name())
@@ -60,7 +63,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	m_fTimeElapsed = fTimeElapsed;
 	/*m_pConditionUIObject->SetColor(XMFLOAT4(0, 0, 0, sin(m_fTime)+0.2));
 	*/
-
+	//SortEffect(); // 게임 오브젝트를 카메라와 거리별로 sort하는 함수입니다.->이펙트가 블랜드가 꼬이는 걸 막기위한 소트
 	SceneSwapAnimate(fTimeElapsed);
 	//if (int(m_fTime) % 5 > 3)
 	//{
@@ -100,7 +103,8 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	//Effect
 	if (m_bPickingenemy) {
 		if (g_Logic.GetMyRole() == ROLE::PRIEST) {
-			m_pLightEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 5);
+			m_pLightEffectObject->AnimateEffect(m_pCamera,XMFLOAT3( m_pSelectedObject->GetPosition().x,
+				m_pSelectedObject->GetPosition().y+10, m_pSelectedObject->GetPosition().z), fTimeElapsed, m_fTime * 5);
 			m_pLightningSpriteObject->SetPosition(XMFLOAT3(
 				m_pSelectedObject->GetPosition().x,
 				m_pSelectedObject->GetPosition().y + 40,
@@ -120,7 +124,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 		}
 	}
 	for (auto& effect : m_ppHealingEffectObject)
-	{
+	{	
 		if (effect == nullptr) continue;
 		if (effect->m_bActive == false) continue;
 		Character* possessChracter = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(effect->m_hostObject);
@@ -843,6 +847,19 @@ void GameobjectManager::SetCharactersBossStagePostion()
 
 void GameobjectManager::EffectRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float ftimeElapsed)
 {
+	//for (auto& effect : m_ppEffectObjects) {
+	//	SortEffect();
+	//	//if (effect->m_bActive) {
+	//		effect->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//	//}
+	//}
+	//SortEffect();
+	//for (int i = 0; i < m_ppEffectObjects.size(); i++) {
+	//	
+	//	//if (effect->m_bActive) {
+	//	m_ppEffectObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//	//}
+	//}
 	for (auto& effect : m_ppShieldEffectObject)
 	{
 		if (effect == nullptr) continue;
@@ -1849,29 +1866,29 @@ void GameobjectManager::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	for (int i = 0; i < 4; ++i)
 	{
 		m_ppShieldEffectObject[i] = new EffectObject;
-		m_ppShieldEffectObject[i]->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		m_ppShieldEffectObject[i]->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,m_ppEffectObjects);
 		m_ppShieldEffectObject[i]->m_hostObject = static_cast<ROLE>(0x01 << i);
 	}
 
 	for (int i = 0; i < 4; ++i)
 	{
 		m_ppHealingEffectObject[i] = new EffectObject;
-		m_ppHealingEffectObject[i]->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		m_ppHealingEffectObject[i]->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_ppEffectObjects);
 		m_ppHealingEffectObject[i]->m_hostObject = static_cast<ROLE>(0x01 << i);
 	}
 
 	m_pDebuffObject = new DebuffObject;
-	m_pDebuffObject->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pDebuffObject->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_ppEffectObjects);
 
 	m_pLightEffectObject = new LightningEffectObject;
-	m_pLightEffectObject->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pLightEffectObject->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_ppEffectObjects);
 
 	m_pSheildEffectObject = new SheildEffectObject;
-	m_pSheildEffectObject->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pSheildEffectObject->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_ppEffectObjects);
 
 
 	m_pPortalEffectObject = new PortalEffectObject;
-	m_pPortalEffectObject->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pPortalEffectObject->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_ppEffectObjects);
 
 }
 
@@ -2319,11 +2336,11 @@ bool GameobjectManager::onProcessingKeyboardMessageLobby(HWND hWnd, UINT nMessag
 	if (nMessageID == WM_KEYDOWN && wParam == VK_F2)
 	{
 #ifdef LOCAL_TASK
-		g_Logic.SetMyRole(ROLE::ARCHER);
+		g_Logic.SetMyRole(ROLE::PRIEST);
 		m_pCamera->Rotate(0, -90, 0);
-		m_pPlayerObject = m_pArcherObject;
+		m_pPlayerObject = m_pPriestObject;
 		m_pPlayerObject->SetCamera(m_pCamera);
-		m_pArcherObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
+		m_pPriestObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
 #else
 		g_Logic.SetMyRole(ROLE::ARCHER);
 		m_pArcherObject->SetCamera(m_pCamera);
@@ -2582,6 +2599,11 @@ float GameobjectManager::CalculateDistance(const XMFLOAT3& firstPosition, const 
 	XMStoreFloat(&distance, distanceVec);
 
 	return distance;
+}
+
+void GameobjectManager::SortEffect()
+{
+	std::sort(m_ppEffectObjects.begin(), m_ppEffectObjects.end(), CompareGameObjects);
 }
 
 void GameobjectManager::SetPlayCharacter(Session* pSession) // 임시 함수

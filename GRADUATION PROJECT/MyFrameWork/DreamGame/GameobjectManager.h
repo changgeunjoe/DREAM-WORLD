@@ -88,6 +88,7 @@ public:
 	void AddTextToUILayer(int& index);
 	void AddDamageFontToUiLayer();
 	float CalculateDistance(const XMFLOAT3& firstPosition, const XMFLOAT3& lastPosition);
+	virtual void SortEffect();//게임 오브젝트를 카메라와 거리별로 sort하는 함수입니다. ->이펙트가 블랜드가 꼬이는 걸 막기위한 소트 
 
 
 private: //active object 
@@ -212,7 +213,9 @@ private: //active object
 	EffectObject* m_pLightEffectObject{ NULL };
 	EffectObject* m_pSheildEffectObject{ NULL };
 	EffectObject* m_pPortalEffectObject{ NULL };
-	vector<EffectObject*> m_ppEffectObjects{};
+//	vector<EffectObject*> m_ppEffectObjects{};
+
+	vector<GameObject*> m_ppEffectObjects{};
 
 	//NPC Object 
 	GameObject* m_pAngelNPCObject{ NULL };
@@ -270,5 +273,7 @@ public:
 	void SetCharactersStage1Postion();
 	void SetCharactersBossStagePostion();
 	void SetPortalCheck(bool b) { m_bPortalCheck = b; }
+
+	
 };
 
