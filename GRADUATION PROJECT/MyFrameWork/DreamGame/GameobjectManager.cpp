@@ -2097,7 +2097,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			g_Logic.m_KeyInput->m_bWKey = true;
 			myPlayCharacter->SetMoveState(true);
 			myPlayCharacter->AddDirection(DIRECTION::FRONT);
-			g_NetworkHelper.SendMovePacket(DIRECTION::FRONT);
+			g_NetworkHelper.SendMovePacket(DIRECTION::FRONT, myPlayCharacter->GetPosition());
 		}
 		break;
 		case 'A':
@@ -2105,7 +2105,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			g_Logic.m_KeyInput->m_bAKey = true;
 			myPlayCharacter->SetMoveState(true);
 			myPlayCharacter->AddDirection(DIRECTION::LEFT);
-			g_NetworkHelper.SendMovePacket(DIRECTION::LEFT);
+			g_NetworkHelper.SendMovePacket(DIRECTION::LEFT, myPlayCharacter->GetPosition());
 		}
 		break;
 		case 'S':
@@ -2113,7 +2113,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			g_Logic.m_KeyInput->m_bSKey = true;
 			myPlayCharacter->SetMoveState(true);
 			myPlayCharacter->AddDirection(DIRECTION::BACK);
-			g_NetworkHelper.SendMovePacket(DIRECTION::BACK);
+			g_NetworkHelper.SendMovePacket(DIRECTION::BACK, myPlayCharacter->GetPosition());
 		}
 		break;
 		case 'D':
@@ -2121,7 +2121,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			g_Logic.m_KeyInput->m_bDKey = true;
 			myPlayCharacter->SetMoveState(true);
 			myPlayCharacter->AddDirection(DIRECTION::RIGHT);
-			g_NetworkHelper.SendMovePacket(DIRECTION::RIGHT);
+			g_NetworkHelper.SendMovePacket(DIRECTION::RIGHT, myPlayCharacter->GetPosition());
 		}
 		break;
 		case 'Q':
@@ -2296,11 +2296,11 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		{
 #ifdef LOCAL_TASK
 			if (m_nStageType == 1) {
-				//m_nStageType = 2;
+				m_nStageType = 2;
 				m_pPlayerObject->SetPosition(XMFLOAT3(0, 0, 0));
 			}
 			else if (m_nStageType == 2) {
-				//m_nStageType = 1;
+				m_nStageType = 1;
 				m_pPlayerObject->SetPosition(XMFLOAT3(-1400, 0, -1500));
 		}
 #endif

@@ -46,13 +46,26 @@ void Logic::ProcessPacket(int userId, char* p)
 	{
 		if (g_iocpNetwork.m_session[userId].GetPlayerState() == IN_GAME_ROOM) {
 			CLIENT_PACKET::MovePacket* recvPacket = reinterpret_cast<CLIENT_PACKET::MovePacket*>(p);
+			Room& roomRef = g_RoomManager.GetRunningRoomRef(g_iocpNetwork.m_session[userId].GetRoomId());
+			auto& playCharacters = roomRef.GetPlayCharacters();
+			auto serverUtcTime = std::chrono::utc_clock::now();
+			XMFLOAT3 serverPosition = playCharacters[(ROLE)recvPacket->role]->GetPos();
+			float distance = Vector3::Length(Vector3::Subtract(serverPosition, recvPacket->position));
+			double durationTime = std::chrono::duration_cast<std::chrono::microseconds>(serverUtcTime - recvPacket->time).count();
+			durationTime = (double)durationTime / 1000.0f;//microseconds to mill
+			durationTime = (double)durationTime / 1000.0f;//milliseconds to sec
+			float diff = distance - durationTime * 50.0f;
+			if (diff < 3.0f) {
+				playCharacters[(ROLE)recvPacket->role]->SetInitPosition(recvPacket->position);
+			}
 			SERVER_PACKET::MovePacket sendPacket;
 			sendPacket.direction = recvPacket->direction;
 			sendPacket.role = g_iocpNetwork.m_session[userId].GetRole();
 			sendPacket.type = SERVER_PACKET::MOVE_KEY_DOWN;
+			sendPacket.time = serverUtcTime;
+			sendPacket.position = recvPacket->position;
 			sendPacket.size = sizeof(SERVER_PACKET::MovePacket);
-			g_RoomManager.GetRunningRoomRef(g_iocpNetwork.m_session[userId].GetRoomId()).
-				StartMovePlayCharacter(g_iocpNetwork.m_session[userId].GetRole(), sendPacket.direction); // 움직임 start;
+			roomRef.StartMovePlayCharacter(g_iocpNetwork.m_session[userId].GetRole(), sendPacket.direction); // 움직임 start;
 #ifdef _DEBUG
 			//PrintCurrentTime();
 			//std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::MOVE_KEY_DOWN - MultiCastOtherPlayer" << std::endl;
@@ -364,7 +377,7 @@ void Logic::OnlySendPlayerInRoom_R(int roomId, ROLE role, void* p)
 	auto roomPlayermap = g_RoomManager.GetRunningRoomRef(roomId).GetPlayerMap();
 	if (roomPlayermap.count(role)) {
 		g_iocpNetwork.m_session[roomPlayermap[role]].Send(p);
-	}	
+	}
 }
 
 void Logic::BroadCastInRoomByPlayer(int userId, void* p)

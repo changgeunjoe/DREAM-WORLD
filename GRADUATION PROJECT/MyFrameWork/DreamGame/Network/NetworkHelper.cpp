@@ -93,12 +93,15 @@ void NetworkHelper::Destroy()
 		m_runThread.join();
 }
 
-void NetworkHelper::SendMovePacket(DIRECTION d)
+void NetworkHelper::SendMovePacket(DIRECTION d, const XMFLOAT3& position)
 {
 	CLIENT_PACKET::MovePacket sendPacket;
 	sendPacket.direction = d;
 	sendPacket.type = CLIENT_PACKET::MOVE_KEY_DOWN;
 	sendPacket.size = sizeof(CLIENT_PACKET::MovePacket);
+	sendPacket.position = position;
+	sendPacket.role = g_Logic.GetMyRole();
+	sendPacket.time = std::chrono::utc_clock::now();
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
@@ -108,6 +111,8 @@ void NetworkHelper::SendStopPacket(const DirectX::XMFLOAT3& position) // , const
 	sendPacket.type = CLIENT_PACKET::STOP;
 	sendPacket.size = sizeof(CLIENT_PACKET::StopPacket);
 	sendPacket.position = position;
+	sendPacket.role = g_Logic.GetMyRole();
+	sendPacket.time = std::chrono::utc_clock::now();
 	// sendPacket.rotate = rotate;
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }

@@ -40,6 +40,15 @@ void Logic::ProcessPacket(char* p)
 	{
 		SERVER_PACKET::MovePacket* recvPacket = reinterpret_cast<SERVER_PACKET::MovePacket*>(p);
 		Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->role);
+		auto clientUtcTime = std::chrono::utc_clock::now();		
+		double durationTime = std::chrono::duration_cast<std::chrono::microseconds>(clientUtcTime - recvPacket->time).count();
+		durationTime = (double)durationTime / 1000.0f;//microseconds to mill
+		durationTime = (double)durationTime / 1000.0f;//milliseconds to sec
+		float distance = Vector3::Length(Vector3::Subtract(possessObj->GetPosition(), recvPacket->position));
+		float diff = distance - durationTime * 50.0f;
+		if (diff < 3.0f) {
+			possessObj->SetPosition(recvPacket->position);
+		}
 		possessObj->AddDirection(recvPacket->direction);
 		possessObj->SetMoveState(true);
 	}

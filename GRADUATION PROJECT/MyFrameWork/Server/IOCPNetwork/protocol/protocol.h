@@ -39,8 +39,10 @@ namespace CLIENT_PACKET {
 	{
 		short size;
 		char type;
+		char role;
 		DIRECTION direction;
-		std::chrono::utc_clock::time_point t;
+		XMFLOAT3 position;
+		std::chrono::utc_clock::time_point time;
 	};
 
 	struct RotatePacket {
@@ -53,9 +55,10 @@ namespace CLIENT_PACKET {
 	struct StopPacket {
 		short size;
 		char type;
+		char role;
 		DirectX::XMFLOAT3 position;
 		DirectX::XMFLOAT3 rotate;
-		std::chrono::utc_clock::time_point t;
+		std::chrono::utc_clock::time_point time;
 	};
 
 	struct LoginPacket {
@@ -180,7 +183,8 @@ namespace SERVER_PACKET {
 		char type;
 		char role;
 		DIRECTION direction;
-		std::chrono::utc_clock::time_point t;
+		XMFLOAT3 position;
+		std::chrono::utc_clock::time_point time;
 	};
 
 	struct RotatePacket {
