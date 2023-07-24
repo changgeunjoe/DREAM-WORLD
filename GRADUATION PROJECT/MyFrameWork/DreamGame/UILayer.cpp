@@ -109,7 +109,7 @@ void UILayer::Render(UINT nFrame)
 	for (int j = 0; j < TEXT_TYPE::TEXT_END; ++j)
 	{
 		for (auto i : m_vecTextBlocks[j])
-			m_pd2dDeviceContext->DrawText(i->m_strText.c_str(), static_cast<UINT>(i->m_strText.length()), i->m_pdwFormat, i->m_d2dLayoutRect, m_pd2dTextBrush);
+			m_pd2dDeviceContext->DrawText(i->m_strText.c_str(), static_cast<UINT>(i->m_strText.length()), i->m_pdwFormat, i->m_d2dLayoutRect, m_pd2dTextBrush[int(i->m_eColor)]);
 	}
 
 	m_pd2dDeviceContext->EndDraw();
@@ -132,7 +132,9 @@ void UILayer::ReleaseResources()
 		m_vd2dRenderTargets[i]->Release();
 		m_vWrappedRenderTargets[i]->Release();
 	}
-	m_pd2dTextBrush->Release();
+	for (UINT i = 0; i < TEXT_COLOR_END; i++)
+		m_pd2dTextBrush[i]->Release();
+
 	m_pd2dDeviceContext->Release();
 	m_pdwTextFormat->Release();
 	m_pd2dWriteFactory->Release();
@@ -164,8 +166,12 @@ void UILayer::Resize(ID3D12Resource** ppd3dRenderTargets, UINT nWidth, UINT nHei
 	if (m_pd2dDeviceContext) m_pd2dDeviceContext->Release();
 	m_pd2dDevice->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &m_pd2dDeviceContext);
 	m_pd2dDeviceContext->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_GRAYSCALE);
-	if (m_pd2dTextBrush) m_pd2dTextBrush->Release();
-	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black), &m_pd2dTextBrush);
+	/*if (m_pd2dTextBrush)
+		for (UINT i = 0; i < TEXT_COLOR_END; i++)
+			m_pd2dTextBrush[i]->Release();*/
+
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black), &m_pd2dTextBrush[TEXT_BLACK]);
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Red), (ID2D1SolidColorBrush**)&m_pd2dTextBrush[TEXT_RED]);
 
 	const float fFontSize = m_fHeight / 20.0f;
 	const float fSmallFontSize = m_fHeight / 30.0f;
@@ -251,7 +257,7 @@ void UILayer::Update(const float& fTimeElapsed, bool& binteraction, bool& bscree
 void UILayer::AddDamageFont(XMFLOAT3 xmf3WorldPos, wstring strText)
 {
 	CTextBlock* pTb = new CDamageTextBlock(m_pdwDamageFontFormat, D2D1::RectF(0.f, 0.f, m_fWidth, m_fHeight), strText, xmf3WorldPos);
-	//pTb->m_eColor = TEXT_WHITE;
+	pTb->m_eColor = TEXT_RED;
 	m_vecTextBlocks[TEXT_DAMAGE].emplace_back(pTb);
 
 
@@ -263,6 +269,7 @@ void UILayer::AddTextFont(queue<wstring>& queueStr)
 		m_vecTextBlocks[TEXT_NPC].front()->m_isDead = true;
 
 	CTextBlock* pTb = new CNPCTextBlock(m_pdwTextFormat, D2D1::RectF(0.f, 0.f, m_fWidth, m_fHeight), queueStr);
+	pTb->m_eColor = TEXT_BLACK;
 	m_vecTextBlocks[TEXT_NPC].emplace_back(pTb);
 
 }
@@ -394,7 +401,7 @@ void CNPCTextBlock::Update(const float& fTimeElapsed, bool& bInteraction, bool& 
 		wstring curTotalStr = m_qTotalText.front();
 		//m_strText.assign(m_strTotalText, 0, ++m_iIndex);
 		if (!m_bInitSentences) {
-			g_sound.NoLoopPlay("UISound", 0.4f);
+			g_sound.NoLoopPlay("UISound", 0.5f);
 			m_strText.append(curTotalStr, m_iIndex++, 1);
 		}
 		if (m_iIndex > curTotalStr.size()) //한 문장 끝나면
@@ -421,7 +428,7 @@ void CNPCTextBlock::Update(const float& fTimeElapsed, bool& bInteraction, bool& 
 				cout << "소켓전송" << endl;
 				g_NetworkHelper.SendSkipNPCCommunicate();//소켓 전송
 				g_sound.Pause("LobbySound");//로비씬
-				g_sound.Play("Stage1Sound", 0.6f);//로비씬
+				g_sound.Play("Stage1Sound", 0.52f);//로비씬
 
 				gGameFramework.GetScene()->GetObjectManager()->m_bSendNPCPK = false;
 				

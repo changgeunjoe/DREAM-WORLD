@@ -25,6 +25,11 @@ public:
     {
         TEXT_DAMAGE, TEXT_NPC, TEXT_END
     };
+    enum TEXT_COLOR
+    {
+        TEXT_BLACK, TEXT_RED, TEXT_COLOR_END
+    };
+
 public:
     UILayer(UINT nFrame, ID3D12Device* pd3dDevice, ID3D12CommandQueue* pd3dCommandQueue);
     ~UILayer();
@@ -54,7 +59,7 @@ private:
     ID2D1Factory3* m_pd2dFactory = NULL;
     ID2D1Device2* m_pd2dDevice = NULL;
     ID2D1DeviceContext2* m_pd2dDeviceContext = NULL;
-    ID2D1SolidColorBrush* m_pd2dTextBrush = NULL;
+    ID2D1SolidColorBrush* m_pd2dTextBrush[TEXT_COLOR_END] = { NULL };
     IDWriteTextFormat* m_pdwTextFormat = NULL;
     IDWriteTextFormat* m_pdwDamageFontFormat = NULL;
 
@@ -83,6 +88,7 @@ public:
     wstring             m_strText;
     bool                m_isDead = false;
     bool    m_bInitSentences = false;
+    UILayer::TEXT_COLOR  m_eColor;
 
 };
 

@@ -83,6 +83,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	m_pSkyboxObject->SetPosition(m_pCamera->GetPosition());
 	m_pLight->UpdatePosition(XMFLOAT3(m_pCamera->GetPosition().x,
 		m_pCamera->GetPosition().y + 600, m_pCamera->GetPosition().z));
+	//MonsterHpBarAnimate(fTimeElapsed);
 	if (m_pMonsterHPBarObject)//23.04.18 몬스터 체력바 -> 카메라를 바라 보도록 .ccg
 	{
 		m_pMonsterHPBarObject->SetLookAt(m_pCamera->GetPosition());
@@ -114,7 +115,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 				m_pSelectedObject->GetPosition().y+10, m_pSelectedObject->GetPosition().z), fTimeElapsed, m_fTime * 5);
 			m_pLightningSpriteObject->SetPosition(XMFLOAT3(
 				m_pSelectedObject->GetPosition().x,
-				m_pSelectedObject->GetPosition().y + 40,
+				m_pSelectedObject->GetPosition().y + 50,
 				m_pSelectedObject->GetPosition().z));
 			m_bPickingenemy = false;
 		}
@@ -350,6 +351,23 @@ void GameobjectManager::SceneSwapAnimate(float fTimeElapsed)
 			m_pSceneChangeUIObject->m_fTime = 0;
 		}
 	}
+}
+
+void GameobjectManager::MonsterHpBarAnimate(float fTimeElapsed)
+{
+	
+	/*GameObject* mpHpBar;
+	for (int i = 0; i < m_ppGameObjects.size(); i++) {
+		if (static_cast<Character*>(m_ppGameObjects[i])->m_pHPBarObject) {
+			static_cast<Character*>(m_ppGameObjects[i])->m_pHPBarObject = static_cast<Character*>(m_ppGameObjects[i])->m_pHPBarObject;
+			static_cast<Character*>(m_ppGameObjects[i])->m_pHPBarObject->SetLookAt(m_pCamera->GetPosition());
+			static_cast<Character*>(m_ppGameObjects[i])->m_pHPBarObject->SetPosition(XMFLOAT3(m_ppGameObjects[i]->GetPosition().x,
+				m_ppGameObjects[i]->GetPosition().y + 70, m_ppGameObjects[i]->GetPosition().z));
+			static_cast<Character*>(m_ppGameObjects[i])->m_pHPBarObject->Rotate(0, 180, 0);
+			mpHpBar->SetScale(10, 1, 1);
+			mpHpBar->SetCurrentHP(m_ppGameObjects[i]->GetCurrentHP());
+		}
+	}*/
 }
 
 void GameobjectManager::OnPreRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -822,6 +840,19 @@ void GameobjectManager::ReadNormalMonsterFile(ID3D12Device* pd3dDevice, ID3D12Gr
 		MonsterBoundingSphere->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		MonsterBoundingSphere->SetScale(1.f);
 		tempObject[i]->SetBoundingBox(MonsterBoundingSphere);
+
+		//
+		GameObject* mpMonsterHPBarObject = new GameObject(UNDEF_ENTITY);
+		mpMonsterHPBarObject->InsertComponent<RenderComponent>();
+		mpMonsterHPBarObject->InsertComponent<UIMeshComponent>();
+		mpMonsterHPBarObject->InsertComponent <BlendShaderComponent>();
+		mpMonsterHPBarObject->InsertComponent<TextureComponent>();
+		mpMonsterHPBarObject->SetTexture(L"UI/HpBar.dds", RESOURCE_TEXTURE2D, 3);
+		mpMonsterHPBarObject->SetPosition(XMFLOAT3(0, 40, 100));
+		mpMonsterHPBarObject->SetScale(3);
+		mpMonsterHPBarObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		tempObject[i]->m_pHPBarObject = mpMonsterHPBarObject;
+		
 
 		m_ppNormalMonsterBoundingBox.emplace_back(MonsterBoundingSphere);
 		m_ppNormalMonsterObject[i] = tempObject[i];
@@ -1354,7 +1385,7 @@ void GameobjectManager::BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	CLoadedModelInfoCompnent* BigRock = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/BigRock.bin", NULL, true);
 	CLoadedModelInfoCompnent* TripleBarel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/TripleBarel.bin", NULL, true);
 
-	/*ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/BigMushroom.txt", BigMushroom, 0, STAGE1);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/BigMushroom.txt", BigMushroom, 0, STAGE1);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Mushroom.txt", Mushroom, 0, STAGE1);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/LongFence.txt", LongFence, 0, STAGE1);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence1.txt", ShortFence01, 0, STAGE1);
@@ -1362,7 +1393,7 @@ void GameobjectManager::BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence3.txt", ShortFence03, 0, STAGE1);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Tree.txt", Tree, 0, STAGE1);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/BigRock.txt", BigRock, 0, STAGE1);
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/TripleBarel.txt", TripleBarel, 0, STAGE1);*/
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/TripleBarel.txt", TripleBarel, 0, STAGE1);
 	//ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/OOBB.txt", Cube, 0, STAGE1);
 	ReadNormalMonsterFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/NormalMonsterS1.txt", Death, 1, STAGE1);
 	m_pStage1Objects[0] = new GameObject(UNDEF_ENTITY);
@@ -2247,6 +2278,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			{
 				myPlayCharacter->SecondSkillDown();
 				g_NetworkHelper.Send_SkillExecute_E();
+				m_bPickingenemy = CheckCollision(m_ppGameObjects);
 			}
 			break;
 		}
@@ -2362,7 +2394,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		{
 			//g_Logic.m_KeyInput->m_bEKey = false;
 			myPlayCharacter->SecondSkillUp(myPlayCharacter->GetRotateAxis());
-			m_bPickingenemy = CheckCollision(m_ppGameObjects);
+			
 			if (myPlayCharacter == GetChracterInfo(ROLE::ARCHER))
 			{
 				//g_NetworkHelper.SendSkillStatePacket(myPlayCharacter->GetQSkillState(), false);
@@ -2436,11 +2468,11 @@ bool GameobjectManager::onProcessingKeyboardMessageLobby(HWND hWnd, UINT nMessag
 	if (nMessageID == WM_KEYDOWN && wParam == VK_F2)
 	{
 #ifdef LOCAL_TASK
-		g_Logic.SetMyRole(ROLE::PRIEST);
+		g_Logic.SetMyRole(ROLE::WARRIOR);
 		m_pCamera->Rotate(0, -90, 0);
-		m_pPlayerObject = m_pPriestObject;
+		m_pPlayerObject = m_pWarriorObject;
 		m_pPlayerObject->SetCamera(m_pCamera);
-		m_pPriestObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
+		m_pWarriorObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
 #else
 		g_Logic.SetMyRole(ROLE::ARCHER);
 		m_pArcherObject->SetCamera(m_pCamera);

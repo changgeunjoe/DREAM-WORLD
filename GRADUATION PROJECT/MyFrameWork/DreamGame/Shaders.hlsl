@@ -244,6 +244,8 @@ float4 PSBlendTextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
     //cColor += gmtxGameObjectColor;
     //cColor.w = 0.4;
     cColor += gmtxGameObjectColor;
+    if (input.uv.x > gfCharactertHP)
+        return float4(0, 0, 0, 0);
     return (cColor);
 }
 VS_TEXTURED_OUTPUT VSEffect(VS_TEXTURED_INPUT input)

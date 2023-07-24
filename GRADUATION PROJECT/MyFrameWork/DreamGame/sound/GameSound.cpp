@@ -13,14 +13,16 @@ GameSound::GameSound()
 	MakeSound("ClickSound", "sound/sounds/Bubble.wav");
 	MakeSound("UISound", "sound/sounds/Click.wav");
 	MakeSound("BossRespawnSound", "sound/sounds/BossRespawnSound.mp3");
-	MakeSoundLoop("LightningSound", "sound/sounds/LightningSound.wav");
+	MakeSound("LightningSound", "sound/sounds/LightningSound.wav");
 	MakeSound("PriestAttackSound", "sound/sounds/PriestAttackSound.wav");
 	MakeSound("AcherAttackSound", "sound/sounds/AcherAttackSound.wav");
-	MakeSound("WarriorAttackSound", "sound/sounds/WarriorAttackSound.wav");
+	MakeSound("WarriorAttackSound", "sound/sounds/WarriorAttackSound.mp3");
 	MakeSound("TankerAttackSound", "sound/sounds/TankerAttackSound.wav");
+	MakeSound("WalkSound", "sound/sounds/WalkSound.wav");
 	MakeSoundLoop("LobbySound", "sound/sounds/LobbySound1.wav"); 
 	MakeSoundLoop("Stage1Sound", "sound/sounds/Stage1Sound.wav");
 	MakeSoundLoop("BossStage", "sound/sounds/BossStage1.mp3");
+	MakeSoundLoop("HealSound", "sound/sounds/HealSound.wav");
 }
 
 GameSound::~GameSound()

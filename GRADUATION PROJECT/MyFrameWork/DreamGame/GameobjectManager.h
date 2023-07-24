@@ -38,6 +38,7 @@ public:
 	virtual void StoryUIAnimate(float fTimeElapsed);
 	virtual void ConditionAnimate(float fTimeElapsed);
 	virtual void SceneSwapAnimate(float fTimeElapsed);
+	virtual void MonsterHpBarAnimate(float fTimeElapsed);
 	//Render
 	virtual void OnPreRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
