@@ -210,11 +210,11 @@ void Logic::ProcessPacket(char* p)
 		SERVER_PACKET::GameState_STAGE1* recvPacket = reinterpret_cast<SERVER_PACKET::GameState_STAGE1*>(p);
 		//Player Session
 		auto clientUtcTime = std::chrono::utc_clock::now();
-		std::cout << "Logic::ProcessPacket() - SERVER_PACKET::GAME_STATE_S, utcTime: " << clientUtcTime << std::endl;
+		// std::cout << "Logic::ProcessPacket() - SERVER_PACKET::GAME_STATE_S, utcTime: " << clientUtcTime << std::endl;
 		for (int i = 0; i < 4; i++) {//그냥 4개 여서 도는 for문 주의
 			if (recvPacket->userState[i].role != ROLE::NONE_SELECT) {
 				Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->userState[i].role);
-				possessObj->InterpolateMove(recvPacket->time, recvPacket->userState[i].pos, recvPacket->userState[i].moveVec);
+				possessObj->InterpolateMove(recvPacket->userTime, recvPacket->userState[i].pos, recvPacket->userState[i].moveVec);
 				float maxHp = possessObj->GetMaxHP();
 				possessObj->SetCurrentHP(recvPacket->userState[i].hp / maxHp * 100.0f);
 			}
@@ -222,14 +222,13 @@ void Logic::ProcessPacket(char* p)
 		//small monster
 		NormalMonster** smallMonsterArr = gGameFramework.GetScene()->GetObjectManager()->GetNormalMonsterArr();
 		for (int i = 0; i < 15; i++) {
-			smallMonsterArr[i]->InterpolateMove(recvPacket->time, recvPacket->smallMonster[i].pos, recvPacket->smallMonster[i].moveVec);
+			smallMonsterArr[i]->InterpolateMove(recvPacket->userTime, recvPacket->smallMonster[i].pos, recvPacket->smallMonster[i].moveVec);
 			//smallMonsterArr[i]->SetLook(recvPacket->smallMonster[i].moveVec);
-			if (smallMonsterArr[i]->GetCurrentHP() < 0.0f) {
-				smallMonsterArr[i]->SetCurrentHP(recvPacket->smallMonster[i].hp);
-				//float maxHp = smallMonsterArr[i]->GetMaxCurrentHP(); //conflict
-				float maxHp = smallMonsterArr[i]->GetMaxHP();
-				smallMonsterArr[i]->SetCurrentHP(recvPacket->smallMonster[i].hp / maxHp * 100.0f);
-			}
+			smallMonsterArr[i]->SetCurrentHP(recvPacket->smallMonster[i].hp);
+			//float maxHp = smallMonsterArr[i]->GetMaxCurrentHP(); //conflict
+			float maxHp = smallMonsterArr[i]->GetMaxHP();
+			smallMonsterArr[i]->SetCurrentHP(recvPacket->smallMonster[i].hp / maxHp * 100.0f);
+			
 		}
 	}
 	break;
@@ -461,11 +460,15 @@ void Logic::ProcessPacket(char* p)
 	case SERVER_PACKET::SHIELD_START:
 	{
 		//쉴드 이펙트 출발 해서 적용
+		Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::TANKER);
+		possessObj->StartEffect(0);
 	}
 	break;
 	case SERVER_PACKET::SHIELD_END:
 	{
 		//쉴드 끝
+		Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::TANKER);
+		possessObj->EndEffect(0);
 	}
 	break;
 	case SERVER_PACKET::NOTIFY_HEAL_HP:
@@ -523,7 +526,9 @@ void Logic::ProcessPacket(char* p)
 		if (recvPacket->attackedRole == myRole) {
 			//피격 상태이상 공격
 		}
-		recvPacket->attackMonsterIdx;//모든 플레이어에 대해서 이 몬스터 공격 애니메이션 재성
+
+		NormalMonster** smallMonsterArr = gGameFramework.GetScene()->GetObjectManager()->GetNormalMonsterArr();
+		smallMonsterArr[recvPacket->attackMonsterIdx]->SetOnAttack(true); //모든 플레이어에 대해서 이 몬스터 공격 애니메이션 재성
 	}
 	break;
 	case SERVER_PACKET::COMMON_ATTACK_START:
