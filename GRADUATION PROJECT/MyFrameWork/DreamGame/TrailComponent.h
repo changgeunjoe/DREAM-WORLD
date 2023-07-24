@@ -21,6 +21,7 @@ public:
     static TrailComponent* Create(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
     float							m_fTime = 0.f;
     float							m_fRenderTime = 0.f;
+    bool                            m_bActive = false;
 private:
     int								m_iMaxCount = 0;
     int								m_iDivide = 0;

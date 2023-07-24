@@ -5,12 +5,13 @@ class Character : public GameObject
 {
 protected:
 	XMFLOAT3	m_xmf3RotateAxis;	// XMFLOAT3(0, 0, 1)로부터 회전한 각도	
-	bool m_bQSkillClicked;
-	bool m_bESkillClicked;
-	bool m_bOnAttack = false;
-	bool m_bOnSkill = false;
-	bool m_bShieldActive = false;
-	float m_fShield = false;
+	bool		m_bQSkillClicked;
+	bool		m_bESkillClicked;
+	bool		m_bOnAttack = false;
+	bool		m_bOnSkill = false;
+	bool		m_bShieldActive = false;
+	float		m_fShield = false;
+	bool		m_bCanAttack = true;
 protected:
 	std::array<std::chrono::seconds, 2> m_skillDuration;
 	std::array<std::chrono::seconds, 2> m_skillCoolTime;
@@ -27,8 +28,10 @@ public:
 	virtual void SecondSkillUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f }) {};
 	virtual void StartEffect(int nSkillNum) {};
 	virtual void EndEffect(int nSkillNum) {};
-	bool CheckAnimationEnd(int nAnimation);
 protected:
+	bool CheckAnimationEnd(int nAnimation);
+	void ChangeAnimation(pair< CharacterAnimation, CharacterAnimation> nextAnimation);
+	float GetAnimationProgressRate(CharacterAnimation nAnimation);
 
 public://move
 	virtual void SetLookDirection();
@@ -44,6 +47,7 @@ protected://collision check
 	virtual std::pair<bool, XMFLOAT3> CheckCollisionCharacter(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
 	virtual std::pair<bool, XMFLOAT3> CheckCollisionNormalMonster(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
 	virtual bool CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
+
 public:
 	virtual void ExecuteSkill_Q();
 	virtual void ExecuteSkill_E();
@@ -54,6 +58,7 @@ public:
 	float GetShield() { return m_fShield; }
 	void SetOnAttack(bool onAttack) { m_bOnAttack = onAttack; }
 	XMFLOAT3& GetRotateAxis() { return m_xmf3RotateAxis; }
+
 public:
 	void SetRotateAxis(XMFLOAT3& xmf3RotateAxis) { m_xmf3RotateAxis = xmf3RotateAxis; }
 	void SetShieldActive(bool bActive) { m_bShieldActive = bActive; }
@@ -81,6 +86,12 @@ protected:
 
 class Warrior : public Character
 {
+private:
+	int		m_iAttackType = 0;
+	bool	m_bAnimationLock = false;
+	bool	m_bComboAttack = false;
+	CharacterAnimation m_attackAnimation = CharacterAnimation::CA_ATTACK;
+	CharacterAnimation m_nextAnimation = CharacterAnimation::CA_NOTHING;
 public:
 	Warrior();
 	virtual ~Warrior();
@@ -88,6 +99,7 @@ public:
 	virtual void RbuttonClicked(float fTimeElapsed);
 	virtual void Move(float fTimeElapsed)override;
 	virtual void Animate(float fTimeElapsed) override;
+	virtual void SetLButtonClicked(bool bLButtonClicked);
 public:
 	void SetStage1Position();
 	void SetBossStagePostion();
@@ -102,23 +114,22 @@ class Archer : public Character
 {
 private:
 	XMFLOAT3 m_CameraLook;
+	bool m_bZoomInState;
 public:
 	Archer();
 	virtual ~Archer();
 	virtual void Attack();
 	virtual void SetArrow(Projectile* pArrow);
-	virtual void RbuttonClicked(float fTimeElapsed);
-	virtual void RbuttonUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f });
 	virtual void Move(float fTimeElapsed)override;
 	virtual void Animate(float fTimeElapsed);
 	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender = false);
 	virtual void SetLookDirection() override;
-	virtual void FirstSkillDown();
-	virtual void FirstSkillUp();
-	virtual void SecondSkillDown();
+	virtual void ZoomInCamera();
 	virtual void SecondSkillUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f });
 	virtual void ShootArrow();
 	virtual void ShootArrow(const XMFLOAT3& xmf3StartPos, const XMFLOAT3& xmf3Direction, const float fSpeed);
+
+	virtual void SetLButtonClicked(bool bLButtonClicked);
 	// virtual void ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent);
 public:
 	void SetStage1Position();
@@ -235,10 +246,8 @@ public:
 	XMFLOAT3	m_xmf3direction;
 	XMFLOAT4X4	m_xmf4x4Transform;
 	float		m_fSpeed;
-	bool		m_bActive;
-	bool		m_RAttack;
 	float		m_Angle;
-
+	bool		m_bActive;
 public:
 	Projectile(entity_id eid = UNDEF_ENTITY);
 	virtual ~Projectile();

@@ -21,6 +21,7 @@ public:
 	int 							m_nType = ANIMATION_TYPE_LOOP; //Once, Loop, PingPong
 	bool							m_bAnimationEnd = false;
 	int 							m_nCallbackKeys = 0;
+	float							m_fProgressRate = 0.0f;
 
 	CALLBACKKEY* m_pCallbackKeys = NULL;
 

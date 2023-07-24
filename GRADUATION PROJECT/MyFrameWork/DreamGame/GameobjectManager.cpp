@@ -254,26 +254,14 @@ void GameobjectManager::TrailAnimate(float fTimeElapsed)
 {
 	for (int i = 0; i < m_pTrailArrowComponent.size(); i++) {
 		if (m_pTrailArrowComponent[i]) {
-			if (!m_pArrowObjects[i]->m_bActive)
-			{
-				m_pTrailArrowComponent[i]->m_fRenderTime + fTimeElapsed;
-			}
 			if (m_pArrowObjects[i]->m_bActive)
 			{
-				m_pTrailArrowComponent[i]->m_fRenderTime = 0;
-			}
-			if (m_pTrailArrowComponent[i]->m_fRenderTime > 3) {
-
-			}
-			else {
-				{
-					m_pTrailArrowComponent[i]->AddTrail(XMFLOAT3(m_pArrowObjects[i]->GetPosition().x,
+				m_pTrailArrowComponent[i]->AddTrail(XMFLOAT3(m_pArrowObjects[i]->GetPosition().x,
+					m_pArrowObjects[i]->GetPosition().y,
+					m_pArrowObjects[i]->GetPosition().z),
+					XMFLOAT3(m_pArrowObjects[i]->GetPosition().x, 
 						m_pArrowObjects[i]->GetPosition().y,
-						m_pArrowObjects[i]->GetPosition().z),
-						XMFLOAT3(m_pArrowObjects[i]->GetPosition().x,
-							m_pArrowObjects[i]->GetPosition().y + 0.5,
-							m_pArrowObjects[i]->GetPosition().z));
-				}
+						m_pArrowObjects[i]->GetPosition().z + 0.5f));
 			}
 		}
 	}
@@ -436,9 +424,9 @@ void GameobjectManager::TrailRender(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	if (m_pTrailComponent) {
 		m_pTrailComponent->RenderTrail(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
-	for (int i = 0; i < m_pTrailArrowObject.size(); i++) {
-		if (m_pTrailArrowObject[i]) {
-			if (m_pTrailArrowObject[i]->m_bActive) {
+	for (int i = 0; i < m_pTrailArrowComponent.size(); i++) {
+		if (m_pTrailArrowComponent[i]) {
+			if (m_pTrailArrowComponent[i]->GetRenderState()) {
 				m_pTrailArrowObject[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 				m_pTrailArrowComponent[i]->RenderTrail(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 			}
@@ -929,9 +917,9 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pWarriorObject->SetPosition(XMFLOAT3(-1400.f, 0.f, -1460.f));
 	// m_pWarriorObject->SetPosition(XMFLOAT3(0.0f, 0.0f, 0.0f));
 	m_pWarriorObject->SetModel("Model/Warrior.bin");
-	m_pWarriorObject->SetAnimationSets(6);
+	m_pWarriorObject->SetAnimationSets(8);
 	m_pWarriorObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pWarriorObject->m_pSkinnedAnimationController->SetTrackAnimationSet(6);
+	m_pWarriorObject->m_pSkinnedAnimationController->SetTrackAnimationSet(8);
 	m_pWarriorObject->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_DIE]->m_nType = ANIMATION_TYPE_ONCE;
 	m_pWarriorObject->SetScale(30.0f);
 	m_pWarriorObject->Rotate(0, -90, 0);
@@ -958,7 +946,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 		m_pArrowObjects[i] = new Arrow();
 		m_pArrowObjects[i]->InsertComponent<RenderComponent>();
 		m_pArrowObjects[i]->InsertComponent<CLoadedModelInfoCompnent>();
-		m_pArrowObjects[i]->SetPosition(XMFLOAT3(25 * i, 0, 0));
+		m_pArrowObjects[i]->SetPosition(XMFLOAT3(0, 0, 0));
 		m_pArrowObjects[i]->SetModel(ArrowModel);
 		m_pArrowObjects[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pArrowObjects[i]->SetScale(30.0f);
@@ -1210,6 +1198,7 @@ void GameobjectManager::BuildTrail(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	m_pTrailObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pTrailComponent = new TrailComponent();
 	m_pTrailComponent->ReadyComponent(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pTrailObject);
+	m_pWarriorObject->SetTrailComponent(m_pTrailComponent);
 	/////////////////////////////////////////Arrow///////////////////////////////
 	//conflict
 	for (int i = 0; i < m_pTrailArrowObject.size(); i++) {
@@ -1224,11 +1213,11 @@ void GameobjectManager::BuildTrail(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 		m_pTrailArrowObject[i]->SetColor(XMFLOAT4(1.0f, 0.3f, 0.0f, 0.0f));
 		m_pTrailArrowObject[i]->SetScale(1);
 		m_pTrailArrowObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-		m_pTrailArrowObject[i]->m_bActive = true;
 		m_pTrailArrowComponent[i] = new TrailComponent();
 		m_pTrailArrowComponent[i]->ReadyComponent(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pTrailArrowObject[i]);
+		m_pTrailArrowComponent[i]->SetRenderingTrail(true);
+		m_pArrowObjects[i]->SetTrailComponent(m_pTrailArrowComponent[i]);
 	}
-	m_pWarriorObject->m_pTrail = m_pTrailComponent;
 }
 void GameobjectManager::BuildAstar(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {

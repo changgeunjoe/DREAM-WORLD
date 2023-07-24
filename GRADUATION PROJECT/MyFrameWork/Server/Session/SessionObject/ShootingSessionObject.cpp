@@ -57,6 +57,7 @@ void ShootingSessionObject::SetStart(XMFLOAT3& dir, XMFLOAT3& srcPos, float spee
 	m_directionVector = dir;
 	m_speed = speed;
 	m_SPBB.Center = srcPos;
+	CalcRightVector();
 }
 
 bool ShootingSessionObject::Move(float elapsedTime)

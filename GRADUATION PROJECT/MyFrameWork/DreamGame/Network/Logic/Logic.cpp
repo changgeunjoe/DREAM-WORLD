@@ -445,10 +445,16 @@ void Logic::ProcessPacket(char* p)
 	case SERVER_PACKET::HEAL_START:
 	{
 		//힐장판 이펙트 시작
+
+		Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::PRIEST);
+		possessObj->StartEffect(0);
+
 	}
 	break;
 	case SERVER_PACKET::HEAL_END:
 	{
+		Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::PRIEST);
+		possessObj->EndEffect(0);
 		//힐장판 이펙트 끝
 	}
 	break;

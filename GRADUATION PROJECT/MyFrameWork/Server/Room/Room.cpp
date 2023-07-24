@@ -721,7 +721,7 @@ void Room::StartSecondSkillPlayCharacter(ROLE r, XMFLOAT3& dirOrPosition)
 
 void Room::StartAttackPlayCharacter(ROLE r, XMFLOAT3& attackDir, int power)
 {
-	m_characterMap[r]->ExecuteCommonAttack(attackDir, power);	
+	m_characterMap[r]->ExecuteCommonAttack(attackDir, power);
 }
 
 void Room::SkipNPC_Communication()
@@ -819,8 +819,13 @@ void Room::ExecuteLongSwordAttack(DirectX::XMFLOAT3& dir, DirectX::XMFLOAT3& pos
 void Room::ExecuteThreeArrow(DirectX::XMFLOAT3& dir, DirectX::XMFLOAT3& position)
 {
 	//offset¡‡æﬂµ 
+	XMFLOAT3 xmf3Position = position;
+	XMFLOAT3 rightVector = Vector3::CrossProduct(DirectX::XMFLOAT3(0, 1, 0), dir);
 	for (int i = 0; i < 3; i++) {
-		m_skillarrow[i].SetStart(dir, m_characterMap[ROLE::ARCHER]->GetPos(), 250.0f);
+		xmf3Position.y = 6.0f + (i % 2) * 4.0f;
+		xmf3Position = Vector3::Add(xmf3Position, rightVector, (1 - i) * 4.0f);
+		xmf3Position = Vector3::Add(xmf3Position, dir, 1.0f);
+		m_skillarrow[i].SetStart(dir, xmf3Position, 250.0f);
 	}
 }
 
