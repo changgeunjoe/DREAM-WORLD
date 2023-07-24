@@ -24,7 +24,7 @@ private:
 	ROLE m_InGameRole = ROLE::NONE_SELECT;
 public:
 	DIRECTION						m_inputDirection = DIRECTION::IDLE;
-	DIRECTION						m_prevDirection = DIRECTION::IDLE;
+	DIRECTION						m_applyDirection = DIRECTION::IDLE;
 private:
 	ROOM_STATE						m_roomState = ROOM_STATE::ROOM_BOSS;
 public:
@@ -41,7 +41,7 @@ public:
 	bool AdjustPlayerInfo(DirectX::XMFLOAT3& position); // , DirectX::XMFLOAT3& rotate
 public:
 	//virtual void AutoMove() override;
-	virtual void StartMove(DIRECTION d);
+	virtual void StartMove(DIRECTION d, XMFLOAT3& clientPosition);
 	virtual void StopMove();
 	virtual void ChangeDirection(DIRECTION d);
 	virtual void SetShield(bool active);

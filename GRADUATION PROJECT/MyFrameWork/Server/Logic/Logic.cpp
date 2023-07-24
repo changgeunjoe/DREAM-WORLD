@@ -50,22 +50,20 @@ void Logic::ProcessPacket(int userId, char* p)
 			auto& playCharacters = roomRef.GetPlayCharacters();
 			auto serverUtcTime = std::chrono::utc_clock::now();
 			XMFLOAT3 serverPosition = playCharacters[(ROLE)recvPacket->role]->GetPos();
-			float distance = Vector3::Length(Vector3::Subtract(serverPosition, recvPacket->position));
 			double durationTime = std::chrono::duration_cast<std::chrono::microseconds>(serverUtcTime - recvPacket->time).count();
 			durationTime = (double)durationTime / 1000.0f;//microseconds to mill
 			durationTime = (double)durationTime / 1000.0f;//milliseconds to sec
-			float diff = distance - durationTime * 50.0f;
-			if (diff < 3.0f) {
-				playCharacters[(ROLE)recvPacket->role]->SetInitPosition(recvPacket->position);
-			}
+			serverPosition = Vector3::Add(serverPosition, playCharacters[g_iocpNetwork.m_session[userId].GetRole()]->GetDirectionVector(), 50.0f * durationTime);
+			roomRef.StartMovePlayCharacter(g_iocpNetwork.m_session[userId].GetRole(), recvPacket->direction, serverPosition); // 움직임 start;
+
 			SERVER_PACKET::MovePacket sendPacket;
 			sendPacket.direction = recvPacket->direction;
 			sendPacket.role = g_iocpNetwork.m_session[userId].GetRole();
 			sendPacket.type = SERVER_PACKET::MOVE_KEY_DOWN;
 			sendPacket.time = serverUtcTime;
-			sendPacket.position = recvPacket->position;
+			sendPacket.position = serverPosition;
+			sendPacket.moveVec = playCharacters[g_iocpNetwork.m_session[userId].GetRole()]->GetDirectionVector();
 			sendPacket.size = sizeof(SERVER_PACKET::MovePacket);
-			roomRef.StartMovePlayCharacter(g_iocpNetwork.m_session[userId].GetRole(), sendPacket.direction); // 움직임 start;
 #ifdef _DEBUG
 			//PrintCurrentTime();
 			//std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::MOVE_KEY_DOWN - MultiCastOtherPlayer" << std::endl;

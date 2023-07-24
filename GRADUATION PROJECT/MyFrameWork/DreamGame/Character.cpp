@@ -661,39 +661,33 @@ void Character::ExecuteSkill_E()
 {
 }
 
-void Character::InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos)
+void Character::InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos, XMFLOAT3& moveVec)
 {
-	XMFLOAT3 playerInterpolationVector = Vector3::Subtract(recvPos, GetPosition());
-	float playerPosDistance = Vector3::Length(playerInterpolationVector);
-	chrono::utc_clock::time_point playerCurrentUTC_Time = chrono::utc_clock::now();
-	double durationTime = chrono::duration_cast<chrono::microseconds>(playerCurrentUTC_Time - recvTime).count();
+	auto clientUtcTime = std::chrono::utc_clock::now();
+	double durationTime = std::chrono::duration_cast<std::chrono::microseconds>(clientUtcTime - recvTime).count();
+	XMFLOAT3 xmf3Postion = GetPosition();
 	durationTime = (double)durationTime / 1000.0f;//microseconds to mill
 	durationTime = (double)durationTime / 1000.0f;//milliseconds to sec
-	float playerInterpolationDistance = playerPosDistance - (float)durationTime * m_fSpeed;//length - v*t
 
-	if (abs(playerInterpolationDistance) < DBL_EPSILON) {
+	XMFLOAT3 diff_S2C_Position = Vector3::Subtract(recvPos, xmf3Postion);
+
+	XMFLOAT3 moveDir = Vector3::ScalarProduct(moveVec, durationTime * 50.0f);
+
+	XMFLOAT3 interpolateVec = Vector3::Add(diff_S2C_Position, moveDir);
+	float interpolateSize = Vector3::Length(interpolateVec);
+	interpolateVec = Vector3::Normalize(interpolateVec);
+	if (m_currentDirection == DIRECTION::IDLE && Vector3::Length(diff_S2C_Position) < DBL_EPSILON) {
 		m_interpolationDistance = 0.0f;
 	}
-	else if (abs(playerInterpolationDistance) > 15.0f) {
-#ifdef CHARCTER_MOVE_LOG
-		cout << "client playerPos: " << GetPosition().x << ", " << GetPosition().z << endl;
-		cout << "server playerPos: " << recvPos.x << ", " << recvPos.z << endl;
-#endif
-		SetPosition(recvPos);
-}
+	else if (interpolateSize < 2.0f) {
+		m_interpolationDistance = 0.0f;
+	}
+	else if (interpolateSize > 8.0f) {
+		SetPosition(Vector3::Add(recvPos, moveDir));
+	}
 	else {
-		m_interpolationDistance = 5.0f * abs(playerInterpolationDistance);
-		m_interpolationVector = Vector3::Normalize(playerInterpolationVector);
-		float dotPRes = Vector3::DotProduct(m_interpolationVector, GetLook());
-#ifdef CHARCTER_MOVE_LOG
-		//if (m_interpolationDistance > 5.0f) {
-		//	cout << "Interpolate Distance: " << m_interpolationDistance << ", " << endl;
-		//	if (dotPRes > 0)
-		//		cout << "same Vector" << endl;
-		//	else
-		//		cout << "diff Vector" << endl;
-		//}
-#endif
+		m_interpolationDistance = interpolateSize;
+		m_interpolationVector = interpolateVec;
 	}
 }
 
@@ -2154,30 +2148,33 @@ void Monster::Move(float fTimeElapsed)
 	}
 }
 
-void Monster::InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos)
+void Monster::InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos, XMFLOAT3& moveVec)
 {
-	XMFLOAT3 playerInterpolationVector = Vector3::Subtract(recvPos, GetPosition());
-	float playerPosDistance = Vector3::Length(playerInterpolationVector);
-	chrono::utc_clock::time_point playerCurrentUTC_Time = chrono::utc_clock::now();
-	double durationTime = chrono::duration_cast<chrono::microseconds>(playerCurrentUTC_Time - recvTime).count();
+	auto clientUtcTime = std::chrono::utc_clock::now();
+	double durationTime = std::chrono::duration_cast<std::chrono::microseconds>(clientUtcTime - recvTime).count();
+	XMFLOAT3 xmf3Postion = GetPosition();
 	durationTime = (double)durationTime / 1000.0f;//microseconds to mill
 	durationTime = (double)durationTime / 1000.0f;//milliseconds to sec
-	float playerInterpolationDistance = playerPosDistance - (float)durationTime * 50.0f;//length - v*t
 
-	if (playerPosDistance < DBL_EPSILON) {
+	XMFLOAT3 diff_S2C_Position = Vector3::Subtract(recvPos, xmf3Postion);
+
+	XMFLOAT3 moveDir = Vector3::ScalarProduct(moveVec, durationTime * 50.0f);
+
+	XMFLOAT3 interpolateVec = Vector3::Add(diff_S2C_Position, moveDir);
+	float interpolateSize = Vector3::Length(interpolateVec);
+	interpolateVec = Vector3::Normalize(interpolateVec);
+	if (Vector3::Length(diff_S2C_Position) < DBL_EPSILON) {
 		m_interpolationDistance = 0.0f;
 	}
-	else if (abs(playerInterpolationDistance) > 50.0f) {
-		//cout << "client playerPos: " << playerPos.x << ", " << playerPos.z << endl;
-		//cout << "server playerPos: " << recvPacket->userState[i].pos.x << ", " << recvPacket->userState[i].pos.z << endl;
-		SetPosition(recvPos);
-	}
-	else if (abs(playerInterpolationDistance) < 5.0f) {
+	else if (interpolateSize < 5.0f) {
 		m_interpolationDistance = 0.0f;
+	}
+	else if (interpolateSize > 8.0f) {
+		SetPosition(Vector3::Add(recvPos, moveDir));
 	}
 	else {
-		m_interpolationDistance = abs(playerInterpolationDistance);
-		m_interpolationVector = Vector3::Normalize(playerInterpolationVector);
+		m_interpolationDistance = interpolateSize;
+		m_interpolationVector = interpolateVec;
 	}
 }
 
@@ -2557,31 +2554,33 @@ void NormalMonster::SetAnimation()
 	}
 }
 
-void NormalMonster::InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos)
+void NormalMonster::InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos, XMFLOAT3& moveVec)
 {
-	XMFLOAT3 playerInterpolationVector = Vector3::Subtract(recvPos, GetPosition());
-	float playerPosDistance = Vector3::Length(playerInterpolationVector);
-	chrono::utc_clock::time_point playerCurrentUTC_Time = chrono::utc_clock::now();
-	double durationTime = chrono::duration_cast<chrono::microseconds>(playerCurrentUTC_Time - recvTime).count();
+	auto clientUtcTime = std::chrono::utc_clock::now();
+	double durationTime = std::chrono::duration_cast<std::chrono::microseconds>(clientUtcTime - recvTime).count();
+	XMFLOAT3 xmf3Postion = GetPosition();
 	durationTime = (double)durationTime / 1000.0f;//microseconds to mill
 	durationTime = (double)durationTime / 1000.0f;//milliseconds to sec
-	float playerInterpolationDistance = playerPosDistance - (float)durationTime * 30.0f;//length - v * t
 
-	if (abs(playerInterpolationDistance) < DBL_EPSILON) {
+	XMFLOAT3 diff_S2C_Position = Vector3::Subtract(recvPos, xmf3Postion);
+
+	XMFLOAT3 moveDir = Vector3::ScalarProduct(moveVec, durationTime * 30.0f);
+
+	XMFLOAT3 interpolateVec = Vector3::Add(diff_S2C_Position, moveDir);
+	float interpolateSize = Vector3::Length(interpolateVec);
+	interpolateVec = Vector3::Normalize(interpolateVec);
+	if (Vector3::Length(diff_S2C_Position) < DBL_EPSILON) {
 		m_interpolationDistance = 0.0f;
 	}
-	else if (abs(playerInterpolationDistance) > 30.0f) {
-#ifdef MONSTER_MOVE_LOG
-		PrintCurrentTime();
-		cout << "client NormalMonsterPos: " << GetPosition().x << ", " << GetPosition().z << endl;
-		cout << "server NormalMonsterPos: " << recvPos.x << ", " << recvPos.z << endl;
-		cout << endl;
-#endif
-		SetPosition(recvPos);
-}
+	else if (interpolateSize < 2.0f) {
+		m_interpolationDistance = 0.0f;
+	}
+	else if (interpolateSize > 8.0f) {
+		SetPosition(Vector3::Add(recvPos, moveDir));
+	}
 	else {
-		m_interpolationDistance = abs(playerInterpolationDistance);
-		m_interpolationVector = Vector3::Normalize(playerInterpolationVector);
+		m_interpolationDistance = interpolateSize;
+		m_interpolationVector = interpolateVec;
 	}
 }
 
@@ -2820,7 +2819,7 @@ bool NormalMonster::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
 			std::cout << std::endl;
 #endif
 			return true;
-		}
+				}
 	}
 	//맵 충돌 하지 않음
 	if (CharacterCollide.first) {//캐릭터 와 충돌
@@ -2895,7 +2894,7 @@ bool NormalMonster::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
 		return true;
 	}
 	return false;
-}
+		}
 
 std::pair<float, XMFLOAT3> Character::GetNormalVectorSphere(const XMFLOAT3& point)
 {

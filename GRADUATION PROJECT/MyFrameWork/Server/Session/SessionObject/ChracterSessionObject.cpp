@@ -64,8 +64,11 @@ void ChracterSessionObject::SetDirection(DIRECTION d)
 
 	if (d != DIRECTION::IDLE)
 	{
-		if (((d & DIRECTION::LEFT) == DIRECTION::LEFT) &&
-			((d & DIRECTION::RIGHT) == DIRECTION::RIGHT))
+		if (
+			((d & DIRECTION::LEFT) == DIRECTION::LEFT)
+			&&
+			((d & DIRECTION::RIGHT) == DIRECTION::RIGHT)
+			)
 		{
 			d = (DIRECTION)(d ^ DIRECTION::LEFT);
 			d = (DIRECTION)(d ^ DIRECTION::RIGHT);
@@ -87,7 +90,7 @@ void ChracterSessionObject::SetDirection(DIRECTION d)
 		case DIRECTION::RIGHT:						fRotateAngle = 270.0f;	break;
 		case DIRECTION::FRONT | DIRECTION::RIGHT:	fRotateAngle = 315.0f;	break;
 		}
-
+		m_applyDirection = d;
 		fRotateAngle = fRotateAngle * (3.14159265359f / 180.0f);
 		xmf3Rev.x = xmf3Look.x * cos(fRotateAngle) - xmf3Look.z * sin(fRotateAngle);
 		xmf3Rev.z = xmf3Look.x * sin(fRotateAngle) + xmf3Look.z * cos(fRotateAngle);
@@ -95,6 +98,8 @@ void ChracterSessionObject::SetDirection(DIRECTION d)
 
 		m_directionVector = xmf3Rev;
 	}
+	else
+		m_applyDirection = d;
 }
 
 void ChracterSessionObject::SetMouseInput(bool LmouseInput, bool RmouseInput)
@@ -103,12 +108,13 @@ void ChracterSessionObject::SetMouseInput(bool LmouseInput, bool RmouseInput)
 	m_rightmouseInput = RmouseInput;
 }
 
-void ChracterSessionObject::StartMove(DIRECTION d)
+void ChracterSessionObject::StartMove(DIRECTION d, XMFLOAT3& clientPosition)
 {
 	//std::cout << "ChracterSessionObject::StartMove()" << std::endl;
-	if (m_inputDirection == DIRECTION::IDLE)
+	if (m_inputDirection == DIRECTION::IDLE) {
+		m_position = clientPosition;
 		m_lastMoveTime = std::chrono::high_resolution_clock::now();
-
+	}
 	m_inputDirection = (DIRECTION)(m_inputDirection | d);
 	SetDirection(m_inputDirection);
 }
@@ -119,7 +125,7 @@ void ChracterSessionObject::StopMove()
 	//std::cout << "ChracterSessionObject::StopMove() - Look Dir: " << m_directionVector.x << ", " << m_directionVector.y << ", " << m_directionVector.z << std::endl;
 	//std::cout << "ChracterSessionObject::StopMove() - Pos: " << m_position.x << ", " << m_position.y << ", " << m_position.z << std::endl;
 	// m_prevDirection = m_inputDirection;
-	m_inputDirection = DIRECTION::IDLE;
+	m_applyDirection = m_inputDirection = DIRECTION::IDLE;
 }
 
 void ChracterSessionObject::ChangeDirection(DIRECTION d)
@@ -143,7 +149,7 @@ void ChracterSessionObject::SetShield(bool active)
 
 bool ChracterSessionObject::Move(float elapsedTime)
 {
-	if (m_inputDirection != DIRECTION::IDLE)
+	if (m_applyDirection != DIRECTION::IDLE)
 	{
 #ifdef _DEBUG
 		//std::cout << "character::Move() - elapsedTime: " << elapsedTime << std::endl;
@@ -403,7 +409,7 @@ bool ChracterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ftimeE
 	}
 	else if (roomRef.GetRoomState() == ROOM_BOSS) {
 		mapCollideResult = CheckCollisionMap_Boss(moveDirection, ftimeElapsed);
-	}	
+	}
 	auto CharacterCollide = CheckCollisionCharacter(moveDirection, ftimeElapsed);
 	if (CharacterCollide.first && std::abs(CharacterCollide.second.x) < DBL_EPSILON && std::abs(CharacterCollide.second.z) < DBL_EPSILON) {//캐릭터 콜리전으로 인해 아예 못움직임
 #ifdef CHARCTER_MOVE_LOG
@@ -423,7 +429,7 @@ bool ChracterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ftimeE
 					std::cout << std::endl;
 #endif
 					return true;
-		}
+				}
 				XMFLOAT3 moveDir = Vector3::Normalize(Vector3::Add(mapCollideResult.second, CharacterCollide.second));
 				if (normalMonsterCollide.first) {//노말 몬스터 충돌 됨
 					float dotRes = Vector3::DotProduct(Vector3::Normalize(normalMonsterCollide.second), moveDir);
@@ -444,8 +450,8 @@ bool ChracterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ftimeE
 						std::cout << std::endl;
 #endif
 						return true;
+					}
 				}
-	}
 				else {//노말 몬스터와 충돌하지 않음					
 					m_position = Vector3::Add(m_position, Vector3::ScalarProduct(Vector3::Normalize(moveDir), 0.3f * m_speed * ftimeElapsed));
 					SetPosition(m_position);
@@ -464,7 +470,7 @@ bool ChracterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ftimeE
 				std::cout << std::endl;
 #endif
 				return true;
-}
+			}
 			return true;
 		}
 		//캐릭터가 충돌하진 않았지만 노말 몬스터 체크
@@ -542,7 +548,7 @@ bool ChracterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ftimeE
 				std::cout << std::endl;
 #endif
 				return true;
-		}
+			}
 		}
 		else {// 노말 몬스터와 충돌하지 않음 -> 캐릭터만 충돌
 			XMFLOAT3 moveVec = Vector3::ScalarProduct(CharacterCollide.second, 0.5f * m_speed * ftimeElapsed);

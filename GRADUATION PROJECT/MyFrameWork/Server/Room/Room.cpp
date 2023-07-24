@@ -422,6 +422,7 @@ void Room::UpdateGameStateForPlayer_STAGE1()
 			sendPacket.userState[i].pos = m_characterMap[p.first]->GetPos();
 			sendPacket.userState[i].rot = m_characterMap[p.first]->GetRot();
 			sendPacket.userState[i].shield = m_characterMap[p.first]->GetShield();
+			sendPacket.userState[i].moveVec = m_characterMap[p.first]->GetDirectionVector();
 			++i;
 		}
 		//small monster stateµµ Ãß°¡
@@ -435,7 +436,7 @@ void Room::UpdateGameStateForPlayer_STAGE1()
 			sendPacket.smallMonster[i].hp = m_StageSmallMonster[i].GetHp();
 			sendPacket.smallMonster[i].pos = m_StageSmallMonster[i].GetPos();
 			sendPacket.smallMonster[i].rot = m_StageSmallMonster[i].GetRot();
-			sendPacket.smallMonster[i].directionVector = m_StageSmallMonster[i].GetDirectionVector();
+			sendPacket.smallMonster[i].moveVec = m_StageSmallMonster[i].GetDirectionVector();
 		}
 		m_aliveSmallMonster = aliveCnt;
 		sendPacket.aliveMonsterCnt = aliveCnt;
@@ -494,7 +495,7 @@ void Room::UpdateGameStateForPlayer_BOSS()
 		sendPacket.bossState.hp = m_boss.GetHp();
 		sendPacket.bossState.pos = m_boss.GetPos();
 		sendPacket.bossState.rot = m_boss.GetRot();
-		sendPacket.bossState.directionVector = m_boss.GetDirectionVector();
+		sendPacket.bossState.moveVec = m_boss.GetDirectionVector();
 		int i = 0;
 		std::map<ROLE, int> playerMap;
 		{
@@ -677,9 +678,9 @@ void Room::RotatePlayCharacter(ROLE r, ROTATE_AXIS axis, float& angle)
 	m_characterMap[r]->Rotate(axis, angle);
 }
 
-void Room::StartMovePlayCharacter(ROLE r, DIRECTION d)
+void Room::StartMovePlayCharacter(ROLE r, DIRECTION d, XMFLOAT3& clientPosition)
 {
-	m_characterMap[r]->StartMove(d);
+	m_characterMap[r]->StartMove(d, clientPosition);
 }
 
 void Room::SetMouseInputPlayCharacter(ROLE r, bool left, bool right)

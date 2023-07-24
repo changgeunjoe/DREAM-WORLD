@@ -31,17 +31,16 @@ namespace CLIENT_PACKET {
 	constexpr unsigned char STAGE_CHANGE_BOSS = 24;
 	constexpr unsigned char PLAYER_COMMON_ATTACK = 25;
 
-
+	constexpr unsigned char ARCHER_SKILL_ARROW = 26;
 
 
 
 	struct MovePacket
-	{
+	{//시간과 진행 방향, 이동 입력
 		short size;
 		char type;
 		char role;
 		DIRECTION direction;
-		XMFLOAT3 position;
 		std::chrono::utc_clock::time_point time;
 	};
 
@@ -124,7 +123,7 @@ namespace CLIENT_PACKET {
 		char type;
 		char role;
 		DirectX::XMFLOAT3 dir;
-		int power;
+		int power;// 아처 줌인, 워리어 3단계
 	};
 
 }
@@ -184,6 +183,7 @@ namespace SERVER_PACKET {
 		char role;
 		DIRECTION direction;
 		XMFLOAT3 position;
+		XMFLOAT3 moveVec;
 		std::chrono::utc_clock::time_point time;
 	};
 
@@ -278,6 +278,7 @@ namespace SERVER_PACKET {
 		float shield;
 		XMFLOAT3 pos;
 		XMFLOAT3 rot;
+		XMFLOAT3 moveVec;
 	};
 
 	struct ApplyHealForPlayer {
@@ -294,7 +295,7 @@ namespace SERVER_PACKET {
 		int hp;
 		XMFLOAT3 pos;
 		XMFLOAT3 rot;
-		XMFLOAT3 directionVector;
+		XMFLOAT3 moveVec;
 		char idxSize;
 		bool isAlive;
 	};
@@ -303,7 +304,7 @@ namespace SERVER_PACKET {
 		int hp;
 		XMFLOAT3 pos;
 		XMFLOAT3 rot;
-		XMFLOAT3 directionVector;
+		XMFLOAT3 moveVec;
 	};
 
 	struct GameState_BOSS {//Player State-> pos rot...추가하여 보정?

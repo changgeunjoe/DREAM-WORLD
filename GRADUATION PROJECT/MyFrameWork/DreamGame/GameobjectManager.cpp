@@ -2097,7 +2097,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			g_Logic.m_KeyInput->m_bWKey = true;
 			myPlayCharacter->SetMoveState(true);
 			myPlayCharacter->AddDirection(DIRECTION::FRONT);
-			g_NetworkHelper.SendMovePacket(DIRECTION::FRONT, myPlayCharacter->GetPosition());
+			g_NetworkHelper.SendMovePacket(DIRECTION::FRONT);
 		}
 		break;
 		case 'A':
@@ -2105,7 +2105,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			g_Logic.m_KeyInput->m_bAKey = true;
 			myPlayCharacter->SetMoveState(true);
 			myPlayCharacter->AddDirection(DIRECTION::LEFT);
-			g_NetworkHelper.SendMovePacket(DIRECTION::LEFT, myPlayCharacter->GetPosition());
+			g_NetworkHelper.SendMovePacket(DIRECTION::LEFT);
 		}
 		break;
 		case 'S':
@@ -2113,7 +2113,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			g_Logic.m_KeyInput->m_bSKey = true;
 			myPlayCharacter->SetMoveState(true);
 			myPlayCharacter->AddDirection(DIRECTION::BACK);
-			g_NetworkHelper.SendMovePacket(DIRECTION::BACK, myPlayCharacter->GetPosition());
+			g_NetworkHelper.SendMovePacket(DIRECTION::BACK);
 		}
 		break;
 		case 'D':
@@ -2121,7 +2121,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			g_Logic.m_KeyInput->m_bDKey = true;
 			myPlayCharacter->SetMoveState(true);
 			myPlayCharacter->AddDirection(DIRECTION::RIGHT);
-			g_NetworkHelper.SendMovePacket(DIRECTION::RIGHT, myPlayCharacter->GetPosition());
+			g_NetworkHelper.SendMovePacket(DIRECTION::RIGHT);
 		}
 		break;
 		case 'Q':
@@ -2545,11 +2545,13 @@ void GameobjectManager::AddTextToUILayer(int& iIndex)
 	queue<wstring> queueStr;
 	if (iIndex == START_TEXT)
 	{
-		queueStr.emplace(L"안녕하세요! 드림월드에 오신 것을 환영해요");
-		queueStr.emplace(L"먼저 플레이 방법에 대해서 알려드릴게요!");
-		queueStr.emplace(L"앞에 보이는 캐릭터들 중 원하는 캐릭터를");
-		queueStr.emplace(L"선택하신 후에 게임 시작을 누르시면");
-		queueStr.emplace(L"선택한 캐릭터를 플레이 하실 수 있어요!");
+		queueStr.emplace(L"뿌꼴람");
+
+		//queueStr.emplace(L"안녕하세요! 드림월드에 오신 것을 환영해요");
+		//queueStr.emplace(L"먼저 플레이 방법에 대해서 알려드릴게요!");
+		//queueStr.emplace(L"앞에 보이는 캐릭터들 중 원하는 캐릭터를");
+		//queueStr.emplace(L"선택하신 후에 게임 시작을 누르시면");
+		//queueStr.emplace(L"선택한 캐릭터를 플레이 하실 수 있어요!");
 	}
 	if (iIndex == NPC_TEXT)
 	{

@@ -93,13 +93,12 @@ void NetworkHelper::Destroy()
 		m_runThread.join();
 }
 
-void NetworkHelper::SendMovePacket(DIRECTION d, const XMFLOAT3& position)
+void NetworkHelper::SendMovePacket(DIRECTION d)
 {
 	CLIENT_PACKET::MovePacket sendPacket;
 	sendPacket.direction = d;
 	sendPacket.type = CLIENT_PACKET::MOVE_KEY_DOWN;
 	sendPacket.size = sizeof(CLIENT_PACKET::MovePacket);
-	sendPacket.position = position;
 	sendPacket.role = g_Logic.GetMyRole();
 	sendPacket.time = std::chrono::utc_clock::now();
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);

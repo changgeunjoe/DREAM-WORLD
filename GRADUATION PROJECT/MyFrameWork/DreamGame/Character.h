@@ -36,7 +36,7 @@ public://move
 	virtual void MoveForward(int forwardDirection = 1, float ftimeElapsed = 0.01768f) override;
 	virtual void MoveStrafe(int rightDirection = 1, float ftimeElapsed = 0.01768f)override;
 	virtual void MoveDiagonal(int fowardDirection, int rightDirection, float ftimeElapsed = 0.01768f)override;
-	virtual void InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos);
+	virtual void InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos, XMFLOAT3& moveVec);
 
 protected://collision check
 	virtual std::pair<bool, XMFLOAT3> CheckCollisionMap_Boss(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
@@ -198,7 +198,7 @@ public:
 	virtual void Animate(float fTimeElapsed);
 	virtual void SetSkillRangeObject(GameObject* obj) { m_pSkillRange = obj; }
 	virtual void Move(float fTimeElapsed)override;
-	void InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos)override;
+	void InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos, XMFLOAT3& moveVec)override;
 public:
 	XMFLOAT3 m_xmf3rotateAngle = XMFLOAT3{ 0,0,0 };
 };
@@ -219,7 +219,7 @@ public:
 	virtual void Animate(float fTimeElapsed) override;
 	virtual void Move(float fTimeElapsed)override;
 	void SetAnimation();
-	void InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos)override;
+	void InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos, XMFLOAT3& moveVec)override;
 public:
 	XMFLOAT3 m_xmf3rotateAngle = XMFLOAT3{ 0,0,0 };
 private:

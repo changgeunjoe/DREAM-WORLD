@@ -74,7 +74,7 @@ public:
 	DirectX::XMFLOAT3 GetPositionPlayCharacter(ROLE r);
 	bool AdjustPlayCharacterInfo(ROLE r, DirectX::XMFLOAT3& postion);
 	void RotatePlayCharacter(ROLE r, ROTATE_AXIS axis, float& angle);
-	void StartMovePlayCharacter(ROLE r, DIRECTION d);
+	void StartMovePlayCharacter(ROLE r, DIRECTION d, XMFLOAT3& clientPosition);
 	void SetMouseInputPlayCharacter(ROLE r, bool left, bool right);
 	bool GetLeftAttackPlayCharacter(ROLE r);
 	short GetAttackDamagePlayCharacter(ROLE r);
