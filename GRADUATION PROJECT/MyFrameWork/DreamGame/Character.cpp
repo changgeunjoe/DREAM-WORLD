@@ -666,6 +666,7 @@ void Character::InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT
 	auto clientUtcTime = std::chrono::utc_clock::now();
 	double durationTime = std::chrono::duration_cast<std::chrono::microseconds>(clientUtcTime - recvTime).count();
 	XMFLOAT3 xmf3Postion = GetPosition();
+	durationTime -= g_Logic.GetDiffTime();
 	durationTime = (double)durationTime / 1000.0f;//microseconds to mill
 	durationTime = (double)durationTime / 1000.0f;//milliseconds to sec
 
@@ -2153,6 +2154,7 @@ void Monster::InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3&
 	auto clientUtcTime = std::chrono::utc_clock::now();
 	double durationTime = std::chrono::duration_cast<std::chrono::microseconds>(clientUtcTime - recvTime).count();
 	XMFLOAT3 xmf3Postion = GetPosition();
+	durationTime -= g_Logic.GetDiffTime();
 	durationTime = (double)durationTime / 1000.0f;//microseconds to mill
 	durationTime = (double)durationTime / 1000.0f;//milliseconds to sec
 
@@ -2559,6 +2561,7 @@ void NormalMonster::InterpolateMove(chrono::utc_clock::time_point& recvTime, XMF
 	auto clientUtcTime = std::chrono::utc_clock::now();
 	double durationTime = std::chrono::duration_cast<std::chrono::microseconds>(clientUtcTime - recvTime).count();
 	XMFLOAT3 xmf3Postion = GetPosition();
+	durationTime -= g_Logic.GetDiffTime();
 	durationTime = (double)durationTime / 1000.0f;//microseconds to mill
 	durationTime = (double)durationTime / 1000.0f;//milliseconds to sec
 
@@ -2819,7 +2822,7 @@ bool NormalMonster::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
 			std::cout << std::endl;
 #endif
 			return true;
-				}
+		}
 	}
 	//맵 충돌 하지 않음
 	if (CharacterCollide.first) {//캐릭터 와 충돌
@@ -2894,7 +2897,7 @@ bool NormalMonster::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
 		return true;
 	}
 	return false;
-		}
+}
 
 std::pair<float, XMFLOAT3> Character::GetNormalVectorSphere(const XMFLOAT3& point)
 {
