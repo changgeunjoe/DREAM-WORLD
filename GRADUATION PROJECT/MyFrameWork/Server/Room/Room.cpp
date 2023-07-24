@@ -435,6 +435,8 @@ void Room::UpdateGameStateForPlayer_STAGE1()
 			sendPacket.userState[i].moveVec = m_characterMap[p.first]->GetDirectionVector();
 			++i;
 		}
+		sendPacket.userTime = std::chrono::utc_clock::now();
+
 		//small monster state도 추가
 		int aliveCnt = 0;
 		for (int i = 0; i < 15; i++) {
@@ -449,9 +451,9 @@ void Room::UpdateGameStateForPlayer_STAGE1()
 			sendPacket.smallMonster[i].rot = m_StageSmallMonster[i].GetRot();
 			sendPacket.smallMonster[i].moveVec = m_StageSmallMonster[i].GetDirectionVector();
 		}
+		sendPacket.monsterTime = std::chrono::utc_clock::now();
 		m_aliveSmallMonster = aliveCnt;
 		sendPacket.aliveMonsterCnt = aliveCnt;
-		sendPacket.time = std::chrono::utc_clock::now();
 		g_logic.BroadCastInRoom(m_roomId, &sendPacket);
 		TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::milliseconds(30), m_roomId ,EV_GAME_STATE_S_SEND };//GameState 30ms마다 전송하게 수정
 		g_Timer.InsertTimerQueue(new_ev);

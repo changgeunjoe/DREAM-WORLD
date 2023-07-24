@@ -111,15 +111,15 @@ void ChracterSessionObject::SetMouseInput(bool LmouseInput, bool RmouseInput)
 void ChracterSessionObject::StartMove(DIRECTION d, std::chrono::utc_clock::time_point& recvTime)
 {
 	//std::cout << "ChracterSessionObject::StartMove()" << std::endl;
-	auto serverUtcTime = std::chrono::utc_clock::now();
 	if (m_inputDirection == DIRECTION::IDLE) {
 		m_lastMoveTime = std::chrono::high_resolution_clock::now();
 		m_inputDirection = (DIRECTION)(m_inputDirection | d);
 		SetDirection(m_inputDirection);
+	auto serverUtcTime = std::chrono::utc_clock::now();
 		double durationTime = std::chrono::duration_cast<std::chrono::microseconds>(serverUtcTime - recvTime).count();
 		durationTime = (double)durationTime / 1000.0f;//microseconds to mill
 		durationTime = (double)durationTime / 1000.0f;//milliseconds to sec
-		m_position = Vector3::Add(m_position, m_directionVector, durationTime * 50.0f);
+		XMFLOAT3 pos = m_position = Vector3::Add(m_position, m_directionVector, durationTime * 50.0f);
 		std::cout << "ChracterSessionObject::StartMove() - m_position:" << m_position.x << ", "
 			<< m_position.y << ", " << m_position.z << std::endl;
 		SERVER_PACKET::MovePacket sendPacket;
@@ -127,7 +127,7 @@ void ChracterSessionObject::StartMove(DIRECTION d, std::chrono::utc_clock::time_
 		sendPacket.role = m_InGameRole;
 		sendPacket.type = SERVER_PACKET::MOVE_KEY_DOWN;
 		sendPacket.time = serverUtcTime;
-		sendPacket.position = m_position;
+		sendPacket.position = pos;
 		sendPacket.moveVec = m_directionVector;
 		sendPacket.size = sizeof(SERVER_PACKET::MovePacket);
 		g_logic.MultiCastOtherPlayerInRoom_R(m_roomId, m_InGameRole, &sendPacket);
@@ -139,6 +139,7 @@ void ChracterSessionObject::StartMove(DIRECTION d, std::chrono::utc_clock::time_
 	sendPacket.direction = d;
 	sendPacket.role = m_InGameRole;
 	sendPacket.type = SERVER_PACKET::MOVE_KEY_DOWN;
+	auto serverUtcTime = std::chrono::utc_clock::now();
 	sendPacket.time = serverUtcTime;
 	sendPacket.position = m_position;
 	sendPacket.moveVec = m_directionVector;

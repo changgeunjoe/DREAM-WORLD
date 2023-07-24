@@ -366,9 +366,10 @@ namespace SERVER_PACKET {
 		short size;
 		char type;
 		InGamePlayerState userState[4];
+		std::chrono::utc_clock::time_point userTime;
 		InGameSmallMonster smallMonster[15];
 		int aliveMonsterCnt;//살아 있는 몬스터 갯수 입니다. 총 15개
-		std::chrono::utc_clock::time_point time;
+		std::chrono::utc_clock::time_point monsterTime;
 	};
 
 	struct BossAttackPacket {

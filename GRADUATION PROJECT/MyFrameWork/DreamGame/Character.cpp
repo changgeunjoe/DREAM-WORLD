@@ -163,19 +163,26 @@ void Character::MoveForward(int forwardDirection, float ftimeElapsed)
 	if (CheckCollision(xmf3Look, ftimeElapsed)) {
 		xmf3Position = GetPosition();
 #ifdef CHARCTER_MOVE_LOG
-		std::cout << "interpolate prev position: " << xmf3Position.x << ", " << xmf3Position.y << ", " << xmf3Position.z << std::endl;
-		std::cout << "interpolate Vec: " << m_interpolationVector.x << ", " << m_interpolationVector.y << ", " << m_interpolationVector.z << std::endl;
-		std::cout << "interpolate Size: " << m_interpolationDistance << std::endl;
+		if (m_interpolationDistance > DBL_EPSILON) {
+
+			std::cout << "interpolate prev position: " << xmf3Position.x << ", " << xmf3Position.y << ", " << xmf3Position.z << std::endl;
+			std::cout << "interpolate Vec: " << m_interpolationVector.x << ", " << m_interpolationVector.y << ", " << m_interpolationVector.z << std::endl;
+			std::cout << "interpolate Size: " << m_interpolationDistance << std::endl;
+		}
 #endif
-		xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * ftimeElapsed);
+		xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector,  10.0f * m_interpolationDistance * ftimeElapsed);
 		GameObject::SetPosition(xmf3Position);
 #ifdef CHARCTER_MOVE_LOG
-		std::cout << "interpolate after position: " << xmf3Position.x << ", " << xmf3Position.y << ", " << xmf3Position.z << std::endl << std::endl;
+		if (m_interpolationDistance > DBL_EPSILON) {
+			std::cout << "interpolate after position: " << xmf3Position.x << ", " << xmf3Position.y << ", " << xmf3Position.z << std::endl << std::endl;
+		}
 #endif
 		return;
 	}
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, ftimeElapsed * m_fSpeed);
-	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * ftimeElapsed);
+	
+	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, 10.0f * m_interpolationDistance * ftimeElapsed);
+
 	g_sound.NoLoopPlay("WalkSound", 1.0f);
 	GameObject::SetPosition(xmf3Position);
 	if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
@@ -191,12 +198,16 @@ void Character::MoveStrafe(int rightDirection, float ftimeElapsed)
 	if (CheckCollision(xmf3Right, ftimeElapsed))
 	{
 		xmf3Position = GetPosition();
-		xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * ftimeElapsed);
+		
+		xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, 10.0f * m_interpolationDistance * ftimeElapsed);
 		GameObject::SetPosition(xmf3Position);
+	
 		return;
 	}
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Right, ftimeElapsed * m_fSpeed);
-	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * ftimeElapsed);
+	
+	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, 10.0f * m_interpolationDistance * ftimeElapsed);
+	
 	GameObject::SetPosition(xmf3Position);
 	if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
 	return;
@@ -215,12 +226,16 @@ void Character::MoveDiagonal(int fowardDirection, int rightDirection, float ftim
 	if (CheckCollision(resultDirection, ftimeElapsed))
 	{
 		xmf3Position = GetPosition();
-		xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * ftimeElapsed);
+		
+		xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, 10.0f * m_interpolationDistance * ftimeElapsed);
+	
 		GameObject::SetPosition(xmf3Position);
 		return;
 	}
 	xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(resultDirection, ftimeElapsed * m_fSpeed));
-	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * ftimeElapsed);
+	
+	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, 10.0f * m_interpolationDistance * ftimeElapsed);
+
 	SetPosition(xmf3Position);
 	if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
 }
@@ -694,14 +709,29 @@ void Character::InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT
 	interpolateVec = Vector3::Normalize(interpolateVec);
 	if (m_currentDirection == DIRECTION::IDLE && Vector3::Length(diff_S2C_Position) < DBL_EPSILON) {
 		m_interpolationDistance = 0.0f;
+		m_interpolationVector = XMFLOAT3(0, 0, 0);
 	}
-	else if (interpolateSize < 2.0f) {
+	else if (interpolateSize < 3.0f) {
+		std::cout << "interpolateSize < 3.0f" << endl;
 		m_interpolationDistance = 0.0f;
+		m_interpolationVector = XMFLOAT3(0, 0, 0);
 	}
 	else if (interpolateSize > 8.0f) {
-		SetPosition(Vector3::Add(recvPos, moveDir));
+		//std::cout << "interpolateSize > 8.0f - SetPosition()" << endl;		
+		//std::cout << "diff_S2C_Position Size: " << Vector3::Length(diff_S2C_Position) << ", diff_S2C_Position: " << diff_S2C_Position.x << ", " << diff_S2C_Position.y << ", " << diff_S2C_Position.z << endl;
+		//std::cout << "moveDir Size: " << Vector3::Length(moveDir) << ", diff_S2C_Position: " << moveVec.x << ", " << moveVec.y << ", " << moveVec.z << endl;
+		//XMFLOAT3 diff = Vector3::Normalize(diff_S2C_Position);
+		//float dotP = Vector3::DotProduct(diff, moveVec);
+		//std::cout << "dotP: " << dotP << endl;
+		SetPosition(Vector3::Add(xmf3Postion, interpolateVec, interpolateSize));
+		m_interpolationDistance = 0.0f;
+		m_interpolationVector = XMFLOAT3(0, 0, 0);
 	}
 	else {
+		//std::cout << "interpolateSize: " << interpolateSize << ", interpolateVec" << interpolateVec.x << ", " << interpolateVec.y << ", "
+		//	<< interpolateVec.z << endl;
+		//std::cout << "diff_S2C_Position Size: " << Vector3::Length(diff_S2C_Position) << ", diff_S2C_Position: " << diff_S2C_Position.x << ", " << diff_S2C_Position.y << ", "
+		//	<< diff_S2C_Position.z << endl;
 		m_interpolationDistance = interpolateSize;
 		m_interpolationVector = interpolateVec;
 	}
@@ -942,7 +972,7 @@ void Warrior::SetLButtonClicked(bool bLButtonClicked)
 					m_nextAnimation = CA_SECONDSKILL;
 				break;
 			case CA_SECONDSKILL:
-				if(m_nextAnimation != CA_ADDITIONALANIM)
+				if (m_nextAnimation != CA_ADDITIONALANIM)
 					m_nextAnimation = CA_ADDITIONALANIM;
 				break;
 			case CA_ADDITIONALANIM:
@@ -1082,7 +1112,7 @@ void Archer::Move(float fTimeElapsed)
 void Archer::Animate(float fTimeElapsed)
 {
 	m_fTimeElapsed = fTimeElapsed;
-	if (m_bLButtonClicked) 
+	if (m_bLButtonClicked)
 		ZoomInCamera();
 
 	pair<CharacterAnimation, CharacterAnimation> AfterAnimation = m_pSkinnedAnimationController->m_CurrentAnimations;
@@ -1160,10 +1190,10 @@ void Archer::Animate(float fTimeElapsed)
 
 	for (int i = 0; i < MAX_ARROW; ++i)
 	{
-		if (m_pProjectiles[i]) 
+		if (m_pProjectiles[i])
 		{
 			m_pProjectiles[i]->GetTrailComponent()->SetRenderingTrail(m_pProjectiles[i]->m_bActive);
-			if (!m_pProjectiles[i]->m_bActive) 
+			if (!m_pProjectiles[i]->m_bActive)
 				m_pProjectiles[i]->SetPosition(GetPosition());
 		}
 	}
@@ -1262,7 +1292,7 @@ void Archer::ShootArrow()//스킬
 			m_pProjectiles[m_nProjectiles]->m_xmf3startPosition = objPosition;
 			m_pProjectiles[m_nProjectiles]->SetPosition(objPosition);
 			m_pProjectiles[m_nProjectiles]->m_fSpeed = 250.0f;
-			m_pProjectiles[m_nProjectiles]->m_bActive = true;						
+			m_pProjectiles[m_nProjectiles]->m_bActive = true;
 			m_nProjectiles++;
 		}
 		m_bQSkillClicked = false;
@@ -1984,7 +2014,7 @@ void Priest::FirstSkillUp()
 void Priest::StartEffect(int nSkillNum)
 {
 	m_pHealRange->m_bActive = true;
-	g_sound.Play("HealSound",1.0);
+	g_sound.Play("HealSound", 1.0);
 	UpdateEffect();
 }
 
@@ -2303,7 +2333,7 @@ void Projectile::Move(XMFLOAT3 dir, float fDistance)
 {
 	XMFLOAT3 xmf3Position = GetPosition();
 	float moveDist = Vector3::Length(Vector3::Subtract(xmf3Position, m_xmf3startPosition));
-	if (moveDist > 200.0f) 
+	if (moveDist > 200.0f)
 	{
 		m_bActive = false;
 		return;
@@ -2501,7 +2531,7 @@ void NormalMonster::Move(float fTimeElapsed)
 				m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
 			}
 		}
-		MyPos = Vector3::Add(MyPos, m_interpolationVector, m_interpolationDistance * fTimeElapsed);
+		MyPos = Vector3::Add(MyPos, m_interpolationVector, 6.0f * m_interpolationDistance * fTimeElapsed);
 		SetPosition(MyPos);
 		return;
 	}
@@ -2519,7 +2549,7 @@ void NormalMonster::Move(float fTimeElapsed)
 				m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
 			}
 		}
-		MyPos = Vector3::Add(MyPos, m_interpolationVector, m_interpolationDistance * fTimeElapsed);
+		MyPos = Vector3::Add(MyPos, m_interpolationVector, 6.0f * m_interpolationDistance * fTimeElapsed);
 		SetPosition(MyPos);
 		return;
 	}
@@ -2537,7 +2567,7 @@ void NormalMonster::Move(float fTimeElapsed)
 			}
 		}
 		MyPos = Vector3::Add(MyPos, Vector3::ScalarProduct(GetLook(), m_fSpeed * fTimeElapsed, false));//틱마다 움직임
-		MyPos = Vector3::Add(MyPos, m_interpolationVector, m_interpolationDistance * fTimeElapsed);
+		MyPos = Vector3::Add(MyPos, m_interpolationVector, 6.0f * m_interpolationDistance * fTimeElapsed);
 		SetPosition(MyPos);
 		return;
 	}
@@ -2553,11 +2583,11 @@ void NormalMonster::Move(float fTimeElapsed)
 				m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
 			}
 		}
-		MyPos = Vector3::Add(MyPos, m_interpolationVector, m_interpolationDistance * fTimeElapsed);
+		MyPos = Vector3::Add(MyPos, m_interpolationVector, 6.0f * m_interpolationDistance * fTimeElapsed);
 		SetPosition(MyPos);
 		return;
 	}
-	MyPos = Vector3::Add(MyPos, m_interpolationVector, m_interpolationDistance * fTimeElapsed);
+	MyPos = Vector3::Add(MyPos, m_interpolationVector, 6.0f * m_interpolationDistance * fTimeElapsed);
 	SetPosition(MyPos);
 }
 
