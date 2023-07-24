@@ -3,6 +3,7 @@
 #include "../../Logic/Logic.h"
 #include "../../Room/RoomManager.h"
 #include "../../MapData/MapData.h"
+#include "../../IOCPNetwork/protocol/protocol.h"
 
 extern Logic g_logic;
 extern RoomManager g_RoomManager;
@@ -14,13 +15,13 @@ extern MapData g_stage1MapData;
 SmallMonsterSessionObject::SmallMonsterSessionObject() :SessionObject(8.0f)
 {
 	m_speed = 30.0f;
-	m_maxHp = m_hp = 100;
+	m_maxHp = m_hp = 150.0f;
 }
 
 SmallMonsterSessionObject::SmallMonsterSessionObject(int roomId) :SessionObject(8.0f)
 {
 	m_speed = 30.0f;
-	m_maxHp = m_hp = 100;
+	m_maxHp = m_hp = 150.0f;
 }
 
 SmallMonsterSessionObject::~SmallMonsterSessionObject()
@@ -30,6 +31,7 @@ SmallMonsterSessionObject::~SmallMonsterSessionObject()
 
 void SmallMonsterSessionObject::SetDestinationPos(XMFLOAT3* posArr)
 {
+	if (!m_isAlive)return;
 	std::pair<float, int> minDis = std::make_pair(-1.0f, -1);
 	for (int i = 0; i < 4; i++) {
 		if (minDis.first < 0.0f) {
@@ -49,14 +51,55 @@ void SmallMonsterSessionObject::SetDestinationPos(XMFLOAT3* posArr)
 	//m_desDis = minDis.first;
 }
 
+bool SmallMonsterSessionObject::StartAttack()
+{
+	if (!m_isAlive)return true;
+	XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f);
+	Room& roomRef = g_RoomManager.GetRunningRoomRef(m_roomId);
+	auto durationTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - m_lastAttackTime);
+	if (!isMove) {
+		if (durationTime > std::chrono::milliseconds(300)) {//공격 애니메이션 후 다시 이동할 시간 수정해야됨
+			isMove = true;
+			return false;
+		}
+		return true;
+	}
+
+	for (auto& playCharacter : roomRef.GetPlayCharacters()) {
+		XMFLOAT3 des = Vector3::Subtract(playCharacter.second->GetPos(), m_position);	// 목적지랑 위치랑 벡터	
+		float len = Vector3::Length(des);
+		des = Vector3::Normalize(des);
+		float lookDesDotRes = Vector3::DotProduct(m_directionVector, des);
+		if (lookDesDotRes >= MONSTER_ABLE_ATTACK_COS_VALUE) { // 보스 look과 플레이어와의 각도가 30degree일때
+			if (len <= 42.0f) {
+				if (durationTime > std::chrono::seconds(1) + std::chrono::milliseconds(500)) {
+					//sendAttackPacket;
+					SERVER_PACKET::SmallMonsterAttackPlayerPacket sendPacket;
+					sendPacket.size = sizeof(SERVER_PACKET::SmallMonsterAttackPlayerPacket);
+					sendPacket.type = SERVER_PACKET::SMALL_MONSTER_ATTACK;
+					sendPacket.attackedRole = playCharacter.first;
+					sendPacket.attackMonsterIdx = m_id;
+					g_logic.BroadCastInRoom(m_roomId, &sendPacket);
+					isMove = false;
+					m_lastAttackTime = std::chrono::high_resolution_clock::now();
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
 void SmallMonsterSessionObject::StartMove()
 {
+	if (!m_isAlive)return;
 	m_lastMoveTime = std::chrono::high_resolution_clock::now();
 	isMove = true;
 }
 
 void SmallMonsterSessionObject::Rotate(ROTATE_AXIS axis, float angle)
 {
+	if (!m_isAlive)return;
 	switch (axis)
 	{
 	case X:
@@ -90,6 +133,8 @@ void SmallMonsterSessionObject::Rotate(ROTATE_AXIS axis, float angle)
 
 bool SmallMonsterSessionObject::Move(float elapsedTime)
 {
+	if (!m_isAlive)return true;
+	if (!isMove)return true;
 	XMFLOAT3 desVector = Vector3::Subtract(m_desPos, m_position);
 	float desDis = Vector3::Length(desVector);
 	desVector = Vector3::Normalize(desVector);
@@ -150,6 +195,12 @@ bool SmallMonsterSessionObject::Move(float elapsedTime)
 		}
 	}
 	return true;
+}
+
+void SmallMonsterSessionObject::UpdateMonsterState()
+{
+	if (m_hp < DBL_EPSILON)
+		m_isAlive = false;
 }
 
 float SmallMonsterSessionObject::GetDistance(XMFLOAT3& point)
@@ -303,7 +354,7 @@ bool SmallMonsterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ft
 		std::cout << "character no Move" << std::endl;
 #endif
 		return true;
-	}
+}
 	if (mapCollideResult.first) {//맵에 충돌 됨
 		if (CharacterCollide.first) {//캐릭터가 충돌 됨
 			float dotRes = Vector3::DotProduct(Vector3::Normalize(mapCollideResult.second), Vector3::Normalize(CharacterCollide.second));
@@ -316,7 +367,7 @@ bool SmallMonsterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ft
 					std::cout << std::endl;
 #endif
 					return true;
-				}
+			}
 				XMFLOAT3 moveDir = Vector3::Normalize(Vector3::Add(mapCollideResult.second, CharacterCollide.second));
 				if (normalMonsterCollide.first) {//노말 몬스터 충돌 됨
 					float dotRes = Vector3::DotProduct(Vector3::Normalize(normalMonsterCollide.second), moveDir);
@@ -337,8 +388,8 @@ bool SmallMonsterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ft
 						std::cout << std::endl;
 #endif
 						return true;
-					}
 				}
+		}
 				else {//노말 몬스터와 충돌하지 않음
 					m_position = Vector3::Add(m_position, Vector3::ScalarProduct(Vector3::Normalize(moveDir), m_speed * ftimeElapsed));
 					SetPosition(m_position);
@@ -349,7 +400,7 @@ bool SmallMonsterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ft
 #endif
 					return true;
 				}
-			}
+	}
 			else {//움직일 수 없음
 #ifdef MONSTER_MOVE_LOG
 				PrintCurrentTime();
@@ -357,7 +408,7 @@ bool SmallMonsterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ft
 				std::cout << std::endl;
 #endif
 				return true;
-			}
+	}
 			return true;
 		}
 		//캐릭터가 충돌하진 않았지만 노말 몬스터 체크
@@ -370,7 +421,7 @@ bool SmallMonsterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ft
 				std::cout << std::endl;
 #endif
 				return true;
-			}
+		}
 			float dotRes = Vector3::DotProduct(Vector3::Normalize(normalMonsterCollide.second), Vector3::Normalize(mapCollideResult.second));
 			if (dotRes > 0.2f) {//맵과 노말 몬스터 충돌 벡터 방향이 비슷함
 				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(Vector3::Normalize(Vector3::Add(normalMonsterCollide.second, mapCollideResult.second)), m_speed * ftimeElapsed));
@@ -412,7 +463,7 @@ bool SmallMonsterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ft
 			std::cout << std::endl;
 #endif
 			return true;
-		}
+	}
 		if (normalMonsterCollide.first) {//노말 몬스터와 충돌
 			float dotRes = Vector3::DotProduct(Vector3::Normalize(normalMonsterCollide.second), Vector3::Normalize(CharacterCollide.second));
 			if (dotRes > 0.2f) {//캐릭터 노말 몬스터 벡터
@@ -432,7 +483,7 @@ bool SmallMonsterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ft
 				std::cout << std::endl;
 #endif
 				return true;
-			}
+		}
 		}
 		else {// 노말 몬스터와 충돌하지 않음 -> 캐릭터만 충돌
 			m_position = Vector3::Add(m_position, Vector3::ScalarProduct(CharacterCollide.second, m_speed * ftimeElapsed));

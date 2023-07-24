@@ -25,11 +25,11 @@ private:
 	std::chrono::high_resolution_clock::time_point roomStartGameTime;
 	std::atomic_bool m_stageStart = false;
 private:
-	std::atomic_int	m_stage1TrigerCnt = 0;
 	std::atomic_int m_skipNPC_COMMUNICATION = 0;
+	int m_aliveSmallMonster = 15;
 public:
 	void SetRoomId(int roomId);
-	bool IsArriveState() { return m_isAlive; }	
+	bool IsArriveState() { return m_isAlive; }
 	//Player UserSession
 private:
 	//ingame Player
@@ -54,18 +54,20 @@ private:
 public:
 	void CreateBossMonster();
 	MonsterSessionObject& GetBoss();
-public:
+private:
 	int m_arrowCount = 0;
 	int m_ballCount = 0;
 	std::array<ShootingSessionObject, 10> m_arrows;
 	std::array<ShootingSessionObject, 10> m_balls;
+	std::array< ShootingSessionObject, 3> m_skillarrow;
 	Concurrency::concurrent_queue<int> m_restArrow;
 	Concurrency::concurrent_queue<int> m_restBall;
-	void ShootArrow(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 srcPos, float speed);
-	void ShootBall(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 srcPos, float speed);
+public:
+	void ShootArrow(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 srcPos, float speed, float damage);
+	void ShootBall(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 srcPos);
 public:
 	Concurrency::concurrent_queue<short> m_bossDamagedQueue;
-	bool MeleeAttack(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 pos);
+	void MeleeAttack(ROLE r, DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 pos, int power);
 public:
 	void ChangeDirectionPlayCharacter(ROLE r, DIRECTION d);
 	void StopMovePlayCharacter(ROLE r);
@@ -78,7 +80,7 @@ public:
 	short GetAttackDamagePlayCharacter(ROLE r);
 	void StartFirstSkillPlayCharacter(ROLE r);
 	void StartSecondSkillPlayCharacter(ROLE r);
-
+	void StartAttackPlayCharacter(ROLE r, XMFLOAT3& attackDir, int power);
 public:
 	void GameStart();
 	void BossStageStart();
@@ -98,10 +100,8 @@ public:
 
 public:
 	//stage1
-	void SetTriggerCntIncrease();
-	void SetTriggerCntDecrease();
 	void Recv_SkipNPC_Communication();
-	void SkipNPC_Communication();	
+	void SkipNPC_Communication();
 	void ChangeStageBoss();
 public:
 	ROOM_STATE GetRoomState() { return m_roomState; }

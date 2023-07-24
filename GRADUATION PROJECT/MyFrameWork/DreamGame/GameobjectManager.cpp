@@ -811,7 +811,7 @@ void GameobjectManager::CheckCollidePortal()
 	if (m_SPBBPortal.Intersects(myCharacter->m_SPBB) && m_bPortalCheck == false)
 	{
 		m_bPortalCheck = true;
-		g_NetworkHelper.SendChangeStage_B();
+		g_NetworkHelper.SendChangeStage_BOSS();
 	}
 }
 

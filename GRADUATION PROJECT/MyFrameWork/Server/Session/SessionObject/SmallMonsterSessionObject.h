@@ -10,12 +10,14 @@ public:
 	virtual ~SmallMonsterSessionObject();
 private:
 	int m_id = -1;
+	bool m_isAlive = true;
 	XMFLOAT3 m_desPos = XMFLOAT3(0, 0, 0);
 public:
 	std::chrono::high_resolution_clock::time_point m_lastAttackTime = std::chrono::high_resolution_clock::now();
 	bool isMove = false;
 public:
 	void SetDestinationPos(XMFLOAT3* posArr);
+	bool StartAttack();
 	void StartMove();
 public:
 	virtual void Rotate(ROTATE_AXIS axis, float angle) override;
@@ -27,6 +29,8 @@ public:
 	void SetZeroHp() { m_hp = 0; }
 	void SetId(int id) { m_id = id; }
 	XMFLOAT3 GetDesPos() { return m_desPos; }
+	bool IsAlive() { return m_isAlive; }
+	void UpdateMonsterState();
 	float GetDistance(XMFLOAT3& point);
 	std::pair<float, XMFLOAT3> GetNormalVectorSphere(XMFLOAT3& point);
 protected:

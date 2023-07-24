@@ -29,6 +29,7 @@ namespace CLIENT_PACKET {
 
 	constexpr unsigned char SKIP_NPC_COMMUNICATION = 23;
 	constexpr unsigned char STAGE_CHANGE_BOSS = 24;
+	constexpr unsigned char PLAYER_COMMON_ATTACK = 25;
 
 
 
@@ -110,21 +111,19 @@ namespace CLIENT_PACKET {
 		float speed;
 	};
 
-	struct MeleeAttackPacket {
-		short size;
-		char type;
-		DirectX::XMFLOAT3 dir;
-	};
-
-	struct GameEndPacket {
-		short size;
-		char type;
-	};
-
 	struct NotifyPacket {
 		short size;
 		char type;
 	};
+
+	struct PlayerCommonAttackPacket {
+		short size;
+		char type;
+		char role;
+		DirectX::XMFLOAT3 dir;
+		int power;
+	};
+
 }
 
 namespace SERVER_PACKET {
@@ -168,7 +167,12 @@ namespace SERVER_PACKET {
 	constexpr unsigned char SHIELD_END = 102;
 	constexpr unsigned char NOTIFY_HEAL_HP = 103;
 	constexpr unsigned char NOTIFY_SHIELD_APPLY = 104;
-
+	constexpr unsigned char MONSTER_DAMAGED_ARROW = 105;
+	constexpr unsigned char MONSTER_DAMAGED_ARROW_SKILL = 106;
+	constexpr unsigned char MONSTER_DAMAGED_BALL = 107;
+	constexpr unsigned char MELEE_ATTACK_RESULT = 108;
+	constexpr unsigned char COMMON_ATTACK = 109;
+	constexpr unsigned char SMALL_MONSTER_ATTACK = 110;
 
 	struct MovePacket
 	{
@@ -288,6 +292,7 @@ namespace SERVER_PACKET {
 		XMFLOAT3 rot;
 		XMFLOAT3 directionVector;
 		char idxSize;
+		bool isAlive;
 	};
 
 	struct InGameBossState {
@@ -310,6 +315,7 @@ namespace SERVER_PACKET {
 		char type;
 		InGamePlayerState userState[4];
 		InGameSmallMonster smallMonster[15];
+		int aliveMonsterCnt;//살아 있는 몬스터 갯수 입니다. 총 15개
 		std::chrono::utc_clock::time_point time;
 	};
 
@@ -359,6 +365,35 @@ namespace SERVER_PACKET {
 		ApplyShieldForPlayer applyShieldPlayerInfo[4];
 	};
 
+	struct ProjectileDamagePacket {//브로드 캐스트
+		short size;
+		char type;
+		char projectileId;//인덱스 번호
+		XMFLOAT3 position;//맞은 위치
+		float damage;// 데미지
+	};
+	
+	struct MeeleAttackDamagePacket {//본인만 데미지 볼 수 있게
+		short size;
+		char type;
+		char role;
+		char attackedMonsterCnt;//뎀지 입은 몬스터 갯수
+		char monsterIdx[15];//해당 몬스터의 인덱스값이 있는 배열
+		float damage;// 플레이어가 입힌 데미지
+	};
+	
+	struct CommonAttackPacket {//전체 플레이어들에게 알려서 애니메이션 재성
+		short size;
+		char type;
+		char role;
+	};
+
+	struct SmallMonsterAttackPlayerPacket {
+		short size;
+		char type;
+		char attackedRole;//자기 자신의 role인지 판단하고 피격 화면 출력
+		char attackMonsterIdx;//애니메이션 재생할 몬스터 인덱스
+	};
 }
 
 #pragma pack (pop)

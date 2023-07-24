@@ -2,6 +2,7 @@
 #include "../PCH/stdafx.h"
 
 class UserSession;
+class ExpOver;
 class Logic
 {
 private:
@@ -36,9 +37,12 @@ public:
 	void BroadCastPacket(void* p);
 	void MultiCastOtherPlayer(int userId, void* p);
 	void MultiCastOtherPlayerInRoom(int userId, void* p);
+	void MultiCastOtherPlayerInRoom_R(int roomId, ROLE role, void* p);
+	void OnlySendPlayerInRoom_R(int roomId, ROLE role, void* p);
 	void BroadCastInRoomByPlayer(int userId, void* p);
 	//Boss Broad Cast
 	void BroadCastInRoom(int roomId, void* p);
+	void BroadCastInRoom_Ex(int roomId, ExpOver* expover);
 
 public:
 	void AutoMoveServer();

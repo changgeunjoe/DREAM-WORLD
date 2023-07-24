@@ -28,9 +28,6 @@ public:
 	virtual void SecondSkillUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f }) {};
 	virtual void StartEffect(int nSkillNum) {};
 	virtual void EndEffect(int nSkillNum) {};
-	virtual std::chrono::seconds GetSkillCoolTime(int i) { return m_skillCoolTime[i]; }
-	virtual std::chrono::high_resolution_clock::time_point GetSkillInputTime(int i) { return m_skillInputTime[i]; }
-
 protected:
 	bool CheckAnimationEnd(int nAnimation);
 	void ChangeAnimation(pair< CharacterAnimation, CharacterAnimation> nextAnimation);
@@ -45,25 +42,28 @@ public://move
 	virtual void InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos);
 
 protected://collision check
-	virtual std::pair<bool, XMFLOAT3> CheckCollisionMap(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
+	virtual std::pair<bool, XMFLOAT3> CheckCollisionMap_Boss(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
+	virtual std::pair<bool, XMFLOAT3> CheckCollisionMap_Stage(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
 	virtual std::pair<bool, XMFLOAT3> CheckCollisionCharacter(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
 	virtual std::pair<bool, XMFLOAT3> CheckCollisionNormalMonster(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
 	virtual bool CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
 
 public:
+	virtual void ExecuteSkill_Q();
+	virtual void ExecuteSkill_E();
 	bool GetQSkillState() { return m_bQSkillClicked; }
 	bool GetESkillState() { return m_bESkillClicked; }
 	bool GetOnAttack() { return m_bOnAttack; }
 	bool GetShieldActive() { return m_bShieldActive; }
 	float GetShield() { return m_fShield; }
-	void SetOnAttack(bool onAttack) { m_bOnAttack = onAttack; }	
+	void SetOnAttack(bool onAttack) { m_bOnAttack = onAttack; }
 	XMFLOAT3& GetRotateAxis() { return m_xmf3RotateAxis; }
 
 public:
 	void SetRotateAxis(XMFLOAT3& xmf3RotateAxis) { m_xmf3RotateAxis = xmf3RotateAxis; }
 	void SetShieldActive(bool bActive) { m_bShieldActive = bActive; }
 	void SetShield(float fShield) { m_fShield = fShield; }
-//movedir
+	//movedir
 protected:
 	DIRECTION m_currentDirection = DIRECTION::IDLE;
 public:
@@ -95,7 +95,7 @@ private:
 public:
 	Warrior();
 	virtual ~Warrior();
-	virtual void Attack(float fSpeed = 150.0f);
+	virtual void Attack();
 	virtual void RbuttonClicked(float fTimeElapsed);
 	virtual void Move(float fTimeElapsed)override;
 	virtual void Animate(float fTimeElapsed) override;
@@ -103,6 +103,11 @@ public:
 public:
 	void SetStage1Position();
 	void SetBossStagePostion();
+
+	//attack
+public:
+	virtual void ExecuteSkill_Q();
+	virtual void ExecuteSkill_E();
 };
 
 class Archer : public Character
@@ -112,7 +117,7 @@ private:
 public:
 	Archer();
 	virtual ~Archer();
-	virtual void Attack(float fSpeed = 150.0f);
+	virtual void Attack();
 	virtual void SetArrow(Projectile* pArrow);
 	virtual void RbuttonClicked(float fTimeElapsed);
 	virtual void RbuttonUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f });
@@ -130,6 +135,10 @@ public:
 public:
 	void SetStage1Position();
 	void SetBossStagePostion();
+	//attack
+public:
+	virtual void ExecuteSkill_Q();
+	virtual void ExecuteSkill_E();
 };
 
 class Tanker : public Character
@@ -137,7 +146,7 @@ class Tanker : public Character
 public:
 	Tanker();
 	virtual ~Tanker();
-	virtual void Attack(float fSpeed = 150.0f);
+	virtual void Attack();
 	virtual void RbuttonClicked(float fTimeElapsed);
 	virtual void RbuttonUp(const XMFLOAT3& CameraAxis);
 	virtual void FirstSkillDown();
@@ -149,6 +158,10 @@ public:
 public:
 	void SetStage1Position();
 	void SetBossStagePostion();
+	//attack
+public:
+	virtual void ExecuteSkill_Q();
+	virtual void ExecuteSkill_E();
 };
 
 class Priest : public Character
@@ -161,7 +174,7 @@ public:
 	virtual ~Priest();
 	virtual void RbuttonClicked(float fTimeElapsed);
 	virtual void RbuttonUp(const XMFLOAT3& CameraAxis);
-	virtual void Attack(float fSpeed = 150.0f);
+	virtual void Attack();
 	virtual void Attack(const XMFLOAT3& xmf3StartPos, const XMFLOAT3& xmf3Direction, const float fSpeed);
 	virtual void SetEnergyBall(Projectile* pEnergyBall);
 	virtual void Move(float fTimeElapsed)override;
@@ -180,6 +193,10 @@ public:
 public:
 	void SetStage1Position();
 	void SetBossStagePostion();
+	//attack
+public:
+	virtual void ExecuteSkill_Q();
+	virtual void ExecuteSkill_E();
 };
 
 class Monster : public Character
