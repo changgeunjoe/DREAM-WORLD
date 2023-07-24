@@ -56,4 +56,7 @@ private:
 public://save InGamePlayerMap for db
 	void InsertInGameUserSet(std::wstring& id);
 	void DeleteInGameUserSet(std::wstring& id);
+public:
+	void SendTimeSyncPacket(int id);
+	//void SendTimeLatencyPacket(SOCKET sock);
 };

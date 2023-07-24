@@ -41,7 +41,7 @@ public:
 	bool AdjustPlayerInfo(DirectX::XMFLOAT3& position); // , DirectX::XMFLOAT3& rotate
 public:
 	//virtual void AutoMove() override;
-	virtual void StartMove(DIRECTION d, XMFLOAT3& clientPosition);
+	virtual void StartMove(DIRECTION d, std::chrono::utc_clock::time_point& recvTime);
 	virtual void StopMove();
 	virtual void ChangeDirection(DIRECTION d);
 	virtual void SetShield(bool active);

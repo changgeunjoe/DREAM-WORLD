@@ -44,7 +44,7 @@ void Logic::ProcessPacket(char* p)
 		possessObj->SetMoveState(true);
 		possessObj->InterpolateMove(recvPacket->time, recvPacket->position, recvPacket->moveVec);
 		//params serverTime, serverPos, serverMoveVec
-		
+
 	}
 	break;
 	case SERVER_PACKET::MOVE_KEY_UP:
@@ -209,7 +209,9 @@ void Logic::ProcessPacket(char* p)
 	{
 		SERVER_PACKET::GameState_STAGE1* recvPacket = reinterpret_cast<SERVER_PACKET::GameState_STAGE1*>(p);
 		//Player Session
-		for (int i = 0; i < 4; i++) {//그냥 4개 여서 도는 for문 주의			
+		auto clientUtcTime = std::chrono::utc_clock::now();
+		std::cout << "Logic::ProcessPacket() - SERVER_PACKET::GAME_STATE_S, utcTime: " << clientUtcTime << std::endl;
+		for (int i = 0; i < 4; i++) {//그냥 4개 여서 도는 for문 주의
 			if (recvPacket->userState[i].role != ROLE::NONE_SELECT) {
 				Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->userState[i].role);
 				possessObj->InterpolateMove(recvPacket->time, recvPacket->userState[i].pos, recvPacket->userState[i].moveVec);
@@ -478,6 +480,22 @@ void Logic::ProcessPacket(char* p)
 			if (possessObj)
 				possessObj->SetShield(recvPacket->applyShieldPlayerInfo[i].shield);
 		}
+	}
+	break;
+	case SERVER_PACKET::TIME_SYNC:
+	{
+		SERVER_PACKET::TimeSyncPacket* recvPacket = reinterpret_cast<SERVER_PACKET::TimeSyncPacket*>(p);
+		auto clientCurrentTime = std::chrono::utc_clock::now();
+		auto diff = std::chrono::duration_cast<std::chrono::microseconds>(clientCurrentTime - recvPacket->serverTime).count();
+		clientCurrentTime += std::chrono::microseconds(diff);
+		g_NetworkHelper.SendAdaptTime(clientCurrentTime);
+		C2S_DiffTime = diff;
+	}
+	break;
+	case SERVER_PACKET::NOTIFY_LATENCY:
+	{
+		SERVER_PACKET::TimeLatencyNotifyPacket* recvPacket = reinterpret_cast<SERVER_PACKET::TimeLatencyNotifyPacket*>(p);
+		C2S_DiffTime -= recvPacket->latency;
 	}
 	break;
 	default:

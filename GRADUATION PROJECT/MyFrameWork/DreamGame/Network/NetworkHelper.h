@@ -49,6 +49,7 @@ public:
 	void SendSkipNPCCommunicate();
 	void SendChangeStage_BOSS();
 	void SendCommonAttack(const XMFLOAT3& attackDirection, int power);
+	void SendAdaptTime(std::chrono::utc_clock::time_point& time);
 private:
 	void ConstructPacket(int ioByte);
 private:

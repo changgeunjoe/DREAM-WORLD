@@ -264,3 +264,12 @@ void NetworkHelper::SendCommonAttack(const XMFLOAT3& attackDirection, int power)
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 
 }
+
+void NetworkHelper::SendAdaptTime(std::chrono::utc_clock::time_point& time)
+{
+	CLIENT_PACKET::TimeSyncAdaptPacket sendPacket;
+	sendPacket.size = sizeof(CLIENT_PACKET::TimeSyncAdaptPacket);
+	sendPacket.time = time;
+	sendPacket.type = CLIENT_PACKET::CLIENT_SYNC_TIME;
+	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
+}

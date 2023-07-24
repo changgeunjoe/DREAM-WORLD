@@ -32,7 +32,7 @@ namespace CLIENT_PACKET {
 	constexpr unsigned char PLAYER_COMMON_ATTACK = 25;
 
 	constexpr unsigned char ARCHER_SKILL_ARROW = 26;
-
+	constexpr unsigned char CLIENT_SYNC_TIME = 27;
 
 
 	struct MovePacket
@@ -126,6 +126,12 @@ namespace CLIENT_PACKET {
 		int power;// 아처 줌인, 워리어 3단계
 	};
 
+	struct TimeSyncAdaptPacket {
+		short size;
+		char type;
+		std::chrono::utc_clock::time_point time;
+	};
+
 }
 
 namespace SERVER_PACKET {
@@ -176,6 +182,9 @@ namespace SERVER_PACKET {
 	constexpr unsigned char COMMON_ATTACK = 109;
 	constexpr unsigned char SMALL_MONSTER_ATTACK = 110;
 
+	constexpr unsigned char TIME_SYNC = 111;
+	constexpr unsigned char NOTIFY_LATENCY = 112;
+
 	struct MovePacket
 	{
 		short size;
@@ -224,6 +233,18 @@ namespace SERVER_PACKET {
 	struct NotifyPacket {
 		short size;
 		char type;
+	};
+
+	struct TimeSyncPacket {
+		short size;
+		char type;
+		std::chrono::utc_clock::time_point serverTime;
+	};
+
+	struct TimeLatencyNotifyPacket {
+		short size;
+		char type;
+		long long latency;
 	};
 
 	//struct RoomInfoPacket { // 패킷 사이즈 오버됨

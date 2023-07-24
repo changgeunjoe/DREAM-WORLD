@@ -678,9 +678,9 @@ void Room::RotatePlayCharacter(ROLE r, ROTATE_AXIS axis, float& angle)
 	m_characterMap[r]->Rotate(axis, angle);
 }
 
-void Room::StartMovePlayCharacter(ROLE r, DIRECTION d, XMFLOAT3& clientPosition)
+void Room::StartMovePlayCharacter(ROLE r, DIRECTION d, std::chrono::utc_clock::time_point& recvTime)
 {
-	m_characterMap[r]->StartMove(d, clientPosition);
+	m_characterMap[r]->StartMove(d, recvTime);
 }
 
 void Room::SetMouseInputPlayCharacter(ROLE r, bool left, bool right)

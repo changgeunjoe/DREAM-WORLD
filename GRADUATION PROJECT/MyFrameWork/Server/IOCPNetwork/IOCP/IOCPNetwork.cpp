@@ -107,6 +107,7 @@ void IOCPNetwork::WorkerThread()
 				//중복 로그인 확인 - logic::ProcessPacket::Login 부분에서 처리함
 				ZeroMemory(&m_acceptOver->m_overlap, sizeof(m_acceptOver->m_overlap));
 				AcceptEx(m_listenSocket, m_clientSocket, m_acceptOver->m_buffer, 0, addr_size + 16, addr_size + 16, 0, &m_acceptOver->m_overlap);
+				g_logic.SendTimeSyncPacket(userId);
 			}
 		}
 		break;

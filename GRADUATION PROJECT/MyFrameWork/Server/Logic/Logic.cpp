@@ -48,27 +48,16 @@ void Logic::ProcessPacket(int userId, char* p)
 			CLIENT_PACKET::MovePacket* recvPacket = reinterpret_cast<CLIENT_PACKET::MovePacket*>(p);
 			Room& roomRef = g_RoomManager.GetRunningRoomRef(g_iocpNetwork.m_session[userId].GetRoomId());
 			auto& playCharacters = roomRef.GetPlayCharacters();
-			auto serverUtcTime = std::chrono::utc_clock::now();
-			XMFLOAT3 serverPosition = playCharacters[(ROLE)recvPacket->role]->GetPos();
-			double durationTime = std::chrono::duration_cast<std::chrono::microseconds>(serverUtcTime - recvPacket->time).count();
-			durationTime = (double)durationTime / 1000.0f;//microseconds to mill
-			durationTime = (double)durationTime / 1000.0f;//milliseconds to sec
-			serverPosition = Vector3::Add(serverPosition, playCharacters[g_iocpNetwork.m_session[userId].GetRole()]->GetDirectionVector(), 50.0f * durationTime);
-			roomRef.StartMovePlayCharacter(g_iocpNetwork.m_session[userId].GetRole(), recvPacket->direction, serverPosition); // 움직임 start;
-
-			SERVER_PACKET::MovePacket sendPacket;
-			sendPacket.direction = recvPacket->direction;
-			sendPacket.role = g_iocpNetwork.m_session[userId].GetRole();
-			sendPacket.type = SERVER_PACKET::MOVE_KEY_DOWN;
-			sendPacket.time = serverUtcTime;
-			sendPacket.position = serverPosition;
-			sendPacket.moveVec = playCharacters[g_iocpNetwork.m_session[userId].GetRole()]->GetDirectionVector();
-			sendPacket.size = sizeof(SERVER_PACKET::MovePacket);
+			auto currentTime = std::chrono::utc_clock::now();
+			double durationTime = std::chrono::duration_cast<std::chrono::microseconds>(currentTime - recvPacket->time).count();
+			std::cout << "Logic::ProcessPacket() - C2S latency" << durationTime / 1000'000.0f << "second" << std::endl;
+			//XMFLOAT3 serverPosition = playCharacters[(ROLE)recvPacket->role]->GetPos();
+			//serverPosition = Vector3::Add(serverPosition, playCharacters[g_iocpNetwork.m_session[userId].GetRole()]->GetDirectionVector(), 50.0f * durationTime);
+			roomRef.StartMovePlayCharacter(g_iocpNetwork.m_session[userId].GetRole(), recvPacket->direction, recvPacket->time); // 움직임 start;			
 #ifdef _DEBUG
 			//PrintCurrentTime();
 			//std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::MOVE_KEY_DOWN - MultiCastOtherPlayer" << std::endl;
 #endif
-			MultiCastOtherPlayerInRoom(userId, &sendPacket);
 		}
 	}
 	break;
@@ -329,6 +318,17 @@ void Logic::ProcessPacket(int userId, char* p)
 		Room& roomRef = g_RoomManager.GetRunningRoomRef(g_iocpNetwork.m_session[userId].GetRoomId());
 	}
 	break;
+	case CLIENT_PACKET::CLIENT_SYNC_TIME:
+	{
+		CLIENT_PACKET::TimeSyncAdaptPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::TimeSyncAdaptPacket*>(p);
+		long long latency = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::utc_clock::now() - recvPacket->time).count();		
+		SERVER_PACKET::TimeLatencyNotifyPacket sendPacket;
+		sendPacket.size = sizeof(SERVER_PACKET::TimeLatencyNotifyPacket);
+		sendPacket.type = SERVER_PACKET::NOTIFY_LATENCY;
+		sendPacket.latency = latency;
+		g_iocpNetwork.m_session[userId].Send(&sendPacket);
+	}
+	break;
 	default:
 		PrintCurrentTime();
 		std::cout << "unknown Packet" << std::endl;
@@ -398,7 +398,7 @@ void Logic::BroadCastInRoom_Ex(int roomId, ExpOver* expover)
 {
 	auto roomPlayermap = g_RoomManager.GetRunningRoomRef(roomId).GetPlayerMap();
 	for (auto& cli : roomPlayermap) {
-		g_iocpNetwork.m_session[cli.second].Send(expover);
+		g_iocpNetwork.m_session[cli.second].Send_exp(expover);
 	}
 }
 
@@ -540,3 +540,13 @@ void Logic::DeleteInGameUserSet(std::wstring& id)
 	std::lock_guard<std::mutex>ll{ m_inGameUserLock };
 	m_inGameUser.erase(id);
 }
+
+void Logic::SendTimeSyncPacket(int id)
+{
+	SERVER_PACKET::TimeSyncPacket sendPacket;
+	sendPacket.size = sizeof(SERVER_PACKET::TimeSyncPacket);
+	sendPacket.type = SERVER_PACKET::TIME_SYNC;
+	sendPacket.serverTime = std::chrono::utc_clock::now();
+	g_iocpNetwork.m_session[id].Send(&sendPacket);
+}
+

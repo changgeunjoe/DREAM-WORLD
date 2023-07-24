@@ -25,6 +25,8 @@ public:
 	//Session m_MonsterSession;
 	//Session m_SmallMonsterSession[15];
 private:
+	long long C2S_DiffTime = 0;//C2S_DiffTime -> micro second
+private:
 	int myId = -1;
 	ROLE myRole = ROLE::NONE_SELECT;
 public:

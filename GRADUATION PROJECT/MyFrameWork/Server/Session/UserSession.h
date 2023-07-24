@@ -30,7 +30,7 @@ public:
 public:
 	void Recv();
 	void Send(void* p);
-	void Send(ExpOver* expover);
+	void Send_exp(ExpOver* expover);
 	void ConstructPacket(int ioByte);
 public:
 	void SetInGameState() {

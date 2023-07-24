@@ -54,7 +54,7 @@ void UserSession::Send(void* p)
 	//std::cout << "sendByte: " << sendByte << std::endl;
 }
 
-void UserSession::Send(ExpOver* expover)
+void UserSession::Send_exp(ExpOver* expover)
 {
 	DWORD sendByte = 0;
 	//std::cout << "send: " << (int)sendOverlap->m_buffer[2] << std::endl;
