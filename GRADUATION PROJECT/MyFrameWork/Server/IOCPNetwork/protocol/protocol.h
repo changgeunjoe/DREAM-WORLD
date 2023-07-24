@@ -13,8 +13,10 @@ namespace CLIENT_PACKET {
 	//constexpr unsigned char PLAYER_APPLY_ROOM = 9; // 방 신청
 	//constexpr unsigned char CANCEL_APPLY_ROOM = 10; // 신청 취소
 
-	constexpr unsigned char SKILL_INPUT_Q = 7;
-	constexpr unsigned char SKILL_INPUT_E = 8;
+	constexpr unsigned char SKILL_EXECUTE_Q = 7;
+	constexpr unsigned char SKILL_EXECUTE_E = 8;
+	constexpr unsigned char SKILL_INPUT_Q = 9;
+	constexpr unsigned char SKILL_INPUT_E = 10;
 
 	constexpr unsigned char MOUSE_INPUT = 11;
 	constexpr unsigned char MATCH_REQUEST = 12;
@@ -29,11 +31,14 @@ namespace CLIENT_PACKET {
 
 	constexpr unsigned char SKIP_NPC_COMMUNICATION = 23;
 	constexpr unsigned char STAGE_CHANGE_BOSS = 24;
-	constexpr unsigned char PLAYER_COMMON_ATTACK = 25;
+
+	constexpr unsigned char PLAYER_COMMON_ATTACK_EXECUTE = 25;
 
 	constexpr unsigned char ARCHER_SKILL_ARROW = 26;
 	constexpr unsigned char CLIENT_SYNC_TIME = 27;
 	constexpr unsigned char CLIENT_FIRST_RECV = 28;
+
+	constexpr unsigned char PLAYER_COMMON_ATTACK = 29;//애니 실행
 
 	struct MovePacket
 	{//시간과 진행 방향, 이동 입력
@@ -134,6 +139,13 @@ namespace CLIENT_PACKET {
 		long long diff;
 	};
 
+	struct SkillAttackPacket {
+		short size;
+		char type;
+		char role;
+		XMFLOAT3 postionOrDirection;
+	};
+
 }
 
 namespace SERVER_PACKET {
@@ -171,22 +183,33 @@ namespace SERVER_PACKET {
 	constexpr unsigned char STAGE_CHANGING_BOSS = 96;
 	constexpr unsigned char STAGE_START_BOSS = 97;
 	constexpr unsigned char SMALL_MONSTER_MOVE = 98;
+
 	constexpr unsigned char HEAL_START = 99;
 	constexpr unsigned char HEAL_END = 100;
+
 	constexpr unsigned char SHIELD_START = 101;
 	constexpr unsigned char SHIELD_END = 102;
+
 	constexpr unsigned char NOTIFY_HEAL_HP = 103;
 	constexpr unsigned char NOTIFY_SHIELD_APPLY = 104;
+
 	constexpr unsigned char MONSTER_DAMAGED_ARROW = 105;
 	constexpr unsigned char MONSTER_DAMAGED_ARROW_SKILL = 106;
 	constexpr unsigned char MONSTER_DAMAGED_BALL = 107;
-	constexpr unsigned char MELEE_ATTACK_RESULT = 108;
-	constexpr unsigned char COMMON_ATTACK = 109;
+
+	constexpr unsigned char PLAYER_ATTACK_RESULT = 108;
+
 	constexpr unsigned char SMALL_MONSTER_ATTACK = 110;
 
 	constexpr unsigned char FIRST_SEND = 111;
 	constexpr unsigned char TIME_SYNC = 112;
 	constexpr unsigned char NOTIFY_LATENCY = 113;
+
+	constexpr unsigned char START_ANIMATION_Q = 114;
+	constexpr unsigned char START_ANIMATION_E = 115;
+	constexpr unsigned char COMMON_ATTACK_START = 116;
+
+
 
 	struct MovePacket
 	{
@@ -402,7 +425,7 @@ namespace SERVER_PACKET {
 		float damage;// 데미지
 	};
 	
-	struct MeeleAttackDamagePacket {//본인만 데미지 볼 수 있게
+	struct PlayerAttackMonsterDamagePacket {//본인만 데미지 볼 수 있게
 		short size;
 		char type;
 		char role;
@@ -411,7 +434,7 @@ namespace SERVER_PACKET {
 		float damage;// 플레이어가 입힌 데미지
 	};
 	
-	struct CommonAttackPacket {//전체 플레이어들에게 알려서 애니메이션 재성
+	struct CommonAttackPacket {//전체 플레이어들에게 알려서 애니메이션 재생
 		short size;
 		char type;
 		char role;
@@ -423,6 +446,7 @@ namespace SERVER_PACKET {
 		char attackedRole;//자기 자신의 role인지 판단하고 피격 화면 출력
 		char attackMonsterIdx;//애니메이션 재생할 몬스터 인덱스
 	};
+	
 }
 
 #pragma pack (pop)

@@ -156,19 +156,39 @@ void NetworkHelper::SendMouseStatePacket(bool LClickedButton, bool RClickedButto
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
-void NetworkHelper::Send_SkillExecute_Q()
+void NetworkHelper::Send_SkillInput_Q()
 {
 	CLIENT_PACKET::NotifyPacket sendPacket;
 	sendPacket.size = sizeof(CLIENT_PACKET::NotifyPacket);
-	sendPacket.type = CLIENT_PACKET::SKILL_INPUT_Q;
+	sendPacket.type = CLIENT_PACKET::SKILL_INPUT_Q;	
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
-void NetworkHelper::Send_SkillExecute_E()
+void NetworkHelper::Send_SkillInput_E()
 {
 	CLIENT_PACKET::NotifyPacket sendPacket;
 	sendPacket.size = sizeof(CLIENT_PACKET::NotifyPacket);
 	sendPacket.type = CLIENT_PACKET::SKILL_INPUT_E;
+	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);	
+}
+
+void NetworkHelper::Send_SkillExecute_Q(XMFLOAT3& dirOrPosition)
+{
+	CLIENT_PACKET::SkillAttackPacket sendPacket;
+	sendPacket.size = sizeof(CLIENT_PACKET::SkillAttackPacket);
+	sendPacket.type = CLIENT_PACKET::SKILL_EXECUTE_Q;
+	sendPacket.role = g_Logic.GetMyRole();
+	sendPacket.postionOrDirection = dirOrPosition;
+	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
+}
+
+void NetworkHelper::Send_SkillExecute_E(const XMFLOAT3& dirOrPosition)
+{
+	CLIENT_PACKET::SkillAttackPacket sendPacket;
+	sendPacket.size = sizeof(CLIENT_PACKET::SkillAttackPacket);
+	sendPacket.type = CLIENT_PACKET::SKILL_EXECUTE_E;
+	sendPacket.role = g_Logic.GetMyRole();
+	sendPacket.postionOrDirection = dirOrPosition;
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
@@ -253,16 +273,24 @@ void NetworkHelper::SendChangeStage_BOSS()
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
-void NetworkHelper::SendCommonAttack(const XMFLOAT3& attackDirection, int power)
+void NetworkHelper::SendCommonAttackExecute(const XMFLOAT3& attackDirection, int power)
 {
 	CLIENT_PACKET::PlayerCommonAttackPacket sendPacket;
 	sendPacket.size = sizeof(CLIENT_PACKET::PlayerCommonAttackPacket);
-	sendPacket.type = CLIENT_PACKET::PLAYER_COMMON_ATTACK;
+	sendPacket.type = CLIENT_PACKET::PLAYER_COMMON_ATTACK_EXECUTE;
 	sendPacket.role = g_Logic.GetMyRole();
 	sendPacket.dir = attackDirection;
 	sendPacket.power = power;
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 
+}
+
+void NetworkHelper::SendCommonAttackStart()
+{
+	CLIENT_PACKET::NotifyPacket sendPacket;
+	sendPacket.size = sizeof(CLIENT_PACKET::NotifyPacket);
+	sendPacket.type = CLIENT_PACKET::PLAYER_COMMON_ATTACK;
+	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
 void NetworkHelper::SendFirstPacket()

@@ -69,8 +69,8 @@ public:
 protected:
 	std::pair<float, XMFLOAT3> GetNormalVectorSphere(XMFLOAT3& point);
 public:
-	virtual void Skill_1() = 0;
-	virtual void Skill_2() = 0;
+	virtual void Skill_1(XMFLOAT3& posOrDir) = 0;
+	virtual void Skill_2(XMFLOAT3& posOrDir) = 0;
 	bool IsDurationEndTimeSkill_1();
 	bool IsDurationEndTimeSkill_2();
 	virtual void ExecuteCommonAttack(XMFLOAT3& attackDir, int power) = 0;
@@ -95,8 +95,8 @@ public:
 	void SetStage_1Position()override;
 	void SetBossStagePosition()override;
 
-	void Skill_1()override;
-	void Skill_2()override;
+	void Skill_1(XMFLOAT3& posOrDir)override;
+	void Skill_2(XMFLOAT3& posOrDir)override;
 	virtual void ExecuteCommonAttack(XMFLOAT3& attackDir, int power) override;
 };
 
@@ -117,8 +117,8 @@ public:
 public:
 	void SetStage_1Position()override;
 	void SetBossStagePosition()override;
-	void Skill_1()override;
-	void Skill_2()override;
+	void Skill_1(XMFLOAT3& posOrDir)override;
+	void Skill_2(XMFLOAT3& posOrDir)override;
 	virtual void ExecuteCommonAttack(XMFLOAT3& attackDir, int power) override;
 };
 
@@ -139,8 +139,8 @@ public:
 public:
 	void SetStage_1Position()override;
 	void SetBossStagePosition()override;
-	void Skill_1()override;
-	void Skill_2()override;
+	void Skill_1(XMFLOAT3& posOrDir)override;
+	void Skill_2(XMFLOAT3& posOrDir)override;
 	virtual void ExecuteCommonAttack(XMFLOAT3& attackDir, int power) override;
 };
 
@@ -155,7 +155,7 @@ public:
 public:
 	void SetStage_1Position()override;
 	void SetBossStagePosition()override;
-	void Skill_1()override;
-	void Skill_2()override;
+	void Skill_1(XMFLOAT3& posOrDir)override;
+	void Skill_2(XMFLOAT3& posOrDir)override;
 	virtual void ExecuteCommonAttack(XMFLOAT3& attackDir, int power) override;
 };

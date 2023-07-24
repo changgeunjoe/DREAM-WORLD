@@ -717,7 +717,7 @@ void Warrior::Attack()
 	{
 		if (m_pCamera) {
 
-			g_NetworkHelper.SendCommonAttack(GetLook(), 0);//2번째 인자가 몇번째 타수 공격인지
+			g_NetworkHelper.SendCommonAttackStart();//2번째 인자가 몇번째 타수 공격인지
 		}
 	}
 }
@@ -914,7 +914,7 @@ void Warrior::ExecuteSkill_Q()
 {
 	if (m_bQSkillClicked && m_bESkillClicked) {
 		m_bQSkillClicked = true;
-		g_NetworkHelper.Send_SkillExecute_Q();
+		g_NetworkHelper.Send_SkillExecute_Q(GetLook());
 	}
 }
 
@@ -944,7 +944,7 @@ void Archer::Attack()
 {
 	if (m_pCamera) {
 		//줌인에 대한 정보 필요할듯함
-		g_NetworkHelper.SendCommonAttack(GetLook(), 0);//두번째 인자 - 줌인 정도
+		g_NetworkHelper.SendCommonAttackStart();//두번째 인자 - 줌인 정도
 	}
 }
 
@@ -1340,10 +1340,18 @@ void Archer::SetBossStagePostion()
 
 void Archer::ExecuteSkill_Q()
 {
+	if (m_bQSkillClicked && m_bESkillClicked) {
+		m_bQSkillClicked = true;
+		g_NetworkHelper.Send_SkillExecute_Q(GetLook());
+	}
 }
 
 void Archer::ExecuteSkill_E()
 {
+	if (m_bQSkillClicked && m_bESkillClicked) {
+		m_bQSkillClicked = true;
+		g_NetworkHelper.Send_SkillExecute_E(GetPosition());
+	}
 }
 
 //void Archer::ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent)
@@ -1371,7 +1379,7 @@ Tanker::~Tanker()
 void Tanker::Attack()
 {
 	if (m_pCamera) {
-		g_NetworkHelper.SendCommonAttack(GetLook(), 0);
+		g_NetworkHelper.SendCommonAttackStart();
 	}
 }
 
@@ -1660,10 +1668,18 @@ void Tanker::SetBossStagePostion()
 
 void Tanker::ExecuteSkill_Q()
 {
+	if (m_bQSkillClicked && m_bESkillClicked) {
+		m_bQSkillClicked = true;
+		g_NetworkHelper.Send_SkillExecute_Q(GetLook());
+	}
 }
 
 void Tanker::ExecuteSkill_E()
 {
+	if (m_bQSkillClicked && m_bESkillClicked) {
+		m_bQSkillClicked = true;
+		g_NetworkHelper.Send_SkillExecute_E(GetLook());
+	}
 }
 
 Priest::Priest() : Character()
@@ -1862,7 +1878,7 @@ void Priest::RbuttonUp(const XMFLOAT3& CameraAxis)
 void Priest::Attack()
 {
 	if (m_pCamera) {
-		g_NetworkHelper.SendCommonAttack(GetLook(), 0);
+		g_NetworkHelper.SendCommonAttackStart();
 	}
 	m_nProjectiles = (m_nProjectiles < 10) ? m_nProjectiles : m_nProjectiles % 10;
 	m_pProjectiles[m_nProjectiles]->m_xmf3direction = XMFLOAT3(GetObjectLook().x, m_pCamera->GetLookVector().y, GetObjectLook().z);
@@ -1982,10 +1998,18 @@ void Priest::SetBossStagePostion()
 
 void Priest::ExecuteSkill_Q()
 {
+	if (m_bQSkillClicked && m_bESkillClicked) {
+		m_bQSkillClicked = true;
+		g_NetworkHelper.Send_SkillExecute_Q(GetLook());
+	}
 }
 
 void Priest::ExecuteSkill_E()
 {
+	if (m_bQSkillClicked && m_bESkillClicked) {
+		m_bQSkillClicked = true;
+		g_NetworkHelper.Send_SkillExecute_E(GetPosition());
+	}
 }
 
 //void Priest::ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent)

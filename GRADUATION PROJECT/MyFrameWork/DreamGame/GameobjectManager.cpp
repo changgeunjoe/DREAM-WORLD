@@ -2014,7 +2014,7 @@ void GameobjectManager::ProcessingUI(int n)
 	}
 	default:
 		break;
-}
+	}
 }
 void GameobjectManager::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
@@ -2131,7 +2131,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			if (myPlayCharacter->GetQSkillState() == false && myPlayCharacter->GetOnAttack() == false)
 			{
 				myPlayCharacter->FirstSkillDown();
-				g_NetworkHelper.Send_SkillExecute_Q();
+				g_NetworkHelper.Send_SkillInput_Q();
 			}
 			break;
 		}
@@ -2140,7 +2140,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			if (myPlayCharacter->GetESkillState() == false && myPlayCharacter->GetOnAttack() == false)
 			{
 				myPlayCharacter->SecondSkillDown();
-				g_NetworkHelper.Send_SkillExecute_E();
+				g_NetworkHelper.Send_SkillInput_E();
 			}
 			break;
 		}
@@ -2168,7 +2168,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			break;
 		default:
 			break;
-	}
+		}
 		break;
 	case WM_KEYUP:
 	{
@@ -2302,17 +2302,17 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			else if (m_nStageType == 2) {
 				m_nStageType = 1;
 				m_pPlayerObject->SetPosition(XMFLOAT3(-1400, 0, -1500));
-		}
+			}
 #endif
 			break;
-	}
-}
-	}
+		}
+			}
+		}
 	default:
 		break;
-	}
+		}
 	return(false);
-}
+	}
 
 bool GameobjectManager::onProcessingKeyboardMessageLobby(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
@@ -2332,7 +2332,7 @@ bool GameobjectManager::onProcessingKeyboardMessageLobby(HWND hWnd, UINT nMessag
 		g_NetworkHelper.SendMatchRequestPacket();
 #endif
 		m_bSceneSwap = true;//페이드 인 아웃
-}
+	}
 	if (nMessageID == WM_KEYDOWN && wParam == 'G')
 	{
 		m_bNPCinteraction = true;

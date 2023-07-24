@@ -397,6 +397,7 @@ std::pair<bool, XMFLOAT3> ChracterSessionObject::CheckCollisionNormalMonster(XMF
 
 	int collideCnt = 0;
 	for (int i = 0; i < 15; i++) {
+		if (!monsterArr[i].IsAlive())continue;
 		auto normalVecRes = GetNormalVectorSphere(monsterArr[i].GetPos());
 		if (normalVecRes.first >= m_SPBB.Radius + 8.0f)continue;
 		if (collideCnt == 3) {
@@ -631,14 +632,23 @@ bool ChracterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ftimeE
 }
 
 
-void WarriorSessionObject::Skill_1()
+void WarriorSessionObject::Skill_1(XMFLOAT3& posOrDir)
 {
-
+	Room& roomRef = g_RoomManager.GetRunningRoomRef(m_roomId);
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	auto durationTime = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_prevSkillInputTime[0]);
+	if (m_skillCoolTime[0] > durationTime)	return;
+	m_prevSkillInputTime[0] = currentTime;
+	roomRef.ExecuteLongSwordAttack(posOrDir, m_position);
 }
 
-void WarriorSessionObject::Skill_2()
+void WarriorSessionObject::Skill_2(XMFLOAT3& posOrDir)
 {
-
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	auto durationTime = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_prevSkillInputTime[1]);
+	if (m_skillCoolTime[1] > durationTime)	return;
+	m_prevSkillInputTime[1] = currentTime;
+	Room& roomRef = g_RoomManager.GetRunningRoomRef(m_roomId);
 }
 
 void WarriorSessionObject::ExecuteCommonAttack(XMFLOAT3& attackDir, int power)
@@ -661,7 +671,7 @@ void WarriorSessionObject::SetBossStagePosition()
 	m_attackDamage = 150;
 }
 
-void MageSessionObject::Skill_1()
+void MageSessionObject::Skill_1(XMFLOAT3& posOrDir)
 {
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	auto durationTime = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_prevSkillInputTime[0]);
@@ -670,9 +680,14 @@ void MageSessionObject::Skill_1()
 	g_RoomManager.GetRunningRoomRef(m_roomId).StartHealPlayerCharacter();
 }
 
-void MageSessionObject::Skill_2()
+void MageSessionObject::Skill_2(XMFLOAT3& posOrDir)
 {
-
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	auto durationTime = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_prevSkillInputTime[1]);
+	if (m_skillCoolTime[1] > durationTime)	return;
+	m_prevSkillInputTime[1] = currentTime;
+	Room& roomRef = g_RoomManager.GetRunningRoomRef(m_roomId);
+	roomRef.ExecuteMageThunder(posOrDir);
 }
 
 void MageSessionObject::ExecuteCommonAttack(XMFLOAT3& attackDir, int power)
@@ -697,7 +712,7 @@ void MageSessionObject::SetBossStagePosition()
 	m_attackDamage = 30;
 }
 
-void TankerSessionObject::Skill_1()
+void TankerSessionObject::Skill_1(XMFLOAT3& posOrDir)
 {
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	auto durationTime = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_prevSkillInputTime[0]);
@@ -711,9 +726,14 @@ void TankerSessionObject::Skill_1()
 	g_logic.BroadCastInRoom(m_roomId, &sendPacket);
 }
 
-void TankerSessionObject::Skill_2()
+void TankerSessionObject::Skill_2(XMFLOAT3& posOrDir)
 {
-
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	auto durationTime = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_prevSkillInputTime[1]);
+	if (m_skillCoolTime[1] > durationTime)	return;
+	m_prevSkillInputTime[1] = currentTime;
+	Room& roomRef = g_RoomManager.GetRunningRoomRef(m_roomId);
+	roomRef.ExecuteHammerAttack(posOrDir, m_position);
 }
 
 void TankerSessionObject::ExecuteCommonAttack(XMFLOAT3& attackDir, int power)
@@ -737,14 +757,25 @@ void TankerSessionObject::SetBossStagePosition()
 	m_attackDamage = 60;
 }
 
-void ArcherSessionObject::Skill_1()
+void ArcherSessionObject::Skill_1(XMFLOAT3& posOrDir)
 {
-
+	//3갈래 발사
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	auto durationTime = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_prevSkillInputTime[0]);
+	if (m_skillCoolTime[0] > durationTime)	return;
+	m_prevSkillInputTime[0] = currentTime;
+	Room& roomRef = g_RoomManager.GetRunningRoomRef(m_roomId);
+	roomRef.ExecuteThreeArrow(posOrDir, m_position);
 }
 
-void ArcherSessionObject::Skill_2()
+void ArcherSessionObject::Skill_2(XMFLOAT3& posOrDir)
 {
-
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	auto durationTime = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_prevSkillInputTime[1]);
+	if (m_skillCoolTime[1] > durationTime)	return;
+	m_prevSkillInputTime[0] = currentTime;
+	Room& roomRef = g_RoomManager.GetRunningRoomRef(m_roomId);
+	roomRef.StartSkyArrow(posOrDir);
 }
 
 void ArcherSessionObject::ExecuteCommonAttack(XMFLOAT3& attackDir, int power)

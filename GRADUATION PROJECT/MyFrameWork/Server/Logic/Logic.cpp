@@ -277,16 +277,37 @@ void Logic::ProcessPacket(int userId, char* p)
 		}
 	}
 	break;
+	case CLIENT_PACKET::SKILL_EXECUTE_Q:
+	{
+		CLIENT_PACKET::SkillAttackPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::SkillAttackPacket*>(p);
+		g_RoomManager.GetRunningRoomRef(g_iocpNetwork.m_session[userId].GetRoomId()).
+			StartFirstSkillPlayCharacter((ROLE)recvPacket->role, recvPacket->postionOrDirection);
+	}
+	break;
+	case CLIENT_PACKET::SKILL_EXECUTE_E:
+	{
+		CLIENT_PACKET::SkillAttackPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::SkillAttackPacket*>(p);
+		g_RoomManager.GetRunningRoomRef(g_iocpNetwork.m_session[userId].GetRoomId()).
+			StartSecondSkillPlayCharacter((ROLE)recvPacket->role, recvPacket->postionOrDirection);
+	}
 	case CLIENT_PACKET::SKILL_INPUT_Q:
 	{
-		g_RoomManager.GetRunningRoomRef(g_iocpNetwork.m_session[userId].GetRoomId()).
-			StartFirstSkillPlayCharacter(g_iocpNetwork.m_session[userId].GetRole());
+		Room& roomRef = g_RoomManager.GetRunningRoomRef(g_iocpNetwork.m_session[userId].GetRoomId());
+		SERVER_PACKET::CommonAttackPacket sendPacket;
+		sendPacket.size = sizeof(SERVER_PACKET::CommonAttackPacket);
+		sendPacket.type = SERVER_PACKET::START_ANIMATION_Q;
+		sendPacket.role = g_iocpNetwork.m_session[userId].GetRole();
+		MultiCastOtherPlayerInRoom_R(roomRef.GetRoomId(), g_iocpNetwork.m_session[userId].GetRole(), &sendPacket);
 	}
 	break;
 	case CLIENT_PACKET::SKILL_INPUT_E:
 	{
-		g_RoomManager.GetRunningRoomRef(g_iocpNetwork.m_session[userId].GetRoomId()).
-			StartSecondSkillPlayCharacter(g_iocpNetwork.m_session[userId].GetRole());
+		Room& roomRef = g_RoomManager.GetRunningRoomRef(g_iocpNetwork.m_session[userId].GetRoomId());
+		SERVER_PACKET::CommonAttackPacket sendPacket;
+		sendPacket.size = sizeof(SERVER_PACKET::CommonAttackPacket);
+		sendPacket.type = SERVER_PACKET::START_ANIMATION_E;
+		sendPacket.role = g_iocpNetwork.m_session[userId].GetRole();
+		MultiCastOtherPlayerInRoom_R(roomRef.GetRoomId(), g_iocpNetwork.m_session[userId].GetRole(), &sendPacket);
 	}
 	break;
 	case CLIENT_PACKET::TRIGGER_BOX_ON:
@@ -313,9 +334,21 @@ void Logic::ProcessPacket(int userId, char* p)
 		roomRef.ChangeStageBoss();
 	}
 	break;
-	case CLIENT_PACKET::PLAYER_COMMON_ATTACK:
+	case CLIENT_PACKET::PLAYER_COMMON_ATTACK_EXECUTE:
 	{
 		Room& roomRef = g_RoomManager.GetRunningRoomRef(g_iocpNetwork.m_session[userId].GetRoomId());
+		CLIENT_PACKET::PlayerCommonAttackPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::PlayerCommonAttackPacket*>(p);
+		roomRef.StartAttackPlayCharacter((ROLE)recvPacket->role, recvPacket->dir, recvPacket->power);
+	}
+	break;
+	case CLIENT_PACKET::PLAYER_COMMON_ATTACK://애니메이션
+	{
+		Room& roomRef = g_RoomManager.GetRunningRoomRef(g_iocpNetwork.m_session[userId].GetRoomId());
+		SERVER_PACKET::CommonAttackPacket sendPacket;
+		sendPacket.size = sizeof(SERVER_PACKET::CommonAttackPacket);
+		sendPacket.type = SERVER_PACKET::COMMON_ATTACK_START;
+		sendPacket.role = g_iocpNetwork.m_session[userId].GetRole();
+		MultiCastOtherPlayerInRoom_R(roomRef.GetRoomId(), g_iocpNetwork.m_session[userId].GetRole(), &sendPacket);
 	}
 	break;
 	case  CLIENT_PACKET::CLIENT_FIRST_RECV:

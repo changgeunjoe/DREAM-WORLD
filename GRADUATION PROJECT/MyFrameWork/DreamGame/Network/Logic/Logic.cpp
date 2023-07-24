@@ -502,6 +502,73 @@ void Logic::ProcessPacket(char* p)
 		C2S_DiffTime = recvPacket->diff;
 	}
 	break;
+	case SERVER_PACKET::PLAYER_ATTACK_RESULT:
+	{
+		SERVER_PACKET::PlayerAttackMonsterDamagePacket* recvPacket = reinterpret_cast<SERVER_PACKET::PlayerAttackMonsterDamagePacket*>(p);
+		recvPacket->role;//내 직업이면
+		recvPacket->damage;//데미지를 출력하세ㅐ요 -> 모든 데미지 다 같음
+		recvPacket->monsterIdx;//배열 15개짜리 몬스터 idx배열
+		recvPacket->attackedMonsterCnt;//현재 온 패킷의 몬스터 갯수
+	}
+	break;
+	case SERVER_PACKET::SMALL_MONSTER_ATTACK:
+	{
+		SERVER_PACKET::SmallMonsterAttackPlayerPacket* recvPacket = reinterpret_cast<SERVER_PACKET::SmallMonsterAttackPlayerPacket*>(p);
+		if (recvPacket->attackedRole == myRole) {
+			//피격 상태이상 공격
+		}
+		recvPacket->attackMonsterIdx;//모든 플레이어에 대해서 이 몬스터 공격 애니메이션 재성
+	}
+	break;
+	case SERVER_PACKET::COMMON_ATTACK_START:
+	{
+		SERVER_PACKET::CommonAttackPacket* recvPacket = reinterpret_cast<SERVER_PACKET::CommonAttackPacket*>(p);
+		recvPacket->role;//얘 평타 애니 메이션 실행
+	}
+	break;
+	case SERVER_PACKET::START_ANIMATION_Q:
+	{
+		SERVER_PACKET::CommonAttackPacket* recvPacket = reinterpret_cast<SERVER_PACKET::CommonAttackPacket*>(p);
+		recvPacket->role;//얘 Q 애니 메이션 실행
+	}
+	break;
+	case SERVER_PACKET::START_ANIMATION_E:
+	{
+		SERVER_PACKET::CommonAttackPacket* recvPacket = reinterpret_cast<SERVER_PACKET::CommonAttackPacket*>(p);
+		recvPacket->role;//얘 E 애니 메이션 실행
+	}
+	break;
+	//projectile packet
+	case SERVER_PACKET::MONSTER_DAMAGED_ARROW:
+	{
+		SERVER_PACKET::ProjectileDamagePacket* recvPacket = reinterpret_cast<SERVER_PACKET::ProjectileDamagePacket*>(p);
+		if (myRole == ROLE::ARCHER) {
+			recvPacket->damage;//데미지
+			recvPacket->position;//데미지 폰트 위치
+		}
+		recvPacket->projectileId;//현재 회수할 화살 아이디
+	}
+	break;
+	case SERVER_PACKET::MONSTER_DAMAGED_ARROW_SKILL:
+	{
+		SERVER_PACKET::ProjectileDamagePacket* recvPacket = reinterpret_cast<SERVER_PACKET::ProjectileDamagePacket*>(p);
+		if (myRole == ROLE::ARCHER) {
+			recvPacket->damage;//데미지
+			recvPacket->position;//데미지 폰트 위치
+		}
+		recvPacket->projectileId;//얘는 스킬인데 필요 하려나 모르겠음
+	}
+	break;
+	case SERVER_PACKET::MONSTER_DAMAGED_BALL:
+	{
+		SERVER_PACKET::ProjectileDamagePacket* recvPacket = reinterpret_cast<SERVER_PACKET::ProjectileDamagePacket*>(p);
+		if (myRole == ROLE::PRIEST) {
+			recvPacket->damage;//데미지
+			recvPacket->position;//데미지 폰트 위치
+		}
+		recvPacket->projectileId;//현재 회수할 에너지볼 아이디
+	}
+	break;
 	default:
 	{
 		std::cout << "Unknown Packet Recv" << std::endl;

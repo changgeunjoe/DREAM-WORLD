@@ -130,6 +130,13 @@ void Timer::TimerThreadFunc()
 				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, ev.targetId, &ov->m_overlap);
 			}
 			break;
+			case EV_SKY_ARROW_ATTACK:
+			{
+				ExpOver* ov = new ExpOver();
+				ov->m_opCode = OP_SKY_ARROW_ATTACK;
+				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, ev.targetId, &ov->m_overlap);
+			}
+			break;
 			default: break;
 			}
 			continue;		// 즉시 다음 작업 꺼내기

@@ -187,6 +187,13 @@ void IOCPNetwork::WorkerThread()
 			g_logic.BroadCastInRoom_Ex(key, ex_over);
 		}
 		break;
+		case OP_SKY_ARROW_ATTACK:
+		{
+
+			if (ex_over != nullptr)
+				delete ex_over;
+		}
+		break;
 		default: break;
 		}
 	}

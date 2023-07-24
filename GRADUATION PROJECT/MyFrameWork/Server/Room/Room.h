@@ -46,6 +46,7 @@ public:
 	void DeleteInGamePlayer(int playerId);
 	std::map<ROLE, int> GetPlayerMap();
 	int GetPlayerNum() { return m_inGamePlayers.size(); }
+	int GetRoomId() { return m_roomId; }
 	//Monster UserSession
 private:
 	MonsterSessionObject m_boss;
@@ -62,6 +63,11 @@ private:
 	std::array< ShootingSessionObject, 3> m_skillarrow;
 	Concurrency::concurrent_queue<int> m_restArrow;
 	Concurrency::concurrent_queue<int> m_restBall;
+private:
+	XMFLOAT3 m_skyArrowAttack;
+public:
+	void PushRestArrow(int id);
+	void PushRestBall(int id);
 public:
 	void ShootArrow(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 srcPos, float speed, float damage);
 	void ShootBall(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 srcPos);
@@ -78,9 +84,16 @@ public:
 	void SetMouseInputPlayCharacter(ROLE r, bool left, bool right);
 	bool GetLeftAttackPlayCharacter(ROLE r);
 	short GetAttackDamagePlayCharacter(ROLE r);
-	void StartFirstSkillPlayCharacter(ROLE r);
-	void StartSecondSkillPlayCharacter(ROLE r);
+	void StartFirstSkillPlayCharacter(ROLE r, XMFLOAT3& dirOrPosition);
+	void StartSecondSkillPlayCharacter(ROLE r, XMFLOAT3& dirOrPosition);
 	void StartAttackPlayCharacter(ROLE r, XMFLOAT3& attackDir, int power);
+public:
+	void StartSkyArrow(XMFLOAT3& position);
+	void ExecuteMageThunder(XMFLOAT3& position);
+	void ExecuteLongSwordAttack(DirectX::XMFLOAT3& dir, DirectX::XMFLOAT3& pos);
+	void ExecuteThreeArrow(DirectX::XMFLOAT3& dir, DirectX::XMFLOAT3& position);
+	void ExecuteHammerAttack(DirectX::XMFLOAT3& dir, XMFLOAT3& pos);
+	void ExecuteSkyArrow();
 public:
 	void GameStart();
 	void BossStageStart();

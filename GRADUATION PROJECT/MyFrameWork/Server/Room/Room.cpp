@@ -173,6 +173,16 @@ MonsterSessionObject& Room::GetBoss()
 	return m_boss;
 }
 
+void Room::PushRestArrow(int id)
+{
+	m_restArrow.push(id);
+}
+
+void Room::PushRestBall(int id)
+{
+	m_restBall.push(id);
+}
+
 void Room::ShootArrow(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 srcPos, float speed, float damage)
 {
 	if (!m_isAlive)return;
@@ -220,13 +230,13 @@ void Room::MeleeAttack(ROLE r, DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 pos, int
 				}
 			}
 		}
-		SERVER_PACKET::MeeleAttackDamagePacket sendPacket;
-		sendPacket.type = SERVER_PACKET::MELEE_ATTACK_RESULT;
+		SERVER_PACKET::PlayerAttackMonsterDamagePacket sendPacket;
+		sendPacket.type = SERVER_PACKET::PLAYER_ATTACK_RESULT;
 		sendPacket.role = r;
 		sendPacket.attackedMonsterCnt = attackedMonster.size();
 		for (int i = 0; i < sendPacket.attackedMonsterCnt; i++)
 			sendPacket.monsterIdx[i] = (char)attackedMonster[i];
-		sendPacket.size = sizeof(SERVER_PACKET::MeeleAttackDamagePacket);
+		sendPacket.size = sizeof(SERVER_PACKET::PlayerAttackMonsterDamagePacket);
 		sendPacket.damage = damage;
 		int userId = -1;
 		//g_logic.BroadCastInRoom(m_roomId, &sendPacket);
@@ -428,6 +438,7 @@ void Room::UpdateGameStateForPlayer_STAGE1()
 		//small monster state도 추가
 		int aliveCnt = 0;
 		for (int i = 0; i < 15; i++) {
+			m_StageSmallMonster[i].UpdateMonsterState();
 			sendPacket.smallMonster[i].isAlive = false;
 			if (m_StageSmallMonster[i].IsAlive()) {
 				sendPacket.smallMonster[i].isAlive = true;
@@ -698,25 +709,19 @@ short Room::GetAttackDamagePlayCharacter(ROLE r)
 	return m_characterMap[r]->GetAttackDamage();
 }
 
-void Room::StartFirstSkillPlayCharacter(ROLE r)
+void Room::StartFirstSkillPlayCharacter(ROLE r, XMFLOAT3& dirOrPosition)
 {
-	m_characterMap[r]->Skill_1();
+	m_characterMap[r]->Skill_1(dirOrPosition);
 }
 
-void Room::StartSecondSkillPlayCharacter(ROLE r)
+void Room::StartSecondSkillPlayCharacter(ROLE r, XMFLOAT3& dirOrPosition)
 {
-	m_characterMap[r]->Skill_2();
+	m_characterMap[r]->Skill_2(dirOrPosition);
 }
 
 void Room::StartAttackPlayCharacter(ROLE r, XMFLOAT3& attackDir, int power)
 {
-	m_characterMap[r]->ExecuteCommonAttack(attackDir, power);
-	SERVER_PACKET::CommonAttackPacket sendPacket;
-	sendPacket.size = sizeof(SERVER_PACKET::CommonAttackPacket);
-	sendPacket.type = SERVER_PACKET::COMMON_ATTACK;
-	sendPacket.role = r;
-	g_logic.MultiCastOtherPlayerInRoom_R(m_roomId, r, &sendPacket);
-	//애니메이션 패킷 뿌리기
+	m_characterMap[r]->ExecuteCommonAttack(attackDir, power);	
 }
 
 void Room::SkipNPC_Communication()
@@ -740,4 +745,143 @@ void Room::ChangeStageBoss()
 		BossStageStart();
 	}
 
+}
+
+void Room::StartSkyArrow(XMFLOAT3& position)
+{
+	m_skyArrowAttack = position;
+	TIMER_EVENT skyArrowEvent{ std::chrono::system_clock::now() + std::chrono::seconds(2), m_roomId,  EV_SKY_ARROW_ATTACK };
+	g_Timer.InsertTimerQueue(skyArrowEvent);
+}
+
+void Room::ExecuteMageThunder(XMFLOAT3& position)
+{
+	std::vector<int> positions;
+	positions.reserve(6);
+	for (int i = 0; i < 15; i++) {
+		if (m_StageSmallMonster[i].IsAlive()) {
+			if (m_StageSmallMonster[i].GetDistance(position) > 12.0f) {
+				m_StageSmallMonster[i].AttackedHp(120.0f);
+				positions.emplace_back(i);
+			}
+		}
+	}
+	SERVER_PACKET::PlayerAttackMonsterDamagePacket sendPacket;
+	sendPacket.type = SERVER_PACKET::PLAYER_ATTACK_RESULT;
+	sendPacket.size = sizeof(SERVER_PACKET::PlayerAttackMonsterDamagePacket);
+	sendPacket.role = ROLE::PRIEST;
+	sendPacket.attackedMonsterCnt = positions.size();
+	sendPacket.damage = 120.0f;
+	for (int i = 0; i < positions.size(); i++) {
+		sendPacket.monsterIdx[i] = positions[i];
+	}
+	g_logic.OnlySendPlayerInRoom_R(m_roomId, ROLE::PRIEST, &sendPacket);
+}
+
+void Room::ExecuteLongSwordAttack(DirectX::XMFLOAT3& dir, DirectX::XMFLOAT3& pos)
+{
+	if (m_roomState == ROOM_BOSS) {
+		//DirectX::XMFLOAT3 bossPos = GetBoss().GetPos();
+		//DirectX::XMFLOAT3 toBoss = Vector3::Subtract(bossPos, pos);
+		//dir = Vector3::Normalize(dir);
+		//if (Vector3::DotProduct(dir, Vector3::Normalize(toBoss)) > MONSTER_ABLE_ATTACK_COS_VALUE) {
+		//	if (Vector3::Length(toBoss) < 45.0f) {
+		//		std::cout << "데미지 입히기" << std::endl;
+		//		return;
+		//	}
+		//}
+	}
+	else {
+		std::vector<int> attackedMonster;
+		attackedMonster.reserve(10);
+		for (int i = 0; i < 15; i++) {
+			DirectX::XMFLOAT3 monsterVector = Vector3::Subtract(m_StageSmallMonster[i].GetPos(), pos);
+			dir = Vector3::Normalize(dir);
+			if (Vector3::DotProduct(dir, Vector3::Normalize(monsterVector)) > MONSTER_ABLE_ATTACK_COS_VALUE) {
+				if (Vector3::Length(monsterVector) < 70.0f) {
+					m_StageSmallMonster[i].AttackedHp(160.0f);
+					attackedMonster.emplace_back(i);
+				}
+			}
+		}
+		SERVER_PACKET::PlayerAttackMonsterDamagePacket sendPacket;
+		sendPacket.type = SERVER_PACKET::PLAYER_ATTACK_RESULT;
+		sendPacket.role = ROLE::WARRIOR;
+		sendPacket.attackedMonsterCnt = attackedMonster.size();
+		for (int i = 0; i < sendPacket.attackedMonsterCnt; i++)
+			sendPacket.monsterIdx[i] = (char)attackedMonster[i];
+		sendPacket.size = sizeof(SERVER_PACKET::PlayerAttackMonsterDamagePacket);
+		sendPacket.damage = 160.0f;
+		g_logic.OnlySendPlayerInRoom_R(m_roomId, ROLE::WARRIOR, &sendPacket);
+	}
+}
+
+void Room::ExecuteThreeArrow(DirectX::XMFLOAT3& dir, DirectX::XMFLOAT3& position)
+{
+	//offset줘야됨
+	for (int i = 0; i < 3; i++) {
+		m_skillarrow[i].SetStart(dir, m_characterMap[ROLE::ARCHER]->GetPos(), 250.0f);
+	}
+}
+
+void Room::ExecuteHammerAttack(DirectX::XMFLOAT3& dir, XMFLOAT3& pos)
+{
+	if (m_roomState == ROOM_BOSS) {
+		//DirectX::XMFLOAT3 bossPos = GetBoss().GetPos();
+		//DirectX::XMFLOAT3 toBoss = Vector3::Subtract(bossPos, pos);
+		//dir = Vector3::Normalize(dir);
+		//if (Vector3::DotProduct(dir, Vector3::Normalize(toBoss)) > MONSTER_ABLE_ATTACK_COS_VALUE) {
+		//	if (Vector3::Length(toBoss) < 45.0f) {
+		//		std::cout << "데미지 입히기" << std::endl;
+		//		return;
+		//	}
+		//}
+	}
+	else {
+		std::vector<int> attackedMonster;
+		attackedMonster.reserve(10);
+		for (int i = 0; i < 15; i++) {
+			DirectX::XMFLOAT3 monsterVector = Vector3::Subtract(m_StageSmallMonster[i].GetPos(), pos);
+			dir = Vector3::Normalize(dir);
+			if (Vector3::DotProduct(dir, Vector3::Normalize(monsterVector)) > MONSTER_ABLE_ATTACK_COS_VALUE) {
+				if (Vector3::Length(monsterVector) < 70.0f) {
+					m_StageSmallMonster[i].AttackedHp(160.0f);
+					attackedMonster.emplace_back(i);
+				}
+			}
+		}
+		SERVER_PACKET::PlayerAttackMonsterDamagePacket sendPacket;
+		sendPacket.type = SERVER_PACKET::PLAYER_ATTACK_RESULT;
+		sendPacket.role = ROLE::WARRIOR;
+		sendPacket.attackedMonsterCnt = attackedMonster.size();
+		for (int i = 0; i < sendPacket.attackedMonsterCnt; i++)
+			sendPacket.monsterIdx[i] = (char)attackedMonster[i];
+		sendPacket.size = sizeof(SERVER_PACKET::PlayerAttackMonsterDamagePacket);
+		sendPacket.damage = 160.0f;
+		g_logic.OnlySendPlayerInRoom_R(m_roomId, ROLE::WARRIOR, &sendPacket);
+	}
+}
+
+void Room::ExecuteSkyArrow()
+{
+	std::vector<int> positions;
+	positions.reserve(6);
+	for (int i = 0; i < 15; i++) {
+		if (m_StageSmallMonster[i].IsAlive()) {
+			if (m_StageSmallMonster[i].GetDistance(m_skyArrowAttack) > 15.0f) {
+				m_StageSmallMonster[i].AttackedHp(120.0f);
+				positions.emplace_back(i);
+			}
+		}
+	}
+	SERVER_PACKET::PlayerAttackMonsterDamagePacket sendPacket;
+	sendPacket.type = SERVER_PACKET::PLAYER_ATTACK_RESULT;
+	sendPacket.size = sizeof(SERVER_PACKET::PlayerAttackMonsterDamagePacket);
+	sendPacket.role = ROLE::ARCHER;
+	sendPacket.attackedMonsterCnt = positions.size();
+	sendPacket.damage = 120.0f;
+	for (int i = 0; i < positions.size(); i++) {
+		sendPacket.monsterIdx[i] = positions[i];
+	}
+	g_logic.OnlySendPlayerInRoom_R(m_roomId, ROLE::ARCHER, &sendPacket);
 }

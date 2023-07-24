@@ -77,7 +77,7 @@ bool ShootingSessionObject::Move(float elapsedTime)
 
 			if (m_OwnerRole == ROLE::PRIEST)
 				sendPacket.type = SERVER_PACKET::MONSTER_DAMAGED_BALL;
-			if (m_isSkill)
+			else if (m_isSkill)
 				sendPacket.type = SERVER_PACKET::MONSTER_DAMAGED_ARROW_SKILL;
 			else
 				sendPacket.type = SERVER_PACKET::MONSTER_DAMAGED_ARROW;
@@ -88,12 +88,18 @@ bool ShootingSessionObject::Move(float elapsedTime)
 			ExpOver* postOver = new ExpOver(reinterpret_cast<char*>(&sendPacket));
 			postOver->m_opCode = OP_PROJECTILE_ATTACK;
 			PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, m_roomId, &postOver->m_overlap);
+			isMonsterCollide = true;
 			break;
 		}
 	}
 	if (isMonsterCollide || m_distance > 250.0f) {
 		m_active = false;
-
+		if (m_OwnerRole == ROLE::PRIEST) {
+			roomRef.PushRestBall(m_id);
+		}
+		else if (!m_isSkill) {
+			roomRef.PushRestArrow(m_id);
+		}
 	}
 	return true;
 }
