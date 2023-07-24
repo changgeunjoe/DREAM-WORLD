@@ -1276,7 +1276,6 @@ void Archer::ShootArrow()//스킬
 	m_nProjectiles = (m_nProjectiles < MAX_ARROW) ? m_nProjectiles : m_nProjectiles % MAX_ARROW;
 	if (m_bQSkillClicked == true)
 	{
-
 		g_NetworkHelper.Send_SkillExecute_Q(Vector3::Normalize(GetObjectLook()));
 		for (int i = 0; i < 3; ++i)//서버에 옮겨야됨
 		{
@@ -1451,6 +1450,7 @@ void Tanker::FirstSkillDown()
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[0]);
 	if (m_skillCoolTime[0] > duration) return;
+	g_NetworkHelper.Send_SkillExecute_Q(XMFLOAT3(0.0, 0.0, 0.0));
 	m_bQSkillClicked = true;
 	m_skillInputTime[0] = std::chrono::high_resolution_clock::now();
 
@@ -1617,8 +1617,6 @@ void Tanker::Animate(float fTimeElapsed)
 		}
 	}
 
-
-
 	ChangeAnimation(AfterAnimation);
 
 	if (GetAnimationProgressRate(CA_ATTACK) > ATTACK1_ATTACK_POINT)
@@ -1648,14 +1646,17 @@ void Tanker::Animate(float fTimeElapsed)
 		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_SECONDSKILL].m_bAnimationEnd = false;
 	}
 
-	for (int i = 0; i < m_pProjectiles.size(); ++i)
+	for (int i = 0; i < 4; ++i)
 	{
 		if (m_pProjectiles[i])
 		{
-			float fProgress = static_cast<EnergyBall*>(m_pProjectiles[i])->m_fProgress;
-			fProgress = std::clamp(fProgress / (1.0f - 0.3f), 0.3f, 1.0f);
-			m_pProjectiles[i]->SetinitScale(fProgress, fProgress, fProgress);
-			m_pProjectiles[i]->Animate(fTimeElapsed);
+			if (m_pProjectiles[i]->m_bActive)
+			{
+				float fProgress = static_cast<EnergyBall*>(m_pProjectiles[i])->m_fProgress;
+				fProgress = std::clamp(fProgress / (1.0f - 0.3f), 0.3f, 1.0f);
+				m_pProjectiles[i]->SetinitScale(fProgress, fProgress, fProgress);
+				m_pProjectiles[i]->Animate(fTimeElapsed);
+			}
 		}
 	}
 	if (m_pTrailComponent)
@@ -1691,12 +1692,10 @@ void Tanker::SetSkillBall(Projectile* pBall)
 
 void Tanker::StartEffect(int nSkillNum)
 {
-	// 모든 플레이어 버프 표시 활성화
-	// HP 바에 실드 부분 추가
-	EffectObject** shieldEffects = gGameFramework.GetScene()->GetObjectManager()->GetShieldEffectArr();
 	for (int i = 0; i < 4; ++i)
 	{
-		shieldEffects[i]->m_bActive = true;
+		// 시작 위치 Set해줄 필요 있음
+		m_pProjectiles[i]->m_bActive = true;
 	}
 }
 
@@ -2000,6 +1999,7 @@ void Priest::FirstSkillDown()
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[0]);
 	if (m_skillCoolTime[0] > duration) return;
+	g_NetworkHelper.Send_SkillExecute_Q(XMFLOAT3(0.0, 0.0, 0.0));
 	m_bQSkillClicked = true;
 	m_skillInputTime[0] = std::chrono::high_resolution_clock::now();
 #ifdef LOCAL_TASK
@@ -2386,7 +2386,7 @@ void Arrow::Animate(float fTimeElapsed)
 	SetLook(m_xmf3direction);
 	Move(m_xmf3direction, fTimeElapsed * m_fSpeed);
 	if (m_VisualizeSPBB) m_VisualizeSPBB->SetPosition(XMFLOAT3(GetPosition().x, GetPosition().y, GetPosition().z));
-	if (GetPosition().y < 2.0f) m_fSpeed = 0.0f;
+	if (GetPosition().y < -1.0f) m_bActive = false;
 }
 
 void Arrow::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender)
@@ -2411,10 +2411,9 @@ void EnergyBall::Animate(float fTimeElapsed)
 	{
 	case ROLE::PRIEST:
 	{
-		if (GetPosition().y < m_fBoundingSize) m_xmf3direction.y = 0.0f;
+		if (GetPosition().y < -1.0f) m_bActive = false;
 		Move(m_xmf3direction, fTimeElapsed * m_fSpeed);
 		XMFLOAT3 xmf3CurrentPos = GetPosition();
-		if (Vector3::Length(Vector3::Subtract(xmf3CurrentPos, m_xmf3startPosition)) > 200.0f) m_bActive = false;
 	}
 	break;
 	case ROLE::TANKER:
@@ -2423,6 +2422,9 @@ void EnergyBall::Animate(float fTimeElapsed)
 		{
 			m_bActive = false;
 			m_fProgress = 0.0f;
+			EffectObject** shieldEffects = gGameFramework.GetScene()->GetObjectManager()->GetShieldEffectArr();
+			for (int i = 0; i < 4; ++i)
+				shieldEffects[i]->m_bActive = true;
 			return;
 		}
 

@@ -224,12 +224,11 @@ void Logic::ProcessPacket(char* p)
 		for (int i = 0; i < 15; i++) {
 			smallMonsterArr[i]->InterpolateMove(recvPacket->monsterTime, recvPacket->smallMonster[i].pos, recvPacket->smallMonster[i].moveVec);
 			//smallMonsterArr[i]->SetLook(recvPacket->smallMonster[i].moveVec);
-			if (smallMonsterArr[i]->GetCurrentHP() < 0.0f) {
-				smallMonsterArr[i]->SetCurrentHP(recvPacket->smallMonster[i].hp);
-				//float maxHp = smallMonsterArr[i]->GetMaxCurrentHP(); //conflict
-				float maxHp = smallMonsterArr[i]->GetMaxHP();
-				smallMonsterArr[i]->SetCurrentHP(recvPacket->smallMonster[i].hp / maxHp * 100.0f);
-			}
+			smallMonsterArr[i]->SetCurrentHP(recvPacket->smallMonster[i].hp);
+			//float maxHp = smallMonsterArr[i]->GetMaxCurrentHP(); //conflict
+			float maxHp = smallMonsterArr[i]->GetMaxHP();
+			smallMonsterArr[i]->SetCurrentHP(recvPacket->smallMonster[i].hp / maxHp * 100.0f);
+			
 		}
 	}
 	break;
@@ -461,11 +460,15 @@ void Logic::ProcessPacket(char* p)
 	case SERVER_PACKET::SHIELD_START:
 	{
 		//쉴드 이펙트 출발 해서 적용
+		Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::TANKER);
+		possessObj->StartEffect(0);
 	}
 	break;
 	case SERVER_PACKET::SHIELD_END:
 	{
 		//쉴드 끝
+		Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::TANKER);
+		possessObj->EndEffect(0);
 	}
 	break;
 	case SERVER_PACKET::NOTIFY_HEAL_HP:
@@ -523,7 +526,9 @@ void Logic::ProcessPacket(char* p)
 		if (recvPacket->attackedRole == myRole) {
 			//피격 상태이상 공격
 		}
-		recvPacket->attackMonsterIdx;//모든 플레이어에 대해서 이 몬스터 공격 애니메이션 재성
+
+		NormalMonster** smallMonsterArr = gGameFramework.GetScene()->GetObjectManager()->GetNormalMonsterArr();
+		smallMonsterArr[recvPacket->attackMonsterIdx]->SetOnAttack(true); //모든 플레이어에 대해서 이 몬스터 공격 애니메이션 재성
 	}
 	break;
 	case SERVER_PACKET::COMMON_ATTACK_START:

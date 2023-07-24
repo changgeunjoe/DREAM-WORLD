@@ -124,14 +124,15 @@ void GameobjectManager::Animate(float fTimeElapsed)
 
 		//m_pLightningSpriteObject->SetScale(7.0f, 20.0f, 7.0f);
 		//m_pSheildEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 10);
-		for (auto& effect : m_ppShieldEffectObject)
-		{
-			if (effect == nullptr) continue;
-			if (effect->m_bActive == false) continue;
-			Character* possessChracter = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(effect->m_hostObject);
-			effect->AnimateEffect(m_pCamera, possessChracter->GetPosition(), fTimeElapsed, m_fTime * 10);
-		}
 	}
+	for (auto& effect : m_ppShieldEffectObject)
+	{
+		if (effect == nullptr) continue;
+		if (effect->m_bActive == false) continue;
+		Character* possessChracter = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(effect->m_hostObject);
+		effect->AnimateEffect(m_pCamera, possessChracter->GetPosition(), fTimeElapsed, m_fTime * 10);
+	}
+
 	for (auto& effect : m_ppHealingEffectObject)
 	{	
 		if (effect == nullptr) continue;
@@ -433,7 +434,11 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		}
 	}
 	for (int i = 0; i < m_pEnergyBallObjects.size(); ++i) {
-		m_pEnergyBallObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		if (m_pEnergyBallObjects[i]->m_bActive)
+		{
+			m_pEnergyBallObjects[i]->Animate(m_fTimeElapsed);
+			m_pEnergyBallObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		}
 	}
 	for (int i = 0; i < m_pTankerSkillEffects.size(); ++i) {
 		m_pTankerSkillEffects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -922,37 +927,37 @@ void GameobjectManager::EffectRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 	//		effect->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//	//}
 	//}
-	SortEffect();
-	for (int i = 0; i < m_ppEffectObjects.size(); i++) {
-		
-		//if (effect->m_bActive) {
-		m_ppEffectObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-		//}
+	//SortEffect();
+	//for (int i = 0; i < m_ppEffectObjects.size(); i++) {
+	//	
+	//	//if (effect->m_bActive) {
+	//	m_ppEffectObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//	//}
+	//}
+	for (auto& effect : m_ppShieldEffectObject)
+	{
+		if (effect == nullptr) continue;
+		if (effect->m_bActive == false) continue;
+		effect->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
-	//for (auto& effect : m_ppShieldEffectObject)
-	//{
-	//	if (effect == nullptr) continue;
-	//	if (effect->m_bActive == false) continue;
-	//	effect->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//}
-	//for (auto& effect : m_ppHealingEffectObject)
-	//{
-	//	if (effect == nullptr) continue;
-	//	if (effect->m_bActive == false) continue;
-	//	effect->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//}
-	//if (m_pDebuffObject) {
-	//	m_pDebuffObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//}
-	//if (m_pLightEffectObject) {
-	//	m_pLightEffectObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//}
-	//if (m_pSheildEffectObject) {
-	////	m_pSheildEffectObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//}
-	//if (m_pPortalEffectObject) {
-	//	m_pPortalEffectObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//}
+	for (auto& effect : m_ppHealingEffectObject)
+	{
+		if (effect == nullptr) continue;
+		if (effect->m_bActive == false) continue;
+		effect->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
+	if (m_pDebuffObject) {
+		m_pDebuffObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
+	if (m_pLightEffectObject) {
+		m_pLightEffectObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
+	if (m_pSheildEffectObject) {
+	//	m_pSheildEffectObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
+	if (m_pPortalEffectObject) {
+		m_pPortalEffectObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
 }
 
 void GameobjectManager::SkyboxRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -1127,14 +1132,6 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 		m_pEnergyBallObjects[i]->SetBoundingSize(4.0f);
 		static_cast<Priest*>(m_pPriestObject)->SetEnergyBall(m_pEnergyBallObjects[i]);
 	}
-	m_pEnergyBallObject = new EnergyBall();
-	m_pEnergyBallObject->InsertComponent<RenderComponent>();
-	m_pEnergyBallObject->InsertComponent<SphereMeshComponent>();
-	m_pEnergyBallObject->InsertComponent<SphereShaderComponent>();
-	m_pEnergyBallObject->SetPosition(XMFLOAT3(0, 0, 100));
-	m_pEnergyBallObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pEnergyBallObject->SetScale(0.5f);
-	m_pEnergyBallObject->SetBoundingSize(4);
 
 	m_pBoundingBox[4] = new GameObject(SQUARE_ENTITY);
 	m_pBoundingBox[4]->InsertComponent<RenderComponent>();
@@ -2794,7 +2791,7 @@ void GameobjectManager::SetPlayerCamera(GameObject* obj)
 	obj->SetCamera(m_pCamera);
 	obj->m_pCamera->ReInitCamrea();
 	obj->SetCamera(m_pCamera);
-	obj->SetLookAt(XMFLOAT3(0, 0, 0));
+	// obj->SetLookAt(XMFLOAT3(0, 0, 0));
 }
 
 void GameobjectManager::ResetObject()
