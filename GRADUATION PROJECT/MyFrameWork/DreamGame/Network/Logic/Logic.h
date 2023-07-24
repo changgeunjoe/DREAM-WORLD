@@ -48,6 +48,9 @@ public:
 	}
 	void ResetMyRole() { myRole = ROLE::NONE_SELECT; }
 	void SetMyRole(ROLE r) { myRole = r; }
-
+	const long long GetDiffTime() {
+		return C2S_DiffTime
+			;
+	}
 	HWND loginWnd;
 };

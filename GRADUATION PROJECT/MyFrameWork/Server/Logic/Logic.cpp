@@ -318,14 +318,29 @@ void Logic::ProcessPacket(int userId, char* p)
 		Room& roomRef = g_RoomManager.GetRunningRoomRef(g_iocpNetwork.m_session[userId].GetRoomId());
 	}
 	break;
+	case  CLIENT_PACKET::CLIENT_FIRST_RECV:
+	{
+		auto currentServerTime = std::chrono::utc_clock::now();
+		g_iocpNetwork.m_session[userId].firstRecvTime = currentServerTime;//e
+
+		SERVER_PACKET::TimeSyncPacket sendPacket;
+		sendPacket.size = sizeof(SERVER_PACKET::TimeSyncPacket);
+		sendPacket.type = SERVER_PACKET::TIME_SYNC;
+		sendPacket.serverTime = std::chrono::utc_clock::now();
+		g_iocpNetwork.m_session[userId].Send(&sendPacket);
+	}
+	break;
 	case CLIENT_PACKET::CLIENT_SYNC_TIME:
 	{
 		CLIENT_PACKET::TimeSyncAdaptPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::TimeSyncAdaptPacket*>(p);
-		long long latency = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::utc_clock::now() - recvPacket->time).count();		
+		auto latency = std::chrono::duration_cast<std::chrono::microseconds>(g_iocpNetwork.m_session[userId].firstRecvTime - g_iocpNetwork.m_session[userId].firstSendTime).count();
+		latency /= 2;
+		latency = std::abs(latency);
+		auto diff = recvPacket->diff - std::chrono::microseconds(latency).count();
 		SERVER_PACKET::TimeLatencyNotifyPacket sendPacket;
 		sendPacket.size = sizeof(SERVER_PACKET::TimeLatencyNotifyPacket);
 		sendPacket.type = SERVER_PACKET::NOTIFY_LATENCY;
-		sendPacket.latency = latency;
+		sendPacket.diff = diff;
 		g_iocpNetwork.m_session[userId].Send(&sendPacket);
 	}
 	break;
@@ -543,10 +558,10 @@ void Logic::DeleteInGameUserSet(std::wstring& id)
 
 void Logic::SendTimeSyncPacket(int id)
 {
-	SERVER_PACKET::TimeSyncPacket sendPacket;
-	sendPacket.size = sizeof(SERVER_PACKET::TimeSyncPacket);
-	sendPacket.type = SERVER_PACKET::TIME_SYNC;
-	sendPacket.serverTime = std::chrono::utc_clock::now();
+	SERVER_PACKET::NotifyPacket sendPacket;
+	sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
+	sendPacket.type = SERVER_PACKET::FIRST_SEND;
 	g_iocpNetwork.m_session[id].Send(&sendPacket);
+	g_iocpNetwork.m_session[id].firstSendTime = std::chrono::utc_clock::now();
 }
 

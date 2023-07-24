@@ -17,6 +17,9 @@ private:
 	std::wstring		m_loginId;
 
 	ROLE				m_role;
+public:
+	std::chrono::utc_clock::time_point firstSendTime;
+	std::chrono::utc_clock::time_point firstRecvTime;
 private:
 	ChracterSessionObject* m_sessionObject;
 	int m_roomId;

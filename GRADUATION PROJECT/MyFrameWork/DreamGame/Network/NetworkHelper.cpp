@@ -100,7 +100,7 @@ void NetworkHelper::SendMovePacket(DIRECTION d)
 	sendPacket.type = CLIENT_PACKET::MOVE_KEY_DOWN;
 	sendPacket.size = sizeof(CLIENT_PACKET::MovePacket);
 	sendPacket.role = g_Logic.GetMyRole();
-	sendPacket.time = std::chrono::utc_clock::now();
+	sendPacket.time = std::chrono::utc_clock::now() + std::chrono::microseconds(g_Logic.GetDiffTime());
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
@@ -111,7 +111,7 @@ void NetworkHelper::SendStopPacket(const DirectX::XMFLOAT3& position) // , const
 	sendPacket.size = sizeof(CLIENT_PACKET::StopPacket);
 	sendPacket.position = position;
 	sendPacket.role = g_Logic.GetMyRole();
-	sendPacket.time = std::chrono::utc_clock::now();
+	sendPacket.time = std::chrono::utc_clock::now() + std::chrono::microseconds(g_Logic.GetDiffTime());
 	// sendPacket.rotate = rotate;
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
@@ -265,11 +265,20 @@ void NetworkHelper::SendCommonAttack(const XMFLOAT3& attackDirection, int power)
 
 }
 
-void NetworkHelper::SendAdaptTime(std::chrono::utc_clock::time_point& time)
+void NetworkHelper::SendFirstPacket()
+{
+	CLIENT_PACKET::NotifyPacket sendPacket;
+	sendPacket.size = sizeof(CLIENT_PACKET::NotifyPacket);
+	sendPacket.type = CLIENT_PACKET::CLIENT_FIRST_RECV;
+	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
+}
+
+void NetworkHelper::SendAdaptTime(long long diff, std::chrono::utc_clock::time_point& time)
 {
 	CLIENT_PACKET::TimeSyncAdaptPacket sendPacket;
 	sendPacket.size = sizeof(CLIENT_PACKET::TimeSyncAdaptPacket);
-	sendPacket.time = time;
 	sendPacket.type = CLIENT_PACKET::CLIENT_SYNC_TIME;
+	sendPacket.time = time;
+	sendPacket.diff = diff;
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
