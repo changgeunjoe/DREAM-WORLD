@@ -39,7 +39,8 @@ public://move
 	virtual void InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos);
 
 protected://collision check
-	virtual std::pair<bool, XMFLOAT3> CheckCollisionMap(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
+	virtual std::pair<bool, XMFLOAT3> CheckCollisionMap_Boss(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
+	virtual std::pair<bool, XMFLOAT3> CheckCollisionMap_Stage(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
 	virtual std::pair<bool, XMFLOAT3> CheckCollisionCharacter(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
 	virtual std::pair<bool, XMFLOAT3> CheckCollisionNormalMonster(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
 	virtual bool CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
@@ -51,13 +52,13 @@ public:
 	bool GetOnAttack() { return m_bOnAttack; }
 	bool GetShieldActive() { return m_bShieldActive; }
 	float GetShield() { return m_fShield; }
-	void SetOnAttack(bool onAttack) { m_bOnAttack = onAttack; }	
+	void SetOnAttack(bool onAttack) { m_bOnAttack = onAttack; }
 	XMFLOAT3& GetRotateAxis() { return m_xmf3RotateAxis; }
 public:
 	void SetRotateAxis(XMFLOAT3& xmf3RotateAxis) { m_xmf3RotateAxis = xmf3RotateAxis; }
 	void SetShieldActive(bool bActive) { m_bShieldActive = bActive; }
 	void SetShield(float fShield) { m_fShield = fShield; }
-//movedir
+	//movedir
 protected:
 	DIRECTION m_currentDirection = DIRECTION::IDLE;
 public:
@@ -91,7 +92,7 @@ public:
 	void SetStage1Position();
 	void SetBossStagePostion();
 
-//attack
+	//attack
 public:
 	virtual void ExecuteSkill_Q();
 	virtual void ExecuteSkill_E();
