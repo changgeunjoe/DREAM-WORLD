@@ -359,6 +359,14 @@ void Logic::MultiCastOtherPlayerInRoom_R(int roomId, ROLE role, void* p)
 	}
 }
 
+void Logic::OnlySendPlayerInRoom_R(int roomId, ROLE role, void* p)
+{
+	auto roomPlayermap = g_RoomManager.GetRunningRoomRef(roomId).GetPlayerMap();
+	if (roomPlayermap.count(role)) {
+		g_iocpNetwork.m_session[roomPlayermap[role]].Send(p);
+	}	
+}
+
 void Logic::BroadCastInRoomByPlayer(int userId, void* p)
 {
 	auto roomPlayermap = g_RoomManager.GetRunningRoomRef(g_iocpNetwork.m_session[userId].GetRoomId()).GetPlayerMap();
@@ -372,6 +380,14 @@ void Logic::BroadCastInRoom(int roomId, void* p)
 	auto roomPlayermap = g_RoomManager.GetRunningRoomRef(roomId).GetPlayerMap();
 	for (auto& cli : roomPlayermap) {
 		g_iocpNetwork.m_session[cli.second].Send(p);
+	}
+}
+
+void Logic::BroadCastInRoom_Ex(int roomId, ExpOver* expover)
+{
+	auto roomPlayermap = g_RoomManager.GetRunningRoomRef(roomId).GetPlayerMap();
+	for (auto& cli : roomPlayermap) {
+		g_iocpNetwork.m_session[cli.second].Send(expover);
 	}
 }
 

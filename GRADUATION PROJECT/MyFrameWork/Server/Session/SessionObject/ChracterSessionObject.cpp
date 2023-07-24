@@ -558,7 +558,6 @@ void WarriorSessionObject::ExecuteCommonAttack(XMFLOAT3& attackDir, int power)
 {
 	Room& roomRef = g_RoomManager.GetRunningRoomRef(m_roomId);
 	roomRef.MeleeAttack(ROLE::WARRIOR, attackDir, m_position, power);
-
 }
 
 void WarriorSessionObject::SetStage_1Position()

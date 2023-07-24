@@ -86,6 +86,7 @@ bool ShootingSessionObject::Move(float elapsedTime)
 			sendPacket.position = m_position;
 			sendPacket.damage = m_damage;
 			ExpOver* postOver = new ExpOver(reinterpret_cast<char*>(&sendPacket));
+			postOver->m_opCode = OP_PROJECTILE_ATTACK;
 			PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, m_roomId, &postOver->m_overlap);
 			break;
 		}

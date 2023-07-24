@@ -223,17 +223,14 @@ void Room::MeleeAttack(ROLE r, DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 pos, int
 		SERVER_PACKET::MeeleAttackDamagePacket sendPacket;
 		sendPacket.type = SERVER_PACKET::MELEE_ATTACK_RESULT;
 		sendPacket.role = r;
-		for (int i = 0; i < attackedMonster.size(); i++)
+		sendPacket.attackedMonsterCnt = attackedMonster.size();
+		for (int i = 0; i < sendPacket.attackedMonsterCnt; i++)
 			sendPacket.monsterIdx[i] = (char)attackedMonster[i];
 		sendPacket.size = sizeof(SERVER_PACKET::MeeleAttackDamagePacket);
-		sendPacket.attackedMonsterCnt = attackedMonster.size();
 		sendPacket.damage = damage;
 		int userId = -1;
-		m_lockInGamePlayers.lock();
-		if (m_inGamePlayers.count(r))
-			userId = m_inGamePlayers[r];
-		m_lockInGamePlayers.unlock();
-		g_iocpNetwork.m_session[userId].Send(&sendPacket);
+		//g_logic.BroadCastInRoom(m_roomId, &sendPacket);
+		g_logic.OnlySendPlayerInRoom_R(m_roomId, r, &sendPacket);
 	}
 }
 
@@ -428,12 +425,20 @@ void Room::UpdateGameStateForPlayer_STAGE1()
 			++i;
 		}
 		//small monster state도 추가
+		int aliveCnt = 0;
 		for (int i = 0; i < 15; i++) {
+			sendPacket.smallMonster[i].isAlive = false;
+			if (m_StageSmallMonster[i].IsAlive()) {
+				sendPacket.smallMonster[i].isAlive = true;
+				aliveCnt++;
+			}
 			sendPacket.smallMonster[i].hp = m_StageSmallMonster[i].GetHp();
 			sendPacket.smallMonster[i].pos = m_StageSmallMonster[i].GetPos();
 			sendPacket.smallMonster[i].rot = m_StageSmallMonster[i].GetRot();
 			sendPacket.smallMonster[i].directionVector = m_StageSmallMonster[i].GetDirectionVector();
 		}
+		m_aliveSmallMonster = aliveCnt;
+		sendPacket.aliveMonsterCnt = aliveCnt;
 		sendPacket.time = std::chrono::utc_clock::now();
 		g_logic.BroadCastInRoom(m_roomId, &sendPacket);
 		TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::milliseconds(30), m_roomId ,EV_GAME_STATE_S_SEND };//GameState 30ms마다 전송하게 수정
@@ -453,8 +458,10 @@ void Room::UpdateSmallMonster()
 	}
 	for (int i = 0; i < 15; i++)
 	{
-		m_StageSmallMonster[i].SetDestinationPos(pos);
-		sendPacket.desPositions[i] = m_StageSmallMonster[i].GetDesPos();
+		if (!m_StageSmallMonster[i].StartAttack()) {
+			m_StageSmallMonster[i].SetDestinationPos(pos);
+			sendPacket.desPositions[i] = m_StageSmallMonster[i].GetDesPos();
+		}
 	}
 	sendPacket.size = sizeof(SERVER_PACKET::SmallMonsterMovePacket);
 	sendPacket.type = SERVER_PACKET::SMALL_MONSTER_MOVE;

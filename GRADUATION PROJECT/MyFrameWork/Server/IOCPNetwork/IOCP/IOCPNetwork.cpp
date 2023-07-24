@@ -180,6 +180,12 @@ void IOCPNetwork::WorkerThread()
 				delete ex_over;
 		}
 		break;
+		case OP_PROJECTILE_ATTACK:
+		{
+			ex_over->m_opCode = OP_SEND;
+			g_logic.BroadCastInRoom_Ex(key, ex_over);
+		}
+		break;
 		default: break;
 		}
 	}

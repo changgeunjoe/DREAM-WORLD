@@ -39,7 +39,7 @@
 #include <random>
 #include <DirectXMath.h>
 #include <DirectXCollision.h>
-const float MONSTER_ABLE_ATTACK_COS_VALUE = std::cos(15.0f * 3.14f / 180.0f);
+const float MONSTER_ABLE_ATTACK_COS_VALUE = std::cos(15.0f * 3.14f / 180.0f);//30µµ - 0.96Á¤µµ
 
 enum PLAYER_STATE
 {
@@ -64,7 +64,8 @@ enum IOCP_OP_CODE
 	OP_BOSS_ATTACK_EXECUTE,
 	OP_UPDATE_SMALL_MONSTER,
 	OP_PLAYER_HEAL,
-	OP_SET_BARRIER
+	OP_SET_BARRIER,
+	OP_PROJECTILE_ATTACK
 };
 
 enum DIRECTION : char

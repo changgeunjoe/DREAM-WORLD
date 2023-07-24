@@ -26,6 +26,7 @@ private:
 	std::atomic_bool m_stageStart = false;
 private:
 	std::atomic_int m_skipNPC_COMMUNICATION = 0;
+	int m_aliveSmallMonster = 15;
 public:
 	void SetRoomId(int roomId);
 	bool IsArriveState() { return m_isAlive; }
