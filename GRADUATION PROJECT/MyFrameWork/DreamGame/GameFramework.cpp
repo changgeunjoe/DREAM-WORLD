@@ -8,10 +8,11 @@
 #include "Network/Logic/Logic.h"
 #include "Network/NetworkHelper.h"
 #include "UILayer.h"
+#include "sound/GameSound.h"
 extern Logic g_Logic;
 extern NetworkHelper g_NetworkHelper;
 extern bool GameEnd;
-
+extern GameSound g_sound;
 
 CGameFramework::CGameFramework()
 {
@@ -597,6 +598,7 @@ void CGameFramework::BuildObjects()
 	//로비 씬 객체를 생성해준다.
 	m_pLobbyScene = new LobbyCScene();
 	m_pLobbyScene->BuildUIObjects(m_pd3dDevice, m_pd3dCommandList, m_pCamera);
+	g_sound.Play("LobbySound", 0.6f);
 	//씬 객체를 생성하기 위하여 필요한 그래픽 명령 리스트들을 명령 큐에 추가한다.
 	m_pd3dCommandList->Close();
 	ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };

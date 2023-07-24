@@ -112,6 +112,7 @@ private: //active object
 	GameObject* m_pPlaneObject{ NULL };
 	GameObject* m_pRockObject{ NULL };
 	GameObject* m_pSkyboxObject{ NULL };
+	GameObject* m_pMonsterCubeObject{ NULL };
 	GameObject* m_pNaviMeshObject{ NULL };
 	GameObject* m_pAnimationObject{ NULL };
 
@@ -199,6 +200,8 @@ private: //active object
 	TrailComponent* m_pTrailComponent{ NULL };
 	array<GameObject*, 10> m_pTrailArrowObject{ NULL };
 	array<TrailComponent*, 10>m_pTrailArrowComponent{ NULL };
+	array<GameObject*, 10> m_pTrailIceRanceObject{ NULL };
+	array<TrailComponent*, 10>m_pTrailIceRanceComponent{ NULL };
 	//
 	//AstarObject
 	GameObject* m_pAstarObject{ NULL };
@@ -213,7 +216,6 @@ private: //active object
 	EffectObject* m_pLightEffectObject{ NULL };
 	EffectObject* m_pSheildEffectObject{ NULL };
 	EffectObject* m_pPortalEffectObject{ NULL };
-//	vector<EffectObject*> m_ppEffectObjects{};
 
 	vector<GameObject*> m_ppEffectObjects{};
 

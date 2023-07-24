@@ -15,6 +15,8 @@ public:
 	~GameSound();
 public:
 	void MakeSound(string soundKey, string soundDirName);
-	void Play(string soundName);
+	void MakeSoundLoop(string soundKey, string soundDirName);
+	void Play(string soundName, float volume);
 	void Pause(string soundName);
+	void NoLoopPlay(string soundName, float volume);
 };

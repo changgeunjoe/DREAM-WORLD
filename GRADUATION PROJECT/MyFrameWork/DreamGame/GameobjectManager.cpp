@@ -67,8 +67,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	/*m_pConditionUIObject->SetColor(XMFLOAT4(0, 0, 0, sin(m_fTime)+0.2));
 	*/
 	//SortEffect(); // 게임 오브젝트를 카메라와 거리별로 sort하는 함수입니다.->이펙트가 블랜드가 꼬이는 걸 막기위한 소트
-//=======
-//>>>>>>> Stashed changes
+
 	SceneSwapAnimate(fTimeElapsed);
 	//if (int(m_fTime) % 5 > 3)
 	//{
@@ -79,6 +78,8 @@ void GameobjectManager::Animate(float fTimeElapsed)
 		//m_pEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 10);
 		m_pLightEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 10);
 	}
+	
+	m_pMonsterCubeObject->SetPosition(m_pCamera->GetPosition());
 	m_pSkyboxObject->SetPosition(m_pCamera->GetPosition());
 	m_pLight->UpdatePosition(XMFLOAT3(m_pCamera->GetPosition().x,
 		m_pCamera->GetPosition().y + 600, m_pCamera->GetPosition().z));
@@ -108,12 +109,14 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	//Effect
 	if (m_bPickingenemy) {
 		if (g_Logic.GetMyRole() == ROLE::PRIEST) {
+			g_sound.NoLoopPlay("LightningSound",1.0f);
 			m_pLightEffectObject->AnimateEffect(m_pCamera,XMFLOAT3( m_pSelectedObject->GetPosition().x,
 				m_pSelectedObject->GetPosition().y+10, m_pSelectedObject->GetPosition().z), fTimeElapsed, m_fTime * 5);
 			m_pLightningSpriteObject->SetPosition(XMFLOAT3(
 				m_pSelectedObject->GetPosition().x,
 				m_pSelectedObject->GetPosition().y + 40,
 				m_pSelectedObject->GetPosition().z));
+			m_bPickingenemy = false;
 		}
 		//m_pEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 10);
 		//라이트닝
@@ -286,6 +289,31 @@ void GameobjectManager::TrailAnimate(float fTimeElapsed)
 			}
 		}
 	}
+	for (int i = 0; i < m_pTrailIceRanceComponent.size(); i++) {
+		if (m_pTrailIceRanceComponent[i]) {
+			if (!m_pEnergyBallObjects[i]->m_bActive)
+			{
+				m_pTrailIceRanceComponent[i]->m_fRenderTime + fTimeElapsed;
+			}
+			if (m_pEnergyBallObjects[i]->m_bActive)
+			{
+				m_pTrailIceRanceComponent[i]->m_fRenderTime = 0;
+			}
+			if (m_pTrailIceRanceComponent[i]->m_fRenderTime > 3) {
+
+			}
+			else {
+				{
+					m_pTrailIceRanceComponent[i]->AddTrail(XMFLOAT3(m_pEnergyBallObjects[i]->GetPosition().x,
+						m_pEnergyBallObjects[i]->GetPosition().y,
+						m_pEnergyBallObjects[i]->GetPosition().z),
+						XMFLOAT3(m_pEnergyBallObjects[i]->GetPosition().x,
+							m_pEnergyBallObjects[i]->GetPosition().y + 1.5,
+							m_pEnergyBallObjects[i]->GetPosition().z));
+				}
+			}
+		}
+	}
 
 	if (m_pTrailComponent)
 	{
@@ -432,7 +460,8 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pContinueUIObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		//m_pUIGameSearchObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
-
+	//sound
+	//로비씬
 
 
 }
@@ -450,6 +479,14 @@ void GameobjectManager::TrailRender(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 			if (m_pTrailArrowObject[i]->m_bActive) {
 				m_pTrailArrowObject[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 				m_pTrailArrowComponent[i]->RenderTrail(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+			}
+		}
+	}
+	for (int i = 0; i < m_pTrailIceRanceObject.size(); i++) {
+		if (m_pTrailIceRanceObject[i]) {
+			if (m_pTrailIceRanceObject[i]->m_bActive) {
+				m_pTrailIceRanceObject[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+				m_pTrailIceRanceComponent[i]->RenderTrail(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 			}
 		}
 	}
@@ -858,43 +895,48 @@ void GameobjectManager::EffectRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 	//		effect->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//	//}
 	//}
-	//SortEffect();
-	//for (int i = 0; i < m_ppEffectObjects.size(); i++) {
-	//	
-	//	//if (effect->m_bActive) {
-	//	m_ppEffectObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//	//}
+	SortEffect();
+	for (int i = 0; i < m_ppEffectObjects.size(); i++) {
+		
+		//if (effect->m_bActive) {
+		m_ppEffectObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		//}
+	}
+	//for (auto& effect : m_ppShieldEffectObject)
+	//{
+	//	if (effect == nullptr) continue;
+	//	if (effect->m_bActive == false) continue;
+	//	effect->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//}
-	for (auto& effect : m_ppShieldEffectObject)
-	{
-		if (effect == nullptr) continue;
-		if (effect->m_bActive == false) continue;
-		effect->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	}
-	for (auto& effect : m_ppHealingEffectObject)
-	{
-		if (effect == nullptr) continue;
-		if (effect->m_bActive == false) continue;
-		effect->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	}
-	if (m_pDebuffObject) {
-		m_pDebuffObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	}
-	if (m_pLightEffectObject) {
-		m_pLightEffectObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	}
-	if (m_pSheildEffectObject) {
-	//	m_pSheildEffectObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	}
-	if (m_pPortalEffectObject) {
-		m_pPortalEffectObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	}
+	//for (auto& effect : m_ppHealingEffectObject)
+	//{
+	//	if (effect == nullptr) continue;
+	//	if (effect->m_bActive == false) continue;
+	//	effect->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//}
+	//if (m_pDebuffObject) {
+	//	m_pDebuffObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//}
+	//if (m_pLightEffectObject) {
+	//	m_pLightEffectObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//}
+	//if (m_pSheildEffectObject) {
+	////	m_pSheildEffectObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//}
+	//if (m_pPortalEffectObject) {
+	//	m_pPortalEffectObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//}
 }
 
 void GameobjectManager::SkyboxRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	m_pSkyboxObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//m_pMonsterCubeObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	if (m_fStroyTime > 6) {
+		m_pMonsterCubeObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
+	else {
+
+		m_pSkyboxObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
 }
 
 void GameobjectManager::BuildBossStageObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -911,13 +953,14 @@ void GameobjectManager::BuildBossStageObject(ID3D12Device* pd3dDevice, ID3D12Gra
 
 void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {//빌드
+	
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	BuildLight();
 
 	m_pCamera->SetPosition(XMFLOAT3(-1450, 18, -1490));
 	m_pCamera->Rotate(0, 90, 0);
 	CLoadedModelInfoCompnent* ArrowModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Arrow.bin", NULL, true);
-
+	CLoadedModelInfoCompnent* IceLance = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/IceLance.bin", NULL, true);
 
 	BuildStage1(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildBossStageObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -1046,14 +1089,15 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 
 	for (int i = 0; i < 10; ++i)
 	{
-		m_pEnergyBallObjects[i] = new EnergyBall();
+		m_pEnergyBallObjects[i] = new Arrow();
 		m_pEnergyBallObjects[i]->InsertComponent<RenderComponent>();
-		m_pEnergyBallObjects[i]->InsertComponent<SphereMeshComponent>();
-		m_pEnergyBallObjects[i]->InsertComponent<SphereShaderComponent>();
-		m_pEnergyBallObjects[i]->SetPosition(XMFLOAT3(0, 0, 100));
+		m_pEnergyBallObjects[i]->InsertComponent<CLoadedModelInfoCompnent>();
+		m_pEnergyBallObjects[i]->SetPosition(XMFLOAT3(25 * i, 0, 0));
+		m_pEnergyBallObjects[i]->SetModel(IceLance);
+		//m_pEnergyBallObjects[i]->SetColor(XMFLOAT3(0,0.5,0);
 		m_pEnergyBallObjects[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-		m_pEnergyBallObjects[i]->SetScale(0.5f);
-		m_pEnergyBallObjects[i]->SetBoundingSize(4);
+		m_pEnergyBallObjects[i]->SetScale(15.f,20.f,15.f);
+		m_pEnergyBallObjects[i]->SetBoundingSize(4.0f);
 		static_cast<Priest*>(m_pPriestObject)->SetEnergyBall(m_pEnergyBallObjects[i]);
 	}
 	m_pEnergyBallObject = new EnergyBall();
@@ -1109,10 +1153,22 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pSkyboxObject->InsertComponent<SkyBoxMeshComponent>();
 	m_pSkyboxObject->InsertComponent<SkyBoxShaderComponent>();
 	m_pSkyboxObject->InsertComponent<TextureComponent>();
-	m_pSkyboxObject->SetTexture(L"DreamWorld/DreamWorld.dds", RESOURCE_TEXTURE_CUBE, 12);
+	m_pSkyboxObject->SetTexture(L"DreamWorld/SkyBox.dds", RESOURCE_TEXTURE_CUBE, 12);
 	m_pSkyboxObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pSkyboxObject->SetScale(1, 1, 1);
 	m_pSkyboxObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+
+	m_pMonsterCubeObject = new GameObject(SQUARE_ENTITY);
+	m_pMonsterCubeObject->InsertComponent<RenderComponent>();
+	m_pMonsterCubeObject->InsertComponent<SkyBoxMeshComponent>();
+	m_pMonsterCubeObject->InsertComponent<SkyBoxShaderComponent>();
+	m_pMonsterCubeObject->InsertComponent<TextureComponent>();
+	m_pMonsterCubeObject->SetTexture(L"DreamWorld/DreamWorld.dds", RESOURCE_TEXTURE_CUBE, 12);
+	m_pMonsterCubeObject->SetPosition(XMFLOAT3(0, 0, 0));
+	m_pMonsterCubeObject->SetScale(1, 1, 1);
+	m_pMonsterCubeObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+
+
 
 	m_pNaviMeshObject = new GameObject(SQUARE_ENTITY);
 	m_pNaviMeshObject->InsertComponent<RenderComponent>();
@@ -1251,6 +1307,24 @@ void GameobjectManager::BuildTrail(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 		m_pTrailArrowComponent[i]->ReadyComponent(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pTrailArrowObject[i]);
 	}
 	m_pWarriorObject->m_pTrail = m_pTrailComponent;
+
+	for (int i = 0; i < m_pTrailIceRanceObject.size(); i++) {
+
+		m_pTrailIceRanceObject[i] = new GameObject(UNDEF_ENTITY);
+		m_pTrailIceRanceObject[i]->InsertComponent<RenderComponent>();
+		m_pTrailIceRanceObject[i]->InsertComponent<TrailMeshComponent>();
+		m_pTrailIceRanceObject[i]->InsertComponent<TrailShaderComponent>();
+		m_pTrailIceRanceObject[i]->InsertComponent<TextureComponent>();
+		m_pTrailIceRanceObject[i]->SetTexture(L"Trail/FireTrail.dds", RESOURCE_TEXTURE2D, 3);
+		m_pTrailIceRanceObject[i]->SetPosition(XMFLOAT3(0, 0, 0));
+		m_pTrailIceRanceObject[i]->SetColor(XMFLOAT4(-1.0f, 0.0f, 1.0f, 0.0f));
+		m_pTrailIceRanceObject[i]->SetScale(1);
+		m_pTrailIceRanceObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		m_pTrailIceRanceObject[i]->m_bActive = true;
+		m_pTrailIceRanceComponent[i] = new TrailComponent();
+		m_pTrailIceRanceComponent[i]->ReadyComponent(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pTrailIceRanceObject[i]);
+	}
+
 }
 void GameobjectManager::BuildAstar(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
@@ -1280,7 +1354,7 @@ void GameobjectManager::BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	CLoadedModelInfoCompnent* BigRock = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/BigRock.bin", NULL, true);
 	CLoadedModelInfoCompnent* TripleBarel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/TripleBarel.bin", NULL, true);
 
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/BigMushroom.txt", BigMushroom, 0, STAGE1);
+	/*ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/BigMushroom.txt", BigMushroom, 0, STAGE1);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Mushroom.txt", Mushroom, 0, STAGE1);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/LongFence.txt", LongFence, 0, STAGE1);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence1.txt", ShortFence01, 0, STAGE1);
@@ -1288,7 +1362,7 @@ void GameobjectManager::BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ShortFence3.txt", ShortFence03, 0, STAGE1);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Tree.txt", Tree, 0, STAGE1);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/BigRock.txt", BigRock, 0, STAGE1);
-	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/TripleBarel.txt", TripleBarel, 0, STAGE1);
+	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/TripleBarel.txt", TripleBarel, 0, STAGE1);*/
 	//ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/OOBB.txt", Cube, 0, STAGE1);
 	ReadNormalMonsterFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/NormalMonsterS1.txt", Death, 1, STAGE1);
 	m_pStage1Objects[0] = new GameObject(UNDEF_ENTITY);
@@ -1958,6 +2032,7 @@ void GameobjectManager::ProcessingUI(int n)
 {
 	switch (n)
 	{
+
 	case UI::UI_GAMEMATCHING:
 	{
 #ifdef LOCAL_TASK
@@ -1970,16 +2045,21 @@ void GameobjectManager::ProcessingUI(int n)
 	}
 	case UI::UI_GAMESEARCHING:	{
 		m_pUIGameEndObject->m_bUIActive = false;
+		g_sound.NoLoopPlay("ClickSound", 1.0f);
+		//g_sound.Pause("ClickSound");
 		if (!m_bInMatching)
 		{
 			cout << "StartMatching" << endl;
 			g_NetworkHelper.SendMatchRequestPacket();
 			m_bInMatching = true;
 		}
+
 		break;
 	}
 	case UI::UI_WARRIORCHARACTER:
 	{
+
+		g_sound.NoLoopPlay("ClickSound", 1.0f);
 		// 선택한 캐릭터 Warrior
 		g_Logic.SetMyRole(ROLE::WARRIOR);
 		m_pUIWarriorCharacterObject->m_bUIActive = true;
@@ -1991,6 +2071,7 @@ void GameobjectManager::ProcessingUI(int n)
 	}
 	case UI::UI_ARCHERCHARACTER:
 	{
+		g_sound.NoLoopPlay("ClickSound", 1.0f);
 		// 선택한 캐릭터 Archer
 		g_Logic.SetMyRole(ROLE::ARCHER);
 		m_pUIWarriorCharacterObject->m_bUIActive = false;
@@ -2003,6 +2084,7 @@ void GameobjectManager::ProcessingUI(int n)
 	case UI::UI_TANKERCHARACTER:
 	{
 		// 선택한 캐릭터 tanker
+		g_sound.NoLoopPlay("ClickSound", 1.0f);
 		g_Logic.SetMyRole(ROLE::TANKER);
 		m_pUIWarriorCharacterObject->m_bUIActive = false;
 		m_pUIArcherCharacterObject->m_bUIActive = false;
@@ -2014,6 +2096,7 @@ void GameobjectManager::ProcessingUI(int n)
 	case UI::UI_PRIESTCHARACTER:
 	{
 		// 선택한 캐릭터 priest
+		g_sound.NoLoopPlay("ClickSound", 1.0f);
 		g_Logic.SetMyRole(ROLE::PRIEST);
 		m_pUIWarriorCharacterObject->m_bUIActive = false;
 		m_pUIArcherCharacterObject->m_bUIActive = false;
@@ -2024,12 +2107,14 @@ void GameobjectManager::ProcessingUI(int n)
 	}
 	case UI::UI_ENTERROOM:
 	{
+		g_sound.NoLoopPlay("ClickSound", 1.0f);
 		// 방 입장 요청 Send
 		cout << "Request Entering The Room" << endl;
 		break;
 	}
 	case UI::UI_CREATEROOM:
 	{
+		g_sound.NoLoopPlay("ClickSound", 1.0f);
 		cout << "Create Room" << endl;
 		break;
 	}
@@ -2277,6 +2362,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		{
 			//g_Logic.m_KeyInput->m_bEKey = false;
 			myPlayCharacter->SecondSkillUp(myPlayCharacter->GetRotateAxis());
+			m_bPickingenemy = CheckCollision(m_ppGameObjects);
 			if (myPlayCharacter == GetChracterInfo(ROLE::ARCHER))
 			{
 				//g_NetworkHelper.SendSkillStatePacket(myPlayCharacter->GetQSkillState(), false);
@@ -2309,7 +2395,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		}
 		case 'P':
 		{
-			g_sound.Play("testSound");
+			g_sound.Play("ClickSound",1.0f);
 		}
 		break;
 		case 'O':
@@ -2513,7 +2599,7 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 		myPlayCharacter->m_LMouseInput = true;
 		myPlayCharacter->SetLButtonClicked(true);
 		SomethingChanging = true;
-		m_bPickingenemy = CheckCollision(m_ppGameObjects);
+		
 		break;
 	}
 	case WM_LBUTTONUP:
@@ -2521,6 +2607,19 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 		myPlayCharacter->m_LMouseInput = false;
 		myPlayCharacter->SetLButtonClicked(false);
 		SomethingChanging = true;
+
+		if (ROLE::PRIEST) {
+			g_sound.NoLoopPlay("PriestAttackSound", 1.0f);
+		}
+		if (ROLE::ARCHER) {
+			g_sound.NoLoopPlay("AcherAttackSound", 1.0f);
+		}
+		if (ROLE::WARRIOR) {
+			g_sound.NoLoopPlay("WarriorAttackSound", 1.0f);
+		}
+		if (ROLE::TANKER) {
+			g_sound.NoLoopPlay("TankerAttackSound", 1.0f);
+		}
 		break;
 	}
 	case WM_RBUTTONDOWN:
@@ -2576,6 +2675,7 @@ void GameobjectManager::AddTextToUILayer(int& iIndex)
 	queue<wstring> queueStr;
 	if (iIndex == START_TEXT)
 	{
+		//queueStr.emplace(L"z!");
 		queueStr.emplace(L"안녕하세요! 드림월드에 오신 것을 환영해요");
 		queueStr.emplace(L"먼저 플레이 방법에 대해서 알려드릴게요!");
 		queueStr.emplace(L"앞에 보이는 캐릭터들 중 원하는 캐릭터를");
@@ -2692,7 +2792,11 @@ void GameobjectManager::ChangeStage1ToStage2(float fTimeelpased)
 			{
 				if (m_ppGameObjects[i]->m_nStageType == STAGE1)
 					m_ppGameObjects[i]->Die(m_fStroyTime / 13);
+				g_sound.Pause("LobbySound");
+				g_sound.Pause("Stage1Sound");
+				g_sound.Play("BossRespawnSound", 0.6);
 			}
+			//m_pSkyboxObject->Die(m_fStroyTime );
 		}
 		if (m_fStroyTime > 6) {
 			m_nStageType = 2;
@@ -2703,6 +2807,10 @@ void GameobjectManager::ChangeStage1ToStage2(float fTimeelpased)
 					m_ppGameObjects[i]->Die(1 - (m_fStroyTime - 6) / 5);
 				}
 			}
+			g_sound.Pause("LobbySound");
+			g_sound.Pause("Stage1Sound");
+			g_sound.Pause("BossRespawnSound");
+			g_sound.Play("BossStage",0.75);
 		}
 	}
 
