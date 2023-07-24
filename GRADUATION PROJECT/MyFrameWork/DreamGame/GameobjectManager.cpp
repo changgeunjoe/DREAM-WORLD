@@ -254,26 +254,14 @@ void GameobjectManager::TrailAnimate(float fTimeElapsed)
 {
 	for (int i = 0; i < m_pTrailArrowComponent.size(); i++) {
 		if (m_pTrailArrowComponent[i]) {
-			if (!m_pArrowObjects[i]->m_bActive)
-			{
-				m_pTrailArrowComponent[i]->m_fRenderTime + fTimeElapsed;
-			}
 			if (m_pArrowObjects[i]->m_bActive)
 			{
-				m_pTrailArrowComponent[i]->m_fRenderTime = 0;
-			}
-			if (m_pTrailArrowComponent[i]->m_fRenderTime > 3) {
-
-			}
-			else {
-				{
-					m_pTrailArrowComponent[i]->AddTrail(XMFLOAT3(m_pArrowObjects[i]->GetPosition().x,
+				m_pTrailArrowComponent[i]->AddTrail(XMFLOAT3(m_pArrowObjects[i]->GetPosition().x,
+					m_pArrowObjects[i]->GetPosition().y,
+					m_pArrowObjects[i]->GetPosition().z),
+					XMFLOAT3(m_pArrowObjects[i]->GetPosition().x, 
 						m_pArrowObjects[i]->GetPosition().y,
-						m_pArrowObjects[i]->GetPosition().z),
-						XMFLOAT3(m_pArrowObjects[i]->GetPosition().x,
-							m_pArrowObjects[i]->GetPosition().y + 0.5,
-							m_pArrowObjects[i]->GetPosition().z));
-				}
+						m_pArrowObjects[i]->GetPosition().z + 0.5f));
 			}
 		}
 	}
@@ -438,7 +426,8 @@ void GameobjectManager::TrailRender(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	}
 	for (int i = 0; i < m_pTrailArrowComponent.size(); i++) {
 		if (m_pTrailArrowComponent[i]) {
-			if (m_pTrailArrowComponent[i]->m_bActive) {
+			if (m_pTrailArrowComponent[i]->GetRenderState()) {
+				m_pTrailArrowObject[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 				m_pTrailArrowComponent[i]->RenderTrail(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 			}
 		}
@@ -1226,7 +1215,7 @@ void GameobjectManager::BuildTrail(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 		m_pTrailArrowObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pTrailArrowComponent[i] = new TrailComponent();
 		m_pTrailArrowComponent[i]->ReadyComponent(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pTrailArrowObject[i]);
-		m_pTrailArrowComponent[i]->m_bActive = true;
+		m_pTrailArrowComponent[i]->SetRenderingTrail(true);
 		m_pArrowObjects[i]->SetTrailComponent(m_pTrailArrowComponent[i]);
 	}
 }

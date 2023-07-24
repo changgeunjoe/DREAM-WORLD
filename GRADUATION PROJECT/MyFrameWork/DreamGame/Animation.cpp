@@ -47,9 +47,9 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fTrackElapsedT
 		{
 			m_fPosition = fTrackPosition + TrackElapsedTime;
 			m_fProgressRate = m_fPosition / fAnimationLength;
-			if (m_fPosition > fAnimationLength * 0.7)
+			if (m_fPosition > fAnimationLength * 0.5)
 			{
-				m_fPosition = fAnimationLength * 0.7;
+				m_fPosition = fAnimationLength * 0.5;
 			}
 		}
 		break;

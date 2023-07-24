@@ -62,6 +62,7 @@ public:
 	void SetTrailComponent(TrailComponent* pTrail) { m_pTrailComponent = pTrail; }
 	TrailComponent* GetTrailComponent() { return m_pTrailComponent; }
 	void SetCamera(CCamera* pCamera);
+	void SetCamera(CCamera* pCamera, XMFLOAT3 xmf3CameraAxis);
 	void SetRowColumn(float x, float y, float fSpeed = 0.1);
 
 	virtual void MoveForward(int forwardDirection = 1, float ftimeElapsed = 0.01768f);

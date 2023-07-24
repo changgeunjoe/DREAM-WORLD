@@ -114,23 +114,22 @@ class Archer : public Character
 {
 private:
 	XMFLOAT3 m_CameraLook;
+	bool m_bZoomInState;
 public:
 	Archer();
 	virtual ~Archer();
 	virtual void Attack();
 	virtual void SetArrow(Projectile* pArrow);
-	virtual void RbuttonClicked(float fTimeElapsed);
-	virtual void RbuttonUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f });
 	virtual void Move(float fTimeElapsed)override;
 	virtual void Animate(float fTimeElapsed);
 	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender = false);
 	virtual void SetLookDirection() override;
-	virtual void FirstSkillDown();
-	virtual void FirstSkillUp();
-	virtual void SecondSkillDown();
+	virtual void ZoomInCamera();
 	virtual void SecondSkillUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f });
 	virtual void ShootArrow();
 	virtual void ShootArrow(const XMFLOAT3& xmf3StartPos, const XMFLOAT3& xmf3Direction, const float fSpeed);
+
+	virtual void SetLButtonClicked(bool bLButtonClicked);
 	// virtual void ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent);
 public:
 	void SetStage1Position();

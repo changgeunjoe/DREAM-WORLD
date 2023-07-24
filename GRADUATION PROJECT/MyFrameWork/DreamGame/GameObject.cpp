@@ -1239,6 +1239,18 @@ void GameObject::SetCamera(CCamera* pCamera)
 	m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
 }
 
+void GameObject::SetCamera(CCamera* pCamera, XMFLOAT3 xmf3CameraAxis)
+{
+	m_pCamera = pCamera;
+	m_pCamera->SetTimeLag(0.25f);
+	m_pCamera->SetOffset(XMFLOAT3(0.0f, 25.0f, -50.0f));
+	m_pCamera->Rotate(xmf3CameraAxis.x, xmf3CameraAxis.y, xmf3CameraAxis.z);
+	m_pCamera->GenerateProjectionMatrix(1.01f, 5000.0f, ASPECT_RATIO, 60.0f);
+	m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
+	m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
+	m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
+}
+
 void GameObject::SetRowColumn(float nRows, float nCols, float fSpeed)
 {
 	m_bMultiSprite = true;
