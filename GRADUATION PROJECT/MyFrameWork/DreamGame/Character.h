@@ -19,6 +19,7 @@ protected:
 public:
 	Character();
 	virtual ~Character();
+	virtual GameObject* GetHpBar(){return m_pHPBarObject;};
 	virtual void RbuttonClicked(float fTimeElapsed);
 	virtual void RbuttonUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f });
 	virtual void Reset();
@@ -80,8 +81,11 @@ public:
 	}
 	//DIRECTION m_prevDirection = DIRECTION::IDLE;
 	//virtual void Move(DIRECTION direction, float fDistance);
+
 protected:
 	std::pair<float, XMFLOAT3> GetNormalVectorSphere(const XMFLOAT3& point);
+public:
+	GameObject* m_pHPBarObject{ NULL };
 };
 
 class Warrior : public Character

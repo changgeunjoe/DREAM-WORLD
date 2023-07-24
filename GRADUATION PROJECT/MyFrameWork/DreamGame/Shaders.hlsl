@@ -244,6 +244,8 @@ float4 PSBlendTextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
     //cColor += gmtxGameObjectColor;
     //cColor.w = 0.4;
     cColor += gmtxGameObjectColor;
+    if (input.uv.x > gfCharactertHP)
+        return float4(0, 0, 0, 0);
     return (cColor);
 }
 VS_TEXTURED_OUTPUT VSEffect(VS_TEXTURED_INPUT input)
@@ -510,6 +512,11 @@ float4 PSSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
 {
     float4 cColor = SkyCubeTexture.Sample(gClampSamplerState, input.positionL);
     cColor = round(cColor * 8.0f) / 8.0f;
+    
+    if (cColor.y < gmtxGameObjectColor.w)
+    {
+        return float4(cColor.xyz, 0);
+    }
     return (cColor);
 }
 

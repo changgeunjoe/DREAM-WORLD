@@ -8,6 +8,7 @@
 #include "Network/Logic/Logic.h"
 #include "Network/MapData/MapData.h"
 #include "TrailComponent.h"
+#include "sound/GameSound.h"
 
 extern Logic g_Logic;
 extern NetworkHelper g_NetworkHelper;
@@ -15,6 +16,7 @@ extern bool GameEnd;
 extern MapData g_bossMapData;
 extern MapData g_stage1MapData;
 extern CGameFramework gGameFramework;
+extern GameSound g_sound;
 
 //#define CHARCTER_MOVE_LOG 1
 //#define MONSTER_MOVE_LOG 1
@@ -174,6 +176,7 @@ void Character::MoveForward(int forwardDirection, float ftimeElapsed)
 	}
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, ftimeElapsed * m_fSpeed);
 	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * ftimeElapsed);
+	g_sound.NoLoopPlay("WalkSound", 1.0f);
 	GameObject::SetPosition(xmf3Position);
 	if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
 	return;
@@ -1981,11 +1984,13 @@ void Priest::FirstSkillUp()
 void Priest::StartEffect(int nSkillNum)
 {
 	m_pHealRange->m_bActive = true;
+	g_sound.Play("HealSound",1.0);
 	UpdateEffect();
 }
 
 void Priest::EndEffect(int nSkillNum)
 {
+	g_sound.Pause("HealSound");
 	m_pHealRange->m_bActive = false;
 	EffectObject** HealingEffects = gGameFramework.GetScene()->GetObjectManager()->GetHealingEffectArr();
 	for (int i = 0; i < 4; ++i)

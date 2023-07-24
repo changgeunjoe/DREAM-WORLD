@@ -38,6 +38,7 @@ public:
 	virtual void StoryUIAnimate(float fTimeElapsed);
 	virtual void ConditionAnimate(float fTimeElapsed);
 	virtual void SceneSwapAnimate(float fTimeElapsed);
+	virtual void MonsterHpBarAnimate(float fTimeElapsed);
 	//Render
 	virtual void OnPreRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
@@ -88,6 +89,7 @@ public:
 	void AddTextToUILayer(int& index);
 	void AddDamageFontToUiLayer();
 	float CalculateDistance(const XMFLOAT3& firstPosition, const XMFLOAT3& lastPosition);
+	virtual void SortEffect();//게임 오브젝트를 카메라와 거리별로 sort하는 함수입니다. ->이펙트가 블랜드가 꼬이는 걸 막기위한 소트 
 
 
 private: //active object 
@@ -111,6 +113,7 @@ private: //active object
 	GameObject* m_pPlaneObject{ NULL };
 	GameObject* m_pRockObject{ NULL };
 	GameObject* m_pSkyboxObject{ NULL };
+	GameObject* m_pMonsterCubeObject{ NULL };
 	GameObject* m_pNaviMeshObject{ NULL };
 	GameObject* m_pAnimationObject{ NULL };
 
@@ -198,6 +201,8 @@ private: //active object
 	TrailComponent* m_pTrailComponent{ NULL };
 	array<GameObject*, 10> m_pTrailArrowObject{ NULL };
 	array<TrailComponent*, 10>m_pTrailArrowComponent{ NULL };
+	array<GameObject*, 10> m_pTrailIceRanceObject{ NULL };
+	array<TrailComponent*, 10>m_pTrailIceRanceComponent{ NULL };
 	//
 	//AstarObject
 	GameObject* m_pAstarObject{ NULL };
@@ -212,7 +217,8 @@ private: //active object
 	EffectObject* m_pLightEffectObject{ NULL };
 	EffectObject* m_pSheildEffectObject{ NULL };
 	EffectObject* m_pPortalEffectObject{ NULL };
-	vector<EffectObject*> m_ppEffectObjects{};
+
+	vector<GameObject*> m_ppEffectObjects{};
 
 	//NPC Object 
 	GameObject* m_pAngelNPCObject{ NULL };
@@ -270,5 +276,7 @@ public:
 	void SetCharactersStage1Postion();
 	void SetCharactersBossStagePostion();
 	void SetPortalCheck(bool b) { m_bPortalCheck = b; }
+
+	
 };
 
