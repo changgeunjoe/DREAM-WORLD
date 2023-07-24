@@ -100,7 +100,7 @@ void NetworkHelper::SendMovePacket(DIRECTION d)
 	sendPacket.type = CLIENT_PACKET::MOVE_KEY_DOWN;
 	sendPacket.size = sizeof(CLIENT_PACKET::MovePacket);
 	sendPacket.role = g_Logic.GetMyRole();
-	sendPacket.time = std::chrono::utc_clock::now() + std::chrono::microseconds(g_Logic.GetDiffTime());
+	sendPacket.time = std::chrono::utc_clock::now() - std::chrono::microseconds(g_Logic.GetDiffTime());
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
@@ -111,7 +111,7 @@ void NetworkHelper::SendStopPacket(const DirectX::XMFLOAT3& position) // , const
 	sendPacket.size = sizeof(CLIENT_PACKET::StopPacket);
 	sendPacket.position = position;
 	sendPacket.role = g_Logic.GetMyRole();
-	sendPacket.time = std::chrono::utc_clock::now() + std::chrono::microseconds(g_Logic.GetDiffTime());
+	sendPacket.time = std::chrono::utc_clock::now() - std::chrono::microseconds(g_Logic.GetDiffTime());
 	// sendPacket.rotate = rotate;
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
