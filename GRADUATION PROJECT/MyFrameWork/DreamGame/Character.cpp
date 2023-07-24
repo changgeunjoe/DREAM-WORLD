@@ -56,7 +56,6 @@ void Character::Reset()
 	SetLook(XMFLOAT3(0.0f, 0.0f, 1.0f));
 	m_bLButtonClicked = false;
 	m_bRButtonClicked = false;
-	m_projectilesLookY = 0;
 	for (int i = 0; i < m_pProjectiles.size(); ++i)
 		if (m_pProjectiles[i]) m_pProjectiles[i]->m_bActive = false;
 
@@ -140,6 +139,20 @@ bool Character::CheckAnimationEnd(int nAnimation)
 	return m_pSkinnedAnimationController->m_pAnimationTracks[nAnimation].m_bAnimationEnd;
 }
 
+void Character::ChangeAnimation(pair<CharacterAnimation, CharacterAnimation> nextAnimation)
+{
+	if (nextAnimation != m_pSkinnedAnimationController->m_CurrentAnimations)
+	{
+		m_pSkinnedAnimationController->m_CurrentAnimations = nextAnimation;
+		m_pSkinnedAnimationController->SetTrackEnable(nextAnimation);
+	}
+}
+
+float Character::GetAnimationProgressRate(CharacterAnimation nAnimation)
+{
+	return m_pSkinnedAnimationController->m_pAnimationTracks[nAnimation].m_fProgressRate;
+}
+
 void Character::MoveForward(int forwardDirection, float ftimeElapsed)
 {
 	XMFLOAT3 xmf3Look = GetLook();
@@ -214,8 +227,10 @@ std::pair<bool, XMFLOAT3> Character::CheckCollisionMap(XMFLOAT3& moveDirection, 
 {
 	XMFLOAT3 xmf3Position = GetPosition();
 	vector<MapCollide>& Collides = g_bossMapData.GetCollideData();
-	if (gGameFramework.GetScene()->GetObjectManager()->m_nStageType == 1)//stage1이라면
+	if (gGameFramework.GetScene()->GetObjectManager()->m_nStageType == STAGE1)//stage1이라면
 		Collides = g_stage1MapData.GetCollideData();
+	if (gGameFramework.GetScene()->GetObjectManager()->m_nStageType == STAGE2)
+		Collides = g_bossMapData.GetCollideData();
 	for (auto& collide : Collides) {
 		if (collide.GetObb().Intersects(m_SPBB)) {
 
@@ -734,6 +749,9 @@ void Warrior::Move(float fTimeElapsed)
 	}
 }
 
+constexpr float ATTACK1_ATTACK_POINT = 0.24f;
+constexpr float ATTACK4_ATTACK_POINT = 0.60f;
+
 void Warrior::Animate(float fTimeElapsed)
 {
 	if (m_fHp < FLT_EPSILON)
@@ -759,85 +777,117 @@ void Warrior::Animate(float fTimeElapsed)
 		return;
 	}
 	pair<CharacterAnimation, CharacterAnimation> AfterAnimation = m_pSkinnedAnimationController->m_CurrentAnimations;
-	bool RButtonAnimation = false;
-	bool UpperLock = false;
-	switch (AfterAnimation.first)
+
+	if (GetAnimationProgressRate(m_attackAnimation) > ATTACK1_ATTACK_POINT)
 	{
-	case CharacterAnimation::CA_FIRSTSKILL:
-	{
-		if (CheckAnimationEnd(CA_FIRSTSKILL) == false)
-		{
-			UpperLock = true;
-			m_bOnAttack = true;
-		}
-		break;
-	}
-	case CharacterAnimation::CA_ATTACK:
-	{
-		if (CheckAnimationEnd(CA_ATTACK) == false)
-		{
-			UpperLock = true;
-			m_bOnAttack = true;
-		}
-		break;
-	}
-	}
-	if (CheckAnimationEnd(CA_ATTACK) || CheckAnimationEnd(CA_FIRSTSKILL))
-	{
-		Attack();
-		m_bOnAttack = false;
-		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd = false;
+		// 패킷 전송
 	}
 
-	if (m_bMoveState)	// 움직이는 중
+	if (CheckAnimationEnd(m_attackAnimation))
 	{
-		if (m_bQSkillClicked)	// 공격
+		m_bOnAttack = false;
+		m_pSkinnedAnimationController->m_pAnimationTracks[m_attackAnimation].m_bAnimationEnd = false;
+		if (m_attackAnimation != m_nextAnimation && m_nextAnimation != CA_NOTHING)
 		{
-			if (!UpperLock) AfterAnimation.first = CharacterAnimation::CA_FIRSTSKILL;
-			AfterAnimation.second = CharacterAnimation::CA_MOVE;
+			m_attackAnimation = m_nextAnimation;
+			m_bComboAttack = true;
 		}
-		else if (m_bLButtonClicked)	// 공격
+		else if (m_attackAnimation == m_nextAnimation)
 		{
-			if (!UpperLock) AfterAnimation.first = CharacterAnimation::CA_ATTACK;
-			AfterAnimation.second = CharacterAnimation::CA_MOVE;
+			m_attackAnimation = CA_ATTACK;
+			m_nextAnimation = CA_NOTHING;
+			m_bComboAttack = false;
 		}
-		else						// 그냥 움직이기
+	}
+
+	if (CheckAnimationEnd(CA_FIRSTSKILL))
+	{
+		m_bOnAttack = false;
+		m_bQSkillClicked = false;
+		m_pSkinnedAnimationController->m_pAnimationTracks[CA_FIRSTSKILL].m_bAnimationEnd = false;
+	}
+
+
+	if (m_bMoveState)
+	{
+		if (!m_bOnAttack)
 		{
-			if (!UpperLock) AfterAnimation.first = CharacterAnimation::CA_MOVE;
-			AfterAnimation.second = CharacterAnimation::CA_MOVE;
+			if (m_bQSkillClicked)
+			{
+				m_bOnAttack = true;
+				AfterAnimation.first = CharacterAnimation::CA_FIRSTSKILL;
+			}
+			else if (m_bLButtonClicked || m_bComboAttack || m_bOnAttack)
+			{
+				m_bOnAttack = true;
+				AfterAnimation.first = m_attackAnimation;
+			}
+			else
+			{
+				AfterAnimation.first = CharacterAnimation::CA_MOVE;
+			}
 		}
+		AfterAnimation.second = CharacterAnimation::CA_MOVE;
 	}
 	else
 	{
-		if (m_bQSkillClicked)	// 공격
+		if (m_bQSkillClicked)
 		{
-			if (!UpperLock) AfterAnimation.first = CharacterAnimation::CA_FIRSTSKILL;
+			if (!m_bOnAttack) AfterAnimation.first = CharacterAnimation::CA_FIRSTSKILL;
 			AfterAnimation.second = CharacterAnimation::CA_FIRSTSKILL;
+			m_bOnAttack = true;
 		}
-		else if (m_bLButtonClicked)	// 공격
+		else if (m_bLButtonClicked || m_bComboAttack || m_bOnAttack)
 		{
-			if (!UpperLock) AfterAnimation.first = CharacterAnimation::CA_ATTACK;
-			AfterAnimation.second = CharacterAnimation::CA_ATTACK;
+			if (!m_bOnAttack) AfterAnimation.first = m_attackAnimation;
+			AfterAnimation.second = m_attackAnimation;
+			m_bOnAttack = true;
 		}
-		else if (!UpperLock)					// IDLE
+		else
 		{
 			AfterAnimation.first = CharacterAnimation::CA_IDLE;
 			AfterAnimation.second = CharacterAnimation::CA_IDLE;
 		}
 	}
 
-	if (AfterAnimation != m_pSkinnedAnimationController->m_CurrentAnimations)
-	{
-		m_pSkinnedAnimationController->m_CurrentAnimations = AfterAnimation;
-		m_pSkinnedAnimationController->SetTrackEnable(AfterAnimation);
-	}
-	if (m_pTrail)
-	{
-		m_pTrail->SetRenderingTrail(m_bOnAttack);
-	}
+	ChangeAnimation(AfterAnimation);
+
+	if (m_pTrailComponent)
+		m_pTrailComponent->SetRenderingTrail(m_bOnAttack);
+
 	SetLookDirection();
 	Move(fTimeElapsed);
 	GameObject::Animate(fTimeElapsed);
+}
+
+void Warrior::SetLButtonClicked(bool bLButtonClicked)
+{
+	m_bLButtonClicked = bLButtonClicked;
+	if (bLButtonClicked == true)
+	{
+		if (GetAnimationProgressRate(m_attackAnimation) > FLT_EPSILON)
+		{
+			switch (m_attackAnimation)
+			{
+			case CA_ATTACK:
+				m_nextAnimation = CA_SECONDSKILL;
+				break;
+			case CA_SECONDSKILL:
+				m_nextAnimation = CA_ADDITIONALANIM;
+				break;
+			case CA_ADDITIONALANIM:
+				m_nextAnimation = CA_ATTACK;
+				break;
+			default:
+				break;
+			}
+		}
+		else
+		{
+			m_attackAnimation = CA_ATTACK;
+			m_nextAnimation = CA_NOTHING;
+		}
+	}
 }
 
 void Warrior::SetStage1Position()
@@ -1000,7 +1050,7 @@ void Archer::Animate(float fTimeElapsed)
 	// 현재 재생될 애니메이션 선택
 	if (m_bMoveState)	// 움직이는 중
 	{
-		if (m_bRButtonClicked || m_bLButtonClicked || m_bQSkillClicked || m_bESkillClicked)
+		if (m_bRButtonClicked || m_bLButtonClicked || m_bQSkillClicked || m_bESkillClicked || m_bOnAttack)
 		{
 			if (!m_bOnAttack) AfterAnimation.first = CharacterAnimation::CA_ATTACK;
 			AfterAnimation.second = CharacterAnimation::CA_MOVE;
@@ -1013,7 +1063,7 @@ void Archer::Animate(float fTimeElapsed)
 	}
 	else
 	{
-		if (m_bRButtonClicked || m_bLButtonClicked || m_bQSkillClicked || m_bESkillClicked)
+		if (m_bRButtonClicked || m_bLButtonClicked || m_bQSkillClicked || m_bESkillClicked || m_bOnAttack)
 		{
 			if (!m_bOnAttack) AfterAnimation.first = CharacterAnimation::CA_ATTACK;
 			AfterAnimation.second = CharacterAnimation::CA_ATTACK;
@@ -1025,13 +1075,16 @@ void Archer::Animate(float fTimeElapsed)
 		}
 	}
 
-	// 재생될 애니메이션이 기존 애니메이션과 다르면 변경
-	if (AfterAnimation != m_pSkinnedAnimationController->m_CurrentAnimations)
+	for (int i = 0; i < MAX_ARROW; ++i)
 	{
-		m_pSkinnedAnimationController->m_CurrentAnimations = AfterAnimation;
-		m_pSkinnedAnimationController->SetTrackEnable(AfterAnimation);
+		if (m_pProjectiles[i]) 
+		{
+			m_pProjectiles[i]->GetTrailComponent()->m_bActive = m_pProjectiles[i]->m_bActive;
+			if(!m_pProjectiles[i]->m_bActive) m_pProjectiles[i]->SetPosition(GetPosition());
+		}
 	}
 
+	ChangeAnimation(AfterAnimation);
 	SetLookDirection();
 	Move(fTimeElapsed);
 	GameObject::Animate(fTimeElapsed);
@@ -1110,28 +1163,13 @@ void Archer::ShootArrow()
 {
 	m_nProjectiles = (m_nProjectiles < MAX_ARROW) ? m_nProjectiles : m_nProjectiles % MAX_ARROW;
 	if (m_bQSkillClicked == true)
-	{// 3개의 화살을 발사하는 스킬 실행
+	{
 		for (int i = 0; i < 3; ++i)
 		{
 			m_nProjectiles = (m_nProjectiles < MAX_ARROW) ? m_nProjectiles : m_nProjectiles % MAX_ARROW;
 			XMFLOAT3 objectLook = GetObjectLook();
 			XMFLOAT3 objectRight = GetRight();
 			XMFLOAT3 objPosition = GetPosition();
-			// XMFLOAT3 targetPos = Vector3::Add(objPosition, objectLook, 150.0f);
-			//if (m_pCamera)
-			//{
-			//	m_pProjectiles[m_nProjectiles]->m_xmf3direction = XMFLOAT3(objectLook.x, m_pCamera->GetLookVector().y, objectLook.z);
-			//	m_pProjectiles[m_nProjectiles]->m_xmf3direction.x = objectLook.x * cos((1 - i) * (3.14 / 6)) - objectLook.z * sin((1 - i) * (3.14 / 6));
-			//	m_pProjectiles[m_nProjectiles]->m_xmf3direction.z = objectLook.x * sin((1 - i) * (3.14 / 6)) + objectLook.z * cos((1 - i) * (3.14 / 6));
-			//	m_pProjectiles[m_nProjectiles]->m_xmf3direction.y = m_pCamera->GetLookVector().y + 0.5f;
-			//}
-			//else
-			//{
-			//	m_pProjectiles[m_nProjectiles]->m_xmf3direction = XMFLOAT3(GetObjectLook().x, -sin(m_xmf3RotateAxis.y * 3.141592 / 180.0f), GetObjectLook().z);
-			//	m_pProjectiles[m_nProjectiles]->m_xmf3direction.x = objectLook.x * cos((1 - i) * (3.14 / 6)) - objectLook.z * sin((1 - i) * (3.14 / 6));
-			//	m_pProjectiles[m_nProjectiles]->m_xmf3direction.z = objectLook.x * sin((1 - i) * (3.14 / 6)) + objectLook.z * cos((1 - i) * (3.14 / 6));
-			//	m_pProjectiles[m_nProjectiles]->m_xmf3direction.y = -sin(m_xmf3RotateAxis.y * 3.141592 / 180.0f) + 0.5f;
-			//}
 			objPosition.y = 6.0f + (i % 2) * 4.0f;
 			objPosition = Vector3::Add(objPosition, objectRight, (1 - i) * 4.0f);
 			objPosition = Vector3::Add(objPosition, objectLook, 1.0f);
@@ -1141,39 +1179,23 @@ void Archer::ShootArrow()
 			m_pProjectiles[m_nProjectiles]->SetPosition(objPosition);
 			m_pProjectiles[m_nProjectiles]->m_fSpeed = 250.0f;
 			m_pProjectiles[m_nProjectiles]->m_bActive = true;
-			// static_cast<Arrow*>(m_pProjectiles[m_nProjectiles])->m_xmf3TargetPos = targetPos;
-			// static_cast<Arrow*>(m_pProjectiles[m_nProjectiles])->m_ArrowType = 1;
-			// static_cast<Arrow*>(m_pProjectiles[m_nProjectiles])->m_ArrowPos = 0.0f;
 			g_NetworkHelper.SendArrowAttackPacket(objPosition, m_pProjectiles[m_nProjectiles]->m_xmf3direction,
 				m_pProjectiles[m_nProjectiles]->m_fSpeed);
 
 			m_nProjectiles++;
 		}
-
 		m_bQSkillClicked = false;
 	}
 	else if (m_bESkillClicked == true)
 	{
-		// 1개의 화살을 발사 && 데미지 및 스피드 수정
-		// 스피드에 비례하여 데미지 설정	// 서버로는 스피드만 전송
 		float chargingTime = m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_fPosition;
 		float fullTime = m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_ATTACK]->m_fLength * 0.7f;
 		float arrowSpeed = pow((chargingTime / fullTime), 2);
 
-		if (m_pCamera)
-			m_pProjectiles[m_nProjectiles]->m_xmf3direction = XMFLOAT3(GetObjectLook().x, m_pCamera->GetLookVector().y, GetObjectLook().z);
-		else
-			m_pProjectiles[m_nProjectiles]->m_xmf3direction = XMFLOAT3(GetObjectLook().x, -sin(m_projectilesLookY * 3.141592 / 180.0f), GetObjectLook().z);
-
-		m_pProjectiles[m_nProjectiles]->m_xmf3direction = Vector3::Normalize(m_pProjectiles[m_nProjectiles]->m_xmf3direction);
-		m_pProjectiles[m_nProjectiles]->m_xmf3startPosition = XMFLOAT3(GetPosition().x, GetPosition().y + 4.0f, GetPosition().z);
+		m_pProjectiles[m_nProjectiles]->m_xmf3direction = Vector3::Normalize(XMFLOAT3(GetObjectLook().x, -sin(m_xmf3RotateAxis.x * 3.141592 / 180.0f), GetObjectLook().z));
+		m_pProjectiles[m_nProjectiles]->m_xmf3startPosition = XMFLOAT3(GetPosition().x, GetPosition().y + 8.0f, GetPosition().z);
 		m_pProjectiles[m_nProjectiles]->SetPosition(m_pProjectiles[m_nProjectiles]->m_xmf3startPosition);
 		m_pProjectiles[m_nProjectiles]->m_fSpeed = (chargingTime / fullTime > 0.5f) ? arrowSpeed * 400.0f : -1.0f;
-		//static_cast<Arrow*>(m_pProjectiles[m_nProjectiles])->m_xmf3TargetPos = XMFLOAT3(0.0f, -1.0f, 0.0f);
-		//static_cast<Arrow*>(m_pProjectiles[m_nProjectiles])->m_ArrowType = 0;
-		// 최대 화살 속도 400
-
-		// 추후 화살 데미지 설정 추가
 		if (m_pProjectiles[m_nProjectiles]->m_fSpeed > 10)
 		{
 			m_pProjectiles[m_nProjectiles]->m_bActive = true;
@@ -1189,18 +1211,11 @@ void Archer::ShootArrow()
 	}
 	else if (m_bOnAttack == true)
 	{// 1개의 화살을 발사하는 기본 공격 실행
-		if (m_pCamera)
-			m_pProjectiles[m_nProjectiles]->m_xmf3direction = XMFLOAT3(GetObjectLook().x, m_pCamera->GetLookVector().y, GetObjectLook().z);
-		else
-			m_pProjectiles[m_nProjectiles]->m_xmf3direction = XMFLOAT3(GetObjectLook().x, -sin(m_projectilesLookY * 3.141592 / 180.0f), GetObjectLook().z);
-
-		m_pProjectiles[m_nProjectiles]->m_xmf3direction = Vector3::Normalize(m_pProjectiles[m_nProjectiles]->m_xmf3direction);
-		m_pProjectiles[m_nProjectiles]->m_xmf3startPosition = XMFLOAT3(GetPosition().x, GetPosition().y + 4.0f, GetPosition().z);
+		m_pProjectiles[m_nProjectiles]->m_xmf3direction = Vector3::Normalize(XMFLOAT3(GetObjectLook().x, -sin(m_xmf3RotateAxis.x * 3.141592 / 180.0f), GetObjectLook().z));
+		m_pProjectiles[m_nProjectiles]->m_xmf3startPosition = XMFLOAT3(GetPosition().x, GetPosition().y + 8.0f, GetPosition().z);
 		m_pProjectiles[m_nProjectiles]->SetPosition(m_pProjectiles[m_nProjectiles]->m_xmf3startPosition);
 		m_pProjectiles[m_nProjectiles]->m_fSpeed = 150.0f;
 		m_pProjectiles[m_nProjectiles]->m_bActive = true;
-		//static_cast<Arrow*>(m_pProjectiles[m_nProjectiles])->m_xmf3TargetPos = XMFLOAT3(0.0f, -1.0f, 0.0f);
-		//static_cast<Arrow*>(m_pProjectiles[m_nProjectiles])->m_ArrowType = 0;
 		g_NetworkHelper.SendArrowAttackPacket(m_pProjectiles[m_nProjectiles]->m_xmf3startPosition,
 			m_pProjectiles[m_nProjectiles]->m_xmf3direction, m_pProjectiles[m_nProjectiles]->m_fSpeed);
 		m_nProjectiles++;
@@ -1476,11 +1491,8 @@ void Tanker::Animate(float fTimeElapsed)
 	}
 
 
-	if (AfterAnimation != m_pSkinnedAnimationController->m_CurrentAnimations)
-	{
-		m_pSkinnedAnimationController->m_CurrentAnimations = AfterAnimation;
-		m_pSkinnedAnimationController->SetTrackEnable(AfterAnimation);
-	}
+
+	ChangeAnimation(AfterAnimation);
 
 	if (CheckAnimationEnd(CA_ATTACK) == true)
 	{
@@ -1510,11 +1522,11 @@ void Tanker::Animate(float fTimeElapsed)
 			m_pProjectiles[i]->Animate(fTimeElapsed);
 		}
 	}
-
-	if (m_pTrail)
+	if (m_pTrailComponent)
 	{
-		m_pTrail->SetRenderingTrail(m_bOnAttack);
+		m_pTrailComponent->SetRenderingTrail(m_bOnAttack);
 	}
+
 	SetLookDirection();
 	Move(fTimeElapsed);
 	GameObject::Animate(fTimeElapsed);
@@ -1743,10 +1755,19 @@ void Priest::Animate(float fTimeElapsed)
 		m_pSkinnedAnimationController->SetTrackEnable(AfterAnimation);
 	}
 
+	if (GetAnimationProgressRate(CA_ATTACK) > ATTACK1_ATTACK_POINT)
+	{
+		if (m_bCanAttack)
+		{
+			Attack();
+			m_bCanAttack = false;
+		}
+	}
+
 	if (CheckAnimationEnd(CA_ATTACK) == true)
 	{
-		if (m_pCamera) Attack();
 		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd = false;
+		m_bCanAttack = true;
 	}
 
 	if (m_pHealRange->m_bActive)
@@ -1769,8 +1790,10 @@ void Priest::RbuttonUp(const XMFLOAT3& CameraAxis)
 void Priest::Attack(float fSpeed)
 {
 	m_nProjectiles = (m_nProjectiles < 10) ? m_nProjectiles : m_nProjectiles % 10;
-	m_pProjectiles[m_nProjectiles]->m_xmf3direction = XMFLOAT3(GetObjectLook().x, m_pCamera->GetLookVector().y, GetObjectLook().z);
-	m_pProjectiles[m_nProjectiles]->m_xmf3startPosition = XMFLOAT3(GetPosition().x, GetPosition().y + 4.0f, GetPosition().z);
+	XMFLOAT3 ObjectLookVector = GetLook();
+	ObjectLookVector.y = -m_xmf3RotateAxis.x / 90.0f;
+	m_pProjectiles[m_nProjectiles]->m_xmf3direction = ObjectLookVector;
+	m_pProjectiles[m_nProjectiles]->m_xmf3startPosition = XMFLOAT3(GetPosition().x, GetPosition().y + 8.0f, GetPosition().z);
 	m_pProjectiles[m_nProjectiles]->SetPosition(m_pProjectiles[m_nProjectiles]->m_xmf3startPosition);
 	m_pProjectiles[m_nProjectiles]->m_fSpeed = fSpeed;
 	m_pProjectiles[m_nProjectiles]->m_bActive = true;
@@ -2079,7 +2102,6 @@ Projectile::Projectile(entity_id eid) : GameObject(eid)
 	m_xmf4x4Transform = Matrix4x4::Identity();
 	m_fSpeed = 0.0f;
 	m_bActive = false;
-	m_RAttack = false;
 	m_Angle = 0.0f;
 }
 
@@ -2137,10 +2159,17 @@ void Projectile::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 void Projectile::Move(XMFLOAT3 dir, float fDistance)
 {
 	XMFLOAT3 xmf3Position = GetPosition();
-	xmf3Position = Vector3::Add(xmf3Position, dir, fDistance);
-	if (Vector3::Length(xmf3Position) < PLAYER_MAX_RANGE)	GameObject::SetPosition(xmf3Position);
-}
+	float moveDist = Vector3::Length(Vector3::Subtract(xmf3Position, m_xmf3startPosition));
+	if (moveDist > 200.0f) 
+	{
+		m_bActive = false;
+		return;
+	}
 
+	xmf3Position = Vector3::Add(xmf3Position, dir, fDistance);
+	GameObject::SetPosition(xmf3Position);
+
+}
 
 Arrow::Arrow() : Projectile()
 {
@@ -2159,19 +2188,6 @@ void Arrow::Animate(float fTimeElapsed)
 {
 	if (m_bActive == false) return;
 	XMFLOAT3 xmf3CurrentPos = GetPosition();
-	float moveDist = Vector3::Length(Vector3::Subtract(xmf3CurrentPos, m_xmf3startPosition));
-	if (moveDist > 200.0f)
-	{
-		m_bActive = false;
-		m_RAttack = false;
-		return;
-	}
-
-	if (Vector3::Length(xmf3CurrentPos) >= PLAYER_MAX_RANGE)
-	{
-		m_bActive = false;
-		m_RAttack = false;
-	}
 
 	//if (m_ArrowType == 1)
 	//{
@@ -2180,17 +2196,14 @@ void Arrow::Animate(float fTimeElapsed)
 	//		m_bActive = false;
 	//		return;
 	//	}
-
 	//	Monster* bossMonster = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster();
 	//	m_xmf3TargetPos = bossMonster->GetPosition();
 	//	XMFLOAT3 controlPoint = Vector3::Add(m_xmf3startPosition, m_xmf3direction, 100.0f);
 	//	XMFLOAT3 firstVec = Vector3::Subtract(controlPoint, m_xmf3startPosition);
 	//	XMFLOAT3 secondVec = Vector3::Subtract(m_xmf3TargetPos, controlPoint);
-
 	//	XMFLOAT3 tempPoint1 = Vector3::Add(Vector3::ScalarProduct(m_xmf3startPosition, (1 - m_ArrowPos), false), Vector3::ScalarProduct(controlPoint, m_ArrowPos, false));
 	//	XMFLOAT3 tempPoint2 = Vector3::Add(Vector3::ScalarProduct(controlPoint, (1 - m_ArrowPos), false), Vector3::ScalarProduct(m_xmf3TargetPos, m_ArrowPos, false));
 	//	XMFLOAT3 curPos = Vector3::Add(Vector3::ScalarProduct(tempPoint1, (1 - m_ArrowPos), false), Vector3::ScalarProduct(tempPoint2, m_ArrowPos, false));
-
 	//	SetPosition(curPos);
 	//	SetLook(Vector3::Subtract(tempPoint2, tempPoint1));
 	//	m_ArrowPos += fTimeElapsed;	// 스플라인 곡선에서의 t의 역할
@@ -2199,9 +2212,8 @@ void Arrow::Animate(float fTimeElapsed)
 	//{
 	SetLook(m_xmf3direction);
 	Move(m_xmf3direction, fTimeElapsed * m_fSpeed);
-	//}
-
 	if (m_VisualizeSPBB) m_VisualizeSPBB->SetPosition(XMFLOAT3(GetPosition().x, GetPosition().y, GetPosition().z));
+	if (GetPosition().y < 2.0f) m_fSpeed = 0.0f;
 }
 
 void Arrow::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender)
@@ -2226,19 +2238,10 @@ void EnergyBall::Animate(float fTimeElapsed)
 	{
 	case ROLE::PRIEST:
 	{
-		XMFLOAT3 rev = XMFLOAT3(0.0f, 0.0f, 0.0f);
-		m_Angle += 1280.0f * fTimeElapsed * (3.14 / 180.0f);
-		rev.x = m_xmf3direction.x * cos(m_Angle) - m_xmf3direction.z * sin(m_Angle);
-		rev.z = m_xmf3direction.x * sin(m_Angle) + m_xmf3direction.z * cos(m_Angle);
-		rev = Vector3::Normalize(rev);
-		SetLook(rev);
+		if (GetPosition().y < m_fBoundingSize) m_xmf3direction.y = 0.0f;
 		Move(m_xmf3direction, fTimeElapsed * m_fSpeed);
 		XMFLOAT3 xmf3CurrentPos = GetPosition();
-		if (Vector3::Length(xmf3CurrentPos) >= PLAYER_MAX_RANGE) m_bActive = false;
-		if (Vector3::Length(Vector3::Subtract(xmf3CurrentPos, m_xmf3startPosition)) > 200.0f)
-		{
-			m_bActive = false;
-		}
+		if (Vector3::Length(Vector3::Subtract(xmf3CurrentPos, m_xmf3startPosition)) > 200.0f) m_bActive = false;
 	}
 	break;
 	case ROLE::TANKER:

@@ -17,15 +17,20 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fTrackElapsedT
 	{
 	case ANIMATION_TYPE_LOOP:
 	{
-		if (m_fPosition < 0.0f)	m_fPosition = 0.0f;
+		if (m_fPosition < 0.0f)
+		{
+			m_fPosition = 0.0f;
+			m_fProgressRate = 0.0f;
+		}
 		else
 		{
-			if(m_fPosition < 0.8f * fAnimationLength && fTrackPosition + TrackElapsedTime > 0.8f * fAnimationLength)
-				m_bAnimationEnd = true;
 			m_fPosition = fTrackPosition + TrackElapsedTime;
+			m_fProgressRate = m_fPosition / fAnimationLength;
 			if (m_fPosition > fAnimationLength)
 			{
+				m_bAnimationEnd = true;
 				m_fPosition = -ANIMATION_CALLBACK_EPSILON;
+				m_fProgressRate = 0.0f;
 				return(fAnimationLength);
 			}
 		}
@@ -33,10 +38,15 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fTrackElapsedT
 	}
 	case ANIMATION_TYPE_HALF:
 	{
-		if (m_fPosition < 0.0f)	m_fPosition = 0.0f;
+		if (m_fPosition < 0.0f)
+		{
+			m_fPosition = 0.0f;
+			m_fProgressRate = 0.0f;
+		}
 		else
 		{
 			m_fPosition = fTrackPosition + TrackElapsedTime;
+			m_fProgressRate = m_fPosition / fAnimationLength;
 			if (m_fPosition > fAnimationLength * 0.7)
 			{
 				m_fPosition = fAnimationLength * 0.7;
@@ -45,13 +55,19 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fTrackElapsedT
 		break;
 	}
 	case ANIMATION_TYPE_ONCE:
-		if (m_fPosition < 0.0f)	m_fPosition = 0.0f;
+		if (m_fPosition < 0.0f)
+		{
+			m_fPosition = 0.0f;
+			m_fProgressRate = 0.0f;
+		}
 		else
 		{
 			m_fPosition = fTrackPosition + TrackElapsedTime;
+			m_fProgressRate = m_fPosition / fAnimationLength;
 			if (m_fPosition > fAnimationLength)
 			{
 				m_fPosition = -ANIMATION_CALLBACK_EPSILON;
+				m_fProgressRate = 0.0f;
 				m_bAnimationEnd = true;
 				return(fAnimationLength);
 			}
@@ -59,13 +75,19 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fTrackElapsedT
 		break;
 	case ANIMATION_TYPE_REVERSE:
 		if (m_bAnimationEnd) return 0.0f;
-		if (m_fPosition < 0.0f)	m_fPosition = fAnimationLength;
+		if (m_fPosition < 0.0f)
+		{
+			m_fPosition = fAnimationLength;
+			m_fProgressRate = 0.0f;
+		}
 		else
 		{
 			m_fPosition = fTrackPosition - TrackElapsedTime;
+			m_fProgressRate = (fAnimationLength - m_fPosition) / fAnimationLength;
 			if (m_fPosition < 0.0f)
 			{
 				m_fPosition = -ANIMATION_CALLBACK_EPSILON;
+				m_fProgressRate = 0.0f;
 				m_bAnimationEnd = true;
 				return(0.0f);
 			}

@@ -59,6 +59,8 @@ public:
 	void SetModel(CLoadedModelInfoCompnent* pModel) { m_pLoadedModelComponent = pModel; }
 	void SetAnimationSets(int nAnimationSets);
 	void SetMesh(MeshComponent* pMesh);
+	void SetTrailComponent(TrailComponent* pTrail) { m_pTrailComponent = pTrail; }
+	TrailComponent* GetTrailComponent() { return m_pTrailComponent; }
 	void SetCamera(CCamera* pCamera);
 	void SetRowColumn(float x, float y, float fSpeed = 0.1);
 
@@ -246,6 +248,7 @@ protected:
 	SquareMeshComponent* m_pSquareMeshComponent{ nullptr };
 	HeihtMapMeshComponent* m_pHeihtMapMeshComponent{ nullptr };
 	InstanceRenderComponent* m_pInstanceRenderComponent{ nullptr };//인스턴스 렌더 추가 23.04.26 .ccg
+	TrailComponent* m_pTrailComponent{ nullptr };
 
 	MaterialComponent** m_ppMaterialsComponent{ nullptr };
 	DepthRenderShaderComponent* m_pDepthShaderComponent{ nullptr };
@@ -287,7 +290,7 @@ public:
 	void SetRButtonClicked(bool bRButtonClicked) { m_bRButtonClicked = bRButtonClicked; }
 	bool GetRButtonClicked() { return m_bRButtonClicked; }
 
-	void SetLButtonClicked(bool bLButtonClicked) { m_bLButtonClicked = bLButtonClicked; }
+	virtual void SetLButtonClicked(bool bLButtonClicked) { m_bLButtonClicked = bLButtonClicked; }
 	bool GetLButtonClicked() { return m_bLButtonClicked; }
 
 	void SetMoveState(bool bMoveState) { m_bMoveState = bMoveState; }
@@ -303,8 +306,6 @@ public:
 
 	void CalculateDistance(const XMFLOAT3& xmf3CameramPosition);
 
-
-
 protected:
 	bool                            m_bLButtonClicked = false;
 	bool                            m_bRButtonClicked = false;
@@ -315,7 +316,6 @@ protected:
 	float                           m_fMaxHp{ 100 };//캐릭터 최대 체력
 	float                           m_fSpeed{};
 	float                           m_fDamage{};
-	float							m_projectilesLookY{};
 	XMFLOAT3						m_AddPosition{};
 
 
@@ -332,7 +332,6 @@ public:
 	void SetSkillSize(float size);
 
 	float GetBoundingSize() { return m_fBoundingSize; }
-	void SetProjectileY(float yLook) { m_projectilesLookY = yLook; }
 public:
 	XMFLOAT3						m_xmfHitPosition;
 	XMFLOAT3                        m_xmf3Destination = XMFLOAT3{ 0,0,0 };
@@ -354,7 +353,6 @@ public:
 	GameObject* m_pSkillEUI{ NULL };
 	GameObject* m_pTrailStart{ NULL };
 	GameObject* m_pTrailEnd{ NULL };
-	TrailComponent* m_pTrail{ nullptr };
 	std::queue<int> m_BossRoute;
 	std::mutex m_lockBossRoute;
 };

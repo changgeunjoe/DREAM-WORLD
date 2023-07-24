@@ -5,12 +5,13 @@ class Character : public GameObject
 {
 protected:
 	XMFLOAT3	m_xmf3RotateAxis;	// XMFLOAT3(0, 0, 1)로부터 회전한 각도	
-	bool m_bQSkillClicked;
-	bool m_bESkillClicked;
-	bool m_bOnAttack = false;
-	bool m_bOnSkill = false;
-	bool m_bShieldActive = false;
-	float m_fShield = false;
+	bool		m_bQSkillClicked;
+	bool		m_bESkillClicked;
+	bool		m_bOnAttack = false;
+	bool		m_bOnSkill = false;
+	bool		m_bShieldActive = false;
+	float		m_fShield = false;
+	bool		m_bCanAttack = true;
 protected:
 	std::array<std::chrono::seconds, 2> m_skillDuration;
 	std::array<std::chrono::seconds, 2> m_skillCoolTime;
@@ -29,7 +30,11 @@ public:
 	virtual void EndEffect(int nSkillNum) {};
 	virtual std::chrono::seconds GetSkillCoolTime(int i) { return m_skillCoolTime[i]; }
 	virtual std::chrono::high_resolution_clock::time_point GetSkillInputTime(int i) { return m_skillInputTime[i]; }
+
+protected:
 	bool CheckAnimationEnd(int nAnimation);
+	void ChangeAnimation(pair< CharacterAnimation, CharacterAnimation> nextAnimation);
+	float GetAnimationProgressRate(CharacterAnimation nAnimation);
 
 public://move
 	virtual void SetLookDirection();
@@ -44,6 +49,7 @@ protected://collision check
 	virtual std::pair<bool, XMFLOAT3> CheckCollisionCharacter(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
 	virtual std::pair<bool, XMFLOAT3> CheckCollisionNormalMonster(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
 	virtual bool CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
+
 public:
 	bool GetQSkillState() { return m_bQSkillClicked; }
 	bool GetESkillState() { return m_bESkillClicked; }
@@ -52,6 +58,7 @@ public:
 	float GetShield() { return m_fShield; }
 	void SetOnAttack(bool onAttack) { m_bOnAttack = onAttack; }	
 	XMFLOAT3& GetRotateAxis() { return m_xmf3RotateAxis; }
+
 public:
 	void SetRotateAxis(XMFLOAT3& xmf3RotateAxis) { m_xmf3RotateAxis = xmf3RotateAxis; }
 	void SetShieldActive(bool bActive) { m_bShieldActive = bActive; }
@@ -79,6 +86,12 @@ protected:
 
 class Warrior : public Character
 {
+private:
+	int		m_iAttackType = 0;
+	bool	m_bAnimationLock = false;
+	bool	m_bComboAttack = false;
+	CharacterAnimation m_attackAnimation = CharacterAnimation::CA_ATTACK;
+	CharacterAnimation m_nextAnimation = CharacterAnimation::CA_NOTHING;
 public:
 	Warrior();
 	virtual ~Warrior();
@@ -86,6 +99,7 @@ public:
 	virtual void RbuttonClicked(float fTimeElapsed);
 	virtual void Move(float fTimeElapsed)override;
 	virtual void Animate(float fTimeElapsed) override;
+	virtual void SetLButtonClicked(bool bLButtonClicked);
 public:
 	void SetStage1Position();
 	void SetBossStagePostion();
@@ -216,10 +230,8 @@ public:
 	XMFLOAT3	m_xmf3direction;
 	XMFLOAT4X4	m_xmf4x4Transform;
 	float		m_fSpeed;
-	bool		m_bActive;
-	bool		m_RAttack;
 	float		m_Angle;
-
+	bool		m_bActive;
 public:
 	Projectile(entity_id eid = UNDEF_ENTITY);
 	virtual ~Projectile();
