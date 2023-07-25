@@ -222,7 +222,7 @@ void Room::MeleeAttack(ROLE r, DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 pos, int
 		DirectX::XMFLOAT3 bossPos = GetBoss().GetPos();
 		DirectX::XMFLOAT3 toBoss = Vector3::Subtract(bossPos, pos);
 		dir = Vector3::Normalize(dir);
-		if (Vector3::DotProduct(dir, Vector3::Normalize(toBoss)) > MONSTER_ABLE_ATTACK_COS_VALUE) {
+		if (Vector3::DotProduct(dir, Vector3::Normalize(toBoss)) > PLAYER_ABLE_ATTACK_COS_VALUE) {
 			if (Vector3::Length(toBoss) < 45.0f) {
 				std::cout << "데미지 입히기" << std::endl;
 				return;
@@ -235,7 +235,7 @@ void Room::MeleeAttack(ROLE r, DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 pos, int
 		for (int i = 0; i < 15; i++) {
 			DirectX::XMFLOAT3 monsterVector = Vector3::Subtract(m_StageSmallMonster[i].GetPos(), pos);
 			dir = Vector3::Normalize(dir);
-			if (Vector3::DotProduct(dir, Vector3::Normalize(monsterVector)) > MONSTER_ABLE_ATTACK_COS_VALUE) {
+			if (Vector3::DotProduct(dir, Vector3::Normalize(monsterVector)) > PLAYER_ABLE_ATTACK_COS_VALUE) {
 				if (Vector3::Length(monsterVector) < 45.0f) {
 					m_StageSmallMonster[i].AttackedHp(damage);
 					attackedMonster.emplace_back(i);

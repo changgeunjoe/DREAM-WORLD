@@ -40,6 +40,7 @@
 #include <DirectXMath.h>
 #include <DirectXCollision.h>
 const float MONSTER_ABLE_ATTACK_COS_VALUE = std::cos(15.0f * 3.14f / 180.0f);//30도 - 0.96정도
+const float PLAYER_ABLE_ATTACK_COS_VALUE = std::cos(25.0f * 3.14f / 180.0f);//30도 - 0.96정도
 
 enum PLAYER_STATE : char
 {
