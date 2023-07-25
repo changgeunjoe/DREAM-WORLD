@@ -946,10 +946,10 @@ void GameobjectManager::EffectRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 	//}
 	SortEffect();
 	for (int i = 0; i < m_ppEffectObjects.size(); i++) {
-		
-		//if (effect->m_bActive) {
-		m_ppEffectObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-		//}
+		if (m_ppEffectObjects[i] == nullptr) continue;
+		if (m_ppEffectObjects[i]->m_bActive) {
+			m_ppEffectObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		}
 	}
 	//for (auto& effect : m_ppShieldEffectObject)
 	//{
@@ -1135,6 +1135,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pHealRange->SetScale(1.0f);
 	m_pHealRange->m_bActive = false;
 	m_pPriestObject->SetSkillRangeObject(m_pHealRange);
+	m_ppEffectObjects.emplace_back(m_pHealRange);
 
 	for (int i = 0; i < 10; ++i)
 	{
@@ -1147,7 +1148,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 		m_pEnergyBallObjects[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pEnergyBallObjects[i]->SetScale(15.f,20.f,15.f);
 		m_pEnergyBallObjects[i]->SetBoundingSize(4.0f);
-		static_cast<Priest*>(m_pPriestObject)->SetEnergyBall(m_pEnergyBallObjects[i]);
+		static_cast<Priest*>(m_pPriestObject)->SetProjectile(m_pEnergyBallObjects[i]);
 	}
 
 	m_pBoundingBox[4] = new GameObject(SQUARE_ENTITY);

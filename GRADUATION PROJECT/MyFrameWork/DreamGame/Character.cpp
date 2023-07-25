@@ -1271,6 +1271,18 @@ void Archer::SetLButtonClicked(bool bLButtonClicked)
 	}
 }
 
+void Archer::SetAdditionArrowForQSkill(Arrow** ppArrow)
+{
+	for (int i = 0; i < m_ArrowForQSkill.size(); ++i)
+		m_ArrowForQSkill[i] = ppArrow[i];
+}
+
+void Archer::SetAdditionArrowForESkill(Arrow** ppArrow)
+{
+	for (int i = 0; i < m_ArrowForESkill.size(); ++i)
+		m_ArrowForESkill[i] = ppArrow[i];
+}
+
 void Archer::ShootArrow()//스킬
 {
 	m_nProjectiles = (m_nProjectiles < MAX_ARROW) ? m_nProjectiles : m_nProjectiles % MAX_ARROW;
@@ -1427,7 +1439,7 @@ Tanker::~Tanker()
 void Tanker::Attack()
 {
 	if (m_pCamera) {
-		g_NetworkHelper.SendCommonAttackStart();
+		g_NetworkHelper.SendCommonAttackExecute(GetLook(), 0);
 	}
 }
 
@@ -1636,11 +1648,16 @@ void Tanker::Animate(float fTimeElapsed)
 
 	if (CheckAnimationEnd(CA_SECONDSKILL) == true)
 	{
-		for (int i = 0; i < 4; ++i)
+		if (m_CanActiveQSkill)
 		{
-			m_pProjectiles[i]->m_bActive = true;
-			m_pProjectiles[i]->m_xmf3startPosition = GetPosition();
-			m_pProjectiles[i]->m_xmf3startPosition.y += 16.0f;
+			for (int i = 0; i < 4; ++i)
+			{
+				m_pProjectiles[i]->m_bActive = true;
+				m_pProjectiles[i]->m_xmf3startPosition = GetPosition();
+				m_pProjectiles[i]->m_xmf3startPosition.y += 16.0f;
+			}
+
+			m_CanActiveQSkill = false;
 		}
 		m_bQSkillClicked = false;
 		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_SECONDSKILL].m_bAnimationEnd = false;
@@ -1677,7 +1694,6 @@ void Tanker::SetSkillBall(Projectile* pBall)
 		m_pProjectiles[m_nProjectiles]->SetPosition(Vector3::Add(GetPosition(), XMFLOAT3(0.0f, 16.0f, 0.0f)));
 		m_pProjectiles[m_nProjectiles]->SetLook(GetObjectLook());
 		m_pProjectiles[m_nProjectiles]->m_bActive = false;
-		static_cast<EnergyBall*>(m_pProjectiles[m_nProjectiles])->SetHostRole(ROLE::TANKER);
 		switch (m_nProjectiles)
 		{
 		case 0: static_cast<EnergyBall*>(m_pProjectiles[0])->SetTarget(ROLE::WARRIOR); break;
@@ -1692,21 +1708,19 @@ void Tanker::SetSkillBall(Projectile* pBall)
 
 void Tanker::StartEffect(int nSkillNum)
 {
-	for (int i = 0; i < 4; ++i)
-	{
-		// 시작 위치 Set해줄 필요 있음
-		m_pProjectiles[i]->m_bActive = true;
-	}
+	if(nSkillNum == 0)
+		m_CanActiveQSkill = true;
 }
 
 void Tanker::EndEffect(int nSkillNum)
 {
 	// 이펙트 렌더 비활성화
 	// 실드(HP바) UI 비활성화
-	EffectObject** shieldEffects = gGameFramework.GetScene()->GetObjectManager()->GetShieldEffectArr();
-	for (int i = 0; i < 4; ++i)
+	if (nSkillNum == 0)
 	{
-		shieldEffects[i]->m_bActive = false;
+		EffectObject** shieldEffects = gGameFramework.GetScene()->GetObjectManager()->GetShieldEffectArr();
+		for (int i = 0; i < 4; ++i)
+			shieldEffects[i]->SetActive(false);
 	}
 }
 
@@ -1962,16 +1976,14 @@ void Priest::Attack(const XMFLOAT3& xmf3StartPos, const XMFLOAT3& xmf3Direction,
 	m_nProjectiles++;
 }
 
-void Priest::SetEnergyBall(Projectile* pEnergyBall)
+void Priest::SetProjectile(Projectile* pEnergyBall)
 {
 	if (m_nProjectiles < 10)
 	{
-		m_pProjectiles[m_nProjectiles] = new EnergyBall();
-		m_pProjectiles[m_nProjectiles] = static_cast<Projectile*>(pEnergyBall);
+		m_pProjectiles[m_nProjectiles] = pEnergyBall;
 		m_pProjectiles[m_nProjectiles]->SetPosition(Vector3::Add(GetPosition(), XMFLOAT3(0.0f, 7.5f, 100.0f)));
 		m_pProjectiles[m_nProjectiles]->SetLook(GetObjectLook());
 		m_pProjectiles[m_nProjectiles]->m_bActive = false;
-		static_cast<EnergyBall*>(m_pProjectiles[m_nProjectiles])->SetHostRole(ROLE::PRIEST);
 		m_nProjectiles++;
 	}
 }
@@ -2025,7 +2037,7 @@ void Priest::EndEffect(int nSkillNum)
 	EffectObject** HealingEffects = gGameFramework.GetScene()->GetObjectManager()->GetHealingEffectArr();
 	for (int i = 0; i < 4; ++i)
 	{
-		HealingEffects[i]->m_bActive = false;
+		HealingEffects[i]->SetActive(false);
 	}
 	m_bQSkillClicked = false;
 }
@@ -2046,7 +2058,7 @@ void Priest::UpdateEffect()
 		XMFLOAT3 targetPos = p->GetPosition();
 		float distance = Vector3::Length(Vector3::Subtract(targetPos, myPos));
 		EffectObject** HealingEffects = gGameFramework.GetScene()->GetObjectManager()->GetHealingEffectArr();
-		HealingEffects[i++]->m_bActive = static_cast<bool>(distance < 75.0f);
+		HealingEffects[i++]->SetActive(static_cast<bool>(distance < 75.0f));
 	}
 }
 
@@ -2333,9 +2345,9 @@ void Projectile::Move(XMFLOAT3 dir, float fDistance)
 {
 	XMFLOAT3 xmf3Position = GetPosition();
 	float moveDist = Vector3::Length(Vector3::Subtract(xmf3Position, m_xmf3startPosition));
-	if (moveDist > 200.0f)
+	if (moveDist > 250.0f)
 	{
-		m_bActive = false;
+		SetActive(false);
 		return;
 	}
 
@@ -2386,12 +2398,19 @@ void Arrow::Animate(float fTimeElapsed)
 	SetLook(m_xmf3direction);
 	Move(m_xmf3direction, fTimeElapsed * m_fSpeed);
 	if (m_VisualizeSPBB) m_VisualizeSPBB->SetPosition(XMFLOAT3(GetPosition().x, GetPosition().y, GetPosition().z));
-	if (GetPosition().y < -1.0f) m_bActive = false;
+	if (GetPosition().y < -1.0f) SetActive(false);
 }
 
 void Arrow::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender)
 {
 	GameObject::Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
+}
+
+void Arrow::SetActive(bool bActive)
+{
+	m_bActive = bActive;
+	Character* archerCharacter = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::ARCHER);
+	GameObject::SetPosition(archerCharacter->GetPosition());
 }
 
 EnergyBall::EnergyBall() : Projectile(SQUARE_ENTITY)
@@ -2407,47 +2426,34 @@ EnergyBall::~EnergyBall()
 void EnergyBall::Animate(float fTimeElapsed)
 {
 	if (m_bActive == false) return;
-	switch (m_HostRole)
+
+	if (m_fProgress > 1.0f)
 	{
-	case ROLE::PRIEST:
-	{
-		if (GetPosition().y < -1.0f) m_bActive = false;
-		Move(m_xmf3direction, fTimeElapsed * m_fSpeed);
-		XMFLOAT3 xmf3CurrentPos = GetPosition();
+		m_bActive = false;
+		m_fProgress = 0.0f;
+		EffectObject** shieldEffects = gGameFramework.GetScene()->GetObjectManager()->GetShieldEffectArr();
+		for (int i = 0; i < 4; ++i)
+			shieldEffects[i]->SetActive(true);
+		return;
 	}
-	break;
-	case ROLE::TANKER:
-	{
-		if (m_fProgress > 1.0f)
-		{
-			m_bActive = false;
-			m_fProgress = 0.0f;
-			EffectObject** shieldEffects = gGameFramework.GetScene()->GetObjectManager()->GetShieldEffectArr();
-			for (int i = 0; i < 4; ++i)
-				shieldEffects[i]->m_bActive = true;
-			return;
-		}
 
-		Character* Target = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(m_Target);
-		XMFLOAT3 TargetPos = Target->GetPosition();
-		TargetPos.y += 8.0f;
-		m_xmf3direction = Vector3::Normalize(Vector3::Subtract(TargetPos, m_xmf3startPosition));
-		m_xmf3direction.y = 0.6f;
+	Character* Target = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(m_Target);
+	XMFLOAT3 TargetPos = Target->GetPosition();
+	TargetPos.y += 8.0f;
+	m_xmf3direction = Vector3::Normalize(Vector3::Subtract(TargetPos, m_xmf3startPosition));
+	m_xmf3direction.y = 0.6f;
 
-		XMFLOAT3 controlPoint = Vector3::Add(m_xmf3startPosition, m_xmf3direction, 100.0f);
-		XMFLOAT3 firstVec = Vector3::Subtract(controlPoint, m_xmf3startPosition);
-		XMFLOAT3 secondVec = Vector3::Subtract(TargetPos, controlPoint);
+	XMFLOAT3 controlPoint = Vector3::Add(m_xmf3startPosition, m_xmf3direction, 100.0f);
+	XMFLOAT3 firstVec = Vector3::Subtract(controlPoint, m_xmf3startPosition);
+	XMFLOAT3 secondVec = Vector3::Subtract(TargetPos, controlPoint);
 
-		XMFLOAT3 FirstLinePoint = Vector3::Add(Vector3::ScalarProduct(m_xmf3startPosition, (1 - m_fProgress), false), Vector3::ScalarProduct(controlPoint, m_fProgress, false));
-		XMFLOAT3 SecondLinePoint = Vector3::Add(Vector3::ScalarProduct(controlPoint, (1 - m_fProgress), false), Vector3::ScalarProduct(TargetPos, m_fProgress, false));
-		XMFLOAT3 curPos = Vector3::Add(Vector3::ScalarProduct(FirstLinePoint, (1 - m_fProgress), false), Vector3::ScalarProduct(SecondLinePoint, m_fProgress, false));
+	XMFLOAT3 FirstLinePoint = Vector3::Add(Vector3::ScalarProduct(m_xmf3startPosition, (1 - m_fProgress), false), Vector3::ScalarProduct(controlPoint, m_fProgress, false));
+	XMFLOAT3 SecondLinePoint = Vector3::Add(Vector3::ScalarProduct(controlPoint, (1 - m_fProgress), false), Vector3::ScalarProduct(TargetPos, m_fProgress, false));
+	XMFLOAT3 curPos = Vector3::Add(Vector3::ScalarProduct(FirstLinePoint, (1 - m_fProgress), false), Vector3::ScalarProduct(SecondLinePoint, m_fProgress, false));
 
-		SetPosition(curPos);
-		// SetLook(Vector3::Subtract(SecondLinePoint, FirstLinePoint));
-		m_fProgress += fTimeElapsed * 0.8f;
-	}
-	break;
-	}
+	SetPosition(curPos);
+	// SetLook(Vector3::Subtract(SecondLinePoint, FirstLinePoint));
+	m_fProgress += fTimeElapsed * 0.8f;
 }
 
 void EnergyBall::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender)
@@ -2482,7 +2488,7 @@ NormalMonster::~NormalMonster()
 
 void NormalMonster::Animate(float fTimeElapsed)
 {
-	if (m_fHp < FLT_EPSILON)
+	if (!m_bIsAlive)
 	{
 		if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CA_DIE)
 		{
@@ -2490,6 +2496,11 @@ void NormalMonster::Animate(float fTimeElapsed)
 			m_pSkinnedAnimationController->m_CurrentAnimations = NextAnimations;
 			m_pSkinnedAnimationController->SetTrackEnable(NextAnimations);
 		}
+		if (CheckAnimationEnd(CA_DIE))
+		{
+			m_bActive = false;
+		}
+		GameObject::Animate(fTimeElapsed);
 		return;
 	}
 	if (CheckAnimationEnd(CharacterAnimation::CA_ATTACK) && m_bOnAttack)

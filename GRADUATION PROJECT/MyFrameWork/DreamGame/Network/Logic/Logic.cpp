@@ -224,10 +224,11 @@ void Logic::ProcessPacket(char* p)
 		for (int i = 0; i < 15; i++) {
 			smallMonsterArr[i]->InterpolateMove(recvPacket->monsterTime, recvPacket->smallMonster[i].pos, recvPacket->smallMonster[i].moveVec);
 			//smallMonsterArr[i]->SetLook(recvPacket->smallMonster[i].moveVec);
-			smallMonsterArr[i]->SetCurrentHP(recvPacket->smallMonster[i].hp);
+			//smallMonsterArr[i]->SetCurrentHP(recvPacket->smallMonster[i].hp);
 			//float maxHp = smallMonsterArr[i]->GetMaxCurrentHP(); //conflict
 			float maxHp = smallMonsterArr[i]->GetMaxHP();
 			smallMonsterArr[i]->SetCurrentHP(recvPacket->smallMonster[i].hp / maxHp * 100.0f);
+			smallMonsterArr[i]->SetAliveState(recvPacket->smallMonster->isAlive);
 			
 		}
 	}
@@ -477,7 +478,10 @@ void Logic::ProcessPacket(char* p)
 		for (int i = 0; i < 4; i++) {
 			Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo((ROLE)recvPacket->applyHealPlayerInfo[i].role);
 			if (possessObj)
-				possessObj->SetCurrentHP(recvPacket->applyHealPlayerInfo[i].hp);
+			{
+				float maxHp = possessObj->GetMaxHP();
+				possessObj->SetCurrentHP(recvPacket->applyHealPlayerInfo[i].hp / maxHp * 100.0f);
+			}
 		}
 	}
 	break;

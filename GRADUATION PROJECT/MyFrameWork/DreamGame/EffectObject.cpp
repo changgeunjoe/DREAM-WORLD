@@ -59,7 +59,7 @@ void EffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pArrowObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pArrowObject[i]->m_fTime = RandF(0, 10);
 		m_pEffectObjects.push_back(m_pArrowObject[i]);
-		mppEffectObject->push_back(m_pPointObject[i]);
+		mppEffectObject->push_back(m_pArrowObject[i]);
 	}
 	for (int i = 0; i < m_pFlareObject.size(); i++) {
 		m_pFlareObject[i] = new GameObject(UNDEF_ENTITY);
@@ -214,6 +214,16 @@ void EffectObject::Particle(CCamera* pCamera, float fTimeElapsed, XMFLOAT3& xm3p
 			m_fLifetime = 0;
 			gGameFramework.GetScene()->GetObjectManager()->m_bPickingenemy = false;
 		}
+	}
+}
+
+void EffectObject::SetActive(bool bActive)
+{
+	m_bActive = bActive;
+	for (auto p : m_pEffectObjects)
+	{
+		if (p == nullptr) continue;
+		p->m_bActive = bActive;
 	}
 }
 
