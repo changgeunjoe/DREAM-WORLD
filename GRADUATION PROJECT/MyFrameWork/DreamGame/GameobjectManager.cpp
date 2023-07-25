@@ -101,7 +101,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 				m_ppNormalMonsterObject[i]->GetPosition().y + 30, m_ppNormalMonsterObject[i]->GetPosition().z));
 			m_pNormalMonsterHPBarObject[i]->Rotate(0, 180, 0);
 			m_pNormalMonsterHPBarObject[i]->SetScale(3, 0.5, 1);
-			m_pNormalMonsterHPBarObject[i]->SetCurrentHP(70);//m_ppNormalMonsterObject[i]->GetCurrentHP());
+			m_pNormalMonsterHPBarObject[i]->SetCurrentHP(m_ppNormalMonsterObject[i]->GetCurrentHP());
 		}
 	}
 	XMFLOAT3 mfHittmp = m_pMonsterObject->m_xmfHitPosition;
