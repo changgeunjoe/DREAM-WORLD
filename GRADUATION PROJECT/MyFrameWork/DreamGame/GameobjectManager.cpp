@@ -944,6 +944,13 @@ void GameobjectManager::EffectRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 	//		effect->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//	//}
 	//}
+	
+	for (int i = 0; i < m_ppEffectObjects.size(); i++) {
+
+		//if (effect->m_bActive) {
+		m_ppEffectObjects[i]->CalculateDistance(m_pCamera->GetPosition());
+		//}
+	}
 	SortEffect();
 	for (int i = 0; i < m_ppEffectObjects.size(); i++) {
 		
@@ -1998,7 +2005,7 @@ void GameobjectManager::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 {
 	for (int i = 0; i < 4; ++i)
 	{
-		m_ppShieldEffectObject[i] = new EffectObject;
+		m_ppShieldEffectObject[i] = new SheildEffectObject;
 		m_ppShieldEffectObject[i]->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,&m_ppEffectObjects);
 		m_ppShieldEffectObject[i]->m_hostObject = static_cast<ROLE>(0x01 << i);
 	}
