@@ -25,7 +25,8 @@ public:
 	float	m_ftime = 0.0f;
 	bool	m_bActive = false;
 	ROLE	m_hostObject = ROLE::NONE_SELECT;
-	float m_fLifetime = 0.0f;
+	float	m_fParticleLifeTime = 0.0f;
+	float	m_fEffectLifeTime = 0.0f;
 
 
 	vector< GameObject*> m_pEffectObjects;

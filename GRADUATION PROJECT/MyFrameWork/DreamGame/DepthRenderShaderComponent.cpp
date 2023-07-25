@@ -315,10 +315,12 @@ void DepthRenderShaderComponent::Render(ID3D12Device* pd3dDevice,ID3D12GraphicsC
 	
 	//조명의 위치에서 오브젝트 깊이값 저장, 렌더타겟에 저장
 	for (int i = 0; i < m_ppObjects.size();i++) {
-		if (m_ppObjects[i]->m_nStageType == gGameFramework.GetScene()->GetObjectManager()->m_nStageType
-			|| m_ppObjects[i]->m_nStageType == 0) {
-			m_ppObjects[i]->UpdateTransform(NULL);
-			m_ppObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, true);
+		if (m_ppObjects[i]->m_bActive) {
+			if (m_ppObjects[i]->m_nStageType == gGameFramework.GetScene()->GetObjectManager()->m_nStageType
+				|| m_ppObjects[i]->m_nStageType == 0) {
+				m_ppObjects[i]->UpdateTransform(NULL);
+				m_ppObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, true);
+			}
 		}
 	}
 

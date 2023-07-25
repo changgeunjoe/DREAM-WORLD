@@ -774,7 +774,7 @@ void Room::ExecuteMageThunder(XMFLOAT3& position)
 	positions.reserve(6);
 	for (int i = 0; i < 15; i++) {
 		if (m_StageSmallMonster[i].IsAlive()) {
-			if (m_StageSmallMonster[i].GetDistance(position) > 12.0f) {
+			if (m_StageSmallMonster[i].GetDistance(position) < 24.0f) {
 				m_StageSmallMonster[i].AttackedHp(120.0f);
 				positions.emplace_back(i);
 			}
