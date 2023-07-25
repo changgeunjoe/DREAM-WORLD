@@ -114,11 +114,16 @@ public:
 	virtual void ExecuteSkill_E();
 };
 
+class Arrow;
 class Archer : public Character
 {
 private:
 	XMFLOAT3 m_CameraLook;
 	bool m_bZoomInState;
+	array<Arrow*, 3> m_ArrowForQSkill;
+	array<Arrow*, 15> m_ArrowForESkill;
+
+
 public:
 	Archer();
 	virtual ~Archer();
@@ -134,6 +139,10 @@ public:
 	virtual void ShootArrow(const XMFLOAT3& xmf3StartPos, const XMFLOAT3& xmf3Direction, const float fSpeed);
 
 	virtual void SetLButtonClicked(bool bLButtonClicked);
+
+	void SetAdditionArrowForQSkill(Arrow** ppArrow);
+	void SetAdditionArrowForESkill(Arrow** ppArrow);
+
 	// virtual void ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent);
 public:
 	void SetStage1Position();
@@ -146,6 +155,8 @@ public:
 
 class Tanker : public Character
 {
+private:
+	bool m_CanActiveQSkill = false;
 public:
 	Tanker();
 	virtual ~Tanker();
@@ -179,7 +190,7 @@ public:
 	virtual void RbuttonUp(const XMFLOAT3& CameraAxis);
 	virtual void Attack();
 	virtual void Attack(const XMFLOAT3& xmf3StartPos, const XMFLOAT3& xmf3Direction, const float fSpeed);
-	virtual void SetEnergyBall(Projectile* pEnergyBall);
+	virtual void SetProjectile(Projectile* pEnergyBall);
 	virtual void Move(float fTimeElapsed)override;
 	virtual void Animate(float fTimeElapsed);
 	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender = false);
@@ -222,7 +233,7 @@ class NormalMonster : public Character
 {
 private:
 	bool	m_bHaveTarget{ false };
-	bool	m_bCanActive{ false };
+	bool	m_bIsAlive{ true };
 	int		m_iTargetID{ -1 };
 	XMFLOAT3 m_desPos = XMFLOAT3(0, 0, 0);
 public:
@@ -234,6 +245,7 @@ public:
 	virtual void Animate(float fTimeElapsed) override;
 	virtual void Move(float fTimeElapsed)override;
 	void SetAnimation();
+	void SetAliveState(bool bAlive) { m_bIsAlive = bAlive; }
 	void InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos, XMFLOAT3& moveVec)override;
 public:
 	XMFLOAT3 m_xmf3rotateAngle = XMFLOAT3{ 0,0,0 };
@@ -259,6 +271,7 @@ public:
 	virtual void SetRButtonClicked(bool clicked) {};
 	virtual bool GetRButtonClicked() { return false; }
 	virtual void Move(XMFLOAT3 dir, float fDistance);
+	virtual void SetActive(bool bActive) { m_bActive = bActive; }
 };
 
 class Arrow : public Projectile
@@ -270,8 +283,13 @@ public:
 	virtual ~Arrow();
 	virtual void Animate(float fTimeElapsed);
 	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender = false);
-	virtual void SetRButtonClicked(bool clicked) { m_RButtonClicked = clicked; }
 	virtual bool GetRButtonClicked() { return m_RButtonClicked; }
+	virtual void SetActive(bool bActive);
+};
+
+class IceLance : public Projectile
+{
+
 };
 
 class EnergyBall : public Projectile

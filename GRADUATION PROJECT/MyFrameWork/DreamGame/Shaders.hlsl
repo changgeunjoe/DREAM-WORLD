@@ -756,7 +756,7 @@ float4 PSShadowMapShadow(VS_SHADOW_MAP_OUTPUT input) : SV_TARGET
     }
     if (gfMode == CELLSHADING_MODE || gfMode == CARTOON_MODE)
     {
-           cAlbedoColor = round(cAlbedoColor * 8.0f) / 5.0f; // 등급을 16단계로 나누어 반올림합니다.
+           cAlbedoColor = round(cAlbedoColor * 8.0f) / 4.7f; // 등급을 16단계로 나누어 반올림합니다.
     }
     
     float4 cIllumination = Lighting(input.positionW, normalize(input.normalW), true, input.uvs);

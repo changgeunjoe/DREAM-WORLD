@@ -17,7 +17,7 @@ public:
 	virtual void Particle(CCamera* pCamera,float fTimeElapsed, XMFLOAT3& xm3position);//중력 파티클
 	virtual void AnimateLight(CCamera* pCamera, XMFLOAT3 xm3position, float ftimeelapsed, float fTime) {};
 	//virtual void ParticleReset(float fTimeElapsed);
-
+	void SetActive(bool bActive);
 	
 public:
 
