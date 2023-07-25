@@ -87,7 +87,7 @@ public:
 
 
 	void AddTextToUILayer(int& index);
-	void AddDamageFontToUiLayer();
+	void AddDamageFontToUiLayer(XMFLOAT3 xmf3Pos, float fDamage);
 	float CalculateDistance(const XMFLOAT3& firstPosition, const XMFLOAT3& lastPosition);
 	virtual void SortEffect();//게임 오브젝트를 카메라와 거리별로 sort하는 함수입니다. ->이펙트가 블랜드가 꼬이는 걸 막기위한 소트 
 
@@ -118,8 +118,9 @@ private: //active object
 	GameObject* m_pAnimationObject{ NULL };
 
 	Monster* m_pMonsterObject{ NULL };
+public:
 	NormalMonster** m_ppNormalMonsterObject = nullptr;
-
+private:
 	GameObject* m_pPlayerObject{ NULL };
 	GameObject* m_pEnergyBallObject{ NULL };
 

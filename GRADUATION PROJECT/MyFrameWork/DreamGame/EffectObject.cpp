@@ -158,6 +158,7 @@ void EffectObject::AnimateEffect(CCamera* pCamera, XMFLOAT3 xm3position, float f
 			xm3position.y + m_pFlareObject[i]->GetAddPosition().y + m_pFlareObject[i]->m_fTime + i,
 			xm3position.z + m_pFlareObject[i]->GetAddPosition().z));
 	}
+
 	/*m_pAttackObject->SetLookAt(pCamera->GetPosition());
 	m_pAttackObject->SetScale(1);
 	m_pAttackObject->Rotate(0, 180, 0);
@@ -167,7 +168,6 @@ void EffectObject::AnimateEffect(CCamera* pCamera, XMFLOAT3 xm3position, float f
 		m_pEffectObjects[i]->CalculateDistance(pCamera->GetPosition());
 	}
 	/*for (int i = 0; i < m_ppParticleObjects.size(); i++) {
-
 	}*/
 
 }
@@ -195,7 +195,6 @@ void EffectObject::Particle(CCamera* pCamera, float fTimeElapsed, XMFLOAT3& xm3p
 				m_ppParticleObjects[i]->SetLookAt(pCamera->GetPosition());
 				//m_ppParticleObjects[i]->SetScale(1);
 				m_ppParticleObjects[i]->Rotate(0, 180, 0);
-				////////////////////////////////
 				if (m_ppParticleObjects[i]->m_fTime > 3) {
 					m_ppParticleObjects[i]->m_fTime = 0;
 				}
@@ -233,9 +232,7 @@ void EffectObject::SetActive(bool bActive)
 //	//	m_fLifetime = 0;
 //	//	for (int i = 0; i < m_ppParticleObjects.size(); i++) {
 //	//		m_ppParticleObjects[i]->m_fTime = 0;
-//	//	
-//	//	
-//
+// 
 //	//		//빌드 오브젝트
 //	//		//m_ppParticleObjects[i]->MoveVelocity(m_ppParticleObjects[i]->m_xmf3RamdomDirection, 0.01);
 //	//	}

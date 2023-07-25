@@ -241,6 +241,10 @@ float4 PSBlendTextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
 {
        // Sample the texture
     float4 cColor = shaderTexture.Sample(gWrapSamplerState, input.uv);
+    if (cColor.x == 1 && cColor.y == 1 && cColor.z == 1)
+    {
+        return float4(0, 0, 0, 0);
+    }
     //cColor += gmtxGameObjectColor;
     //cColor.w = 0.4;
     cColor += gmtxGameObjectColor;
