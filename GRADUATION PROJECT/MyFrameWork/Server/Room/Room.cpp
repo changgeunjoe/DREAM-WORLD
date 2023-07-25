@@ -187,6 +187,15 @@ void Room::ShootArrow(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 srcPos, float spe
 {
 	if (!m_isAlive)return;
 	int arrowIndex = -1;
+	if (m_restBall.try_pop(arrowIndex)) {
+		XMFLOAT3 xmf3Position = srcPos;
+		xmf3Position.y += 8.0f;
+		XMFLOAT3 rightVector = Vector3::CrossProduct(DirectX::XMFLOAT3(0, 1, 0), dir);
+		xmf3Position = Vector3::Add(xmf3Position, dir, 1.0f);
+		m_arrows[arrowIndex].SetStart(dir, xmf3Position, speed);
+		m_arrows[arrowIndex].SetDamage(damage);
+	}
+	
 
 }
 
@@ -195,7 +204,10 @@ void Room::ShootBall(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 srcPos)
 	if (!m_isAlive)return;
 	int ballIndex = -1;
 	if (m_restBall.try_pop(ballIndex)) {
-		m_balls[ballIndex].SetStart(dir, srcPos, 100.0f);
+		XMFLOAT3 xmf3Position = srcPos;
+		xmf3Position.y += 8.0f;
+		m_balls[ballIndex].SetStart(dir, xmf3Position, 100.0f);
+		m_balls[ballIndex].SetDamage(100.0f);
 	}
 }
 

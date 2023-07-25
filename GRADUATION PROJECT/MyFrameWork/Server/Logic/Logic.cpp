@@ -47,10 +47,10 @@ void Logic::ProcessPacket(int userId, char* p)
 		if (g_iocpNetwork.m_session[userId].GetPlayerState() == IN_GAME_ROOM) {
 			CLIENT_PACKET::MovePacket* recvPacket = reinterpret_cast<CLIENT_PACKET::MovePacket*>(p);
 			Room& roomRef = g_RoomManager.GetRunningRoomRef(g_iocpNetwork.m_session[userId].GetRoomId());
-			auto& playCharacters = roomRef.GetPlayCharacters();
-			auto currentTime = std::chrono::utc_clock::now();
-			double durationTime = std::chrono::duration_cast<std::chrono::microseconds>(currentTime - recvPacket->time).count();
-			std::cout << "Logic::ProcessPacket() - C2S latency" << durationTime / 1000'000.0f << "second" << std::endl;
+			//auto& playCharacters = roomRef.GetPlayCharacters();
+			//auto currentTime = std::chrono::utc_clock::now();
+			//double durationTime = std::chrono::duration_cast<std::chrono::microseconds>(currentTime - recvPacket->time).count();
+			//std::cout << "Logic::ProcessPacket() - C2S latency" << durationTime / 1000'000.0f << "second" << std::endl;
 			//XMFLOAT3 serverPosition = playCharacters[(ROLE)recvPacket->role]->GetPos();
 			//serverPosition = Vector3::Add(serverPosition, playCharacters[g_iocpNetwork.m_session[userId].GetRole()]->GetDirectionVector(), 50.0f * durationTime);
 			roomRef.StartMovePlayCharacter(g_iocpNetwork.m_session[userId].GetRole(), recvPacket->direction, recvPacket->time); // ¿òÁ÷ÀÓ start;			
@@ -379,7 +379,7 @@ void Logic::ProcessPacket(int userId, char* p)
 	break;
 	default:
 		PrintCurrentTime();
-		std::cout << "unknown Packet" << std::endl;
+		std::cout << "unknown Packet" << std::endl; 
 		break;
 	}
 }

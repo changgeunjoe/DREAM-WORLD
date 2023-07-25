@@ -86,7 +86,10 @@ void IOCPNetwork::WorkerThread()
 			else {
 				std::cout << "GQCS Error on client[" << key << "]" << std::endl;
 				DisconnectClient(static_cast<int>(key));
-				if (ex_over->m_opCode == OP_SEND) delete ex_over;
+				if (ex_over->m_opCode == OP_SEND) {
+					delete ex_over;
+					ex_over = nullptr;
+				}
 				continue;
 			}
 		}
@@ -183,13 +186,13 @@ void IOCPNetwork::WorkerThread()
 		break;
 		case OP_PROJECTILE_ATTACK:
 		{
+			//std::cout << "projectile Attack Ptr: " << std::hex << ex_over << std::dec << std::endl;
 			ex_over->m_opCode = OP_SEND;
 			g_logic.BroadCastInRoom_Ex(key, ex_over);
 		}
 		break;
 		case OP_SKY_ARROW_ATTACK:
 		{
-
 			if (ex_over != nullptr)
 				delete ex_over;
 		}

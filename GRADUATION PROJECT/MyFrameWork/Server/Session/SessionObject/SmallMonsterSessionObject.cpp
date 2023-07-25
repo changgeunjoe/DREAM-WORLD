@@ -313,6 +313,7 @@ std::pair<bool, XMFLOAT3> SmallMonsterSessionObject::CheckCollisionNormalMonster
 	bool isCollideNPC = false;
 	int collideCnt = 0;
 	for (int i = 0; i < 15; i++) {
+		if (!monsterArr[i].m_isAlive)continue;
 		auto normalVecRes = GetNormalVectorSphere(monsterArr[i].GetPos());
 		if (i == m_id)continue;
 		if (normalVecRes.first >= m_SPBB.Radius + 8.0f)continue;

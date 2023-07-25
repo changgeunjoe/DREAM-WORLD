@@ -51,14 +51,14 @@ protected:
 	{
 		m_position = pos;
 		m_SPBB.Center = pos;
-		m_SPBB.Center.y = 0.0f;
+		m_SPBB.Center.y = m_fBoundingSize;
 	}
 public:
 	void SetInitPosition(DirectX::XMFLOAT3& pos)
 	{
 		m_position = pos;
 		m_SPBB.Center = pos;
-		m_SPBB.Center.y = 0.0f;
+		m_SPBB.Center.y = m_fBoundingSize;
 	}
 	void SetRoomId(int roomId) { m_roomId = roomId; }
 };

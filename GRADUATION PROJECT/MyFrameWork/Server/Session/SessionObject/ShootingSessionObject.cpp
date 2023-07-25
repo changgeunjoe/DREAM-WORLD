@@ -71,6 +71,7 @@ bool ShootingSessionObject::Move(float elapsedTime)
 
 	bool isMonsterCollide = false;
 	for (int i = 0; i < 15; i++) {
+		if (!monsters[i].IsAlive())continue;
 		if (m_SPBB.Intersects(monsters[i].GetSpbb())) {
 			monsters[i].AttackedHp(m_damage);
 			SERVER_PACKET::ProjectileDamagePacket sendPacket;
@@ -101,6 +102,7 @@ bool ShootingSessionObject::Move(float elapsedTime)
 		else if (!m_isSkill) {
 			roomRef.PushRestArrow(m_id);
 		}
+		m_distance = 0.0f;
 	}
 	return true;
 }
