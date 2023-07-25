@@ -93,6 +93,17 @@ void GameobjectManager::Animate(float fTimeElapsed)
 		m_pMonsterHPBarObject->SetScale(10, 1, 1);
 		m_pMonsterHPBarObject->SetCurrentHP(m_pMonsterObject->GetCurrentHP());
 	}
+	for (int i = 0; i < m_pNormalMonsterHPBarObject.size(); i++) {
+		if (m_pNormalMonsterHPBarObject[i])//23.04.18 몬스터 체력바 -> 카메라를 바라 보도록 .ccg
+		{
+			m_pNormalMonsterHPBarObject[i]->SetLookAt(m_pCamera->GetPosition());
+			m_pNormalMonsterHPBarObject[i]->SetPosition(XMFLOAT3(m_ppNormalMonsterObject[i]->GetPosition().x,
+				m_ppNormalMonsterObject[i]->GetPosition().y + 30, m_ppNormalMonsterObject[i]->GetPosition().z));
+			m_pNormalMonsterHPBarObject[i]->Rotate(0, 180, 0);
+			m_pNormalMonsterHPBarObject[i]->SetScale(3, 0.5, 1);
+			m_pNormalMonsterHPBarObject[i]->SetCurrentHP(70);//m_ppNormalMonsterObject[i]->GetCurrentHP());
+		}
+	}
 	XMFLOAT3 mfHittmp = m_pMonsterObject->m_xmfHitPosition;
 	for (int i = 0; i < m_ppParticleObjects.size(); i++) {
 		m_ppParticleObjects[i]->SetLookAt(m_pCamera->GetPosition());
@@ -409,9 +420,14 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pShadowmapShaderComponent->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature, m_fTimeElapsed, m_nStageType);
 
 	}
+	//몬스터 체력바
 	if (m_pMonsterHPBarObject) {
 		m_pMonsterHPBarObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
+	for (int i = 0; i < m_pNormalMonsterHPBarObject.size(); i++) {
+		m_pNormalMonsterHPBarObject[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
+	//몬스터 체력바
 	if (m_pHealRange)
 	{
 		if (m_pHealRange->m_bActive)
@@ -1711,6 +1727,17 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pMonsterHPBarObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//m_ppCharacterUIObjects.emplace_back(m_pMonsterHPBarObject);
 
+	for (int i = 0; i < m_pNormalMonsterHPBarObject.size(); i++) {
+		m_pNormalMonsterHPBarObject[i] = new GameObject(UNDEF_ENTITY);
+		m_pNormalMonsterHPBarObject[i]->InsertComponent<RenderComponent>();
+		m_pNormalMonsterHPBarObject[i]->InsertComponent<UIMeshComponent>();
+		m_pNormalMonsterHPBarObject[i]->InsertComponent <BlendShaderComponent>();
+		m_pNormalMonsterHPBarObject[i]->InsertComponent<TextureComponent>();
+		m_pNormalMonsterHPBarObject[i]->SetTexture(L"UI/HpBar.dds", RESOURCE_TEXTURE2D, 3);
+		m_pNormalMonsterHPBarObject[i]->SetPosition(XMFLOAT3(0, 40, 100));
+		m_pNormalMonsterHPBarObject[i]->SetScale(4);
+		m_pNormalMonsterHPBarObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
 
 ///////////////////////////////////////////////////////
 	m_pArcherObject->m_pHPBarUI = new GameObject(UI_ENTITY);

@@ -174,6 +174,7 @@ private: //active object
 
 	//GmaeUI-HPBAR,CharacterUI - Á¶Ã¢±Ù 23.04.13
 	GameObject* m_pMonsterHPBarObject{ NULL };
+	array<GameObject*,15> m_pNormalMonsterHPBarObject{ NULL };
 	GameObject* m_pVictoryUIObject{ NULL };
 	GameObject* m_pContinueUIObject{ NULL };
 	vector<GameObject*> m_ppCharacterUIObjects;
