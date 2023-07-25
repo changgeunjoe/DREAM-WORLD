@@ -2467,7 +2467,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		break;
 		case 'U':
 		{
-			AddDamageFontToUiLayer();
+		//AddDamageFontToUiLayer();
 			break;
 		}
 
@@ -2498,11 +2498,11 @@ bool GameobjectManager::onProcessingKeyboardMessageLobby(HWND hWnd, UINT nMessag
 	if (nMessageID == WM_KEYDOWN && wParam == VK_F2)
 	{
 #ifdef LOCAL_TASK
-		g_Logic.SetMyRole(ROLE::WARRIOR);
+		g_Logic.SetMyRole(ROLE::PRIEST);
 		m_pCamera->Rotate(0, -90, 0);
-		m_pPlayerObject = m_pWarriorObject;
+		m_pPlayerObject = m_pPriestObject;
 		m_pPlayerObject->SetCamera(m_pCamera);
-		m_pWarriorObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
+		m_pPriestObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
 #else
 		g_Logic.SetMyRole(ROLE::ARCHER);
 		m_pArcherObject->SetCamera(m_pCamera);
@@ -2747,7 +2747,7 @@ void GameobjectManager::AddTextToUILayer(int& iIndex)
 	if (iIndex == NPC_TEXT)
 	{
 		queueStr.emplace(L"용사님들 꿈마을이 악몽에게 공격을 받았어요");
-		queueStr.emplace(L"꿈마을을 악몽들을 처치하여 지켜주세요!");
+		queueStr.emplace(L"앞에 있는 악몽들을 처치해주세요!");
 		//queueStr.emplace(L"앞에 있는 악몽들을 처치해주세요!");
 	}
 	if (iIndex == BOSS_TEXT)
@@ -2896,10 +2896,10 @@ bool GameobjectManager::CheckCollision(vector<GameObject*> m_ppObjects)
 	return false;
 }
 
-void GameobjectManager::AddDamageFontToUiLayer()
+void GameobjectManager::AddDamageFontToUiLayer(XMFLOAT3 xmf3Pos, float	fDamage)
 {
-	XMFLOAT3 xmf3Pos = XMFLOAT3(-1400, 10, -1500);//충돌 포지션
-	float	fDamage = 300;
+	//XMFLOAT3 xmf3Pos = XMFLOAT3(-1400, 10, -1500);//충돌 포지션
+	//float	fDamage = 300;
 	m_pUILayer->AddDamageFont(xmf3Pos, to_wstring(fDamage));
 }
 
