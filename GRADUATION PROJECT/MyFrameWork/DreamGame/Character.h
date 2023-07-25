@@ -197,11 +197,11 @@ public:
 	virtual void SetLookDirection() override;
 	virtual void FirstSkillDown();
 	virtual void FirstSkillUp();
-	virtual void SecondSkillDown() {};
-	virtual void SecondSkillUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f }) {};
+	virtual void SecondSkillDown();
 	virtual void SetSkillRangeObject(GameObject* obj) { m_pHealRange = obj; }
 	virtual void StartEffect(int nSkillNum);
 	virtual void EndEffect(int nSkillNum);
+public:
 	void UpdateEffect();
 	// virtual void ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent);
 public:
@@ -246,6 +246,7 @@ public:
 	virtual void Move(float fTimeElapsed)override;
 	void SetAnimation();
 	void SetAliveState(bool bAlive) { m_bIsAlive = bAlive; }
+	bool GetAliveState() { return m_bIsAlive; }
 	void InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos, XMFLOAT3& moveVec)override;
 public:
 	XMFLOAT3 m_xmf3rotateAngle = XMFLOAT3{ 0,0,0 };

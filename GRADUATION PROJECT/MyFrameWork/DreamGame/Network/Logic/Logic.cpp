@@ -228,8 +228,8 @@ void Logic::ProcessPacket(char* p)
 			//float maxHp = smallMonsterArr[i]->GetMaxCurrentHP(); //conflict
 			float maxHp = smallMonsterArr[i]->GetMaxHP();
 			smallMonsterArr[i]->SetCurrentHP(recvPacket->smallMonster[i].hp / maxHp * 100.0f);
-			smallMonsterArr[i]->SetAliveState(recvPacket->smallMonster->isAlive);
-
+			smallMonsterArr[i]->SetAliveState(recvPacket->smallMonster[i].isAlive);
+			
 		}
 	}
 	break;

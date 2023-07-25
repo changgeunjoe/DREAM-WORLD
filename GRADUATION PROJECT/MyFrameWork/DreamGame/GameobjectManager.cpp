@@ -74,10 +74,6 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	//	AddDamageFontToUiLayer();
 	//}
 	//Effect
-	if (m_pSelectedObject) {
-		//m_pEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 10);
-		m_pLightEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 10);
-	}
 	
 	m_pMonsterCubeObject->SetPosition(m_pCamera->GetPosition());
 	m_pSkyboxObject->SetPosition(m_pCamera->GetPosition());
@@ -106,12 +102,15 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	}
 	XMFLOAT3 mfHittmp = m_pMonsterObject->m_xmfHitPosition;
 	for (int i = 0; i < m_ppParticleObjects.size(); i++) {
-		m_ppParticleObjects[i]->SetLookAt(m_pCamera->GetPosition());
-		//m_ppParticleObjects[i]->SetPosition(XMFLOAT3(mfHittmp.x, mfHittmp.y+20, mfHittmp.z));
-		m_ppParticleObjects[i]->SetScale(m_ppParticleObjects[i]->m_xmf3Scale.x,
-			m_ppParticleObjects[i]->m_xmf3Scale.y, m_ppParticleObjects[i]->m_xmf3Scale.z);
-		m_ppParticleObjects[i]->Rotate(0, 180, 0);
-		m_ppParticleObjects[i]->AnimateRowColumn(fTimeElapsed);
+		if (m_ppParticleObjects[i]->m_bActive)
+		{
+			m_ppParticleObjects[i]->SetLookAt(m_pCamera->GetPosition());
+			//m_ppParticleObjects[i]->SetPosition(XMFLOAT3(mfHittmp.x, mfHittmp.y+20, mfHittmp.z));
+			m_ppParticleObjects[i]->SetScale(m_ppParticleObjects[i]->m_xmf3Scale.x,
+				m_ppParticleObjects[i]->m_xmf3Scale.y, m_ppParticleObjects[i]->m_xmf3Scale.z);
+			m_ppParticleObjects[i]->Rotate(0, 180, 0);
+			m_ppParticleObjects[i]->AnimateRowColumn(fTimeElapsed);
+		}
 	}
 	SceneSwapAnimate(fTimeElapsed);
 	//if (int(m_fTime) % 5 > 3)
@@ -120,15 +119,32 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	//}
 	//Effect
 	if (m_bPickingenemy) {
-		if (g_Logic.GetMyRole() == ROLE::PRIEST) {
-			g_sound.NoLoopPlay("LightningSound",1.0f);
-			m_pLightEffectObject->AnimateEffect(m_pCamera,XMFLOAT3( m_pSelectedObject->GetPosition().x,
-				m_pSelectedObject->GetPosition().y+10, m_pSelectedObject->GetPosition().z), fTimeElapsed, m_fTime * 5);
-			m_pLightningSpriteObject->SetPosition(XMFLOAT3(
-				m_pSelectedObject->GetPosition().x,
-				m_pSelectedObject->GetPosition().y + 50,
-				m_pSelectedObject->GetPosition().z));
-			m_bPickingenemy = false;
+		if (m_pSelectedObject != nullptr) {
+			if (g_Logic.GetMyRole() == ROLE::PRIEST) {
+				g_sound.NoLoopPlay("LightningSound", 1.0f);
+				// m_pLightEffectObject->AnimateEffect(m_pCamera, XMFLOAT3(m_pSelectedObject->GetPosition().x,
+				// 	m_pSelectedObject->GetPosition().y + 10, m_pSelectedObject->GetPosition().z), fTimeElapsed, m_fTime * 5);
+				m_pLightningSpriteObject->SetPosition(XMFLOAT3(
+					m_pSelectedObject->GetPosition().x,
+					m_pSelectedObject->GetPosition().y + 50,
+					m_pSelectedObject->GetPosition().z));
+
+				m_pLightEffectObject->m_fEffectLifeTime = 2.0f;
+
+				m_pLightningSpriteObject->m_bActive = m_pLightEffectObject->m_bActive = true;
+				XMFLOAT3 TargetPosition = m_pSelectedObject->GetPosition();
+				g_NetworkHelper.Send_SkillExecute_E(TargetPosition);
+				m_bPickingenemy = false;
+			}
+			else if (g_Logic.GetMyRole() == ROLE::ARCHER)
+			{
+				//if(m_pArcherObject != nullptr) 
+				// 아처 오브젝트에게 화살을 발사하게 알려줄 수 있게 설정해줌
+
+				XMFLOAT3 TargetPosition = m_pSelectedObject->GetPosition();
+				g_NetworkHelper.Send_SkillExecute_E(TargetPosition);
+				m_bPickingenemy = false;
+			}
 		}
 		//m_pEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 10);
 		//라이트닝
@@ -136,6 +152,17 @@ void GameobjectManager::Animate(float fTimeElapsed)
 		//m_pLightningSpriteObject->SetScale(7.0f, 20.0f, 7.0f);
 		//m_pSheildEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 10);
 	}
+
+	if (m_pSelectedObject) {
+		if (m_pLightEffectObject->m_fEffectLifeTime > FLT_EPSILON) {
+			m_pLightEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 10);
+			m_pLightningSpriteObject->m_bActive = m_pLightEffectObject->m_bActive;
+		}
+		else {
+			m_pSelectedObject = nullptr;
+		}
+	}
+
 	for (auto& effect : m_ppShieldEffectObject)
 	{
 		if (effect == nullptr) continue;
@@ -403,9 +430,11 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		{
 			p->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		}
+		int normalMonsterIndex = 0;
 		for (auto& p : m_ppNormalMonsterBoundingBox)
 		{
-			p->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+			if (m_ppNormalMonsterObject[normalMonsterIndex++]->GetAliveState())
+				p->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		}
 	}
 
@@ -425,7 +454,8 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pMonsterHPBarObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 	for (int i = 0; i < m_pNormalMonsterHPBarObject.size(); i++) {
-		m_pNormalMonsterHPBarObject[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		if(m_ppNormalMonsterObject[i]->GetAliveState())
+			m_pNormalMonsterHPBarObject[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 	//몬스터 체력바
 	if (m_pHealRange)
@@ -474,7 +504,8 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	}
 
 	for (int i = 0; i < m_ppParticleObjects.size(); i++) {
-		m_ppParticleObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//파티클
+		if(m_ppParticleObjects[i]->m_bActive == true)
+			m_ppParticleObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//파티클
 	}
 
 	TrailRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -1274,7 +1305,7 @@ void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	m_pLightningSpriteObject->InsertComponent<MultiSpriteShaderComponent>();
 	m_pLightningSpriteObject->InsertComponent<TextureComponent>();
 	m_pLightningSpriteObject->SetTexture(L"MagicEffect/Lightning_2x2.dds", RESOURCE_TEXTURE2D, 3);
-	m_pLightningSpriteObject->SetPosition(XMFLOAT3(0, 40, 100));
+	m_pLightningSpriteObject->SetPosition(XMFLOAT3(0, 0, 100));
 	m_pLightningSpriteObject->SetScale(7.0f, 20.0f, 7.0f);
 	m_pLightningSpriteObject->SetRowColumn(2.0f, 2.0f, 0.06f);
 	m_pLightningSpriteObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -2307,9 +2338,24 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		{
 			if (myPlayCharacter->GetESkillState() == false && myPlayCharacter->GetOnAttack() == false)
 			{
-				myPlayCharacter->SecondSkillDown();
-				g_NetworkHelper.Send_SkillInput_E();
-				m_bPickingenemy = CheckCollision(m_ppGameObjects);
+				if (g_Logic.GetMyRole() == ROLE::PRIEST || g_Logic.GetMyRole() == ROLE::ARCHER)
+				{
+					if (!m_bPickingenemy && m_pSelectedObject == nullptr)
+					{
+						m_bPickingenemy = CheckCollision(m_ppGameObjects);
+						if (m_bPickingenemy == true)
+						{
+							myPlayCharacter->SecondSkillDown();
+							g_NetworkHelper.Send_SkillInput_E();
+						}
+					}
+				}
+				else
+				{
+					myPlayCharacter->SecondSkillDown();
+					g_NetworkHelper.Send_SkillInput_E();
+				}
+
 			}
 			break;
 		}
@@ -2738,12 +2784,12 @@ void GameobjectManager::AddTextToUILayer(int& iIndex)
 	queue<wstring> queueStr;
 	if (iIndex == START_TEXT)
 	{
-		//queueStr.emplace(L"z!");
-		queueStr.emplace(L"안녕하세요! 드림월드에 오신 것을 환영해요");
-		queueStr.emplace(L"먼저 플레이 방법에 대해서 알려드릴게요!");
-		queueStr.emplace(L"앞에 보이는 캐릭터들 중 원하는 캐릭터를");
-		queueStr.emplace(L"선택하신 후에 게임 시작을 누르시면");
-		queueStr.emplace(L"선택한 캐릭터를 플레이 하실 수 있어요!");
+		queueStr.emplace(L"z!");
+		//queueStr.emplace(L"안녕하세요! 드림월드에 오신 것을 환영해요");
+		//queueStr.emplace(L"먼저 플레이 방법에 대해서 알려드릴게요!");
+		//queueStr.emplace(L"앞에 보이는 캐릭터들 중 원하는 캐릭터를");
+		//queueStr.emplace(L"선택하신 후에 게임 시작을 누르시면");
+		//queueStr.emplace(L"선택한 캐릭터를 플레이 하실 수 있어요!");
 	}
 	if (iIndex == NPC_TEXT)
 	{

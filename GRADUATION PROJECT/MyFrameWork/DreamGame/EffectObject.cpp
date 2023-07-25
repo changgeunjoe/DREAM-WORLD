@@ -27,8 +27,8 @@ void EffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pSmokeObject[i]->SetColor(XMFLOAT4(0.0f, 1.0f, 0.2568f, 0));
 		m_pSmokeObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pSmokeObject[i]->m_fTime = RandF(0, 10);
-		m_pEffectObjects.push_back(m_pSmokeObject[i]);
-		mppEffectObject->push_back(m_pSmokeObject[i]);
+		m_pEffectObjects.emplace_back(m_pSmokeObject[i]);
+		mppEffectObject->emplace_back(m_pSmokeObject[i]);
 	}
 	for (int i = 0; i < m_pPointObject.size(); i++) {
 		m_pPointObject[i] = new GameObject(UNDEF_ENTITY);
@@ -42,8 +42,8 @@ void EffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pPointObject[i]->SetColor(XMFLOAT4(0.0f, 1.0f, 0.2568f, 0));
 		m_pPointObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pPointObject[i]->m_fTime = RandF(0, 10);
-		m_pEffectObjects.push_back(m_pPointObject[i]);
-		mppEffectObject->push_back(m_pPointObject[i]);
+		m_pEffectObjects.emplace_back(m_pPointObject[i]);
+		mppEffectObject->emplace_back(m_pPointObject[i]);
 	}
 	for (int i = 0; i < m_pArrowObject.size(); i++) {
 		m_pArrowObject[i] = new GameObject(UNDEF_ENTITY);
@@ -58,8 +58,8 @@ void EffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pArrowObject[i]->SetColor(XMFLOAT4(0.0f, 1.0f, 0.2568f, 0));
 		m_pArrowObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pArrowObject[i]->m_fTime = RandF(0, 10);
-		m_pEffectObjects.push_back(m_pArrowObject[i]);
-		mppEffectObject->push_back(m_pArrowObject[i]);
+		m_pEffectObjects.emplace_back(m_pArrowObject[i]);
+		mppEffectObject->emplace_back(m_pArrowObject[i]);
 	}
 	for (int i = 0; i < m_pFlareObject.size(); i++) {
 		m_pFlareObject[i] = new GameObject(UNDEF_ENTITY);
@@ -73,8 +73,8 @@ void EffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pFlareObject[i]->SetColor(XMFLOAT4(0.0f, 1.0f, 0.2568f, 0));
 		m_pFlareObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pFlareObject[i]->m_fTime = RandF(0, 10);
-		m_pEffectObjects.push_back(m_pFlareObject[i]);
-		mppEffectObject->push_back(m_pFlareObject[i]);
+		m_pEffectObjects.emplace_back(m_pFlareObject[i]);
+		mppEffectObject->emplace_back(m_pFlareObject[i]);
 	}
 }
 
@@ -182,11 +182,11 @@ void EffectObject::Particle(CCamera* pCamera, float fTimeElapsed, XMFLOAT3& xm3p
 	if (gGameFramework.GetScene()->GetObjectManager()->m_bPickingenemy)
 	{
 		for (int i = 0; i < m_ppParticleObjects.size(); i++) {
-			if (m_fLifetime == 0)
+			if (m_fParticleLifeTime == 0)
 				m_ppParticleObjects[i]->SetPosition(xm3position);
 		}
-		m_fLifetime += fTimeElapsed;
-		if (m_fLifetime < 3)
+		m_fParticleLifeTime += fTimeElapsed;
+		if (m_fParticleLifeTime < 3)
 		{
 			for (int i = 0; i < m_ppParticleObjects.size(); i++) {
 				float t = m_ppParticleObjects[i]->m_fTime, tt = t * t * 0.6f;
@@ -200,17 +200,17 @@ void EffectObject::Particle(CCamera* pCamera, float fTimeElapsed, XMFLOAT3& xm3p
 				}
 				XMFLOAT3 mxmf3Accel = { 0.f, -0.5f, 0.f };
 				m_ppParticleObjects[i]->SetPosition(Vector3::Add(m_ppParticleObjects[i]->GetPosition(), Vector3::Add(Vector3::ScalarProduct(mxmf3Accel, tt, false), Vector3::ScalarProduct(m_ppParticleObjects[i]->m_xmf3RamdomDirection, t, false))));
-				if (sin(m_fLifetime) > 0) {
-					m_ppParticleObjects[i]->SetScale(sin(m_fLifetime));
+				if (sin(m_fParticleLifeTime) > 0) {
+					m_ppParticleObjects[i]->SetScale(sin(m_fParticleLifeTime));
 				}
 
 				//빌드 오브젝트
 				//m_ppParticleObjects[i]->MoveVelocity(m_ppParticleObjects[i]->m_xmf3RamdomDirection, 0.01);
 			}
 		}
-		else if (m_fLifetime > 3) {
+		else if (m_fParticleLifeTime > 3) {
 
-			m_fLifetime = 0;
+			m_fParticleLifeTime = 0;
 			gGameFramework.GetScene()->GetObjectManager()->m_bPickingenemy = false;
 		}
 	}
@@ -267,8 +267,8 @@ void LightningEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12Graphics
 		m_pLightningSpriteObject[i]->SetRowColumn(2.0f, 2.0f, 0.06f + 0.5 * i);
 		m_pLightningSpriteObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pLightningSpriteObject[i]->m_fTime = RandF(0, 10);
-		m_pEffectObjects.push_back(m_pLightningSpriteObject[i]);
-		mppEffectObject->push_back(m_pLightningSpriteObject[i]);
+		m_pEffectObjects.emplace_back(m_pLightningSpriteObject[i]);
+		mppEffectObject->emplace_back(m_pLightningSpriteObject[i]);
 	}
 
 	for (int i = 0; i < m_ppParticleObjects.size(); i++) {
@@ -284,14 +284,23 @@ void LightningEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12Graphics
 		m_ppParticleObjects[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_ppParticleObjects[i]->m_fTime = 0;
 		m_ppParticleObjects[i]->m_xmf3RamdomDirection = XMFLOAT3(RandF(-0.3, 0.3), RandF(0, 0.6), RandF(-0.3, 0.3));
-		m_pEffectObjects.push_back(m_ppParticleObjects[i]);
-		mppEffectObject->push_back(m_ppParticleObjects[i]);
+		m_pEffectObjects.emplace_back(m_ppParticleObjects[i]);
+		mppEffectObject->emplace_back(m_ppParticleObjects[i]);
 	}
 }
 
 
 void LightningEffectObject::AnimateEffect(CCamera* pCamera, XMFLOAT3 xm3position, float ftimeelapsed, float fTime)
 {
+	m_fEffectLifeTime -= ftimeelapsed;
+	if (m_fEffectLifeTime < FLT_EPSILON) {
+		for (auto p : m_pLightningSpriteObject)
+		{
+			p->m_bActive = false;
+		}
+		m_bActive = false;
+		return;
+	}
 
 	Particle(pCamera, ftimeelapsed, xm3position);
 	for (int i = 0; i < m_pEffectObjects.size(); i++) {
@@ -336,8 +345,8 @@ void SheildEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 		m_pSmokeObject[i]->SetColor(XMFLOAT4(0.7f, 0.7f, 0.7f, 0));
 		m_pSmokeObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pSmokeObject[i]->m_fTime = RandF(0, 10);
-		m_pEffectObjects.push_back(m_pSmokeObject[i]);
-		mppEffectObject->push_back(m_pSmokeObject[i]);
+		m_pEffectObjects.emplace_back(m_pSmokeObject[i]);
+		mppEffectObject->emplace_back(m_pSmokeObject[i]);
 	}
 	for (int i = 0; i < m_pPointObject.size(); i++) {
 		m_pPointObject[i] = new GameObject(UNDEF_ENTITY);
@@ -351,8 +360,8 @@ void SheildEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 		m_pPointObject[i]->SetColor(XMFLOAT4(0.7f, 0.7f, 0.7f, 0));
 		m_pPointObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pPointObject[i]->m_fTime = RandF(0, 10);
-		m_pEffectObjects.push_back(m_pPointObject[i]);
-		mppEffectObject->push_back(m_pPointObject[i]);
+		m_pEffectObjects.emplace_back(m_pPointObject[i]);
+		mppEffectObject->emplace_back(m_pPointObject[i]);
 	}
 	for (int i = 0; i < m_pArrowObject.size(); i++) {
 		m_pArrowObject[i] = new GameObject(UNDEF_ENTITY);
@@ -367,8 +376,8 @@ void SheildEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 		m_pArrowObject[i]->SetColor(XMFLOAT4(0.7f, 0.7f, 0.7f, 0));
 		m_pArrowObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pArrowObject[i]->m_fTime = RandF(0, 10);
-		m_pEffectObjects.push_back(m_pArrowObject[i]);
-		mppEffectObject->push_back(m_pArrowObject[i]);
+		m_pEffectObjects.emplace_back(m_pArrowObject[i]);
+		mppEffectObject->emplace_back(m_pArrowObject[i]);
 	}
 	for (int i = 0; i < m_pFlareObject.size(); i++) {
 		m_pFlareObject[i] = new GameObject(UNDEF_ENTITY);
@@ -382,8 +391,8 @@ void SheildEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 		m_pFlareObject[i]->SetColor(XMFLOAT4(0.7f, 0.7f, 0.7f, 0));
 		m_pFlareObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pFlareObject[i]->m_fTime = RandF(0, 10);
-		m_pEffectObjects.push_back(m_pFlareObject[i]);
-		mppEffectObject->push_back(m_pFlareObject[i]);
+		m_pEffectObjects.emplace_back(m_pFlareObject[i]);
+		mppEffectObject->emplace_back(m_pFlareObject[i]);
 	}
 }
 
@@ -490,7 +499,7 @@ void PortalEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 	m_pPortalEffectObject->SetPosition(XMFLOAT3(0, 40, 100));
 	m_pPortalEffectObject->SetScale(10);
 	m_pPortalEffectObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pEffectObjects.push_back(m_pPortalEffectObject);
+	m_pEffectObjects.emplace_back(m_pPortalEffectObject);
 }
 
 void PortalEffectObject::AnimateEffect(CCamera* pCamera, XMFLOAT3 xm3position, float ftimeelapsed, float fTime)

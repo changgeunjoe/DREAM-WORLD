@@ -429,6 +429,7 @@ std::pair<bool, XMFLOAT3> Character::CheckCollisionNormalMonster(XMFLOAT3& moveD
 
 	int collideCnt = 0;
 	for (int i = 0; i < 15; i++) {
+		if (!monsterArr[i]->GetAliveState()) continue;
 		auto normalVecRes = GetNormalVectorSphere(monsterArr[i]->GetPosition());
 		if (normalVecRes.first >= m_SPBB.Radius + 8.0f)continue;
 		if (collideCnt == 3) {
@@ -1289,8 +1290,10 @@ void Archer::ShootArrow()//스킬
 	m_nProjectiles = (m_nProjectiles < MAX_ARROW) ? m_nProjectiles : m_nProjectiles % MAX_ARROW;
 	if (m_bQSkillClicked == true)
 	{
-		g_NetworkHelper.Send_SkillExecute_Q(Vector3::Normalize(GetObjectLook()));
-		for (int i = 0; i < 3; ++i)
+
+		if (g_Logic.GetMyRole() == ROLE::ARCHER)
+			g_NetworkHelper.Send_SkillExecute_Q(Vector3::Normalize(GetObjectLook()));
+		for (int i = 0; i < 3; ++i)//서버에 옮겨야됨
 		{
 			m_nProjectiles = (m_nProjectiles < MAX_ARROW) ? m_nProjectiles : m_nProjectiles % MAX_ARROW;
 			XMFLOAT3 objectLook = GetObjectLook();
@@ -1325,7 +1328,9 @@ void Archer::ShootArrow()//스킬
 			m_pProjectiles[m_nProjectiles]->m_bActive = true;
 			m_pProjectiles[m_nProjectiles]->m_fSpeed = 150.0f;
 			int arrowPower = arrowSpeed / 30;
-			g_NetworkHelper.SendCommonAttackExecute(m_pProjectiles[m_nProjectiles]->m_xmf3direction, arrowPower);
+
+			if (g_Logic.GetMyRole() == ROLE::ARCHER)
+				g_NetworkHelper.SendCommonAttackExecute(m_pProjectiles[m_nProjectiles]->m_xmf3direction, arrowPower);
 			m_nProjectiles++;
 		}
 		m_bZoomInState = false;
@@ -1339,7 +1344,9 @@ void Archer::ShootArrow()//스킬
 		m_pProjectiles[m_nProjectiles]->SetPosition(m_pProjectiles[m_nProjectiles]->m_xmf3startPosition);
 		m_pProjectiles[m_nProjectiles]->m_fSpeed = 150.0f;
 		m_pProjectiles[m_nProjectiles]->m_bActive = true;
-		g_NetworkHelper.SendCommonAttackExecute(m_pProjectiles[m_nProjectiles]->m_xmf3direction, 0);
+
+		if (g_Logic.GetMyRole() == ROLE::ARCHER)
+			g_NetworkHelper.SendCommonAttackExecute(m_pProjectiles[m_nProjectiles]->m_xmf3direction, 0);
 		m_nProjectiles++;
 		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_ATTACK]->m_fPosition = -ANIMATION_CALLBACK_EPSILON;
 	}
@@ -1463,7 +1470,8 @@ void Tanker::FirstSkillDown()
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[0]);
 	if (m_skillCoolTime[0] > duration) return;
-	g_NetworkHelper.Send_SkillExecute_Q(XMFLOAT3(0.0, 0.0, 0.0));
+	if(g_Logic.GetMyRole() == ROLE::TANKER)
+		g_NetworkHelper.Send_SkillExecute_Q(XMFLOAT3(0.0, 0.0, 0.0));
 	m_bQSkillClicked = true;
 	m_skillInputTime[0] = std::chrono::high_resolution_clock::now();
 
@@ -1866,75 +1874,56 @@ void Priest::Animate(float fTimeElapsed)
 	}
 
 	pair<CharacterAnimation, CharacterAnimation> AfterAnimation = m_pSkinnedAnimationController->m_CurrentAnimations;
-	bool UpperLock = false;
-	switch (AfterAnimation.first)
-	{
-	case CharacterAnimation::CA_ATTACK:
-	{
-		if (CheckAnimationEnd(CA_ATTACK) == false)
-			UpperLock = true;
-		break;
-	}
-	}
 
-	if (m_bMoveState)	// 움직이는 중
+	if (GetAnimationProgressRate(CA_ATTACK) > FLT_EPSILON)
 	{
-		if (m_bRButtonClicked)
-		{
-			if (!UpperLock) AfterAnimation.first = CharacterAnimation::CA_ATTACK;
-			AfterAnimation.second = CharacterAnimation::CA_MOVE;
-		}
-		else if (m_bLButtonClicked)	// 공격
-		{
-			if (!UpperLock) AfterAnimation.first = CharacterAnimation::CA_ATTACK;
-			AfterAnimation.second = CharacterAnimation::CA_MOVE;
-		}
-		else						// 그냥 움직이기
-		{
-			if (!UpperLock) AfterAnimation.first = CharacterAnimation::CA_MOVE;
-			AfterAnimation.second = CharacterAnimation::CA_MOVE;
-		}
+		m_bOnAttack = true;
 	}
-	else
-	{
-		if (m_bRButtonClicked)
-		{
-			if (!UpperLock) AfterAnimation.first = CharacterAnimation::CA_ATTACK;
-			AfterAnimation.second = CharacterAnimation::CA_ATTACK;
-		}
-		else if (m_bLButtonClicked)	// 공격
-		{
-			if (!UpperLock) AfterAnimation.first = CharacterAnimation::CA_ATTACK;
-			AfterAnimation.second = CharacterAnimation::CA_ATTACK;
-
-		}
-		else if (!UpperLock)					// IDLE
-		{
-			AfterAnimation.first = CharacterAnimation::CA_IDLE;
-			AfterAnimation.second = CharacterAnimation::CA_IDLE;
-		}
-	}
-
-	if (AfterAnimation != m_pSkinnedAnimationController->m_CurrentAnimations)
-	{
-		m_pSkinnedAnimationController->m_CurrentAnimations = AfterAnimation;
-		m_pSkinnedAnimationController->SetTrackEnable(AfterAnimation);
-	}
-
 	if (GetAnimationProgressRate(CA_ATTACK) > ATTACK1_ATTACK_POINT)
 	{
-		if (m_bCanAttack && m_pCamera)
+		if (m_bCanAttack && m_pCamera && !m_bESkillClicked)
 		{
 			Attack();
 			m_bCanAttack = false;
 		}
 	}
-
 	if (CheckAnimationEnd(CA_ATTACK) == true)
 	{
 		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd = false;
 		m_bCanAttack = true;
+		m_bOnAttack = false;
+		if (m_bESkillClicked) m_bESkillClicked = false;
 	}
+
+	if (m_bMoveState)	// 움직이는 중
+	{
+		if (m_bLButtonClicked || m_bESkillClicked)
+		{
+			if (!m_bOnAttack) AfterAnimation.first = CharacterAnimation::CA_ATTACK;
+			AfterAnimation.second = CharacterAnimation::CA_MOVE;
+		}
+		else						// 그냥 움직이기
+		{
+			if (!m_bOnAttack) AfterAnimation.first = CharacterAnimation::CA_MOVE;
+			AfterAnimation.second = CharacterAnimation::CA_MOVE;
+		}
+	}
+	else
+	{
+		if (m_bLButtonClicked || m_bESkillClicked)
+		{
+			if (!m_bOnAttack) AfterAnimation.first = CharacterAnimation::CA_ATTACK;
+			AfterAnimation.second = CharacterAnimation::CA_ATTACK;
+
+		}
+		else if (!m_bOnAttack)					// IDLE
+		{
+			AfterAnimation.first = CharacterAnimation::CA_IDLE;
+			AfterAnimation.second = CharacterAnimation::CA_IDLE;
+		}
+	}
+	
+	ChangeAnimation(AfterAnimation);
 
 	if (m_pHealRange->m_bActive)
 	{
@@ -1962,7 +1951,9 @@ void Priest::Attack()
 	m_pProjectiles[m_nProjectiles]->m_xmf3startPosition = XMFLOAT3(GetPosition().x, GetPosition().y + 8.0f, GetPosition().z);
 	m_pProjectiles[m_nProjectiles]->SetPosition(m_pProjectiles[m_nProjectiles]->m_xmf3startPosition);
 	m_pProjectiles[m_nProjectiles]->m_bActive = true;
-	g_NetworkHelper.SendCommonAttackExecute(ObjectLookVector, 0);
+
+	if (g_Logic.GetMyRole() == ROLE::PRIEST)
+		g_NetworkHelper.SendCommonAttackExecute(ObjectLookVector, 0);
 	m_nProjectiles++;
 }
 
@@ -2012,12 +2003,28 @@ void Priest::FirstSkillDown()
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[0]);
 	if (m_skillCoolTime[0] > duration) return;
-	g_NetworkHelper.Send_SkillExecute_Q(XMFLOAT3(0.0, 0.0, 0.0));
+
+	if (g_Logic.GetMyRole() == ROLE::PRIEST)
+		g_NetworkHelper.Send_SkillExecute_Q(XMFLOAT3(0.0, 0.0, 0.0));
+
 	m_bQSkillClicked = true;
 	m_skillInputTime[0] = std::chrono::high_resolution_clock::now();
 #ifdef LOCAL_TASK
 	StartEffect(0);
 #endif
+}
+
+void Priest::SecondSkillDown()
+{
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[1]);
+	if (m_skillCoolTime[1] > duration)
+	{
+		gGameFramework.GetScene()->GetObjectManager()->m_bPickingenemy = false;
+		return;
+	}
+	m_bESkillClicked = true;
+	m_skillInputTime[1] = std::chrono::high_resolution_clock::now();
 }
 
 void Priest::FirstSkillUp()
@@ -2747,7 +2754,8 @@ std::pair<bool, XMFLOAT3> NormalMonster::CheckCollisionNormalMonster(XMFLOAT3& m
 	int collideCnt = 0;
 	for (int i = 0; i < 15; i++) {
 		auto normalVecRes = GetNormalVectorSphere(monsterArr[i]->GetPosition());
-		if (i == m_nID)continue;
+		if (i == m_nID) continue;
+		if (!monsterArr[i]->GetAliveState()) continue;
 		if (normalVecRes.first >= m_SPBB.Radius + 8.0f)continue;
 		if (collideCnt == 3) {
 			return std::pair<bool, XMFLOAT3>(true, XMFLOAT3(0, 0, 0));
