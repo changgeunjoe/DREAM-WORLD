@@ -34,7 +34,8 @@ public:
 	float GetDistance(XMFLOAT3& point);
 	std::pair<float, XMFLOAT3> GetNormalVectorSphere(XMFLOAT3& point);
 protected:
-	virtual std::pair<bool, XMFLOAT3> CheckCollisionMap(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
+	virtual std::pair<bool, XMFLOAT3> CheckCollisionMap_Boss(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
+	virtual std::pair<bool, XMFLOAT3> CheckCollisionMap_Stage(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);	
 	virtual std::pair<bool, XMFLOAT3> CheckCollisionCharacter(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
 	virtual std::pair<bool, XMFLOAT3> CheckCollisionNormalMonster(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
 	virtual bool CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);

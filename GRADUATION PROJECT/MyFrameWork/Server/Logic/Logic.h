@@ -42,7 +42,6 @@ public:
 	void BroadCastInRoomByPlayer(int userId, void* p);
 	//Boss Broad Cast
 	void BroadCastInRoom(int roomId, void* p);
-	void BroadCastInRoom_Ex(int roomId, ExpOver* expover);
 
 public:
 	void AutoMoveServer();

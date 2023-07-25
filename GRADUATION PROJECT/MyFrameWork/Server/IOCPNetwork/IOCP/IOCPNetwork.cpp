@@ -188,7 +188,9 @@ void IOCPNetwork::WorkerThread()
 		{
 			//std::cout << "projectile Attack Ptr: " << std::hex << ex_over << std::dec << std::endl;
 			ex_over->m_opCode = OP_SEND;
-			g_logic.BroadCastInRoom_Ex(key, ex_over);
+			g_logic.BroadCastInRoom(key, ex_over->m_buffer);
+			if (ex_over != nullptr)
+				delete ex_over;
 		}
 		break;
 		case OP_SKY_ARROW_ATTACK:

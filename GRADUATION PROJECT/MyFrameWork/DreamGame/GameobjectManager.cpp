@@ -2308,7 +2308,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			if (myPlayCharacter->GetESkillState() == false && myPlayCharacter->GetOnAttack() == false)
 			{
 				myPlayCharacter->SecondSkillDown();
-				g_NetworkHelper.Send_SkillInput_E();				
+				g_NetworkHelper.Send_SkillInput_E();
 				m_bPickingenemy = CheckCollision(m_ppGameObjects);
 			}
 			break;

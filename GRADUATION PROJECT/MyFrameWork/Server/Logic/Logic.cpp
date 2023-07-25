@@ -442,14 +442,6 @@ void Logic::BroadCastInRoom(int roomId, void* p)
 	}
 }
 
-void Logic::BroadCastInRoom_Ex(int roomId, ExpOver* expover)
-{
-	auto roomPlayermap = g_RoomManager.GetRunningRoomRef(roomId).GetPlayerMap();
-	for (auto& cli : roomPlayermap) {
-		g_iocpNetwork.m_session[cli.second].Send_exp(expover);
-	}
-}
-
 void Logic::AutoMoveServer()//2500Έν?
 {
 	auto currentTime = std::chrono::high_resolution_clock::now();

@@ -44,7 +44,7 @@ void ChracterSessionObject::AttackedHp(float damage)
 bool ChracterSessionObject::AdjustPlayerInfo(DirectX::XMFLOAT3& position) // , DirectX::XMFLOAT3& rotate
 {
 	//m_rotateAngle = rotate;
-	if (Vector3::Length(Vector3::Subtract(m_position, position)) < 0.3f) { // ���� �� �̸��̶�� ���� ����, �̻��̶�� ���ǵ� ��?���� �����ϰ� ��ġ ���� ��ġ�� ��ȯ
+	if (Vector3::Length(Vector3::Subtract(m_position, position)) < 2.0f) { // ���� �� �̸��̶�� ���� ����, �̻��̶�� ���ǵ� ��?���� �����ϰ� ��ġ ���� ��ġ�� ��ȯ
 		m_position = position;
 
 		return true;

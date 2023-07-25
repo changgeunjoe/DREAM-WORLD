@@ -1034,8 +1034,9 @@ Archer::~Archer()
 void Archer::Attack()
 {
 	if (m_pCamera) {
-		//줌인에 대한 정보 필요할듯함
-		g_NetworkHelper.SendCommonAttackStart();//두번째 인자 - 줌인 정도
+		//줌인에 대한 정보 필요할듯함		
+		int power = 0;//줌인 정보
+		g_NetworkHelper.SendCommonAttackExecute(GetLook(), power);//두번째 인자 - 줌인 정도
 	}
 }
 
@@ -1289,7 +1290,7 @@ void Archer::ShootArrow()//스킬
 	if (m_bQSkillClicked == true)
 	{
 		g_NetworkHelper.Send_SkillExecute_Q(Vector3::Normalize(GetObjectLook()));
-		for (int i = 0; i < 3; ++i)//서버에 옮겨야됨
+		for (int i = 0; i < 3; ++i)
 		{
 			m_nProjectiles = (m_nProjectiles < MAX_ARROW) ? m_nProjectiles : m_nProjectiles % MAX_ARROW;
 			XMFLOAT3 objectLook = GetObjectLook();
@@ -1410,7 +1411,7 @@ void Archer::ExecuteSkill_E()
 {
 	if (m_bQSkillClicked && m_bESkillClicked) {
 		m_bQSkillClicked = true;
-		g_NetworkHelper.Send_SkillExecute_E(GetPosition());
+		g_NetworkHelper.Send_SkillExecute_E(GetPosition());//tagetPosition
 	}
 }
 
@@ -2084,7 +2085,7 @@ void Priest::ExecuteSkill_E()
 {
 	if (m_bQSkillClicked && m_bESkillClicked) {
 		m_bQSkillClicked = true;
-		g_NetworkHelper.Send_SkillExecute_E(GetPosition());
+		g_NetworkHelper.Send_SkillExecute_E(GetPosition());//target
 	}
 }
 

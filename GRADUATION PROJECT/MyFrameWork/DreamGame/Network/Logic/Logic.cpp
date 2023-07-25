@@ -91,12 +91,12 @@ void Logic::ProcessPacket(char* p)
 		XMFLOAT3 rightVec = XMFLOAT3(1, 0, 0);
 		XMFLOAT3 dirVec = XMFLOAT3(0, 0, 1);
 		SERVER_PACKET::StopPacket* recvPacket = reinterpret_cast<SERVER_PACKET::StopPacket*>(p);
-		if ((ROLE)recvPacket->role != myRole) {
-			Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->role);
-			possessObj->SetStopDirection();
-			possessObj->SetPosition(recvPacket->position);
-			possessObj->SetMoveState(false);
-		}
+		Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->role);
+		possessObj->SetStopDirection();
+		possessObj->SetPosition(recvPacket->position);
+		possessObj->SetMoveState(false);
+		//if ((ROLE)recvPacket->role != myRole) {
+		//}
 	}
 	break;
 	case SERVER_PACKET::LOGIN_OK:
@@ -229,7 +229,7 @@ void Logic::ProcessPacket(char* p)
 			float maxHp = smallMonsterArr[i]->GetMaxHP();
 			smallMonsterArr[i]->SetCurrentHP(recvPacket->smallMonster[i].hp / maxHp * 100.0f);
 			smallMonsterArr[i]->SetAliveState(recvPacket->smallMonster->isAlive);
-			
+
 		}
 	}
 	break;
@@ -520,8 +520,9 @@ void Logic::ProcessPacket(char* p)
 		SERVER_PACKET::PlayerAttackMonsterDamagePacket* recvPacket = reinterpret_cast<SERVER_PACKET::PlayerAttackMonsterDamagePacket*>(p);
 		recvPacket->role;//내 직업이면
 		recvPacket->damage;//데미지를 출력하세ㅐ요 -> 모든 데미지 다 같음
-		recvPacket->monsterIdx;//배열 15개짜리 몬스터 idx배열
-		recvPacket->attackedMonsterCnt;//현재 온 패킷의 몬스터 갯수
+		for (int i = 0; i < recvPacket->attackedMonsterCnt; i++) {//현재 온 패킷의 몬스터 갯수
+			recvPacket->monsterIdx[i];//배열 15개짜리 몬스터 idx배열
+		}
 	}
 	break;
 	case SERVER_PACKET::SMALL_MONSTER_ATTACK:

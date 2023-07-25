@@ -41,7 +41,7 @@
 #include <DirectXCollision.h>
 const float MONSTER_ABLE_ATTACK_COS_VALUE = std::cos(15.0f * 3.14f / 180.0f);//30도 - 0.96정도
 
-enum PLAYER_STATE
+enum PLAYER_STATE : char
 {
 	FREE,
 	ALLOC,
@@ -49,7 +49,7 @@ enum PLAYER_STATE
 	IN_GAME_ROOM
 };
 
-enum IOCP_OP_CODE
+enum IOCP_OP_CODE : char
 {
 	OP_NONE,
 	OP_ACCEPT,
@@ -99,7 +99,7 @@ enum BOSS_ATTACK : char {
 	ATTACK_COUNT//0~마지막 숫자 갯수
 };
 
-enum EVENT_TYPE {
+enum EVENT_TYPE : char {
 	EV_NONE,
 	EV_FIND_PLAYER,
 	EV_BOSS_STATE,
@@ -116,7 +116,7 @@ enum EVENT_TYPE {
 
 };
 
-enum ROOM_STATE {
+enum ROOM_STATE : char {
 	ROOM_STAGE1,
 	ROOM_BOSS
 };

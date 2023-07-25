@@ -54,17 +54,6 @@ void UserSession::Send(void* p)
 	//std::cout << "sendByte: " << sendByte << std::endl;
 }
 
-void UserSession::Send_exp(ExpOver* expover)
-{
-	DWORD sendByte = 0;
-	//std::cout << "send: " << (int)sendOverlap->m_buffer[2] << std::endl;
-	int resRet = WSASend(m_socket, &(expover->m_wsaBuf), 1, &sendByte, 0, &(expover->m_overlap), 0);
-	if (resRet) {
-		if (DisplayWsaGetLastError(WSAGetLastError()))
-			g_iocpNetwork.DisconnectClient(m_id);
-	}
-}
-
 void UserSession::ConstructPacket(int ioByte)
 {
 	int remain_data = ioByte + m_prevBufferSize;
