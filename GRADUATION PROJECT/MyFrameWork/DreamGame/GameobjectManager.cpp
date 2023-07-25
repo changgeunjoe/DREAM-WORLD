@@ -943,37 +943,37 @@ void GameobjectManager::EffectRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 	//		effect->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//	//}
 	//}
-	//SortEffect();
-	//for (int i = 0; i < m_ppEffectObjects.size(); i++) {
-	//	
-	//	//if (effect->m_bActive) {
-	//	m_ppEffectObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//	//}
+	SortEffect();
+	for (int i = 0; i < m_ppEffectObjects.size(); i++) {
+		
+		//if (effect->m_bActive) {
+		m_ppEffectObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		//}
+	}
+	//for (auto& effect : m_ppShieldEffectObject)
+	//{
+	//	if (effect == nullptr) continue;
+	//	if (effect->m_bActive == false) continue;
+	//	effect->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//}
-	for (auto& effect : m_ppShieldEffectObject)
-	{
-		if (effect == nullptr) continue;
-		if (effect->m_bActive == false) continue;
-		effect->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	}
-	for (auto& effect : m_ppHealingEffectObject)
-	{
-		if (effect == nullptr) continue;
-		if (effect->m_bActive == false) continue;
-		effect->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	}
-	if (m_pDebuffObject) {
-		m_pDebuffObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	}
-	if (m_pLightEffectObject) {
-		m_pLightEffectObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	}
-	if (m_pSheildEffectObject) {
-	//	m_pSheildEffectObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	}
-	if (m_pPortalEffectObject) {
-		m_pPortalEffectObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	}
+	//for (auto& effect : m_ppHealingEffectObject)
+	//{
+	//	if (effect == nullptr) continue;
+	//	if (effect->m_bActive == false) continue;
+	//	effect->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//}
+	//if (m_pDebuffObject) {
+	//	m_pDebuffObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//}
+	//if (m_pLightEffectObject) {
+	//	m_pLightEffectObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//}
+	//if (m_pSheildEffectObject) {
+	////	m_pSheildEffectObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//}
+	//if (m_pPortalEffectObject) {
+	//	m_pPortalEffectObject->RenderEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//}
 }
 
 void GameobjectManager::SkyboxRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -1998,29 +1998,29 @@ void GameobjectManager::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	for (int i = 0; i < 4; ++i)
 	{
 		m_ppShieldEffectObject[i] = new EffectObject;
-		m_ppShieldEffectObject[i]->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,m_ppEffectObjects);
+		m_ppShieldEffectObject[i]->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,&m_ppEffectObjects);
 		m_ppShieldEffectObject[i]->m_hostObject = static_cast<ROLE>(0x01 << i);
 	}
 
 	for (int i = 0; i < 4; ++i)
 	{
 		m_ppHealingEffectObject[i] = new EffectObject;
-		m_ppHealingEffectObject[i]->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_ppEffectObjects);
+		m_ppHealingEffectObject[i]->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, &m_ppEffectObjects);
 		m_ppHealingEffectObject[i]->m_hostObject = static_cast<ROLE>(0x01 << i);
 	}
 
 	m_pDebuffObject = new DebuffObject;
-	m_pDebuffObject->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_ppEffectObjects);
+	m_pDebuffObject->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, &m_ppEffectObjects);
 
 	m_pLightEffectObject = new LightningEffectObject;
-	m_pLightEffectObject->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_ppEffectObjects);
+	m_pLightEffectObject->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, &m_ppEffectObjects);
 
 	m_pSheildEffectObject = new SheildEffectObject;
-	m_pSheildEffectObject->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_ppEffectObjects);
+	m_pSheildEffectObject->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, &m_ppEffectObjects);
 
 
 	m_pPortalEffectObject = new PortalEffectObject;
-	m_pPortalEffectObject->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_ppEffectObjects);
+	m_pPortalEffectObject->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, &m_ppEffectObjects);
 
 }
 

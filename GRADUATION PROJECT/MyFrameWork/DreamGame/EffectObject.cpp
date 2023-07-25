@@ -14,7 +14,7 @@ EffectObject::~EffectObject()
 {
 }
 
-void EffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,vector<GameObject*> mppEffectObject)
+void EffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,vector<GameObject*> *mppEffectObject)
 {
 	for (int i = 0; i < m_pSmokeObject.size(); i++) {
 		m_pSmokeObject[i] = new GameObject(UNDEF_ENTITY);
@@ -28,7 +28,7 @@ void EffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pSmokeObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pSmokeObject[i]->m_fTime = RandF(0, 10);
 		m_pEffectObjects.push_back(m_pSmokeObject[i]);
-		mppEffectObject.push_back(m_pSmokeObject[i]);
+		mppEffectObject->push_back(m_pSmokeObject[i]);
 	}
 	for (int i = 0; i < m_pPointObject.size(); i++) {
 		m_pPointObject[i] = new GameObject(UNDEF_ENTITY);
@@ -43,7 +43,7 @@ void EffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pPointObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pPointObject[i]->m_fTime = RandF(0, 10);
 		m_pEffectObjects.push_back(m_pPointObject[i]);
-		mppEffectObject.push_back(m_pPointObject[i]);
+		mppEffectObject->push_back(m_pPointObject[i]);
 	}
 	for (int i = 0; i < m_pArrowObject.size(); i++) {
 		m_pArrowObject[i] = new GameObject(UNDEF_ENTITY);
@@ -59,7 +59,7 @@ void EffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pArrowObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pArrowObject[i]->m_fTime = RandF(0, 10);
 		m_pEffectObjects.push_back(m_pArrowObject[i]);
-		mppEffectObject.push_back(m_pArrowObject[i]);
+		mppEffectObject->push_back(m_pPointObject[i]);
 	}
 	for (int i = 0; i < m_pFlareObject.size(); i++) {
 		m_pFlareObject[i] = new GameObject(UNDEF_ENTITY);
@@ -74,7 +74,7 @@ void EffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pFlareObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pFlareObject[i]->m_fTime = RandF(0, 10);
 		m_pEffectObjects.push_back(m_pFlareObject[i]);
-		mppEffectObject.push_back(m_pFlareObject[i]);
+		mppEffectObject->push_back(m_pFlareObject[i]);
 	}
 }
 
@@ -246,7 +246,7 @@ LightningEffectObject::~LightningEffectObject()
 {
 }
 
-void LightningEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, vector<GameObject*> mppEffectObject)
+void LightningEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, vector<GameObject*> *mppEffectObject)
 {
 	for (int i = 0; i < m_pLightningSpriteObject.size(); i++) {
 		m_pLightningSpriteObject[i] = new GameObject(UNDEF_ENTITY);
@@ -314,7 +314,7 @@ SheildEffectObject::~SheildEffectObject()
 {
 }
 
-void SheildEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,  vector<GameObject*> mppEffectObject)
+void SheildEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,  vector<GameObject*> *mppEffectObject)
 {
 	for (int i = 0; i < m_pSheildEffectObject.size(); i++) {
 		m_pSheildEffectObject[i] = new GameObject(UNDEF_ENTITY);
@@ -355,7 +355,7 @@ PortalEffectObject::~PortalEffectObject()
 {
 }
 
-void PortalEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, vector<GameObject*> mppEffectObject)
+void PortalEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, vector<GameObject*> *mppEffectObject)
 {
 	m_pPortalEffectObject = new GameObject(UNDEF_ENTITY);
 	m_pPortalEffectObject->InsertComponent<RenderComponent>();
