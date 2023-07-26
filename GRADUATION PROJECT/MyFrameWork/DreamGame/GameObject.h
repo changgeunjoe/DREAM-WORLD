@@ -332,7 +332,7 @@ protected:
 
 	CHeightMapImage* m_pHeightMapImage;
 public:
-	array<Projectile*, MAX_ARROW>          m_pProjectiles;
+	array<Projectile*, MAX_ARROW>          m_ppProjectiles;
 
 	void SetBoundingSize(float size);
 	void SetBoundingOffset(XMFLOAT3& boundingOffset);
@@ -361,6 +361,7 @@ public:
 	GameObject* m_pSkillEUI{ NULL };
 	GameObject* m_pTrailStart{ NULL };
 	GameObject* m_pTrailEnd{ NULL };
+	GameObject* m_pWeapon{ NULL };
 	std::queue<int> m_BossRoute;
 	std::mutex m_lockBossRoute;
 };

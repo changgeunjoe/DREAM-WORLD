@@ -1131,6 +1131,79 @@ void GameobjectManager::BuildBossStageObject(ID3D12Device* pd3dDevice, ID3D12Gra
 	//ReadNormalMonsterFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/NormalMonster.txt", DeathModel, 0, STAGE2);
 }
 
+void GameobjectManager::BuildProjectileObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+{
+	CLoadedModelInfoCompnent* ArrowModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Arrow.bin", NULL, true);
+	CLoadedModelInfoCompnent* IceLance = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/IceLance.bin", NULL, true);
+
+	Projectile** ppArrow = new Projectile* [MAX_ARROW];
+	for (int i = 0; i < MAX_ARROW; ++i)
+	{
+		ppArrow[i] = new Arrow();
+		ppArrow[i]->InsertComponent<RenderComponent>();
+		ppArrow[i]->InsertComponent<CLoadedModelInfoCompnent>();
+		ppArrow[i]->SetPosition(XMFLOAT3(0, 0, 0));
+		ppArrow[i]->SetModel(ArrowModel);
+		ppArrow[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		ppArrow[i]->SetScale(30.0f);
+		ppArrow[i]->SetBoundingSize(4.0f);
+		m_pArrowObjects[i] = ppArrow[i];
+		m_ppProjectileObjects.emplace_back(ppArrow[i]);
+	}
+	m_pArcherObject->SetArrow(ppArrow);
+
+	Arrow** m_ppArrowForQSkill = new Arrow* [3];
+	for (int i = 0; i < 3; ++i)
+	{
+		m_ppArrowForQSkill[i] = new Arrow();
+		m_ppArrowForQSkill[i]->InsertComponent<RenderComponent>();
+		m_ppArrowForQSkill[i]->InsertComponent<CLoadedModelInfoCompnent>();
+		m_ppArrowForQSkill[i]->SetPosition(XMFLOAT3(0, 0, 0));
+		m_ppArrowForQSkill[i]->SetModel(ArrowModel);
+		m_ppArrowForQSkill[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		m_ppArrowForQSkill[i]->SetScale(30.0f);
+		m_ppArrowForQSkill[i]->SetBoundingSize(4.0f);
+		m_pArrowObjects[i + 10] = m_ppArrowForQSkill[i];
+		m_ppProjectileObjects.emplace_back(m_ppArrowForQSkill[i]);
+	}
+	m_pArcherObject->SetAdditionArrowForQSkill(m_ppArrowForQSkill);
+
+	Arrow** m_ppArrowForESkill = new Arrow * [15];
+	for (int i = 0; i < 15; ++i)
+	{
+		m_ppArrowForESkill[i] = new Arrow();
+		m_ppArrowForESkill[i]->InsertComponent<RenderComponent>();
+		m_ppArrowForESkill[i]->InsertComponent<CLoadedModelInfoCompnent>();
+		m_ppArrowForESkill[i]->SetPosition(XMFLOAT3(0, 0, 0));
+		m_ppArrowForESkill[i]->SetModel(ArrowModel);
+		m_ppArrowForESkill[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		m_ppArrowForESkill[i]->SetScale(30.0f);
+		m_ppArrowForESkill[i]->SetBoundingSize(4.0f);
+		m_pArrowObjects[i + 13] = m_ppArrowForESkill[i];
+		m_ppProjectileObjects.emplace_back(m_ppArrowForESkill[i]);
+	}
+	m_pArcherObject->SetAdditionArrowForESkill(m_ppArrowForESkill);
+
+	Projectile** m_ppIceLanceObjects = new Projectile * [10];
+	for (int i = 0; i < 10; ++i)
+	{
+		m_ppIceLanceObjects[i] = new Arrow();
+		m_ppIceLanceObjects[i]->InsertComponent<RenderComponent>();
+		m_ppIceLanceObjects[i]->InsertComponent<CLoadedModelInfoCompnent>();
+		m_ppIceLanceObjects[i]->SetPosition(XMFLOAT3(25 * i, 0, 0));
+		m_ppIceLanceObjects[i]->SetModel(IceLance);
+		//m_pEnergyBallObjects[i]->SetColor(XMFLOAT3(0,0.5,0);
+		m_ppIceLanceObjects[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		m_ppIceLanceObjects[i]->SetScale(15.f, 20.f, 15.f);
+		m_ppIceLanceObjects[i]->SetBoundingSize(4.0f);
+		m_pEnergyBallObjects[i] = m_ppIceLanceObjects[i];
+		m_ppProjectileObjects.emplace_back(m_ppIceLanceObjects[i]);
+	}
+	m_pPriestObject->SetProjectile(m_ppIceLanceObjects);
+}
+
+
+
 void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {//빌드
 	
@@ -1139,8 +1212,6 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 
 	m_pCamera->SetPosition(XMFLOAT3(-1450, 18, -1490));
 	m_pCamera->Rotate(0, 90, 0);
-	CLoadedModelInfoCompnent* ArrowModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Arrow.bin", NULL, true);
-	CLoadedModelInfoCompnent* IceLance = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/IceLance.bin", NULL, true);
 
 	BuildStage1(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildBossStageObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -1178,6 +1249,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pWarriorObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pWarriorObject->m_pSkinnedAnimationController->SetTrackAnimationSet(8);
 	m_pWarriorObject->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_DIE]->m_nType = ANIMATION_TYPE_ONCE;
+	m_pWarriorObject->m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_FIRSTSKILL].m_fSpeed = 1.5f;
 	m_pWarriorObject->SetScale(30.0f);
 	m_pWarriorObject->Rotate(0, -90, 0);
 	m_pWarriorObject->SetBoundingBox(m_pBoundingBox[0]);
@@ -1198,31 +1270,19 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pArcherObject->SetBoundingBox(m_pBoundingBox[1]);
 	m_ppGameObjects.emplace_back(m_pArcherObject);
 
-	for (int i = 0; i < MAX_ARROW; ++i)
-	{
-		m_pArrowObjects[i] = new Arrow();
-		m_pArrowObjects[i]->InsertComponent<RenderComponent>();
-		m_pArrowObjects[i]->InsertComponent<CLoadedModelInfoCompnent>();
-		m_pArrowObjects[i]->SetPosition(XMFLOAT3(0, 0, 0));
-		m_pArrowObjects[i]->SetModel(ArrowModel);
-		m_pArrowObjects[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-		m_pArrowObjects[i]->SetScale(30.0f);
-		m_pArrowObjects[i]->SetBoundingSize(4.0f);
-		static_cast<Archer*>(m_pArcherObject)->SetArrow(m_pArrowObjects[i]);
-	}
-
 	m_pTankerObject = new Tanker();
 	m_pTankerObject->InsertComponent<RenderComponent>();
 	m_pTankerObject->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pTankerObject->SetPosition(XMFLOAT3(-1400.f, 0.f, -1500.0f));
 	// m_pTankerObject->SetPosition(XMFLOAT3(0.0f, 0.0f, 0.0f));
 	m_pTankerObject->SetModel("Model/Tanker.bin");
-	m_pTankerObject->SetAnimationSets(8);
+	m_pTankerObject->SetAnimationSets(7);
 	m_pTankerObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pTankerObject->m_pSkinnedAnimationController->SetTrackAnimationSet(8);
-	m_pTankerObject->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_FIRSTSKILL]->m_nType = ANIMATION_TYPE_HALF;
+	m_pTankerObject->m_pSkinnedAnimationController->SetTrackAnimationSet(7);
 	m_pTankerObject->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_DIE]->m_nType = ANIMATION_TYPE_ONCE;
-	m_pTankerObject->m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_FIRSTSKILL].m_fSpeed = 0.3f;
+	m_pTankerObject->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_SECONDSKILL]->m_nType = ANIMATION_TYPE_REVERSE;
+	// m_pTankerObject->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_FIRSTSKILL]->m_nType = ANIMATION_TYPE_HALF;
+	// m_pTankerObject->m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_FIRSTSKILL].m_fSpeed = 0.3f;
 	m_pTankerObject->SetScale(30.0f);
 	m_pTankerObject->Rotate(0, -90, 0);
 	m_pTankerObject->SetBoundingBox(m_pBoundingBox[2]);
@@ -1267,20 +1327,6 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pHealRange->m_bActive = false;
 	m_pPriestObject->SetSkillRangeObject(m_pHealRange);
 	m_ppEffectObjects.emplace_back(m_pHealRange);
-
-	for (int i = 0; i < 10; ++i)
-	{
-		m_pEnergyBallObjects[i] = new Arrow();
-		m_pEnergyBallObjects[i]->InsertComponent<RenderComponent>();
-		m_pEnergyBallObjects[i]->InsertComponent<CLoadedModelInfoCompnent>();
-		m_pEnergyBallObjects[i]->SetPosition(XMFLOAT3(25 * i, 0, 0));
-		m_pEnergyBallObjects[i]->SetModel(IceLance);
-		//m_pEnergyBallObjects[i]->SetColor(XMFLOAT3(0,0.5,0);
-		m_pEnergyBallObjects[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-		m_pEnergyBallObjects[i]->SetScale(15.f,20.f,15.f);
-		m_pEnergyBallObjects[i]->SetBoundingSize(4.0f);
-		static_cast<Priest*>(m_pPriestObject)->SetProjectile(m_pEnergyBallObjects[i]);
-	}
 
 	m_pBoundingBox[4] = new GameObject(SQUARE_ENTITY);
 	m_pBoundingBox[4]->InsertComponent<RenderComponent>();
@@ -1363,6 +1409,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	// ARCHER PRIEST TANKER WARRIOR
 #endif // LOCAL_TASK
 
+	BuildProjectileObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildNPC(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildCharacterUI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	BuildShadow(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//무조건 마지막에 해줘야된다.
@@ -2173,7 +2220,7 @@ void GameobjectManager::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 
 void GameobjectManager::BuildNPC(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	m_pAngelNPCObject = new Warrior();
+	m_pAngelNPCObject = new NpcCharacter();
 	m_pAngelNPCObject->InsertComponent<RenderComponent>();
 	m_pAngelNPCObject->InsertComponent<CLoadedModelInfoCompnent>();
 	m_pAngelNPCObject->SetPosition(XMFLOAT3(-1264.9f, 0.f, -1448.1f));//
@@ -2652,11 +2699,11 @@ bool GameobjectManager::onProcessingKeyboardMessageLobby(HWND hWnd, UINT nMessag
 	if (nMessageID == WM_KEYDOWN && wParam == VK_F2)
 	{
 #ifdef LOCAL_TASK
-		g_Logic.SetMyRole(ROLE::PRIEST);
+		g_Logic.SetMyRole(ROLE::TANKER);
 		m_pCamera->Rotate(0, -90, 0);
-		m_pPlayerObject = m_pPriestObject;
+		m_pPlayerObject = m_pTankerObject;
 		m_pPlayerObject->SetCamera(m_pCamera);
-		m_pPriestObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
+		m_pTankerObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
 #else
 		g_Logic.SetMyRole(ROLE::ARCHER);
 		m_pArcherObject->SetCamera(m_pCamera);
