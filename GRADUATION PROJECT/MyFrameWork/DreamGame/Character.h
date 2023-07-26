@@ -104,6 +104,7 @@ public:
 	virtual void Move(float fTimeElapsed)override;
 	virtual void Animate(float fTimeElapsed) override;
 	virtual void SetLButtonClicked(bool bLButtonClicked);
+	virtual void FirstSkillDown();
 public:
 	void SetStage1Position();
 	void SetBossStagePostion();
@@ -120,15 +121,15 @@ class Archer : public Character
 private:
 	XMFLOAT3 m_CameraLook;
 	bool m_bZoomInState;
-	array<Arrow*, 3> m_ArrowForQSkill;
-	array<Arrow*, 15> m_ArrowForESkill;
-
+public:
+	array<Arrow*, 3> m_ppArrowForQSkill;
+	array<Arrow*, 15> m_ppArrowForESkill;
 
 public:
 	Archer();
 	virtual ~Archer();
 	virtual void Attack();
-	virtual void SetArrow(Projectile* pArrow);
+	virtual void SetArrow(Projectile** pArrow);
 	virtual void Move(float fTimeElapsed)override;
 	virtual void Animate(float fTimeElapsed);
 	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender = false);
@@ -136,13 +137,13 @@ public:
 	virtual void ZoomInCamera();
 	virtual void SecondSkillUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f });
 	virtual void ShootArrow();
-	virtual void ShootArrow(const XMFLOAT3& xmf3StartPos, const XMFLOAT3& xmf3Direction, const float fSpeed);
-
+	virtual void ShootArrow(const XMFLOAT3& xmf3Direction);
 	virtual void SetLButtonClicked(bool bLButtonClicked);
 
+public:
 	void SetAdditionArrowForQSkill(Arrow** ppArrow);
 	void SetAdditionArrowForESkill(Arrow** ppArrow);
-
+	void ResetArrow();
 	// virtual void ShadowRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender, ShaderComponent* pShaderComponent);
 public:
 	void SetStage1Position();
@@ -164,6 +165,7 @@ public:
 	virtual void RbuttonClicked(float fTimeElapsed);
 	virtual void RbuttonUp(const XMFLOAT3& CameraAxis);
 	virtual void FirstSkillDown();
+	virtual void SecondSkillDown();
 	virtual void Move(float fTimeElapsed)override;
 	virtual void Animate(float fTimeElapsed);
 	virtual void SetSkillBall(Projectile* pBall);
@@ -189,8 +191,8 @@ public:
 	virtual void RbuttonClicked(float fTimeElapsed);
 	virtual void RbuttonUp(const XMFLOAT3& CameraAxis);
 	virtual void Attack();
-	virtual void Attack(const XMFLOAT3& xmf3StartPos, const XMFLOAT3& xmf3Direction, const float fSpeed);
-	virtual void SetProjectile(Projectile* pEnergyBall);
+	virtual void Attack(const XMFLOAT3& xmf3Direction);
+	virtual void SetProjectile(Projectile** pEnergyBall);
 	virtual void Move(float fTimeElapsed)override;
 	virtual void Animate(float fTimeElapsed);
 	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender = false);
@@ -254,6 +256,12 @@ private:
 	virtual std::pair<bool, XMFLOAT3> CheckCollisionCharacter(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
 	virtual std::pair<bool, XMFLOAT3> CheckCollisionNormalMonster(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f) override;
 	virtual bool CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f) override;
+};
+
+class NpcCharacter : public Character
+{
+public:
+	virtual void Move(float fTimeElapsed) {};
 };
 
 class Projectile : public GameObject

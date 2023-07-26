@@ -109,6 +109,7 @@ public:
 	virtual void Reset() {};
 
 	virtual void Die(float ftimeelapsed);
+	virtual void DieMonster(float ftimeelapsed);
 
 	void SetChild(GameObject* pChild, bool bReferenceUpdate = false);
 	GameObject* FindFrame(char* pstrFrameName);
@@ -126,7 +127,9 @@ public:
 	void SetRimLight(bool bRimLight);
 	void SetCurrentHP(float fHP);
 	void SetSkillTime(float fHp);
+	void SetTempHp(float fHp) { m_fTempHp = fHp; };
 	float GetCurrentHP() { return m_fHp; }
+	float GetTempHP() { return m_fTempHp; }
 	float GetMaxHP() { return m_fMaxHp; }
 	MeshComponent* GetMesh() { return m_pMeshComponent; }
 
@@ -213,6 +216,9 @@ public:
 	float							m_fSkillSize = 0.0f;
 
 	float							m_fObjectType = 0.0f;
+	float							m_fConditionTime = 0.0f;
+	int								m_nCondition = false;
+	bool							m_bAttacked=false;
 protected:
 
 protected:
@@ -315,6 +321,7 @@ protected:
 protected:
 	float                           m_fHp{ 100 };//캐릭터 현재 체력
 	float                           m_fMaxHp{ 100 };//캐릭터 최대 체력
+	float                           m_fTempHp{ 0 };//캐릭터 최대 체력
 	float                           m_fSpeed{};
 	float                           m_fDamage{};
 	XMFLOAT3						m_AddPosition{};
@@ -325,7 +332,7 @@ protected:
 
 	CHeightMapImage* m_pHeightMapImage;
 public:
-	array<Projectile*, MAX_ARROW>          m_pProjectiles;
+	array<Projectile*, MAX_ARROW>          m_ppProjectiles;
 
 	void SetBoundingSize(float size);
 	void SetBoundingOffset(XMFLOAT3& boundingOffset);
@@ -354,6 +361,7 @@ public:
 	GameObject* m_pSkillEUI{ NULL };
 	GameObject* m_pTrailStart{ NULL };
 	GameObject* m_pTrailEnd{ NULL };
+	GameObject* m_pWeapon{ NULL };
 	std::queue<int> m_BossRoute;
 	std::mutex m_lockBossRoute;
 };

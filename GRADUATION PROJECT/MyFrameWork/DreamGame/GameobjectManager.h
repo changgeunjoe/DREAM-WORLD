@@ -39,6 +39,9 @@ public:
 	virtual void ConditionAnimate(float fTimeElapsed);
 	virtual void SceneSwapAnimate(float fTimeElapsed);
 	virtual void MonsterHpBarAnimate(float fTimeElapsed);
+	virtual void NormalMonsterConditionAnimate(float fTimeElapsed);
+	virtual void PlayerConditionAnimate(float fTimeElapsed);
+	virtual void PlayerCurrentHpAnimate(float fTimeElapsed);
 	//Render
 	virtual void OnPreRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
@@ -50,6 +53,7 @@ public:
 	virtual void StoryUIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float ftimeElapsed);
 	virtual void EffectRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float ftimeElapsed);
 	virtual void SkyboxRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void CrossHairRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	//Build
 	virtual void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
@@ -66,6 +70,7 @@ public:
 	virtual void BuildNPC(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 
 	virtual void BuildBossStageObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void BuildProjectileObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 
 	virtual void PickObjectByRayIntersection(int xClient, int yClient);
 	virtual void ProcessingUI(int n);
@@ -95,7 +100,8 @@ public:
 private: //active object 
 	vector<GameObject*> m_ppGameObjects;
 	vector<GameObject*> m_ppObstacleObjects;
-	array<Projectile*, 10> m_pArrowObjects;
+	vector<Projectile*> m_ppProjectileObjects;
+	array<Projectile*, 28> m_pArrowObjects;
 	array<Projectile*, 10> m_pEnergyBallObjects;
 	array<Projectile*, 4> m_pTankerSkillEffects;
 	array<GameObject*, 10> m_pBoundingBox;
@@ -159,6 +165,7 @@ private:
 	GameObject* m_pTalkUIObject{ NULL };
 	GameObject* m_pPressGUIObject{ NULL };
 	GameObject* m_pAttackUIObject{ NULL };
+	GameObject* m_pBlueAttackUIObject{ NULL };
 	GameObject* m_pConditionUIObject{ NULL };
 	GameObject* m_pConditionHealUIObject{ NULL };
 	GameObject* m_pSceneChangeUIObject{ NULL };
@@ -201,8 +208,8 @@ private:
 	//TrailObject
 	GameObject* m_pTrailObject{ NULL };
 	TrailComponent* m_pTrailComponent{ NULL };
-	array<GameObject*, 10> m_pTrailArrowObject{ NULL };
-	array<TrailComponent*, 10>m_pTrailArrowComponent{ NULL };
+	array<GameObject*, 28> m_pTrailArrowObject{ NULL };
+	array<TrailComponent*, 28>m_pTrailArrowComponent{ NULL };
 	array<GameObject*, 10> m_pTrailIceRanceObject{ NULL };
 	array<TrailComponent*, 10>m_pTrailIceRanceComponent{ NULL };
 	//

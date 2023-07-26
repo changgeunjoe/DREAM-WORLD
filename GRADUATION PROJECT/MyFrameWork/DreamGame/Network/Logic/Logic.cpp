@@ -192,17 +192,17 @@ void Logic::ProcessPacket(char* p)
 	case SERVER_PACKET::SHOOTING_ARROW://화살
 	{
 		SERVER_PACKET::ShootingObject* recvPacket = reinterpret_cast<SERVER_PACKET::ShootingObject*>(p);
-
+		
 		Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo(ROLE::ARCHER);
-		static_cast<Archer*>(possessObj)->ShootArrow(recvPacket->srcPos, recvPacket->dir, recvPacket->speed);
+		static_cast<Archer*>(possessObj)->ShootArrow(recvPacket->dir);
 	}
 	break;
 	case SERVER_PACKET::SHOOTING_BALL://공
 	{
 		SERVER_PACKET::ShootingObject* recvPacket = reinterpret_cast<SERVER_PACKET::ShootingObject*>(p);
-
+		
 		Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo(ROLE::PRIEST);
-		static_cast<Priest*>(possessObj)->Attack(recvPacket->srcPos, recvPacket->dir, recvPacket->speed);
+		static_cast<Priest*>(possessObj)->Attack(recvPacket->dir);
 	}
 	break;
 	case SERVER_PACKET::GAME_STATE_S:
@@ -520,14 +520,14 @@ void Logic::ProcessPacket(char* p)
 		SERVER_PACKET::PlayerAttackMonsterDamagePacket* recvPacket = reinterpret_cast<SERVER_PACKET::PlayerAttackMonsterDamagePacket*>(p);
 		recvPacket->role;//내 직업이면
 		recvPacket->damage;//데미지를 출력하세ㅐ요 -> 모든 데미지 다 같음
-		for (int i = 0; i < recvPacket->attackedMonsterCnt; i++) {//현재 온 패킷의 몬스터 갯수
-			recvPacket->monsterIdx[i];//배열 15개짜리 몬스터 idx배열  
-			gGameFramework.GetScene()->GetObjectManager()->AddDamageFontToUiLayer(XMFLOAT3(
-				gGameFramework.GetScene()->GetObjectManager()->m_ppNormalMonsterObject[recvPacket->monsterIdx[i]]->GetPosition().x,
-				gGameFramework.GetScene()->GetObjectManager()->m_ppNormalMonsterObject[recvPacket->monsterIdx[i]]->GetPosition().y+20,
-				gGameFramework.GetScene()->GetObjectManager()->m_ppNormalMonsterObject[recvPacket->monsterIdx[i]]->GetPosition().z
-			), recvPacket->damage);
-		}
+		//for (int i = 0; i < recvPacket->attackedMonsterCnt; i++) {//현재 온 패킷의 몬스터 갯수
+		//	recvPacket->monsterIdx[i];//배열 15개짜리 몬스터 idx배열  
+		//	gGameFramework.GetScene()->GetObjectManager()->AddDamageFontToUiLayer(XMFLOAT3(
+		//		gGameFramework.GetScene()->GetObjectManager()->m_ppNormalMonsterObject[recvPacket->monsterIdx[i]]->GetPosition().x,
+		//		gGameFramework.GetScene()->GetObjectManager()->m_ppNormalMonsterObject[recvPacket->monsterIdx[i]]->GetPosition().y+20,
+		//		gGameFramework.GetScene()->GetObjectManager()->m_ppNormalMonsterObject[recvPacket->monsterIdx[i]]->GetPosition().z
+		//	), recvPacket->damage);
+		//}
 		recvPacket->monsterIdx;//배열 15개짜리 몬스터 idx배열
 		recvPacket->attackedMonsterCnt;//현재 온 패킷의 몬스터 갯수
 	}
@@ -546,19 +546,22 @@ void Logic::ProcessPacket(char* p)
 	case SERVER_PACKET::COMMON_ATTACK_START:
 	{
 		SERVER_PACKET::CommonAttackPacket* recvPacket = reinterpret_cast<SERVER_PACKET::CommonAttackPacket*>(p);
-		recvPacket->role;//얘 평타 애니 메이션 실행
+		Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo((ROLE)recvPacket->role);
+		possessObj->SetLButtonClicked(true);
 	}
 	break;
 	case SERVER_PACKET::START_ANIMATION_Q:
 	{
 		SERVER_PACKET::CommonAttackPacket* recvPacket = reinterpret_cast<SERVER_PACKET::CommonAttackPacket*>(p);
-		recvPacket->role;//얘 Q 애니 메이션 실행
+		Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo((ROLE)recvPacket->role);
+		possessObj->FirstSkillDown();
 	}
 	break;
 	case SERVER_PACKET::START_ANIMATION_E:
 	{
 		SERVER_PACKET::CommonAttackPacket* recvPacket = reinterpret_cast<SERVER_PACKET::CommonAttackPacket*>(p);
-		recvPacket->role;//얘 E 애니 메이션 실행
+		Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo((ROLE)recvPacket->role);
+		possessObj->SecondSkillDown();
 	}
 	break;
 	//projectile packet
@@ -566,6 +569,9 @@ void Logic::ProcessPacket(char* p)
 	{
 		SERVER_PACKET::ProjectileDamagePacket* recvPacket = reinterpret_cast<SERVER_PACKET::ProjectileDamagePacket*>(p);
 		if (myRole == ROLE::ARCHER) {
+			Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::ARCHER);
+			possessObj->m_ppProjectiles[recvPacket->projectileId]->m_bActive = false;
+
 			recvPacket->damage;//데미지
 			recvPacket->position;//데미지 폰트 위치
 		}
@@ -576,20 +582,27 @@ void Logic::ProcessPacket(char* p)
 	{
 		SERVER_PACKET::ProjectileDamagePacket* recvPacket = reinterpret_cast<SERVER_PACKET::ProjectileDamagePacket*>(p);
 		if (myRole == ROLE::ARCHER) {
+			Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::ARCHER);
+			static_cast<Archer*>(possessObj)->m_ppArrowForQSkill[recvPacket->projectileId]->m_bActive = false;
+
+
 			recvPacket->damage;//데미지
 			recvPacket->position;//데미지 폰트 위치
 		}
-		recvPacket->projectileId;//얘는 스킬인데 필요 하려나 모르겠음
+		;//얘는 스킬인데 필요 하려나 모르겠음
 	}
 	break;
 	case SERVER_PACKET::MONSTER_DAMAGED_BALL:
 	{
 		SERVER_PACKET::ProjectileDamagePacket* recvPacket = reinterpret_cast<SERVER_PACKET::ProjectileDamagePacket*>(p);
 		if (myRole == ROLE::PRIEST) {
+			Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::PRIEST);
+			possessObj->m_ppProjectiles[recvPacket->projectileId]->m_bActive = false;
+
 			recvPacket->damage;//데미지
 			recvPacket->position;//데미지 폰트 위치
 		}
-		recvPacket->projectileId;//현재 회수할 에너지볼 아이디
+		;//현재 회수할 에너지볼 아이디
 	}
 	break;
 	default:

@@ -717,6 +717,11 @@ void GameObject::Die(float ftimeelapsed)
 	m_xmf4Color.w = ftimeelapsed;
 	//cout << m_xmf4Color.w << endl;
 }
+void GameObject::DieMonster(float ftimeelapsed)
+{
+	m_xmf4Color.w += ftimeelapsed;
+}
+
 
 void GameObject::SetChild(GameObject* pChild, bool bReferenceUpdate)
 {
@@ -962,6 +967,7 @@ void GameObject::LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfoCompnent* 
 			pLoadedModel->m_pAnimationSets->m_ppAnimatedBoneFrameCaches = new GameObject * [pLoadedModel->m_pAnimationSets->m_nAnimatedBoneFrames];
 			pLoadedModel->m_pWeaponStart = pLoadedModel->m_pModelRootObject->FindFrame("WeaponPositionStart");
 			pLoadedModel->m_pWeaponEnd = pLoadedModel->m_pModelRootObject->FindFrame("WeaponPositionEnd");
+			pLoadedModel->m_pWeapon = pLoadedModel->m_pModelRootObject->FindFrame("WeaponR_locator");
 			for (int j = 0; j < pLoadedModel->m_pAnimationSets->m_nAnimatedBoneFrames; j++)
 			{
 				::ReadStringFromFile(pInFile, pstrToken);
