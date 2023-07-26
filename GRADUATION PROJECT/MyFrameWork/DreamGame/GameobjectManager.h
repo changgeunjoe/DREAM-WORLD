@@ -66,6 +66,7 @@ public:
 	virtual void BuildNPC(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 
 	virtual void BuildBossStageObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void BuildProjectileObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 
 	virtual void PickObjectByRayIntersection(int xClient, int yClient);
 	virtual void ProcessingUI(int n);
@@ -95,7 +96,8 @@ public:
 private: //active object 
 	vector<GameObject*> m_ppGameObjects;
 	vector<GameObject*> m_ppObstacleObjects;
-	array<Projectile*, 10> m_pArrowObjects;
+	vector<Projectile*> m_ppProjectileObjects;
+	array<Projectile*, 28> m_pArrowObjects;
 	array<Projectile*, 10> m_pEnergyBallObjects;
 	array<Projectile*, 4> m_pTankerSkillEffects;
 	array<GameObject*, 10> m_pBoundingBox;
@@ -201,8 +203,8 @@ private:
 	//TrailObject
 	GameObject* m_pTrailObject{ NULL };
 	TrailComponent* m_pTrailComponent{ NULL };
-	array<GameObject*, 10> m_pTrailArrowObject{ NULL };
-	array<TrailComponent*, 10>m_pTrailArrowComponent{ NULL };
+	array<GameObject*, 28> m_pTrailArrowObject{ NULL };
+	array<TrailComponent*, 28>m_pTrailArrowComponent{ NULL };
 	array<GameObject*, 10> m_pTrailIceRanceObject{ NULL };
 	array<TrailComponent*, 10>m_pTrailIceRanceComponent{ NULL };
 	//

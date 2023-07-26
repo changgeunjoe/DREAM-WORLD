@@ -696,6 +696,12 @@ void MageSessionObject::ExecuteCommonAttack(XMFLOAT3& attackDir, int power)
 	Room& roomRef = g_RoomManager.GetRunningRoomRef(m_roomId);
 	//offset 적용 안됨
 	roomRef.ShootBall(attackDir, m_position);
+
+	SERVER_PACKET::ShootingObject sendPacket;
+	sendPacket.size = sizeof(SERVER_PACKET::ShootingObject);
+	sendPacket.type = SERVER_PACKET::SHOOTING_BALL;
+	sendPacket.dir = attackDir;
+	g_logic.MultiCastOtherPlayerInRoom(m_roomId, &sendPacket);
 }
 
 void MageSessionObject::SetStage_1Position()
@@ -783,6 +789,7 @@ void ArcherSessionObject::ExecuteCommonAttack(XMFLOAT3& attackDir, int power)
 {
 	Room& roomRef = g_RoomManager.GetRunningRoomRef(m_roomId);
 	//offset 적용 안됨
+
 	if (power == 0) {
 		roomRef.ShootArrow(attackDir, m_position, 100.0f, 100.0f);
 	}
@@ -792,6 +799,12 @@ void ArcherSessionObject::ExecuteCommonAttack(XMFLOAT3& attackDir, int power)
 	else if (power == 2) {
 		roomRef.ShootArrow(attackDir, m_position, 200.0f, 200.0f);
 	}
+
+	SERVER_PACKET::ShootingObject sendPacket;
+	sendPacket.size = sizeof(SERVER_PACKET::ShootingObject);
+	sendPacket.type = SERVER_PACKET::SHOOTING_ARROW;
+	sendPacket.dir = attackDir;
+	g_logic.MultiCastOtherPlayerInRoom(m_roomId, &sendPacket);
 }
 
 void ArcherSessionObject::SetStage_1Position()

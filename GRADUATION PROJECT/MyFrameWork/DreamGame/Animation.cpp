@@ -55,6 +55,7 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fTrackElapsedT
 		break;
 	}
 	case ANIMATION_TYPE_ONCE:
+		if (m_bAnimationEnd) return fAnimationLength;
 		if (m_fPosition < 0.0f)
 		{
 			m_fPosition = 0.0f;
@@ -66,8 +67,8 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fTrackElapsedT
 			m_fProgressRate = m_fPosition / fAnimationLength;
 			if (m_fPosition > fAnimationLength)
 			{
-				m_fPosition = -ANIMATION_CALLBACK_EPSILON;
-				m_fProgressRate = 0.0f;
+				m_fPosition = fAnimationLength;
+				m_fProgressRate = 1.0f;
 				m_bAnimationEnd = true;
 				return(fAnimationLength);
 			}
@@ -86,7 +87,7 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fTrackElapsedT
 			m_fProgressRate = (fAnimationLength - m_fPosition) / fAnimationLength;
 			if (m_fPosition < 0.0f)
 			{
-				m_fPosition = -ANIMATION_CALLBACK_EPSILON;
+				m_fPosition = fAnimationLength;
 				m_fProgressRate = 0.0f;
 				m_bAnimationEnd = true;
 				return(0.0f);

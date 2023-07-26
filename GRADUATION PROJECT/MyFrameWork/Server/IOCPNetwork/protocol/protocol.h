@@ -315,8 +315,6 @@ namespace SERVER_PACKET {
 		short size;
 		char type;
 		XMFLOAT3 dir;
-		XMFLOAT3 srcPos;
-		float speed;
 	};
 
 	struct InGamePlayerState {
