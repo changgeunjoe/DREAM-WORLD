@@ -1029,11 +1029,16 @@ void Warrior::SetLButtonClicked(bool bLButtonClicked)
 
 void Warrior::FirstSkillDown()
 {
-	auto currentTime = std::chrono::high_resolution_clock::now();
-	auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[0]);
-	if (m_skillCoolTime[0] > duration) return;
+	if (g_Logic.GetMyRole() == ROLE::WARRIOR)
+	{
+		auto currentTime = std::chrono::high_resolution_clock::now();
+		auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[0]);
+		if (m_skillCoolTime[0] > duration) return;
+		m_skillInputTime[0] = std::chrono::high_resolution_clock::now();
+	}
+	m_currentDirection = DIRECTION::IDLE;
+	m_bMoveState = false;
 	m_bQSkillClicked = true;
-	m_skillInputTime[0] = std::chrono::high_resolution_clock::now();
 }
 
 void Warrior::SetStage1Position()
@@ -1543,13 +1548,17 @@ void Tanker::RbuttonUp(const XMFLOAT3& CameraAxis)
 
 void Tanker::FirstSkillDown()
 {
-	auto currentTime = std::chrono::high_resolution_clock::now();
-	auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[0]);
-	if (m_skillCoolTime[0] > duration) return;
-	if(g_Logic.GetMyRole() == ROLE::TANKER)
+	if (g_Logic.GetMyRole() == ROLE::TANKER)
+	{
+		auto currentTime = std::chrono::high_resolution_clock::now();
+		auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[0]);
+		if (m_skillCoolTime[0] > duration) return;
 		g_NetworkHelper.Send_SkillExecute_Q(XMFLOAT3(0.0, 0.0, 0.0));
+		m_skillInputTime[0] = std::chrono::high_resolution_clock::now();
+	}
+	m_currentDirection = DIRECTION::IDLE;
+	m_bMoveState = false;
 	m_bQSkillClicked = true;
-	m_skillInputTime[0] = std::chrono::high_resolution_clock::now();
 
 #ifdef LOCAL_TASK
 	StartEffect(0);
@@ -1558,11 +1567,22 @@ void Tanker::FirstSkillDown()
 
 void Tanker::SecondSkillDown()
 {
-	auto currentTime = std::chrono::high_resolution_clock::now();
-	auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[1]);
-	if (m_skillCoolTime[1] > duration) return;
-	m_bESkillClicked = true;
-	m_skillInputTime[1] = std::chrono::high_resolution_clock::now();
+	if (g_Logic.GetMyRole() == ROLE::TANKER)
+	{
+		auto currentTime = std::chrono::high_resolution_clock::now();
+		auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[1]);
+		if (m_skillCoolTime[1] > duration) return;
+		m_currentDirection = DIRECTION::IDLE;
+		m_bMoveState = false;
+		m_bESkillClicked = true;
+		m_skillInputTime[1] = std::chrono::high_resolution_clock::now();
+	}
+	else
+	{
+		m_bMoveState = false;
+		m_bQSkillClicked = true;
+		m_bESkillClicked = true;
+	}
 }
 
 void Tanker::Move(float fTimeElapsed)
@@ -1763,12 +1783,8 @@ void Tanker::Animate(float fTimeElapsed)
 		m_pTrailComponent->SetRenderingTrail(m_bOnAttack);
 	}
 
-
-	if (m_bMoveState)
-	{
-		SetLookDirection();
-		Move(fTimeElapsed);
-	}
+	SetLookDirection();
+	Move(fTimeElapsed);
 	GameObject::Animate(fTimeElapsed);
 
 	if (m_bESkillClicked)
@@ -2087,15 +2103,16 @@ void Priest::SetLookDirection()
 
 void Priest::FirstSkillDown()
 {
-	auto currentTime = std::chrono::high_resolution_clock::now();
-	auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[0]);
-	if (m_skillCoolTime[0] > duration) return;
-
 	if (g_Logic.GetMyRole() == ROLE::PRIEST)
+	{
+		auto currentTime = std::chrono::high_resolution_clock::now();
+		auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[0]);
+		if (m_skillCoolTime[0] > duration) return;
 		g_NetworkHelper.Send_SkillExecute_Q(XMFLOAT3(0.0, 0.0, 0.0));
-
+		m_skillInputTime[0] = std::chrono::high_resolution_clock::now();
+	}
 	m_bQSkillClicked = true;
-	m_skillInputTime[0] = std::chrono::high_resolution_clock::now();
+
 #ifdef LOCAL_TASK
 	StartEffect(0);
 #endif
