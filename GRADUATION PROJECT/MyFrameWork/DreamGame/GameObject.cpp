@@ -717,6 +717,11 @@ void GameObject::Die(float ftimeelapsed)
 	m_xmf4Color.w = ftimeelapsed;
 	//cout << m_xmf4Color.w << endl;
 }
+void GameObject::DieMonster(float ftimeelapsed)
+{
+	m_xmf4Color.w += ftimeelapsed;
+}
+
 
 void GameObject::SetChild(GameObject* pChild, bool bReferenceUpdate)
 {

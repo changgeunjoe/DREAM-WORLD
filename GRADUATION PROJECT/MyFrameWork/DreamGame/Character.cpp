@@ -2504,10 +2504,10 @@ void NormalMonster::Animate(float fTimeElapsed)
 			m_pSkinnedAnimationController->m_CurrentAnimations = NextAnimations;
 			m_pSkinnedAnimationController->SetTrackEnable(NextAnimations);
 		}
-		if (CheckAnimationEnd(CA_DIE))
+	/*	if (CheckAnimationEnd(CA_DIE))
 		{
 			m_bActive = false;
-		}
+		}*/
 		GameObject::Animate(fTimeElapsed);
 		return;
 	}

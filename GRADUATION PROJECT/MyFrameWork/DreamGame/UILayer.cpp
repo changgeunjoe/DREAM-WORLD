@@ -429,7 +429,7 @@ void CNPCTextBlock::Update(const float& fTimeElapsed, bool& bInteraction, bool& 
 				g_NetworkHelper.SendSkipNPCCommunicate();//¼ÒÄÏ Àü¼Û
 				g_sound.Pause("LobbySound");//·Îºñ¾À
 				g_sound.Play("Stage1Sound", 0.52f);//·Îºñ¾À
-
+				
 				gGameFramework.GetScene()->GetObjectManager()->m_bSendNPCPK = false;
 				
 							}

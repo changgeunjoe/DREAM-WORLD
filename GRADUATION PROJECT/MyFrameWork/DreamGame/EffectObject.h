@@ -97,5 +97,19 @@ public:
 	GameObject* m_pTankerEffectObject;
 
 };
+class PriestEffectObject :
+	public EffectObject
+{
+public:
+	PriestEffectObject();
+	~PriestEffectObject();
+public:
+	virtual void BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, vector<GameObject*>* mppEffectObject);
+	virtual void AnimateEffect(CCamera* pCamera, XMFLOAT3 xm3position, float ftimeelapsed, float fTime);
+	virtual void Particle(CCamera* pCamera, float fTimeElapsed, XMFLOAT3& xm3position);//중력 파티클
+
+	GameObject* m_pTankerEffectObject;
+
+};
 
 

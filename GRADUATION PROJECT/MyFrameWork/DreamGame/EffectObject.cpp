@@ -311,7 +311,6 @@ void LightningEffectObject::AnimateEffect(CCamera* pCamera, XMFLOAT3 xm3position
 void LightningEffectObject::AnimateLight(CCamera* pCamera, XMFLOAT3 xm3position, float ftimeelapsed, float fTime)
 {
 	for (int i = 0; i < m_pLightningSpriteObject.size(); i++) {
-
 		m_pLightningSpriteObject[i]->SetLookAt(pCamera->GetPosition());
 		m_pLightningSpriteObject[i]->SetScale(7.0f, 20.0f, 7.0f);
 		m_pLightningSpriteObject[i]->Rotate(0, 100 * i * 30, 0);
@@ -321,7 +320,6 @@ void LightningEffectObject::AnimateLight(CCamera* pCamera, XMFLOAT3 xm3position,
 			xm3position.z + i * 2));
 		m_pLightningSpriteObject[i]->AnimateRowColumn(ftimeelapsed);
 	}
-
 }
 
 SheildEffectObject::SheildEffectObject()
@@ -515,7 +513,6 @@ void PortalEffectObject::AnimateEffect(CCamera* pCamera, XMFLOAT3 xm3position, f
 		//m_pPortalEffectObject->SetColor(XMFLOAT4(0, 1, 0, 0.4));
 		m_pPortalEffectObject->SetCurrentHP(100);
 	}
-
 }
 
 TankerEffectObject::TankerEffectObject()
@@ -532,4 +529,76 @@ void TankerEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 
 void TankerEffectObject::AnimateEffect(CCamera* pCamera, XMFLOAT3 xm3position, float ftimeelapsed, float fTime)
 {
+}
+
+PriestEffectObject::PriestEffectObject()
+{
+}
+
+PriestEffectObject::~PriestEffectObject()
+{
+}
+
+void PriestEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, vector<GameObject*>* mppEffectObject)
+{
+	for (int i = 0; i < m_ppParticleObjects.size(); i++) {
+		m_ppParticleObjects[i] = new GameObject(UNDEF_ENTITY);
+		m_ppParticleObjects[i]->InsertComponent<RenderComponent>();
+		m_ppParticleObjects[i]->InsertComponent<UIMeshComponent>();
+		m_ppParticleObjects[i]->InsertComponent<EffectShaderComponent>();
+		m_ppParticleObjects[i]->InsertComponent<TextureComponent>();
+		m_ppParticleObjects[i]->SetTexture(L"MagicEffect/Snowflake.dds", RESOURCE_TEXTURE2D, 3);
+		m_ppParticleObjects[i]->SetAddPosition(XMFLOAT3(RandF(-5, 5), RandF(-5, 5), RandF(-5, 5)));
+		m_ppParticleObjects[i]->SetPosition(XMFLOAT3(0, 0, 0));
+		m_ppParticleObjects[i]->SetColor(XMFLOAT4(0.2666f, 0.58039f, 0.8862f, 0));
+		m_ppParticleObjects[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		m_ppParticleObjects[i]->m_fTime = 0;
+		m_ppParticleObjects[i]->m_xmf3RamdomDirection = XMFLOAT3(RandF(-0.3, 0.3), RandF(-0.6, 0.6), RandF(-0.3, 0.3));
+		m_pEffectObjects.emplace_back(m_ppParticleObjects[i]);
+		mppEffectObject->emplace_back(m_ppParticleObjects[i]);
+	}
+}
+
+void PriestEffectObject::AnimateEffect(CCamera* pCamera, XMFLOAT3 xm3position, float ftimeelapsed, float fTime)
+{
+
+}
+
+void PriestEffectObject::Particle(CCamera* pCamera, float fTimeElapsed, XMFLOAT3& xm3position)
+{
+	if (gGameFramework.GetScene()->GetObjectManager()->m_bPickingenemy)
+	{
+		for (int i = 0; i < m_ppParticleObjects.size(); i++) {
+			if (m_fParticleLifeTime == 0)
+				m_ppParticleObjects[i]->SetPosition(xm3position);
+		}
+		m_fParticleLifeTime += fTimeElapsed;
+		if (m_fParticleLifeTime < 3)
+		{
+			for (int i = 0; i < m_ppParticleObjects.size(); i++) {
+				float t = m_ppParticleObjects[i]->m_fTime, tt = t * t * 0.6f;
+				/////////////////////////////////////
+				m_ppParticleObjects[i]->m_fTime += fTimeElapsed;
+				m_ppParticleObjects[i]->SetLookAt(pCamera->GetPosition());
+				//m_ppParticleObjects[i]->SetScale(1);
+				m_ppParticleObjects[i]->Rotate(0, 180, 0);
+				if (m_ppParticleObjects[i]->m_fTime > 3) {
+					m_ppParticleObjects[i]->m_fTime = 0;
+				}
+				XMFLOAT3 mxmf3Accel = { 0.f, -0.5f, 0.f };
+				m_ppParticleObjects[i]->SetPosition(Vector3::Add(m_ppParticleObjects[i]->GetPosition(), Vector3::Add(Vector3::ScalarProduct(mxmf3Accel, tt, false), Vector3::ScalarProduct(m_ppParticleObjects[i]->m_xmf3RamdomDirection, t, false))));
+				if (sin(m_fParticleLifeTime) > 0) {
+					m_ppParticleObjects[i]->SetScale(sin(m_fParticleLifeTime));
+				}
+
+				//빌드 오브젝트
+				//m_ppParticleObjects[i]->MoveVelocity(m_ppParticleObjects[i]->m_xmf3RamdomDirection, 0.01);
+			}
+		}
+		else if (m_fParticleLifeTime > 3) {
+
+			m_fParticleLifeTime = 0;
+			gGameFramework.GetScene()->GetObjectManager()->m_bPickingenemy = false;
+		}
+	}
 }
