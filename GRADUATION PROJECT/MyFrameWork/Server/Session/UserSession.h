@@ -17,6 +17,11 @@ private:
 	std::wstring		m_loginId;
 
 	ROLE				m_role;
+private:
+	std::string		m_ip;
+	short		m_port;
+public:
+	std::string GetUserAddrIn();
 public:
 	std::chrono::utc_clock::time_point firstSendTime;
 	std::chrono::utc_clock::time_point firstRecvTime;
@@ -26,14 +31,14 @@ private:
 public:
 	UserSession();
 	~UserSession();
-
+public:
+	void SetInfoIpAndPort(char* ip, short port);
 private:
 	void Initialize();
 public:
 public:
 	void Recv();
 	void Send(void* p);
-	void Send_exp(ExpOver* expover);
 	void ConstructPacket(int ioByte);
 public:
 	void SetInGameState() {
