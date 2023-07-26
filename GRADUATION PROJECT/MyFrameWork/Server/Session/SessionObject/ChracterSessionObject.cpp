@@ -115,7 +115,7 @@ void ChracterSessionObject::StartMove(DIRECTION d, std::chrono::utc_clock::time_
 		m_lastMoveTime = std::chrono::high_resolution_clock::now();
 		m_inputDirection = (DIRECTION)(m_inputDirection | d);
 		SetDirection(m_inputDirection);
-	auto serverUtcTime = std::chrono::utc_clock::now();
+		auto serverUtcTime = std::chrono::utc_clock::now();
 		double durationTime = std::chrono::duration_cast<std::chrono::microseconds>(serverUtcTime - recvTime).count();
 		durationTime = (double)durationTime / 1000.0f;//microseconds to mill
 		durationTime = (double)durationTime / 1000.0f;//milliseconds to sec
@@ -251,7 +251,7 @@ bool ChracterSessionObject::IsDurationEndTimeSkill_2()
 	return false;
 }
 
-std::pair<bool, XMFLOAT3> ChracterSessionObject::CheckCollisionMap_Boss(XMFLOAT3& moveDirection, float ftimeElapsed)
+std::pair<bool, XMFLOAT3> ChracterSessionObject::CheckCollisionMap_Boss(XMFLOAT3& normalVector, XMFLOAT3& moveDirection, float ftimeElapsed)
 {
 	std::vector<MapCollide>& Collides = g_bossMapData.GetCollideData();
 	for (auto& collide : Collides) {
@@ -272,8 +272,9 @@ std::pair<bool, XMFLOAT3> ChracterSessionObject::CheckCollisionMap_Boss(XMFLOAT3
 				float normalVectorDotProductReslut = std::get<2>(CollidePolygonNormalVector);
 				float slidingVectorDotProductReslut = std::get<3>(CollidePolygonNormalVector);//슬라이딩 벡터와 무브 벡터 내적 값				
 				collideSlidingVector = Vector3::ScalarProduct(collideSlidingVector, slidingVectorDotProductReslut, false);
-				collideNormalVector = Vector3::ScalarProduct(collideNormalVector, 0.06f * normalVectorDotProductReslut, false);
-				return std::pair<bool, XMFLOAT3>(true, Vector3::Add(collideSlidingVector, collideNormalVector));
+				normalVector = collideNormalVector;
+				//collideNormalVector = Vector3::ScalarProduct(collideNormalVector, 0.06f * normalVectorDotProductReslut, false);
+				return std::pair<bool, XMFLOAT3>(true, collideSlidingVector);
 			}
 			else {
 				auto CollidePolygonNormalVector1 = collide.CalSlidingVector(m_SPBB, m_position, moveDirection);//노말, 슬라이딩, 노말이 가져야할 크기 를 반환
@@ -292,16 +293,17 @@ std::pair<bool, XMFLOAT3> ChracterSessionObject::CheckCollisionMap_Boss(XMFLOAT3
 				resultSlidingVector.y = 0.0f;
 				float dotRes = Vector3::DotProduct(resultSlidingVector, moveDirection);
 				if (dotRes < 0)resultSlidingVector = Vector3::ScalarProduct(resultSlidingVector, -1.0f, false);
+				normalVector = Vector3::Normalize(Vector3::Add(collideNormalVector1, collideNormalVector2));
 				collideNormalVector1 = Vector3::ScalarProduct(collideNormalVector1, 0.3f * normalVectorDotProductResult1, false);
 				collideNormalVector2 = Vector3::ScalarProduct(collideNormalVector2, 0.3f * normalVectorDotProductResult2, false);
-				return std::pair<bool, XMFLOAT3>(true, Vector3::Add(resultSlidingVector, Vector3::Add(collideNormalVector1, collideNormalVector2)));
+				return std::pair<bool, XMFLOAT3>(true, resultSlidingVector);
 			}
 		}
 	}
 	return std::pair<bool, XMFLOAT3>(false, XMFLOAT3(0, 0, 0));
 }
 
-std::pair<bool, XMFLOAT3> ChracterSessionObject::CheckCollisionMap_Stage(XMFLOAT3& moveDirection, float ftimeElapsed)
+std::pair<bool, XMFLOAT3> ChracterSessionObject::CheckCollisionMap_Stage(XMFLOAT3& normalVector, XMFLOAT3& moveDirection, float ftimeElapsed)
 {
 	std::vector<MapCollide>& Collides = g_stage1MapData.GetCollideData();
 	for (auto& collide : Collides) {
@@ -322,8 +324,9 @@ std::pair<bool, XMFLOAT3> ChracterSessionObject::CheckCollisionMap_Stage(XMFLOAT
 				float normalVectorDotProductReslut = std::get<2>(CollidePolygonNormalVector);
 				float slidingVectorDotProductReslut = std::get<3>(CollidePolygonNormalVector);//슬라이딩 벡터와 무브 벡터 내적 값				
 				collideSlidingVector = Vector3::ScalarProduct(collideSlidingVector, slidingVectorDotProductReslut, false);
-				collideNormalVector = Vector3::ScalarProduct(collideNormalVector, 0.06f * normalVectorDotProductReslut, false);
-				return std::pair<bool, XMFLOAT3>(true, Vector3::Add(collideSlidingVector, collideNormalVector));
+				normalVector = collideNormalVector;
+				//collideNormalVector = Vector3::ScalarProduct(collideNormalVector, 0.06f * normalVectorDotProductReslut, false);
+				return std::pair<bool, XMFLOAT3>(true, collideSlidingVector);
 			}
 			else {
 				auto CollidePolygonNormalVector1 = collide.CalSlidingVector(m_SPBB, m_position, moveDirection);//노말, 슬라이딩, 노말이 가져야할 크기 를 반환
@@ -342,6 +345,7 @@ std::pair<bool, XMFLOAT3> ChracterSessionObject::CheckCollisionMap_Stage(XMFLOAT
 				resultSlidingVector.y = 0.0f;
 				float dotRes = Vector3::DotProduct(resultSlidingVector, moveDirection);
 				if (dotRes < 0)resultSlidingVector = Vector3::ScalarProduct(resultSlidingVector, -1.0f, false);
+				normalVector = Vector3::Normalize(Vector3::Add(collideNormalVector1, collideNormalVector2));
 				collideNormalVector1 = Vector3::ScalarProduct(collideNormalVector1, 0.3f * normalVectorDotProductResult1, false);
 				collideNormalVector2 = Vector3::ScalarProduct(collideNormalVector2, 0.3f * normalVectorDotProductResult2, false);
 				return std::pair<bool, XMFLOAT3>(true, Vector3::Add(resultSlidingVector, Vector3::Add(collideNormalVector1, collideNormalVector2)));
@@ -433,11 +437,12 @@ bool ChracterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ftimeE
 {
 	Room& roomRef = g_RoomManager.GetRunningRoomRef(m_roomId);
 	std::pair<bool, XMFLOAT3> mapCollideResult;
+	XMFLOAT3 mapNormalVector;
 	if (roomRef.GetRoomState() == ROOM_STAGE1) {
-		mapCollideResult = CheckCollisionMap_Stage(moveDirection, ftimeElapsed);
+		mapCollideResult = CheckCollisionMap_Stage(mapNormalVector, moveDirection, ftimeElapsed);
 	}
 	else if (roomRef.GetRoomState() == ROOM_BOSS) {
-		mapCollideResult = CheckCollisionMap_Boss(moveDirection, ftimeElapsed);
+		mapCollideResult = CheckCollisionMap_Boss(mapNormalVector, moveDirection, ftimeElapsed);
 	}
 	auto CharacterCollide = CheckCollisionCharacter(moveDirection, ftimeElapsed);
 	if (CharacterCollide.first && std::abs(CharacterCollide.second.x) < DBL_EPSILON && std::abs(CharacterCollide.second.z) < DBL_EPSILON) {//캐릭터 콜리전으로 인해 아예 못움직임
@@ -534,6 +539,10 @@ bool ChracterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ftimeE
 			}
 		}
 		else {//노말 몬스터와 충돌하지 않음 => 맵만 충돌
+			float dotResult = Vector3::DotProduct(mapNormalVector, moveDirection);		
+			if (dotResult > 0.121) {
+				return false;
+			}
 #ifdef CHARCTER_MOVE_LOG
 			PrintCurrentTime();
 			std::cout << "map Move" << std::endl;

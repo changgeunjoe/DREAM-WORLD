@@ -63,10 +63,10 @@ void GameobjectManager::Animate(float fTimeElapsed)
 {
 	m_fTime += fTimeElapsed;
 	m_fTimeElapsed = fTimeElapsed;
-//<<<<<<< Updated upstream
-	/*m_pConditionUIObject->SetColor(XMFLOAT4(0, 0, 0, sin(m_fTime)+0.2));
-	*/
-	//SortEffect(); // 게임 오브젝트를 카메라와 거리별로 sort하는 함수입니다.->이펙트가 블랜드가 꼬이는 걸 막기위한 소트
+	//<<<<<<< Updated upstream
+		/*m_pConditionUIObject->SetColor(XMFLOAT4(0, 0, 0, sin(m_fTime)+0.2));
+		*/
+		//SortEffect(); // 게임 오브젝트를 카메라와 거리별로 sort하는 함수입니다.->이펙트가 블랜드가 꼬이는 걸 막기위한 소트
 
 	SceneSwapAnimate(fTimeElapsed);
 	//if (int(m_fTime) % 5 > 3)
@@ -74,7 +74,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	//	AddDamageFontToUiLayer();
 	//}
 	//Effect
-	
+
 	m_pMonsterCubeObject->SetPosition(m_pCamera->GetPosition());
 	m_pSkyboxObject->SetPosition(m_pCamera->GetPosition());
 	m_pLight->UpdatePosition(XMFLOAT3(m_pCamera->GetPosition().x,
@@ -172,7 +172,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	}
 
 	for (auto& effect : m_ppHealingEffectObject)
-	{	
+	{
 		if (effect == nullptr) continue;
 		if (effect->m_bActive == false) continue;
 		Character* possessChracter = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(effect->m_hostObject);
@@ -390,7 +390,7 @@ void GameobjectManager::SceneSwapAnimate(float fTimeElapsed)
 
 void GameobjectManager::MonsterHpBarAnimate(float fTimeElapsed)
 {
-	
+
 	/*GameObject* mpHpBar;
 	for (int i = 0; i < m_ppGameObjects.size(); i++) {
 		if (static_cast<Character*>(m_ppGameObjects[i])->m_pHPBarObject) {
@@ -454,7 +454,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pMonsterHPBarObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 	for (int i = 0; i < m_pNormalMonsterHPBarObject.size(); i++) {
-		if(m_ppNormalMonsterObject[i]->GetAliveState())
+		if (m_ppNormalMonsterObject[i]->GetAliveState())
 			m_pNormalMonsterHPBarObject[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 	//몬스터 체력바
@@ -504,7 +504,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	}
 
 	for (int i = 0; i < m_ppParticleObjects.size(); i++) {
-		if(m_ppParticleObjects[i]->m_bActive == true)
+		if (m_ppParticleObjects[i]->m_bActive == true)
 			m_ppParticleObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//파티클
 	}
 
@@ -900,7 +900,7 @@ void GameobjectManager::ReadNormalMonsterFile(ID3D12Device* pd3dDevice, ID3D12Gr
 		mpMonsterHPBarObject->SetScale(3);
 		mpMonsterHPBarObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		tempObject[i]->m_pHPBarObject = mpMonsterHPBarObject;
-		
+
 
 		m_ppNormalMonsterBoundingBox.emplace_back(MonsterBoundingSphere);
 		m_ppNormalMonsterObject[i] = tempObject[i];
@@ -975,7 +975,7 @@ void GameobjectManager::EffectRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 	//		effect->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//	//}
 	//}
-	
+
 	for (int i = 0; i < m_ppEffectObjects.size(); i++) {
 
 		//if (effect->m_bActive) {
@@ -1040,7 +1040,7 @@ void GameobjectManager::BuildBossStageObject(ID3D12Device* pd3dDevice, ID3D12Gra
 
 void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {//빌드
-	
+
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	BuildLight();
 
@@ -1184,7 +1184,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 		m_pEnergyBallObjects[i]->SetModel(IceLance);
 		//m_pEnergyBallObjects[i]->SetColor(XMFLOAT3(0,0.5,0);
 		m_pEnergyBallObjects[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-		m_pEnergyBallObjects[i]->SetScale(15.f,20.f,15.f);
+		m_pEnergyBallObjects[i]->SetScale(15.f, 20.f, 15.f);
 		m_pEnergyBallObjects[i]->SetBoundingSize(4.0f);
 		static_cast<Priest*>(m_pPriestObject)->SetProjectile(m_pEnergyBallObjects[i]);
 	}
@@ -1779,7 +1779,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 		m_pNormalMonsterHPBarObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 
-///////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////
 	m_pArcherObject->m_pHPBarUI = new GameObject(UI_ENTITY);
 	m_pArcherObject->m_pHPBarUI->InsertComponent<RenderComponent>();
 	m_pArcherObject->m_pHPBarUI->InsertComponent<UIMeshComponent>();
@@ -2038,7 +2038,7 @@ void GameobjectManager::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	for (int i = 0; i < 4; ++i)
 	{
 		m_ppShieldEffectObject[i] = new SheildEffectObject;
-		m_ppShieldEffectObject[i]->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,&m_ppEffectObjects);
+		m_ppShieldEffectObject[i]->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, &m_ppEffectObjects);
 		m_ppShieldEffectObject[i]->m_hostObject = static_cast<ROLE>(0x01 << i);
 	}
 
@@ -2136,7 +2136,7 @@ void GameobjectManager::ProcessingUI(int n)
 		m_pUIGameSearchObject->m_bUIActive = false;
 		break;
 	}
-	case UI::UI_GAMESEARCHING:	{
+	case UI::UI_GAMESEARCHING: {
 		m_pUIGameEndObject->m_bUIActive = false;
 		g_sound.NoLoopPlay("ClickSound", 1.0f);
 		//g_sound.Pause("ClickSound");
@@ -2471,7 +2471,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		{
 			//g_Logic.m_KeyInput->m_bEKey = false;
 			myPlayCharacter->SecondSkillUp(myPlayCharacter->GetRotateAxis());
-			
+
 			if (myPlayCharacter == GetChracterInfo(ROLE::ARCHER))
 			{
 				//g_NetworkHelper.SendSkillStatePacket(myPlayCharacter->GetQSkillState(), false);
@@ -2504,7 +2504,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		}
 		case 'P':
 		{
-			g_sound.Play("ClickSound",1.0f);
+			g_sound.Play("ClickSound", 1.0f);
 		}
 		break;
 		case 'O':
@@ -2514,7 +2514,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		break;
 		case 'U':
 		{
-		//AddDamageFontToUiLayer();
+			//AddDamageFontToUiLayer();
 			break;
 		}
 
@@ -2530,15 +2530,20 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 				m_pPlayerObject->SetPosition(XMFLOAT3(-1400, 0, -1500));
 			}
 #endif
+			if (m_nStageType == 1) {
+				//m_nStageType = 2;
+				m_pPlayerObject->SetPosition(XMFLOAT3(0, 0, 0));
+				g_NetworkHelper.SendChangeStage_BOSS();
+			}
 			break;
 		}
-			}
 		}
+	}
 	default:
 		break;
-		}
-	return(false);
 	}
+	return(false);
+}
 
 bool GameobjectManager::onProcessingKeyboardMessageLobby(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
@@ -2558,7 +2563,7 @@ bool GameobjectManager::onProcessingKeyboardMessageLobby(HWND hWnd, UINT nMessag
 		g_NetworkHelper.SendMatchRequestPacket();
 #endif
 		m_bSceneSwap = true;//페이드 인 아웃
-	}
+}
 	if (nMessageID == WM_KEYDOWN && wParam == 'G')
 	{
 		m_bNPCinteraction = true;
@@ -2708,7 +2713,7 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 		myPlayCharacter->m_LMouseInput = true;
 		myPlayCharacter->SetLButtonClicked(true);
 		SomethingChanging = true;
-		
+
 		break;
 	}
 	case WM_LBUTTONUP:
@@ -2756,7 +2761,7 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 			, myPlayCharacter->m_RMouseInput);
 #endif
 
-	}
+}
 
 void GameobjectManager::onProcessingMouseMessageUI(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
@@ -2919,7 +2924,7 @@ void GameobjectManager::ChangeStage1ToStage2(float fTimeelpased)
 			g_sound.Pause("LobbySound");
 			g_sound.Pause("Stage1Sound");
 			g_sound.Pause("BossRespawnSound");
-			g_sound.Play("BossStage",0.75);
+			g_sound.Play("BossStage", 0.75);
 		}
 	}
 

@@ -103,9 +103,16 @@ bool MonsterSessionObject::Move(float elapsedTime)
 	}
 	else {//그렇지 못하다면 길을 찾아 가야한다.
 		m_reserveRoadLock.lock();
+		int secondNodeIdx = -1;
+		int thridNodeIdx = -1;
 		if (m_ReserveRoad.size() > 0) {
 			int currentNodeIdx = *m_ReserveRoad.begin();
+			if (m_ReserveRoad.size() > 1)
+				secondNodeIdx = *(++m_ReserveRoad.begin());
+			if (m_ReserveRoad.size() > 2)
+				thridNodeIdx = *m_ReserveRoad.begin();
 			m_reserveRoadLock.unlock();
+
 			XMFLOAT3 destinationNodeCenter = g_bossMapData.GetTriangleMesh(currentNodeIdx).GetCenter();	//노드의 위치			
 			m_DestinationPos = destinationNodeCenter;
 			auto desNodeVector = Vector3::Subtract(m_DestinationPos, m_position);//방향 벡터

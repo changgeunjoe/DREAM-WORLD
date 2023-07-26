@@ -240,7 +240,7 @@ void Character::MoveDiagonal(int fowardDirection, int rightDirection, float ftim
 	if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
 }
 
-std::pair<bool, XMFLOAT3> Character::CheckCollisionMap_Boss(XMFLOAT3& moveDirection, float ftimeElapsed)
+std::pair<bool, XMFLOAT3> Character::CheckCollisionMap_Boss(XMFLOAT3& normalVector, XMFLOAT3& moveDirection, float ftimeElapsed)
 {
 	XMFLOAT3 xmf3Position = GetPosition();
 	vector<MapCollide>& Collides = g_bossMapData.GetCollideData();
@@ -291,7 +291,7 @@ std::pair<bool, XMFLOAT3> Character::CheckCollisionMap_Boss(XMFLOAT3& moveDirect
 	return std::pair<bool, XMFLOAT3>(false, XMFLOAT3(0, 0, 0));
 }
 
-std::pair<bool, XMFLOAT3> Character::CheckCollisionMap_Stage(XMFLOAT3& moveDirection, float ftimeElapsed)
+std::pair<bool, XMFLOAT3> Character::CheckCollisionMap_Stage(XMFLOAT3& normalVector, XMFLOAT3& moveDirection, float ftimeElapsed)
 {
 	XMFLOAT3 xmf3Position = GetPosition();
 	vector<MapCollide>& Collides = g_stage1MapData.GetCollideData();
@@ -314,7 +314,9 @@ std::pair<bool, XMFLOAT3> Character::CheckCollisionMap_Stage(XMFLOAT3& moveDirec
 				float normalVectorDotProductReslut = std::get<2>(CollidePolygonNormalVector);
 				float slidingVectorDotProductReslut = std::get<3>(CollidePolygonNormalVector);//슬라이딩 벡터와 무브 벡터 내적 값				
 				collideSlidingVector = Vector3::ScalarProduct(collideSlidingVector, slidingVectorDotProductReslut, false);
+				normalVector = collideNormalVector;
 				collideNormalVector = Vector3::ScalarProduct(collideNormalVector, 0.06f * normalVectorDotProductReslut, false);
+				//std::cout << "one collide" << std::endl;
 				return std::pair<bool, XMFLOAT3>(true, Vector3::Add(collideSlidingVector, collideNormalVector));
 			}
 			else {
@@ -334,8 +336,10 @@ std::pair<bool, XMFLOAT3> Character::CheckCollisionMap_Stage(XMFLOAT3& moveDirec
 				resultSlidingVector.y = 0.0f;
 				float dotRes = Vector3::DotProduct(resultSlidingVector, moveDirection);
 				if (dotRes < 0)resultSlidingVector = Vector3::ScalarProduct(resultSlidingVector, -1.0f, false);
+				normalVector = Vector3::Normalize(Vector3::Add(collideNormalVector1, collideNormalVector2));				
 				collideNormalVector1 = Vector3::ScalarProduct(collideNormalVector1, 0.3f * normalVectorDotProductResult1, false);
 				collideNormalVector2 = Vector3::ScalarProduct(collideNormalVector2, 0.3f * normalVectorDotProductResult2, false);
+				//std::cout << "two collide" << std::endl;
 				return std::pair<bool, XMFLOAT3>(true, Vector3::Add(resultSlidingVector, Vector3::Add(collideNormalVector1, collideNormalVector2)));
 			}
 		}
@@ -416,7 +420,7 @@ std::pair<bool, XMFLOAT3> Character::CheckCollisionCharacter(XMFLOAT3& moveDirec
 	}
 	resultNormal = Vector3::Normalize(resultNormal);
 	resultSliding = Vector3::Normalize(resultSliding);
-	resultNormal = Vector3::ScalarProduct(resultNormal, 0.3f, false);
+	resultNormal = Vector3::ScalarProduct(resultNormal, 0.02f, false);
 
 	return std::pair<bool, XMFLOAT3>(true, Vector3::Add(resultNormal, resultSliding));
 }
@@ -453,7 +457,7 @@ std::pair<bool, XMFLOAT3> Character::CheckCollisionNormalMonster(XMFLOAT3& moveD
 	}
 	if (collideCnt) {
 		normalVecResult = Vector3::Normalize(normalVecResult);
-		normalVecResult = Vector3::ScalarProduct(normalVecResult, 0.5f);
+		normalVecResult = Vector3::ScalarProduct(normalVecResult, 0.02f);
 		slidingVecResult = Vector3::Normalize(slidingVecResult);
 	}
 	XMFLOAT3 collideNPCMoveDir = Vector3::Normalize(Vector3::Add(normalVecResult, slidingVecResult));
@@ -463,10 +467,11 @@ std::pair<bool, XMFLOAT3> Character::CheckCollisionNormalMonster(XMFLOAT3& moveD
 bool Character::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
 {
 	std::pair<bool, XMFLOAT3> mapCollideResult;
+	XMFLOAT3 mapCollideVector;
 	if (gGameFramework.GetScene()->GetObjectManager()->m_nStageType == 1)
-		mapCollideResult = CheckCollisionMap_Stage(moveDirection, ftimeElapsed);
+		mapCollideResult = CheckCollisionMap_Stage(mapCollideVector, moveDirection, ftimeElapsed);
 	else
-		mapCollideResult = CheckCollisionMap_Boss(moveDirection, ftimeElapsed);
+		mapCollideResult = CheckCollisionMap_Boss(mapCollideVector, moveDirection, ftimeElapsed);
 
 	auto CharacterCollide = CheckCollisionCharacter(moveDirection, ftimeElapsed);
 	if (CharacterCollide.first && std::abs(CharacterCollide.second.x) < DBL_EPSILON && std::abs(CharacterCollide.second.z) < DBL_EPSILON) {//캐릭터 콜리전으로 인해 아예 못움직임
@@ -477,7 +482,7 @@ bool Character::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
 		return true;
 	}
 	if (mapCollideResult.first) {//맵에 충돌 됨
-		if (CharacterCollide.first) {//캐릭터가 충돌 됨			
+		if (CharacterCollide.first) {//캐릭터가 충돌 됨
 			float dotRes = Vector3::DotProduct(Vector3::Normalize(mapCollideResult.second), Vector3::Normalize(CharacterCollide.second));
 			if (dotRes > 0.2f) {//충돌 벡터가 방향이 비슷함
 				auto normalMonsterCollide = CheckCollisionNormalMonster(moveDirection, ftimeElapsed);
@@ -575,6 +580,11 @@ bool Character::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
 			}
 		}
 		else {//노말 몬스터와 충돌하지 않음 => 맵만 충돌
+			mapCollideVector;
+			float dotResult = Vector3::DotProduct(mapCollideVector, moveDirection);
+			if (dotResult > 0.121) {
+				return false;
+			}
 			XMFLOAT3 xmf3Position = GetPosition();
 #ifdef CHARCTER_MOVE_LOG
 			PrintCurrentTime();
@@ -2790,10 +2800,11 @@ bool NormalMonster::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
 {
 
 	std::pair<bool, XMFLOAT3> mapCollideResult;
+	XMFLOAT3 mapCollideVector;
 	if (gGameFramework.GetScene()->GetObjectManager()->m_nStageType == 1)
-		mapCollideResult = CheckCollisionMap_Stage(moveDirection, ftimeElapsed);
+		mapCollideResult = CheckCollisionMap_Stage(mapCollideVector, moveDirection, ftimeElapsed);
 	else
-		mapCollideResult = CheckCollisionMap_Boss(moveDirection, ftimeElapsed);
+		mapCollideResult = CheckCollisionMap_Boss(mapCollideVector, moveDirection, ftimeElapsed);
 	auto CharacterCollide = CheckCollisionCharacter(moveDirection, ftimeElapsed);
 	if (CharacterCollide.first && std::abs(CharacterCollide.second.x) < DBL_EPSILON && std::abs(CharacterCollide.second.z) < DBL_EPSILON) {//캐릭터 콜리전으로 인해 아예 못움직임
 		if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
