@@ -5,7 +5,7 @@
 class SessionObject
 {
 protected:
-	float	m_hp;
+	std::atomic<float>	m_hp;
 	float	m_maxHp;
 	float	m_attackDamage;
 	float m_speed = 50.0f;

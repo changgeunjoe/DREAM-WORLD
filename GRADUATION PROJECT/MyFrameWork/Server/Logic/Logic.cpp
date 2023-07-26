@@ -381,6 +381,7 @@ void Logic::ProcessPacket(int userId, char* p)
 		PrintCurrentTime();
 		std::cout << "unknown Packet" << std::endl; 
 		std::cout << g_iocpNetwork.m_session[userId].GetUserAddrIn() << std::endl;
+		std::cout << p << std::endl;
 		g_iocpNetwork.DisconnectClient(userId);
 		break;
 	}

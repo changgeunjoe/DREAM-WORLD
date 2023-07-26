@@ -18,7 +18,7 @@ extern MapData g_bossMapData;
 MonsterSessionObject::MonsterSessionObject() : SessionObject(30.0f)
 {
 	m_speed = 50.0f;
-	m_maxHp = m_hp = 2500;
+	m_maxHp = m_hp = 6500.0f;
 	m_DestinationPos = XMFLOAT3{ 0,0,0 };
 	m_onIdx = g_bossMapData.GetFirstIdxs();
 }
@@ -26,7 +26,7 @@ MonsterSessionObject::MonsterSessionObject() : SessionObject(30.0f)
 MonsterSessionObject::MonsterSessionObject(int roomId) :SessionObject()
 {
 	m_speed = 50.0f;
-	m_maxHp = m_hp = 2500;
+	m_maxHp = m_hp = 6500.0f;
 	m_DestinationPos = XMFLOAT3{ 0,0,0 };
 	m_onIdx = g_bossMapData.GetFirstIdxs();
 	m_roomId = roomId;

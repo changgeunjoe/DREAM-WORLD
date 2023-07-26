@@ -73,7 +73,7 @@ bool SmallMonsterSessionObject::StartAttack()
 		if (lookDesDotRes >= MONSTER_ABLE_ATTACK_COS_VALUE) { // 보스 look과 플레이어와의 각도가 30degree일때
 			if (len <= 42.0f) {
 				if (durationTime > std::chrono::seconds(1) + std::chrono::milliseconds(500)) {
-					//sendAttackPacket;
+					playCharacter.second->AttackedHp(50.0f);
 					SERVER_PACKET::SmallMonsterAttackPlayerPacket sendPacket;
 					sendPacket.size = sizeof(SERVER_PACKET::SmallMonsterAttackPlayerPacket);
 					sendPacket.type = SERVER_PACKET::SMALL_MONSTER_ATTACK;

@@ -198,6 +198,7 @@ namespace SERVER_PACKET {
 	constexpr unsigned char MONSTER_DAMAGED_BALL = 107;
 
 	constexpr unsigned char PLAYER_ATTACK_RESULT = 108;
+	constexpr unsigned char PLAYER_ATTACK_RESULT_BOSS = 109;
 
 	constexpr unsigned char SMALL_MONSTER_ATTACK = 110;
 
@@ -209,7 +210,7 @@ namespace SERVER_PACKET {
 	constexpr unsigned char START_ANIMATION_E = 115;
 	constexpr unsigned char COMMON_ATTACK_START = 116;
 
-
+	constexpr unsigned char BOSS_ATTACK_PALYER = 117;
 
 	struct MovePacket
 	{
@@ -423,7 +424,7 @@ namespace SERVER_PACKET {
 		XMFLOAT3 position;//맞은 위치
 		float damage;// 데미지
 	};
-	
+
 	struct PlayerAttackMonsterDamagePacket {//본인만 데미지 볼 수 있게
 		short size;
 		char type;
@@ -432,7 +433,13 @@ namespace SERVER_PACKET {
 		char monsterIdx[15];//해당 몬스터의 인덱스값이 있는 배열
 		float damage;// 플레이어가 입힌 데미지
 	};
-	
+
+	struct PlayerAttackBossDamagePacket {
+		short size;
+		char type;
+		float damage;// 플레이어가 입힌 데미지
+	};
+
 	struct CommonAttackPacket {//전체 플레이어들에게 알려서 애니메이션 재생
 		short size;
 		char type;
@@ -445,7 +452,12 @@ namespace SERVER_PACKET {
 		char attackedRole;//자기 자신의 role인지 판단하고 피격 화면 출력
 		char attackMonsterIdx;//애니메이션 재생할 몬스터 인덱스
 	};
-	
+
+	struct BossAttackPlayerPacket {
+		short size;
+		char type;
+		float currentHp;
+	};
 }
 
 #pragma pack (pop)

@@ -797,7 +797,7 @@ void ArcherSessionObject::Skill_2(XMFLOAT3& posOrDir)
 void ArcherSessionObject::ExecuteCommonAttack(XMFLOAT3& attackDir, int power)
 {
 	Room& roomRef = g_RoomManager.GetRunningRoomRef(m_roomId);
-	//offset 적용 안됨
+	//offset ShootArrow 내부에서 적용함
 
 	if (power == 0) {
 		roomRef.ShootArrow(attackDir, m_position, 100.0f, 100.0f);
