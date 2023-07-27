@@ -298,6 +298,9 @@ void Logic::ProcessPacket(int userId, char* p)
 		sendPacket.type = SERVER_PACKET::START_ANIMATION_Q;
 		sendPacket.role = g_iocpNetwork.m_session[userId].GetRole();
 		MultiCastOtherPlayerInRoom_R(roomRef.GetRoomId(), g_iocpNetwork.m_session[userId].GetRole(), &sendPacket);
+		if (g_iocpNetwork.m_session[userId].GetRole() == WARRIOR || g_iocpNetwork.m_session[userId].GetRole() == TANKER) {
+			roomRef.StopMovePlayCharacter(g_iocpNetwork.m_session[userId].GetRole());
+		}
 	}
 	break;
 	case CLIENT_PACKET::SKILL_INPUT_E:
@@ -308,6 +311,10 @@ void Logic::ProcessPacket(int userId, char* p)
 		sendPacket.type = SERVER_PACKET::START_ANIMATION_E;
 		sendPacket.role = g_iocpNetwork.m_session[userId].GetRole();
 		MultiCastOtherPlayerInRoom_R(roomRef.GetRoomId(), g_iocpNetwork.m_session[userId].GetRole(), &sendPacket);
+		roomRef.StopMovePlayCharacter(g_iocpNetwork.m_session[userId].GetRole());
+		if (g_iocpNetwork.m_session[userId].GetRole() == TANKER) {
+			roomRef.StopMovePlayCharacter(g_iocpNetwork.m_session[userId].GetRole());
+		}
 	}
 	break;
 	case CLIENT_PACKET::TRIGGER_BOX_ON:
@@ -379,7 +386,7 @@ void Logic::ProcessPacket(int userId, char* p)
 	break;
 	default:
 		PrintCurrentTime();
-		std::cout << "unknown Packet" << std::endl; 
+		std::cout << "unknown Packet" << std::endl;
 		std::cout << g_iocpNetwork.m_session[userId].GetUserAddrIn() << std::endl;
 		std::cout << p << std::endl;
 		g_iocpNetwork.DisconnectClient(userId);
