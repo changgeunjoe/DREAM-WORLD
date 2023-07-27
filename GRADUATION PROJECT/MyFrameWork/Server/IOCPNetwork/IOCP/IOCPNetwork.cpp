@@ -207,6 +207,7 @@ void IOCPNetwork::WorkerThread()
 		break;
 		case OP_SKY_ARROW_ATTACK:
 		{
+			g_RoomManager.SkyArrowAttack(key);
 			if (ex_over != nullptr)
 				delete ex_over;
 		}

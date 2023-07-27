@@ -23,7 +23,7 @@ extern GameSound g_sound;
 
 Character::Character() : GameObject(UNDEF_ENTITY)
 {
-	//m_xmf3RotateAxis = XMFLOAT3(0.0f, -90.0f, 0.0f);
+	m_xmf3RotateAxis = XMFLOAT3(0.0f, -90.0f, 0.0f);
 	m_skillDuration = { std::chrono::seconds(0), std::chrono::seconds(0) };
 	m_skillCoolTime = { std::chrono::seconds(0), std::chrono::seconds(0) };
 	m_skillInputTime = { std::chrono::high_resolution_clock::now(), std::chrono::high_resolution_clock::now() };
@@ -36,6 +36,11 @@ Character::~Character()
 
 void Character::RbuttonClicked(float fTimeElapsed)
 {
+	if (m_pCamera && !m_iRButtionCount)
+	{
+		m_pCamera->GenerateProjectionMatrix(1.01f, 5000.0f, ASPECT_RATIO, 90.0f);
+		m_iRButtionCount++;
+	}
 }
 
 void Character::RbuttonUp(const XMFLOAT3& CameraAxis)
@@ -89,11 +94,11 @@ void Character::SetLookDirection()
 
 	DIRECTION tempDir = m_currentDirection;
 
-	if (m_bRButtonClicked)
-	{
-		SetLook(xmf3Look);
-		return;
-	}
+	//if (m_bRButtonClicked)
+	//{
+	//	SetLook(xmf3Look);
+	//	return;
+	//}
 
 	if (tempDir != DIRECTION::IDLE)
 	{
@@ -759,6 +764,10 @@ Warrior::Warrior() : Character()
 	m_fMaxHp = 400.0f;
 	m_fSpeed = 50.0f;
 	m_fDamage = 100.0f;
+
+	m_skillCoolTime = { std::chrono::seconds(15), std::chrono::seconds(0) };
+	m_skillDuration = { std::chrono::seconds(5), std::chrono::seconds(0) };
+	m_skillInputTime = { std::chrono::high_resolution_clock::now() - m_skillCoolTime[0], std::chrono::high_resolution_clock::now() - m_skillCoolTime[1] };
 }
 
 Warrior::~Warrior()
@@ -789,11 +798,6 @@ void Warrior::Attack()
 	}
 }
 
-void Warrior::RbuttonClicked(float fTimeElapsed)
-{
-
-}
-
 void Warrior::Move(float fTimeElapsed)
 {
 	DIRECTION tempDir = m_currentDirection;
@@ -810,55 +814,55 @@ void Warrior::Move(float fTimeElapsed)
 		tempDir = (DIRECTION)(tempDir ^ DIRECTION::BACK);
 	}
 
-	if (!m_bRButtonClicked)
+	//if (!m_bRButtonClicked)
+	//{
+	switch (tempDir)
 	{
-		switch (tempDir)
-		{
-		case DIRECTION::IDLE:
-		{
+	case DIRECTION::IDLE:
+	{
+		XMFLOAT3 xmf3Position = GetPosition();
+		xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * fTimeElapsed);
+		SetPosition(xmf3Position);
+		if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
+	}
+	break;
+	case DIRECTION::FRONT:
+	case DIRECTION::FRONT | DIRECTION::RIGHT:
+	case DIRECTION::RIGHT:
+	case DIRECTION::BACK | DIRECTION::RIGHT:
+	case DIRECTION::BACK:
+	case DIRECTION::BACK | DIRECTION::LEFT:
+	case DIRECTION::LEFT:
+	case DIRECTION::FRONT | DIRECTION::LEFT:
+		MoveForward(1, fTimeElapsed);
+		break;
+	default: break;
+	}
+	//}
+	//else
+	//{
+	//	//fDistance /= 3;
+	//	switch (tempDir)
+	//	{
+	//	case DIRECTION::IDLE:
+	//	{
 			XMFLOAT3 xmf3Position = GetPosition();
 			xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * fTimeElapsed);
 			SetPosition(xmf3Position);
 			if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
-		}
-		break;
-		case DIRECTION::FRONT:
-		case DIRECTION::FRONT | DIRECTION::RIGHT:
-		case DIRECTION::RIGHT:
-		case DIRECTION::BACK | DIRECTION::RIGHT:
-		case DIRECTION::BACK:
-		case DIRECTION::BACK | DIRECTION::LEFT:
-		case DIRECTION::LEFT:
-		case DIRECTION::FRONT | DIRECTION::LEFT:
-			MoveForward(1, fTimeElapsed);
-			break;
-		default: break;
-		}
-	}
-	else
-	{
-		//fDistance /= 3;
-		switch (tempDir)
-		{
-		case DIRECTION::IDLE:
-		{
-			XMFLOAT3 xmf3Position = GetPosition();
-			xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * fTimeElapsed);
-			SetPosition(xmf3Position);
-			if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
-		}
-		break;
-		case DIRECTION::FRONT: MoveForward(1, fTimeElapsed); break;
-		case DIRECTION::FRONT | DIRECTION::RIGHT: MoveDiagonal(1, 1, fTimeElapsed); break;
-		case DIRECTION::RIGHT: MoveStrafe(1, fTimeElapsed); break;
-		case DIRECTION::BACK | DIRECTION::RIGHT: MoveDiagonal(-1, 1, fTimeElapsed);  break;
-		case DIRECTION::BACK: MoveForward(-1, fTimeElapsed); break;
-		case DIRECTION::BACK | DIRECTION::LEFT: MoveDiagonal(-1, -1, fTimeElapsed); break;
-		case DIRECTION::LEFT: MoveStrafe(-1, fTimeElapsed); break;
-		case DIRECTION::FRONT | DIRECTION::LEFT: MoveDiagonal(1, -1, fTimeElapsed); break;
-		default: break;
-		}
-	}
+	//	}
+	//	break;
+	//	case DIRECTION::FRONT: MoveForward(1, fTimeElapsed); break;
+	//	case DIRECTION::FRONT | DIRECTION::RIGHT: MoveDiagonal(1, 1, fTimeElapsed); break;
+	//	case DIRECTION::RIGHT: MoveStrafe(1, fTimeElapsed); break;
+	//	case DIRECTION::BACK | DIRECTION::RIGHT: MoveDiagonal(-1, 1, fTimeElapsed);  break;
+	//	case DIRECTION::BACK: MoveForward(-1, fTimeElapsed); break;
+	//	case DIRECTION::BACK | DIRECTION::LEFT: MoveDiagonal(-1, -1, fTimeElapsed); break;
+	//	case DIRECTION::LEFT: MoveStrafe(-1, fTimeElapsed); break;
+	//	case DIRECTION::FRONT | DIRECTION::LEFT: MoveDiagonal(1, -1, fTimeElapsed); break;
+	//	default: break;
+	//	}
+	//}
 }
 
 void Warrior::Animate(float fTimeElapsed)
@@ -1046,6 +1050,7 @@ void Warrior::FirstSkillDown()
 		auto currentTime = std::chrono::high_resolution_clock::now();
 		auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[0]);
 		if (m_skillCoolTime[0] > duration) return;
+		g_NetworkHelper.Send_SkillInput_Q();
 		m_skillInputTime[0] = std::chrono::high_resolution_clock::now();
 	}
 	m_currentDirection = DIRECTION::IDLE;
@@ -1056,6 +1061,7 @@ void Warrior::FirstSkillDown()
 void Warrior::SetStage1Position()
 {
 	SetPosition(XMFLOAT3(-1290.0f, 0, -1470.0f));
+	m_xmf3RotateAxis = XMFLOAT3(0.0f, 0.0f, 0.0f);
 }
 
 void Warrior::SetBossStagePostion()
@@ -1082,6 +1088,10 @@ Archer::Archer() : Character()
 	m_fSpeed = 50.0f;
 	m_fDamage = 80.0f;
 	m_CameraLook = XMFLOAT3(0.0f, 0.0f, 0.0f);
+
+	m_skillCoolTime = { std::chrono::seconds(15), std::chrono::seconds(7) };
+	m_skillDuration = { std::chrono::seconds(5), std::chrono::seconds(3) };
+	m_skillInputTime = { std::chrono::high_resolution_clock::now() - m_skillCoolTime[0], std::chrono::high_resolution_clock::now() - m_skillCoolTime[1] };
 }
 
 Archer::~Archer()
@@ -1347,8 +1357,37 @@ void Archer::ZoomInCamera()
 	}
 }
 
-void Archer::SecondSkillUp(const XMFLOAT3& CameraAxis)
+void Archer::FirstSkillDown()
 {
+	if (g_Logic.GetMyRole() == ROLE::ARCHER)
+	{
+		auto currentTime = std::chrono::high_resolution_clock::now();
+		auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[0]);
+		if (m_skillCoolTime[0] > duration) return;
+		g_NetworkHelper.Send_SkillInput_Q();
+		g_NetworkHelper.Send_SkillExecute_Q(XMFLOAT3(0.0, 0.0, 0.0));
+		m_skillInputTime[0] = std::chrono::high_resolution_clock::now();
+	}
+	m_bQSkillClicked = true;
+}
+
+void Archer::SecondSkillDown()
+{
+	if (g_Logic.GetMyRole() == ROLE::ARCHER)
+	{
+		auto currentTime = std::chrono::high_resolution_clock::now();
+		auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[1]);
+		if (m_skillCoolTime[1] > duration)
+		{
+			gGameFramework.GetScene()->GetObjectManager()->m_bPickingenemy = false;
+			return;
+		}
+		g_NetworkHelper.Send_SkillInput_E();
+		g_NetworkHelper.Send_SkillExecute_E(m_xmf3TargetPos);
+		m_skillInputTime[1] = std::chrono::high_resolution_clock::now();
+
+	}
+	m_bESkillClicked = true;
 }
 
 void Archer::SetLButtonClicked(bool bLButtonClicked)
@@ -1397,13 +1436,38 @@ void Archer::ShootArrow()//스킬
 		}
 		m_bQSkillClicked = false;
 	}
+	else if (m_bESkillClicked == true)
+	{
+		XMFLOAT3 xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
+		for (int i = 0; i < m_ppArrowForESkill.size(); ++i)
+		{
+			XMFLOAT3 objPosition = GetPosition();
+			XMFLOAT3 objectLook = Vector3::Normalize(Vector3::Subtract(m_xmf3TargetPos, objPosition));
+			XMFLOAT3 objectRight = Vector3::Normalize(Vector3::CrossProduct(xmf3Up, objectLook, true));
+			objPosition.y = RandomValue(8.0f, 24.0f);
+			objPosition = Vector3::Add(objPosition, objectRight, -8.0f + (i % 5) * 4.0f);
+			objPosition = Vector3::Add(objPosition, objectLook, 3.0f);
+			objectLook.y = 0.85f;
+
+			m_ppArrowForESkill[i]->m_xmf3Offset = Vector3::Subtract(objPosition, GetPosition());
+			m_ppArrowForESkill[i]->m_xmf3TargetPos = Vector3::Add(m_xmf3TargetPos, m_ppArrowForESkill[i]->m_xmf3Offset);
+			m_ppArrowForESkill[i]->m_fArrowPos = -RandomValue(0.0f, 0.1f);
+			m_ppArrowForESkill[i]->m_fSpeed = RandomValue(0.5f, 2.0f);
+			m_ppArrowForESkill[i]->m_xmf3direction = Vector3::Normalize(objectLook);
+			m_ppArrowForESkill[i]->m_xmf3startPosition = objPosition;
+			m_ppArrowForESkill[i]->SetPosition(objPosition);
+			m_ppArrowForESkill[i]->m_bActive = true;
+			m_ppArrowForESkill[i]->m_iArrowType = 1;
+		}
+		m_bESkillClicked = false;
+	}
 	else if (m_bZoomInState == true)
 	{
 		float chargingTime = m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_fPosition;
 		float fullTime = m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_ATTACK]->m_fLength * 0.5f;
 		float arrowSpeed = pow((chargingTime / fullTime), 2);
 		float fProgress = std::clamp(arrowSpeed, 0.65f, 1.0f);
-		arrowSpeed = (chargingTime / fullTime > 0.3f) ? arrowSpeed * 100.0f : -1.0f;
+		arrowSpeed = (chargingTime / fullTime > 0.5f) ? arrowSpeed * 100.0f : -1.0f;
 		if (arrowSpeed > 10)
 		{
 			fProgress = fProgress * 250.0f;
@@ -1420,7 +1484,7 @@ void Archer::ShootArrow()//스킬
 
 			m_ppProjectiles[m_nProjectiles]->m_bActive = true;
 			m_ppProjectiles[m_nProjectiles]->m_fSpeed = 150.0f;
-			int arrowPower = arrowSpeed / 30;
+			int arrowPower = (arrowSpeed / 30) - 1;
 			switch (arrowPower)
 			{
 			case 0:
@@ -1483,6 +1547,31 @@ void Archer::ShootArrow(const XMFLOAT3& xmf3Direction)
 		}
 		m_bQSkillClicked = false;
 	}
+	else if (m_bESkillClicked == true)
+	{
+		XMFLOAT3 xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
+		for (int i = 0; i < m_ppArrowForESkill.size(); ++i)
+		{
+			XMFLOAT3 objPosition = GetPosition();
+			XMFLOAT3 objectLook = Vector3::Normalize(Vector3::Subtract(m_xmf3TargetPos, objPosition));
+			XMFLOAT3 objectRight = Vector3::Normalize(Vector3::CrossProduct(xmf3Up, objectLook, true));
+			objPosition.y = RandomValue(8.0f, 24.0f);
+			objPosition = Vector3::Add(objPosition, objectRight, -8.0f + (i % 5) * 4.0f);
+			objPosition = Vector3::Add(objPosition, objectLook, 3.0f);
+			objectLook.y = 0.85f;
+
+			m_ppArrowForESkill[i]->m_xmf3Offset = Vector3::Subtract(objPosition, GetPosition());
+			m_ppArrowForESkill[i]->m_xmf3TargetPos = Vector3::Add(m_xmf3TargetPos, m_ppArrowForESkill[i]->m_xmf3Offset);
+			m_ppArrowForESkill[i]->m_fArrowPos = -RandomValue(0.0f, 0.0f);
+			m_ppArrowForESkill[i]->m_fSpeed = RandomValue(0.5f, 2.0f);
+			m_ppArrowForESkill[i]->m_xmf3direction = Vector3::Normalize(objectLook);
+			m_ppArrowForESkill[i]->m_xmf3startPosition = objPosition;
+			m_ppArrowForESkill[i]->SetPosition(objPosition);
+			m_ppArrowForESkill[i]->m_bActive = true;
+			m_ppArrowForESkill[i]->m_iArrowType = 1;
+		}
+		m_bESkillClicked = false;
+	}
 	else if (m_bZoomInState == true)
 	{
 		m_ppProjectiles[m_nProjectiles]->m_xmf3direction = xmf3Direction;
@@ -1511,6 +1600,7 @@ void Archer::ShootArrow(const XMFLOAT3& xmf3Direction)
 void Archer::SetStage1Position()
 {
 	SetPosition(XMFLOAT3(-1340.84f, 0, -1520.93f));
+	m_xmf3RotateAxis = XMFLOAT3(0.0f, 0.0f, 0.0f);
 }
 
 void Archer::SetBossStagePostion()
@@ -1546,7 +1636,7 @@ Tanker::Tanker() : Character()
 	m_fSpeed = 50.0f;
 	m_fDamage = 50.0f;
 
-	m_skillCoolTime = { std::chrono::seconds(15), std::chrono::seconds(0) };
+	m_skillCoolTime = { std::chrono::seconds(15), std::chrono::seconds(7) };
 	m_skillDuration = { std::chrono::seconds(5), std::chrono::seconds(0) };
 	m_skillInputTime = { std::chrono::high_resolution_clock::now() - m_skillCoolTime[0], std::chrono::high_resolution_clock::now() - m_skillCoolTime[1] };
 }
@@ -1563,15 +1653,6 @@ void Tanker::Attack()
 	}
 }
 
-void Tanker::RbuttonClicked(float fTimeElapsed)
-{
-	if (m_pCamera && !m_iRButtionCount)
-	{
-		m_pCamera->GenerateProjectionMatrix(1.01f, 5000.0f, ASPECT_RATIO, 90.0f);
-		m_iRButtionCount++;
-	}
-}
-
 void Tanker::RbuttonUp(const XMFLOAT3& CameraAxis)
 {
 	Character::RbuttonUp(CameraAxis);
@@ -1584,6 +1665,7 @@ void Tanker::FirstSkillDown()
 		auto currentTime = std::chrono::high_resolution_clock::now();
 		auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[0]);
 		if (m_skillCoolTime[0] > duration) return;
+		g_NetworkHelper.Send_SkillInput_Q();
 		g_NetworkHelper.Send_SkillExecute_Q(XMFLOAT3(0.0, 0.0, 0.0));
 		m_skillInputTime[0] = std::chrono::high_resolution_clock::now();
 	}
@@ -1603,7 +1685,7 @@ void Tanker::SecondSkillDown()
 		auto currentTime = std::chrono::high_resolution_clock::now();
 		auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[1]);
 		if (m_skillCoolTime[1] > duration) return;
-		m_currentDirection = DIRECTION::IDLE;
+		g_NetworkHelper.Send_SkillInput_E();
 		m_skillInputTime[1] = std::chrono::high_resolution_clock::now();
 	}
 	m_currentDirection = DIRECTION::IDLE;
@@ -1627,55 +1709,55 @@ void Tanker::Move(float fTimeElapsed)
 		tempDir = (DIRECTION)(tempDir ^ DIRECTION::BACK);
 	}
 
-	if (!m_bRButtonClicked)
+	//if (!m_bRButtonClicked)
+	//{
+	switch (tempDir)
 	{
-		switch (tempDir)
-		{
-		case DIRECTION::IDLE:
-		{
-			XMFLOAT3 xmf3Position = GetPosition();
-			xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * fTimeElapsed);
-			SetPosition(xmf3Position);
-			if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
-		}
-		break;
-		case DIRECTION::FRONT:
-		case DIRECTION::FRONT | DIRECTION::RIGHT:
-		case DIRECTION::RIGHT:
-		case DIRECTION::BACK | DIRECTION::RIGHT:
-		case DIRECTION::BACK:
-		case DIRECTION::BACK | DIRECTION::LEFT:
-		case DIRECTION::LEFT:
-		case DIRECTION::FRONT | DIRECTION::LEFT:
-			MoveForward(1, fTimeElapsed);
-			break;
-		default: break;
-		}
-	}
-	else
+	case DIRECTION::IDLE:
 	{
-		//fDistance /= 3;
-		switch (tempDir)
-		{
-		case DIRECTION::IDLE:
-		{
-			XMFLOAT3 xmf3Position = GetPosition();
-			xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * fTimeElapsed);
-			SetPosition(xmf3Position);
-			if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
-		}
-		break;
-		case DIRECTION::FRONT: MoveForward(1, fTimeElapsed); break;
-		case DIRECTION::FRONT | DIRECTION::RIGHT: MoveDiagonal(1, 1, fTimeElapsed); break;
-		case DIRECTION::RIGHT: MoveStrafe(1, fTimeElapsed); break;
-		case DIRECTION::BACK | DIRECTION::RIGHT: MoveDiagonal(-1, 1, fTimeElapsed);  break;
-		case DIRECTION::BACK: MoveForward(-1, fTimeElapsed); break;
-		case DIRECTION::BACK | DIRECTION::LEFT: MoveDiagonal(-1, -1, fTimeElapsed); break;
-		case DIRECTION::LEFT: MoveStrafe(-1, fTimeElapsed); break;
-		case DIRECTION::FRONT | DIRECTION::LEFT: MoveDiagonal(1, -1, fTimeElapsed); break;
-		default: break;
-		}
+		XMFLOAT3 xmf3Position = GetPosition();
+		xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * fTimeElapsed);
+		SetPosition(xmf3Position);
+		if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
 	}
+	break;
+	case DIRECTION::FRONT:
+	case DIRECTION::FRONT | DIRECTION::RIGHT:
+	case DIRECTION::RIGHT:
+	case DIRECTION::BACK | DIRECTION::RIGHT:
+	case DIRECTION::BACK:
+	case DIRECTION::BACK | DIRECTION::LEFT:
+	case DIRECTION::LEFT:
+	case DIRECTION::FRONT | DIRECTION::LEFT:
+		MoveForward(1, fTimeElapsed);
+		break;
+	default: break;
+	}
+	//}
+	//else
+	//{
+	//	//fDistance /= 3;
+	//	switch (tempDir)
+	//	{
+	//	case DIRECTION::IDLE:
+	//	{
+	//		XMFLOAT3 xmf3Position = GetPosition();
+	//		xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * fTimeElapsed);
+	//		SetPosition(xmf3Position);
+	//		if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
+	//	}
+	//	break;
+	//	case DIRECTION::FRONT: MoveForward(1, fTimeElapsed); break;
+	//	case DIRECTION::FRONT | DIRECTION::RIGHT: MoveDiagonal(1, 1, fTimeElapsed); break;
+	//	case DIRECTION::RIGHT: MoveStrafe(1, fTimeElapsed); break;
+	//	case DIRECTION::BACK | DIRECTION::RIGHT: MoveDiagonal(-1, 1, fTimeElapsed);  break;
+	//	case DIRECTION::BACK: MoveForward(-1, fTimeElapsed); break;
+	//	case DIRECTION::BACK | DIRECTION::LEFT: MoveDiagonal(-1, -1, fTimeElapsed); break;
+	//	case DIRECTION::LEFT: MoveStrafe(-1, fTimeElapsed); break;
+	//	case DIRECTION::FRONT | DIRECTION::LEFT: MoveDiagonal(1, -1, fTimeElapsed); break;
+	//	default: break;
+	//	}
+	//}
 }
 
 void Tanker::Animate(float fTimeElapsed)
@@ -1866,6 +1948,7 @@ void Tanker::EndEffect(int nSkillNum)
 void Tanker::SetStage1Position()
 {
 	SetPosition(XMFLOAT3(-1260.3f, 0, -1510.7f));
+	m_xmf3RotateAxis = XMFLOAT3(0.0f, 0.0f, 0.0f);
 }
 
 void Tanker::SetBossStagePostion()
@@ -1902,10 +1985,6 @@ Priest::Priest() : Character()
 }
 
 Priest::~Priest()
-{
-}
-
-void Priest::RbuttonClicked(float fTimeElapsed)
 {
 }
 
@@ -2068,10 +2147,6 @@ void Priest::Animate(float fTimeElapsed)
 	GameObject::Animate(fTimeElapsed);
 }
 
-void Priest::RbuttonUp(const XMFLOAT3& CameraAxis)
-{
-}
-
 void Priest::Attack()
 {
 	m_nProjectiles = (m_nProjectiles < 10) ? m_nProjectiles : m_nProjectiles % 10;
@@ -2143,6 +2218,7 @@ void Priest::FirstSkillDown()
 		auto currentTime = std::chrono::high_resolution_clock::now();
 		auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[0]);
 		if (m_skillCoolTime[0] > duration) return;
+		g_NetworkHelper.Send_SkillInput_Q();
 		g_NetworkHelper.Send_SkillExecute_Q(XMFLOAT3(0.0, 0.0, 0.0));
 		m_skillInputTime[0] = std::chrono::high_resolution_clock::now();
 	}
@@ -2155,19 +2231,19 @@ void Priest::FirstSkillDown()
 
 void Priest::SecondSkillDown()
 {
-	auto currentTime = std::chrono::high_resolution_clock::now();
-	auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[1]);
-	if (m_skillCoolTime[1] > duration)
+	if (g_Logic.GetMyRole() == ROLE::PRIEST)
 	{
-		gGameFramework.GetScene()->GetObjectManager()->m_bPickingenemy = false;
-		return;
+		auto currentTime = std::chrono::high_resolution_clock::now();
+		auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[1]);
+		if (m_skillCoolTime[1] > duration)
+		{
+			gGameFramework.GetScene()->GetObjectManager()->m_bPickingenemy = false;
+			return;
+		}
+		g_NetworkHelper.Send_SkillInput_E();
+		m_skillInputTime[1] = std::chrono::high_resolution_clock::now();
 	}
 	m_bESkillClicked = true;
-	m_skillInputTime[1] = std::chrono::high_resolution_clock::now();
-}
-
-void Priest::FirstSkillUp()
-{
 }
 
 void Priest::StartEffect(int nSkillNum)
@@ -2212,6 +2288,7 @@ void Priest::UpdateEffect()
 void Priest::SetStage1Position()
 {
 	SetPosition(XMFLOAT3(-1370.45, 0, -1450.89f));
+	m_xmf3RotateAxis = XMFLOAT3(0.0f, 0.0f, 0.0f);
 }
 
 void Priest::SetBossStagePostion()
@@ -2506,8 +2583,10 @@ void Projectile::Move(XMFLOAT3 dir, float fDistance)
 Arrow::Arrow() : Projectile()
 {
 	m_fSpeed = 150.0f;
+	m_iArrowType = 0;
+	m_fArrowPos = 1.0f;
+	m_HostRole = ROLE::ARCHER;
 	//m_xmf3TargetPos = XMFLOAT3(0.0f, -1.0f, 0.0f);
-	//m_ArrowType = 0;
 	//m_ArrowPos = 0;
 	// Y값이 마우스 회전 범위 안쪽이면 일반 화살 아니면 꺾이는 화살
 }
@@ -2518,32 +2597,38 @@ Arrow::~Arrow()
 
 void Arrow::Animate(float fTimeElapsed)
 {
-	if (m_bActive == false) return;
 	XMFLOAT3 xmf3CurrentPos = GetPosition();
+	if (m_iArrowType == 1)
+	{
+		if (m_fArrowPos > 1.0f)
+		{
+			m_bActive = false;
+			return;
+		}
+		if (m_fArrowPos < FLT_EPSILON)
+		{
+			m_fArrowPos += fTimeElapsed;
+			SetPosition(m_xmf3startPosition);
+			SetLook(m_xmf3direction);
+			return;
+		}
 
-	//if (m_ArrowType == 1)
-	//{
-	//	if (m_ArrowPos > 1.0f)
-	//	{
-	//		m_bActive = false;
-	//		return;
-	//	}
-	//	Monster* bossMonster = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster();
-	//	m_xmf3TargetPos = bossMonster->GetPosition();
-	//	XMFLOAT3 controlPoint = Vector3::Add(m_xmf3startPosition, m_xmf3direction, 100.0f);
-	//	XMFLOAT3 firstVec = Vector3::Subtract(controlPoint, m_xmf3startPosition);
-	//	XMFLOAT3 secondVec = Vector3::Subtract(m_xmf3TargetPos, controlPoint);
-	//	XMFLOAT3 tempPoint1 = Vector3::Add(Vector3::ScalarProduct(m_xmf3startPosition, (1 - m_ArrowPos), false), Vector3::ScalarProduct(controlPoint, m_ArrowPos, false));
-	//	XMFLOAT3 tempPoint2 = Vector3::Add(Vector3::ScalarProduct(controlPoint, (1 - m_ArrowPos), false), Vector3::ScalarProduct(m_xmf3TargetPos, m_ArrowPos, false));
-	//	XMFLOAT3 curPos = Vector3::Add(Vector3::ScalarProduct(tempPoint1, (1 - m_ArrowPos), false), Vector3::ScalarProduct(tempPoint2, m_ArrowPos, false));
-	//	SetPosition(curPos);
-	//	SetLook(Vector3::Subtract(tempPoint2, tempPoint1));
-	//	m_ArrowPos += fTimeElapsed;	// 스플라인 곡선에서의 t의 역할
-	//}
-	//else
-	//{
-	SetLook(m_xmf3direction);
-	Move(m_xmf3direction, fTimeElapsed * m_fSpeed);
+		XMFLOAT3 controlPoint = Vector3::Add(m_xmf3startPosition, m_xmf3direction, 100.0f);
+		XMFLOAT3 firstVec = Vector3::Subtract(controlPoint, m_xmf3startPosition);
+		XMFLOAT3 secondVec = Vector3::Subtract(m_xmf3TargetPos, controlPoint);
+		XMFLOAT3 FirstLinePoint = Vector3::Add(Vector3::ScalarProduct(m_xmf3startPosition, (1 - m_fArrowPos), false), Vector3::ScalarProduct(controlPoint, m_fArrowPos, false));
+		XMFLOAT3 SecondLinePoint = Vector3::Add(Vector3::ScalarProduct(controlPoint, (1 - m_fArrowPos), false), Vector3::ScalarProduct(m_xmf3TargetPos, m_fArrowPos, false));
+		XMFLOAT3 curPos = Vector3::Add(Vector3::ScalarProduct(FirstLinePoint, (1 - m_fArrowPos), false), Vector3::ScalarProduct(SecondLinePoint, m_fArrowPos, false));
+		SetPosition(curPos);
+		SetLook(Vector3::Subtract(SecondLinePoint, FirstLinePoint));
+		m_fArrowPos += fTimeElapsed * m_fSpeed;
+	}
+	else
+	{
+		if (m_bActive == false) return;
+		SetLook(m_xmf3direction);
+		Move(m_xmf3direction, fTimeElapsed * m_fSpeed);
+	}
 	if (m_VisualizeSPBB) m_VisualizeSPBB->SetPosition(XMFLOAT3(GetPosition().x, GetPosition().y, GetPosition().z));
 	if (GetPosition().y < -1.0f) SetActive(false);
 }
@@ -2564,6 +2649,7 @@ EnergyBall::EnergyBall() : Projectile(SQUARE_ENTITY)
 {
 	m_fSpeed = 75.0f;
 	m_fProgress = 0.0f;
+	m_HostRole = ROLE::TANKER;
 }
 
 EnergyBall::~EnergyBall()
@@ -3131,4 +3217,21 @@ std::pair<float, XMFLOAT3> Character::GetNormalVectorSphere(const XMFLOAT3& poin
 	float normalSize = Vector3::Length(normalVec);
 	normalVec = Vector3::Normalize(normalVec);
 	return std::pair<float, XMFLOAT3>(normalSize, normalVec);
+}
+
+IceLance::IceLance() : Projectile()
+{
+	m_HostRole = ROLE::PRIEST;
+	m_fSpeed = 75.0f;
+}
+
+IceLance::~IceLance()
+{
+}
+
+void IceLance::Animate(float fTimeElapsed)
+{
+	if (m_bActive == false) return;
+	SetLook(m_xmf3direction);
+	Move(m_xmf3direction, fTimeElapsed * m_fSpeed);
 }

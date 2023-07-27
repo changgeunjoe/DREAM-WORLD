@@ -149,6 +149,7 @@ public:
 	void SetMouseCapture(bool capture) { m_bMouseCaptured = capture; }
 
 	CScene* GetScene() { return m_pScene; }
+	LobbyCScene* GetLobbyScene() { return m_pLobbyScene; }
 
 	CCamera* GetCamera() { return m_pCamera; }
 	//윈도우의 메시지(키보드, 마우스 입력)를 처리하는 함수이다.
@@ -162,7 +163,7 @@ public:
 	GAME_STATE GetCurrentGameState() { return m_gameState; }
 	void SetCurrentGameState(GAME_STATE gs) { m_gameState = gs; }
 	void SetLobbyScene() { m_bLobbyScene = !m_bLobbyScene; }
-	bool GetLobbyScene() { return m_bLobbyScene; }
+	bool GetIsLobbyScene() { return m_bLobbyScene; }
 
 
 };

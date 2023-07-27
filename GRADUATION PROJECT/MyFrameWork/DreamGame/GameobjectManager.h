@@ -284,7 +284,9 @@ public:
 	EffectObject** GetHealingEffectArr() { return &m_ppHealingEffectObject[0]; }
 	void SetCharactersStage1Postion();
 	void SetCharactersBossStagePostion();
+	void SetCharactersLobbyPosition();
 	void SetPortalCheck(bool b) { m_bPortalCheck = b; }
+	void ResetLobbyUI();
 
 	
 };

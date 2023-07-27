@@ -135,17 +135,8 @@ void GameobjectManager::Animate(float fTimeElapsed)
 				m_pLightningSpriteObject->m_bActive = m_pLightEffectObject->m_bActive = true;
 				XMFLOAT3 TargetPosition = m_pSelectedObject->GetPosition();
 				g_NetworkHelper.Send_SkillExecute_E(TargetPosition);
-				m_bPickingenemy = false;
 			}
-			else if (g_Logic.GetMyRole() == ROLE::ARCHER)
-			{
-				//if(m_pArcherObject != nullptr) 
-				// 아처 오브젝트에게 화살을 발사하게 알려줄 수 있게 설정해줌
-
-				XMFLOAT3 TargetPosition = m_pSelectedObject->GetPosition();
-				g_NetworkHelper.Send_SkillExecute_E(TargetPosition);
-				m_bPickingenemy = false;
-			}
+			m_bPickingenemy = false;
 		}
 		//m_pEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 10);
 		//라이트닝
@@ -315,40 +306,15 @@ void GameobjectManager::TrailAnimate(float fTimeElapsed)
 
 			}
 			else {
-				{
-					m_pTrailArrowComponent[i]->AddTrail(XMFLOAT3(m_pArrowObjects[i]->GetPosition().x,
-						m_pArrowObjects[i]->GetPosition().y,
-						m_pArrowObjects[i]->GetPosition().z),
-						XMFLOAT3(m_pArrowObjects[i]->GetPosition().x,
-							m_pArrowObjects[i]->GetPosition().y + 0.5,
-							m_pArrowObjects[i]->GetPosition().z));
-				}
+				XMFLOAT3 xmf3ObjectPos = m_pArrowObjects[i]->GetPosition();
+				m_pTrailArrowComponent[i]->AddTrail(xmf3ObjectPos, Vector3::Add(xmf3ObjectPos, XMFLOAT3(0.0f, 0.0f, 1.0f), 1.5f));
 			}
 		}
 	}
 	for (int i = 0; i < m_pTrailIceRanceComponent.size(); i++) {
 		if (m_pTrailIceRanceComponent[i]) {
-			if (!m_pEnergyBallObjects[i]->m_bActive)
-			{
-				m_pTrailIceRanceComponent[i]->m_fRenderTime + fTimeElapsed;
-			}
-			if (m_pEnergyBallObjects[i]->m_bActive)
-			{
-				m_pTrailIceRanceComponent[i]->m_fRenderTime = 0;
-			}
-			if (m_pTrailIceRanceComponent[i]->m_fRenderTime > 3) {
-
-			}
-			else {
-				{
-					m_pTrailIceRanceComponent[i]->AddTrail(XMFLOAT3(m_pEnergyBallObjects[i]->GetPosition().x,
-						m_pEnergyBallObjects[i]->GetPosition().y,
-						m_pEnergyBallObjects[i]->GetPosition().z),
-						XMFLOAT3(m_pEnergyBallObjects[i]->GetPosition().x,
-							m_pEnergyBallObjects[i]->GetPosition().y + 1.5,
-							m_pEnergyBallObjects[i]->GetPosition().z));
-				}
-			}
+			XMFLOAT3 xmf3ObjectPos = m_pEnergyBallObjects[i]->GetPosition();
+			m_pTrailIceRanceComponent[i]->AddTrail(xmf3ObjectPos, Vector3::Add(xmf3ObjectPos, XMFLOAT3(0.0f, 0.0f, 1.0f), 1.5f));
 		}
 	}
 
@@ -551,25 +517,20 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		}
 	}
 	//오브젝트들 렌더 정리 필요
-	for (int i = 0; i < m_pArrowObjects.size(); ++i) {
-		if (m_pArrowObjects[i])
+	for (int i = 0; i < m_ppProjectileObjects.size(); ++i) {
+		if (m_ppProjectileObjects[i])
 		{
-			if (m_pArrowObjects[i]->m_bActive)
+			if (m_ppProjectileObjects[i]->m_bActive)
 			{
-				m_pArrowObjects[i]->Animate(m_fTimeElapsed);
-				m_pArrowObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+				m_ppProjectileObjects[i]->Animate(m_fTimeElapsed);
+				m_ppProjectileObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+			}
+			else
+			{
+				Character* possessObj = GetChracterInfo(m_ppProjectileObjects[i]->m_HostRole);
+				m_ppProjectileObjects[i]->SetPosition(possessObj->GetPosition());
 			}
 		}
-	}
-	for (int i = 0; i < m_pEnergyBallObjects.size(); ++i) {
-		if (m_pEnergyBallObjects[i]->m_bActive)
-		{
-			m_pEnergyBallObjects[i]->Animate(m_fTimeElapsed);
-			m_pEnergyBallObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-		}
-	}
-	for (int i = 0; i < m_pTankerSkillEffects.size(); ++i) {
-		m_pTankerSkillEffects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 
 	if (m_pBossSkillRange)
@@ -625,7 +586,7 @@ void GameobjectManager::TrailRender(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	}
 	for (int i = 0; i < m_pTrailArrowComponent.size(); i++) {
 		if (m_pTrailArrowComponent[i]) {
-			if (m_pTrailArrowComponent[i]->GetRenderState()) {
+			if (m_pArrowObjects[i]->m_bActive) {
 				m_pTrailArrowObject[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 				m_pTrailArrowComponent[i]->RenderTrail(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 			}
@@ -633,7 +594,7 @@ void GameobjectManager::TrailRender(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	}
 	for (int i = 0; i < m_pTrailIceRanceObject.size(); i++) {
 		if (m_pTrailIceRanceObject[i]) {
-			if (m_pTrailIceRanceObject[i]->m_bActive) {
+			if (m_pEnergyBallObjects[i]->m_bActive) {
 				m_pTrailIceRanceObject[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 				m_pTrailIceRanceComponent[i]->RenderTrail(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 			}
@@ -1050,6 +1011,27 @@ void GameobjectManager::SetCharactersBossStagePostion()
 	m_pWarriorObject->SetBossStagePostion();
 }
 
+void GameobjectManager::SetCharactersLobbyPosition()
+{
+	m_pMonsterObject->SetPosition(XMFLOAT3(0, 0, 0));
+
+	m_pPriestObject->SetPosition(XMFLOAT3(-1400.f, 0.f, -1520.f));
+	m_pPriestObject->SetRotateAxis(XMFLOAT3(0.0f, -90.0f, 0.0f));
+	m_pPriestObject->SetCurrentHP(m_pPriestObject->GetMaxHP());
+
+	m_pWarriorObject->SetPosition(XMFLOAT3(-1400.f, 0.f, -1460.f));
+	m_pWarriorObject->SetRotateAxis(XMFLOAT3(0.0f, -90.0f, 0.0f));
+	m_pWarriorObject->SetCurrentHP(m_pWarriorObject->GetMaxHP());
+
+	m_pArcherObject->SetPosition(XMFLOAT3(-1400.f, 0.f, -1480.f));
+	m_pArcherObject->SetRotateAxis(XMFLOAT3(0.0f, -90.0f, 0.0f));
+	m_pArcherObject->SetCurrentHP(m_pArcherObject->GetMaxHP());
+
+	m_pTankerObject->SetPosition(XMFLOAT3(-1400.f, 0.f, -1500.0f));
+	m_pTankerObject->SetRotateAxis(XMFLOAT3(0.0f, -90.0f, 0.0f));
+	m_pTankerObject->SetCurrentHP(m_pTankerObject->GetMaxHP());
+}
+
 void GameobjectManager::EffectRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float ftimeElapsed)
 {
 	//for (auto& effect : m_ppEffectObjects) {
@@ -1134,7 +1116,7 @@ void GameobjectManager::BuildBossStageObject(ID3D12Device* pd3dDevice, ID3D12Gra
 void GameobjectManager::BuildProjectileObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
 	CLoadedModelInfoCompnent* ArrowModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Arrow.bin", NULL, true);
-	CLoadedModelInfoCompnent* IceLance = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/IceLance.bin", NULL, true);
+	CLoadedModelInfoCompnent* IceLanceModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/IceLance.bin", NULL, true);
 
 	Projectile** ppArrow = new Projectile* [MAX_ARROW];
 	for (int i = 0; i < MAX_ARROW; ++i)
@@ -1187,11 +1169,11 @@ void GameobjectManager::BuildProjectileObject(ID3D12Device* pd3dDevice, ID3D12Gr
 	Projectile** m_ppIceLanceObjects = new Projectile * [10];
 	for (int i = 0; i < 10; ++i)
 	{
-		m_ppIceLanceObjects[i] = new Arrow();
+		m_ppIceLanceObjects[i] = new IceLance();
 		m_ppIceLanceObjects[i]->InsertComponent<RenderComponent>();
 		m_ppIceLanceObjects[i]->InsertComponent<CLoadedModelInfoCompnent>();
 		m_ppIceLanceObjects[i]->SetPosition(XMFLOAT3(25 * i, 0, 0));
-		m_ppIceLanceObjects[i]->SetModel(IceLance);
+		m_ppIceLanceObjects[i]->SetModel(IceLanceModel);
 		//m_pEnergyBallObjects[i]->SetColor(XMFLOAT3(0,0.5,0);
 		m_ppIceLanceObjects[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_ppIceLanceObjects[i]->SetScale(15.f, 20.f, 15.f);
@@ -1299,6 +1281,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 		m_pTankerSkillEffects[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pTankerSkillEffects[i]->SetScale(1.0f);
 		static_cast<Tanker*>(m_pTankerObject)->SetSkillBall(m_pTankerSkillEffects[i]);
+		m_ppProjectileObjects.emplace_back(m_pTankerSkillEffects[i]);
 	}
 
 	m_pPriestObject = new Priest();
@@ -1386,8 +1369,6 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pMonsterCubeObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pMonsterCubeObject->SetScale(1, 1, 1);
 	m_pMonsterCubeObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-
-
 
 	m_pNaviMeshObject = new GameObject(SQUARE_ENTITY);
 	m_pNaviMeshObject->InsertComponent<RenderComponent>();
@@ -2247,6 +2228,17 @@ enum UI
 	UI_GAMEEND
 };
 
+void GameobjectManager::ResetLobbyUI()
+{
+	m_bInMatching = false;
+	m_pUIGameEndObject->m_bUIActive = true;
+	m_pUIWarriorCharacterObject->m_bUIActive = true;
+	m_pUIArcherCharacterObject->m_bUIActive = true;
+	m_pUITankerCharacterObject->m_bUIActive = true;
+	m_pUIPriestCharacterObject->m_bUIActive = true;
+}
+
+
 void GameobjectManager::PickObjectByRayIntersection(int xClient, int yClient)
 {
 
@@ -2279,17 +2271,6 @@ void GameobjectManager::ProcessingUI(int n)
 {
 	switch (n)
 	{
-
-	case UI::UI_GAMEMATCHING:
-	{
-#ifdef LOCAL_TASK
-		m_nSection = 1;
-		gGameFramework.SetLobbyScene();
-
-#endif
-		m_pUIGameSearchObject->m_bUIActive = false;
-		break;
-	}
 	case UI::UI_GAMESEARCHING: {
 		m_pUIGameEndObject->m_bUIActive = false;
 		g_sound.NoLoopPlay("ClickSound", 1.0f);
@@ -2300,12 +2281,10 @@ void GameobjectManager::ProcessingUI(int n)
 			g_NetworkHelper.SendMatchRequestPacket();
 			m_bInMatching = true;
 		}
-
 		break;
 	}
 	case UI::UI_WARRIORCHARACTER:
 	{
-
 		g_sound.NoLoopPlay("ClickSound", 1.0f);
 		// 선택한 캐릭터 Warrior
 		g_Logic.SetMyRole(ROLE::WARRIOR);
@@ -2484,7 +2463,6 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			if (myPlayCharacter->GetQSkillState() == false && myPlayCharacter->GetOnAttack() == false)
 			{
 				myPlayCharacter->FirstSkillDown();
-				g_NetworkHelper.Send_SkillInput_Q();
 			}
 			break;
 		}
@@ -2499,15 +2477,15 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 						m_bPickingenemy = CheckCollision(m_ppGameObjects);
 						if (m_bPickingenemy == true)
 						{
+							if (g_Logic.GetMyRole() == ROLE::ARCHER)
+								static_cast<Archer*>(myPlayCharacter)->m_xmf3TargetPos = m_pSelectedObject->GetPosition();
 							myPlayCharacter->SecondSkillDown();
-							g_NetworkHelper.Send_SkillInput_E();
 						}
 					}
 				}
 				else
 				{
 					myPlayCharacter->SecondSkillDown();
-					g_NetworkHelper.Send_SkillInput_E();
 				}
 
 			}
@@ -2704,15 +2682,14 @@ bool GameobjectManager::onProcessingKeyboardMessageLobby(HWND hWnd, UINT nMessag
 	if (nMessageID == WM_KEYDOWN && wParam == VK_F2)
 	{
 #ifdef LOCAL_TASK
-		g_Logic.SetMyRole(ROLE::TANKER);
+		g_Logic.SetMyRole(ROLE::ARCHER);
 		m_pCamera->Rotate(0, -90, 0);
-		m_pPlayerObject = m_pTankerObject;
+		m_pPlayerObject = m_pArcherObject;
 		m_pPlayerObject->SetCamera(m_pCamera);
-		m_pTankerObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
+		m_pArcherObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
 #else
 		g_Logic.SetMyRole(ROLE::ARCHER);
 		m_pArcherObject->SetCamera(m_pCamera);
-		m_pArcherObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
 		m_pArcherObject->SetLook(XMFLOAT3(0, 0, 1));
 		g_NetworkHelper.SendMatchRequestPacket();
 #endif
@@ -2730,7 +2707,6 @@ bool GameobjectManager::onProcessingKeyboardMessageLobby(HWND hWnd, UINT nMessag
 	{
 		g_Logic.SetMyRole(ROLE::TANKER);
 		m_pTankerObject->SetCamera(m_pCamera);
-		m_pTankerObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
 		m_pTankerObject->SetLook(XMFLOAT3(0, 0, 1));
 		g_NetworkHelper.SendMatchRequestPacket();
 	}
@@ -2853,6 +2829,7 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 		case WM_RBUTTONUP:
 		case WM_LBUTTONUP:
 			g_NetworkHelper.SendTestGameEndOKPacket();
+			myPlayCharacter->m_pCamera = nullptr;
 			g_Logic.ResetMyRole();
 			ResetObject();
 			break;
@@ -2894,6 +2871,7 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 	{
 		myPlayCharacter->m_RMouseInput = true;
 		myPlayCharacter->SetRButtonClicked(true);
+		myPlayCharacter->RbuttonClicked(true);
 		SomethingChanging = true;
 		break;
 	}
@@ -3037,10 +3015,18 @@ void GameobjectManager::SetPlayerCamera(GameObject* obj)
 
 void GameobjectManager::ResetObject()
 {
-	for (int i = 0; i < m_ppGameObjects.size(); ++i)
-	{
-		m_ppGameObjects[i]->Reset();
-	}
+	//for (int i = 0; i < m_ppGameObjects.size(); ++i)
+	//{
+	//	m_ppGameObjects[i]->Reset();
+	//}
+	SetCharactersLobbyPosition();
+
+	m_pCamera->ReInitCamrea();
+	m_pCamera->GenerateProjectionMatrix(1.01f, 5000.0f, ASPECT_RATIO, 60.0f);
+	m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 0.98f);
+	m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
+	m_pCamera->SetPosition(XMFLOAT3(-1450, 18, -1490));
+	m_pCamera->Rotate(0, 90, 0);
 }
 
 void GameobjectManager::SetUIActive()
@@ -3089,12 +3075,19 @@ bool GameobjectManager::CheckCollision(vector<GameObject*> m_ppObjects)
 	XMVECTOR rayOrigin = XMLoadFloat3(&XMFLOAT3(m_pCamera->GetPosition().x, m_pCamera->GetPosition().y - 10, m_pCamera->GetPosition().z));
 	XMVECTOR rayDirection = XMLoadFloat3(&m_pCamera->GetLookVector());
 	float rayDistance;
-	// 레이저와 BoundingSphere의 충돌 여부를 계산
+	// 레이저와 BoundingSphere의 충돌 여부를 계산.
+	Character* myPlayCharacter = GetChracterInfo(g_Logic.GetMyRole());
+	if (myPlayCharacter == nullptr) return false;
+	XMFLOAT3 PlayerPosition = myPlayCharacter->GetPosition();
 	for (int i = 0; i < m_ppObjects.size(); i++)
 	{
 		if (m_ppObjects[i]->m_bActive == false) continue;
+		if (m_ppObjects[i] == myPlayCharacter) continue;
 		if (m_ppObjects[i]->m_SPBB.Intersects(rayOrigin, rayDirection, rayDistance) && m_ppObjects[i]->m_fObjectType == 1)
 		{
+			XMFLOAT3 TargetPosition = m_ppObjects[i]->GetPosition();
+			float fDistance = Vector3::Length(Vector3::Subtract(PlayerPosition, TargetPosition));
+			if (fDistance > 300.0f) continue;
 			m_pSelectedObject = m_ppObjects[i];
 			rayDistance = rayDistance;
 			return true;

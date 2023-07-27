@@ -100,7 +100,6 @@ public:
 	Warrior();
 	virtual ~Warrior();
 	virtual void Attack();
-	virtual void RbuttonClicked(float fTimeElapsed);
 	virtual void Move(float fTimeElapsed)override;
 	virtual void Animate(float fTimeElapsed) override;
 	virtual void SetLButtonClicked(bool bLButtonClicked);
@@ -124,18 +123,21 @@ private:
 public:
 	array<Arrow*, 3> m_ppArrowForQSkill;
 	array<Arrow*, 15> m_ppArrowForESkill;
+	XMFLOAT3 m_xmf3TargetPos;
 
 public:
 	Archer();
 	virtual ~Archer();
 	virtual void Attack();
+	virtual void RbuttonClicked(float fTimeElapsed) {};
 	virtual void SetArrow(Projectile** pArrow);
 	virtual void Move(float fTimeElapsed)override;
 	virtual void Animate(float fTimeElapsed);
 	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender = false);
 	virtual void SetLookDirection() override;
 	virtual void ZoomInCamera();
-	virtual void SecondSkillUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f });
+	virtual void FirstSkillDown();
+	virtual void SecondSkillDown();
 	virtual void ShootArrow();
 	virtual void ShootArrow(const XMFLOAT3& xmf3Direction);
 	virtual void SetLButtonClicked(bool bLButtonClicked);
@@ -162,7 +164,6 @@ public:
 	Tanker();
 	virtual ~Tanker();
 	virtual void Attack();
-	virtual void RbuttonClicked(float fTimeElapsed);
 	virtual void RbuttonUp(const XMFLOAT3& CameraAxis);
 	virtual void FirstSkillDown();
 	virtual void SecondSkillDown();
@@ -188,8 +189,6 @@ private:
 public:
 	Priest();
 	virtual ~Priest();
-	virtual void RbuttonClicked(float fTimeElapsed);
-	virtual void RbuttonUp(const XMFLOAT3& CameraAxis);
 	virtual void Attack();
 	virtual void Attack(const XMFLOAT3& xmf3Direction);
 	virtual void SetProjectile(Projectile** pEnergyBall);
@@ -198,7 +197,6 @@ public:
 	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender = false);
 	virtual void SetLookDirection() override;
 	virtual void FirstSkillDown();
-	virtual void FirstSkillUp();
 	virtual void SecondSkillDown();
 	virtual void SetSkillRangeObject(GameObject* obj) { m_pHealRange = obj; }
 	virtual void StartEffect(int nSkillNum);
@@ -273,6 +271,7 @@ public:
 	float		m_fSpeed;
 	float		m_Angle;
 	bool		m_bActive;
+	ROLE		m_HostRole{ ROLE::NONE_SELECT };
 public:
 	Projectile(entity_id eid = UNDEF_ENTITY);
 	virtual ~Projectile();
@@ -281,12 +280,17 @@ public:
 	virtual bool GetRButtonClicked() { return false; }
 	virtual void Move(XMFLOAT3 dir, float fDistance);
 	virtual void SetActive(bool bActive) { m_bActive = bActive; }
+	virtual void SetHostRole(ROLE r) { m_HostRole = r; }
 };
 
 class Arrow : public Projectile
 {
 public:
 	bool		m_RButtonClicked;
+	int			m_iArrowType;
+	float		m_fArrowPos;
+	XMFLOAT3	m_xmf3TargetPos;
+	XMFLOAT3	m_xmf3Offset;
 public:
 	Arrow();
 	virtual ~Arrow();
@@ -298,7 +302,10 @@ public:
 
 class IceLance : public Projectile
 {
-
+public:
+	IceLance();
+	virtual ~IceLance();
+	virtual void Animate(float fTimeElapsed);
 };
 
 class EnergyBall : public Projectile
@@ -306,12 +313,10 @@ class EnergyBall : public Projectile
 public:
 	float		m_fProgress;
 	ROLE		m_Target;
-	ROLE		m_HostRole{ ROLE::NONE_SELECT };
 public:
 	EnergyBall();
 	virtual ~EnergyBall();
 	virtual void Animate(float fTimeElapsed);
-	void SetHostRole(ROLE r) { m_HostRole = r; }
 	void SetTarget(ROLE r) { m_Target = r; }
 	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender = false);
 };

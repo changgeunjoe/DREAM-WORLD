@@ -121,3 +121,12 @@ void RoomManager::SetBarrier(int roomId)
 	}
 	m_roomArr[roomId].PutBarrierOnPlayer();
 }
+
+void RoomManager::SkyArrowAttack(int roomId)
+{
+	{
+		std::lock_guard<std::mutex> lg{ m_runningRoomSetLock };
+		if (!m_runningRoomIdSet.count(roomId)) return;
+	}
+	m_roomArr[roomId].ExecuteSkyArrow();
+}
