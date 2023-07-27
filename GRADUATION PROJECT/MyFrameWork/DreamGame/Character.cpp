@@ -723,7 +723,7 @@ void Character::InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT
 		m_interpolationVector = XMFLOAT3(0, 0, 0);
 	}
 	else if (interpolateSize < 3.0f) {
-		std::cout << "interpolateSize < 3.0f" << endl;
+		//std::cout << "interpolateSize < 3.0f" << endl;
 		m_interpolationDistance = 0.0f;
 		m_interpolationVector = XMFLOAT3(0, 0, 0);
 	}
@@ -1398,20 +1398,39 @@ void Archer::ShootArrow()//½ºÅ³
 	else if (m_bZoomInState == true)
 	{
 		float chargingTime = m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_fPosition;
-		float fullTime = m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_ATTACK]->m_fLength * 0.7f;
+		float fullTime = m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_ATTACK]->m_fLength * 0.5f;
 		float arrowSpeed = pow((chargingTime / fullTime), 2);
-
-		m_ppProjectiles[m_nProjectiles]->m_xmf3direction = Vector3::Normalize(XMFLOAT3(GetObjectLook().x, -sin(m_xmf3RotateAxis.x * 3.141592 / 180.0f), GetObjectLook().z));
-		m_ppProjectiles[m_nProjectiles]->m_xmf3startPosition = XMFLOAT3(GetPosition().x, GetPosition().y + 8.0f, GetPosition().z);
-		m_ppProjectiles[m_nProjectiles]->SetPosition(m_ppProjectiles[m_nProjectiles]->m_xmf3startPosition);
+		float fProgress = std::clamp(arrowSpeed, 0.65f, 1.0f);
 		arrowSpeed = (chargingTime / fullTime > 0.3f) ? arrowSpeed * 100.0f : -1.0f;
-		m_ppProjectiles[m_nProjectiles]->m_fSpeed = arrowSpeed;
-		if (m_ppProjectiles[m_nProjectiles]->m_fSpeed > 10)
+		if (arrowSpeed > 10)
 		{
+			fProgress = fProgress * 250.0f;
+			XMFLOAT3 xmf3ArrowStartPosition = XMFLOAT3(GetPosition().x, GetPosition().y + 8.0f, GetPosition().z);
+			XMFLOAT3 xmf3CameraPosition = m_pCamera->GetPosition();
+			XMFLOAT3 xmf3CameraDirection = Vector3::Normalize(m_pCamera->GetLookVector());
+			XMFLOAT3 xmf3Destination = Vector3::Add(xmf3CameraPosition, xmf3CameraDirection, fProgress);
+			XMFLOAT3 xmf3ArrowDirection = Vector3::Normalize(Vector3::Subtract(xmf3Destination, xmf3ArrowStartPosition));
+			if (xmf3ArrowDirection.y < 0.0f)
+				xmf3ArrowDirection.y = 0.0f;
+			m_ppProjectiles[m_nProjectiles]->m_xmf3direction = xmf3ArrowDirection;
+			m_ppProjectiles[m_nProjectiles]->m_xmf3startPosition = xmf3ArrowStartPosition;
+			m_ppProjectiles[m_nProjectiles]->SetPosition(m_ppProjectiles[m_nProjectiles]->m_xmf3startPosition);
+
 			m_ppProjectiles[m_nProjectiles]->m_bActive = true;
 			m_ppProjectiles[m_nProjectiles]->m_fSpeed = 150.0f;
 			int arrowPower = arrowSpeed / 30;
-
+			switch (arrowPower)
+			{
+			case 0:
+				m_ppProjectiles[m_nProjectiles]->m_fSpeed = 100.0f;
+				break;
+			case 1:
+				m_ppProjectiles[m_nProjectiles]->m_fSpeed = 140.0f;
+				break;
+			case 2:
+				m_ppProjectiles[m_nProjectiles]->m_fSpeed = 200.0f;
+				break;
+			}
 			if (g_Logic.GetMyRole() == ROLE::ARCHER)
 				g_NetworkHelper.SendCommonAttackExecute(m_ppProjectiles[m_nProjectiles]->m_xmf3direction, arrowPower);
 			m_nProjectiles++;
@@ -1583,16 +1602,11 @@ void Tanker::SecondSkillDown()
 		auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[1]);
 		if (m_skillCoolTime[1] > duration) return;
 		m_currentDirection = DIRECTION::IDLE;
-		m_bMoveState = false;
-		m_bESkillClicked = true;
 		m_skillInputTime[1] = std::chrono::high_resolution_clock::now();
 	}
-	else
-	{
-		m_bMoveState = false;
-		m_bQSkillClicked = true;
-		m_bESkillClicked = true;
-	}
+	m_currentDirection = DIRECTION::IDLE;
+	m_bMoveState = false;
+	m_bESkillClicked = true;
 }
 
 void Tanker::Move(float fTimeElapsed)
@@ -1738,6 +1752,7 @@ void Tanker::Animate(float fTimeElapsed)
 	{
 		m_bESkillClicked = false;
 		m_bOnAttack = false;
+		m_bCanAttack = true;
 		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_SECONDSKILL].m_bAnimationEnd = false;
 	}
 
@@ -2060,8 +2075,16 @@ void Priest::Attack()
 	m_nProjectiles = (m_nProjectiles < 10) ? m_nProjectiles : m_nProjectiles % 10;
 	XMFLOAT3 ObjectLookVector = GetLook();
 	ObjectLookVector.y = -m_xmf3RotateAxis.x / 90.0f;
-	m_ppProjectiles[m_nProjectiles]->m_xmf3direction = ObjectLookVector;
-	m_ppProjectiles[m_nProjectiles]->m_xmf3startPosition = XMFLOAT3(GetPosition().x, GetPosition().y + 8.0f, GetPosition().z);
+
+	XMFLOAT3 xmf3LanceStartPosition = XMFLOAT3(GetPosition().x, GetPosition().y + 8.0f, GetPosition().z);
+	XMFLOAT3 xmf3CameraPosition = m_pCamera->GetPosition();
+	XMFLOAT3 xmf3CameraDirection = Vector3::Normalize(m_pCamera->GetLookVector());
+	XMFLOAT3 xmf3Destination = Vector3::Add(xmf3CameraPosition, xmf3CameraDirection, 200.0f);
+	XMFLOAT3 xmf3LanceDirection = Vector3::Normalize(Vector3::Subtract(xmf3Destination, xmf3LanceStartPosition));
+	if (xmf3LanceDirection.y < 0.0f) xmf3LanceDirection.y = 0.0f;
+
+	m_ppProjectiles[m_nProjectiles]->m_xmf3direction = xmf3LanceDirection;
+	m_ppProjectiles[m_nProjectiles]->m_xmf3startPosition = xmf3LanceStartPosition;
 	m_ppProjectiles[m_nProjectiles]->SetPosition(m_ppProjectiles[m_nProjectiles]->m_xmf3startPosition);
 	m_ppProjectiles[m_nProjectiles]->m_bActive = true;
 

@@ -816,7 +816,7 @@ void CGameFramework::ProcessInput()
 				RotateAngle.x += cyDelta;
 				RotateAngle.y += cxDelta;
 
-				if (RotateAngle.x > 30.0f) RotateAngle.x = +30.0f;
+				if (RotateAngle.x > 10.0f) RotateAngle.x = +10.0f;
 				if (RotateAngle.x < -20.0f) RotateAngle.x = -20.0f;
 				if (RotateAngle.y > 360.0f) RotateAngle.y -= 360.0f;
 				if (RotateAngle.y < 0.0f) RotateAngle.y += 360.0f;

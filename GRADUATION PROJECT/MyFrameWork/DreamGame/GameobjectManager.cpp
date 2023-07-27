@@ -2494,7 +2494,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			{
 				if (g_Logic.GetMyRole() == ROLE::PRIEST || g_Logic.GetMyRole() == ROLE::ARCHER)
 				{
-					if (!m_bPickingenemy && m_pSelectedObject == nullptr)
+					if (!m_bPickingenemy)
 					{
 						m_bPickingenemy = CheckCollision(m_ppGameObjects);
 						if (m_bPickingenemy == true)
@@ -2742,7 +2742,7 @@ bool GameobjectManager::onProcessingKeyboardMessageUI(HWND hWnd, UINT nMessageID
 	switch (nMessageID)
 	{
 	case WM_KEYDOWN:
-		std::cout << "GameobjectManager::onProcessingKeyboardMessage() -key down: ";
+		std::cout << "GameobjectManager::onProcessingKeyboardMessage() -key down: " << endl;
 		switch (wParam)
 		{
 		case 'P':
@@ -3092,6 +3092,7 @@ bool GameobjectManager::CheckCollision(vector<GameObject*> m_ppObjects)
 	// 레이저와 BoundingSphere의 충돌 여부를 계산
 	for (int i = 0; i < m_ppObjects.size(); i++)
 	{
+		if (m_ppObjects[i]->m_bActive == false) continue;
 		if (m_ppObjects[i]->m_SPBB.Intersects(rayOrigin, rayDirection, rayDistance) && m_ppObjects[i]->m_fObjectType == 1)
 		{
 			m_pSelectedObject = m_ppObjects[i];
