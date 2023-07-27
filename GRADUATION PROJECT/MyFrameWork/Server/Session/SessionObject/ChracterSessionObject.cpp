@@ -273,7 +273,8 @@ std::pair<bool, XMFLOAT3> ChracterSessionObject::CheckCollisionMap_Boss(XMFLOAT3
 				float slidingVectorDotProductReslut = std::get<3>(CollidePolygonNormalVector);//슬라이딩 벡터와 무브 벡터 내적 값				
 				collideSlidingVector = Vector3::ScalarProduct(collideSlidingVector, slidingVectorDotProductReslut, false);
 				normalVector = collideNormalVector;
-				//collideNormalVector = Vector3::ScalarProduct(collideNormalVector, 0.06f * normalVectorDotProductReslut, false);
+				collideNormalVector = Vector3::ScalarProduct(collideNormalVector, 0.06f * normalVectorDotProductReslut, false);
+				//return std::pair<bool, XMFLOAT3>(true, Vector3::Add(collideSlidingVector, collideNormalVector));
 				return std::pair<bool, XMFLOAT3>(true, collideSlidingVector);
 			}
 			else {
@@ -296,7 +297,7 @@ std::pair<bool, XMFLOAT3> ChracterSessionObject::CheckCollisionMap_Boss(XMFLOAT3
 				normalVector = Vector3::Normalize(Vector3::Add(collideNormalVector1, collideNormalVector2));
 				collideNormalVector1 = Vector3::ScalarProduct(collideNormalVector1, 0.3f * normalVectorDotProductResult1, false);
 				collideNormalVector2 = Vector3::ScalarProduct(collideNormalVector2, 0.3f * normalVectorDotProductResult2, false);
-				return std::pair<bool, XMFLOAT3>(true, resultSlidingVector);
+				return std::pair<bool, XMFLOAT3>(true, Vector3::Add(resultSlidingVector, Vector3::Add(collideNormalVector1, collideNormalVector2)));
 			}
 		}
 	}
@@ -325,8 +326,9 @@ std::pair<bool, XMFLOAT3> ChracterSessionObject::CheckCollisionMap_Stage(XMFLOAT
 				float slidingVectorDotProductReslut = std::get<3>(CollidePolygonNormalVector);//슬라이딩 벡터와 무브 벡터 내적 값				
 				collideSlidingVector = Vector3::ScalarProduct(collideSlidingVector, slidingVectorDotProductReslut, false);
 				normalVector = collideNormalVector;
-				//collideNormalVector = Vector3::ScalarProduct(collideNormalVector, 0.06f * normalVectorDotProductReslut, false);
+				collideNormalVector = Vector3::ScalarProduct(collideNormalVector, 0.06f * normalVectorDotProductReslut, false);
 				return std::pair<bool, XMFLOAT3>(true, collideSlidingVector);
+				//return std::pair<bool, XMFLOAT3>(true, Vector3::Add(collideSlidingVector, collideNormalVector));
 			}
 			else {
 				auto CollidePolygonNormalVector1 = collide.CalSlidingVector(m_SPBB, m_position, moveDirection);//노말, 슬라이딩, 노말이 가져야할 크기 를 반환
@@ -390,7 +392,7 @@ std::pair<bool, XMFLOAT3> ChracterSessionObject::CheckCollisionCharacter(XMFLOAT
 	resultSliding = Vector3::Normalize(resultSliding);
 	resultNormal = Vector3::ScalarProduct(resultNormal, 0.3f, false);
 	//std::cout <<"moveDir"
-	return std::pair<bool, XMFLOAT3>(true, Vector3::Add(resultNormal, resultSliding));
+	return std::pair<bool, XMFLOAT3>(true, resultSliding);
 }
 
 std::pair<bool, XMFLOAT3> ChracterSessionObject::CheckCollisionNormalMonster(XMFLOAT3& moveDirection, float ftimeElapsed)
@@ -426,11 +428,11 @@ std::pair<bool, XMFLOAT3> ChracterSessionObject::CheckCollisionNormalMonster(XMF
 	}
 	if (collideCnt) {
 		normalVecResult = Vector3::Normalize(normalVecResult);
-		normalVecResult = Vector3::ScalarProduct(normalVecResult, 0.5f);
+		normalVecResult = Vector3::ScalarProduct(normalVecResult, 0.02f);
 		slidingVecResult = Vector3::Normalize(slidingVecResult);
 	}
 	XMFLOAT3 collideNPCMoveDir = Vector3::Normalize(Vector3::Add(normalVecResult, slidingVecResult));
-	return std::pair<bool, XMFLOAT3>(true, collideNPCMoveDir);
+	return std::pair<bool, XMFLOAT3>(true, slidingVecResult);
 }
 
 bool ChracterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
@@ -468,7 +470,7 @@ bool ChracterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ftimeE
 				if (normalMonsterCollide.first) {//노말 몬스터 충돌 됨
 					float dotRes = Vector3::DotProduct(Vector3::Normalize(normalMonsterCollide.second), moveDir);
 					if (dotRes > 0.2f) {//방향이 맞음						
-						m_position = Vector3::Add(m_position, Vector3::ScalarProduct(Vector3::Normalize(Vector3::Add(normalMonsterCollide.second, moveDir)), 0.7f * m_speed * ftimeElapsed));
+						m_position = Vector3::Add(m_position, Vector3::ScalarProduct(Vector3::Normalize(Vector3::Add(normalMonsterCollide.second, moveDir)), 0.9f * m_speed * ftimeElapsed));
 						SetPosition(m_position);
 #ifdef CHARCTER_MOVE_LOG
 						PrintCurrentTime();
@@ -487,7 +489,7 @@ bool ChracterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ftimeE
 					}
 				}
 				else {//노말 몬스터와 충돌하지 않음					
-					m_position = Vector3::Add(m_position, Vector3::ScalarProduct(Vector3::Normalize(moveDir), 0.3f * m_speed * ftimeElapsed));
+					m_position = Vector3::Add(m_position, Vector3::ScalarProduct(Vector3::Normalize(moveDir), 0.9f * m_speed * ftimeElapsed));
 					SetPosition(m_position);
 #ifdef CHARCTER_MOVE_LOG
 					PrintCurrentTime();
@@ -520,7 +522,7 @@ bool ChracterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ftimeE
 			}
 			float dotRes = Vector3::DotProduct(Vector3::Normalize(normalMonsterCollide.second), Vector3::Normalize(mapCollideResult.second));
 			if (dotRes > 0.2f) {//맵과 노말 몬스터 충돌 벡터 방향이 비슷함
-				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(Vector3::Normalize(Vector3::Add(normalMonsterCollide.second, mapCollideResult.second)), 0.3f * m_speed * ftimeElapsed));
+				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(Vector3::Normalize(Vector3::Add(normalMonsterCollide.second, mapCollideResult.second)), 0.9f * m_speed * ftimeElapsed));
 				SetPosition(m_position);
 #ifdef CHARCTER_MOVE_LOG
 				PrintCurrentTime();
@@ -570,7 +572,7 @@ bool ChracterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ftimeE
 		if (normalMonsterCollide.first) {//노말 몬스터와 충돌
 			float dotRes = Vector3::DotProduct(Vector3::Normalize(normalMonsterCollide.second), Vector3::Normalize(CharacterCollide.second));
 			if (dotRes > 0.2f) {//캐릭터 노말 몬스터 벡터
-				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(Vector3::Normalize(Vector3::Add(normalMonsterCollide.second, CharacterCollide.second)), 0.3f * m_speed * ftimeElapsed));
+				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(Vector3::Normalize(Vector3::Add(normalMonsterCollide.second, CharacterCollide.second)), 0.9f * m_speed * ftimeElapsed));
 				SetPosition(m_position);
 #ifdef CHARCTER_MOVE_LOG
 				PrintCurrentTime();
@@ -589,7 +591,7 @@ bool ChracterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ftimeE
 			}
 		}
 		else {// 노말 몬스터와 충돌하지 않음 -> 캐릭터만 충돌
-			XMFLOAT3 moveVec = Vector3::ScalarProduct(CharacterCollide.second, 0.5f * m_speed * ftimeElapsed);
+			XMFLOAT3 moveVec = Vector3::ScalarProduct(CharacterCollide.second, 0.9f * m_speed * ftimeElapsed);
 #ifdef CHARCTER_MOVE_LOG
 			PrintCurrentTime();
 			std::cout << "character Move" << std::endl;
@@ -622,7 +624,7 @@ bool ChracterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ftimeE
 		return true;
 	}
 	if (normalMonsterCollide.first) {//노말 몬스터와 충돌함
-		XMFLOAT3 slidingVec = Vector3::ScalarProduct(normalMonsterCollide.second, 0.3f * m_speed * ftimeElapsed);
+		XMFLOAT3 slidingVec = Vector3::ScalarProduct(normalMonsterCollide.second, 0.9f * m_speed * ftimeElapsed);
 #ifdef CHARCTER_MOVE_LOG
 		PrintCurrentTime();
 		std::cout << "monster Move" << std::endl;

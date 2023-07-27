@@ -170,7 +170,7 @@ void Character::MoveForward(int forwardDirection, float ftimeElapsed)
 			std::cout << "interpolate Size: " << m_interpolationDistance << std::endl;
 		}
 #endif
-		xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector,  10.0f * m_interpolationDistance * ftimeElapsed);
+		xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, 10.0f * m_interpolationDistance * ftimeElapsed);
 		GameObject::SetPosition(xmf3Position);
 #ifdef CHARCTER_MOVE_LOG
 		if (m_interpolationDistance > DBL_EPSILON) {
@@ -180,7 +180,7 @@ void Character::MoveForward(int forwardDirection, float ftimeElapsed)
 		return;
 	}
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, ftimeElapsed * m_fSpeed);
-	
+
 	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, 10.0f * m_interpolationDistance * ftimeElapsed);
 
 	g_sound.NoLoopPlay("WalkSound", 1.0f);
@@ -198,16 +198,16 @@ void Character::MoveStrafe(int rightDirection, float ftimeElapsed)
 	if (CheckCollision(xmf3Right, ftimeElapsed))
 	{
 		xmf3Position = GetPosition();
-		
+
 		xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, 10.0f * m_interpolationDistance * ftimeElapsed);
 		GameObject::SetPosition(xmf3Position);
-	
+
 		return;
 	}
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Right, ftimeElapsed * m_fSpeed);
-	
+
 	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, 10.0f * m_interpolationDistance * ftimeElapsed);
-	
+
 	GameObject::SetPosition(xmf3Position);
 	if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
 	return;
@@ -226,14 +226,14 @@ void Character::MoveDiagonal(int fowardDirection, int rightDirection, float ftim
 	if (CheckCollision(resultDirection, ftimeElapsed))
 	{
 		xmf3Position = GetPosition();
-		
+
 		xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, 10.0f * m_interpolationDistance * ftimeElapsed);
-	
+
 		GameObject::SetPosition(xmf3Position);
 		return;
 	}
 	xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(resultDirection, ftimeElapsed * m_fSpeed));
-	
+
 	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, 10.0f * m_interpolationDistance * ftimeElapsed);
 
 	SetPosition(xmf3Position);
@@ -263,7 +263,8 @@ std::pair<bool, XMFLOAT3> Character::CheckCollisionMap_Boss(XMFLOAT3& normalVect
 				float slidingVectorDotProductReslut = std::get<3>(CollidePolygonNormalVector);//슬라이딩 벡터와 무브 벡터 내적 값				
 				collideSlidingVector = Vector3::ScalarProduct(collideSlidingVector, slidingVectorDotProductReslut, false);
 				collideNormalVector = Vector3::ScalarProduct(collideNormalVector, 0.06f * normalVectorDotProductReslut, false);
-				return std::pair<bool, XMFLOAT3>(true, Vector3::Add(collideSlidingVector, collideNormalVector));
+				//return std::pair<bool, XMFLOAT3>(true, Vector3::Add(collideSlidingVector, collideNormalVector));
+				return std::pair<bool, XMFLOAT3>(true, collideSlidingVector);
 			}
 			else {
 				auto CollidePolygonNormalVector1 = collide.CalSlidingVector(m_SPBB, xmf3Position, moveDirection);//노말, 슬라이딩, 노말이 가져야할 크기 를 반환
@@ -316,8 +317,9 @@ std::pair<bool, XMFLOAT3> Character::CheckCollisionMap_Stage(XMFLOAT3& normalVec
 				collideSlidingVector = Vector3::ScalarProduct(collideSlidingVector, slidingVectorDotProductReslut, false);
 				normalVector = collideNormalVector;
 				collideNormalVector = Vector3::ScalarProduct(collideNormalVector, 0.06f * normalVectorDotProductReslut, false);
+				return std::pair<bool, XMFLOAT3>(true, collideSlidingVector);
+				//return std::pair<bool, XMFLOAT3>(true, Vector3::Add(collideSlidingVector, collideNormalVector));
 				//std::cout << "one collide" << std::endl;
-				return std::pair<bool, XMFLOAT3>(true, Vector3::Add(collideSlidingVector, collideNormalVector));
 			}
 			else {
 				auto CollidePolygonNormalVector1 = collide.CalSlidingVector(m_SPBB, xmf3Position, moveDirection);//노말, 슬라이딩, 노말이 가져야할 크기 를 반환
@@ -336,7 +338,7 @@ std::pair<bool, XMFLOAT3> Character::CheckCollisionMap_Stage(XMFLOAT3& normalVec
 				resultSlidingVector.y = 0.0f;
 				float dotRes = Vector3::DotProduct(resultSlidingVector, moveDirection);
 				if (dotRes < 0)resultSlidingVector = Vector3::ScalarProduct(resultSlidingVector, -1.0f, false);
-				normalVector = Vector3::Normalize(Vector3::Add(collideNormalVector1, collideNormalVector2));				
+				normalVector = Vector3::Normalize(Vector3::Add(collideNormalVector1, collideNormalVector2));
 				collideNormalVector1 = Vector3::ScalarProduct(collideNormalVector1, 0.3f * normalVectorDotProductResult1, false);
 				collideNormalVector2 = Vector3::ScalarProduct(collideNormalVector2, 0.3f * normalVectorDotProductResult2, false);
 				//std::cout << "two collide" << std::endl;
@@ -422,7 +424,7 @@ std::pair<bool, XMFLOAT3> Character::CheckCollisionCharacter(XMFLOAT3& moveDirec
 	resultSliding = Vector3::Normalize(resultSliding);
 	resultNormal = Vector3::ScalarProduct(resultNormal, 0.02f, false);
 
-	return std::pair<bool, XMFLOAT3>(true, Vector3::Add(resultNormal, resultSliding));
+	return std::pair<bool, XMFLOAT3>(true, resultSliding);
 }
 
 std::pair<bool, XMFLOAT3> Character::CheckCollisionNormalMonster(XMFLOAT3& moveDirection, float ftimeElapsed)
@@ -455,13 +457,13 @@ std::pair<bool, XMFLOAT3> Character::CheckCollisionNormalMonster(XMFLOAT3& moveD
 		normalVecResult = Vector3::Add(normalVecResult, collideResult.first);
 		slidingVecResult = Vector3::Add(slidingVecResult, collideResult.second);
 	}
-	if (collideCnt) {
-		normalVecResult = Vector3::Normalize(normalVecResult);
-		normalVecResult = Vector3::ScalarProduct(normalVecResult, 0.02f);
-		slidingVecResult = Vector3::Normalize(slidingVecResult);
-	}
+	normalVecResult = Vector3::Normalize(normalVecResult);
+	normalVecResult = Vector3::ScalarProduct(normalVecResult, 0.02f);
+	slidingVecResult = Vector3::Normalize(slidingVecResult);
+
+	std::cout << "monster slidingVec: " << slidingVecResult.x << ", " << slidingVecResult.y << ", " << slidingVecResult.z << std::endl;
 	XMFLOAT3 collideNPCMoveDir = Vector3::Normalize(Vector3::Add(normalVecResult, slidingVecResult));
-	return std::pair<bool, XMFLOAT3>(true, collideNPCMoveDir);
+	return std::pair<bool, XMFLOAT3>(true, slidingVecResult);
 }
 
 bool Character::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
@@ -500,7 +502,7 @@ bool Character::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
 					float dotRes = Vector3::DotProduct(Vector3::Normalize(normalMonsterCollide.second), moveDir);
 					if (dotRes > 0.2f) {//방향이 맞음
 						XMFLOAT3 xmf3Position = GetPosition();
-						xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(Vector3::Normalize(Vector3::Add(normalMonsterCollide.second, moveDir)), 0.7f * m_fSpeed * ftimeElapsed));
+						xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(Vector3::Normalize(Vector3::Add(normalMonsterCollide.second, moveDir)), 0.9f * m_fSpeed * ftimeElapsed));
 						SetPosition(xmf3Position);
 						if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
 #ifdef CHARCTER_MOVE_LOG
@@ -522,7 +524,7 @@ bool Character::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
 				}
 				else {//노말 몬스터와 충돌하지 않음
 					XMFLOAT3 xmf3Position = GetPosition();
-					xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(Vector3::Normalize(moveDir), 0.3f * m_fSpeed * ftimeElapsed));
+					xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(Vector3::Normalize(moveDir), 0.9f * m_fSpeed * ftimeElapsed));
 					SetPosition(xmf3Position);
 					if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
 #ifdef CHARCTER_MOVE_LOG
@@ -559,7 +561,7 @@ bool Character::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
 			float dotRes = Vector3::DotProduct(Vector3::Normalize(normalMonsterCollide.second), Vector3::Normalize(mapCollideResult.second));
 			if (dotRes > 0.2f) {//맵과 노말 몬스터 충돌 벡터 방향이 비슷함
 				XMFLOAT3 xmf3Position = GetPosition();
-				xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(Vector3::Normalize(Vector3::Add(normalMonsterCollide.second, mapCollideResult.second)), 0.3f * m_fSpeed * ftimeElapsed));
+				xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(Vector3::Normalize(Vector3::Add(normalMonsterCollide.second, mapCollideResult.second)), 0.9f * m_fSpeed * ftimeElapsed));
 				SetPosition(xmf3Position);
 				if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
 #ifdef CHARCTER_MOVE_LOG
@@ -616,7 +618,7 @@ bool Character::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
 			float dotRes = Vector3::DotProduct(Vector3::Normalize(normalMonsterCollide.second), Vector3::Normalize(CharacterCollide.second));
 			if (dotRes > 0.2f) {//캐릭터 노말 몬스터 벡터
 				XMFLOAT3 xmf3Position = GetPosition();
-				xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(Vector3::Normalize(Vector3::Add(normalMonsterCollide.second, CharacterCollide.second)), 0.3f * m_fSpeed * ftimeElapsed));
+				xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(Vector3::Normalize(Vector3::Add(normalMonsterCollide.second, CharacterCollide.second)), 0.9f * m_fSpeed * ftimeElapsed));
 				SetPosition(xmf3Position);
 				if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
 #ifdef CHARCTER_MOVE_LOG
@@ -643,7 +645,7 @@ bool Character::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
 			std::cout << "character Move" << std::endl;
 			std::cout << "prev collision position: " << xmf3Position.x << ", " << xmf3Position.y << ", " << xmf3Position.z << std::endl;
 #endif
-			XMFLOAT3 moveVec = Vector3::ScalarProduct(CharacterCollide.second, 0.5f * m_fSpeed * ftimeElapsed);
+			XMFLOAT3 moveVec = Vector3::ScalarProduct(CharacterCollide.second, 0.9f * m_fSpeed * ftimeElapsed);
 			xmf3Position = Vector3::Add(xmf3Position, moveVec);
 			SetPosition(xmf3Position);
 			if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
@@ -674,7 +676,7 @@ bool Character::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
 	}
 	if (normalMonsterCollide.first) {//노말 몬스터와 충돌함
 		XMFLOAT3 xmf3Position = GetPosition();
-		XMFLOAT3 slidingVec = Vector3::ScalarProduct(normalMonsterCollide.second, 0.3f * m_fSpeed * ftimeElapsed);
+		XMFLOAT3 slidingVec = Vector3::ScalarProduct(normalMonsterCollide.second, 0.9f * m_fSpeed * ftimeElapsed);
 #ifdef CHARCTER_MOVE_LOG
 		PrintCurrentTime();
 		std::cout << "monster Move" << std::endl;
@@ -883,7 +885,7 @@ void Warrior::Animate(float fTimeElapsed)
 		GameObject::Animate(fTimeElapsed);
 		return;
 	}
-	
+
 	pair<CharacterAnimation, CharacterAnimation> AfterAnimation = m_pSkinnedAnimationController->m_CurrentAnimations;
 	bool bCanMove = true;
 
@@ -1845,7 +1847,7 @@ void Tanker::SetSkillBall(Projectile* pBall)
 
 void Tanker::StartEffect(int nSkillNum)
 {
-	if(nSkillNum == 0)
+	if (nSkillNum == 0)
 		m_CanActiveQSkill = true;
 }
 
@@ -2050,7 +2052,7 @@ void Priest::Animate(float fTimeElapsed)
 			AfterAnimation.second = CharacterAnimation::CA_IDLE;
 		}
 	}
-	
+
 	ChangeAnimation(AfterAnimation);
 
 	if (m_pHealRange->m_bActive)
@@ -2641,10 +2643,10 @@ void NormalMonster::Animate(float fTimeElapsed)
 			m_pSkinnedAnimationController->m_CurrentAnimations = NextAnimations;
 			m_pSkinnedAnimationController->SetTrackEnable(NextAnimations);
 		}
-	/*	if (CheckAnimationEnd(CA_DIE))
-		{
-			m_bActive = false;
-		}*/
+		/*	if (CheckAnimationEnd(CA_DIE))
+			{
+				m_bActive = false;
+			}*/
 		GameObject::Animate(fTimeElapsed);
 		return;
 	}
