@@ -192,7 +192,7 @@ void Logic::ProcessPacket(char* p)
 	case SERVER_PACKET::SHOOTING_ARROW://화살
 	{
 		SERVER_PACKET::ShootingObject* recvPacket = reinterpret_cast<SERVER_PACKET::ShootingObject*>(p);
-		
+
 		Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo(ROLE::ARCHER);
 		static_cast<Archer*>(possessObj)->ShootArrow(recvPacket->dir);
 	}
@@ -200,7 +200,7 @@ void Logic::ProcessPacket(char* p)
 	case SERVER_PACKET::SHOOTING_BALL://공
 	{
 		SERVER_PACKET::ShootingObject* recvPacket = reinterpret_cast<SERVER_PACKET::ShootingObject*>(p);
-		
+
 		Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo(ROLE::PRIEST);
 		static_cast<Priest*>(possessObj)->Attack(recvPacket->dir);
 	}
@@ -229,7 +229,7 @@ void Logic::ProcessPacket(char* p)
 			float maxHp = smallMonsterArr[i]->GetMaxHP();
 			smallMonsterArr[i]->SetCurrentHP(recvPacket->smallMonster[i].hp / maxHp * 100.0f);
 			smallMonsterArr[i]->SetAliveState(recvPacket->smallMonster[i].isAlive);
-			
+
 		}
 	}
 	break;
@@ -603,6 +603,18 @@ void Logic::ProcessPacket(char* p)
 			recvPacket->position;//데미지 폰트 위치
 		}
 		;//현재 회수할 에너지볼 아이디
+	}
+	break;
+	case SERVER_PACKET::PLAYER_ATTACK_RESULT_BOSS:
+	{
+		SERVER_PACKET::PlayerAttackBossDamagePacket* recvPacket = reinterpret_cast<SERVER_PACKET::PlayerAttackBossDamagePacket*>(p);		
+		recvPacket->damage;//현재 클라이언트 보스 위치에다가 띄울 데미지 폰트의 데미지
+	}
+	break;
+	case SERVER_PACKET::BOSS_ATTACK_PALYER:
+	{
+		SERVER_PACKET::BossAttackPlayerPacket* recvPacket = reinterpret_cast<SERVER_PACKET::BossAttackPlayerPacket*>(p);
+		recvPacket->currentHp;//보스한테 피격당하여 버린 나의 HP이건 필요 있나 싶음... => 나중에 notift로 변경할듯?
 	}
 	break;
 	default:

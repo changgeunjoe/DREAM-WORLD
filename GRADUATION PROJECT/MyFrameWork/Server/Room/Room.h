@@ -71,8 +71,7 @@ public:
 public:
 	void ShootArrow(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 srcPos, float speed, float damage);
 	void ShootBall(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 srcPos);
-public:
-	Concurrency::concurrent_queue<short> m_bossDamagedQueue;
+public:	
 	void MeleeAttack(ROLE r, DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 pos, int power);
 public:
 	void ChangeDirectionPlayCharacter(ROLE r, DIRECTION d);

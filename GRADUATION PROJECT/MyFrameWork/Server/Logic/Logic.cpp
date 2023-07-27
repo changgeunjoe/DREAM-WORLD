@@ -380,6 +380,9 @@ void Logic::ProcessPacket(int userId, char* p)
 	default:
 		PrintCurrentTime();
 		std::cout << "unknown Packet" << std::endl; 
+		std::cout << g_iocpNetwork.m_session[userId].GetUserAddrIn() << std::endl;
+		std::cout << p << std::endl;
+		g_iocpNetwork.DisconnectClient(userId);
 		break;
 	}
 }
@@ -481,7 +484,7 @@ void Logic::MatchMaking()
 		//아무도 없을 때, 
 		if (restRole.size() == 4) {}
 		//모두가 Role을 가지고 돌렸을때
-		else if (restRole.size() == 2) {
+		else if (restRole.size() == 1) {
 			std::map<ROLE, int> matchPlayer;
 			if (warriorPlayerIdQueue.unsafe_size() > 0) {
 				int playerId = -1;

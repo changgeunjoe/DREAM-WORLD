@@ -104,8 +104,20 @@ void IOCPNetwork::WorkerThread()
 			}
 			else {
 				std::cout << "Accept User[" << userId << "]" << std::endl;
+				SOCKADDR_IN* localData = nullptr;
+				int localDataSize = sizeof(SOCKADDR_IN);
+				SOCKADDR_IN* remoteData = nullptr;
+				int remoteDataSize = sizeof(SOCKADDR_IN);
+				GetAcceptExSockaddrs(m_acceptOver->m_buffer, 0, addr_size + 16, addr_size + 16, (sockaddr**)&localData, &localDataSize, (sockaddr**)&remoteData, &remoteDataSize);
+
+				char* clientIP = inet_ntoa(remoteData->sin_addr);
+				short chlientPort = ntohs(remoteData->sin_port);
+
 				CreateIoCompletionPort(reinterpret_cast<HANDLE>(m_clientSocket), m_hIocp, userId, 0);
 				g_logic.AcceptPlayer(&m_session[userId], userId, m_clientSocket);
+				
+				m_session[userId].SetInfoIpAndPort(clientIP, chlientPort);
+				
 				m_clientSocket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
 				//중복 로그인 확인 - logic::ProcessPacket::Login 부분에서 처리함
 				ZeroMemory(&m_acceptOver->m_overlap, sizeof(m_acceptOver->m_overlap));

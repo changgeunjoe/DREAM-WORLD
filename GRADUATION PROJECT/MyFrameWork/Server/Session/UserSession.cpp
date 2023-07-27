@@ -6,6 +6,13 @@
 extern Logic g_logic;
 extern IOCPNetwork g_iocpNetwork;
 
+std::string UserSession::GetUserAddrIn()
+{
+	std::string retString;
+	retString.append("UserId: " + std::to_string(m_id) + ", IP: " + m_ip + ", PORT: " + std::to_string(m_port));
+	return retString;
+}
+
 UserSession::UserSession()
 {
 	m_id = -1;
@@ -18,6 +25,12 @@ UserSession::~UserSession()
 	//if (m_sessionObject != nullptr)
 	//	delete m_sessionObject;
 	m_sessionObject = nullptr;
+}
+
+void UserSession::SetInfoIpAndPort(char* ip, short port)
+{
+	m_ip = ip;
+	m_port = port;
 }
 
 void UserSession::Initialize()
@@ -36,7 +49,7 @@ void UserSession::Recv()
 	m_exOver.m_wsaBuf.buf = m_exOver.m_buffer + m_prevBufferSize;
 	int resRet = WSARecv(m_socket, &m_exOver.m_wsaBuf, 1, 0, &recv_flag, &m_exOver.m_overlap, 0);
 	if (resRet) {
-		if(DisplayWsaGetLastError(WSAGetLastError()))
+		if (DisplayWsaGetLastError(WSAGetLastError()))
 			g_iocpNetwork.DisconnectClient(m_id);
 	}
 }
@@ -56,13 +69,15 @@ void UserSession::Send(void* p)
 
 void UserSession::ConstructPacket(int ioByte)
 {
+	int currentID = m_id;
 	int remain_data = ioByte + m_prevBufferSize;
 	char* p = m_exOver.m_buffer;
 	while (remain_data > 1) {
 		short packet_size;
 		memcpy(&packet_size, p, 2);
 		if ((int)packet_size <= remain_data) {
-			g_logic.ProcessPacket(static_cast<int>(m_id), p);
+			if (currentID < 0 || m_id < 0)return;
+			g_logic.ProcessPacket(currentID, p);
 			p = p + (int)packet_size;
 			remain_data = remain_data - (int)packet_size;
 		}
@@ -70,6 +85,7 @@ void UserSession::ConstructPacket(int ioByte)
 	}
 	m_prevBufferSize = remain_data;
 	if (remain_data > 0) {
+		if (currentID < 0 || m_id < 0)return;
 		std::memcpy(m_exOver.m_buffer, p, remain_data);
 	}
 	Recv();

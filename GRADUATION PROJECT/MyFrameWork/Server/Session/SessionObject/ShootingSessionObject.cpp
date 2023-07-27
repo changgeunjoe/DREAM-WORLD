@@ -52,11 +52,11 @@ int ShootingSessionObject::DetectCollision(MonsterSessionObject* m_bossSession)
 void ShootingSessionObject::SetStart(XMFLOAT3& dir, XMFLOAT3& srcPos, float speed)//초당 이동 속도
 {
 	m_lastMoveTime = std::chrono::high_resolution_clock::now();
-	m_active = true;
 	m_position = srcPos;
 	m_directionVector = dir;
 	m_speed = speed;
 	m_SPBB.Center = srcPos;
+	m_active = true;
 	CalcRightVector();
 }
 
@@ -64,46 +64,80 @@ bool ShootingSessionObject::Move(float elapsedTime)
 {
 	if (!m_active)return true;
 	Room& roomRef = g_RoomManager.GetRunningRoomRef(m_roomId);
-	SmallMonsterSessionObject* monsters = roomRef.GetStageMonsterArr();
 	m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, elapsedTime * m_speed));
 	m_SPBB.Center = m_position;
 	m_distance += elapsedTime * m_speed;
 
-	bool isMonsterCollide = false;
-	for (int i = 0; i < 15; i++) {
-		if (!monsters[i].IsAlive())continue;
-		if (m_SPBB.Intersects(monsters[i].GetSpbb())) {
-			monsters[i].AttackedHp(m_damage);
-			SERVER_PACKET::ProjectileDamagePacket sendPacket;
-			sendPacket.size = sizeof(SERVER_PACKET::ProjectileDamagePacket);
+	if (roomRef.GetRoomState() == ROOM_STAGE1) {
+		SmallMonsterSessionObject* monsters = roomRef.GetStageMonsterArr();
 
-			if (m_OwnerRole == ROLE::PRIEST)
-				sendPacket.type = SERVER_PACKET::MONSTER_DAMAGED_BALL;
-			else if (m_isSkill)
-				sendPacket.type = SERVER_PACKET::MONSTER_DAMAGED_ARROW_SKILL;
-			else
-				sendPacket.type = SERVER_PACKET::MONSTER_DAMAGED_ARROW;
+		bool isMonsterCollide = false;
+		for (int i = 0; i < 15; i++) {
+			if (!monsters[i].IsAlive())continue;
+			if (m_SPBB.Intersects(monsters[i].GetSpbb())) {
+				monsters[i].AttackedHp(m_damage);
+				SERVER_PACKET::ProjectileDamagePacket sendPacket;
+				sendPacket.size = sizeof(SERVER_PACKET::ProjectileDamagePacket);
 
-			sendPacket.projectileId = m_id;
-			sendPacket.position = m_position;
-			sendPacket.damage = m_damage;
-			ExpOver* postOver = new ExpOver(reinterpret_cast<char*>(&sendPacket));
-			postOver->m_opCode = OP_PROJECTILE_ATTACK;
-			PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, m_roomId, &postOver->m_overlap);
-			isMonsterCollide = true;
-			break;
+				if (m_OwnerRole == ROLE::PRIEST)
+					sendPacket.type = SERVER_PACKET::MONSTER_DAMAGED_BALL;
+				else if (m_isSkill)
+					sendPacket.type = SERVER_PACKET::MONSTER_DAMAGED_ARROW_SKILL;
+				else
+					sendPacket.type = SERVER_PACKET::MONSTER_DAMAGED_ARROW;
+
+				sendPacket.projectileId = m_id;
+				sendPacket.position = m_position;
+				sendPacket.damage = m_damage;
+				ExpOver* postOver = new ExpOver(reinterpret_cast<char*>(&sendPacket));
+				postOver->m_opCode = OP_PROJECTILE_ATTACK;
+				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, m_roomId, &postOver->m_overlap);
+				isMonsterCollide = true;
+				break;
+			}
 		}
+		if (isMonsterCollide || m_distance > 250.0f) {
+			m_active = false;
+			if (m_OwnerRole == ROLE::PRIEST) {
+				roomRef.PushRestBall(m_id);
+			}
+			else if (!m_isSkill) {
+				roomRef.PushRestArrow(m_id);
+			}
+			m_distance = 0.0f;
+		}
+		return true;
 	}
-	if (isMonsterCollide || m_distance > 250.0f) {
-		m_active = false;
-		if (m_OwnerRole == ROLE::PRIEST) {
-			roomRef.PushRestBall(m_id);
+	MonsterSessionObject& bossRef = roomRef.GetBoss();
+	if (m_SPBB.Intersects(bossRef.GetSpbb())) {
+		bossRef.AttackedHp(m_damage);
+		SERVER_PACKET::ProjectileDamagePacket sendPacket;
+		sendPacket.size = sizeof(SERVER_PACKET::ProjectileDamagePacket);
+
+		//보스든 일반 몬스터든 어차피 공격 받으면 떠야됨.
+		if (m_OwnerRole == ROLE::PRIEST)
+			sendPacket.type = SERVER_PACKET::MONSTER_DAMAGED_BALL;
+		else if (m_isSkill)
+			sendPacket.type = SERVER_PACKET::MONSTER_DAMAGED_ARROW_SKILL;
+		else
+			sendPacket.type = SERVER_PACKET::MONSTER_DAMAGED_ARROW;
+
+		sendPacket.projectileId = m_id;
+		sendPacket.position = m_position;
+		sendPacket.damage = m_damage;
+		ExpOver* postOver = new ExpOver(reinterpret_cast<char*>(&sendPacket));
+		postOver->m_opCode = OP_PROJECTILE_ATTACK;
+		PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, m_roomId, &postOver->m_overlap);
+		if (m_distance > 250.0f) {
+			m_active = false;
+			if (m_OwnerRole == ROLE::PRIEST) {
+				roomRef.PushRestBall(m_id);
+			}
+			else if (!m_isSkill) {
+				roomRef.PushRestArrow(m_id);
+			}
+			m_distance = 0.0f;
 		}
-		else if (!m_isSkill) {
-			roomRef.PushRestArrow(m_id);
-		}
-		m_distance = 0.0f;
 	}
 	return true;
 }
-;
