@@ -798,7 +798,9 @@ float4 PSShadowMapShadow(VS_SHADOW_MAP_OUTPUT input) : SV_TARGET
         cGammaColor += gmtxGameObjectColor.xyz;
         return float4(cGammaColor, 1);
     }
-    if (cGammaColor.y < gmtxGameObjectColor.w)
+    if (cGammaColor.x < gmtxGameObjectColor.w||
+        cGammaColor.y < gmtxGameObjectColor.w ||
+        cGammaColor.z < gmtxGameObjectColor.w)
     {
         return float4(cGammaColor, 0);
     }

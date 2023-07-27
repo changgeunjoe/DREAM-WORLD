@@ -180,7 +180,11 @@ void GameobjectManager::Animate(float fTimeElapsed)
 		effect->AnimateEffect(m_pCamera, possessChracter->GetPosition(), fTimeElapsed, m_fTime * 10);
 	}
 
-	m_pPortalEffectObject->AnimateEffect(m_pCamera, XMFLOAT3(0, 0, 0), fTimeElapsed, m_fTime * 5);
+	
+		m_pPortalEffectObject->AnimateEffect(m_pCamera, XMFLOAT3(0, 0, 0), fTimeElapsed, m_fTime * 5);
+		if (m_bTest) {
+			m_pPreistAttackEffectObject->AnimateEffect(m_pCamera, XMFLOAT3(0, 20, 0), fTimeElapsed, m_fTime * 5);
+		}
 	//Effect
 	// if (m_pSelectedObject) {
 		// Èú ÀÌÆåÆ®
@@ -457,7 +461,7 @@ void GameobjectManager::PlayerConditionAnimate(float fTimeElapsed)
 		if (myPlayCharacter->m_fConditionTime < 1.2) {
 			if (myPlayCharacter->GetCurrentHP() > myPlayCharacter->GetTempHP()) {
 
-				m_pConditionUIObject->SetColor(XMFLOAT4(0, 1, 0, 0));
+				m_pConditionUIObject->SetColor(XMFLOAT4(0, 0.7, 0.2, 0));
 				myPlayCharacter->m_nCondition = 1;
 			}
 			if (myPlayCharacter->GetCurrentHP() < myPlayCharacter->GetTempHP()) {
@@ -2212,9 +2216,11 @@ void GameobjectManager::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pSheildEffectObject = new SheildEffectObject;
 	m_pSheildEffectObject->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, &m_ppEffectObjects);
 
-
 	m_pPortalEffectObject = new PortalEffectObject;
 	m_pPortalEffectObject->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, &m_ppEffectObjects);
+
+	m_pPreistAttackEffectObject = new PriestEffectObject;
+	m_pPreistAttackEffectObject->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, &m_ppEffectObjects);
 
 }
 
@@ -2658,6 +2664,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		}
 		case 'P':
 		{
+			m_bTest = true;
 			g_sound.Play("ClickSound",1.0f);
 		}
 		break;

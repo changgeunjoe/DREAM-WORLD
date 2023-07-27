@@ -442,8 +442,8 @@ void SheildEffectObject::AnimateEffect(CCamera* pCamera, XMFLOAT3 xm3position, f
 		if (sin(fTime / 5 + i) > 0) {
 			m_pArrowObject[i]->SetScale(sin(fTime / 5 + i));
 		}
-		m_pArrowObject[i]->Rotate(0, 180, -90);
-		m_pArrowObject[i]->SetColor(XMFLOAT4(0.7f, 0.7f, 0.7f, sin(fTime / 5 + i)));
+		m_pArrowObject[i]->Rotate(0, 180, 0);
+		m_pArrowObject[i]->SetColor(XMFLOAT4(0.7f, 0.7f, 0.7f, 0));
 		m_pArrowObject[i]->SetPosition(XMFLOAT3(
 			xm3position.x + m_pArrowObject[i]->GetAddPosition().x,
 			xm3position.y + m_pArrowObject[i]->GetAddPosition().y + m_pArrowObject[i]->m_fTime + i,
@@ -561,7 +561,7 @@ void PriestEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 
 void PriestEffectObject::AnimateEffect(CCamera* pCamera, XMFLOAT3 xm3position, float ftimeelapsed, float fTime)
 {
-
+	Particle(pCamera, ftimeelapsed, xm3position);
 }
 
 void PriestEffectObject::Particle(CCamera* pCamera, float fTimeElapsed, XMFLOAT3& xm3position)
@@ -585,7 +585,7 @@ void PriestEffectObject::Particle(CCamera* pCamera, float fTimeElapsed, XMFLOAT3
 				if (m_ppParticleObjects[i]->m_fTime > 3) {
 					m_ppParticleObjects[i]->m_fTime = 0;
 				}
-				XMFLOAT3 mxmf3Accel = { 0.f, -0.5f, 0.f };
+				XMFLOAT3 mxmf3Accel = { 0.f, -0.0f, 0.f };
 				m_ppParticleObjects[i]->SetPosition(Vector3::Add(m_ppParticleObjects[i]->GetPosition(), Vector3::Add(Vector3::ScalarProduct(mxmf3Accel, tt, false), Vector3::ScalarProduct(m_ppParticleObjects[i]->m_xmf3RamdomDirection, t, false))));
 				if (sin(m_fParticleLifeTime) > 0) {
 					m_ppParticleObjects[i]->SetScale(sin(m_fParticleLifeTime));

@@ -226,6 +226,7 @@ private:
 	EffectObject* m_pLightEffectObject{ NULL };
 	EffectObject* m_pSheildEffectObject{ NULL };
 	EffectObject* m_pPortalEffectObject{ NULL };
+	EffectObject* m_pPreistAttackEffectObject{ NULL };
 
 	vector<GameObject*> m_ppEffectObjects{};
 
@@ -249,6 +250,7 @@ private:
 	BoundingSphere		m_SPBBPortal = BoundingSphere(XMFLOAT3(0.0f, 0.0f, 0.0f), 30);
 	float				m_fStageChangeTime = 0.0f;
 	bool				m_bPortalCheck = false;
+	bool				m_bTest = false;
 
 public:
 	std::vector<int> m_VecNodeQueue;
