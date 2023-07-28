@@ -422,7 +422,6 @@ void GameobjectManager::PlayerConditionAnimate(float fTimeElapsed)
 		Character* myPlayCharacter = GetChracterInfo(g_Logic.GetMyRole());
 		if (myPlayCharacter->m_fConditionTime < 1.2) {
 			if (myPlayCharacter->GetCurrentHP() > myPlayCharacter->GetTempHP()) {
-
 				m_pConditionUIObject->SetColor(XMFLOAT4(0, 1, 0, 0));
 				myPlayCharacter->m_nCondition = 1;
 			}
@@ -1017,19 +1016,23 @@ void GameobjectManager::SetCharactersLobbyPosition()
 
 	m_pPriestObject->SetPosition(XMFLOAT3(-1400.f, 0.f, -1520.f));
 	m_pPriestObject->SetRotateAxis(XMFLOAT3(0.0f, -90.0f, 0.0f));
-	m_pPriestObject->SetCurrentHP(m_pPriestObject->GetMaxHP());
+	m_pPriestObject->SetCurrentHP(100.0f);
+	m_pPriestObject->SetTempHp(100.0f);
 
 	m_pWarriorObject->SetPosition(XMFLOAT3(-1400.f, 0.f, -1460.f));
 	m_pWarriorObject->SetRotateAxis(XMFLOAT3(0.0f, -90.0f, 0.0f));
-	m_pWarriorObject->SetCurrentHP(m_pWarriorObject->GetMaxHP());
+	m_pWarriorObject->SetCurrentHP(100.0f);
+	m_pWarriorObject->SetTempHp(100.0f);
 
 	m_pArcherObject->SetPosition(XMFLOAT3(-1400.f, 0.f, -1480.f));
 	m_pArcherObject->SetRotateAxis(XMFLOAT3(0.0f, -90.0f, 0.0f));
-	m_pArcherObject->SetCurrentHP(m_pArcherObject->GetMaxHP());
+	m_pArcherObject->SetCurrentHP(100.0f);
+	m_pArcherObject->SetTempHp(100.0f);
 
 	m_pTankerObject->SetPosition(XMFLOAT3(-1400.f, 0.f, -1500.0f));
 	m_pTankerObject->SetRotateAxis(XMFLOAT3(0.0f, -90.0f, 0.0f));
-	m_pTankerObject->SetCurrentHP(m_pTankerObject->GetMaxHP());
+	m_pTankerObject->SetCurrentHP(100.0f);
+	m_pTankerObject->SetTempHp(100.0f);
 }
 
 void GameobjectManager::EffectRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float ftimeElapsed)
@@ -2108,7 +2111,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pConditionUIObject->InsertComponent<TextureComponent>();
 	m_pConditionUIObject->SetTexture(L"UI/Condition.dds", RESOURCE_TEXTURE2D, 3);
 	m_pConditionUIObject->SetPosition(XMFLOAT3(0.0, 0.0, 1.00));
-	m_pConditionUIObject->SetColor(XMFLOAT4(0.4f, 0.0f, 0.0f, 0.0f));
+	m_pConditionUIObject->SetColor(XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));
 	m_pConditionUIObject->SetScale(0.44f, 0.24f, 1.0f);
 	m_pConditionUIObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppCharacterUIObjects.emplace_back(m_pConditionUIObject);

@@ -321,7 +321,7 @@ protected:
 protected:
 	float                           m_fHp{ 100 };//캐릭터 현재 체력
 	float                           m_fMaxHp{ 100 };//캐릭터 최대 체력
-	float                           m_fTempHp{ 0 };//캐릭터 최대 체력
+	float                           m_fTempHp{ 100 };//캐릭터 최대 체력
 	float                           m_fSpeed{};
 	float                           m_fDamage{};
 	XMFLOAT3						m_AddPosition{};

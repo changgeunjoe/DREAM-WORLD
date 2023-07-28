@@ -27,6 +27,7 @@ Character::Character() : GameObject(UNDEF_ENTITY)
 	m_skillDuration = { std::chrono::seconds(0), std::chrono::seconds(0) };
 	m_skillCoolTime = { std::chrono::seconds(0), std::chrono::seconds(0) };
 	m_skillInputTime = { std::chrono::high_resolution_clock::now(), std::chrono::high_resolution_clock::now() };
+	m_fHp = 100.0f;
 	m_fSpeed = 50.0f;
 }
 
@@ -760,13 +761,12 @@ constexpr float ATTACK4_ATTACK_POINT = 0.60f;
 
 Warrior::Warrior() : Character()
 {
-	m_fHp = 400.0f;
 	m_fMaxHp = 400.0f;
 	m_fSpeed = 50.0f;
 	m_fDamage = 100.0f;
 
-	m_skillCoolTime = { std::chrono::seconds(15), std::chrono::seconds(0) };
-	m_skillDuration = { std::chrono::seconds(5), std::chrono::seconds(0) };
+	m_skillCoolTime = { std::chrono::seconds(7), std::chrono::seconds(0) };
+	m_skillDuration = { std::chrono::seconds(0), std::chrono::seconds(0) };
 	m_skillInputTime = { std::chrono::high_resolution_clock::now() - m_skillCoolTime[0], std::chrono::high_resolution_clock::now() - m_skillCoolTime[1] };
 }
 
@@ -1083,14 +1083,13 @@ void Warrior::ExecuteSkill_E()
 
 Archer::Archer() : Character()
 {
-	m_fHp = 250.0f;
 	m_fMaxHp = 250.0f;
 	m_fSpeed = 50.0f;
 	m_fDamage = 80.0f;
 	m_CameraLook = XMFLOAT3(0.0f, 0.0f, 0.0f);
 
-	m_skillCoolTime = { std::chrono::seconds(15), std::chrono::seconds(7) };
-	m_skillDuration = { std::chrono::seconds(5), std::chrono::seconds(3) };
+	m_skillCoolTime = { std::chrono::seconds(10), std::chrono::seconds(15) };
+	m_skillDuration = { std::chrono::seconds(0), std::chrono::seconds(0) };
 	m_skillInputTime = { std::chrono::high_resolution_clock::now() - m_skillCoolTime[0], std::chrono::high_resolution_clock::now() - m_skillCoolTime[1] };
 }
 
@@ -1631,13 +1630,12 @@ void Archer::ExecuteSkill_E()
 
 Tanker::Tanker() : Character()
 {
-	m_fHp = 600.0f;
 	m_fMaxHp = 600.0f;
 	m_fSpeed = 50.0f;
 	m_fDamage = 50.0f;
 
-	m_skillCoolTime = { std::chrono::seconds(15), std::chrono::seconds(7) };
-	m_skillDuration = { std::chrono::seconds(5), std::chrono::seconds(0) };
+	m_skillCoolTime = { std::chrono::seconds(15), std::chrono::seconds(10) };
+	m_skillDuration = { std::chrono::seconds(7), std::chrono::seconds(0) };
 	m_skillInputTime = { std::chrono::high_resolution_clock::now() - m_skillCoolTime[0], std::chrono::high_resolution_clock::now() - m_skillCoolTime[1] };
 }
 
@@ -1979,8 +1977,8 @@ Priest::Priest() : Character()
 	m_fSpeed = 50.0f;
 	m_fDamage = 80.0f;
 
-	m_skillCoolTime = { std::chrono::seconds(15), std::chrono::seconds(7) };
-	m_skillDuration = { std::chrono::seconds(9), std::chrono::seconds(3) };
+	m_skillCoolTime = { std::chrono::seconds(15), std::chrono::seconds(10) };
+	m_skillDuration = { std::chrono::seconds(10), std::chrono::seconds(0) };
 	m_skillInputTime = { std::chrono::high_resolution_clock::now() - m_skillCoolTime[0], std::chrono::high_resolution_clock::now() - m_skillCoolTime[1] };
 }
 
@@ -2323,7 +2321,7 @@ void Priest::ExecuteSkill_E()
 
 Monster::Monster() : Character()
 {
-	m_fHp = 2500;
+	m_fHp = 100.0f;
 	m_fMaxHp = 2500;
 }
 
