@@ -115,9 +115,9 @@ void IOCPNetwork::WorkerThread()
 
 				CreateIoCompletionPort(reinterpret_cast<HANDLE>(m_clientSocket), m_hIocp, userId, 0);
 				g_logic.AcceptPlayer(&m_session[userId], userId, m_clientSocket);
-				
+
 				m_session[userId].SetInfoIpAndPort(clientIP, chlientPort);
-				
+
 				m_clientSocket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
 				//중복 로그인 확인 - logic::ProcessPacket::Login 부분에서 처리함
 				ZeroMemory(&m_acceptOver->m_overlap, sizeof(m_acceptOver->m_overlap));
@@ -208,6 +208,13 @@ void IOCPNetwork::WorkerThread()
 		case OP_SKY_ARROW_ATTACK:
 		{
 			g_RoomManager.SkyArrowAttack(key);
+			if (ex_over != nullptr)
+				delete ex_over;
+		}
+		break;
+		case OP_BOSS_CHANGE_DIRECTION:
+		{
+			g_logic.BroadCastInRoom(key, ex_over->m_buffer);
 			if (ex_over != nullptr)
 				delete ex_over;
 		}

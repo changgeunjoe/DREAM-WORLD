@@ -2355,7 +2355,8 @@ void Monster::Move(float fTimeElapsed)
 			// 이동방식 회의 후 구현 위치
 		}
 		else {
-			float serverChangingAngle = Vector3::Angle(m_desDirecionVec, m_serverDesDirecionVec);
+			XMFLOAT3 myLook = GetLook();
+			float serverChangingAngle = Vector3::Angle(m_desDirecionVec, myLook);
 			if (serverChangingAngle > 40.0f) {
 				bool OnRight = (Vector3::DotProduct(GetRight(), m_desDirecionVec) > 0) ? true : false;
 				if (OnRight) {

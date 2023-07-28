@@ -378,10 +378,10 @@ std::list<int> MapData::AStarLoad(std::atomic_int& myTriangleIdx, float desX, fl
 			int currentIdx = currentTriangleIdx;
 			while (true) {
 				AstarNode& currentNode = closeList[currentIdx];
+				resList.emplace_front(currentIdx);
 				if (currentIdx == myTriangleIdx) {
 					return resList;
 				}
-				resList.emplace_front(currentIdx);
 				currentIdx = currentNode.GetParentIdx();
 			}
 		}

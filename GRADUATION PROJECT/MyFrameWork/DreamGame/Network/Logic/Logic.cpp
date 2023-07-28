@@ -257,7 +257,7 @@ void Logic::ProcessPacket(char* p)
 		bossMonster->m_UIScale = static_cast<float>(recvPacket->bossState.hp) / 250.0f;//maxHp 2500입니다
 		bossMonster->SetCurrentHP(static_cast<float>(recvPacket->bossState.hp) / 25.0f);//maxHp 2500입니다
 		bossMonster->m_desDirecionVec = recvPacket->bossState.moveVec;
-		bossMonster->m_serverDesDirecionVec = recvPacket->bossState.desVec;
+		//bossMonster->m_serverDesDirecionVec = recvPacket->bossState.desVec;
 		if (bossMonster->GetCurrentHP() < FLT_EPSILON)
 		{
 			GameEnd = true;
@@ -615,6 +615,13 @@ void Logic::ProcessPacket(char* p)
 	{
 		SERVER_PACKET::BossAttackPlayerPacket* recvPacket = reinterpret_cast<SERVER_PACKET::BossAttackPlayerPacket*>(p);
 		recvPacket->currentHp;//보스한테 피격당하여 버린 나의 HP이건 필요 있나 싶음... => 나중에 notift로 변경할듯?
+	}
+	break;
+	case  SERVER_PACKET::BOSS_CHANGE_DIRECION:
+	{
+		SERVER_PACKET::BossDirectionPacket* recvPacket = reinterpret_cast<SERVER_PACKET::BossDirectionPacket*>(p);
+		Monster* bossMonster = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster();
+		bossMonster->m_desDirecionVec = recvPacket->directionVec;
 	}
 	break;
 	default:

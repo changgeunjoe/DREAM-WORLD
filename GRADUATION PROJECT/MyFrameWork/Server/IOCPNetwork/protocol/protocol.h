@@ -211,6 +211,7 @@ namespace SERVER_PACKET {
 	constexpr unsigned char COMMON_ATTACK_START = 116;
 
 	constexpr unsigned char BOSS_ATTACK_PALYER = 117;
+	constexpr unsigned char BOSS_CHANGE_DIRECION = 118;
 
 	struct MovePacket
 	{
@@ -458,6 +459,12 @@ namespace SERVER_PACKET {
 		short size;
 		char type;
 		float currentHp;
+	};
+
+	struct BossDirectionPacket {
+		short size;
+		char type;
+		XMFLOAT3 directionVec;
 	};
 }
 

@@ -136,6 +136,14 @@ bool MonsterSessionObject::Move(float elapsedTime)
 			}
 
 		}//위에서 나온 벡터 기준 회전하여 이동하자자
+		SERVER_PACKET::BossDirectionPacket postData;
+		postData.size = sizeof(SERVER_PACKET::BossDirectionPacket);
+		postData.type = SERVER_PACKET::BOSS_CHANGE_DIRECION;
+		postData.directionVec = monsterLookTo;
+		ExpOver* postQueue = new ExpOver(reinterpret_cast<char*>(&postData));
+		postQueue->m_opCode = OP_BOSS_CHANGE_DIRECTION;
+		PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, m_roomId, &postQueue->m_overlap);
+		;
 
 		m_desVector = monsterLookTo;
 		bool OnRight = (Vector3::DotProduct(m_rightVector, monsterLookTo) > 0) ? true : false;	// 목적지가 오른쪽 왼
