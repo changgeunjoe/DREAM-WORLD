@@ -784,7 +784,7 @@ void Room::ChangeStageBoss()
 void Room::StartSkyArrow(XMFLOAT3& position)
 {
 	m_skyArrowAttack = position;
-	TIMER_EVENT skyArrowEvent{ std::chrono::system_clock::now() + std::chrono::seconds(2), m_roomId,  EV_SKY_ARROW_ATTACK };
+	TIMER_EVENT skyArrowEvent{ std::chrono::system_clock::now() + std::chrono::seconds(1), m_roomId,  EV_SKY_ARROW_ATTACK };
 	g_Timer.InsertTimerQueue(skyArrowEvent);
 }
 
@@ -936,7 +936,7 @@ void Room::ExecuteSkyArrow()
 		positions.reserve(6);
 		for (int i = 0; i < 15; i++) {
 			if (m_StageSmallMonster[i].IsAlive()) {
-				if (m_StageSmallMonster[i].GetDistance(m_skyArrowAttack) > 15.0f) {
+				if (m_StageSmallMonster[i].GetDistance(m_skyArrowAttack) < 24.0f) {
 					m_StageSmallMonster[i].AttackedHp(120.0f);
 					positions.emplace_back(i);
 				}

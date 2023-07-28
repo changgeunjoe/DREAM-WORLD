@@ -88,6 +88,12 @@ class WarriorSessionObject : public ChracterSessionObject
 public:
 	WarriorSessionObject(int id) :ChracterSessionObject(ROLE::WARRIOR)
 	{
+		m_skillCoolTime = { std::chrono::seconds(7), std::chrono::seconds(0) };
+		m_skillDuration = { std::chrono::seconds(0), std::chrono::seconds(0) };
+		m_prevSkillInputTime = { std::chrono::high_resolution_clock::now() - m_skillCoolTime[0],
+			std::chrono::high_resolution_clock::now() - m_skillCoolTime[1] };
+		m_CommonAttackCoolTime = std::chrono::seconds(1);
+		m_prevCommonAttackTime = std::chrono::high_resolution_clock::now() - m_CommonAttackCoolTime;
 		SetStage_1Position();
 	}
 	~WarriorSessionObject() {}
@@ -105,8 +111,8 @@ class MageSessionObject : public ChracterSessionObject
 public:
 	MageSessionObject(int id) :ChracterSessionObject(ROLE::PRIEST)
 	{
-		m_skillCoolTime = { std::chrono::seconds(15), std::chrono::seconds(7) };
-		m_skillDuration = { std::chrono::seconds(9), std::chrono::seconds(3) };
+		m_skillCoolTime = { std::chrono::seconds(15), std::chrono::seconds(10) };
+		m_skillDuration = { std::chrono::seconds(10), std::chrono::seconds(0) };
 		m_prevSkillInputTime = { std::chrono::high_resolution_clock::now() - m_skillCoolTime[0],
 			std::chrono::high_resolution_clock::now() - m_skillCoolTime[1] };
 		m_CommonAttackCoolTime = std::chrono::seconds(1);
@@ -127,8 +133,8 @@ class TankerSessionObject : public ChracterSessionObject
 public:
 	TankerSessionObject(int id) :ChracterSessionObject(ROLE::TANKER)
 	{
-		m_skillCoolTime = { std::chrono::seconds(15), std::chrono::seconds(0) };
-		m_skillDuration = { std::chrono::seconds(5), std::chrono::seconds(0) };
+		m_skillCoolTime = { std::chrono::seconds(15), std::chrono::seconds(10) };
+		m_skillDuration = { std::chrono::seconds(7), std::chrono::seconds(0) };
 		m_prevSkillInputTime = { std::chrono::high_resolution_clock::now() - m_skillCoolTime[0],
 			std::chrono::high_resolution_clock::now() - m_skillCoolTime[1] };
 		m_CommonAttackCoolTime = std::chrono::seconds(1);
@@ -149,6 +155,12 @@ class ArcherSessionObject : public ChracterSessionObject
 public:
 	ArcherSessionObject(int id) :ChracterSessionObject(ROLE::ARCHER)
 	{
+		m_skillCoolTime = { std::chrono::seconds(10), std::chrono::seconds(15) };
+		m_skillDuration = { std::chrono::seconds(0), std::chrono::seconds(0) };
+		m_prevSkillInputTime = { std::chrono::high_resolution_clock::now() - m_skillCoolTime[0],
+			std::chrono::high_resolution_clock::now() - m_skillCoolTime[1] };
+		m_CommonAttackCoolTime = std::chrono::seconds(1);
+		m_prevCommonAttackTime = std::chrono::high_resolution_clock::now() - m_CommonAttackCoolTime;
 		SetStage_1Position();
 	}
 	~ArcherSessionObject() {}

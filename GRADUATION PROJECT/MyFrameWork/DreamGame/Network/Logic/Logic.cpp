@@ -167,6 +167,7 @@ void Logic::ProcessPacket(char* p)
 		//로딩창이면 좋을듯?
 		gGameFramework.m_bLobbyScene = false;
 		gGameFramework.GetScene()->GetObjectManager()->SetCharactersStage1Postion();
+		gGameFramework.GetLobbyScene()->GetObjectManager()->ResetLobbyUI();
 	}
 	break;
 	case SERVER_PACKET::BOSS_CHANGE_STATE_MOVE_DES:

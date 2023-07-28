@@ -29,6 +29,9 @@ public:
 	//그래픽 루트 시그너쳐를 생성한다.
 	ID3D12RootSignature* CreateGraphicsRootSignature(ID3D12Device* pd3dDevice);
 	ID3D12RootSignature* GetGraphicsRootSignature();
+
+	GameobjectManager* GetObjectManager() { return m_pObjectManager; }
+
 protected:
 	//씬은 게임 객체들의 집합이다.게임 객체는 셰이더를 포함한다.
 

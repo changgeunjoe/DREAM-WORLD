@@ -242,6 +242,10 @@ struct CB_GAMEOBJECTCOLOR_INFO
 	XMFLOAT4						m_xmf4Color;
 	float							m_fSkillTime;
 };
+struct CB_GAMEOBJECTSKILL_INFO
+{
+	float							m_fSkillTime;
+};
 
 struct CB_GAMEOBJECT_STAT
 {

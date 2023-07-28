@@ -226,6 +226,8 @@ private:
 	EffectObject* m_pLightEffectObject{ NULL };
 	EffectObject* m_pSheildEffectObject{ NULL };
 	EffectObject* m_pPortalEffectObject{ NULL };
+	EffectObject* m_pPreistAttackEffectObject{ NULL };
+	EffectObject* m_pTankerAttackEffectObject{ NULL };
 
 	vector<GameObject*> m_ppEffectObjects{};
 
@@ -249,6 +251,7 @@ private:
 	BoundingSphere		m_SPBBPortal = BoundingSphere(XMFLOAT3(0.0f, 0.0f, 0.0f), 30);
 	float				m_fStageChangeTime = 0.0f;
 	bool				m_bPortalCheck = false;
+	bool				m_bTest = false;
 
 public:
 	std::vector<int> m_VecNodeQueue;
@@ -284,7 +287,9 @@ public:
 	EffectObject** GetHealingEffectArr() { return &m_ppHealingEffectObject[0]; }
 	void SetCharactersStage1Postion();
 	void SetCharactersBossStagePostion();
+	void SetCharactersLobbyPosition();
 	void SetPortalCheck(bool b) { m_bPortalCheck = b; }
+	void ResetLobbyUI();
 
 	
 };

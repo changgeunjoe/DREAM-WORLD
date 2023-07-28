@@ -33,7 +33,8 @@ public:
 	void BossAttackExecute(int roomId);
 public://character Skill
 	void HealPlayer(int roomId);
-	void SetBarrier(int roomId);
+	void SetBarrier(int roomId); 
+	void SkyArrowAttack(int roomId);
 public:
 	friend Logic;
 };

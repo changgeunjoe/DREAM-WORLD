@@ -103,7 +103,7 @@ void CCamera::Rotate(float x, float y, float z)
 	if (x != 0.0f)
 	{
 		m_fPitch += x;
-		if (m_fPitch > +30.0f) { x -= (m_fPitch - 30.0f); m_fPitch = +30.0f; }
+		if (m_fPitch > +10.0f) { x -= (m_fPitch - 10.0f); m_fPitch = +10.0f; }
 		if (m_fPitch < -20.0f) { x -= (m_fPitch + 20.0f); m_fPitch = -20.0f; }
 	}
 	if (y != 0.0f)
