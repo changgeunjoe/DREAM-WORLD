@@ -353,6 +353,7 @@ void Logic::ProcessPacket(char* p)
 		Monster* bossMonster = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster();
 		bossMonster->SetCurrentHP(0.0f);
 		GameEnd = true;
+	
 
 	}
 	break;

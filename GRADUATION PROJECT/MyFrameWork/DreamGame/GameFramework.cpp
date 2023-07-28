@@ -677,6 +677,7 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 		if (!m_bLobbyScene && GameEnd)
 		{
 			m_bLobbyScene = !m_bLobbyScene;
+			m_pScene->GetObjectManager()->ChangeStage2ToStage1();//스테이지 1으로 게임 변경
 			GameEnd = false;
 		}
 		break;
