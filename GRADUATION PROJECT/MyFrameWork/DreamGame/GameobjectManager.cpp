@@ -171,7 +171,13 @@ void GameobjectManager::Animate(float fTimeElapsed)
 		effect->AnimateEffect(m_pCamera, possessChracter->GetPosition(), fTimeElapsed, m_fTime * 10);
 	}
 
-	m_pPortalEffectObject->AnimateEffect(m_pCamera, XMFLOAT3(0, 0, 0), fTimeElapsed, m_fTime * 5);
+	
+		m_pPortalEffectObject->AnimateEffect(m_pCamera, XMFLOAT3(0, 0, 0), fTimeElapsed, m_fTime * 5);
+		if (m_bTest) {
+			//m_pPreistAttackEffectObject->AnimateEffect(m_pCamera, XMFLOAT3(0, 20, 0), fTimeElapsed, m_fTime * 5);
+			m_pTankerAttackEffectObject->AnimateEffect(m_pCamera, XMFLOAT3(0, 20, 0), fTimeElapsed, m_fTime * 5);
+
+		}
 	//Effect
 	// if (m_pSelectedObject) {
 		// Èú ÀÌÆåÆ®
@@ -422,7 +428,7 @@ void GameobjectManager::PlayerConditionAnimate(float fTimeElapsed)
 		Character* myPlayCharacter = GetChracterInfo(g_Logic.GetMyRole());
 		if (myPlayCharacter->m_fConditionTime < 1.2) {
 			if (myPlayCharacter->GetCurrentHP() > myPlayCharacter->GetTempHP()) {
-				m_pConditionUIObject->SetColor(XMFLOAT4(0, 1, 0, 0));
+				m_pConditionUIObject->SetColor(XMFLOAT4(0, 0.7, 0.2, 0));
 				myPlayCharacter->m_nCondition = 1;
 			}
 			if (myPlayCharacter->GetCurrentHP() < myPlayCharacter->GetTempHP()) {
@@ -1053,9 +1059,9 @@ void GameobjectManager::EffectRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 	SortEffect();
 	for (int i = 0; i < m_ppEffectObjects.size(); i++) {
 		if (m_ppEffectObjects[i] == nullptr) continue;
-		if (m_ppEffectObjects[i]->m_bActive) {
+		//if (m_ppEffectObjects[i]->m_bActive) {
 			m_ppEffectObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-		}
+	//	}
 	}
 	//for (auto& effect : m_ppShieldEffectObject)
 	//{
@@ -1950,7 +1956,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pArcherObject->m_pSkillQUI->SetPosition(XMFLOAT3(5, 5, 1.00));
 	m_pArcherObject->m_pSkillQUI->SetScale(0.02, 0.02, 1);
 	m_pArcherObject->m_pSkillQUI->SetCurrentHP(70);
-	m_pArcherObject->m_pSkillQUI->SetColor(XMFLOAT4(0.06f, 0.05f, 0, 0));
+	m_pArcherObject->m_pSkillQUI->SetColor(XMFLOAT4(0.06f, 0.05f, 0, 0.7));
 	m_pArcherObject->m_pSkillQUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppCharacterUIObjects.emplace_back(m_pArcherObject->m_pSkillQUI);
 
@@ -1961,6 +1967,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pArcherObject->m_pSkillEUI->InsertComponent<TextureComponent>();
 	m_pArcherObject->m_pSkillEUI->SetTexture(L"UI/ArrowSkill.dds", RESOURCE_TEXTURE2D, 3);
 	m_pArcherObject->m_pSkillEUI->SetPosition(XMFLOAT3(5, 5, 1.00));
+	m_pArcherObject->m_pSkillEUI->SetColor(XMFLOAT4(0.06f, 0.05f, 0, 0));
 	m_pArcherObject->m_pSkillEUI->SetScale(0.02, 0.02, 1);
 
 	m_pArcherObject->m_pSkillEUI->SetCurrentHP(70);
@@ -1999,6 +2006,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pTankerObject->m_pSkillQUI->SetTexture(L"UI/ShieldSkill.dds", RESOURCE_TEXTURE2D, 3);
 	m_pTankerObject->m_pSkillQUI->SetPosition(XMFLOAT3(5, 5, 1.00));
 	m_pTankerObject->m_pSkillQUI->SetScale(0.02, 0.02, 1);
+	m_pTankerObject->m_pSkillQUI->SetColor(XMFLOAT4(0.06f, 0.05f, 0, 0.7));
 	m_pTankerObject->m_pSkillQUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppCharacterUIObjects.emplace_back(m_pTankerObject->m_pSkillQUI);
 
@@ -2010,6 +2018,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pTankerObject->m_pSkillEUI->SetTexture(L"UI/ShieldSkill.dds", RESOURCE_TEXTURE2D, 3);
 	m_pTankerObject->m_pSkillEUI->SetPosition(XMFLOAT3(5, 5, 1.00));
 	m_pTankerObject->m_pSkillEUI->SetScale(0.02, 0.02, 1);
+	m_pTankerObject->m_pSkillEUI->SetColor(XMFLOAT4(0.06f, 0.05f, 0, 0.7));
 	m_pTankerObject->m_pSkillEUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppCharacterUIObjects.emplace_back(m_pTankerObject->m_pSkillEUI);
 	////////////////////////////////////////////////////////////////
@@ -2044,6 +2053,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pPriestObject->m_pSkillQUI->SetTexture(L"UI/HealSkill.dds", RESOURCE_TEXTURE2D, 3);
 	m_pPriestObject->m_pSkillQUI->SetPosition(XMFLOAT3(5, 5, 1.00));
 	m_pPriestObject->m_pSkillQUI->SetScale(0.02, 0.02, 1);
+	m_pPriestObject->m_pSkillQUI->SetColor(XMFLOAT4(0.06f, 0.05f, 0, 0));
 	m_pPriestObject->m_pSkillQUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppCharacterUIObjects.emplace_back(m_pPriestObject->m_pSkillQUI);
 
@@ -2055,6 +2065,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pPriestObject->m_pSkillEUI->SetTexture(L"UI/LightningSkill.dds", RESOURCE_TEXTURE2D, 3);
 	m_pPriestObject->m_pSkillEUI->SetPosition(XMFLOAT3(5, 5, 1.00));
 	m_pPriestObject->m_pSkillEUI->SetScale(0.02, 0.02, 1);
+	m_pPriestObject->m_pSkillEUI->SetColor(XMFLOAT4(0.06f, 0.05f, 0, 0));
 	m_pPriestObject->m_pSkillEUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppCharacterUIObjects.emplace_back(m_pPriestObject->m_pSkillEUI);
 	////////////////////////////////////////////////////////////////
@@ -2089,6 +2100,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pWarriorObject->m_pSkillQUI->SetTexture(L"UI/ShieldSkill.dds", RESOURCE_TEXTURE2D, 3);
 	m_pWarriorObject->m_pSkillQUI->SetPosition(XMFLOAT3(5, 5, 1.00));
 	m_pWarriorObject->m_pSkillQUI->SetScale(0.02, 0.02, 1);
+	m_pWarriorObject->m_pSkillQUI->SetColor(XMFLOAT4(0.06f, 0.05f, 0, 0));
 	m_pWarriorObject->m_pSkillQUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppCharacterUIObjects.emplace_back(m_pWarriorObject->m_pSkillQUI);
 
@@ -2100,6 +2112,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pWarriorObject->m_pSkillEUI->SetTexture(L"UI/ShieldSkill.dds", RESOURCE_TEXTURE2D, 3);
 	m_pWarriorObject->m_pSkillEUI->SetPosition(XMFLOAT3(5, 5, 1.00));
 	m_pWarriorObject->m_pSkillEUI->SetScale(0.02, 0.02, 1);
+	m_pWarriorObject->m_pSkillEUI->SetColor(XMFLOAT4(0.06f, 0.05f, 0, 0));
 	m_pWarriorObject->m_pSkillEUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppCharacterUIObjects.emplace_back(m_pWarriorObject->m_pSkillEUI);
 
@@ -2196,10 +2209,14 @@ void GameobjectManager::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pSheildEffectObject = new SheildEffectObject;
 	m_pSheildEffectObject->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, &m_ppEffectObjects);
 
-
 	m_pPortalEffectObject = new PortalEffectObject;
 	m_pPortalEffectObject->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, &m_ppEffectObjects);
 
+	m_pPreistAttackEffectObject = new PriestEffectObject;
+	m_pPreistAttackEffectObject->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, &m_ppEffectObjects);
+
+	m_pTankerAttackEffectObject = new TankerEffectObject;
+	m_pTankerAttackEffectObject->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, &m_ppEffectObjects);
 }
 
 void GameobjectManager::BuildNPC(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -2639,7 +2656,8 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		}
 		case 'P':
 		{
-			g_sound.Play("ClickSound", 1.0f);
+			m_bTest = true;
+			g_sound.Play("ClickSound",1.0f);
 		}
 		break;
 		case 'O':
@@ -2725,7 +2743,7 @@ bool GameobjectManager::onProcessingKeyboardMessageUI(HWND hWnd, UINT nMessageID
 		switch (wParam)
 		{
 		case 'P':
-		{
+		{ 
 			if (m_pSelectedObject)
 			{
 				XMFLOAT3 TempPosition = m_pSelectedObject->GetPosition();
