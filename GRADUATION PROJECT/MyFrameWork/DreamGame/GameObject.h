@@ -126,7 +126,7 @@ public:
 
 	void SetRimLight(bool bRimLight);
 	void SetCurrentHP(float fHP);
-	void SetSkillTime(float fHp);
+	void SetSkillTime(float fSkillTime);
 	void SetTempHp(float fHp) { m_fTempHp = fHp; };
 	float GetCurrentHP() { return m_fHp; }
 	float GetTempHP() { return m_fTempHp; }
@@ -282,6 +282,10 @@ protected:
 
 	ID3D12Resource* m_pd3dcbGameObjectColor = NULL;
 	CB_GAMEOBJECTCOLOR_INFO* m_pcbMappedGameObjectsColor = NULL;
+
+	ID3D12Resource* m_pd3dcbGameObjectSkill= NULL;
+	CB_GAMEOBJECTCOLOR_INFO* m_pcbMappedGameObjectsSkill = NULL;
+
 
 	ID3D12Resource* pShadowMap = nullptr;
 	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);// 삭제 예정(변경)

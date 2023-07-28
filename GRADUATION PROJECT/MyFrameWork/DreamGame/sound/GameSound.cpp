@@ -18,7 +18,7 @@ GameSound::GameSound()
 	MakeSound("AcherAttackSound", "sound/sounds/AcherAttackSound.wav");
 	MakeSound("WarriorAttackSound", "sound/sounds/WarriorAttackSound.mp3");
 	MakeSound("TankerAttackSound", "sound/sounds/TankerAttackSound.wav");
-	MakeSound("WalkSound", "sound/sounds/WalkSound.wav");
+	MakeSound("WalkSound", "sound/sounds/WalkSound2.wav");
 	MakeSoundLoop("LobbySound", "sound/sounds/LobbySound1.wav"); 
 	MakeSoundLoop("Stage1Sound", "sound/sounds/Stage1Sound.wav");
 	MakeSoundLoop("BossStage", "sound/sounds/BossStage1.mp3");

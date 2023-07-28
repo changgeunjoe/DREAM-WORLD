@@ -625,9 +625,9 @@ void GameObject::SetCurrentHP(float fHP)
 {
 	m_fHp = fHP;
 }
-void GameObject::SetSkillTime(float fHP)
+void GameObject::SetSkillTime(float fSkillTime)
 {
-	m_fHp = fHP;
+	m_xmf4Color.w = fSkillTime;
 }
 
 
@@ -658,6 +658,11 @@ void GameObject::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 	m_pd3dcbGameObjectColor = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes5, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 
 	m_pd3dcbGameObjectColor->Map(0, NULL, (void**)&m_pcbMappedGameObjectsColor);
+
+	UINT ncbElementBytes6 = ((sizeof(CB_GAMEOBJECTSKILL_INFO) + 255) & ~255); //256ÀÇ ¹è¼ö
+	m_pd3dcbGameObjectSkill = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes6, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+
+	m_pd3dcbGameObjectSkill->Map(0, NULL, (void**)&m_pcbMappedGameObjectsSkill);
 }
 void GameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
@@ -669,6 +674,14 @@ void GameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandLis
 		::memcpy(&m_pcbMappedGameObjects->m_bRimLight, &m_bRimLight, sizeof(bool));
 		D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbGameObjects->GetGPUVirtualAddress();
 		pd3dCommandList->SetGraphicsRootConstantBufferView(17, d3dGpuVirtualAddress);
+	}
+	if (m_pd3dcbGameObjectSkill)
+	{
+		float mfhp = 0;
+		m_fSkillTime = 0.7;
+		::memcpy(&m_pcbMappedGameObjectsSkill->m_fSkillTime, &m_fSkillTime, sizeof(float));
+		D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbGameObjectSkill->GetGPUVirtualAddress();
+		pd3dCommandList->SetGraphicsRootConstantBufferView(24, d3dGpuVirtualAddress);
 	}
 	if (m_pd3dcbGameObjectColor)
 	{

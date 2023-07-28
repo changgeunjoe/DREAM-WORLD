@@ -183,7 +183,7 @@ void Character::MoveForward(int forwardDirection, float ftimeElapsed)
 	
 	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, 10.0f * m_interpolationDistance * ftimeElapsed);
 
-	g_sound.NoLoopPlay("WalkSound", 1.0f);
+	g_sound.NoLoopPlay("WalkSound", 0.95f);
 	GameObject::SetPosition(xmf3Position);
 	if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
 	return;
@@ -1042,7 +1042,7 @@ void Warrior::FirstSkillDown()
 	if (g_Logic.GetMyRole() == ROLE::WARRIOR)
 	{
 		auto currentTime = std::chrono::high_resolution_clock::now();
-		auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[0]);
+		auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[0]);//진행시간
 		if (m_skillCoolTime[0] > duration) return;
 		m_skillInputTime[0] = std::chrono::high_resolution_clock::now();
 	}

@@ -58,7 +58,7 @@ using namespace std;
 const float MONSTER_ABLE_ATTACK_COS_VALUE = std::cos(20.0f * 3.14f / 180.0f);
 
 //#ifndef LOCAL_TASK
-//#define LOCAL_TASK 1
+#define LOCAL_TASK 1
 //#endif // !LOCAL_TASK
 
 ///////////////////////////////////////
@@ -240,6 +240,10 @@ struct CB_GAMEOBJECTWORLD_INFO
 struct CB_GAMEOBJECTCOLOR_INFO
 {
 	XMFLOAT4						m_xmf4Color;
+	float							m_fSkillTime;
+};
+struct CB_GAMEOBJECTSKILL_INFO
+{
 	float							m_fSkillTime;
 };
 

@@ -26,6 +26,7 @@ public:
 	bool	m_bActive = false;
 	ROLE	m_hostObject = ROLE::NONE_SELECT;
 	float	m_fParticleLifeTime = 0.0f;
+	float	m_fEarthquakeLifeTime = 0.0f;
 	float	m_fEffectLifeTime = 0.0f;
 
 
@@ -36,7 +37,7 @@ public:
 	array<GameObject*, 10> m_pFlareObject;
 	GameObject* m_pAttackObject;
 
-	array<GameObject*, 80> m_ppParticleObjects;
+	array<GameObject*, 50> m_ppParticleObjects;
 };
 
 class LightningEffectObject :

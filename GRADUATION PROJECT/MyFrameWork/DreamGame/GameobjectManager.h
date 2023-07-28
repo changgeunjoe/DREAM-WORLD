@@ -227,6 +227,7 @@ private:
 	EffectObject* m_pSheildEffectObject{ NULL };
 	EffectObject* m_pPortalEffectObject{ NULL };
 	EffectObject* m_pPreistAttackEffectObject{ NULL };
+	EffectObject* m_pTankerAttackEffectObject{ NULL };
 
 	vector<GameObject*> m_ppEffectObjects{};
 
