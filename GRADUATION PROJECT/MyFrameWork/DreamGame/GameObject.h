@@ -362,8 +362,7 @@ public:
 	GameObject* m_pTrailStart{ NULL };
 	GameObject* m_pTrailEnd{ NULL };
 	GameObject* m_pWeapon{ NULL };
-	std::queue<int> m_BossRoute;
-	std::mutex m_lockBossRoute;
+	
 };
 
 template<typename T>//템플릿을 활용하는 이유-> 

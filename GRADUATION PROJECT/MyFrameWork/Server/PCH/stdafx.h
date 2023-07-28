@@ -41,6 +41,7 @@
 #include <DirectXCollision.h>
 const float MONSTER_ABLE_ATTACK_COS_VALUE = std::cos(25.0f * 3.14f / 180.0f);//30도 - 0.96정도
 const float PLAYER_ABLE_ATTACK_COS_VALUE = std::cos(25.0f * 3.14f / 180.0f);//30도 - 0.96정도
+const float BOSS_ABLE_ATTACK_COS_VALUE = std::cos(15.0f * 3.14f / 180.0f);//30도 - 0.96정도
 
 enum PLAYER_STATE : char
 {
@@ -327,6 +328,8 @@ namespace Matrix4x4
 class TrinangleMesh
 {
 private:
+	int m_id = -1;
+private:
 	XMFLOAT3 m_vertex1;
 	XMFLOAT3 m_vertex2;
 	XMFLOAT3 m_vertex3;
@@ -343,8 +346,9 @@ public:
 	std::map<int, float> m_relationMesh;
 
 public:
-	TrinangleMesh(XMFLOAT3& v1, XMFLOAT3& v2, XMFLOAT3& v3, int idx1, int idx2, int idx3) :m_vertex1(v1), m_vertex2(v2), m_vertex3(v3)
+	TrinangleMesh(XMFLOAT3& v1, XMFLOAT3& v2, XMFLOAT3& v3, int idx1, int idx2, int idx3, int myIdx) :m_vertex1(v1), m_vertex2(v2), m_vertex3(v3)
 	{
+		m_id = myIdx;
 		m_vertexIdxSet.insert(idx1);
 		m_vertexIdxSet.insert(idx2);
 		m_vertexIdxSet.insert(idx3);
@@ -413,12 +417,24 @@ public:
 	XMFLOAT3 const GetCenter() { return m_center; }
 	float GetAreaSize() { return m_areaSize; }
 	std::set<int>& GetVertexIdxs() { return m_vertexIdxSet; };
+	const XMFLOAT3 GetVertex1() { return m_vertex1; }
+	const XMFLOAT3 GetVertex2() { return m_vertex2; }
+	const XMFLOAT3 GetVertex3() { return m_vertex3; }
 	std::vector<int> IsShareLine(std::set<int>& otherVertexIdxs)//다른 삼각형과의 공유점이 2개라면
 	{
 		std::vector<int> res;
 		std::ranges::set_intersection(m_vertexIdxSet, otherVertexIdxs, std::back_inserter(res));
 		return res;
 	}
+	int GetIdx() { return m_id; }
+	float GetDistanceByPoint(XMFLOAT3& point)
+	{
+		return Vector3::Length(Vector3::Subtract(m_center, point));
+	}
+	float GetCircumscribedLength()
+	{
+		return Vector3::Length(Vector3::Subtract(m_vertex1, m_center));
+	}	
 };
 
 class AstarNode {

@@ -95,10 +95,10 @@ Rock1_2
 <rotation>: 0 106.6797 0 
 <scale>: 3.864183 5.889418 4.646125 
 <BoxCollider>
-  <center>: 75.4028 27.19895 157.9657 
+  <center>: 75.4028 256.2565 157.9657 
   <boundSize>: 91.62218 53.89002 102.6871 
   <extent>: 45.81109 26.94501 51.34355 
   <forward>: 0.9579242 0 -0.287022 
   <right>: -0.287022 0 -0.9579242 
-  <forwardDotRes>: 0.6850848 
-  <rightDotRes>: 0.7284633 
+  <forwardDotRes>: NaN 
+  <rightDotRes>: NaN 

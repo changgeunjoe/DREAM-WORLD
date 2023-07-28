@@ -218,8 +218,12 @@ public:
 class Monster : public Character
 {
 public:
+	std::list<int> m_BossRoute;
+	std::mutex m_lockBossRoute;
+public:
 	GameObject* m_pSkillRange{ nullptr };
 	float		m_fSkillTime{ 0.0f };
+	int m_astarIdx = -1;
 public:
 	Monster();
 	virtual ~Monster();

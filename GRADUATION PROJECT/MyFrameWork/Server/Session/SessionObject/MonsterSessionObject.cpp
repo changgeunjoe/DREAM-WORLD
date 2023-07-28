@@ -86,82 +86,98 @@ bool MonsterSessionObject::Move(float elapsedTime)
 	float playerDistance = Vector3::Length(desPlayerVector);
 	desPlayerVector = Vector3::Normalize(desPlayerVector);
 	CalcRightVector();
-	bool bossAndPlayerOnSameIdx = g_bossMapData.GetTriangleMesh(m_onIdx).IsOnTriangleMesh(destinationPlayerPos);
-	if (playerDistance < 120.0f && bossAndPlayerOnSameIdx) {//플레이어가 근접함 80으로 변경하고 같은 노드인지 확인 하는 문 추가하자
+
+	bool isOnNode = g_bossMapData.GetTriangleMesh(m_onIdx).IsOnTriangleMesh(m_position);
+	if (!isOnNode) {
+		std::cout << "boss change index" << std::endl;
+		m_reserveRoadLock.lock();
+		if (m_ReserveRoad.size() > 1) {
+			m_ReserveRoad.erase(m_ReserveRoad.begin());
+			m_onIdx = *m_ReserveRoad.begin();
+		}
+		else {
+			m_onIdx = *m_ReserveRoad.begin();
+		}
+		m_reserveRoadLock.unlock();
+	}
+
+	m_reserveRoadLock.lock();
+	if (m_ReserveRoad.size() > 1) {
+		int currentNodeIdx = *m_ReserveRoad.begin();
+		int secondNodeIdx = *(++m_ReserveRoad.begin());
+		m_reserveRoadLock.unlock();
+		TrinangleMesh destinationNodeCenter = g_bossMapData.GetTriangleMesh(currentNodeIdx);
+		TrinangleMesh nextMoveNode = g_bossMapData.GetTriangleMesh(secondNodeIdx);
+		std::vector<int> sharedPoints = destinationNodeCenter.IsShareLine(g_bossMapData.GetTriangleMesh(secondNodeIdx).GetVertexIdxs());
+
+		std::vector<XMFLOAT3> mapVertexData = g_bossMapData.GetVertexData();
+		mapVertexData[sharedPoints[0]];
+		mapVertexData[sharedPoints[1]];
+
+		XMFLOAT3 nodeVec1 = Vector3::Normalize(Vector3::Subtract(mapVertexData[sharedPoints[0]], m_position));
+		XMFLOAT3 nodeVec2 = Vector3::Normalize(Vector3::Subtract(mapVertexData[sharedPoints[1]], m_position));
+		float dotResult1 = Vector3::DotProduct(desPlayerVector, nodeVec1);
+		float dotResult2 = Vector3::DotProduct(desPlayerVector, nodeVec2);
+		XMFLOAT3 monsterLookTo;
+		if (dotResult1 > 0) {
+			if (dotResult2 > 0) {
+				monsterLookTo = desPlayerVector;
+			}
+			else {
+				monsterLookTo = nodeVec1;
+			}
+		}
+		else {
+			if (dotResult2 > 0) {
+				monsterLookTo = nodeVec2;
+			}
+
+		}//위에서 나온 벡터 기준 회전하여 이동하자자
+
+
+		bool OnRight = (Vector3::DotProduct(m_rightVector, monsterLookTo) > 0) ? true : false;	// 목적지가 오른쪽 왼
+		float ChangingAngle = Vector3::Angle(monsterLookTo, m_directionVector);
+		//거리와 벡터 계산				
+		if (ChangingAngle > 40.0f) {
+			std::cout << "Astar Move - Rotate angle >40" << std::endl;
+			OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
+		}
+		else if (ChangingAngle > 1.7f) {
+			std::cout << "Astar Move - Rotate angle <1.7 && move" << std::endl;
+			OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
+			m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, m_speed * elapsedTime, false));//틱마다 움직임
+			m_SPBB.Center = m_position;
+			m_SPBB.Center.y += m_fBoundingSize;
+		}
+		else {
+			std::cout << "Astar Move - move forward" << std::endl;
+			m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, m_speed * elapsedTime, false));//틱마다 움직임
+			m_SPBB.Center = m_position;
+			m_SPBB.Center.y += m_fBoundingSize;
+		}
+	}
+	else {
+		m_reserveRoadLock.unlock();
 		float ChangingAngle = Vector3::Angle(desPlayerVector, m_directionVector);
-		if (ChangingAngle > 1.6f) {
+		if (ChangingAngle > 40.0f) {
+			std::cout << "EQ IDX - angle > 40" << std::endl;
+			bool OnRight = (Vector3::DotProduct(m_rightVector, desPlayerVector) > 0) ? true : false;	// 목적지가 오른쪽 왼
+			OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
+			return true;
+		}
+		if (ChangingAngle > 1.8f) {
+			std::cout << "EQ IDX - angle > 1.8 & move" << std::endl;
 			bool OnRight = (Vector3::DotProduct(m_rightVector, desPlayerVector) > 0) ? true : false;	// 목적지가 오른쪽 왼
 			OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
 			//공격은 외부 if에서 알아서 조건 맞으면 함
 		}
 		if (playerDistance >= 42.0f) {
+			std::cout << "EQ IDX - move forward" << std::endl;
 			m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, m_speed * elapsedTime, false));//틱마다 움직임
 			m_SPBB.Center = m_position;
 			m_SPBB.Center.y = m_fBoundingSize;
 		}
 		return true;
-	}
-	else {//그렇지 못하다면 길을 찾아 가야한다.
-		m_reserveRoadLock.lock();
-		int secondNodeIdx = -1;
-		int thridNodeIdx = -1;
-		if (m_ReserveRoad.size() > 0) {
-			int currentNodeIdx = *m_ReserveRoad.begin();
-			if (m_ReserveRoad.size() > 1)
-				secondNodeIdx = *(++m_ReserveRoad.begin());
-			if (m_ReserveRoad.size() > 2)
-				thridNodeIdx = *m_ReserveRoad.begin();
-			m_reserveRoadLock.unlock();
-
-			XMFLOAT3 destinationNodeCenter = g_bossMapData.GetTriangleMesh(currentNodeIdx).GetCenter();	//노드의 위치			
-			m_DestinationPos = destinationNodeCenter;
-			auto desNodeVector = Vector3::Subtract(m_DestinationPos, m_position);//방향 벡터
-			auto desNodeDistance = Vector3::Length(desNodeVector); // 거리
-			desNodeVector = Vector3::Normalize(desNodeVector);
-			bool OnRight = (Vector3::DotProduct(m_rightVector, desNodeVector) > 0) ? true : false;	// 목적지가 오른쪽 왼
-			float ChangingAngle = Vector3::Angle(desNodeVector, m_directionVector);
-			//거리와 벡터 계산		
-			bool isOnNode = g_bossMapData.GetTriangleMesh(currentNodeIdx).IsOnTriangleMesh(m_position);
-
-			if (desNodeDistance > 70.0f) { //목적지와 거리가 10이상 이라면
-				if (desNodeDistance > 50.0f) {
-					if (ChangingAngle > 40.0f) {
-						OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
-					}
-					else {
-						if (ChangingAngle > 1.6f) {
-							OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
-						}
-						m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, m_speed * elapsedTime, false));//틱마다 움직임
-						m_SPBB.Center = m_position;
-						m_SPBB.Center.y += m_fBoundingSize;
-						//m_SPBB = BoundingSphere(DirectX::XMFLOAT3(m_position.x, m_position.y + 30.0f, m_position.z), 30.0f);
-					}
-				}
-				else {//현재 노드에 가까울때
-					if (ChangingAngle > 1.6f)
-					{
-						OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
-					}
-					m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, m_speed * elapsedTime, false));//틱마다 움직임
-					m_SPBB.Center = m_position;
-					m_SPBB.Center.y += m_fBoundingSize;
-					//m_SPBB = BoundingSphere(DirectX::XMFLOAT3(m_position.x, m_position.y + 30.0f, m_position.z), 30.0f);
-				}
-				//std::cout << "BossPos: " << m_position.x << "0, " << m_position.z << std::endl;
-			}
-			else {
-				m_reserveRoadLock.lock();
-				m_onIdx = *m_ReserveRoad.begin();
-				m_ReserveRoad.erase(m_ReserveRoad.begin());
-				if (m_ReserveRoad.size() != 0) {
-					DirectX::XMFLOAT3 center = g_bossMapData.GetTriangleMesh(*m_ReserveRoad.begin()).GetCenter();
-					m_DestinationPos = center;//목적지 다음 노드의 센터
-				}
-				m_reserveRoadLock.unlock();
-			}
-		}
-		else 		m_reserveRoadLock.unlock();
 	}
 	//else {
 	//m_reserveRoadLock.unlock();
@@ -192,13 +208,13 @@ void MonsterSessionObject::SetDestinationPos()
 	SERVER_PACKET::BossMoveNodePacket sendPacket;
 	sendPacket.targetRole = m_aggroPlayerRole;
 	XMFLOAT3& pPos = g_RoomManager.GetRunningRoomRef(m_roomId).GetPositionPlayCharacter(sendPacket.targetRole);
-	std::cout << "aggro Role: " << sendPacket.targetRole << std::endl;
+	//std::cout << "aggro Role: " << sendPacket.targetRole << std::endl;
 	//DataRace	
 	m_reserveRoadLock.lock();
 	m_ReserveRoad = g_bossMapData.AStarLoad(m_onIdx, pPos.x, pPos.z);
 	m_reserveRoadLock.unlock();
 	m_reserveRoadLock.lock();
-	if (m_ReserveRoad.front() == m_onIdx) {
+	if (m_ReserveRoad.size() < 2) {
 		m_reserveRoadLock.unlock();
 		sendPacket.nodeCnt = -1;
 		//sendPacket.desPos = XMFLOAT3(des.x, 0, des.z);
@@ -292,11 +308,11 @@ bool MonsterSessionObject::StartAttack()
 
 	float lookDesDotRes = Vector3::DotProduct(m_directionVector, des);
 	bool OnRight = (Vector3::DotProduct(m_rightVector, des) > 0) ? true : false;	// 목적지가 올느쪽 왼
-	if (lookDesDotRes >= cosf(3.141592f / 12.0f)) { // 보스 look과 플레이어와의 각도가 30degree일때
+	if (lookDesDotRes >= BOSS_ABLE_ATTACK_COS_VALUE) { // 보스 look과 플레이어와의 각도가 30degree일때
 		if (len <= 42.0f) {
 			auto durationTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - m_lastAttackTime);
 			if (durationTime > std::chrono::seconds(1) + std::chrono::milliseconds(500)) {
-				//std::cout << "startAttack Return true ElapsedTime: " << durationTime << std::endl;
+				std::cout << "startAttack Return true ElapsedTime: " << durationTime << std::endl;
 				return true;
 			}
 		}

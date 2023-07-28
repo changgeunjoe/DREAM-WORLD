@@ -573,7 +573,7 @@ void Room::BossAttackExecute()
 			bossToPlayerVector = Vector3::Normalize(bossToPlayerVector);
 			float dotProductRes = Vector3::DotProduct(bossToPlayerVector, m_boss.GetDirectionVector());
 			if (bossToPlayerDis < 60.0f && abs(dotProductRes) >= MONSTER_ABLE_ATTACK_COS_VALUE) {// 15 + 15 도 총 30도 내에 있다면
-				playCharater.second->AttackedHp(40);
+				//playCharater.second->AttackedHp(40);
 				sendPacket.currentHp = playCharater.second->GetHp();
 				g_logic.OnlySendPlayerInRoom_R(m_roomId, playCharater.first, &sendPacket);
 			}
@@ -588,7 +588,7 @@ void Room::BossAttackExecute()
 			bossToPlayerVector = Vector3::Normalize(bossToPlayerVector);
 			float dotProductRes = Vector3::DotProduct(bossToPlayerVector, m_boss.GetDirectionVector());
 			if (bossToPlayerDis < 50.0f && abs(dotProductRes) >= MONSTER_ABLE_ATTACK_COS_VALUE) { // 15 + 15 도 총 30도 내에 있다면
-				playCharater.second->AttackedHp(20);
+				//playCharater.second->AttackedHp(20);
 				sendPacket.currentHp = playCharater.second->GetHp();
 				g_logic.OnlySendPlayerInRoom_R(m_roomId, playCharater.first, &sendPacket);
 			}
@@ -601,7 +601,7 @@ void Room::BossAttackExecute()
 			auto bossToPlayerVector = Vector3::Subtract(playCharater.second->GetPos(), m_boss.GetPos());
 			float bossToPlayerDis = Vector3::Length(bossToPlayerVector);
 			if (bossToPlayerDis < 45.0f) {
-				playCharater.second->AttackedHp(15);
+				//playCharater.second->AttackedHp(15);
 				sendPacket.currentHp = playCharater.second->GetHp();
 				g_logic.OnlySendPlayerInRoom_R(m_roomId, playCharater.first, &sendPacket);
 			}

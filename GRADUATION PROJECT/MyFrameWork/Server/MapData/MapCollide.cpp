@@ -21,6 +21,7 @@ std::tuple<XMFLOAT3, XMFLOAT3, float, float> MapCollide::CalSlidingVector(Boundi
 	/*XMFLOAT3 tempPosition = position;
 	tempPosition = Vector3::Add(position, Vector3::ScalarProduct(moveDirectionVector, -1.0f ));*/
 	XMFLOAT3 centerToPlayerVector = Vector3::Subtract(position, center);//∫§≈Õ
+	centerToPlayerVector.y = 0.0f;
 	float centerToPlayerDisrtance = Vector3::Length(centerToPlayerVector);//∞≈∏Æ
 	centerToPlayerVector = Vector3::Normalize(centerToPlayerVector);
 	//float playerCollisionSphereIntersectDistance = 0.0f;

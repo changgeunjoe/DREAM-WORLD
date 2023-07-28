@@ -1,6 +1,7 @@
 #pragma once
 #include"../PCH/stdafx.h"
 #include "MapCollide.h"
+#include "NavMeshQuadTree.h"
 using namespace DirectX;
 
 struct MonsterInitData {
@@ -29,6 +30,8 @@ private:
 	//monster InitData
 	std::vector<MonsterInitData> m_initMonsterDatas;
 	bool m_initCoplete = false;
+	NavMeshQuadTree m_navMeshQuadTree;
+	float tiangleMeshGridMinSize = 10.0f;
 public:
 	MapData() {};
 	MapData(std::string navFileName, std::string collisionFileName, std::string monsterFileName);
@@ -41,7 +44,7 @@ public:
 	void GetReadMapData();
 	void GetReadCollisionData();
 	void GetReadMonsterData();
-	std::list<int> AStarLoad(int myTriangleIdx, float desX, float desZ);
+	std::list<int> AStarLoad(std::atomic_int& myTriangleIdx, float desX, float desZ);
 	TrinangleMesh& const GetTriangleMesh(int idx) { return m_triangleMesh[idx]; }
 	const std::vector<int> GetZeroIdxs() { return m_zeroVertexIdxs; }
 	const int GetFirstIdxs() {
@@ -51,4 +54,5 @@ public:
 	}
 	std::vector<MapCollide>& GetCollideData() { return m_collisionDatas; }
 	std::vector<MonsterInitData>& GetMonsterData() { return m_initMonsterDatas; }
+	std::vector<XMFLOAT3>& GetVertexData() { return m_vertex; }
 };

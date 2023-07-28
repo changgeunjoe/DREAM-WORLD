@@ -177,6 +177,9 @@ void ChracterSessionObject::SetShield(bool active)
 
 bool ChracterSessionObject::Move(float elapsedTime)
 {
+	if (m_position.y < 0.0f) {
+		std::cout << "이상" << std::endl;
+	}
 	if (m_applyDirection != DIRECTION::IDLE)
 	{
 #ifdef _DEBUG

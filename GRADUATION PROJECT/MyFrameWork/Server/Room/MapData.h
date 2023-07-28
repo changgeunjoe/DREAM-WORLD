@@ -22,7 +22,7 @@ public:
 	}
 	void GetReadMapData();
 	void GetReadCollisionData();
-	std::list<int> AStarLoad(int myTriangleIdx, float desX, float desZ);
+	std::list<int> AStarLoad(std::atomic_int& myTriangleIdx, float desX, float desZ);
 	TrinangleMesh& const GetTriangleMesh(int idx) { return m_triangleMesh[idx]; }
 	const std::vector<int> GetZeroIdxs() { return m_zeroVertexIdxs; }
 	const int GetFirstIdxs() {

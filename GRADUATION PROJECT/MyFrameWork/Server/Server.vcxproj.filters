@@ -88,6 +88,9 @@
     <ClCompile Include="Session\SessionObject\SmallMonsterSessionObject.cpp">
       <Filter>Session\SessionObject</Filter>
     </ClCompile>
+    <ClCompile Include="MapData\NavMeshQuadTree.cpp">
+      <Filter>MapData</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Session\ExpOver.h">
@@ -140,6 +143,9 @@
     </ClInclude>
     <ClInclude Include="Session\SessionObject\SmallMonsterSessionObject.h">
       <Filter>Session\SessionObject</Filter>
+    </ClInclude>
+    <ClInclude Include="MapData\NavMeshQuadTree.h">
+      <Filter>MapData</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

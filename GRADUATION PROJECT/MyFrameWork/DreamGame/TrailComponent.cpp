@@ -13,7 +13,7 @@ TrailComponent::~TrailComponent()
 {
 }
 
-void TrailComponent::ReadyComponent(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,GameObject* mpTrailObject)
+void TrailComponent::ReadyComponent(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, GameObject* mpTrailObject)
 {
 	m_fCreateTime = 0.001f;
 
@@ -35,7 +35,7 @@ void TrailComponent::Update_Component(const float& fTimeDelta)
 	m_fTime -= fTimeDelta;
 }
 
-void TrailComponent::AddTrail( const XMFLOAT3& xmf3Top,const XMFLOAT3& xmf3Bottom)
+void TrailComponent::AddTrail(const XMFLOAT3& xmf3Top, const XMFLOAT3& xmf3Bottom)
 {
 	if (m_fTime > 0.f)
 	{
@@ -83,7 +83,7 @@ void TrailComponent::AddTrail( const XMFLOAT3& xmf3Top,const XMFLOAT3& xmf3Botto
 
 			m_listRomPos.emplace_back(make_pair(xmf3RomTopPos, xmf3RomBottomPos));
 		}
-	//	cout << m_listPos.size() << ", " << m_listRomPos.size() << endl;
+		//	cout << m_listPos.size() << ", " << m_listRomPos.size() << endl;
 	}
 }
 
@@ -124,7 +124,7 @@ void TrailComponent::RenderTrail(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 		xmf2UV[0] = { fRatio,			0.f };
 		//xmf2UV[1] = { fRatio,			1.f };
 		//xmf2UV[2] = { fNextRatio / 1.f, 1.f };
-		xmf2UV[1] = { fRatio,			(fRatio / 1.f) }; 
+		xmf2UV[1] = { fRatio,			(fRatio / 1.f) };
 		xmf2UV[2] = { fNextRatio / 1.f, (fNextRatio / 1.f) };
 		xmf2UV[3] = { fNextRatio / 1.f, 0.f };
 
@@ -141,7 +141,7 @@ void TrailComponent::RenderTrail(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 
 		iLineIndex++;
 	}
-	
+
 	m_pTrailObject->GetMesh()->SetVertices(pVertices, iVertexCount);
 	m_pTrailObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature); //렌더링은 한번만
 
@@ -152,18 +152,20 @@ void TrailComponent::RenderAstar(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 {
 
 	vector<XMFLOAT3> xmf3Pos;
+	int i = 0;
 	for (auto iter = vecNodeQueue.begin(); iter != vecNodeQueue.end(); iter++) {
 		/*g_bossMapData.GetTriangleMesh(*iter).GetVertex1();
 		g_bossMapData.GetTriangleMesh(*iter).GetVertex2();
 		g_bossMapData.GetTriangleMesh(*iter).GetVertex3();*/
-		xmf3Pos.push_back(g_bossMapData.GetTriangleMesh(*iter).GetVertex1());
-		xmf3Pos.push_back(g_bossMapData.GetTriangleMesh(*iter).GetVertex2());
-		xmf3Pos.push_back(g_bossMapData.GetTriangleMesh(*iter).GetVertex3());
+		xmf3Pos.push_back(Vector3::Add(g_bossMapData.GetTriangleMesh(*iter).GetVertex1(), XMFLOAT3(0, (float)i + 1.5f, 0)));
+		xmf3Pos.push_back(Vector3::Add(g_bossMapData.GetTriangleMesh(*iter).GetVertex2(), XMFLOAT3(0, (float)i + 1.5f, 0)));
+		xmf3Pos.push_back(Vector3::Add(g_bossMapData.GetTriangleMesh(*iter).GetVertex3(), XMFLOAT3(0, (float)i + 1.5f, 0)));
+		i++;
 	}
 	size_t iVertexCount = xmf3Pos.size();//사각형 당 정점 6개
 	Textured2DUIVertex* pVertices = new Textured2DUIVertex[iVertexCount];
 	for (int i = 0; i < xmf3Pos.size(); i++) {
-			pVertices[i] = Textured2DUIVertex(xmf3Pos[i], XMFLOAT2(0,0));//
+		pVertices[i] = Textured2DUIVertex(xmf3Pos[i], XMFLOAT2(0, 0));//
 	}
 
 	m_pTrailObject->GetMesh()->SetVertices(pVertices, iVertexCount);

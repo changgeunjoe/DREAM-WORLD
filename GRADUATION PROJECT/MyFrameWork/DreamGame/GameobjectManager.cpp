@@ -2686,7 +2686,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 #endif
 			if (m_nStageType == 1) {
 				//m_nStageType = 2;
-				m_pPlayerObject->SetPosition(XMFLOAT3(0, 0, 0));
+				GetChracterInfo(g_Logic.GetMyRole())->SetPosition(XMFLOAT3(0, 0, 0));				
 				g_NetworkHelper.SendChangeStage_BOSS();
 			}
 			break;

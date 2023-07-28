@@ -145,6 +145,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MapData\MapCollide.cpp" />
     <ClCompile Include="MapData\MapData.cpp" />
+    <ClCompile Include="MapData\NavMeshQuadTree.cpp" />
     <ClCompile Include="PCH\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -168,6 +169,7 @@
     <ClInclude Include="Logic\Logic.h" />
     <ClInclude Include="MapData\MapCollide.h" />
     <ClInclude Include="MapData\MapData.h" />
+    <ClInclude Include="MapData\NavMeshQuadTree.h" />
     <ClInclude Include="PCH\stdafx.h" />
     <ClInclude Include="Room\Room.h" />
     <ClInclude Include="Room\RoomManager.h" />

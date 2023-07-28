@@ -17,7 +17,7 @@ private:
 	ROLE m_newAggroPlayerRole = ROLE::NONE_SELECT;
 	std::mutex m_reserveRoadLock;
 	std::list<int> m_ReserveRoad;
-	int m_onIdx = -1;
+	std::atomic_int m_onIdx = -1;
 public:
 	std::atomic_bool  isMove = false;
 	std::atomic_bool isAttack = false;
