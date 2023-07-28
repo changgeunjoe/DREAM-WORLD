@@ -124,7 +124,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 			if (g_Logic.GetMyRole() == ROLE::PRIEST) {
 				g_sound.NoLoopPlay("LightningSound", 1.0f);
 				m_pLightEffectObject->AnimateEffect(m_pCamera, XMFLOAT3(m_pSelectedObject->GetPosition().x,
-				m_pSelectedObject->GetPosition().y + 10, m_pSelectedObject->GetPosition().z), fTimeElapsed, m_fTime * 5);
+					m_pSelectedObject->GetPosition().y + 10, m_pSelectedObject->GetPosition().z), fTimeElapsed, m_fTime * 5);
 				m_pLightningSpriteObject->SetPosition(XMFLOAT3(
 					m_pSelectedObject->GetPosition().x,
 					m_pSelectedObject->GetPosition().y + 50,
@@ -173,13 +173,13 @@ void GameobjectManager::Animate(float fTimeElapsed)
 		effect->AnimateEffect(m_pCamera, possessChracter->GetPosition(), fTimeElapsed, m_fTime * 10);
 	}
 
-	
-		m_pPortalEffectObject->AnimateEffect(m_pCamera, XMFLOAT3(0, 0, 0), fTimeElapsed, m_fTime * 5);
-		if (m_bTest) {
-			//m_pPreistAttackEffectObject->AnimateEffect(m_pCamera, XMFLOAT3(0, 20, 0), fTimeElapsed, m_fTime * 5);
-			m_pTankerAttackEffectObject->AnimateEffect(m_pCamera, XMFLOAT3(0, 20, 0), fTimeElapsed, m_fTime * 5);
 
-		}
+	m_pPortalEffectObject->AnimateEffect(m_pCamera, XMFLOAT3(0, 0, 0), fTimeElapsed, m_fTime * 5);
+	if (m_bTest) {
+		//m_pPreistAttackEffectObject->AnimateEffect(m_pCamera, XMFLOAT3(0, 20, 0), fTimeElapsed, m_fTime * 5);
+		m_pTankerAttackEffectObject->AnimateEffect(m_pCamera, XMFLOAT3(0, 20, 0), fTimeElapsed, m_fTime * 5);
+
+	}
 	//Effect
 	// if (m_pSelectedObject) {
 		// 힐 이펙트
@@ -383,11 +383,11 @@ void GameobjectManager::MonsterHpBarAnimate(float fTimeElapsed)
 void GameobjectManager::NormalMonsterConditionAnimate(float fTimeElapsed)
 {
 	for (int i = 0; i < 15; i++) {
-		if (m_ppNormalMonsterObject[i]->GetCurrentHP() != m_ppNormalMonsterObject[i]->GetTempHP()&& m_ppNormalMonsterObject[i]->GetTempHP()>0) {
+		if (m_ppNormalMonsterObject[i]->GetCurrentHP() != m_ppNormalMonsterObject[i]->GetTempHP() && m_ppNormalMonsterObject[i]->GetTempHP() > 0) {
 			//m_ppNormalMonsterObject[i]->SetColor(XMFLOAT4(1,0,0,0.00012));
 			AddDamageFontToUiLayer(XMFLOAT3(m_ppNormalMonsterObject[i]->GetPosition().x,
 				m_ppNormalMonsterObject[i]->GetPosition().y + 20,
-				m_ppNormalMonsterObject[i]->GetPosition().z),int(m_ppNormalMonsterObject[i]->GetTempHP() - m_ppNormalMonsterObject[i]->GetCurrentHP()));
+				m_ppNormalMonsterObject[i]->GetPosition().z), int(m_ppNormalMonsterObject[i]->GetTempHP() - m_ppNormalMonsterObject[i]->GetCurrentHP()));
 			m_ppNormalMonsterObject[i]->m_bAttacked = true;
 		}
 		if (m_ppNormalMonsterObject[i]->m_bAttacked && m_ppNormalMonsterObject[i]->m_fConditionTime < 0.23) {
@@ -397,12 +397,12 @@ void GameobjectManager::NormalMonsterConditionAnimate(float fTimeElapsed)
 		else {
 			if (m_ppNormalMonsterObject[i]->GetTempHP() <= 0) {
 				if (m_ppNormalMonsterObject[i]->m_bActive) {
-					m_ppNormalMonsterObject[i]->DieMonster(fTimeElapsed/10);
+					m_ppNormalMonsterObject[i]->DieMonster(fTimeElapsed / 10);
 				}
 				if (m_ppNormalMonsterObject[i]->m_xmf4Color.w > 0.95) {
 					m_ppNormalMonsterObject[i]->m_bActive = false;
 				}
-				
+
 			}
 			else {
 				m_ppNormalMonsterObject[i]->m_bAttacked = false;
@@ -421,7 +421,7 @@ void GameobjectManager::NormalMonsterConditionAnimate(float fTimeElapsed)
 	//for (int i = 0; i < 15; i++) {
 	//	
 
-	
+
 }
 
 void GameobjectManager::PlayerConditionAnimate(float fTimeElapsed)
@@ -447,7 +447,7 @@ void GameobjectManager::PlayerConditionAnimate(float fTimeElapsed)
 			myPlayCharacter->m_fConditionTime = 0;
 			m_pConditionUIObject->SetColor(XMFLOAT4(0, 0, 0, 0));
 		}
-		
+
 		myPlayCharacter->SetTempHp(myPlayCharacter->GetCurrentHP());
 	}
 }
@@ -1060,9 +1060,7 @@ void GameobjectManager::EffectRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 	for (int i = 0; i < m_ppEffectObjects.size(); i++) {
 		if (m_ppEffectObjects[i] == nullptr) continue;
 		if (m_ppEffectObjects[i]->m_bActive == false) continue;
-		//if (m_ppEffectObjects[i]->m_bActive) {
 		m_ppEffectObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//	}
 	}
 	//for (auto& effect : m_ppShieldEffectObject)
 	//{
@@ -1126,9 +1124,9 @@ void GameobjectManager::BuildBossStageObject(ID3D12Device* pd3dDevice, ID3D12Gra
 void GameobjectManager::BuildProjectileObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
 	CLoadedModelInfoCompnent* ArrowModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Arrow.bin", NULL, true);
-	CLoadedModelInfoCompnent* IceLanceModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/IceLance.bin", NULL, true);
+	CLoadedModelInfoCompnent* IceLanceModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/RockSpike.bin", NULL, true);
 
-	Projectile** ppArrow = new Projectile* [MAX_ARROW];
+	Projectile** ppArrow = new Projectile * [MAX_ARROW];
 	for (int i = 0; i < MAX_ARROW; ++i)
 	{
 		ppArrow[i] = new Arrow();
@@ -1144,7 +1142,7 @@ void GameobjectManager::BuildProjectileObject(ID3D12Device* pd3dDevice, ID3D12Gr
 	}
 	m_pArcherObject->SetArrow(ppArrow);
 
-	Arrow** m_ppArrowForQSkill = new Arrow* [3];
+	Arrow** m_ppArrowForQSkill = new Arrow * [3];
 	for (int i = 0; i < 3; ++i)
 	{
 		m_ppArrowForQSkill[i] = new Arrow();
@@ -2459,6 +2457,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			myPlayCharacter->SetMoveState(true);
 			myPlayCharacter->AddDirection(DIRECTION::FRONT);
 			g_NetworkHelper.SendMovePacket(DIRECTION::FRONT);
+
 		}
 		break;
 		case 'A':
@@ -2667,7 +2666,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		case 'P':
 		{
 			m_bTest = true;
-			g_sound.Play("ClickSound",1.0f);
+			g_sound.Play("ClickSound", 1.0f);
 		}
 		break;
 		case 'O':
@@ -2695,7 +2694,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 #endif
 			if (m_nStageType == 1) {
 				//m_nStageType = 2;
-				GetChracterInfo(g_Logic.GetMyRole())->SetPosition(XMFLOAT3(0, 0, 0));				
+				GetChracterInfo(g_Logic.GetMyRole())->SetPosition(XMFLOAT3(0, 0, 0));
 				g_NetworkHelper.SendChangeStage_BOSS();
 			}
 			break;
@@ -2713,11 +2712,11 @@ bool GameobjectManager::onProcessingKeyboardMessageLobby(HWND hWnd, UINT nMessag
 	if (nMessageID == WM_KEYDOWN && wParam == VK_F2)
 	{
 #ifdef LOCAL_TASK
-		g_Logic.SetMyRole(ROLE::ARCHER);
+		g_Logic.SetMyRole(ROLE::PRIEST);
 		m_pCamera->Rotate(0, -90, 0);
-		m_pPlayerObject = m_pArcherObject;
+		m_pPlayerObject = m_pPriestObject;
 		m_pPlayerObject->SetCamera(m_pCamera);
-		m_pArcherObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
+		m_pPriestObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
 #else
 		g_Logic.SetMyRole(ROLE::ARCHER);
 		m_pArcherObject->SetCamera(m_pCamera);
@@ -2725,7 +2724,7 @@ bool GameobjectManager::onProcessingKeyboardMessageLobby(HWND hWnd, UINT nMessag
 		g_NetworkHelper.SendMatchRequestPacket();
 #endif
 		m_bSceneSwap = true;//페이드 인 아웃
-}
+	}
 	if (nMessageID == WM_KEYDOWN && wParam == 'G')
 	{
 		m_bNPCinteraction = true;
@@ -2753,7 +2752,7 @@ bool GameobjectManager::onProcessingKeyboardMessageUI(HWND hWnd, UINT nMessageID
 		switch (wParam)
 		{
 		case 'P':
-		{ 
+		{
 			if (m_pSelectedObject)
 			{
 				XMFLOAT3 TempPosition = m_pSelectedObject->GetPosition();
@@ -3099,6 +3098,17 @@ void GameobjectManager::ChangeStage1ToStage2(float fTimeelpased)
 		}
 	}
 
+}
+
+void GameobjectManager::ChangeStage2ToStage1()
+{
+	m_fStroyTime = 0;//스테이지 1에서 스테이지 2로 넘어가는 스토리 타임 초기화
+	for (int i = 0; i < m_ppGameObjects.size(); ++i)
+	{
+		m_ppGameObjects[i]->m_xmf4Color.w = 0;//모든 오브젝트들 다시 블랜딩 초기화 
+	}
+	g_sound.Pause("BossStage");
+	g_sound.Play("LobbySound",  0.52);
 }
 
 bool GameobjectManager::CheckCollision(vector<GameObject*> m_ppObjects)

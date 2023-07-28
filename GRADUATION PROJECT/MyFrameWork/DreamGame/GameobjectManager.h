@@ -88,6 +88,7 @@ public:
 
 
 	void ChangeStage1ToStage2(float fTimeelpased);
+	void ChangeStage2ToStage1();
 	bool CheckCollision(vector<GameObject*> m_ppObjects);
 
 

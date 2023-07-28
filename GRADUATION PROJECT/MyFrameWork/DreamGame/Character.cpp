@@ -189,7 +189,7 @@ void Character::MoveForward(int forwardDirection, float ftimeElapsed)
 
 	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, 10.0f * m_interpolationDistance * ftimeElapsed);
 
-	g_sound.NoLoopPlay("WalkSound", 0.95f);
+	g_sound.Play("WalkSound", 0.95f);
 	GameObject::SetPosition(xmf3Position);
 	if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
 	return;
@@ -213,7 +213,7 @@ void Character::MoveStrafe(int rightDirection, float ftimeElapsed)
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Right, ftimeElapsed * m_fSpeed);
 
 	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, 10.0f * m_interpolationDistance * ftimeElapsed);
-
+	g_sound.Play("WalkSound", 0.95f);
 	GameObject::SetPosition(xmf3Position);
 	if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
 	return;
@@ -241,7 +241,7 @@ void Character::MoveDiagonal(int fowardDirection, int rightDirection, float ftim
 	xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(resultDirection, ftimeElapsed * m_fSpeed));
 
 	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, 10.0f * m_interpolationDistance * ftimeElapsed);
-
+	g_sound.Play("WalkSound", 0.95f);
 	SetPosition(xmf3Position);
 	if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
 }
