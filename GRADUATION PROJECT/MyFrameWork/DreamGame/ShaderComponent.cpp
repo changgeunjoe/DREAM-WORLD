@@ -734,3 +734,8 @@ D3D12_BLEND_DESC SquareShaderComponent::CreateBlendState(int nPipelineState)
 
 	return(d3dBlendDesc);
 }
+
+D3D12_SHADER_BYTECODE BossSkillShaderComponent::CreatePixelShader(int nPipelineState)
+{
+	return(ShaderComponent::CompileShaderFromFile(L"Shaders.hlsl", "PSBossSkillRange", "ps_5_1", &m_pd3dPixelShaderBlob));
+}

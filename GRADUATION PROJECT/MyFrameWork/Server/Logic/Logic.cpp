@@ -290,6 +290,7 @@ void Logic::ProcessPacket(int userId, char* p)
 		g_RoomManager.GetRunningRoomRef(g_iocpNetwork.m_session[userId].GetRoomId()).
 			StartSecondSkillPlayCharacter((ROLE)recvPacket->role, recvPacket->postionOrDirection);
 	}
+	break;
 	case CLIENT_PACKET::SKILL_INPUT_Q:
 	{
 		Room& roomRef = g_RoomManager.GetRunningRoomRef(g_iocpNetwork.m_session[userId].GetRoomId());

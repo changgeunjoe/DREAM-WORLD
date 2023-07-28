@@ -206,6 +206,13 @@ void Logic::ProcessPacket(char* p)
 		static_cast<Priest*>(possessObj)->Attack(recvPacket->dir);
 	}
 	break;
+	case SERVER_PACKET::EXECUTE_LIGHTNING:
+	{
+		SERVER_PACKET::ShootingObject* recvPacket = reinterpret_cast<SERVER_PACKET::ShootingObject*>(p);
+		Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo(ROLE::PRIEST);
+		gGameFramework.m_pScene->m_pObjectManager->SetLightningEffect(recvPacket->dir);
+	}
+	break;
 	case SERVER_PACKET::GAME_STATE_S:
 	{
 		SERVER_PACKET::GameState_STAGE1* recvPacket = reinterpret_cast<SERVER_PACKET::GameState_STAGE1*>(p);
@@ -545,9 +552,9 @@ void Logic::ProcessPacket(char* p)
 	break;
 	case SERVER_PACKET::COMMON_ATTACK_START:
 	{
-		SERVER_PACKET::CommonAttackPacket* recvPacket = reinterpret_cast<SERVER_PACKET::CommonAttackPacket*>(p);
-		Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo((ROLE)recvPacket->role);
-		possessObj->SetLButtonClicked(true);
+		//SERVER_PACKET::CommonAttackPacket* recvPacket = reinterpret_cast<SERVER_PACKET::CommonAttackPacket*>(p);
+		//Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo((ROLE)recvPacket->role);
+		//possessObj->SetLButtonClicked(true);
 	}
 	break;
 	case SERVER_PACKET::START_ANIMATION_Q:

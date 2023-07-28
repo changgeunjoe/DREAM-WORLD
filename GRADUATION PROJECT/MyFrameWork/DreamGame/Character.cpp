@@ -1260,7 +1260,7 @@ void Archer::Animate(float fTimeElapsed)
 				ShootArrow();
 				m_bCanAttack = false;
 			}
-			else if (m_bQSkillClicked)
+			else if (m_bCanAttack && m_bQSkillClicked && m_bESkillClicked && m_pCamera)
 			{
 				ShootArrow();
 				m_bCanAttack = false;
@@ -1278,31 +1278,28 @@ void Archer::Animate(float fTimeElapsed)
 		}
 	}
 
-	// 현재 재생될 애니메이션 선택
-	if (m_bMoveState)	// 움직이는 중
+	if (m_bMoveState)
 	{
 		if (m_bLButtonClicked || m_bQSkillClicked || m_bESkillClicked || m_bOnAttack)
 		{
 			if (!m_bOnAttack) AfterAnimation.first = CharacterAnimation::CA_ATTACK;
-			AfterAnimation.second = CharacterAnimation::CA_MOVE;
 		}
 		else
-		{// 그냥 움직이기
+		{
 			if (!m_bOnAttack) AfterAnimation.first = CharacterAnimation::CA_MOVE;
-			AfterAnimation.second = CharacterAnimation::CA_MOVE;
 		}
+
+		AfterAnimation.second = CharacterAnimation::CA_MOVE;
 	}
 	else
 	{
 		if (m_bLButtonClicked || m_bQSkillClicked || m_bESkillClicked || m_bOnAttack)
 		{
-			if (!m_bOnAttack) AfterAnimation.first = CharacterAnimation::CA_ATTACK;
-			AfterAnimation.second = CharacterAnimation::CA_ATTACK;
+			AfterAnimation = { CharacterAnimation::CA_ATTACK, CharacterAnimation::CA_ATTACK };
 		}
 		else if (!m_bOnAttack)
 		{// IDLE
-			AfterAnimation.first = CharacterAnimation::CA_IDLE;
-			AfterAnimation.second = CharacterAnimation::CA_IDLE;
+			AfterAnimation = { CharacterAnimation::CA_IDLE, CharacterAnimation::CA_IDLE };
 		}
 	}
 
@@ -1364,7 +1361,6 @@ void Archer::FirstSkillDown()
 		auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[0]);
 		if (m_skillCoolTime[0] > duration) return;
 		g_NetworkHelper.Send_SkillInput_Q();
-		g_NetworkHelper.Send_SkillExecute_Q(XMFLOAT3(0.0, 0.0, 0.0));
 		m_skillInputTime[0] = std::chrono::high_resolution_clock::now();
 	}
 	m_bQSkillClicked = true;
@@ -1382,9 +1378,7 @@ void Archer::SecondSkillDown()
 			return;
 		}
 		g_NetworkHelper.Send_SkillInput_E();
-		g_NetworkHelper.Send_SkillExecute_E(m_xmf3TargetPos);
 		m_skillInputTime[1] = std::chrono::high_resolution_clock::now();
-
 	}
 	m_bESkillClicked = true;
 }
@@ -1399,10 +1393,13 @@ void Archer::SetLButtonClicked(bool bLButtonClicked)
 			m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_ATTACK]->m_nType = ANIMATION_TYPE_LOOP;
 			m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_fSpeed = 1.0f;
 			m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_bAnimationEnd = true;
+			m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_fProgressRate = 0.0f;
+
 			m_bOnAttack = false;
 			m_bCanAttack = true;
 			m_CameraLook = m_xmf3RotateAxis;
-			ShootArrow();
+			if(m_pCamera) 
+				ShootArrow();
 		}
 	}
 	else
@@ -1438,6 +1435,8 @@ void Archer::ShootArrow()//스킬
 	else if (m_bESkillClicked == true)
 	{
 		XMFLOAT3 xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
+		if (g_Logic.GetMyRole() == ROLE::ARCHER)
+			g_NetworkHelper.Send_SkillExecute_E(m_xmf3TargetPos);
 		for (int i = 0; i < m_ppArrowForESkill.size(); ++i)
 		{
 			XMFLOAT3 objPosition = GetPosition();
@@ -1504,50 +1503,48 @@ void Archer::ShootArrow()//스킬
 		Character::RbuttonUp(m_CameraLook);
 		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_ATTACK]->m_fPosition = -ANIMATION_CALLBACK_EPSILON;
 	}
-	else if (m_bOnAttack == true)
-	{// 1개의 화살을 발사하는 기본 공격 실행
-		m_ppProjectiles[m_nProjectiles]->m_xmf3direction = Vector3::Normalize(XMFLOAT3(GetObjectLook().x, -sin(m_xmf3RotateAxis.x * 3.141592 / 180.0f), GetObjectLook().z));
-		m_ppProjectiles[m_nProjectiles]->m_xmf3startPosition = XMFLOAT3(GetPosition().x, GetPosition().y + 8.0f, GetPosition().z);
-		m_ppProjectiles[m_nProjectiles]->SetPosition(m_ppProjectiles[m_nProjectiles]->m_xmf3startPosition);
-		m_ppProjectiles[m_nProjectiles]->m_fSpeed = 150.0f;
-		m_ppProjectiles[m_nProjectiles]->m_bActive = true;
-
-		if (g_Logic.GetMyRole() == ROLE::ARCHER)
-			g_NetworkHelper.SendCommonAttackExecute(m_ppProjectiles[m_nProjectiles]->m_xmf3direction, 0);
-		m_nProjectiles++;
-		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_ATTACK]->m_fPosition = -ANIMATION_CALLBACK_EPSILON;
-	}
+	//else if (m_bOnAttack == true)
+	//{// 1개의 화살을 발사하는 기본 공격 실행
+	//	m_ppProjectiles[m_nProjectiles]->m_xmf3direction = Vector3::Normalize(XMFLOAT3(GetObjectLook().x, -sin(m_xmf3RotateAxis.x * 3.141592 / 180.0f), GetObjectLook().z));
+	//	m_ppProjectiles[m_nProjectiles]->m_xmf3startPosition = XMFLOAT3(GetPosition().x, GetPosition().y + 8.0f, GetPosition().z);
+	//	m_ppProjectiles[m_nProjectiles]->SetPosition(m_ppProjectiles[m_nProjectiles]->m_xmf3startPosition);
+	//	m_ppProjectiles[m_nProjectiles]->m_fSpeed = 150.0f;
+	//	m_ppProjectiles[m_nProjectiles]->m_bActive = true;
+	//	if (g_Logic.GetMyRole() == ROLE::ARCHER)
+	//		g_NetworkHelper.SendCommonAttackExecute(m_ppProjectiles[m_nProjectiles]->m_xmf3direction, 0);
+	//	m_nProjectiles++;
+	//	m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_ATTACK]->m_fPosition = -ANIMATION_CALLBACK_EPSILON;
+	//}
 }
 
 void Archer::ShootArrow(const XMFLOAT3& xmf3Direction)
 {
 	// 플레이어 캐릭터가 아닐 때
+	cout << "Shoot Arrow By Other Client" << endl;
 	m_nProjectiles = (m_nProjectiles < MAX_ARROW) ? m_nProjectiles : m_nProjectiles % MAX_ARROW;
-	XMFLOAT3 objPosition = GetPosition();
-	objPosition.y += 8.0f;
 
 	if (m_bQSkillClicked == true)
 	{
 		for (int i = 0; i < 3; ++i)//서버에 옮겨야됨
 		{
-			m_nProjectiles = (m_nProjectiles < MAX_ARROW) ? m_nProjectiles : m_nProjectiles % MAX_ARROW;
 			XMFLOAT3 objectLook = GetObjectLook();
 			XMFLOAT3 objectRight = GetRight();
+			XMFLOAT3 objPosition = GetPosition();
 			objPosition.y = 6.0f + (i % 2) * 4.0f;
 			objPosition = Vector3::Add(objPosition, objectRight, (1 - i) * 4.0f);
 			objPosition = Vector3::Add(objPosition, objectLook, 1.0f);
 
-			m_ppProjectiles[m_nProjectiles]->m_xmf3direction = Vector3::Normalize(xmf3Direction);
-			m_ppProjectiles[m_nProjectiles]->m_xmf3startPosition = objPosition;
-			m_ppProjectiles[m_nProjectiles]->SetPosition(objPosition);
-			m_ppProjectiles[m_nProjectiles]->m_fSpeed = 250.0f;
-			m_ppProjectiles[m_nProjectiles]->m_bActive = true;
-			m_nProjectiles++;
+			m_ppArrowForQSkill[i]->m_xmf3direction = Vector3::Normalize(xmf3Direction);
+			m_ppArrowForQSkill[i]->m_xmf3startPosition = objPosition;
+			m_ppArrowForQSkill[i]->SetPosition(objPosition);
+			m_ppArrowForQSkill[i]->m_fSpeed = 250.0f;
+			m_ppArrowForQSkill[i]->m_bActive = true;
 		}
 		m_bQSkillClicked = false;
 	}
 	else if (m_bESkillClicked == true)
 	{
+		m_xmf3TargetPos = xmf3Direction;
 		XMFLOAT3 xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
 		for (int i = 0; i < m_ppArrowForESkill.size(); ++i)
 		{
@@ -1573,6 +1570,8 @@ void Archer::ShootArrow(const XMFLOAT3& xmf3Direction)
 	}
 	else if (m_bZoomInState == true)
 	{
+		XMFLOAT3 objPosition = GetPosition();
+		objPosition.y += 8.0f;
 		m_ppProjectiles[m_nProjectiles]->m_xmf3direction = xmf3Direction;
 		m_ppProjectiles[m_nProjectiles]->m_xmf3startPosition = objPosition;
 		m_ppProjectiles[m_nProjectiles]->SetPosition(objPosition);
@@ -1584,16 +1583,18 @@ void Archer::ShootArrow(const XMFLOAT3& xmf3Direction)
 		Character::RbuttonUp();
 		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_ATTACK]->m_fPosition = -ANIMATION_CALLBACK_EPSILON;
 	}
-	else if (m_bOnAttack == true)
-	{
-		m_ppProjectiles[m_nProjectiles]->m_xmf3direction = xmf3Direction;
-		m_ppProjectiles[m_nProjectiles]->m_xmf3startPosition = objPosition;
-		m_ppProjectiles[m_nProjectiles]->SetPosition(objPosition);
-		m_ppProjectiles[m_nProjectiles]->m_fSpeed = 150.0f;
-		m_ppProjectiles[m_nProjectiles]->m_bActive = true;
-		m_nProjectiles++;
-		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_ATTACK]->m_fPosition = -ANIMATION_CALLBACK_EPSILON;
-	}
+	//else if (m_bOnAttack == true)
+	//{
+	//	XMFLOAT3 objPosition = GetPosition();
+	//	objPosition.y += 8.0f;
+	//	m_ppProjectiles[m_nProjectiles]->m_xmf3direction = xmf3Direction;
+	//	m_ppProjectiles[m_nProjectiles]->m_xmf3startPosition = objPosition;
+	//	m_ppProjectiles[m_nProjectiles]->SetPosition(objPosition);
+	//	m_ppProjectiles[m_nProjectiles]->m_fSpeed = 150.0f;
+	//	m_ppProjectiles[m_nProjectiles]->m_bActive = true;
+	//	m_nProjectiles++;
+	//	m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_ATTACK]->m_fPosition = -ANIMATION_CALLBACK_EPSILON;
+	//}
 }
 
 void Archer::SetStage1Position()
@@ -2162,6 +2163,7 @@ void Priest::Attack()
 	m_ppProjectiles[m_nProjectiles]->m_xmf3startPosition = xmf3LanceStartPosition;
 	m_ppProjectiles[m_nProjectiles]->SetPosition(m_ppProjectiles[m_nProjectiles]->m_xmf3startPosition);
 	m_ppProjectiles[m_nProjectiles]->m_bActive = true;
+	m_ppProjectiles[m_nProjectiles]->m_fSpeed = 100.0f;
 
 	if (g_Logic.GetMyRole() == ROLE::PRIEST)
 		g_NetworkHelper.SendCommonAttackExecute(ObjectLookVector, 0);
@@ -2177,7 +2179,7 @@ void Priest::Attack(const XMFLOAT3& xmf3Direction)
 	m_ppProjectiles[m_nProjectiles]->m_xmf3direction = xmf3Direction;
 	m_ppProjectiles[m_nProjectiles]->m_xmf3startPosition = objectPosition;
 	m_ppProjectiles[m_nProjectiles]->SetPosition(objectPosition);
-	m_ppProjectiles[m_nProjectiles]->m_fSpeed = 150.0f;
+	m_ppProjectiles[m_nProjectiles]->m_fSpeed = 100.0f;
 	m_ppProjectiles[m_nProjectiles]->m_bActive = true;
 	m_nProjectiles++;
 }

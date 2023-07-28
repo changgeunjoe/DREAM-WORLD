@@ -610,6 +610,10 @@ float4 PSHealRange(VS_HEAL_RANGE_OUTPUT input) : SV_TARGET
     //return float4(0.0f, 0.0f, 0.0f, 0.0f);
 }
 
+float4 PSBossSkillRange(VS_HEAL_RANGE_OUTPUT input) : SV_TARGET
+{
+    return float4(1.0f, 0.0f, 0.0f, 1.0f);
+}
 //////////////////////////////////////////////////////////////////////////shadow
 
 

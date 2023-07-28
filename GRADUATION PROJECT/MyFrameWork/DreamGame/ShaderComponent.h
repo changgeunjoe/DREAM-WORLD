@@ -214,3 +214,12 @@ public:
 
 	virtual D3D12_BLEND_DESC CreateBlendState(int nPipelineState);
 };
+
+class BossSkillShaderComponent : public SquareShaderComponent
+{
+public:
+	BossSkillShaderComponent() {};
+	virtual ~BossSkillShaderComponent() {};
+
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader(int nPipelineState);
+};

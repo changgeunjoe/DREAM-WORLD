@@ -252,6 +252,7 @@ private:
 	float				m_fStageChangeTime = 0.0f;
 	bool				m_bPortalCheck = false;
 	bool				m_bTest = false;
+	XMFLOAT3			m_LightningTargetPos;
 
 public:
 	std::vector<int> m_VecNodeQueue;
@@ -290,7 +291,7 @@ public:
 	void SetCharactersLobbyPosition();
 	void SetPortalCheck(bool b) { m_bPortalCheck = b; }
 	void ResetLobbyUI();
-
+	void SetLightningEffect(XMFLOAT3& targetPos);
 	
 };
 

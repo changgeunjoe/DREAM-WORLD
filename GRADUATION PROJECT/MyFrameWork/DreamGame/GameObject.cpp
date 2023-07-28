@@ -397,9 +397,11 @@ void GameObject::BuildShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	ComponentBase* pBlendShaderComponent = GetComponent(component_id::BLENDSHADER_COMPONENT);
 	ComponentBase* pCylinderShaderComponent = GetComponent(component_id::CYLINDERSHADER_COMPONENT);
 	ComponentBase* pSquareShaderComponent = GetComponent(component_id::SQUARESHADER_COMPONENT);
+	ComponentBase* pBossSkillShaderComponent = GetComponent(component_id::BOSSSKILLSHADER_COMPONENT);
 	if (pShaderComponent != NULL || pSkyShaderComponent != NULL || pUiShaderComponent != NULL || pSpriteShaderComponent != NULL
 		|| pBoundingBoxShaderComponent != NULL || pBlendingUiShaderComponent != NULL || pTrailShaderComponent != NULL
-		|| pTerrainShaderComponent != NULL || pEffectShaderComponent || pBlendShaderComponent || pCylinderShaderComponent || pSquareShaderComponent)
+		|| pTerrainShaderComponent != NULL || pEffectShaderComponent || pBlendShaderComponent || pCylinderShaderComponent 
+		|| pSquareShaderComponent || pBossSkillShaderComponent)
 	{
 		if (pShaderComponent != NULL)
 		{
@@ -437,6 +439,9 @@ void GameObject::BuildShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		}
 		else if (pSquareShaderComponent != NULL) {
 			m_pShaderComponent = static_cast<SquareShaderComponent*>(pSquareShaderComponent);
+		}
+		else if (pBossSkillShaderComponent != NULL) {
+			m_pShaderComponent = static_cast<BossSkillShaderComponent*>(pBossSkillShaderComponent);
 		}
 		else if (pNaviMeshShaderComponent != NULL)
 		{

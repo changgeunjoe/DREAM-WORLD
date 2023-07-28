@@ -703,6 +703,12 @@ void MageSessionObject::Skill_2(XMFLOAT3& posOrDir)
 	m_prevSkillInputTime[1] = currentTime;
 	Room& roomRef = g_RoomManager.GetRunningRoomRef(m_roomId);
 	roomRef.ExecuteMageThunder(posOrDir);
+
+	SERVER_PACKET::ShootingObject sendPacket;
+	sendPacket.size = sizeof(SERVER_PACKET::ShootingObject);
+	sendPacket.type = SERVER_PACKET::EXECUTE_LIGHTNING;
+	sendPacket.dir = posOrDir;
+	g_logic.MultiCastOtherPlayerInRoom_R(m_roomId, ROLE::PRIEST, &sendPacket);
 }
 
 void MageSessionObject::ExecuteCommonAttack(XMFLOAT3& attackDir, int power)
@@ -787,6 +793,12 @@ void ArcherSessionObject::Skill_1(XMFLOAT3& posOrDir)
 	m_prevSkillInputTime[0] = currentTime;
 	Room& roomRef = g_RoomManager.GetRunningRoomRef(m_roomId);
 	roomRef.ExecuteThreeArrow(posOrDir, m_position);
+
+	SERVER_PACKET::ShootingObject sendPacket;
+	sendPacket.size = sizeof(SERVER_PACKET::ShootingObject);
+	sendPacket.type = SERVER_PACKET::SHOOTING_ARROW;
+	sendPacket.dir = posOrDir;
+	g_logic.MultiCastOtherPlayerInRoom_R(m_roomId, ROLE::ARCHER, &sendPacket);
 }
 
 void ArcherSessionObject::Skill_2(XMFLOAT3& posOrDir)
@@ -794,9 +806,15 @@ void ArcherSessionObject::Skill_2(XMFLOAT3& posOrDir)
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	auto durationTime = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_prevSkillInputTime[1]);
 	if (m_skillCoolTime[1] > durationTime)	return;
-	m_prevSkillInputTime[0] = currentTime;
+	m_prevSkillInputTime[1] = currentTime;
 	Room& roomRef = g_RoomManager.GetRunningRoomRef(m_roomId);
 	roomRef.StartSkyArrow(posOrDir);
+
+	SERVER_PACKET::ShootingObject sendPacket;
+	sendPacket.size = sizeof(SERVER_PACKET::ShootingObject);
+	sendPacket.type = SERVER_PACKET::SHOOTING_ARROW;
+	sendPacket.dir = posOrDir;
+	g_logic.MultiCastOtherPlayerInRoom_R(m_roomId, ROLE::ARCHER, &sendPacket);
 }
 
 void ArcherSessionObject::ExecuteCommonAttack(XMFLOAT3& attackDir, int power)

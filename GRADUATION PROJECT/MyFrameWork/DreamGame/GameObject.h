@@ -496,6 +496,10 @@ inline T* GameObject::ComponentType(component_id& componentID)
 	{
 		componentID = component_id::SQUARESHADER_COMPONENT;
 	}
+	else if (typeid(T).name() == typeid(BossSkillShaderComponent).name())
+	{
+		componentID = component_id::BOSSSKILLSHADER_COMPONENT;
+	}
 	else
 	{
 		componentID = component_id::UNDEF_COMPONENT;

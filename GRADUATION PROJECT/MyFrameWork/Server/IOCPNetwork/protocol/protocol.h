@@ -172,6 +172,7 @@ namespace SERVER_PACKET {
 	constexpr unsigned char BOSS_CHANGE_STATE_MOVE_DES = 83;
 	constexpr unsigned char SHOOTING_ARROW = 84;
 	constexpr unsigned char SHOOTING_BALL = 85;
+	constexpr unsigned char EXECUTE_LIGHTNING = 80;
 	constexpr unsigned char BOSS_ATTACK = 87;
 	constexpr unsigned char GAME_STATE_B = 86;
 	constexpr unsigned char HIT_BOSS_MAGE = 88;

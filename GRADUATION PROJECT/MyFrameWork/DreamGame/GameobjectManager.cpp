@@ -145,13 +145,15 @@ void GameobjectManager::Animate(float fTimeElapsed)
 		//m_pSheildEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 10);
 	}
 
-	if (m_pSelectedObject) {
-		if (m_pLightEffectObject->m_fEffectLifeTime > FLT_EPSILON) {
-			m_pLightEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 10);
-			m_pLightningSpriteObject->m_bActive = m_pLightEffectObject->m_bActive;
-		}
-		else {
-			m_pSelectedObject = nullptr;
+	if (m_pLightEffectObject) {
+		if (m_pLightEffectObject->m_bActive) {
+			if (m_pLightEffectObject->m_fEffectLifeTime > FLT_EPSILON) {
+				m_pLightEffectObject->AnimateEffect(m_pCamera, m_LightningTargetPos, fTimeElapsed, m_fTime * 10);
+				m_pLightningSpriteObject->m_bActive = m_pLightEffectObject->m_bActive;
+				if (m_pLightEffectObject->m_bActive == false) {
+					m_pSelectedObject = nullptr;
+				}
+			}
 		}
 	}
 
@@ -542,11 +544,9 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	{
 		if (m_pBossSkillRange->m_bActive)
 		{
-#ifdef LOCAL_TASK
-			XMFLOAT3 pos = m_pMonsterObject->GetPosition();
-			pos.y = 0.1f;
-			m_pBossSkillRange->SetPosition(pos);
-#endif
+			//XMFLOAT3 pos = m_pMonsterObject->GetPosition();
+			//pos.y += 0.2f;
+			//m_pBossSkillRange->SetPosition(pos);
 			m_pBossSkillRange->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		}
 	}
@@ -1059,8 +1059,9 @@ void GameobjectManager::EffectRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 	SortEffect();
 	for (int i = 0; i < m_ppEffectObjects.size(); i++) {
 		if (m_ppEffectObjects[i] == nullptr) continue;
+		if (m_ppEffectObjects[i]->m_bActive == false) continue;
 		//if (m_ppEffectObjects[i]->m_bActive) {
-			m_ppEffectObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		m_ppEffectObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//	}
 	}
 	//for (auto& effect : m_ppShieldEffectObject)
@@ -1346,18 +1347,15 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pMonsterObject->SetMoveState(false);
 	m_ppGameObjects.emplace_back(m_pMonsterObject);
 
-	//m_pBossSkillRange = new GameObject(SQUARE_ENTITY);
-	//m_pBossSkillRange->InsertComponent<RenderComponent>();
-	//m_pBossSkillRange->InsertComponent<SquareMeshComponent>();
-	//m_pBossSkillRange->InsertComponent<SquareShaderComponent>();	// 새로운 쉐이더 생성 필요 // 기존 MultiSprite는 2D 형태로만 보여줄 수 있음
-	//m_pBossSkillRange->InsertComponent<TextureComponent>();
-	//m_pBossSkillRange->SetSkillSize(200.0f);
-	//m_pBossSkillRange->SetTexture(L"UI/SkyBox.dds", RESOURCE_TEXTURE2D, 3);	// 알맞은 텍스처 추가 예정
-	//m_pBossSkillRange->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//m_pBossSkillRange->SetPosition(XMFLOAT3(0, 40, 100));
-	//m_pBossSkillRange->SetScale(1.0f);
-	//m_pBossSkillRange->SetRowColumn(8.0f, 2.0f, 999.0f);
-	//m_pMonsterObject->SetSkillRangeObject(m_pBossSkillRange);
+	m_pBossSkillRange = new GameObject(SQUARE_ENTITY);
+	m_pBossSkillRange->InsertComponent<RenderComponent>();
+	m_pBossSkillRange->InsertComponent<SquareMeshComponent>();
+	m_pBossSkillRange->InsertComponent<BossSkillShaderComponent>();
+	m_pBossSkillRange->SetSkillSize(200.0f);
+	m_pBossSkillRange->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pBossSkillRange->SetPosition(XMFLOAT3(0, 0.2, 0));
+	m_pBossSkillRange->SetScale(1.0f);
+	m_pMonsterObject->SetSkillRangeObject(m_pBossSkillRange);
 
 	m_pSkyboxObject = new GameObject(SQUARE_ENTITY);
 	m_pSkyboxObject->InsertComponent<RenderComponent>();
@@ -2258,6 +2256,17 @@ void GameobjectManager::ResetLobbyUI()
 	m_pUIPriestCharacterObject->m_bUIActive = true;
 }
 
+void GameobjectManager::SetLightningEffect(XMFLOAT3& targetPos)
+{
+	g_sound.NoLoopPlay("LightningSound", 1.0f);
+	m_LightningTargetPos = targetPos;
+	m_pLightEffectObject->AnimateEffect(m_pCamera, targetPos, m_fTimeElapsed, m_fTime * 5);
+	targetPos.y += 50.0f;
+	m_pLightningSpriteObject->SetPosition(targetPos);
+	m_pLightEffectObject->m_fEffectLifeTime = 2.0f;
+	m_pLightningSpriteObject->m_bActive = m_pLightEffectObject->m_bActive = true;
+}
+
 
 void GameobjectManager::PickObjectByRayIntersection(int xClient, int yClient)
 {
@@ -2499,6 +2508,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 						{
 							if (g_Logic.GetMyRole() == ROLE::ARCHER)
 								static_cast<Archer*>(myPlayCharacter)->m_xmf3TargetPos = m_pSelectedObject->GetPosition();
+							m_LightningTargetPos = m_pSelectedObject->GetPosition();
 							myPlayCharacter->SecondSkillDown();
 						}
 					}
