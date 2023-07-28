@@ -544,7 +544,7 @@ bool ChracterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ftimeE
 			}
 		}
 		else {//노말 몬스터와 충돌하지 않음 => 맵만 충돌
-			float dotResult = Vector3::DotProduct(mapNormalVector, moveDirection);		
+			float dotResult = Vector3::DotProduct(mapNormalVector, moveDirection);
 			if (dotResult > 0.121) {
 				return false;
 			}
@@ -715,7 +715,7 @@ void MageSessionObject::ExecuteCommonAttack(XMFLOAT3& attackDir, int power)
 	sendPacket.size = sizeof(SERVER_PACKET::ShootingObject);
 	sendPacket.type = SERVER_PACKET::SHOOTING_BALL;
 	sendPacket.dir = attackDir;
-	g_logic.MultiCastOtherPlayerInRoom(m_roomId, &sendPacket);
+	g_logic.MultiCastOtherPlayerInRoom_R(m_roomId, ROLE::PRIEST, &sendPacket);
 }
 
 void MageSessionObject::SetStage_1Position()
@@ -818,7 +818,7 @@ void ArcherSessionObject::ExecuteCommonAttack(XMFLOAT3& attackDir, int power)
 	sendPacket.size = sizeof(SERVER_PACKET::ShootingObject);
 	sendPacket.type = SERVER_PACKET::SHOOTING_ARROW;
 	sendPacket.dir = attackDir;
-	g_logic.MultiCastOtherPlayerInRoom(m_roomId, &sendPacket);
+	g_logic.MultiCastOtherPlayerInRoom_R(m_roomId, ROLE::ARCHER, &sendPacket);
 }
 
 void ArcherSessionObject::SetStage_1Position()

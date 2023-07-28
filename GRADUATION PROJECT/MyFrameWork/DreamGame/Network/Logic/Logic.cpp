@@ -256,6 +256,8 @@ void Logic::ProcessPacket(char* p)
 		Monster* bossMonster = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster();
 		bossMonster->m_UIScale = static_cast<float>(recvPacket->bossState.hp) / 250.0f;//maxHp 2500입니다
 		bossMonster->SetCurrentHP(static_cast<float>(recvPacket->bossState.hp) / 25.0f);//maxHp 2500입니다
+		bossMonster->m_desDirecionVec = recvPacket->bossState.moveVec;
+		bossMonster->m_serverDesDirecionVec = recvPacket->bossState.desVec;
 		if (bossMonster->GetCurrentHP() < FLT_EPSILON)
 		{
 			GameEnd = true;
@@ -362,36 +364,36 @@ void Logic::ProcessPacket(char* p)
 
 		SERVER_PACKET::BossMoveNodePacket* recvPacket = reinterpret_cast<SERVER_PACKET::BossMoveNodePacket*>(p);
 		if (gGameFramework.m_pScene == nullptr) return;
-	
-		//Role로 변경했음 이거 참고 		
-		bossMonster->m_roleDesPlayer = recvPacket->targetRole;
-		//std::cout << "recv aggro Id: " << recvPacket->desPlayerId << std::endl;
-		if (recvPacket->nodeCnt == -1) {		
-		}
-		else if (recvPacket->nodeCnt > 0) {
-			cout << "보스 이동 인덱스 : ";
-			vector<int> triangleIdxVec;
-			std::list<int> recvNodeQueue;
-			for (int i = 0; i < recvPacket->nodeCnt; i++) {
-				//보스가 이동할 노드 데이터
-				// 받아온 노드들 벡터에 새로 넣기
-				cout << recvPacket->node[i] << ", ";
-				recvNodeQueue.push_back(recvPacket->node[i]);
-				triangleIdxVec.push_back(recvPacket->node[i]);
-			}
-			bossMonster->m_astarIdx = recvPacket->node[0];
-			cout << endl;
-			//gGameFramework.m_pScene->m_pObjectManager->m_VecNodeQueue.push_back(recvPacket->node[i]);
-			//AStart Node Mesh
-			gGameFramework.m_pScene->m_pObjectManager->m_nodeLock.lock();
-			gGameFramework.m_pScene->m_pObjectManager->m_VecNodeQueue.swap(triangleIdxVec);
-			gGameFramework.m_pScene->m_pObjectManager->m_nodeLock.unlock();
 
-			//boss Move Node Data
-			bossMonster->m_lockBossRoute.lock();
-			bossMonster->m_BossRoute = recvNodeQueue;
-			bossMonster->m_lockBossRoute.unlock();
-		}
+		//Role로 변경했음 이거 참고 		
+		//bossMonster->m_roleDesPlayer = recvPacket->targetRole;
+		////std::cout << "recv aggro Id: " << recvPacket->desPlayerId << std::endl;
+		//if (recvPacket->nodeCnt == -1) {		
+		//}
+		//else if (recvPacket->nodeCnt > 0) {
+		//	cout << "보스 이동 인덱스 : ";
+		//	vector<int> triangleIdxVec;
+		//	std::list<int> recvNodeQueue;
+		//	for (int i = 0; i < recvPacket->nodeCnt; i++) {
+		//		//보스가 이동할 노드 데이터
+		//		// 받아온 노드들 벡터에 새로 넣기
+		//		cout << recvPacket->node[i] << ", ";
+		//		recvNodeQueue.push_back(recvPacket->node[i]);
+		//		triangleIdxVec.push_back(recvPacket->node[i]);
+		//	}
+		//	bossMonster->m_astarIdx = recvPacket->node[0];
+		//	cout << endl;
+		//	//gGameFramework.m_pScene->m_pObjectManager->m_VecNodeQueue.push_back(recvPacket->node[i]);
+		//	//AStart Node Mesh
+		//	gGameFramework.m_pScene->m_pObjectManager->m_nodeLock.lock();
+		//	gGameFramework.m_pScene->m_pObjectManager->m_VecNodeQueue.swap(triangleIdxVec);
+		//	gGameFramework.m_pScene->m_pObjectManager->m_nodeLock.unlock();
+		//
+		//	//boss Move Node Data
+		//	bossMonster->m_lockBossRoute.lock();
+		//	bossMonster->m_BossRoute = recvNodeQueue;
+		//	bossMonster->m_lockBossRoute.unlock();
+		//}
 
 		if (!bossMonster->GetMoveState())
 		{

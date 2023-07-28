@@ -19,18 +19,19 @@ private:
 	std::list<int> m_ReserveRoad;
 	std::atomic_int m_onIdx = -1;
 public:
+	XMFLOAT3 m_desVector = XMFLOAT3(0, 0, 1);
 	std::atomic_bool  isMove = false;
 	std::atomic_bool isAttack = false;
 	std::atomic_bool isPhaseChange = false;
 
-	BOSS_ATTACK currentAttack = BOSS_ATTACK::ATTACK_COUNT;	
+	BOSS_ATTACK currentAttack = BOSS_ATTACK::ATTACK_COUNT;
 public:
 	std::chrono::high_resolution_clock::time_point m_lastAttackTime = std::chrono::high_resolution_clock::now();
 public:
-	void StartMove();	
+	void StartMove();
 public:
 	virtual void Rotate(ROTATE_AXIS axis, float angle) override;
-public:	
+public:
 	bool Move(float elapsedTime) override;
 public:
 	void SetDestinationPos();
@@ -62,5 +63,5 @@ public:
 	bool StartAttack();
 	///////////////
 	bool isBossDie = false;
-	void SetZeroHp() { m_hp = 0; }	
+	void SetZeroHp() { m_hp = 0; }
 };

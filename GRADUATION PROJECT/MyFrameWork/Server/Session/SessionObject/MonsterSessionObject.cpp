@@ -111,14 +111,17 @@ bool MonsterSessionObject::Move(float elapsedTime)
 		std::vector<int> sharedPoints = destinationNodeCenter.IsShareLine(g_bossMapData.GetTriangleMesh(secondNodeIdx).GetVertexIdxs());
 
 		std::vector<XMFLOAT3> mapVertexData = g_bossMapData.GetVertexData();
-		mapVertexData[sharedPoints[0]];
-		mapVertexData[sharedPoints[1]];
-
 		XMFLOAT3 nodeVec1 = Vector3::Normalize(Vector3::Subtract(mapVertexData[sharedPoints[0]], m_position));
 		XMFLOAT3 nodeVec2 = Vector3::Normalize(Vector3::Subtract(mapVertexData[sharedPoints[1]], m_position));
+		if (nodeVec1.x < DBL_EPSILON && nodeVec1.z < DBL_EPSILON) {
+			nodeVec1 = desPlayerVector;
+		}
+		if (nodeVec2.x < DBL_EPSILON && nodeVec2.z < DBL_EPSILON) {
+			nodeVec2 = desPlayerVector;
+		}
 		float dotResult1 = Vector3::DotProduct(desPlayerVector, nodeVec1);
 		float dotResult2 = Vector3::DotProduct(desPlayerVector, nodeVec2);
-		XMFLOAT3 monsterLookTo;
+		XMFLOAT3 monsterLookTo = m_rightVector;
 		if (dotResult1 > 0) {
 			if (dotResult2 > 0) {
 				monsterLookTo = desPlayerVector;
@@ -134,7 +137,7 @@ bool MonsterSessionObject::Move(float elapsedTime)
 
 		}//위에서 나온 벡터 기준 회전하여 이동하자자
 
-
+		m_desVector = monsterLookTo;
 		bool OnRight = (Vector3::DotProduct(m_rightVector, monsterLookTo) > 0) ? true : false;	// 목적지가 오른쪽 왼
 		float ChangingAngle = Vector3::Angle(monsterLookTo, m_directionVector);
 		//거리와 벡터 계산				
@@ -158,6 +161,7 @@ bool MonsterSessionObject::Move(float elapsedTime)
 	}
 	else {
 		m_reserveRoadLock.unlock();
+		m_desVector = desPlayerVector;
 		float ChangingAngle = Vector3::Angle(desPlayerVector, m_directionVector);
 		if (ChangingAngle > 40.0f) {
 			std::cout << "EQ IDX - angle > 40" << std::endl;

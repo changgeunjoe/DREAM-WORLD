@@ -846,10 +846,10 @@ void Warrior::Move(float fTimeElapsed)
 	//	{
 	//	case DIRECTION::IDLE:
 	//	{
-			XMFLOAT3 xmf3Position = GetPosition();
-			xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * fTimeElapsed);
-			SetPosition(xmf3Position);
-			if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
+	XMFLOAT3 xmf3Position = GetPosition();
+	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * fTimeElapsed);
+	SetPosition(xmf3Position);
+	if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
 	//	}
 	//	break;
 	//	case DIRECTION::FRONT: MoveForward(1, fTimeElapsed); break;
@@ -2346,6 +2346,7 @@ void Monster::Animate(float fTimeElapsed)
 
 void Monster::Move(float fTimeElapsed)
 {
+	static XMFLOAT3 up = XMFLOAT3(0, 1, 0);
 	if (m_bMoveState)	// 움직이는 중
 	{
 		if (m_bOnSkill)
@@ -2353,127 +2354,160 @@ void Monster::Move(float fTimeElapsed)
 			// 움직이는 스킬 (DASH_FORWARD)
 			// 이동방식 회의 후 구현 위치
 		}
-		else
-		{
-			{
-				std::lock_guard<mutex> lg(m_lockBossRoute);
-				if (m_BossRoute.empty()) return;
-			}
-
-			XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f);
-			XMFLOAT3 desPlayerPos = g_Logic.GetPostion(m_roleDesPlayer);
-			XMFLOAT3 desPlayerVector = Vector3::Subtract(desPlayerPos, GetPosition());
-			float playerDistance = Vector3::Length(desPlayerVector);
-			desPlayerVector = Vector3::Normalize(desPlayerVector);
-			//XMFLOAT3 desPlayerPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
-			if (m_roleDesPlayer != ROLE::NONE_SELECT) {
-				if (m_astarIdx == -1) return;
-				bool isOnNode = g_bossMapData.GetTriangleMesh(m_astarIdx).IsOnTriangleMesh(m_position);
-				if (!isOnNode) {
-					m_lockBossRoute.lock();
-					if (m_BossRoute.size() > 1) {
-						m_BossRoute.erase(m_BossRoute.begin());
-						m_astarIdx = *m_BossRoute.begin();
-					}
-					else {
-						m_BossRoute.erase(m_BossRoute.begin());
-					}
-					m_lockBossRoute.unlock();
-				}
-
-				m_lockBossRoute.lock();
-				if (m_BossRoute.size() > 1) {
-					int currentNodeIdx = m_BossRoute.front();
-					int secondNodeIdx = *(++m_BossRoute.begin());
-					m_lockBossRoute.unlock();
-					TrinangleMesh destinationNodeCenter = g_bossMapData.GetTriangleMesh(currentNodeIdx);
-					TrinangleMesh nextMoveNode = g_bossMapData.GetTriangleMesh(secondNodeIdx);
-					std::vector<int> sharedPoints = destinationNodeCenter.IsShareLine(g_bossMapData.GetTriangleMesh(secondNodeIdx).GetVertexIdxs());
-
-					std::vector<XMFLOAT3> mapVertexData = g_bossMapData.GetVertexData();
-
-					XMFLOAT3 nodeVec1 = Vector3::Normalize(Vector3::Subtract(mapVertexData[sharedPoints[0]], m_position));
-					XMFLOAT3 nodeVec2 = Vector3::Normalize(Vector3::Subtract(mapVertexData[sharedPoints[1]], m_position));
-					float dotResult1 = Vector3::DotProduct(desPlayerVector, nodeVec1);
-					float dotResult2 = Vector3::DotProduct(desPlayerVector, nodeVec2);
-
-					XMFLOAT3 monsterLookTo;
-					if (dotResult1 > 0) {
-						if (dotResult2 > 0) {
-							monsterLookTo = desPlayerVector;
-						}
-						else {
-							monsterLookTo = nodeVec1;
-						}
-					}
-					else {
-						if (dotResult2 > 0) {
-							monsterLookTo = nodeVec2;
-						}
-
-					}//위에서 나온 벡터 기준 회전하여 이동하자자
-
-					bool OnRight = (Vector3::DotProduct(GetRight(), monsterLookTo) > 0) ? true : false;
-					float ChangingAngle = Vector3::Angle(monsterLookTo, GetLook());
-					if (ChangingAngle > 40.0f) {
-						if (OnRight) {
-							Rotate(&up, 90.0f * fTimeElapsed);
-							m_xmf3rotateAngle.y += 90.0f * fTimeElapsed;
-						}
-						else {
-							Rotate(&up, -90.0f * fTimeElapsed);
-							m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
-						}
-					}
-					else if (ChangingAngle > 1.7f) {
-						if (OnRight) {
-							Rotate(&up, 90.0f * fTimeElapsed);
-							m_xmf3rotateAngle.y += 90.0f * fTimeElapsed;
-						}
-						else {
-							Rotate(&up, -90.0f * fTimeElapsed);
-							m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
-						}
-						MoveForward(50 * fTimeElapsed);
-					}
-					else {
-						MoveForward(50 * fTimeElapsed);
-					}
-
-					//std::cout << "BossPos: " << m_position.x << "0, " << m_position.z << std::endl;
+		else {
+			float serverChangingAngle = Vector3::Angle(m_desDirecionVec, m_serverDesDirecionVec);
+			if (serverChangingAngle > 40.0f) {
+				bool OnRight = (Vector3::DotProduct(GetRight(), m_desDirecionVec) > 0) ? true : false;
+				if (OnRight) {
+					Rotate(&up, 90.0f * fTimeElapsed);
+					m_xmf3rotateAngle.y += 90.0f * fTimeElapsed;
 				}
 				else {
-					m_lockBossRoute.unlock();
-
-					float ChangingAngle = Vector3::Angle(desPlayerVector, GetLook());
-					if (ChangingAngle > 40.0f) {
-						bool OnRight = (Vector3::DotProduct(GetRight(), desPlayerVector) > 0) ? true : false;
-						if (OnRight) {
-							Rotate(&up, 90.0f * fTimeElapsed);
-							m_xmf3rotateAngle.y += 90.0f * fTimeElapsed;
-						}
-						else {
-							Rotate(&up, -90.0f * fTimeElapsed);
-							m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
-						}
-						return;
-					}
-					if (ChangingAngle > 1.6f) {
-						bool OnRight = (Vector3::DotProduct(GetRight(), desPlayerVector) > 0) ? true : false;
-						if (OnRight) {
-							Rotate(&up, 90.0f * fTimeElapsed);
-							m_xmf3rotateAngle.y += 90.0f * fTimeElapsed;
-						}
-						else {
-							Rotate(&up, -90.0f * fTimeElapsed);
-							m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
-						}
-					}
-					if (playerDistance >= 42.0f)
-						MoveForward(50 * fTimeElapsed);
+					Rotate(&up, -90.0f * fTimeElapsed);
+					m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
 				}
 			}
+			else if (serverChangingAngle > 1.7f) {
+				bool OnRight = (Vector3::DotProduct(GetRight(), m_desDirecionVec) > 0) ? true : false;
+				if (OnRight) {
+					Rotate(&up, 90.0f * fTimeElapsed);
+					m_xmf3rotateAngle.y += 90.0f * fTimeElapsed;
+				}
+				else {
+					Rotate(&up, -90.0f * fTimeElapsed);
+					m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
+				}
+				MoveForward(50 * fTimeElapsed);
+			}
+			else {
+				MoveForward(50 * fTimeElapsed);
+			}
+			//float ChangingAngle = Vector3::Angle(m_desDirecionVec, GetLook());
+			
+			
+
 		}
+		//else
+		//{
+		//	{
+		//		std::lock_guard<mutex> lg(m_lockBossRoute);
+		//		if (m_BossRoute.empty()) return;
+		//	}
+
+		//	XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f);
+		//	XMFLOAT3 desPlayerPos = g_Logic.GetPostion(m_roleDesPlayer);
+		//	XMFLOAT3 desPlayerVector = Vector3::Subtract(desPlayerPos, GetPosition());
+		//	float playerDistance = Vector3::Length(desPlayerVector);
+		//	desPlayerVector = Vector3::Normalize(desPlayerVector);
+		//	//XMFLOAT3 desPlayerPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		//	if (m_roleDesPlayer != ROLE::NONE_SELECT) {
+		//		if (m_astarIdx == -1) return;
+		//		bool isOnNode = g_bossMapData.GetTriangleMesh(m_astarIdx).IsOnTriangleMesh(m_position);
+		//		if (!isOnNode) {
+		//			m_lockBossRoute.lock();
+		//			if (m_BossRoute.size() > 1) {
+		//				m_BossRoute.erase(m_BossRoute.begin());
+		//				m_astarIdx = *m_BossRoute.begin();
+		//			}
+		//			else {
+		//				m_BossRoute.erase(m_BossRoute.begin());
+		//			}
+		//			m_lockBossRoute.unlock();
+		//		}
+
+		//		m_lockBossRoute.lock();
+		//		if (m_BossRoute.size() > 1) {
+		//			int currentNodeIdx = m_BossRoute.front();
+		//			int secondNodeIdx = *(++m_BossRoute.begin());
+		//			m_lockBossRoute.unlock();
+		//			TrinangleMesh destinationNodeCenter = g_bossMapData.GetTriangleMesh(currentNodeIdx);
+		//			TrinangleMesh nextMoveNode = g_bossMapData.GetTriangleMesh(secondNodeIdx);
+		//			std::vector<int> sharedPoints = destinationNodeCenter.IsShareLine(g_bossMapData.GetTriangleMesh(secondNodeIdx).GetVertexIdxs());
+
+		//			std::vector<XMFLOAT3> mapVertexData = g_bossMapData.GetVertexData();
+
+		//			XMFLOAT3 nodeVec1 = Vector3::Normalize(Vector3::Subtract(mapVertexData[sharedPoints[0]], m_position));
+		//			XMFLOAT3 nodeVec2 = Vector3::Normalize(Vector3::Subtract(mapVertexData[sharedPoints[1]], m_position));
+		//			float dotResult1 = Vector3::DotProduct(desPlayerVector, nodeVec1);
+		//			float dotResult2 = Vector3::DotProduct(desPlayerVector, nodeVec2);
+
+		//			XMFLOAT3 monsterLookTo;
+		//			if (dotResult1 > 0) {
+		//				if (dotResult2 > 0) {
+		//					monsterLookTo = desPlayerVector;
+		//				}
+		//				else {
+		//					monsterLookTo = nodeVec1;
+		//				}
+		//			}
+		//			else {
+		//				if (dotResult2 > 0) {
+		//					monsterLookTo = nodeVec2;
+		//				}
+
+		//			}//위에서 나온 벡터 기준 회전하여 이동하자자
+
+		//			bool OnRight = (Vector3::DotProduct(GetRight(), monsterLookTo) > 0) ? true : false;
+		//			float ChangingAngle = Vector3::Angle(monsterLookTo, GetLook());
+		//			if (ChangingAngle > 40.0f) {
+		//				if (OnRight) {
+		//					Rotate(&up, 90.0f * fTimeElapsed);
+		//					m_xmf3rotateAngle.y += 90.0f * fTimeElapsed;
+		//				}
+		//				else {
+		//					Rotate(&up, -90.0f * fTimeElapsed);
+		//					m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
+		//				}
+		//			}
+		//			else if (ChangingAngle > 1.7f) {
+		//				if (OnRight) {
+		//					Rotate(&up, 90.0f * fTimeElapsed);
+		//					m_xmf3rotateAngle.y += 90.0f * fTimeElapsed;
+		//				}
+		//				else {
+		//					Rotate(&up, -90.0f * fTimeElapsed);
+		//					m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
+		//				}
+		//				MoveForward(50 * fTimeElapsed);
+		//			}
+		//			else {
+		//				MoveForward(50 * fTimeElapsed);
+		//			}
+
+		//			//std::cout << "BossPos: " << m_position.x << "0, " << m_position.z << std::endl;
+		//		}
+		//		else {
+		//			m_lockBossRoute.unlock();
+
+		//			float ChangingAngle = Vector3::Angle(desPlayerVector, GetLook());
+		//			if (ChangingAngle > 40.0f) {
+		//				bool OnRight = (Vector3::DotProduct(GetRight(), desPlayerVector) > 0) ? true : false;
+		//				if (OnRight) {
+		//					Rotate(&up, 90.0f * fTimeElapsed);
+		//					m_xmf3rotateAngle.y += 90.0f * fTimeElapsed;
+		//				}
+		//				else {
+		//					Rotate(&up, -90.0f * fTimeElapsed);
+		//					m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
+		//				}
+		//				return;
+		//			}
+		//			if (ChangingAngle > 1.6f) {
+		//				bool OnRight = (Vector3::DotProduct(GetRight(), desPlayerVector) > 0) ? true : false;
+		//				if (OnRight) {
+		//					Rotate(&up, 90.0f * fTimeElapsed);
+		//					m_xmf3rotateAngle.y += 90.0f * fTimeElapsed;
+		//				}
+		//				else {
+		//					Rotate(&up, -90.0f * fTimeElapsed);
+		//					m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
+		//				}
+		//			}
+		//			if (playerDistance >= 42.0f)
+		//				MoveForward(50 * fTimeElapsed);
+		//		}
+		//	}
+		//}
 	}
 }
 

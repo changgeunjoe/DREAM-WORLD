@@ -349,8 +349,9 @@ namespace SERVER_PACKET {
 	struct InGameBossState {
 		int hp;
 		XMFLOAT3 pos;
-		XMFLOAT3 rot;
+		XMFLOAT3 rot;		
 		XMFLOAT3 moveVec;
+		XMFLOAT3 desVec;
 	};
 
 	struct GameState_BOSS {//Player State-> pos rot...추가하여 보정?

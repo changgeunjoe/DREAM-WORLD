@@ -532,6 +532,7 @@ void Room::UpdateGameStateForPlayer_BOSS()
 		sendPacket.bossState.pos = m_boss.GetPos();
 		sendPacket.bossState.rot = m_boss.GetRot();
 		sendPacket.bossState.moveVec = m_boss.GetDirectionVector();
+		sendPacket.bossState.desVec = m_boss.m_desVector;
 		int i = 0;
 		std::map<ROLE, int> playerMap;
 		{

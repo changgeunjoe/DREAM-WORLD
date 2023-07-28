@@ -19,7 +19,7 @@ protected:
 public:
 	Character();
 	virtual ~Character();
-	virtual GameObject* GetHpBar(){return m_pHPBarObject;};
+	virtual GameObject* GetHpBar() { return m_pHPBarObject; };
 	virtual void RbuttonClicked(float fTimeElapsed);
 	virtual void RbuttonUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f });
 	virtual void Reset();
@@ -215,6 +215,9 @@ public:
 
 class Monster : public Character
 {
+public:
+	XMFLOAT3 m_desDirecionVec = XMFLOAT3(0, 0, 1);
+	XMFLOAT3 m_serverDesDirecionVec = XMFLOAT3(0, 0, 1);
 public:
 	std::list<int> m_BossRoute;
 	std::mutex m_lockBossRoute;
