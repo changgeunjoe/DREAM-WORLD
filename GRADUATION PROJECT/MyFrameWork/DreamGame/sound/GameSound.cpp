@@ -16,11 +16,17 @@ GameSound::GameSound()
 	MakeSound("LightningSound", "sound/sounds/LightningSound.wav");
 	MakeSound("PriestAttackSound", "sound/sounds/PriestAttackSound.wav");
 	MakeSound("AcherAttackSound", "sound/sounds/AcherAttackSound.wav");
+	MakeSound("ArcherESkillSound", "sound/sounds/ArcherESkillSound.mp3");
+	MakeSound("ArcherQSkillSound", "sound/sounds/AcherQSkillSound.wav");
+	//MakeSound("AcherBow", "sound/sounds/AcherAcherBow.mp3");
 	MakeSound("WarriorAttackSound", "sound/sounds/WarriorAttackSound.mp3");
-	MakeSound("TankerAttackSound", "sound/sounds/TankerAttackSound.wav");
+	MakeSound("WarriorQskillSound", "sound/sounds/WarriorQskill.mp3");
+	MakeSound("TankerAttackSound", "sound/sounds/TankerAttackSound.mp3"); 
 	MakeSound("WalkSound", "sound/sounds/WalkSound2.wav");
+	MakeSound("ArrowBow", "sound/sounds/ArrowBow.mp3");
+	MakeSound("NormalMonsterAttackSound", "sound/sounds/NormalMonsterAttack.mp3");
 	MakeSoundLoop("LobbySound", "sound/sounds/LobbySound1.wav"); 
-	MakeSoundLoop("Stage1Sound", "sound/sounds/Stage1Sound.wav");
+	MakeSoundLoop("Stage1Sound", "sound/sounds/Stage1Sound.wav"); 
 	MakeSoundLoop("BossStage", "sound/sounds/BossStage1.mp3");
 	MakeSoundLoop("HealSound", "sound/sounds/HealSound.wav");
 }

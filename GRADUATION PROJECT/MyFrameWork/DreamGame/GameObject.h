@@ -126,6 +126,7 @@ public:
 
 	void SetRimLight(bool bRimLight);
 	void SetCurrentHP(float fHP);
+	void SetShield(float fShield);
 	void SetSkillTime(float fSkillTime);
 	void SetTempHp(float fHp) { m_fTempHp = fHp; };
 	float GetCurrentHP() { return m_fHp; }

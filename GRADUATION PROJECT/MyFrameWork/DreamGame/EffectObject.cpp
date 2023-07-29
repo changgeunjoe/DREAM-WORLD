@@ -3,7 +3,10 @@
 #include"GameObject.h"
 #include"GameFramework.h"
 #include"GameobjectManager.h"
+#include "Network/Logic/Logic.h"
+#include"Character.h"
 extern CGameFramework gGameFramework;
+extern Logic g_Logic;
 
 
 EffectObject::EffectObject()
@@ -617,7 +620,11 @@ void TankerEffectObject::AnimateEffect(CCamera* pCamera, XMFLOAT3 xm3position, f
 	//XMStoreFloat3(&newPosition, XMVectorAdd(XMLoadFloat3(&xm3position), XMVectorScale(XMLoadFloat3(&directionVector), distanceToCamera)));
 
 	//// 탱커 효과 객체의 위치를 새로운 위치로 설정
-	m_pTankerEffectObject->SetPosition(XMFLOAT3(xm3position.x, xm3position.y - 20, xm3position.z));
+	Character* myCharacter = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::TANKER);
+	XMFLOAT3 mf3NormalLookVec= myCharacter->GetLook();
+	XMFLOAT3 mf3TankerPosition = myCharacter->GetPosition();
+	m_f3EarquakePos = Vector3::Add( mf3TankerPosition ,Vector3::Multiply(30,mf3NormalLookVec));
+	m_pTankerEffectObject->SetPosition(m_f3EarquakePos);
 	//m_pTankerEffectObject->SetLookAt(pCamera->GetPosition());
 	
 	float tempScale = 2.3;
@@ -702,4 +709,24 @@ void PriestEffectObject::Particle(CCamera* pCamera, float fTimeElapsed, XMFLOAT3
 			gGameFramework.GetScene()->GetObjectManager()->m_bPickingenemy = false;
 		}
 //	}
+}
+
+BossEffectObject::BossEffectObject()
+{
+}
+
+BossEffectObject::~BossEffectObject()
+{
+}
+
+void BossEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, vector<GameObject*>* mppEffectObject)
+{
+}
+
+void BossEffectObject::AnimateEffect(CCamera* pCamera, XMFLOAT3 xm3position, float ftimeelapsed, float fTime)
+{
+}
+
+void BossEffectObject::Particle(CCamera* pCamera, float fTimeElapsed, XMFLOAT3& xm3position)
+{
 }

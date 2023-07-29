@@ -314,6 +314,11 @@ float4 PSUITextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
     {
         if (cColor.x < 0.1 || cColor.y < 0.1 || cColor.z < 0.1  )
         {
+            if (gfCharactertHP < input.uv.x && input.uv.x < gfCharactertHP + gmtxGameObjectColor.w)
+            {
+                if (cColor.w!=0)
+                return float4(0.7, 0.7, 0.7, 1);
+            }
             if (input.uv.x > gfCharactertHP)
             return float4(0,0,0,0);
         }

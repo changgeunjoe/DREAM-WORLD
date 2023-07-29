@@ -779,6 +779,7 @@ void Warrior::Attack()
 	if (m_bQSkillClicked)
 	{
 		m_bQSkillClicked = false;
+		
 		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_FIRSTSKILL].m_bAnimationEnd = false;
 		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_FIRSTSKILL].m_fPosition = -ANIMATION_CALLBACK_EPSILON;
 		m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_FIRSTSKILL].m_fSpeed = 1.0f;
@@ -786,6 +787,7 @@ void Warrior::Attack()
 	else if (m_attackAnimation != CA_NOTHING)
 	{
 		int attackPower = 0;
+		g_sound.NoLoopPlay("WarriorAttackSound", 1.0f);
 		switch (m_attackAnimation)
 		{
 		case CA_ATTACK: attackPower = 0; break;
@@ -949,6 +951,7 @@ void Warrior::Animate(float fTimeElapsed)
 
 	if (m_bQSkillClicked)
 	{
+		g_sound.Play("WarriorQskillSound", 1.0f);
 		m_currentDirection = DIRECTION::IDLE;
 		m_bMoveState = false;
 	}
@@ -1105,7 +1108,8 @@ Archer::~Archer()
 void Archer::Attack()
 {
 	if (m_pCamera) {
-		//줌인에 대한 정보 필요할듯함		
+		//줌인에 대한 정보 필요할듯함
+	
 		int power = 0;//줌인 정보
 		g_NetworkHelper.SendCommonAttackExecute(GetLook(), power);//두번째 인자 - 줌인 정도
 	}
@@ -1257,6 +1261,7 @@ void Archer::Animate(float fTimeElapsed)
 		{
 			if (m_bCanAttack && m_pCamera && !m_bZoomInState)
 			{
+			//	g_sound.NoLoopPlay("AcherAttackSound", 1.0f);
 				ShootArrow();
 				m_bCanAttack = false;
 			}
@@ -1330,6 +1335,8 @@ void Archer::ZoomInCamera()
 		CheckAnimationEnd(CA_ATTACK) == false)
 		|| m_bLButtonClicked == true)
 	{
+		g_sound.Play("ArrowBow", 1.0f);
+		
 		if (m_iRButtionCount == 0)
 		{
 			// 줌인을 위해서 애니메이션 타입 및 속도 변경
@@ -1342,6 +1349,7 @@ void Archer::ZoomInCamera()
 			// 카메라 줌인 효과
 			if (m_pCamera)
 			{
+				
 				XMFLOAT3 LookVector = XMFLOAT3(m_pCamera->GetLookVector().x, 0.0f, m_pCamera->GetLookVector().z);
 				XMFLOAT3 CameraOffset = m_pCamera->GetOffset();
 				LookVector = Vector3::ScalarProduct(LookVector, m_fTimeElapsed * 10.0f, false);
@@ -1411,12 +1419,18 @@ void Archer::SetLButtonClicked(bool bLButtonClicked)
 void Archer::ShootArrow()//스킬
 {
 	m_nProjectiles = (m_nProjectiles < MAX_ARROW) ? m_nProjectiles : m_nProjectiles % MAX_ARROW;
+	if (!m_bQSkillClicked && !m_bESkillClicked) {
+		g_sound.Pause("ArrowBow");
+		g_sound.NoLoopPlay("AcherAttackSound", 0.7f);
+
+	}
 	if (m_bQSkillClicked == true)
 	{
 		if (g_Logic.GetMyRole() == ROLE::ARCHER)
 			g_NetworkHelper.Send_SkillExecute_Q(Vector3::Normalize(GetObjectLook()));
 		for (int i = 0; i < 3; ++i)//서버에 옮겨야됨
 		{
+			g_sound.NoLoopPlay("ArcherQSkillSound", 1.0f);
 			XMFLOAT3 objectLook = GetObjectLook();
 			XMFLOAT3 objectRight = GetRight();
 			XMFLOAT3 objPosition = GetPosition();
@@ -1434,6 +1448,7 @@ void Archer::ShootArrow()//스킬
 	}
 	else if (m_bESkillClicked == true)
 	{
+		g_sound.NoLoopPlay("ArcherESkillSound", 0.6f);
 		XMFLOAT3 xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
 		if (g_Logic.GetMyRole() == ROLE::ARCHER)
 			g_NetworkHelper.Send_SkillExecute_E(m_xmf3TargetPos);
@@ -1648,6 +1663,7 @@ Tanker::~Tanker()
 void Tanker::Attack()
 {
 	if (m_pCamera) {
+		g_sound.NoLoopPlay("TankerAttackSound", 0.7f);
 		g_NetworkHelper.SendCommonAttackExecute(GetLook(), 0);
 	}
 }
@@ -2175,7 +2191,7 @@ void Priest::Attack(const XMFLOAT3& xmf3Direction)
 	m_nProjectiles = (m_nProjectiles < 10) ? m_nProjectiles : m_nProjectiles % 10;
 	XMFLOAT3 objectPosition = GetPosition();
 	objectPosition.y += 8.0f;
-
+	g_sound.NoLoopPlay("PriestAttackSound", 1.0f);
 	m_ppProjectiles[m_nProjectiles]->m_xmf3direction = xmf3Direction;
 	m_ppProjectiles[m_nProjectiles]->m_xmf3startPosition = objectPosition;
 	m_ppProjectiles[m_nProjectiles]->SetPosition(objectPosition);
@@ -2753,6 +2769,7 @@ void TrailObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLis
 
 NormalMonster::NormalMonster() : Character()
 {
+	m_fHp = 100.000f;
 	m_fSpeed = 30.0f;
 }
 
@@ -2885,6 +2902,7 @@ void NormalMonster::SetAnimation()
 	{
 		if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CA_ATTACK)
 		{
+			g_sound.NoLoopPlay("NormalMonsterAttackSound", 1.0f);
 			NextAnimations = { CharacterAnimation::CA_ATTACK, CharacterAnimation::CA_ATTACK };
 			m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_fPosition = -ANIMATION_CALLBACK_EPSILON;
 		}

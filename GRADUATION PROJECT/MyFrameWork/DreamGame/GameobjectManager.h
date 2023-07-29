@@ -89,6 +89,7 @@ public:
 
 	void ChangeStage1ToStage2(float fTimeelpased);
 	void ChangeStage2ToStage1();
+	void SetTempHP();
 	bool CheckCollision(vector<GameObject*> m_ppObjects);
 
 
@@ -254,6 +255,8 @@ private:
 	bool				m_bPortalCheck = false;
 	bool				m_bTest = false;
 	XMFLOAT3			m_LightningTargetPos;
+	bool				m_bGameStart = false;
+
 
 public:
 	std::vector<int> m_VecNodeQueue;
@@ -280,6 +283,7 @@ public:
 	void ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, const char* fileName, CLoadedModelInfoCompnent* modelName, int type, int stagetype);
 	void ReadNormalMonsterFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, const char* fileName, CLoadedModelInfoCompnent* modelName, int type, int stagetype);
 	bool CheckCollideNPC();
+	void CheckCollideNPCColorChange();
 	void CheckCollidePortal();
 	vector<GameObject*>& GetObstacle() { return m_ppObstacleObjects; }
 	Character* GetChracterInfo(ROLE r);
