@@ -165,10 +165,10 @@ float GameObject::CalculateDistanceSound()
 
 	float distance;
 	XMStoreFloat(&distance, distanceVec);
-	if (distance > 300) {
-		cout << "초과된 distance =" << distance;
-	}
-	cout << (300 - distance) / 300 << endl;
+	//if (distance > 300) {
+	//	cout << "초과된 distance =" << distance;
+	//}
+	//cout << (300 - distance) / 300 << endl;
 	return (300-distance)/300 ;
 }
 

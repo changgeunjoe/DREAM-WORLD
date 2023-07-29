@@ -25,6 +25,7 @@ class Warrior;
 class Archer;
 class Tanker;
 class Priest;
+class TankerEffectObject;
 
 class GameobjectManager
 {
@@ -97,6 +98,8 @@ public:
 	void AddDamageFontToUiLayer(XMFLOAT3 xmf3Pos, float fDamage);
 	float CalculateDistance(const XMFLOAT3& firstPosition, const XMFLOAT3& lastPosition);
 	virtual void SortEffect();//게임 오브젝트를 카메라와 거리별로 sort하는 함수입니다. ->이펙트가 블랜드가 꼬이는 걸 막기위한 소트 
+
+	
 
 
 private: //active object 
@@ -230,7 +233,7 @@ private:
 	EffectObject* m_pSheildEffectObject{ NULL };
 	EffectObject* m_pPortalEffectObject{ NULL };
 	EffectObject* m_pPreistAttackEffectObject{ NULL };
-	EffectObject* m_pTankerAttackEffectObject{ NULL };
+	TankerEffectObject* m_pTankerAttackEffectObject{ NULL };
 
 	vector<GameObject*> m_ppEffectObjects{};
 
@@ -293,6 +296,7 @@ public:
 	NormalMonster** GetNormalMonsterArr() { return m_ppNormalMonsterObject; };
 	EffectObject** GetShieldEffectArr() { return &m_ppShieldEffectObject[0]; }
 	EffectObject** GetHealingEffectArr() { return &m_ppHealingEffectObject[0]; }
+	TankerEffectObject* GetTankerAttackEffect() { return m_pTankerAttackEffectObject; }
 	void SetCharactersStage1Postion();
 	void SetCharactersBossStagePostion();
 	void SetCharactersLobbyPosition();

@@ -238,7 +238,7 @@ void Logic::ProcessPacket(char* p)
 			float maxHp = smallMonsterArr[i]->GetMaxHP();
 			smallMonsterArr[i]->SetCurrentHP(recvPacket->smallMonster[i].hp / maxHp * 100.0f);
 			if(recvPacket->smallMonster[i].hp == 150)
-			smallMonsterArr[i]->SetTempHp(recvPacket->smallMonster[i].hp / maxHp * 100.0f);
+				smallMonsterArr[i]->SetTempHp(recvPacket->smallMonster[i].hp / maxHp * 100.0f);
 			smallMonsterArr[i]->SetAliveState(recvPacket->smallMonster[i].isAlive);
 
 		}
@@ -261,8 +261,11 @@ void Logic::ProcessPacket(char* p)
 		SERVER_PACKET::GameState_BOSS* recvPacket = reinterpret_cast<SERVER_PACKET::GameState_BOSS*>(p);
 		Monster* bossMonster = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster();
 		float fMaxHp = bossMonster->GetMaxHP();
+
 		bossMonster->m_UIScale = static_cast<float>(recvPacket->bossState.hp) / fMaxHp * 100.0f;//maxHp 2500입니다
 		bossMonster->SetCurrentHP(static_cast<float>(recvPacket->bossState.hp) / fMaxHp * 100.0f);//maxHp 2500입니다
+		if (recvPacket->bossState.hp == 6500)
+			bossMonster->SetTempHp(recvPacket->bossState.hp / fMaxHp * 100.0f);
 
 		//bossMonster->m_desDirecionVec = recvPacket->bossState.moveVec;
 		//bossMonster->m_serverDesDirecionVec = recvPacket->bossState.desVec;

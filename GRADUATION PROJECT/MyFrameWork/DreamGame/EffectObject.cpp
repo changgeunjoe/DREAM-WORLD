@@ -17,7 +17,7 @@ EffectObject::~EffectObject()
 {
 }
 
-void EffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,vector<GameObject*> *mppEffectObject)
+void EffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, vector<GameObject*>* mppEffectObject)
 {
 	for (int i = 0; i < m_pSmokeObject.size(); i++) {
 		m_pSmokeObject[i] = new GameObject(UNDEF_ENTITY);
@@ -182,40 +182,40 @@ void EffectObject::SortEffect()
 
 void EffectObject::Particle(CCamera* pCamera, float fTimeElapsed, XMFLOAT3& xm3position)
 {
-	
+
+	for (int i = 0; i < m_ppParticleObjects.size(); i++) {
+		if (m_fParticleLifeTime == 0)
+			m_ppParticleObjects[i]->SetPosition(xm3position);
+	}
+	m_fParticleLifeTime += fTimeElapsed;
+	if (m_fParticleLifeTime < 3)
+	{
 		for (int i = 0; i < m_ppParticleObjects.size(); i++) {
-			if (m_fParticleLifeTime == 0)
-				m_ppParticleObjects[i]->SetPosition(xm3position);
-		}
-		m_fParticleLifeTime += fTimeElapsed;
-		if (m_fParticleLifeTime < 3)
-		{
-			for (int i = 0; i < m_ppParticleObjects.size(); i++) {
-				float t = m_ppParticleObjects[i]->m_fTime, tt = t * t * 0.6f;
-				/////////////////////////////////////
-				m_ppParticleObjects[i]->m_fTime += fTimeElapsed;
-				m_ppParticleObjects[i]->SetLookAt(pCamera->GetPosition());
-				//m_ppParticleObjects[i]->SetScale(1);
-				m_ppParticleObjects[i]->Rotate(0, 180, 0);
-				if (m_ppParticleObjects[i]->m_fTime > 3) {
-					m_ppParticleObjects[i]->m_fTime = 0;
-				}
-				XMFLOAT3 mxmf3Accel = { 0.f, -0.5f, 0.f };
-				m_ppParticleObjects[i]->SetPosition(Vector3::Add(m_ppParticleObjects[i]->GetPosition(), Vector3::Add(Vector3::ScalarProduct(mxmf3Accel, tt, false), Vector3::ScalarProduct(m_ppParticleObjects[i]->m_xmf3RamdomDirection, t, false))));
-				if (sin(m_fParticleLifeTime) > 0) {
-					m_ppParticleObjects[i]->SetScale(sin(m_fParticleLifeTime));
-				}
-
-				//빌드 오브젝트
-				//m_ppParticleObjects[i]->MoveVelocity(m_ppParticleObjects[i]->m_xmf3RamdomDirection, 0.01);
+			float t = m_ppParticleObjects[i]->m_fTime, tt = t * t * 0.6f;
+			/////////////////////////////////////
+			m_ppParticleObjects[i]->m_fTime += fTimeElapsed;
+			m_ppParticleObjects[i]->SetLookAt(pCamera->GetPosition());
+			//m_ppParticleObjects[i]->SetScale(1);
+			m_ppParticleObjects[i]->Rotate(0, 180, 0);
+			if (m_ppParticleObjects[i]->m_fTime > 3) {
+				m_ppParticleObjects[i]->m_fTime = 0;
 			}
-		}
-		else if (m_fParticleLifeTime > 3) {
+			XMFLOAT3 mxmf3Accel = { 0.f, -0.5f, 0.f };
+			m_ppParticleObjects[i]->SetPosition(Vector3::Add(m_ppParticleObjects[i]->GetPosition(), Vector3::Add(Vector3::ScalarProduct(mxmf3Accel, tt, false), Vector3::ScalarProduct(m_ppParticleObjects[i]->m_xmf3RamdomDirection, t, false))));
+			if (sin(m_fParticleLifeTime) > 0) {
+				m_ppParticleObjects[i]->SetScale(sin(m_fParticleLifeTime));
+			}
 
-			m_fParticleLifeTime = 0;
-			gGameFramework.GetScene()->GetObjectManager()->m_bPickingenemy = false;
+			//빌드 오브젝트
+			//m_ppParticleObjects[i]->MoveVelocity(m_ppParticleObjects[i]->m_xmf3RamdomDirection, 0.01);
 		}
-	
+	}
+	else if (m_fParticleLifeTime > 3) {
+
+		m_fParticleLifeTime = 0;
+		gGameFramework.GetScene()->GetObjectManager()->m_bPickingenemy = false;
+	}
+
 }
 
 void EffectObject::SetActive(bool bActive)
@@ -255,7 +255,7 @@ LightningEffectObject::~LightningEffectObject()
 {
 }
 
-void LightningEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, vector<GameObject*> *mppEffectObject)
+void LightningEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, vector<GameObject*>* mppEffectObject)
 {
 	for (int i = 0; i < m_pLightningSpriteObject.size(); i++) {
 		m_pLightningSpriteObject[i] = new GameObject(UNDEF_ENTITY);
@@ -336,7 +336,7 @@ SheildEffectObject::~SheildEffectObject()
 {
 }
 
-void SheildEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,  vector<GameObject*> *mppEffectObject)
+void SheildEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, vector<GameObject*>* mppEffectObject)
 {
 	for (int i = 0; i < m_pSmokeObject.size(); i++) {
 		m_pSmokeObject[i] = new GameObject(UNDEF_ENTITY);
@@ -492,7 +492,7 @@ PortalEffectObject::~PortalEffectObject()
 {
 }
 
-void PortalEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, vector<GameObject*> *mppEffectObject)
+void PortalEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, vector<GameObject*>* mppEffectObject)
 {
 	m_pPortalEffectObject = new GameObject(UNDEF_ENTITY);
 	m_pPortalEffectObject->InsertComponent<RenderComponent>();
@@ -526,10 +526,10 @@ void PortalEffectObject::AnimateEffect(CCamera* pCamera, XMFLOAT3 xm3position, f
 	if (m_pPortalEffectObject) {
 		m_pPortalEffectObject->SetLookAt(pCamera->GetPosition());
 		m_pPortalEffectObject->SetPosition(XMFLOAT3(
-			xm3position.x+20,
+			xm3position.x + 20,
 			xm3position.y + 20,
 			xm3position.z));
-		m_pPortalEffectObject->Rotate(0, 180, fTime*3);
+		m_pPortalEffectObject->Rotate(0, 180, fTime * 3);
 		m_pPortalEffectObject->SetScale(10, 10, 1);
 		//m_pPortalEffectObject->SetColor(XMFLOAT4(0, 1, 0, 0.4));
 		m_pPortalEffectObject->SetCurrentHP(100);
@@ -548,7 +548,7 @@ void PortalEffectObject::AnimateEffect(CCamera* pCamera, XMFLOAT3 xm3position, f
 
 TankerEffectObject::TankerEffectObject()
 {
-	
+
 }
 
 TankerEffectObject::~TankerEffectObject()
@@ -557,49 +557,49 @@ TankerEffectObject::~TankerEffectObject()
 
 void TankerEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, vector<GameObject*>* mppEffectObject)
 {
-		m_pTankerEffectObject = new GameObject(UNDEF_ENTITY);
-		m_pTankerEffectObject->InsertComponent<RenderComponent>();
-		m_pTankerEffectObject->InsertComponent<UIMeshComponent>();
-		m_pTankerEffectObject->InsertComponent<BlendShaderComponent>();
-		m_pTankerEffectObject->InsertComponent<TextureComponent>();
-		m_pTankerEffectObject->SetTexture(L"MagicEffect/Earthquake.dds", RESOURCE_TEXTURE2D, 3);
-		m_pTankerEffectObject->SetPosition(XMFLOAT3(0, 40, 50));
-		m_pTankerEffectObject->SetScale(7);
-		m_pTankerEffectObject->SetAddPosition(XMFLOAT3(RandF(-5, 5), RandF(-5, 5), RandF(-5, 5)));
-		m_pTankerEffectObject->SetRowColumn(16, 8, 0.05);
-		m_pTankerEffectObject->SetColor(XMFLOAT4(0.9f, 1.0f, 0, 0));
-		m_pTankerEffectObject->Rotate(90, 0, 0);
-		m_pTankerEffectObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-		m_pTankerEffectObject->m_fTime = RandF(0, 10);
-		m_pEffectObjects.emplace_back(m_pTankerEffectObject);
-		mppEffectObject->emplace_back(m_pTankerEffectObject);
+	for (int i = 0; i < m_pTankerEffectObject.size(); i++) {
+		m_pTankerEffectObject[i] = new GameObject(UNDEF_ENTITY);
+		m_pTankerEffectObject[i]->InsertComponent<RenderComponent>();
+		m_pTankerEffectObject[i]->InsertComponent<UIMeshComponent>();
+		m_pTankerEffectObject[i]->InsertComponent<BlendShaderComponent>();
+		m_pTankerEffectObject[i]->InsertComponent<TextureComponent>();
+		m_pTankerEffectObject[i]->SetTexture(L"MagicEffect/Earthquake.dds", RESOURCE_TEXTURE2D, 3);
+		m_pTankerEffectObject[i]->SetPosition(XMFLOAT3(0, 40, 50));
+		m_pTankerEffectObject[i]->SetScale(6);
+		m_pTankerEffectObject[i]->SetAddPosition(XMFLOAT3(RandF(-5, 5), RandF(-5, 5), RandF(-5, 5)));
+		m_pTankerEffectObject[i]->SetRowColumn(16, 8, 0.05);
+		m_pTankerEffectObject[i]->SetColor(XMFLOAT4(0.9f, 1.0f, 0, 0));
+		m_pTankerEffectObject[i]->Rotate(90, RandF(-180, 180), 0);
+		m_pTankerEffectObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		m_pTankerEffectObject[i]->m_fTime = RandF(0, 10);
+		m_pEffectObjects.emplace_back(m_pTankerEffectObject[i]);
+		mppEffectObject->emplace_back(m_pTankerEffectObject[i]);
+	}
 
-		for (int i = 0; i < m_ppParticleObjects.size(); i++) {
-			m_ppParticleObjects[i] = new GameObject(UNDEF_ENTITY);
-			m_ppParticleObjects[i]->InsertComponent<RenderComponent>();
-			m_ppParticleObjects[i]->InsertComponent<UIMeshComponent>();
-			m_ppParticleObjects[i]->InsertComponent<EffectShaderComponent>();
-			m_ppParticleObjects[i]->InsertComponent<TextureComponent>();
-			m_ppParticleObjects[i]->SetTexture(L"MagicEffect/Star.dds", RESOURCE_TEXTURE2D, 3);
-			m_ppParticleObjects[i]->SetAddPosition(XMFLOAT3(RandF(-5, 5), RandF(-5, 5), RandF(-5, 5)));
-			m_ppParticleObjects[i]->SetPosition(XMFLOAT3(0, 0, 0));
-			m_ppParticleObjects[i]->SetColor(XMFLOAT4(0.9f, 1.0f, 0.8862f, 0));
-			m_ppParticleObjects[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-			m_ppParticleObjects[i]->m_fTime = 0;
-			m_ppParticleObjects[i]->m_xmf3RamdomDirection = XMFLOAT3(RandF(-0.1, 0.1), RandF(-0.1, 0.1), RandF(-0.1, 0.1));
-			m_pEffectObjects.emplace_back(m_ppParticleObjects[i]);
-			mppEffectObject->emplace_back(m_ppParticleObjects[i]);
-		}
+	for (int i = 0; i < m_ppParticleObjects.size(); i++) {
+		m_ppParticleObjects[i] = new GameObject(UNDEF_ENTITY);
+		m_ppParticleObjects[i]->InsertComponent<RenderComponent>();
+		m_ppParticleObjects[i]->InsertComponent<UIMeshComponent>();
+		m_ppParticleObjects[i]->InsertComponent<EffectShaderComponent>();
+		m_ppParticleObjects[i]->InsertComponent<TextureComponent>();
+		m_ppParticleObjects[i]->SetTexture(L"MagicEffect/Star.dds", RESOURCE_TEXTURE2D, 3);
+		m_ppParticleObjects[i]->SetAddPosition(XMFLOAT3(RandF(-5, 5), RandF(-5, 5), RandF(-5, 5)));
+		m_ppParticleObjects[i]->SetPosition(XMFLOAT3(0, 0, 0));
+		m_ppParticleObjects[i]->SetColor(XMFLOAT4(0.9f, 1.0f, 0.8862f, 0));
+		m_ppParticleObjects[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		m_ppParticleObjects[i]->m_fTime = 0;
+		m_ppParticleObjects[i]->m_xmf3RamdomDirection = XMFLOAT3(RandF(-0.1, 0.1), RandF(-0.1, 0.1), RandF(-0.1, 0.1));
+		m_pEffectObjects.emplace_back(m_ppParticleObjects[i]);
+		mppEffectObject->emplace_back(m_ppParticleObjects[i]);
+	}
 }
 
 void TankerEffectObject::AnimateEffect(CCamera* pCamera, XMFLOAT3 xm3position, float ftimeelapsed, float fTime)
 {
-	//if (gGameFramework.GetScene()->GetObjectManager()->m_bPickingenemy)
-		//	{
-		for (int i = 0; i < m_ppParticleObjects.size(); i++) {
-			if (m_fParticleLifeTime == 0)
-				m_ppParticleObjects[i]->SetPosition(xm3position);
-		}
+	for (int i = 0; i < m_ppParticleObjects.size(); i++) {
+		if (m_fParticleLifeTime == 0)
+			m_ppParticleObjects[i]->SetPosition(xm3position);
+	}
 	m_fParticleLifeTime += ftimeelapsed;
 	m_fEarthquakeLifeTime += ftimeelapsed;
 	if (m_fParticleLifeTime < 3)
@@ -619,50 +619,37 @@ void TankerEffectObject::AnimateEffect(CCamera* pCamera, XMFLOAT3 xm3position, f
 			if (sin(m_fParticleLifeTime) < 0.95) {
 				m_ppParticleObjects[i]->SetScale(sin(m_fParticleLifeTime));
 			}
-
-			//빌드 오브젝트
-			//m_ppParticleObjects[i]->MoveVelocity(m_ppParticleObjects[i]->m_xmf3RamdomDirection, 0.01);
 		}
 	}
 	else if (m_fParticleLifeTime > 2.5) {
-
 		m_fParticleLifeTime = 0;
-		gGameFramework.GetScene()->GetObjectManager()->m_bPickingenemy = false;
 	}
-	//////////////////////////////////
-	//XMFLOAT3 directionVector;
-	//XMStoreFloat3(&directionVector, XMVectorSubtract(XMLoadFloat3(&pCamera->GetPosition()), XMLoadFloat3(&xm3position)));
-
-	//// directionVector를 단위 벡터로 만들기
-	//XMVECTOR direction = XMLoadFloat3(&directionVector);
-	//direction = XMVector3Normalize(direction);
-	//XMStoreFloat3(&directionVector, direction);
-
-	//// 탱커 효과 객체가 카메라 쪽으로 조금 더 다가갈 거리를 설정 
-	//float distanceToCamera = 25.0f;
-
-	//// 새로운 위치 계산
-	//XMFLOAT3 newPosition;
-	//XMStoreFloat3(&newPosition, XMVectorAdd(XMLoadFloat3(&xm3position), XMVectorScale(XMLoadFloat3(&directionVector), distanceToCamera)));
-
-	//// 탱커 효과 객체의 위치를 새로운 위치로 설정
-	Character* myCharacter = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::TANKER);
-	XMFLOAT3 mf3NormalLookVec= myCharacter->GetLook();
-	XMFLOAT3 mf3TankerPosition = myCharacter->GetPosition();
-	m_f3EarquakePos = Vector3::Add( mf3TankerPosition ,Vector3::Multiply(30,mf3NormalLookVec));
-	m_pTankerEffectObject->SetPosition(m_f3EarquakePos);
-	//m_pTankerEffectObject->SetLookAt(pCamera->GetPosition());
-	
-	float tempScale = 2.3;
-	/*if (sin(m_fEarthquakeLifeTime) < 0.95) {
-		tempScale = sin(m_fEarthquakeLifeTime);
-		tempScale *= 5;
+	if (m_bEarthQuake) {
+		m_fEarthquakeLifeTime + ftimeelapsed;
 	}
-	else if(sin(m_fEarthquakeLifeTime)) {
+	if (m_fEarthquakeLifeTime > 6) {
 		m_fEarthquakeLifeTime = 0;
-	}*/
-//	m_pTankerEffectObject->SetScale(tempScale);
+		m_bEarthQuake = false;
+		for (int i = 0; i < m_pTankerEffectObject.size(); i++) {
+			if (m_pTankerEffectObject[i]->m_bActive == true) {
+				m_pTankerEffectObject[i]->m_bActive = false;
+			}
+		}
+	}
+}
 
+void TankerEffectObject::SetEarthquekePosition()
+{
+	Character* myCharacter = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::TANKER);
+	XMFLOAT3 mf3NormalLookVec = myCharacter->GetLook();
+	XMFLOAT3 mf3TankerPosition = myCharacter->GetPosition();
+	m_f3EarquakePos = Vector3::Add(mf3TankerPosition, Vector3::Multiply(30, mf3NormalLookVec));
+	for (int i = 0; i < m_pTankerEffectObject.size(); i++) {
+		m_bEarthQuake = true;
+		XMFLOAT3 xmf3Position = XMFLOAT3(RandF(-4, 4), RandF(0, 0.5), RandF(-4, 4));
+		m_pTankerEffectObject[i]->m_bActive = true;
+		m_pTankerEffectObject[i]->SetPosition(Vector3::Add(m_f3EarquakePos, xmf3Position));
+	}
 }
 
 PriestEffectObject::PriestEffectObject()
@@ -700,41 +687,41 @@ void PriestEffectObject::AnimateEffect(CCamera* pCamera, XMFLOAT3 xm3position, f
 
 void PriestEffectObject::Particle(CCamera* pCamera, float fTimeElapsed, XMFLOAT3& xm3position)
 {
-//	if (gGameFramework.GetScene()->GetObjectManager()->m_bPickingenemy)
-//	{
+	//	if (gGameFramework.GetScene()->GetObjectManager()->m_bPickingenemy)
+	//	{
+	for (int i = 0; i < m_ppParticleObjects.size(); i++) {
+		if (m_fParticleLifeTime == 0)
+			m_ppParticleObjects[i]->SetPosition(xm3position);
+	}
+	m_fParticleLifeTime += fTimeElapsed;
+	if (m_fParticleLifeTime < 3)
+	{
 		for (int i = 0; i < m_ppParticleObjects.size(); i++) {
-			if (m_fParticleLifeTime == 0)
-				m_ppParticleObjects[i]->SetPosition(xm3position);
-		}
-		m_fParticleLifeTime += fTimeElapsed;
-		if (m_fParticleLifeTime < 3)
-		{
-			for (int i = 0; i < m_ppParticleObjects.size(); i++) {
-				float t = m_ppParticleObjects[i]->m_fTime, tt = t * t * 0.6f;
-				/////////////////////////////////////
-				m_ppParticleObjects[i]->m_fTime += fTimeElapsed;
-				m_ppParticleObjects[i]->SetLookAt(pCamera->GetPosition());
-				//m_ppParticleObjects[i]->SetScale(1);
-				m_ppParticleObjects[i]->Rotate(0, 180, 0);
-				if (m_ppParticleObjects[i]->m_fTime > 3) {
-					m_ppParticleObjects[i]->m_fTime = 0;
-				}
-				XMFLOAT3 mxmf3Accel = { 0.f, -0.0f, 0.f };
-				m_ppParticleObjects[i]->SetPosition(Vector3::Add(m_ppParticleObjects[i]->GetPosition(), Vector3::Add(Vector3::ScalarProduct(mxmf3Accel, tt, false), Vector3::ScalarProduct(m_ppParticleObjects[i]->m_xmf3RamdomDirection, t, false))));
-				if (sin(m_fParticleLifeTime) > 0) {
-					m_ppParticleObjects[i]->SetScale(sin(m_fParticleLifeTime));
-				}
-
-				//빌드 오브젝트
-				//m_ppParticleObjects[i]->MoveVelocity(m_ppParticleObjects[i]->m_xmf3RamdomDirection, 0.01);
+			float t = m_ppParticleObjects[i]->m_fTime, tt = t * t * 0.6f;
+			/////////////////////////////////////
+			m_ppParticleObjects[i]->m_fTime += fTimeElapsed;
+			m_ppParticleObjects[i]->SetLookAt(pCamera->GetPosition());
+			//m_ppParticleObjects[i]->SetScale(1);
+			m_ppParticleObjects[i]->Rotate(0, 180, 0);
+			if (m_ppParticleObjects[i]->m_fTime > 3) {
+				m_ppParticleObjects[i]->m_fTime = 0;
 			}
-		}
-		else if (m_fParticleLifeTime > 3) {
+			XMFLOAT3 mxmf3Accel = { 0.f, -0.0f, 0.f };
+			m_ppParticleObjects[i]->SetPosition(Vector3::Add(m_ppParticleObjects[i]->GetPosition(), Vector3::Add(Vector3::ScalarProduct(mxmf3Accel, tt, false), Vector3::ScalarProduct(m_ppParticleObjects[i]->m_xmf3RamdomDirection, t, false))));
+			if (sin(m_fParticleLifeTime) > 0) {
+				m_ppParticleObjects[i]->SetScale(sin(m_fParticleLifeTime));
+			}
 
-			m_fParticleLifeTime = 0;
-			gGameFramework.GetScene()->GetObjectManager()->m_bPickingenemy = false;
+			//빌드 오브젝트
+			//m_ppParticleObjects[i]->MoveVelocity(m_ppParticleObjects[i]->m_xmf3RamdomDirection, 0.01);
 		}
-//	}
+	}
+	else if (m_fParticleLifeTime > 3) {
+
+		m_fParticleLifeTime = 0;
+		gGameFramework.GetScene()->GetObjectManager()->m_bPickingenemy = false;
+	}
+	//	}
 }
 
 BossEffectObject::BossEffectObject()

@@ -133,7 +133,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	if (m_bPickingenemy) {
 		if (m_pSelectedObject != nullptr) {
 			if (g_Logic.GetMyRole() == ROLE::PRIEST) {
-				
+
 				m_pLightEffectObject->AnimateEffect(m_pCamera, XMFLOAT3(m_pSelectedObject->GetPosition().x,
 					m_pSelectedObject->GetPosition().y + 10, m_pSelectedObject->GetPosition().z), fTimeElapsed, m_fTime * 5);
 				m_pLightningSpriteObject->SetPosition(XMFLOAT3(
@@ -146,7 +146,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 				m_pLightningSpriteObject->m_bActive = m_pLightEffectObject->m_bActive = true;
 				XMFLOAT3 TargetPosition = m_pSelectedObject->GetPosition();
 				g_NetworkHelper.Send_SkillExecute_E(TargetPosition);
-				g_sound.NoLoopPlay("LightningSound", m_pLightningSpriteObject->CalculateDistanceSound()+0.3);
+				g_sound.NoLoopPlay("LightningSound", m_pLightningSpriteObject->CalculateDistanceSound() + 0.3);
 			}
 			m_bPickingenemy = false;
 		}
@@ -402,7 +402,7 @@ void GameobjectManager::NormalMonsterConditionAnimate(float fTimeElapsed)
 	for (int i = 0; i < 15; i++) {
 		if (m_ppNormalMonsterObject[i]->GetCurrentHP() != m_ppNormalMonsterObject[i]->GetTempHP() && m_ppNormalMonsterObject[i]->GetTempHP() > 0) {
 			//m_ppNormalMonsterObject[i]->SetColor(XMFLOAT4(1,0,0,0.00012));
-			g_sound.Play("MonsterAttackedSound", m_ppNormalMonsterObject[i]->CalculateDistanceSound());
+			g_sound.NoLoopPlay("MonsterAttackedSound", m_ppNormalMonsterObject[i]->CalculateDistanceSound());
 			AddDamageFontToUiLayer(XMFLOAT3(m_ppNormalMonsterObject[i]->GetPosition().x,
 				m_ppNormalMonsterObject[i]->GetPosition().y + 20,
 				m_ppNormalMonsterObject[i]->GetPosition().z), int(m_ppNormalMonsterObject[i]->GetTempHP() - m_ppNormalMonsterObject[i]->GetCurrentHP()));
@@ -455,7 +455,7 @@ void GameobjectManager::PlayerConditionAnimate(float fTimeElapsed)
 				m_pConditionUIObject->SetColor(XMFLOAT4(1, 0, 0, 0));
 				myPlayCharacter->m_nCondition = 1;
 			}
-				myPlayCharacter->m_fConditionTime += fTimeElapsed;
+			myPlayCharacter->m_fConditionTime += fTimeElapsed;
 		}
 		else
 		{
@@ -466,6 +466,42 @@ void GameobjectManager::PlayerConditionAnimate(float fTimeElapsed)
 
 		myPlayCharacter->SetTempHp(myPlayCharacter->GetCurrentHP());
 	}
+}
+
+void GameobjectManager::BossConditionAnimate(float fTimeElapsed)
+{
+	if (!m_bGameStart) {
+		SetTempHP();
+	}
+
+	if (m_pMonsterObject->GetCurrentHP() != m_pMonsterObject->GetTempHP() && m_pMonsterObject->GetTempHP() > 0) {
+		//m_pMonsterObject->SetColor(XMFLOAT4(1,0,0,0.00012));
+		g_sound.NoLoopPlay("MonsterAttackedSound", m_pMonsterObject->CalculateDistanceSound());
+		AddDamageFontToUiLayer(XMFLOAT3(m_pMonsterObject->GetPosition().x,
+			m_pMonsterObject->GetPosition().y + 20,
+			m_pMonsterObject->GetPosition().z), int(m_pMonsterObject->GetTempHP() - m_pMonsterObject->GetCurrentHP()));
+		m_pMonsterObject->m_bAttacked = true;
+	}
+	if (m_pMonsterObject->m_bAttacked && m_pMonsterObject->m_fConditionTime < 0.23) {
+		m_pMonsterObject->SetColor(XMFLOAT4(0.8, 0.3, 0.1, 0.00012));
+		m_pMonsterObject->m_fConditionTime += fTimeElapsed;
+	}
+	else {
+		if (m_pMonsterObject->GetTempHP() <= 0) {
+			if (m_pMonsterObject->m_bActive) {
+				//m_pMonsterObject->DieMonster(fTimeElapsed / 10);
+			}
+			if (m_pMonsterObject->m_xmf4Color.w > 0.95) {
+				//m_pMonsterObject->m_bActive = false;
+			}
+		}
+		else {
+			m_pMonsterObject->m_bAttacked = false;
+			m_pMonsterObject->SetColor(XMFLOAT4(0, 0, 0, 0.00));
+			m_pMonsterObject->m_fConditionTime = 0;
+		}
+	}
+	m_pMonsterObject->SetTempHp(m_pMonsterObject->GetCurrentHP());
 }
 
 void GameobjectManager::PlayerCurrentHpAnimate(float fTimeElapsed)
@@ -1000,7 +1036,7 @@ void GameobjectManager::CheckCollideNPCColorChange()//엔피씨 충돌시에 생기는 마�
 	Character* myCharacter = GetChracterInfo(g_Logic.GetMyRole());
 	if (m_pAngelNPCObject->m_SPBBNPC.Intersects(myCharacter->m_SPBB))
 	{
-	//	m_pAngelNPCObject->SetColor(XMFLOAT4(0.5, 0.5, 0.5, 0.5));
+		//	m_pAngelNPCObject->SetColor(XMFLOAT4(0.5, 0.5, 0.5, 0.5));
 	}
 }
 
@@ -1145,11 +1181,11 @@ void GameobjectManager::BuildBossStageObject(ID3D12Device* pd3dDevice, ID3D12Gra
 		m_ppRockSpikeObjects[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_ppRockSpikeObjects[i]->SetScale(15.f, 20.f, 15.f);
 		m_ppRockSpikeObjects[i]->SetBoundingSize(4.0f);
-	//	m_pEnergyBallObjects[i] = m_ppIceLanceObjects[i];
+		//	m_pEnergyBallObjects[i] = m_ppIceLanceObjects[i];
 		m_ppGameObjects.emplace_back(m_ppRockSpikeObjects[i]);
 	}
-//	m_pPriestObject->SetProjectile(m_ppIceLanceObjects);
-	//ReadNormalMonsterFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/NormalMonster.txt", DeathModel, 0, STAGE2);
+	//	m_pPriestObject->SetProjectile(m_ppIceLanceObjects);
+		//ReadNormalMonsterFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/NormalMonster.txt", DeathModel, 0, STAGE2);
 }
 
 void GameobjectManager::BuildProjectileObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -2303,7 +2339,7 @@ void GameobjectManager::ResetLobbyUI()
 
 void GameobjectManager::SetLightningEffect(XMFLOAT3& targetPos)
 {
-	g_sound.NoLoopPlay("LightningSound", m_pLightningSpriteObject->CalculateDistanceSound()+0.3);
+	g_sound.NoLoopPlay("LightningSound", m_pLightningSpriteObject->CalculateDistanceSound() + 0.3);
 	m_LightningTargetPos = targetPos;
 	m_pLightEffectObject->SetActive(m_pLightEffectObject->m_bActive);
 	m_pLightEffectObject->AnimateEffect(m_pCamera, targetPos, m_fTimeElapsed, m_fTime * 5);
@@ -2760,11 +2796,11 @@ bool GameobjectManager::onProcessingKeyboardMessageLobby(HWND hWnd, UINT nMessag
 	if (nMessageID == WM_KEYDOWN && wParam == VK_F2)
 	{
 #ifdef LOCAL_TASK
-		g_Logic.SetMyRole(ROLE::PRIEST);//캐릭
+		g_Logic.SetMyRole(ROLE::TANKER);//캐릭
 		m_pCamera->Rotate(0, -90, 0);
-		m_pPlayerObject = m_pPriestObject;
+		m_pPlayerObject = m_pTankerObject;
 		m_pPlayerObject->SetCamera(m_pCamera);
-		m_pPriestObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
+		m_pTankerObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
 #else
 		g_Logic.SetMyRole(ROLE::ARCHER);
 		m_pArcherObject->SetCamera(m_pCamera);
@@ -2930,18 +2966,18 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 		myPlayCharacter->SetLButtonClicked(false);
 		SomethingChanging = true;
 
-	/*	if (ROLE::PRIEST) {
-			g_sound.NoLoopPlay("PriestAttackSound", 1.0f);
-		}
-		if (ROLE::ARCHER) {
-			g_sound.NoLoopPlay("AcherAttackSound", 1.0f);
-		}
-		if (ROLE::WARRIOR) {
-			g_sound.NoLoopPlay("WarriorAttackSound", 1.0f);
-		}
-		if (ROLE::TANKER) {
-			g_sound.NoLoopPlay("TankerAttackSound", 1.0f);
-		}*/
+		/*	if (ROLE::PRIEST) {
+				g_sound.NoLoopPlay("PriestAttackSound", 1.0f);
+			}
+			if (ROLE::ARCHER) {
+				g_sound.NoLoopPlay("AcherAttackSound", 1.0f);
+			}
+			if (ROLE::WARRIOR) {
+				g_sound.NoLoopPlay("WarriorAttackSound", 1.0f);
+			}
+			if (ROLE::TANKER) {
+				g_sound.NoLoopPlay("TankerAttackSound", 1.0f);
+			}*/
 		break;
 	}
 	case WM_RBUTTONDOWN:
@@ -3183,7 +3219,7 @@ void GameobjectManager::ChangeStage2ToStage1()
 		m_ppGameObjects[i]->m_xmf4Color.w = 0;//모든 오브젝트들 다시 블랜딩 초기화 
 	}
 	g_sound.Pause("BossStage");
-	g_sound.Play("LobbySound",  0.42);
+	g_sound.Play("LobbySound", 0.42);
 }
 
 void GameobjectManager::SetTempHP()
