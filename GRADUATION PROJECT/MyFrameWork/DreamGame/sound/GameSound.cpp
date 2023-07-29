@@ -16,7 +16,7 @@ GameSound::GameSound()
 	MakeSound("LightningSound", "sound/sounds/LightningSound.wav");
 	MakeSound("PriestAttackSound", "sound/sounds/PriestAttackSound.wav");
 	MakeSound("AcherAttackSound", "sound/sounds/AcherAttackSound.wav");
-	MakeSound("ArcherESkillSound", "sound/sounds/ArcherESkillSound.mp3");
+	MakeSound("ArcherESkillSound", "sound/sounds/ArcherEskill.wav");
 	MakeSound("ArcherQSkillSound", "sound/sounds/AcherQSkillSound.wav");
 	//MakeSound("AcherBow", "sound/sounds/AcherAcherBow.mp3");
 	MakeSound("WarriorAttackSound", "sound/sounds/WarriorAttackSound.mp3");

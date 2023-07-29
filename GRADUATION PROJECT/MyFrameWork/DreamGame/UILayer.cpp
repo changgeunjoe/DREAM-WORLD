@@ -401,7 +401,7 @@ void CNPCTextBlock::Update(const float& fTimeElapsed, bool& bInteraction, bool& 
 		wstring curTotalStr = m_qTotalText.front();
 		//m_strText.assign(m_strTotalText, 0, ++m_iIndex);
 		if (!m_bInitSentences) {
-			g_sound.NoLoopPlay("UISound", 0.5f);
+			g_sound.NoLoopPlay("UISound", 0.6f);
 			m_strText.append(curTotalStr, m_iIndex++, 1);
 		}
 		if (m_iIndex > curTotalStr.size()) //한 문장 끝나면
@@ -428,7 +428,7 @@ void CNPCTextBlock::Update(const float& fTimeElapsed, bool& bInteraction, bool& 
 				cout << "소켓전송" << endl;
 				g_NetworkHelper.SendSkipNPCCommunicate();//소켓 전송
 				g_sound.Pause("LobbySound");//로비씬
-				g_sound.Play("Stage1Sound", 0.52f);//로비씬
+				g_sound.Play("Stage1Sound", 0.42f);//로비씬
 				
 				gGameFramework.GetScene()->GetObjectManager()->m_bSendNPCPK = false;
 				
