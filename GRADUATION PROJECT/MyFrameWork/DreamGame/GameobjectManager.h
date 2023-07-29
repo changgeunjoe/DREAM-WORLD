@@ -42,6 +42,7 @@ public:
 	virtual void MonsterHpBarAnimate(float fTimeElapsed);
 	virtual void NormalMonsterConditionAnimate(float fTimeElapsed);
 	virtual void PlayerConditionAnimate(float fTimeElapsed);
+	virtual void BossConditionAnimate(float fTimeElapsed);
 	virtual void PlayerCurrentHpAnimate(float fTimeElapsed);
 	//Render
 	virtual void OnPreRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);

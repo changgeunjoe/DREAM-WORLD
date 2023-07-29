@@ -212,6 +212,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	PlayerCurrentHpAnimate(fTimeElapsed);
 	PlayerConditionAnimate(fTimeElapsed);
 	NormalMonsterConditionAnimate(fTimeElapsed);
+	BossConditionAnimate(fTimeElapsed);
 	ChangeStage1ToStage2(fTimeElapsed);//포탈과 상호작용시에 스테이지 1이 사라지고 보스스테이지 2가 나오는 함수
 	CharacterUIAnimate(fTimeElapsed);
 	TrailAnimate(fTimeElapsed);
