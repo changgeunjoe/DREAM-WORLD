@@ -179,7 +179,7 @@ public:
 
 	XMFLOAT4X4						m_xmf4x4Texture;//멀티스프라이트를 활용하기위한 4x4행렬
 	bool                            m_bMultiSprite{ false };
-
+	bool							m_bBossSkillActive{ false };
 
 	UINT							m_nType = 0x00;
 	char							m_pstrFrameName[64]{};
@@ -211,6 +211,7 @@ public:
 	bool							m_bActive{ true };
 	float                           m_fScale = 0.0f;
 	float							m_fSkillTime = 7.0f;
+	float							m_fBossSkillTime = 0.0f;
 
 	int								m_nStageType = 0;
 	float							m_fSkillSize = 0.0f;
@@ -286,6 +287,8 @@ protected:
 	ID3D12Resource* m_pd3dcbGameObjectSkill= NULL;
 	CB_GAMEOBJECTCOLOR_INFO* m_pcbMappedGameObjectsSkill = NULL;
 
+	ID3D12Resource* m_pd3dcbGameObjectBossSkill = NULL;
+	CB_GAMEOBJECTSKILL_INFO* m_pcbMappedGameObjectsBossSkill = NULL;
 
 	ID3D12Resource* pShadowMap = nullptr;
 	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);// 삭제 예정(변경)

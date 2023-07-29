@@ -100,7 +100,7 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	RootSignature.Descriptorrange[11].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	//-------------------------------rootParameter----------------------------------------------------    
-	RootSignature.RootParameter.resize(25);
+	RootSignature.RootParameter.resize(26);
 	//shaderTexture (b0)Shaders.hlsl
 	RootSignature.RootParameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	RootSignature.RootParameter[0].DescriptorTable.NumDescriptorRanges = 1;
@@ -229,6 +229,11 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	RootSignature.RootParameter[24].Descriptor.ShaderRegister = 12;
 	RootSignature.RootParameter[24].Descriptor.RegisterSpace = 0;
 	RootSignature.RootParameter[24].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	//SkillInfo(b12) Shaders.hlsl
+	RootSignature.RootParameter[25].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	RootSignature.RootParameter[25].Descriptor.ShaderRegister = 13;
+	RootSignature.RootParameter[25].Descriptor.RegisterSpace = 0;
+	RootSignature.RootParameter[25].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 	
 	//textureSampler
 	RootSignature.TextureSamplerDescs.resize(3);

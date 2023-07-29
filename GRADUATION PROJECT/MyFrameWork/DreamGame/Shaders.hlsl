@@ -87,6 +87,10 @@ cbuffer cbGameObjectColor : register(b12) //캐릭터별 스킬
 {
     float gmtxSkillTime : packoffset(c0);
 };
+cbuffer cbGameObjectColor : register(b13)
+{
+    float fBossSkillTime : packoffset(c0);
+};
 struct INSTANCEDGAMEOBJECTINFO//인스턴싱 데이터를 위한 구조체이다
 {
     matrix m_mtxGameObject;
@@ -612,7 +616,21 @@ float4 PSHealRange(VS_HEAL_RANGE_OUTPUT input) : SV_TARGET
 
 float4 PSBossSkillRange(VS_HEAL_RANGE_OUTPUT input) : SV_TARGET
 {
-    return float4(1.0f, 0.0f, 0.0f, 1.0f);
+    float2 position = input.worldPosition.xz;
+    float distance = length(position);
+    float alpha = 0.0f;
+    float TimeElpased = gfTime - fBossSkillTime;
+
+    if (distance > 70.0f)
+        return float4(1.0f, 0.0f, 0.0f, alpha);
+
+    if (TimeElpased < 3.0f)
+        alpha = floor(distance / 50.0f);
+    else
+        alpha = 1 - floor(distance / 50.0f);
+
+
+    return float4(1.0f, 0.0f, 0.0f, alpha);
 }
 //////////////////////////////////////////////////////////////////////////shadow
 

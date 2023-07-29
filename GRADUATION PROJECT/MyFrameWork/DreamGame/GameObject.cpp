@@ -668,6 +668,11 @@ void GameObject::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 	m_pd3dcbGameObjectSkill = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes6, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 
 	m_pd3dcbGameObjectSkill->Map(0, NULL, (void**)&m_pcbMappedGameObjectsSkill);
+	
+	UINT ncbElementBytes7 = ((sizeof(CB_GAMEOBJECTSKILL_INFO) + 255) & ~255); //256의 배수
+	m_pd3dcbGameObjectBossSkill = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes7, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+
+	m_pd3dcbGameObjectBossSkill->Map(0, NULL, (void**)&m_pcbMappedGameObjectsBossSkill);
 }
 void GameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
@@ -709,6 +714,12 @@ void GameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandLis
 		::memcpy(&m_pcbMappedMultiSpriteGameObjects->m_bMultiSprite, &m_bMultiSprite, sizeof(bool));//멀티 스프라이트 활성화를 나타내는 코드 23.04.19 .ccg
 		D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress2 = m_pd3dcbMultiSpriteGameObjects->GetGPUVirtualAddress();
 		pd3dCommandList->SetGraphicsRootConstantBufferView(18, d3dGpuVirtualAddress2);
+	}
+	if (m_bBossSkillActive)
+	{
+		::memcpy(&m_pcbMappedGameObjectsBossSkill->m_fSkillTime, &m_fBossSkillTime, sizeof(float));
+		D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbGameObjectBossSkill->GetGPUVirtualAddress();
+		pd3dCommandList->SetGraphicsRootConstantBufferView(25, d3dGpuVirtualAddress);
 	}
 }
 void GameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList, XMFLOAT4X4* pxmf4x4World, MaterialComponent* ppMaterialsComponent)

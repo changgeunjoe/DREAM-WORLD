@@ -544,9 +544,8 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	{
 		if (m_pBossSkillRange->m_bActive)
 		{
-			//XMFLOAT3 pos = m_pMonsterObject->GetPosition();
-			//pos.y += 0.2f;
-			//m_pBossSkillRange->SetPosition(pos);
+			if (m_fTime - m_pBossSkillRange->m_fBossSkillTime > 6.0f)
+				m_pBossSkillRange->m_bActive = false;
 			m_pBossSkillRange->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		}
 	}
@@ -1349,10 +1348,12 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pBossSkillRange->InsertComponent<RenderComponent>();
 	m_pBossSkillRange->InsertComponent<SquareMeshComponent>();
 	m_pBossSkillRange->InsertComponent<BossSkillShaderComponent>();
-	m_pBossSkillRange->SetSkillSize(200.0f);
+	m_pBossSkillRange->SetSkillSize(100.0f);
 	m_pBossSkillRange->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pBossSkillRange->SetPosition(XMFLOAT3(0, 0.2, 0));
-	m_pBossSkillRange->SetScale(1.0f);
+	m_pBossSkillRange->SetColor(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
+	m_pBossSkillRange->m_fSkillTime = 0.0f;
+	m_pBossSkillRange->m_bActive = false;
 	m_pMonsterObject->SetSkillRangeObject(m_pBossSkillRange);
 
 	m_pSkyboxObject = new GameObject(SQUARE_ENTITY);
@@ -2389,7 +2390,6 @@ void GameobjectManager::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCom
 {
 	if (m_pd3dcbGameObjects)
 	{
-
 		::memcpy(&m_pcbMappedGameObjects->m_xmfTime, &m_fTime, sizeof(float));
 		::memcpy(&m_pcbMappedGameObjects->m_xmfMode, &m_xmfMode, sizeof(float));
 		D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbGameObjects->GetGPUVirtualAddress();
