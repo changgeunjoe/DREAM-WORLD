@@ -29,6 +29,8 @@ private:
 private:
 	std::mutex m_inGameUserLock;
 	std::set<std::wstring> m_inGameUser;//현재 게임에 접속한 유저에 대해서 key: id, value: server arr idx
+	std::mutex m_inGameUserIdLock;
+	std::set<int> m_inGameUserId;
 public:
 	void AcceptPlayer(UserSession* session, int userId, SOCKET& sock);
 	void ProcessPacket(int userId, char* p);
@@ -56,6 +58,9 @@ private:
 public://save InGamePlayerMap for db
 	void InsertInGameUserSet(std::wstring& id);
 	void DeleteInGameUserSet(std::wstring& id);
+public:
+	void InsertInGameUserIdSet(int id);
+	void DeleteInGameUserIdSet(int id);
 public:
 	void SendTimeSyncPacket(int id);
 	//void SendTimeLatencyPacket(SOCKET sock);

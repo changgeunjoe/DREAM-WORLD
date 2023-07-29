@@ -414,6 +414,7 @@ namespace SERVER_PACKET {
 		short size;
 		char type;
 		InGamePlayerState userState[4];
+		XMFLOAT3 bossPosition;
 	};
 
 	struct NotifyHealPacket {

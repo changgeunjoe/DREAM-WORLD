@@ -231,6 +231,7 @@ public:
 	virtual void Animate(float fTimeElapsed);
 	virtual void SetSkillRangeObject(GameObject* obj) { m_pSkillRange = obj; }
 	virtual void Move(float fTimeElapsed)override;
+	virtual void MoveForward(int forwardDirection = 1, float ftimeElapsed = 0.01768f) override;
 	void InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos, XMFLOAT3& moveVec)override;
 public:
 	XMFLOAT3 m_xmf3rotateAngle = XMFLOAT3{ 0,0,0 };

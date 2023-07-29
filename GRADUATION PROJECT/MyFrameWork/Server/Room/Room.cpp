@@ -305,6 +305,8 @@ void Room::BossStageStart()//클라에서 받아서 서버로 왔고 -> 클라에서 움직임 막아
 	sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
 	g_logic.BroadCastInRoom(m_roomId, &sendPacket);
 
+	m_boss.SetInitPosition(XMFLOAT3(179.4, 0, -38.1));
+	m_boss.SetOnidx(g_bossMapData.GetBossStartIdx());
 	for (auto& character : m_characterMap) {
 		character.second->StopMove();
 		character.second->SetBossStagePosition();
@@ -323,6 +325,7 @@ void Room::BossStageStart()//클라에서 받아서 서버로 왔고 -> 클라에서 움직임 막아
 	sendInitPacket.userState[1].role = ROLE::NONE_SELECT;
 	sendInitPacket.userState[2].role = ROLE::NONE_SELECT;
 	sendInitPacket.userState[3].role = ROLE::NONE_SELECT;
+	sendInitPacket.bossPosition = m_boss.GetPos();
 	for (auto& p : playerMap) {
 		sendInitPacket.userState[i].role = p.first;
 		sendInitPacket.userState[i].hp = m_characterMap[p.first]->GetHp();
@@ -339,7 +342,7 @@ void Room::BossStageStart()//클라에서 받아서 서버로 왔고 -> 클라에서 움직임 막아
 	g_Timer.InsertTimerQueue(new_ev);
 	TIMER_EVENT findEv{ std::chrono::system_clock::now() + std::chrono::milliseconds(1), m_roomId ,EV_FIND_PLAYER };
 	g_Timer.InsertTimerQueue(findEv);
-	TIMER_EVENT bossStateEvent{ std::chrono::system_clock::now() + std::chrono::milliseconds(30), m_roomId, EV_BOSS_STATE };
+	TIMER_EVENT bossStateEvent{ std::chrono::system_clock::now() + std::chrono::milliseconds(100), m_roomId, EV_BOSS_STATE };
 	//TIMER_EVENT bossStateEvent{ std::chrono::system_clock::now() + std::chrono::seconds(11), m_roomId ,EV_BOSS_STATE };
 	g_Timer.InsertTimerQueue(bossStateEvent);
 	m_meteoTime = std::chrono::high_resolution_clock::now();
@@ -448,7 +451,14 @@ void Room::ChangeBossState()
 		g_Timer.InsertTimerQueue(bossStateEvent);
 	}
 	else {
-
+		m_boss.m_desVector = m_boss.GetDirectionVector();
+		SERVER_PACKET::BossDirectionPacket postData;
+		postData.size = sizeof(SERVER_PACKET::BossDirectionPacket);
+		postData.type = SERVER_PACKET::BOSS_CHANGE_DIRECION;
+		postData.directionVec = m_boss.m_desVector;
+		ExpOver* postQueue = new ExpOver(reinterpret_cast<char*>(&postData));
+		postQueue->m_opCode = OP_BOSS_CHANGE_DIRECTION;
+		PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, m_roomId, &postQueue->m_overlap);
 		auto durationTime = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - m_meteoTime);
 		if (durationTime > std::chrono::seconds(30)) {
 			m_boss.isMove = false;
@@ -586,7 +596,7 @@ void Room::UpdateGameStateForPlayer_BOSS()
 		{
 			std::lock_guard<std::mutex> lg{ m_lockInGamePlayers };
 			playerMap = m_inGamePlayers;
-		}	
+		}
 		sendPacket.userState[0].role = ROLE::NONE_SELECT;
 		sendPacket.userState[1].role = ROLE::NONE_SELECT;
 		sendPacket.userState[2].role = ROLE::NONE_SELECT;
@@ -784,6 +794,7 @@ void Room::StartMeteo()
 	for (int i = 0; i < 10; i++) {
 		m_meteos[i].OnActive();
 	}
+	m_meteoTime = std::chrono::high_resolution_clock::now();
 }
 
 void Room::Recv_SkipNPC_Communication()

@@ -124,30 +124,42 @@ void MapData::GetReadMapData()
 		}
 		if (inFile.eof())break;
 	}
-	float fltMx = FLT_MAX;
-	int idxM = -1;
-	int inIdx = -1;
-	int zeroIdx = -1;
-	//vector<int> m_zeroVertexIdxs;
-	for (int i = 0; i < m_index.size() / 3; i++) {
-		float dis = m_triangleMesh[i].GetDistance(300.0f, 0.0f, 100.0f);
-		if (fltMx > dis) {
-			fltMx = dis;
-			idxM = i;
+	XMFLOAT3 bossPos = XMFLOAT3(179.4, 0, -38.1);
+	int resultBossIdx = -1;
+	std::set<int> bossIdxs = m_navMeshQuadTree.GetNearbyNavMeshes(179.4, -38.1);
+	bool isOnResult = false;
+	float minDis = FLT_MAX;
+	for (int node : bossIdxs) {
+		isOnResult = m_triangleMesh[node].IsOnTriangleMesh(bossPos);
+		if (isOnResult) {
+			resultBossIdx = node;
+			break;
 		}
-		if (m_triangleMesh[i].IsOnTriangleMesh(300.0f, 0.0f, 100.0f))
-			inIdx = i;
-		if (m_triangleMesh[i].IsOnTriangleMesh(0.0f, 0.0f, 0.0f))
-			m_zeroVertexIdxs.emplace_back(i);
-		//zeroIdx = i;
+		float dis = m_triangleMesh[node].GetDistanceByPoint(bossPos);
+		if (minDis > dis) {
+			minDis = dis;
+			resultBossIdx = node;
+		}
 	}
-	std::cout << "dis Min: " << idxM << "dis: " << fltMx << std::endl;
-	std::cout << "On idx: " << inIdx << std::endl;
-	//std::cout << "On ZeroIdx: " << zeroIdx << std::endl;
-	std::cout << "ZeroIdxs: ";
-	for (auto& i : m_zeroVertexIdxs)
-		std::cout << i << " ";
-	std::cout << std::endl;
+
+	int reFindIdx = -1;
+	int bossNodeIdx = -1;
+	if (isOnResult) {
+		bossNodeIdx = resultBossIdx;
+	}
+	else if (!isOnResult) {
+		for (auto relationList : m_triangleMesh[resultBossIdx].m_relationMesh) {
+			isOnResult = m_triangleMesh[relationList.first].IsOnTriangleMesh(bossPos);
+			reFindIdx = relationList.first;
+			if (isOnResult) break;
+		}
+	}
+	if (reFindIdx == -1)
+		bossNodeIdx = resultBossIdx;
+	else bossNodeIdx = reFindIdx;
+	m_bossStartIdx = bossNodeIdx;
+
+
 	std::cout << "map load end" << std::endl;
 }
 

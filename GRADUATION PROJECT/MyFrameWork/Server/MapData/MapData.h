@@ -32,10 +32,12 @@ private:
 	bool m_initCoplete = false;
 	NavMeshQuadTree m_navMeshQuadTree;
 	float tiangleMeshGridMinSize = 10.0f;
+	int m_bossStartIdx = -1;
 public:
 	MapData() {};
 	MapData(std::string navFileName, std::string collisionFileName, std::string monsterFileName);
 public:
+	int GetBossStartIdx() { return m_bossStartIdx; }
 	bool GetCompleteState() { return m_initCoplete; }
 	void SetFileName(std::string navfileName, std::string collisionName) {
 		m_navFileName = navfileName;

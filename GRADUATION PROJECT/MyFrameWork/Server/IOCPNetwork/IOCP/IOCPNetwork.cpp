@@ -17,7 +17,7 @@ IOCPNetwork::IOCPNetwork()
 {
 	b_isRunning = false;
 	m_currentClientId = 0;
-	Initialize();	
+	Initialize();
 }
 
 IOCPNetwork::~IOCPNetwork()
@@ -45,7 +45,7 @@ void IOCPNetwork::Initialize()
 	bind(m_listenSocket, reinterpret_cast<sockaddr*>(&server_addr), sizeof(server_addr));
 	listen(m_listenSocket, SOMAXCONN);
 	m_hIocp = CreateIoCompletionPort(INVALID_HANDLE_VALUE, 0, 0, 0);
-	CreateIoCompletionPort(reinterpret_cast<HANDLE>(m_listenSocket), m_hIocp, 9999, 0);	
+	CreateIoCompletionPort(reinterpret_cast<HANDLE>(m_listenSocket), m_hIocp, 9999, 0);
 }
 
 void IOCPNetwork::Start()
@@ -254,6 +254,7 @@ void IOCPNetwork::DisconnectClient(int id)
 		}
 	}
 	g_logic.DeleteInGameUserSet(m_session[id].GetLoginId());//로직에 있는 인게임 유저 정보 삭제
+	g_logic.DeleteInGameUserIdSet(id);
 	m_session[id].ResetSession();
 	m_restClientId.push(id);
 }

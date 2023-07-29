@@ -34,6 +34,7 @@ public:
 public:
 	bool Move(float elapsedTime) override;
 public:
+	void SetOnidx(int idx) { m_onIdx = idx; }
 	int GetOnIdx() { return m_onIdx; }
 	void SetDestinationPos();
 	void SetRestRotateAngle(ROTATE_AXIS axis, float angle) {

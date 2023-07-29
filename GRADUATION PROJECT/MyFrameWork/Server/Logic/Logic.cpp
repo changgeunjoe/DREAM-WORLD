@@ -7,6 +7,7 @@
 #include "../DB/DBObject.h"
 #include "../IOCPNetwork/protocol/protocol.h"
 #include "../Room/RoomManager.h"
+#include "../Timer/Timer.h"
 
 #include <random>
 
@@ -15,6 +16,8 @@
 extern IOCPNetwork	g_iocpNetwork;
 extern DBObject		g_DBObj;
 extern RoomManager	g_RoomManager;
+extern Timer		g_Timer;
+
 Logic::Logic()
 {
 	m_isRunningThread = true;
@@ -397,8 +400,13 @@ void Logic::ProcessPacket(int userId, char* p)
 
 void Logic::BroadCastPacket(void* p)
 {
-	for (auto& cli : g_iocpNetwork.m_session) {
-		cli.Send(p);
+	std::set<int> connectPlayer;
+	m_inGameUserIdLock.lock();
+	connectPlayer = m_inGameUserId;
+	m_inGameUserIdLock.unlock();
+
+	for (auto& cli : connectPlayer) {
+		g_iocpNetwork.m_session[cli].Send(p);
 	}
 }
 
@@ -447,8 +455,16 @@ void Logic::BroadCastInRoomByPlayer(int userId, void* p)
 
 void Logic::BroadCastTimeSyncPacket()
 {
-	for (auto& cli : g_iocpNetwork.m_session)
-		SendTimeSyncPacket(cli.GetId());
+
+	std::set<int> connectPlayer;
+	m_inGameUserIdLock.lock();
+	connectPlayer = m_inGameUserId;
+	m_inGameUserIdLock.unlock();
+	for (auto& cli : connectPlayer) {
+		SendTimeSyncPacket(cli);
+	}
+	TIMER_EVENT timeSnycEvent{ std::chrono::system_clock::now() + std::chrono::seconds(1), 0 , EV_SYNC_TIME };
+	g_Timer.InsertTimerQueue(timeSnycEvent);
 }
 
 void Logic::BroadCastInRoom(int roomId, void* p)
@@ -498,7 +514,7 @@ void Logic::MatchMaking()
 		//아무도 없을 때, 
 		if (restRole.size() == 4) {}
 		//모두가 Role을 가지고 돌렸을때
-		else if (restRole.size() == 0) {
+		else if (restRole.size() == 1) {
 			std::map<ROLE, int> matchPlayer;
 			if (warriorPlayerIdQueue.unsafe_size() > 0) {
 				int playerId = -1;
@@ -596,6 +612,18 @@ void Logic::DeleteInGameUserSet(std::wstring& id)
 {
 	std::lock_guard<std::mutex>ll{ m_inGameUserLock };
 	m_inGameUser.erase(id);
+}
+
+void Logic::InsertInGameUserIdSet(int id)
+{
+	std::lock_guard<std::mutex>ll{ m_inGameUserIdLock };
+	m_inGameUserId.emplace(id);
+}
+
+void Logic::DeleteInGameUserIdSet(int id)
+{
+	std::lock_guard<std::mutex>ll{ m_inGameUserIdLock };
+	m_inGameUserId.erase(id);
 }
 
 void Logic::SendTimeSyncPacket(int id)

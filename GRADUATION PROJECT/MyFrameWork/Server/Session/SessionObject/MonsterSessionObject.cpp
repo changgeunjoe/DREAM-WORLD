@@ -172,6 +172,13 @@ bool MonsterSessionObject::Move(float elapsedTime)
 			m_reserveRoadLock.unlock();
 
 			m_desVector = desPlayerVector;
+			SERVER_PACKET::BossDirectionPacket postData;
+			postData.size = sizeof(SERVER_PACKET::BossDirectionPacket);
+			postData.type = SERVER_PACKET::BOSS_CHANGE_DIRECION;
+			postData.directionVec = m_desVector;
+			ExpOver* postQueue = new ExpOver(reinterpret_cast<char*>(&postData));
+			postQueue->m_opCode = OP_BOSS_CHANGE_DIRECTION;
+			PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, m_roomId, &postQueue->m_overlap);
 			float ChangingAngle = Vector3::Angle(desPlayerVector, m_directionVector);
 			if (ChangingAngle > 40.0f) {
 				std::cout << "EQ IDX - angle > 40" << std::endl;
@@ -185,7 +192,7 @@ bool MonsterSessionObject::Move(float elapsedTime)
 				OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
 				//공격은 외부 if에서 알아서 조건 맞으면 함
 			}
-			if (playerDistance >= 42.0f) {
+			if (playerDistance >= 42.0f && g_bossMapData.GetTriangleMesh(m_onIdx).IsOnTriangleMesh(destinationPlayerPos)) {
 				std::cout << "EQ IDX - move forward" << std::endl;
 				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, m_speed * elapsedTime, false));//틱마다 움직임
 				m_SPBB.Center = m_position;
