@@ -365,7 +365,9 @@ std::pair<bool, XMFLOAT3> ChracterSessionObject::CheckCollisionCharacter(XMFLOAT
 	int collideCnt = 0;
 	std::vector<std::pair<XMFLOAT3, XMFLOAT3> >  collideCharacterData;
 	Room& roomRef = g_RoomManager.GetRunningRoomRef(m_roomId);
+	auto playerMap = roomRef.GetPlayerMap();
 	for (auto& playCharacter : roomRef.GetPlayCharacters()) {
+		if (!playerMap.count(playCharacter.first))continue;
 		if (m_InGameRole != playCharacter.first)
 		{
 			auto normalVecRes = GetNormalVectorSphere(playCharacter.second->GetPos());

@@ -246,8 +246,12 @@ void IOCPNetwork::DisconnectClient(int id)
 	//만약 인게임 중에 disconnect 된다면.
 	if (id < 0)return;
 	if (m_session[id].GetPlayerState() == PLAYER_STATE::IN_GAME_ROOM) {
-		Room& room = g_RoomManager.GetRunningRoomRef(m_session[id].GetRoomId());
-		room.DeleteInGamePlayer(id);
+		int roomId = m_session[id].GetRoomId();
+		Room& room = g_RoomManager.GetRunningRoomRef(roomId);
+		bool isRoomEnd = room.DeleteInGamePlayer(id);
+		if (isRoomEnd) {
+			g_RoomManager.RoomDestroy(roomId);
+		}
 	}
 	g_logic.DeleteInGameUserSet(m_session[id].GetLoginId());//로직에 있는 인게임 유저 정보 삭제
 	m_session[id].ResetSession();

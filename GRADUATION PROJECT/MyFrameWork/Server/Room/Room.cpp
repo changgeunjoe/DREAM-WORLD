@@ -145,7 +145,7 @@ void Room::InsertInGamePlayer(ROLE r, int playerId)
 	//m_Players.insert(std::make_pair(r, playerId));
 }
 
-void Room::DeleteInGamePlayer(int playerId)
+bool Room::DeleteInGamePlayer(int playerId)
 {
 	m_lockInGamePlayers.lock();
 	auto findPlayerIter = std::find_if(m_inGamePlayers.begin(), m_inGamePlayers.end(), [&playerId](std::pair<ROLE, int> p)
@@ -154,15 +154,30 @@ void Room::DeleteInGamePlayer(int playerId)
 		}
 	);
 	if (findPlayerIter == m_inGamePlayers.end()) {
+		if (m_inGamePlayers.empty()) {
+			m_isAlive = false;
+			//init room
+			m_lockInGamePlayers.unlock();
+			return true;
+		}
 		m_lockInGamePlayers.unlock();
-		return;
+		return false;
 	}
 	m_lockInGamePlayers.unlock();
 	{
 		std::lock_guard<std::mutex> lg{ m_lockInGamePlayers };
 		m_inGamePlayers.erase(findPlayerIter);//disconnected된 플레이어 처리
 	}
+	{
+		std::lock_guard<std::mutex> lg{ m_lockInGamePlayers };
+		if (m_inGamePlayers.empty()) {
+			m_isAlive = false;
+			//init room
+			return true;
+		}
+	}
 	SkipNPC_Communication();
+	return false;
 }
 
 std::map<ROLE, int> Room::GetPlayerMap()
@@ -528,6 +543,7 @@ void Room::UpdateSmallMonster()
 		pos[chracterCnt] = character.second->GetPos();
 		chracterCnt++;
 	}
+
 	for (int i = 0; i < 15; i++)
 	{
 		if (!m_StageSmallMonster[i].StartAttack()) {
@@ -570,7 +586,7 @@ void Room::UpdateGameStateForPlayer_BOSS()
 		{
 			std::lock_guard<std::mutex> lg{ m_lockInGamePlayers };
 			playerMap = m_inGamePlayers;
-		}
+		}	
 		sendPacket.userState[0].role = ROLE::NONE_SELECT;
 		sendPacket.userState[1].role = ROLE::NONE_SELECT;
 		sendPacket.userState[2].role = ROLE::NONE_SELECT;

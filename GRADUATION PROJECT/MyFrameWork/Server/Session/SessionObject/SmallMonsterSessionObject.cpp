@@ -325,7 +325,9 @@ std::pair<bool, XMFLOAT3> SmallMonsterSessionObject::CheckCollisionCharacter(XMF
 	int collideCnt = 0;
 	std::vector<std::pair<XMFLOAT3, XMFLOAT3> >  collideCharacterData;
 	Room& roomRef = g_RoomManager.GetRunningRoomRef(m_roomId);
+	auto playerMap = roomRef.GetPlayerMap();
 	for (auto& playCharacter : roomRef.GetPlayCharacters()) {
+		if (!playerMap.count(playCharacter.first))continue;
 		auto normalVecRes = GetNormalVectorSphere(playCharacter.second->GetPos());
 		if (normalVecRes.first <= m_SPBB.Radius + 8.0f) {
 			normalVecRes.second;

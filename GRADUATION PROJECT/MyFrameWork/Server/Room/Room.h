@@ -17,7 +17,7 @@ public:
 public:
 	Room& operator=(Room& rhs);
 private:
-	bool m_isAlive = false;
+	std::atomic_bool m_isAlive = false;
 	int m_roomId = -1;
 	std::wstring m_roomName;
 	int m_roomOwnerId = -1;// 룸 생성한 자의 ID
@@ -44,7 +44,7 @@ public:
 	void SendAllPlayerInfo();
 	void InsertInGamePlayer(std::map<ROLE, int>& matchPlayer);
 	void InsertInGamePlayer(ROLE r, int playerId);
-	void DeleteInGamePlayer(int playerId);
+	bool DeleteInGamePlayer(int playerId);
 	std::map<ROLE, int> GetPlayerMap();
 	int GetPlayerNum() { return m_inGamePlayers.size(); }
 	int GetRoomId() { return m_roomId; }
