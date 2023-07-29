@@ -520,6 +520,16 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pShadowmapShaderComponent->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature, m_fTimeElapsed, m_nStageType);
 
 	}
+	for (int i = 0; i < m_ppRockSpikeObjects.size(); ++i)
+	{
+		if (m_ppRockSpikeObjects[i] == nullptr) continue;
+		if (m_ppRockSpikeObjects[i]->m_bActive == false) continue;
+		m_ppRockSpikeObjects[i]->Animate(m_fTimeElapsed);
+		m_ppRockSpikeObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		if(m_ppRockSpikeObjects[i]->m_pAttackedArea != nullptr)
+			m_ppRockSpikeObjects[i]->m_pAttackedArea->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
+
 	if (m_pNPCPressGObject) {
 		m_pNPCPressGObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
@@ -1128,28 +1138,37 @@ void GameobjectManager::BuildBossStageObject(ID3D12Device* pd3dDevice, ID3D12Gra
 	CLoadedModelInfoCompnent* Rock02Model = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock02.bin", NULL, true);
 	CLoadedModelInfoCompnent* Rock03Model = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock03.bin", NULL, true);
 	CLoadedModelInfoCompnent* DeathModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Death.bin", NULL, true);
-	CLoadedModelInfoCompnent* RockSpike = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/RockSpike.bin", NULL, true);
+	CLoadedModelInfoCompnent* RockSpikeModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/RockSpike.bin", NULL, true);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock1.txt", Rock01Model, 1, STAGE2);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock2.txt", Rock02Model, 1, STAGE2);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock3.txt", Rock03Model, 1, STAGE2);
 
-	Projectile** m_ppRockSpikeObjects = new Projectile * [10];
 	for (int i = 0; i < 10; ++i)
 	{
-		m_ppRockSpikeObjects[i] = new IceLance();
-		m_ppRockSpikeObjects[i]->InsertComponent<RenderComponent>();
-		m_ppRockSpikeObjects[i]->InsertComponent<CLoadedModelInfoCompnent>();
-		m_ppRockSpikeObjects[i]->SetPosition(XMFLOAT3(25 * i, 0, 0));
-		m_ppRockSpikeObjects[i]->SetModel(RockSpike);
-		//m_pEnergyBallObjects[i]->SetColor(XMFLOAT3(0,0.5,0);
-		m_ppRockSpikeObjects[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-		m_ppRockSpikeObjects[i]->SetScale(15.f, 20.f, 15.f);
-		m_ppRockSpikeObjects[i]->SetBoundingSize(4.0f);
-	//	m_pEnergyBallObjects[i] = m_ppIceLanceObjects[i];
-		m_ppGameObjects.emplace_back(m_ppRockSpikeObjects[i]);
+		RockSpike* pRockSpikeObject = new RockSpike();
+		pRockSpikeObject->InsertComponent<RenderComponent>();
+		pRockSpikeObject->InsertComponent<CLoadedModelInfoCompnent>();
+		pRockSpikeObject->SetPosition(XMFLOAT3(0.0f, 0.0f, 0.0f));
+		pRockSpikeObject->SetModel(RockSpikeModel);
+		pRockSpikeObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		pRockSpikeObject->SetScale(50.0f, 50.0f, 50.0f);
+		XMFLOAT3 right = XMFLOAT3(1.0f, 0.0f, 0.0f);
+		pRockSpikeObject->Rotate(&right, 90.0f);
+		pRockSpikeObject->m_bActive = false;
+
+		GameObject* pBossSkillRange = new GameObject(SQUARE_ENTITY);
+		pBossSkillRange->InsertComponent<RenderComponent>();
+		pBossSkillRange->InsertComponent<SquareMeshComponent>();
+		pBossSkillRange->InsertComponent<BossSkillShaderComponent>();
+		pBossSkillRange->SetSkillSize(10.0f);
+		pBossSkillRange->m_iObjType = 1;
+		pBossSkillRange->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		pBossSkillRange->SetPosition(XMFLOAT3(0, 0.1, 0));
+		pBossSkillRange->m_fSkillTime = 0.0f;
+		pRockSpikeObject->m_pAttackedArea = pBossSkillRange;
+
+		m_ppRockSpikeObjects.emplace_back(pRockSpikeObject);
 	}
-//	m_pPriestObject->SetProjectile(m_ppIceLanceObjects);
-	//ReadNormalMonsterFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/NormalMonster.txt", DeathModel, 0, STAGE2);
 }
 
 void GameobjectManager::BuildProjectileObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -2500,35 +2519,42 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		{
 		case 'W':
 		{
-			g_Logic.m_KeyInput->m_bWKey = true;
-			myPlayCharacter->SetMoveState(true);
-			myPlayCharacter->AddDirection(DIRECTION::FRONT);
-			g_NetworkHelper.SendMovePacket(DIRECTION::FRONT);
-
+			if (myPlayCharacter->CanMove() == true) {
+				g_Logic.m_KeyInput->m_bWKey = true;
+				myPlayCharacter->SetMoveState(true);
+				myPlayCharacter->AddDirection(DIRECTION::FRONT);
+				g_NetworkHelper.SendMovePacket(DIRECTION::FRONT);
+			}
 		}
 		break;
 		case 'A':
 		{
-			g_Logic.m_KeyInput->m_bAKey = true;
-			myPlayCharacter->SetMoveState(true);
-			myPlayCharacter->AddDirection(DIRECTION::LEFT);
-			g_NetworkHelper.SendMovePacket(DIRECTION::LEFT);
+			if (myPlayCharacter->CanMove() == true) {
+				g_Logic.m_KeyInput->m_bAKey = true;
+				myPlayCharacter->SetMoveState(true);
+				myPlayCharacter->AddDirection(DIRECTION::LEFT);
+				g_NetworkHelper.SendMovePacket(DIRECTION::LEFT);
+			}
 		}
 		break;
 		case 'S':
 		{
-			g_Logic.m_KeyInput->m_bSKey = true;
-			myPlayCharacter->SetMoveState(true);
-			myPlayCharacter->AddDirection(DIRECTION::BACK);
-			g_NetworkHelper.SendMovePacket(DIRECTION::BACK);
+			if (myPlayCharacter->CanMove() == true) {
+				g_Logic.m_KeyInput->m_bSKey = true;
+				myPlayCharacter->SetMoveState(true);
+				myPlayCharacter->AddDirection(DIRECTION::BACK);
+				g_NetworkHelper.SendMovePacket(DIRECTION::BACK);
+			}
 		}
 		break;
 		case 'D':
-		{
-			g_Logic.m_KeyInput->m_bDKey = true;
-			myPlayCharacter->SetMoveState(true);
-			myPlayCharacter->AddDirection(DIRECTION::RIGHT);
-			g_NetworkHelper.SendMovePacket(DIRECTION::RIGHT);
+		{			
+			if (myPlayCharacter->CanMove() == true) {
+				g_Logic.m_KeyInput->m_bDKey = true;
+				myPlayCharacter->SetMoveState(true);
+				myPlayCharacter->AddDirection(DIRECTION::RIGHT);
+				g_NetworkHelper.SendMovePacket(DIRECTION::RIGHT);
+			}
 		}
 		break;
 		case 'Q':

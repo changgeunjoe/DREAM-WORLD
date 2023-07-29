@@ -165,10 +165,6 @@ float GameObject::CalculateDistanceSound()
 
 	float distance;
 	XMStoreFloat(&distance, distanceVec);
-	if (distance > 300) {
-		cout << "ÃÊ°úµÈ distance =" << distance;
-	}
-	cout << (300 - distance) / 300 << endl;
 	return (300-distance)/300 ;
 }
 
@@ -461,6 +457,7 @@ void GameObject::BuildShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		}
 		else if (pBossSkillShaderComponent != NULL) {
 			m_pShaderComponent = static_cast<BossSkillShaderComponent*>(pBossSkillShaderComponent);
+			static_cast<BossSkillShaderComponent*>(m_pShaderComponent)->m_nSkillNum = m_iObjType;
 		}
 		else if (pNaviMeshShaderComponent != NULL)
 		{

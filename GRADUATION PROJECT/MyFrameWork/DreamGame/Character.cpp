@@ -3345,3 +3345,32 @@ void IceLance::Animate(float fTimeElapsed)
 	XMFLOAT3 xmf3Direction = Vector3::Normalize(m_xmf3direction);
 	Move(xmf3Direction, fTimeElapsed * m_fSpeed);
 }
+
+RockSpike::RockSpike()
+{
+	m_xmf3direction = XMFLOAT3(0.0f, -1.0f, 0.0f);
+	m_fSpeed = 50.0f;
+
+}
+
+RockSpike::~RockSpike()
+{
+}
+
+void RockSpike::Move(XMFLOAT3 dir, float fDistance)
+{
+	XMFLOAT3 xmf3Position = GetPosition();
+	xmf3Position = Vector3::Add(xmf3Position, dir, fDistance);
+	if (xmf3Position.y < 0.0f)
+	{
+		m_bActive = false;
+		return;
+	}
+	GameObject::SetPosition(xmf3Position);
+}
+
+void RockSpike::Animate(float fTimeElapsed)
+{
+	if (m_bActive == false) return;
+	Move(m_xmf3direction, fTimeElapsed * m_fSpeed);
+}

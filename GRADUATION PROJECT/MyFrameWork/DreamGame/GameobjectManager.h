@@ -25,6 +25,7 @@ class Warrior;
 class Archer;
 class Tanker;
 class Priest;
+class RockSpike;
 
 class GameobjectManager
 {
@@ -109,6 +110,8 @@ private: //active object
 	array<GameObject*, 10> m_pBoundingBox;
 	vector<GameObject*> m_ppObstacleBoundingBox;
 	vector<GameObject*> m_ppNormalMonsterBoundingBox;
+	vector<RockSpike*> m_ppRockSpikeObjects;
+	vector<GameObject*> m_ppRockSpikeAttackedArea;
 
 	int				m_nObjects{};
 	GameObject* m_pGameObject{ NULL };
@@ -293,6 +296,7 @@ public:
 	NormalMonster** GetNormalMonsterArr() { return m_ppNormalMonsterObject; };
 	EffectObject** GetShieldEffectArr() { return &m_ppShieldEffectObject[0]; }
 	EffectObject** GetHealingEffectArr() { return &m_ppHealingEffectObject[0]; }
+	vector<RockSpike*>& GetRockSpikeArr() { return m_ppRockSpikeObjects; }
 	void SetCharactersStage1Postion();
 	void SetCharactersBossStagePostion();
 	void SetCharactersLobbyPosition();

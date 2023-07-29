@@ -666,19 +666,27 @@ void Logic::ProcessPacket(char* p)
 	case SERVER_PACKET::METEO_PLAYER_ATTACK:
 	{
 		SERVER_PACKET::BossAttackPlayerPacket* recvPacket = reinterpret_cast<SERVER_PACKET::BossAttackPlayerPacket*>(p);
-		recvPacket->currentHp;//플레이어 본인 피격 후, 체력
+		GameObject* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo(GetMyRole());
+		if (possessObj != nullptr) {
+			float maxHp = possessObj->GetMaxHP();
+			possessObj->SetCurrentHP(recvPacket->currentHp / maxHp * 100.0f);
+		}
 	}
 	break;
 	case SERVER_PACKET::METEO_DESTROY:
 	{
 		SERVER_PACKET::DestroyedMeteoPacket* recvPacket = reinterpret_cast<SERVER_PACKET::DestroyedMeteoPacket*>(p);
-		recvPacket->idx;//이 메테오 비지블 off
+		vector<RockSpike*> ppRockSpike = gGameFramework.GetScene()->GetObjectManager()->GetRockSpikeArr();
+		if (ppRockSpike[recvPacket->idx] != nullptr)
+			ppRockSpike[recvPacket->idx]->m_bActive = false;
+		//이 메테오 비지블 off
 	}
 	break;
 	case SERVER_PACKET::METEO_CREATE:
 	{
 		SERVER_PACKET::MeteoStartPacket* recvPacket = reinterpret_cast<SERVER_PACKET::MeteoStartPacket*>(p);
 		Monster* bossMonster = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster();
+		vector<RockSpike*> ppRockSpike = gGameFramework.GetScene()->GetObjectManager()->GetRockSpikeArr();
 		bossMonster->SetMoveState(false);
 		//보스 이동 멈추고 애니메이션 실행해주세요.
 		if (bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation != BOSS_ANIMATION::BA_CAST_SPELL)
@@ -687,8 +695,16 @@ void Logic::ProcessPacket(char* p)
 			bossMonster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_CAST_SPELL, 2);
 		}
 		for (int i = 0; i < 10; i++) {
-			recvPacket->meteoInfo[i].pos;//i번째 메테오 시작 포지션
-			recvPacket->meteoInfo[i].speed;//i번째 메테오 스피드
+			if (ppRockSpike[i] == nullptr) continue;
+			if (ppRockSpike[i]->m_bActive == true) continue;
+			XMFLOAT3 rockPosition = recvPacket->meteoInfo[i].pos;
+			ppRockSpike[i]->m_bActive = true;
+			ppRockSpike[i]->SetPosition(rockPosition);
+			ppRockSpike[i]->SetSpeed(recvPacket->meteoInfo[i].speed);
+			rockPosition.y = 0.1;
+
+			if (ppRockSpike[i]->m_pAttackedArea != nullptr)
+				ppRockSpike[i]->m_pAttackedArea->SetPosition(rockPosition);
 		}
 	}
 	break;

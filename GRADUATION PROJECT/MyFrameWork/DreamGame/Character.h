@@ -29,6 +29,7 @@ public:
 	virtual void SecondSkillUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f }) {};
 	virtual void StartEffect(int nSkillNum) {};
 	virtual void EndEffect(int nSkillNum) {};
+	virtual bool CanMove() { return true; }
 protected:
 	bool CheckAnimationEnd(int nAnimation);
 	void ChangeAnimation(pair< CharacterAnimation, CharacterAnimation> nextAnimation);
@@ -105,6 +106,7 @@ public:
 	virtual void Animate(float fTimeElapsed) override;
 	virtual void SetLButtonClicked(bool bLButtonClicked);
 	virtual void FirstSkillDown();
+	virtual bool CanMove() { return !m_bQSkillClicked; }
 public:
 	void SetStage1Position();
 	void SetBossStagePostion();
@@ -175,6 +177,7 @@ public:
 	virtual void SetSkillBall(Projectile* pBall);
 	virtual void StartEffect(int nSkillNum);
 	virtual void EndEffect(int nSkillNum);
+	virtual bool CanMove() { return !m_bQSkillClicked && !m_bESkillClicked; }
 public:
 	void SetStage1Position();
 	void SetBossStagePostion();
@@ -292,6 +295,7 @@ public:
 	virtual void Move(XMFLOAT3 dir, float fDistance);
 	virtual void SetActive(bool bActive) { m_bActive = bActive; }
 	virtual void SetHostRole(ROLE r) { m_HostRole = r; }
+	virtual void SetSpeed(float speed) { m_fSpeed = speed; }
 };
 
 class Arrow : public Projectile
@@ -333,6 +337,17 @@ public:
 	virtual void Animate(float fTimeElapsed);
 	void SetTarget(ROLE r) { m_Target = r; }
 	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender = false);
+};
+
+class RockSpike : public Projectile
+{
+public:
+	GameObject* m_pAttackedArea = nullptr;
+public:
+	RockSpike();
+	virtual ~RockSpike();
+	virtual void Move(XMFLOAT3 dir, float fDistance);
+	virtual void Animate(float fTimeElapsed);
 };
 
 class TrailObject : public GameObject
