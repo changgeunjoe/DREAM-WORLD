@@ -83,6 +83,7 @@ public:
 	XMFLOAT3 GetUp();
 	XMFLOAT3 GetRight();
 
+	float CalculateDistanceSound();
 	void SetLookAt(XMFLOAT3& xmf3Target, XMFLOAT3& xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f));
 
 	unordered_map<component_id, ComponentBase*> Getcomponents();

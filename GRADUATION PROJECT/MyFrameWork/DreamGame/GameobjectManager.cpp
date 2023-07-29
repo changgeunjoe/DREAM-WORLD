@@ -122,7 +122,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	if (m_bPickingenemy) {
 		if (m_pSelectedObject != nullptr) {
 			if (g_Logic.GetMyRole() == ROLE::PRIEST) {
-				g_sound.NoLoopPlay("LightningSound", 1.0f);
+				
 				m_pLightEffectObject->AnimateEffect(m_pCamera, XMFLOAT3(m_pSelectedObject->GetPosition().x,
 					m_pSelectedObject->GetPosition().y + 10, m_pSelectedObject->GetPosition().z), fTimeElapsed, m_fTime * 5);
 				m_pLightningSpriteObject->SetPosition(XMFLOAT3(
@@ -135,6 +135,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 				m_pLightningSpriteObject->m_bActive = m_pLightEffectObject->m_bActive = true;
 				XMFLOAT3 TargetPosition = m_pSelectedObject->GetPosition();
 				g_NetworkHelper.Send_SkillExecute_E(TargetPosition);
+				g_sound.NoLoopPlay("LightningSound", m_pLightningSpriteObject->CalculateDistanceSound()+0.3);
 			}
 			m_bPickingenemy = false;
 		}
@@ -1966,7 +1967,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pArcherObject->m_pSkillQUI->InsertComponent<UIMeshComponent>();
 	m_pArcherObject->m_pSkillQUI->InsertComponent<UiShaderComponent>();
 	m_pArcherObject->m_pSkillQUI->InsertComponent<TextureComponent>();
-	m_pArcherObject->m_pSkillQUI->SetTexture(L"UI/ArrowSkill.dds", RESOURCE_TEXTURE2D, 3);
+	m_pArcherObject->m_pSkillQUI->SetTexture(L"UI/AcherQSkill.dds", RESOURCE_TEXTURE2D, 3);
 	m_pArcherObject->m_pSkillQUI->SetPosition(XMFLOAT3(5, 5, 1.00));
 	m_pArcherObject->m_pSkillQUI->SetScale(0.02, 0.02, 1);
 	m_pArcherObject->m_pSkillQUI->SetCurrentHP(70);
@@ -1979,7 +1980,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pArcherObject->m_pSkillEUI->InsertComponent<UIMeshComponent>();
 	m_pArcherObject->m_pSkillEUI->InsertComponent<UiShaderComponent>();
 	m_pArcherObject->m_pSkillEUI->InsertComponent<TextureComponent>();
-	m_pArcherObject->m_pSkillEUI->SetTexture(L"UI/ArrowSkill.dds", RESOURCE_TEXTURE2D, 3);
+	m_pArcherObject->m_pSkillEUI->SetTexture(L"UI/AcherESkill.dds", RESOURCE_TEXTURE2D, 3);
 	m_pArcherObject->m_pSkillEUI->SetPosition(XMFLOAT3(5, 5, 1.00));
 	m_pArcherObject->m_pSkillEUI->SetColor(XMFLOAT4(0.06f, 0.05f, 0, 0));
 	m_pArcherObject->m_pSkillEUI->SetScale(0.02, 0.02, 1);
@@ -2112,7 +2113,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pWarriorObject->m_pSkillQUI->InsertComponent<UIMeshComponent>();
 	m_pWarriorObject->m_pSkillQUI->InsertComponent<UiShaderComponent>();
 	m_pWarriorObject->m_pSkillQUI->InsertComponent<TextureComponent>();
-	m_pWarriorObject->m_pSkillQUI->SetTexture(L"UI/ShieldSkill.dds", RESOURCE_TEXTURE2D, 3);
+	m_pWarriorObject->m_pSkillQUI->SetTexture(L"UI/WarriorQSkill.dds", RESOURCE_TEXTURE2D, 3);
 	m_pWarriorObject->m_pSkillQUI->SetPosition(XMFLOAT3(5, 5, 1.00));
 	m_pWarriorObject->m_pSkillQUI->SetScale(0.02, 0.02, 1);
 	m_pWarriorObject->m_pSkillQUI->SetColor(XMFLOAT4(0.06f, 0.05f, 0, 0));
@@ -2124,7 +2125,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pWarriorObject->m_pSkillEUI->InsertComponent<UIMeshComponent>();
 	m_pWarriorObject->m_pSkillEUI->InsertComponent<UiShaderComponent>();
 	m_pWarriorObject->m_pSkillEUI->InsertComponent<TextureComponent>();
-	m_pWarriorObject->m_pSkillEUI->SetTexture(L"UI/ShieldSkill.dds", RESOURCE_TEXTURE2D, 3);
+	m_pWarriorObject->m_pSkillEUI->SetTexture(L"UI/WarriorESkill.dds", RESOURCE_TEXTURE2D, 3);
 	m_pWarriorObject->m_pSkillEUI->SetPosition(XMFLOAT3(5, 5, 1.00));
 	m_pWarriorObject->m_pSkillEUI->SetScale(0.02, 0.02, 1);
 	m_pWarriorObject->m_pSkillEUI->SetColor(XMFLOAT4(0.06f, 0.05f, 0, 0));
@@ -2275,7 +2276,7 @@ void GameobjectManager::ResetLobbyUI()
 
 void GameobjectManager::SetLightningEffect(XMFLOAT3& targetPos)
 {
-	g_sound.NoLoopPlay("LightningSound", 1.0f);
+	g_sound.NoLoopPlay("LightningSound", m_pLightningSpriteObject->CalculateDistanceSound()+0.3);
 	m_LightningTargetPos = targetPos;
 	m_pLightEffectObject->AnimateEffect(m_pCamera, targetPos, m_fTimeElapsed, m_fTime * 5);
 	targetPos.y += 50.0f;
@@ -2731,11 +2732,11 @@ bool GameobjectManager::onProcessingKeyboardMessageLobby(HWND hWnd, UINT nMessag
 	if (nMessageID == WM_KEYDOWN && wParam == VK_F2)
 	{
 #ifdef LOCAL_TASK
-		g_Logic.SetMyRole(ROLE::PRIEST);
+		g_Logic.SetMyRole(ROLE::ARCHER);
 		m_pCamera->Rotate(0, -90, 0);
-		m_pPlayerObject = m_pPriestObject;
+		m_pPlayerObject = m_pArcherObject;
 		m_pPlayerObject->SetCamera(m_pCamera);
-		m_pPriestObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
+		m_pArcherObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
 #else
 		g_Logic.SetMyRole(ROLE::ARCHER);
 		m_pArcherObject->SetCamera(m_pCamera);
@@ -3144,6 +3145,7 @@ void GameobjectManager::ChangeStage1ToStage2(float fTimeelpased)
 
 void GameobjectManager::ChangeStage2ToStage1()
 {
+	m_bSendNpccollisionPK = !m_bSendNpccollisionPK;
 	m_bGameStart = !m_bGameStart;
 	m_bPortalCheck = !m_bPortalCheck;
 	m_nStageType = 1;
@@ -3153,7 +3155,7 @@ void GameobjectManager::ChangeStage2ToStage1()
 		m_ppGameObjects[i]->m_xmf4Color.w = 0;//모든 오브젝트들 다시 블랜딩 초기화 
 	}
 	g_sound.Pause("BossStage");
-	g_sound.Play("LobbySound",  0.52);
+	g_sound.Play("LobbySound",  0.42);
 }
 
 void GameobjectManager::SetTempHP()

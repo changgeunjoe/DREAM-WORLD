@@ -9,12 +9,13 @@
 #include "Network/MapData/MapData.h"
 #include "GameFramework.h"
 #include "GameobjectManager.h"
-
+#include"Character.h"
+#include "Network/Logic/Logic.h"
 
 extern MapData g_bossMapData;
 extern MapData g_stage1MapData;
 extern CGameFramework gGameFramework;
-
+extern Logic g_Logic;
 
 BYTE ReadStringFromFile(FILE* pInFile, char* pstrToken)
 {
@@ -151,6 +152,24 @@ XMFLOAT3 GameObject::GetUp()
 XMFLOAT3 GameObject::GetRight()
 {
 	return(Vector3::Normalize(XMFLOAT3(m_xmf4x4World._11, m_xmf4x4World._12, m_xmf4x4World._13)));
+}
+
+float GameObject::CalculateDistanceSound()
+{
+	Character* myPlayCharacter = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(g_Logic.GetMyRole());
+	XMVECTOR firstVec = XMLoadFloat3(&myPlayCharacter->GetPosition());
+	XMVECTOR lastVec = XMLoadFloat3(&GetPosition());
+
+	XMVECTOR diffVec = XMVectorSubtract(lastVec, firstVec);
+	XMVECTOR distanceVec = XMVector3Length(diffVec);
+
+	float distance;
+	XMStoreFloat(&distance, distanceVec);
+	if (distance > 300) {
+		cout << "ÃÊ°úµÈ distance =" << distance;
+	}
+	cout << (300 - distance) / 300 << endl;
+	return (300-distance)/300 ;
 }
 
 void GameObject::SetLookAt(XMFLOAT3& xmf3Target, XMFLOAT3& xmf3Up)
