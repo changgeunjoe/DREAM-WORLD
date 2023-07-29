@@ -630,6 +630,10 @@ void GameObject::SetCurrentHP(float fHP)
 {
 	m_fHp = fHP;
 }
+void GameObject::SetShield(float fShield)
+{
+	m_xmf4Color.w = fShield;
+}
 void GameObject::SetSkillTime(float fSkillTime)
 {
 	m_xmf4Color.w = fSkillTime;

@@ -356,7 +356,11 @@ enum TEXT
 {
 	NPC_TEXT = 0,
 	BOSS_TEXT = 1,
-	START_TEXT = 2
+	START_TEXT = 2,
+	WARRIOR_TEXT = 3,
+	ACHER_TEXT = 4,
+	TANKER_TEXT = 5,
+	PRIEST_TEXT = 6
 };
 
 
@@ -508,6 +512,12 @@ namespace Vector3
 		XMStoreFloat3(&xmf3Result, XMVectorCatmullRom(XMLoadFloat3(&xmf3Vector[0]), XMLoadFloat3(&xmf3Vector[1]),
 			XMLoadFloat3(&xmf3Vector[2]), XMLoadFloat3(&xmf3Vector[3]), t));
 		return(xmf3Result);
+	}
+	inline XMFLOAT3 Multiply(float fScalar, XMFLOAT3& xmf4Vector)
+	{
+		XMFLOAT3 xmf4Result;
+		XMStoreFloat3(&xmf4Result, fScalar * XMLoadFloat3(&xmf4Vector));
+		return(xmf4Result);
 	}
 }
 

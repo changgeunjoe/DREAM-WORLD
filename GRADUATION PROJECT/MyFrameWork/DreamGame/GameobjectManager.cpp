@@ -382,6 +382,10 @@ void GameobjectManager::MonsterHpBarAnimate(float fTimeElapsed)
 
 void GameobjectManager::NormalMonsterConditionAnimate(float fTimeElapsed)
 {
+	if (!m_bGameStart) {
+		SetTempHP();
+	}
+
 	for (int i = 0; i < 15; i++) {
 		if (m_ppNormalMonsterObject[i]->GetCurrentHP() != m_ppNormalMonsterObject[i]->GetTempHP() && m_ppNormalMonsterObject[i]->GetTempHP() > 0) {
 			//m_ppNormalMonsterObject[i]->SetColor(XMFLOAT4(1,0,0,0.00012));
@@ -437,15 +441,13 @@ void GameobjectManager::PlayerConditionAnimate(float fTimeElapsed)
 				m_pConditionUIObject->SetColor(XMFLOAT4(1, 0, 0, 0));
 				myPlayCharacter->m_nCondition = 1;
 			}
-			if (myPlayCharacter->m_nCondition == 1) {
 				myPlayCharacter->m_fConditionTime += fTimeElapsed;
-			}
 		}
 		else
 		{
 			myPlayCharacter->m_nCondition = 0;
 			myPlayCharacter->m_fConditionTime = 0;
-			m_pConditionUIObject->SetColor(XMFLOAT4(0, 0, 0, 0));
+			m_pConditionUIObject->SetColor(XMFLOAT4(0, 0, 0, -1));
 		}
 
 		myPlayCharacter->SetTempHp(myPlayCharacter->GetCurrentHP());
@@ -976,6 +978,15 @@ bool GameobjectManager::CheckCollideNPC()
 	return	m_pAngelNPCObject->m_SPBBNPC.Intersects(myCharacter->m_SPBB);
 }
 
+void GameobjectManager::CheckCollideNPCColorChange()//엔피씨 충돌시에 생기는 마법
+{
+	Character* myCharacter = GetChracterInfo(g_Logic.GetMyRole());
+	if (m_pAngelNPCObject->m_SPBBNPC.Intersects(myCharacter->m_SPBB))
+	{
+	//	m_pAngelNPCObject->SetColor(XMFLOAT4(0.5, 0.5, 0.5, 0.5));
+	}
+}
+
 void GameobjectManager::CheckCollidePortal()
 {
 	Character* myCharacter = GetChracterInfo(g_Logic.GetMyRole());
@@ -985,7 +996,7 @@ void GameobjectManager::CheckCollidePortal()
 	if (m_SPBBPortal.Intersects(myCharacter->m_SPBB) && m_bPortalCheck == false)
 	{
 		m_bPortalCheck = true;
-		m_nStageType = 2;
+		//m_nStageType = 2;
 		g_NetworkHelper.SendChangeStage_BOSS();
 	}
 }
@@ -1114,16 +1125,35 @@ void GameobjectManager::BuildBossStageObject(ID3D12Device* pd3dDevice, ID3D12Gra
 	CLoadedModelInfoCompnent* Rock02Model = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock02.bin", NULL, true);
 	CLoadedModelInfoCompnent* Rock03Model = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock03.bin", NULL, true);
 	CLoadedModelInfoCompnent* DeathModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Death.bin", NULL, true);
+	CLoadedModelInfoCompnent* RockSpike = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/RockSpike.bin", NULL, true);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock1.txt", Rock01Model, 1, STAGE2);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock2.txt", Rock02Model, 1, STAGE2);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock3.txt", Rock03Model, 1, STAGE2);
+
+	Projectile** m_ppRockSpikeObjects = new Projectile * [10];
+	for (int i = 0; i < 10; ++i)
+	{
+		m_ppRockSpikeObjects[i] = new IceLance();
+		m_ppRockSpikeObjects[i]->InsertComponent<RenderComponent>();
+		m_ppRockSpikeObjects[i]->InsertComponent<CLoadedModelInfoCompnent>();
+		m_ppRockSpikeObjects[i]->SetPosition(XMFLOAT3(25 * i, 0, 0));
+		m_ppRockSpikeObjects[i]->SetModel(RockSpike);
+		//m_pEnergyBallObjects[i]->SetColor(XMFLOAT3(0,0.5,0);
+		m_ppRockSpikeObjects[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		m_ppRockSpikeObjects[i]->SetScale(15.f, 20.f, 15.f);
+		m_ppRockSpikeObjects[i]->SetBoundingSize(4.0f);
+	//	m_pEnergyBallObjects[i] = m_ppIceLanceObjects[i];
+		m_ppGameObjects.emplace_back(m_ppRockSpikeObjects[i]);
+	}
+//	m_pPriestObject->SetProjectile(m_ppIceLanceObjects);
 	//ReadNormalMonsterFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/NormalMonster.txt", DeathModel, 0, STAGE2);
 }
 
 void GameobjectManager::BuildProjectileObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
 	CLoadedModelInfoCompnent* ArrowModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Arrow.bin", NULL, true);
-	CLoadedModelInfoCompnent* IceLanceModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/RockSpike.bin", NULL, true);
+	CLoadedModelInfoCompnent* IceLanceModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/IceLance.bin", NULL, true);
+
 
 	Projectile** ppArrow = new Projectile * [MAX_ARROW];
 	for (int i = 0; i < MAX_ARROW; ++i)
@@ -1414,17 +1444,17 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 }
 void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	//m_pFireballSpriteObject = new GameObject(UNDEF_ENTITY);
-	//m_pFireballSpriteObject->InsertComponent<RenderComponent>();
-	//m_pFireballSpriteObject->InsertComponent<UIMeshComponent>();
-	//m_pFireballSpriteObject->InsertComponent<MultiSpriteShaderComponent>();
-	//m_pFireballSpriteObject->InsertComponent<TextureComponent>();
-	//m_pFireballSpriteObject->SetTexture(L"MagicEffect/CandleFlame.dds", RESOURCE_TEXTURE2D, 3);
-	//m_pFireballSpriteObject->SetPosition(XMFLOAT3(100, 40, 100));
-	//m_pFireballSpriteObject->SetScale(10);
-	//m_pFireballSpriteObject->SetRowColumn(16, 8, 0);
-	//m_pFireballSpriteObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//m_ppParticleObjects.emplace_back(m_pFireballSpriteObject);
+	m_pFireballSpriteObject = new GameObject(UNDEF_ENTITY);
+	m_pFireballSpriteObject->InsertComponent<RenderComponent>();
+	m_pFireballSpriteObject->InsertComponent<UIMeshComponent>();
+	m_pFireballSpriteObject->InsertComponent<MultiSpriteShaderComponent>();
+	m_pFireballSpriteObject->InsertComponent<TextureComponent>();
+	m_pFireballSpriteObject->SetTexture(L"MagicEffect/BossFire.dds", RESOURCE_TEXTURE2D, 3);
+	m_pFireballSpriteObject->SetPosition(XMFLOAT3(100, 40, 100));
+	m_pFireballSpriteObject->SetScale(10);
+	m_pFireballSpriteObject->SetRowColumn(4, 4, 0.03);
+	m_pFireballSpriteObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppParticleObjects.emplace_back(m_pFireballSpriteObject);
 
 	m_pLightningSpriteObject = new GameObject(UNDEF_ENTITY);
 	m_pLightningSpriteObject->InsertComponent<RenderComponent>();
@@ -1437,6 +1467,7 @@ void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	m_pLightningSpriteObject->SetRowColumn(2.0f, 2.0f, 0.06f);
 	m_pLightningSpriteObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppParticleObjects.emplace_back(m_pLightningSpriteObject);
+
 
 	//m_pMosterdebuffSpriteObject = new GameObject(UNDEF_ENTITY);
 	//m_pMosterdebuffSpriteObject->InsertComponent<RenderComponent>();
@@ -2012,7 +2043,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pTankerObject->m_pSkillEUI->InsertComponent<UIMeshComponent>();
 	m_pTankerObject->m_pSkillEUI->InsertComponent<UiShaderComponent>();
 	m_pTankerObject->m_pSkillEUI->InsertComponent<TextureComponent>();
-	m_pTankerObject->m_pSkillEUI->SetTexture(L"UI/ShieldSkill.dds", RESOURCE_TEXTURE2D, 3);
+	m_pTankerObject->m_pSkillEUI->SetTexture(L"UI/SmashSkill.dds", RESOURCE_TEXTURE2D, 3);
 	m_pTankerObject->m_pSkillEUI->SetPosition(XMFLOAT3(5, 5, 1.00));
 	m_pTankerObject->m_pSkillEUI->SetScale(0.02, 0.02, 1);
 	m_pTankerObject->m_pSkillEUI->SetColor(XMFLOAT4(0.06f, 0.05f, 0, 0.7));
@@ -2027,6 +2058,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pPriestObject->m_pHPBarUI->SetTexture(L"UI/HP.dds", RESOURCE_TEXTURE2D, 3);
 	m_pPriestObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, -0.06, 1.01));
 	m_pPriestObject->m_pHPBarUI->SetScale(0.07, 0.005, 1);
+	m_pPriestObject->m_pHPBarUI->SetShield(0.2);
 	m_pPriestObject->m_pHPBarUI->SetColor(XMFLOAT4(0.02, 0.08, 0, 0));
 	m_pPriestObject->m_pHPBarUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppCharacterUIObjects.emplace_back(m_pPriestObject->m_pHPBarUI);
@@ -2666,6 +2698,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		case 'P':
 		{
 			m_bTest = true;
+			g_sound.NoLoopPlay("WarriorQskillSound", 1.0f);
 			g_sound.Play("ClickSound", 1.0f);
 		}
 		break;
@@ -2883,7 +2916,7 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 		myPlayCharacter->SetLButtonClicked(false);
 		SomethingChanging = true;
 
-		if (ROLE::PRIEST) {
+	/*	if (ROLE::PRIEST) {
 			g_sound.NoLoopPlay("PriestAttackSound", 1.0f);
 		}
 		if (ROLE::ARCHER) {
@@ -2894,7 +2927,7 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 		}
 		if (ROLE::TANKER) {
 			g_sound.NoLoopPlay("TankerAttackSound", 1.0f);
-		}
+		}*/
 		break;
 	}
 	case WM_RBUTTONDOWN:
@@ -2970,6 +3003,30 @@ void GameobjectManager::AddTextToUILayer(int& iIndex)
 		queueStr.emplace(L"으하하하하하");
 		queueStr.emplace(L"다 죽여주마!");
 	}
+	//if (iIndex == TEXT::WARRIOR_TEXT)
+	//{
+	//	queueStr.emplace(L"너희가 꿈마을을 지킬 수 있을거 같으냐!!!");
+	//	queueStr.emplace(L"으하하하하하");
+	//	queueStr.emplace(L"다 죽여주마!");
+	//}
+	//if (iIndex == TEXT::ACHER_TEXT)
+	//{
+	//	queueStr.emplace(L"너희가 꿈마을을 지킬 수 있을거 같으냐!!!");
+	//	queueStr.emplace(L"으하하하하하");
+	//	queueStr.emplace(L"다 죽여주마!");
+	//}
+	//if (iIndex == TEXT::TANKER_TEXT)
+	//{
+	//	queueStr.emplace(L"너희가 꿈마을을 지킬 수 있을거 같으냐!!!");
+	//	queueStr.emplace(L"으하하하하하");
+	//	queueStr.emplace(L"다 죽여주마!");
+	//}
+	//if (iIndex == TEXT::PRIEST_TEXT)
+	//{
+	//	queueStr.emplace(L"지금 선택하신 캐릭터는 메이지에요");
+	//	queueStr.emplace(L"으하하하하하");
+	//	queueStr.emplace(L"다 죽여주마!");
+	//}
 	if (iIndex != -1) {
 		m_pUILayer->AddTextFont(queueStr);
 	}
@@ -3102,6 +3159,9 @@ void GameobjectManager::ChangeStage1ToStage2(float fTimeelpased)
 
 void GameobjectManager::ChangeStage2ToStage1()
 {
+	m_bGameStart = !m_bGameStart;
+	m_bPortalCheck = !m_bPortalCheck;
+	m_nStageType = 1;
 	m_fStroyTime = 0;//스테이지 1에서 스테이지 2로 넘어가는 스토리 타임 초기화
 	for (int i = 0; i < m_ppGameObjects.size(); ++i)
 	{
@@ -3109,6 +3169,14 @@ void GameobjectManager::ChangeStage2ToStage1()
 	}
 	g_sound.Pause("BossStage");
 	g_sound.Play("LobbySound",  0.52);
+}
+
+void GameobjectManager::SetTempHP()
+{
+	for (int i = 0; i < m_ppGameObjects.size(); i++) {
+		m_ppGameObjects[i]->SetTempHp(m_ppGameObjects[i]->GetCurrentHP());
+	}
+	m_bGameStart = true;
 }
 
 bool GameobjectManager::CheckCollision(vector<GameObject*> m_ppObjects)
