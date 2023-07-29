@@ -2386,12 +2386,12 @@ void Monster::Move(float fTimeElapsed)
 			if (serverChangingAngle > 40.0f) {
 				bool OnRight = (Vector3::DotProduct(GetRight(), m_desDirecionVec) > 0) ? true : false;
 				if (OnRight) {
-					Rotate(&up, 90.0f * fTimeElapsed);
-					m_xmf3rotateAngle.y += 90.0f * fTimeElapsed;
+					Rotate(&up, 180.0f * fTimeElapsed);
+					m_xmf3rotateAngle.y += 180.0f * fTimeElapsed;
 				}
 				else {
-					Rotate(&up, -90.0f * fTimeElapsed);
-					m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
+					Rotate(&up, -180.0f * fTimeElapsed);
+					m_xmf3rotateAngle.y -= 180.0f * fTimeElapsed;
 				}
 				XMFLOAT3 xmf3Position = GetPosition();
 				xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, 10.0f * m_interpolationDistance * fTimeElapsed);
@@ -2429,6 +2429,17 @@ void Monster::Move(float fTimeElapsed)
 		SetPosition(xmf3Position);
 		XMFLOAT3 myLook = GetLook();
 		float serverChangingAngle = Vector3::Angle(m_desDirecionVec, myLook);
+		if (serverChangingAngle > 40.0f) {
+			bool OnRight = (Vector3::DotProduct(GetRight(), m_desDirecionVec) > 0) ? true : false;
+			if (OnRight) {
+				Rotate(&up, 180.0f * fTimeElapsed);
+				m_xmf3rotateAngle.y += 180.0f * fTimeElapsed;
+			}
+			else {
+				Rotate(&up, -180.0f * fTimeElapsed);
+				m_xmf3rotateAngle.y -= 180.0f * fTimeElapsed;
+			}
+		}
 		if (serverChangingAngle > 1.7f) {
 			bool OnRight = (Vector3::DotProduct(GetRight(), m_desDirecionVec) > 0) ? true : false;
 			if (OnRight) {

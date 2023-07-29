@@ -16,8 +16,6 @@ MapData::MapData(std::string navFileName, std::string collisionFileName, std::st
 
 void MapData::GetReadMapData()
 {
-	using namespace std;
-
 	std::string line;
 	int vertexNum = 0;
 	int vertexNomalNum = 0;
@@ -32,111 +30,67 @@ void MapData::GetReadMapData()
 	//	cout << a->path() << endl;
 	//}
 	string fileDataString;
-	inFile >> std::noskipws;
-	copy(istream_iterator<char>(inFile), {}, back_inserter(fileDataString));
+	/*inFile >> std::noskipws;
+	copy(istream_iterator<char>(inFile), {}, back_inserter(fileDataString));*/
 	const string verticesStr = "<Vertices>:";
 	const string indicesStr = "<Indices>:";
 	const string relationStr = "<Relay>:";
-	auto vertexPos = fileDataString.find(verticesStr);
-	auto indexPos = fileDataString.find(indicesStr);
-	auto relationxPos = fileDataString.find(relationStr);
-	inFile.clear();
 
-	//vertex data Read
-	inFile.seekg(vertexPos + verticesStr.size() + 1, std::ios::beg);
-	inFile >> std::skipws;
-	int vertexCnt = -1;
-	inFile >> vertexCnt;
-	m_vertex.reserve(vertexCnt);
-	while (vertexCnt)
-	{
-		XMFLOAT3 v;
-		inFile >> v.x >> v.y >> v.z;
-		/*v.x *= 30.0f;
-		v.z *= 30.0f;*/
-		m_vertex.emplace_back(v.x, 0.0f, v.z);
-		vertexCnt--;
-	}
+	std::string readObject;
+	while (!inFile.eof()) {
+		inFile >> readObject;
+		if (readObject == verticesStr) {
+			inFile >> readObject;
 
-	//index data Read
-	inFile.clear();
-	inFile >> std::noskipws;
-	inFile.seekg(indexPos + indicesStr.size() + 2, std::ios::beg);
-	cout << "index pos: " << inFile.tellg() << endl;
-	inFile >> std::skipws;
-
-	int indexCnt = -1;
-	inFile >> indexCnt;
-	m_index.reserve(indexCnt);
-	m_triangleMesh.reserve(indexCnt / 3);
-	while (indexCnt)
-	{
-		int i;
-		inFile >> i;
-		m_index.emplace_back(i);
-		indexCnt--;
-	}
-
-	//Relay Data Read
-	inFile.clear();
-	inFile >> std::noskipws;
-	inFile.seekg(relationxPos + relationStr.size() + 4, std::ios::beg);
-	cout << "relation pos: " << inFile.tellg() << endl;
-	inFile >> std::skipws;
-
-	for (auto indexIter = m_index.begin(); indexIter != m_index.end(); indexIter += 3) {
-		m_triangleMesh.emplace_back(m_vertex[*indexIter], m_vertex[*(indexIter + 1)], m_vertex[*(indexIter + 2)], *indexIter, *(indexIter + 1), *(indexIter + 2));
-	}
-
-	while (true)
-	{
-		int relationvertex = -1;
-		inFile >> relationvertex;
-
-		int relationCnt = -1;
-		inFile >> relationCnt;
-		vector<int> siblingNodeIndex;
-		if (relationCnt < 0)break;
-		siblingNodeIndex.reserve(relationCnt);//형제 노드들 인덱스 저장 - 2개임
-		for (int relationIdx = 0; relationIdx < relationCnt; relationIdx++) {
-			int idx = -1;
-			inFile >> idx;
-			siblingNodeIndex.emplace_back(idx);
+			int vertexCnt = std::stoi(readObject);
+			m_vertex.reserve(vertexCnt);
+			while (vertexCnt)
+			{
+				XMFLOAT3 v;
+				inFile >> v.x >> v.y >> v.z;
+				/*v.x *= 30.0f;
+				v.z *= 30.0f;*/
+				m_vertex.emplace_back(v.x, 0.0f, v.z);
+				vertexCnt--;
+			}
 		}
-		for (auto& currentIdx : siblingNodeIndex) {
-			for (auto& sibIdx : siblingNodeIndex) {
-				if (sibIdx != currentIdx) {
-					if (m_triangleMesh[currentIdx].m_relationMesh.count(sibIdx) == 0)
-						m_triangleMesh[currentIdx].m_relationMesh.try_emplace(sibIdx, m_triangleMesh[currentIdx].GetDistance(m_triangleMesh[sibIdx]));//center 거리까지 emplac_back해야됨
+		else if (readObject == indicesStr) {
+			inFile >> readObject;
+			int indexCnt = std::stoi(readObject);
+			m_triangleMesh.reserve(indexCnt / 3);
+			while (indexCnt)
+			{
+				int i;
+				inFile >> i;
+				m_index.emplace_back(i);
+				indexCnt--;
+			}
+			
+			for (auto indexIter = m_index.begin(); indexIter != m_index.end(); indexIter += 3) {
+				m_triangleMesh.emplace_back(m_vertex[*indexIter], m_vertex[*(indexIter + 1)], m_vertex[*(indexIter + 2)], *indexIter, *(indexIter + 1), *(indexIter + 2));
+				
+			}			
+
+		}
+		else if (readObject == relationStr) {
+			inFile >> readObject;
+			int relationCnt = std::stoi(readObject);
+			for (int i = 0; i < relationCnt; i++) {
+				inFile >> readObject;
+				int index1, index2;
+				inFile >> index1;
+				inFile >> index2;
+				if (index1 != index2) {
+					if (m_triangleMesh[index1].m_relationMesh.count(index2) == 0)
+						m_triangleMesh[index1].m_relationMesh.try_emplace(index2, m_triangleMesh[index1].GetDistance(m_triangleMesh[index2]));//center 거리까지 emplac_back해야됨
+					if (m_triangleMesh[index2].m_relationMesh.count(index1) == 0)
+						m_triangleMesh[index2].m_relationMesh.try_emplace(index1, m_triangleMesh[index2].GetDistance(m_triangleMesh[index1]));//center 거리까지 emplac_back해야됨
 				}
 			}
 		}
-		if (inFile.eof())break;
 	}
-	float fltMx = FLT_MAX;
-	int idxM = -1;
-	int inIdx = -1;
-	int zeroIdx = -1;
-	//vector<int> m_zeroVertexIdxs;
-	for (int i = 0; i < m_index.size() / 3; i++) {
-		float dis = m_triangleMesh[i].GetDistance(300.0f, 0.0f, 100.0f);
-		if (fltMx > dis) {
-			fltMx = dis;
-			idxM = i;
-		}
-		if (m_triangleMesh[i].IsOnTriangleMesh(300.0f, 0.0f, 100.0f))
-			inIdx = i;
-		if (m_triangleMesh[i].IsOnTriangleMesh(0.0f, 0.0f, 0.0f))
-			m_zeroVertexIdxs.emplace_back(i);
-		//zeroIdx = i;
-	}
-	std::cout << "dis Min: " << idxM << "dis: " << fltMx << std::endl;
-	std::cout << "On idx: " << inIdx << std::endl;
-	//std::cout << "On ZeroIdx: " << zeroIdx << std::endl;
-	std::cout << "ZeroIdxs: ";
-	for (auto& i : m_zeroVertexIdxs)
-		std::cout << i << " ";
-	std::cout << std::endl;
+
+
 	std::cout << "map load end" << std::endl;
 }
 

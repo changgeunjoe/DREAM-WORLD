@@ -33,97 +33,76 @@ void MapData::GetReadMapData()
 	//	cout << a->path() << endl;
 	//}
 	string fileDataString;
-	inFile >> std::noskipws;
-	copy(istream_iterator<char>(inFile), {}, back_inserter(fileDataString));
+	/*inFile >> std::noskipws;
+	copy(istream_iterator<char>(inFile), {}, back_inserter(fileDataString));*/
 	const string verticesStr = "<Vertices>:";
 	const string indicesStr = "<Indices>:";
 	const string relationStr = "<Relay>:";
-	auto vertexPos = fileDataString.find(verticesStr);
-	auto indexPos = fileDataString.find(indicesStr);
-	auto relationxPos = fileDataString.find(relationStr);
-	inFile.clear();
 
-	//vertex data Read
-	inFile.seekg(vertexPos + verticesStr.size() + 1, std::ios::beg);
-	inFile >> std::skipws;
-	int vertexCnt = -1;
-	inFile >> vertexCnt;
-	m_vertex.reserve(vertexCnt);
-	while (vertexCnt)
-	{
-		XMFLOAT3 v;
-		inFile >> v.x >> v.y >> v.z;
-		/*v.x *= 30.0f;
-		v.z *= 30.0f;*/
-		m_vertex.emplace_back(v.x, 0.0f, v.z);
-		vertexCnt--;
-	}
+	std::string readObject;
+	while (!inFile.eof()) {
+		inFile >> readObject;
+		if (readObject == verticesStr) {
+			inFile >> readObject;
 
-	//index data Read
-	inFile.clear();
-	inFile >> std::noskipws;
-	inFile.seekg(indexPos + indicesStr.size() + 2, std::ios::beg);
-	cout << "index pos: " << inFile.tellg() << endl;
-	inFile >> std::skipws;
-
-	int indexCnt = -1;
-	inFile >> indexCnt;
-	m_index.reserve(indexCnt);
-	m_triangleMesh.reserve(indexCnt / 3);
-	while (indexCnt)
-	{
-		int i;
-		inFile >> i;
-		m_index.emplace_back(i);
-		indexCnt--;
-	}
-
-	//Relay Data Read
-	inFile.clear();
-	inFile >> std::noskipws;
-	inFile.seekg(relationxPos + relationStr.size() + 4, std::ios::beg);
-	cout << "relation pos: " << inFile.tellg() << endl;
-	inFile >> std::skipws;
-
-	int cnt = 0;
-	tiangleMeshGridMinSize = 0.0f;
-	for (auto indexIter = m_index.begin(); indexIter != m_index.end(); indexIter += 3) {
-		m_triangleMesh.emplace_back(m_vertex[*indexIter], m_vertex[*(indexIter + 1)], m_vertex[*(indexIter + 2)], *indexIter, *(indexIter + 1), *(indexIter + 2), cnt);
-		float circumscribedL = m_triangleMesh[cnt].GetCircumscribedLength();
-		if (tiangleMeshGridMinSize < circumscribedL)
-			tiangleMeshGridMinSize = circumscribedL;
-		cnt++;
-	}
-	tiangleMeshGridMinSize += 1.0f;
-	m_navMeshQuadTree.CreateQuadTreeNode(tiangleMeshGridMinSize);
-	for (auto& tMesh : m_triangleMesh) {
-		m_navMeshQuadTree.Insert(tMesh);
-	}
-	while (true)
-	{
-		int relationvertex = -1;
-		inFile >> relationvertex;
-
-		int relationCnt = -1;
-		inFile >> relationCnt;
-		vector<int> siblingNodeIndex;
-		if (relationCnt < 0)break;
-		siblingNodeIndex.reserve(relationCnt);//형제 노드들 인덱스 저장 - 2개임
-		for (int relationIdx = 0; relationIdx < relationCnt; relationIdx++) {
-			int idx = -1;
-			inFile >> idx;
-			siblingNodeIndex.emplace_back(idx);
+			int vertexCnt = std::stoi(readObject);
+			m_vertex.reserve(vertexCnt);
+			while (vertexCnt)
+			{
+				XMFLOAT3 v;
+				inFile >> v.x >> v.y >> v.z;
+				/*v.x *= 30.0f;
+				v.z *= 30.0f;*/
+				m_vertex.emplace_back(v.x, 0.0f, v.z);
+				vertexCnt--;
+			}
 		}
-		for (auto& currentIdx : siblingNodeIndex) {
-			for (auto& sibIdx : siblingNodeIndex) {
-				if (sibIdx != currentIdx) {
-					if (m_triangleMesh[currentIdx].m_relationMesh.count(sibIdx) == 0)
-						m_triangleMesh[currentIdx].m_relationMesh.try_emplace(sibIdx, m_triangleMesh[currentIdx].GetDistance(m_triangleMesh[sibIdx]));//center 거리까지 emplac_back해야됨
+		else if (readObject == indicesStr) {
+			inFile >> readObject;
+			int indexCnt = std::stoi(readObject);
+			m_triangleMesh.reserve(indexCnt / 3);
+			while (indexCnt)
+			{
+				int i;
+				inFile >> i;
+				m_index.emplace_back(i);
+				indexCnt--;
+			}
+			int cnt = 0;
+			tiangleMeshGridMinSize = 0.0f;
+			for (auto indexIter = m_index.begin(); indexIter != m_index.end(); indexIter += 3) {
+				m_triangleMesh.emplace_back(m_vertex[*indexIter], m_vertex[*(indexIter + 1)], m_vertex[*(indexIter + 2)], *indexIter, *(indexIter + 1), *(indexIter + 2), cnt);
+				float circumscribedL = m_triangleMesh[cnt].GetCircumscribedLength();
+				if (tiangleMeshGridMinSize < circumscribedL)
+					tiangleMeshGridMinSize = circumscribedL;
+				cnt++;
+			}
+			tiangleMeshGridMinSize += 1.0f;
+			m_navMeshQuadTree.CreateQuadTreeNode(tiangleMeshGridMinSize);
+			for (auto& tMesh : m_triangleMesh) {
+				m_navMeshQuadTree.Insert(tMesh);
+			}
+
+		}
+		else if (readObject == relationStr) {
+			inFile >> readObject;
+			int relationCnt = std::stoi(readObject);
+			for (int i = 0; i < relationCnt; i++) {
+				inFile >> readObject;
+				int index1, index2;
+				inFile >> index1;
+				inFile >> index2;
+				if (index1 != index2) {
+					if (m_triangleMesh[index1].m_relationMesh.count(index2) == 0)
+						m_triangleMesh[index1].m_relationMesh.try_emplace(index2, m_triangleMesh[index1].GetDistance(m_triangleMesh[index2]));//center 거리까지 emplac_back해야됨
+					if (m_triangleMesh[index2].m_relationMesh.count(index1) == 0)
+						m_triangleMesh[index2].m_relationMesh.try_emplace(index1, m_triangleMesh[index2].GetDistance(m_triangleMesh[index1]));//center 거리까지 emplac_back해야됨
 				}
 			}
 		}
-		if (inFile.eof())break;
 	}
+
+	
 	XMFLOAT3 bossPos = XMFLOAT3(179.4, 0, -38.1);
 	int resultBossIdx = -1;
 	std::set<int> bossIdxs = m_navMeshQuadTree.GetNearbyNavMeshes(179.4, -38.1);

@@ -418,7 +418,7 @@ public:
 		//#endif
 		return abs(m_areaSize - res) < 0.1f;
 	}
-	XMFLOAT3 const GetCenter() { return m_center; }
+	XMFLOAT3 GetCenter() { return m_center; }
 	float GetAreaSize() { return m_areaSize; }
 	std::set<int>& GetVertexIdxs() { return m_vertexIdxSet; };
 	const XMFLOAT3 GetVertex1() { return m_vertex1; }
