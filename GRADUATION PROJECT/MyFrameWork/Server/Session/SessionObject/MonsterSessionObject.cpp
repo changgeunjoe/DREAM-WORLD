@@ -170,31 +170,30 @@ bool MonsterSessionObject::Move(float elapsedTime)
 		}
 		else {
 			m_reserveRoadLock.unlock();
-			if (g_bossMapData.GetTriangleMesh(m_onIdx).IsOnTriangleMesh(destinationPlayerPos)) {
-				m_desVector = desPlayerVector;
-				float ChangingAngle = Vector3::Angle(desPlayerVector, m_directionVector);
-				if (ChangingAngle > 40.0f) {
-					std::cout << "EQ IDX - angle > 40" << std::endl;
-					bool OnRight = (Vector3::DotProduct(m_rightVector, desPlayerVector) > 0) ? true : false;	// 목적지가 오른쪽 왼
-					OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
-					return true;
-				}
-				if (ChangingAngle > 1.8f) {
-					std::cout << "EQ IDX - angle > 1.8 & move" << std::endl;
-					bool OnRight = (Vector3::DotProduct(m_rightVector, desPlayerVector) > 0) ? true : false;	// 목적지가 오른쪽 왼
-					OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
-					//공격은 외부 if에서 알아서 조건 맞으면 함
-				}
-				if (playerDistance >= 42.0f) {
-					std::cout << "EQ IDX - move forward" << std::endl;
-					m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, m_speed * elapsedTime, false));//틱마다 움직임
-					m_SPBB.Center = m_position;
-					m_SPBB.Center.y = m_fBoundingSize;
-				}
+
+			m_desVector = desPlayerVector;
+			float ChangingAngle = Vector3::Angle(desPlayerVector, m_directionVector);
+			if (ChangingAngle > 40.0f) {
+				std::cout << "EQ IDX - angle > 40" << std::endl;
+				bool OnRight = (Vector3::DotProduct(m_rightVector, desPlayerVector) > 0) ? true : false;	// 목적지가 오른쪽 왼
+				OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
 				return true;
 			}
+			else if (ChangingAngle > 1.8f) {
+				std::cout << "EQ IDX - angle > 1.8 & move" << std::endl;
+				bool OnRight = (Vector3::DotProduct(m_rightVector, desPlayerVector) > 0) ? true : false;	// 목적지가 오른쪽 왼
+				OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
+				//공격은 외부 if에서 알아서 조건 맞으면 함
+			}
+			if (playerDistance >= 42.0f) {
+				std::cout << "EQ IDX - move forward" << std::endl;
+				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, m_speed * elapsedTime, false));//틱마다 움직임
+				m_SPBB.Center = m_position;
+				m_SPBB.Center.y = m_fBoundingSize;
+			}
+			return true;
 		}
-	}	
+	}
 	//else {
 	//m_reserveRoadLock.unlock();
 
@@ -265,12 +264,12 @@ void MonsterSessionObject::AttackTimer()
 {
 	//std::cout << "ReSet lastAttack Time Boss" << std::endl;
 	m_lastAttackTime = std::chrono::high_resolution_clock::now();
-
+	
 	switch (currentAttack)
 	{
 	case ATTACK_KICK:
 	{
-		TIMER_EVENT attackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(332), m_roomId ,EV_BOSS_KICK };
+		TIMER_EVENT attackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(332), m_roomId ,EV_BOSS_ATTACK };
 		g_Timer.InsertTimerQueue(attackTimer);
 		TIMER_EVENT endAttackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(823), m_roomId , EV_BOSS_STATE };
 		g_Timer.InsertTimerQueue(endAttackTimer);
@@ -278,7 +277,7 @@ void MonsterSessionObject::AttackTimer()
 	break;
 	case ATTACK_PUNCH:
 	{
-		TIMER_EVENT attackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(332), m_roomId ,EV_BOSS_PUNCH };
+		TIMER_EVENT attackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(332), m_roomId ,EV_BOSS_ATTACK };
 		g_Timer.InsertTimerQueue(attackTimer);
 		TIMER_EVENT endAttackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(824), m_roomId , EV_BOSS_STATE };
 		g_Timer.InsertTimerQueue(endAttackTimer);
@@ -286,7 +285,7 @@ void MonsterSessionObject::AttackTimer()
 	break;
 	case ATTACK_SPIN:
 	{
-		TIMER_EVENT attackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(300), m_roomId ,EV_BOSS_SPIN };
+		TIMER_EVENT attackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(300), m_roomId ,EV_BOSS_ATTACK };
 		g_Timer.InsertTimerQueue(attackTimer);
 		attackTimer.wakeupTime += std::chrono::milliseconds(300);
 		g_Timer.InsertTimerQueue(attackTimer);
@@ -298,10 +297,12 @@ void MonsterSessionObject::AttackTimer()
 	break;
 	case ATTACK_FLOOR_BOOM:
 	{
-		TIMER_EVENT attackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(300), m_roomId ,EV_BOSS_SPIN };
-		g_Timer.InsertTimerQueue(attackTimer);
+		TIMER_EVENT attackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(300), m_roomId ,EV_BOSS_ATTACK };
+		g_Timer.InsertTimerQueue(attackTimer);		
 		attackTimer.wakeupTime += std::chrono::milliseconds(300);
 		g_Timer.InsertTimerQueue(attackTimer);
+		TIMER_EVENT endAttackTimer{ std::chrono::system_clock::now() + std::chrono::seconds(1), m_roomId , EV_BOSS_STATE };
+		g_Timer.InsertTimerQueue(endAttackTimer);
 	}
 	break;
 	default:

@@ -369,7 +369,7 @@ void Logic::ProcessPacket(char* p)
 		if (gGameFramework.m_pScene == nullptr) return;
 
 		//Role로 변경했음 이거 참고 		
-		//bossMonster->m_roleDesPlayer = recvPacket->targetRole;
+		bossMonster->m_roleDesPlayer = recvPacket->targetRole;
 		////std::cout << "recv aggro Id: " << recvPacket->desPlayerId << std::endl;
 		//if (recvPacket->nodeCnt == -1) {		
 		//}

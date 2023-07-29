@@ -609,6 +609,33 @@ void Room::BossAttackExecute()
 		}
 	}
 	break;
+	case ATTACK_FLOOR_BOOM:
+	{
+		for (auto& playCharater : m_characterMap) {
+			auto bossToPlayerVector = Vector3::Subtract(playCharater.second->GetPos(), m_boss.GetPos());
+			float bossToPlayerDis = Vector3::Length(bossToPlayerVector);
+			if (50.0f <= bossToPlayerDis && bossToPlayerDis <= 70.0f) {
+				//playCharater.second->AttackedHp(15);
+				sendPacket.currentHp = playCharater.second->GetHp();
+				g_logic.OnlySendPlayerInRoom_R(m_roomId, playCharater.first, &sendPacket);
+			}
+		}
+		m_boss.currentAttack = ATTACK_FLOOR_BOOM_SECOND;
+	}
+	break;
+	case ATTACK_FLOOR_BOOM_SECOND:
+	{
+		for (auto& playCharater : m_characterMap) {
+			auto bossToPlayerVector = Vector3::Subtract(playCharater.second->GetPos(), m_boss.GetPos());
+			float bossToPlayerDis = Vector3::Length(bossToPlayerVector);
+			if (bossToPlayerDis <= 50.0f) {
+				//playCharater.second->AttackedHp(15);
+				sendPacket.currentHp = playCharater.second->GetHp();
+				g_logic.OnlySendPlayerInRoom_R(m_roomId, playCharater.first, &sendPacket);
+			}
+		}
+	}
+	break;
 	default:
 		break;
 	}

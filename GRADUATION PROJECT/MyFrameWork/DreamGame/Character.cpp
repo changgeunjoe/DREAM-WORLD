@@ -2346,6 +2346,13 @@ void Monster::Animate(float fTimeElapsed)
 
 void Monster::Move(float fTimeElapsed)
 {
+	Character* desChar = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(m_roleDesPlayer);
+	XMFLOAT3 destinationPlayerPos = XMFLOAT3(0, 0, 0);
+	if (desChar != nullptr) {
+		desChar->GetPosition();
+	}
+	XMFLOAT3 desPlayerVector = Vector3::Subtract(destinationPlayerPos, m_position);
+	float playerDistance = Vector3::Length(desPlayerVector);
 	static XMFLOAT3 up = XMFLOAT3(0, 1, 0);
 	if (m_bMoveState)	// 움직이는 중
 	{
@@ -2378,14 +2385,13 @@ void Monster::Move(float fTimeElapsed)
 					Rotate(&up, -90.0f * fTimeElapsed);
 					m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
 				}
-				MoveForward(50 * fTimeElapsed);
 			}
-			else {
+			if (playerDistance >= 42.0f) {
 				MoveForward(50 * fTimeElapsed);
 			}
 			//float ChangingAngle = Vector3::Angle(m_desDirecionVec, GetLook());
-			
-			
+
+
 
 		}
 		//else
