@@ -40,6 +40,7 @@ public:
 	void MultiCastOtherPlayerInRoom_R(int roomId, ROLE role, void* p);
 	void OnlySendPlayerInRoom_R(int roomId, ROLE role, void* p);
 	void BroadCastInRoomByPlayer(int userId, void* p);
+	void BroadCastTimeSyncPacket();
 	//Boss Broad Cast
 	void BroadCastInRoom(int roomId, void* p);
 

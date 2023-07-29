@@ -5,6 +5,7 @@
 #include "../Session/SessionObject/ShootingSessionObject.h"
 #include "../Session/SessionObject/MonsterSessionObject.h"
 #include "../Session/SessionObject/SmallMonsterSessionObject.h"
+#include "../Session/SessionObject/MeteoSessionObject.h"
 #include "../Session/SessionObject/ChracterSessionObject.h"
 
 class Room
@@ -60,18 +61,21 @@ private:
 	int m_ballCount = 0;
 	std::array<ShootingSessionObject, 10> m_arrows;
 	std::array<ShootingSessionObject, 10> m_balls;
-	std::array< ShootingSessionObject, 3> m_skillarrow;
 	Concurrency::concurrent_queue<int> m_restArrow;
 	Concurrency::concurrent_queue<int> m_restBall;
+	std::array< ShootingSessionObject, 3> m_skillarrow;
+	std::array< MeteoSessionObject, 10> m_meteos;
 private:
 	XMFLOAT3 m_skyArrowAttack;
+private:
+	std::chrono::high_resolution_clock::time_point m_meteoTime = std::chrono::high_resolution_clock::now();
 public:
 	void PushRestArrow(int id);
 	void PushRestBall(int id);
 public:
 	void ShootArrow(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 srcPos, float speed, float damage);
 	void ShootBall(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 srcPos);
-public:	
+public:
 	void MeleeAttack(ROLE r, DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 pos, int power);
 public:
 	void ChangeDirectionPlayCharacter(ROLE r, DIRECTION d);
@@ -109,7 +113,9 @@ public:
 	void UpdateShieldData();
 	void PutBarrierOnPlayer();
 	void RemoveBarrier();
-
+public:
+	void SetMeteo();
+	void StartMeteo();
 public:
 	//stage1
 	void Recv_SkipNPC_Communication();

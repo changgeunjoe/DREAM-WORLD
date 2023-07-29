@@ -256,7 +256,7 @@ void Logic::ProcessPacket(char* p)
 		Monster* bossMonster = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster();
 		bossMonster->m_UIScale = static_cast<float>(recvPacket->bossState.hp) / 250.0f;//maxHp 2500입니다
 		bossMonster->SetCurrentHP(static_cast<float>(recvPacket->bossState.hp) / 25.0f);//maxHp 2500입니다
-		
+
 		//bossMonster->m_desDirecionVec = recvPacket->bossState.moveVec;
 		//bossMonster->m_serverDesDirecionVec = recvPacket->bossState.desVec;
 
@@ -336,6 +336,11 @@ void Logic::ProcessPacket(char* p)
 					bossMonster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_CAST_SPELL, 2);
 				}
 				break;
+			case BOSS_ATTACK::FIRE_FLOOR_BOOM:
+			{
+
+			}
+			break;			
 			}
 			bossMonster->SetMoveState(false);
 			cout << "ProcessPacket::SERVER_PACKET::BOSS_ATTACK - recvPacket: " << (int)recvPacket->bossAttackType << endl;
@@ -355,7 +360,7 @@ void Logic::ProcessPacket(char* p)
 		Monster* bossMonster = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster();
 		bossMonster->SetCurrentHP(0.0f);
 		GameEnd = true;
-	
+
 
 	}
 	break;
@@ -625,6 +630,30 @@ void Logic::ProcessPacket(char* p)
 		SERVER_PACKET::BossDirectionPacket* recvPacket = reinterpret_cast<SERVER_PACKET::BossDirectionPacket*>(p);
 		Monster* bossMonster = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster();
 		bossMonster->m_desDirecionVec = recvPacket->directionVec;
+	}
+	break;
+	case SERVER_PACKET::METEO_PLAYER_ATTACK:
+	{
+		SERVER_PACKET::BossAttackPlayerPacket* recvPacket = reinterpret_cast<SERVER_PACKET::BossAttackPlayerPacket*>(p);
+		recvPacket->currentHp;//플레이어 본인 피격 후, 체력
+	}
+	break;
+	case SERVER_PACKET::METEO_DESTROY:
+	{
+		SERVER_PACKET::DestroyedMeteoPacket* recvPacket = reinterpret_cast<SERVER_PACKET::DestroyedMeteoPacket*>(p);
+		recvPacket->idx;//이 메테오 비지블 off
+	}
+	break;
+	case SERVER_PACKET::METEO_CREATE:
+	{
+		SERVER_PACKET::MeteoStartPacket* recvPacket = reinterpret_cast<SERVER_PACKET::MeteoStartPacket*>(p);
+		Monster* bossMonster = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster();
+		bossMonster->SetMoveState(false);
+		//보스 이동 멈추고 애니메이션 실행해주세요.
+		for (int i = 0; i < 10; i++) {
+			recvPacket->meteoInfo[i].pos;//i번째 메테오 시작 포지션
+			recvPacket->meteoInfo[i].speed;//i번째 메테오 스피드
+		}
 	}
 	break;
 	default:

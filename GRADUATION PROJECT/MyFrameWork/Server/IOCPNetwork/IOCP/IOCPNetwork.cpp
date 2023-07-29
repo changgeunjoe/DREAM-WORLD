@@ -17,7 +17,7 @@ IOCPNetwork::IOCPNetwork()
 {
 	b_isRunning = false;
 	m_currentClientId = 0;
-	Initialize();
+	Initialize();	
 }
 
 IOCPNetwork::~IOCPNetwork()
@@ -45,7 +45,7 @@ void IOCPNetwork::Initialize()
 	bind(m_listenSocket, reinterpret_cast<sockaddr*>(&server_addr), sizeof(server_addr));
 	listen(m_listenSocket, SOMAXCONN);
 	m_hIocp = CreateIoCompletionPort(INVALID_HANDLE_VALUE, 0, 0, 0);
-	CreateIoCompletionPort(reinterpret_cast<HANDLE>(m_listenSocket), m_hIocp, 9999, 0);
+	CreateIoCompletionPort(reinterpret_cast<HANDLE>(m_listenSocket), m_hIocp, 9999, 0);	
 }
 
 void IOCPNetwork::Start()
@@ -122,7 +122,6 @@ void IOCPNetwork::WorkerThread()
 				//중복 로그인 확인 - logic::ProcessPacket::Login 부분에서 처리함
 				ZeroMemory(&m_acceptOver->m_overlap, sizeof(m_acceptOver->m_overlap));
 				AcceptEx(m_listenSocket, m_clientSocket, m_acceptOver->m_buffer, 0, addr_size + 16, addr_size + 16, 0, &m_acceptOver->m_overlap);
-				g_logic.SendTimeSyncPacket(userId);
 			}
 		}
 		break;
@@ -215,6 +214,13 @@ void IOCPNetwork::WorkerThread()
 		case OP_BOSS_CHANGE_DIRECTION:
 		{
 			g_logic.BroadCastInRoom(key, ex_over->m_buffer);
+			if (ex_over != nullptr)
+				delete ex_over;
+		}
+		break;
+		case OP_SYNC_TIME:
+		{
+			g_logic.BroadCastTimeSyncPacket();
 			if (ex_over != nullptr)
 				delete ex_over;
 		}

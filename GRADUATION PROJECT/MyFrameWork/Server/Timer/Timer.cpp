@@ -123,6 +123,13 @@ void Timer::TimerThreadFunc()
 				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, ev.targetId, &ov->m_overlap);
 			}
 			break;
+			case EV_SYNC_TIME:
+			{
+				ExpOver* ov = new ExpOver();
+				ov->m_opCode = OP_SYNC_TIME;
+				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, 0, &ov->m_overlap);
+			}
+			break;
 			default: break;
 			}
 			continue;		// 즉시 다음 작업 꺼내기

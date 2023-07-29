@@ -264,7 +264,7 @@ void MonsterSessionObject::AttackTimer()
 {
 	//std::cout << "ReSet lastAttack Time Boss" << std::endl;
 	m_lastAttackTime = std::chrono::high_resolution_clock::now();
-	
+
 	switch (currentAttack)
 	{
 	case ATTACK_KICK:
@@ -298,9 +298,15 @@ void MonsterSessionObject::AttackTimer()
 	case ATTACK_FLOOR_BOOM:
 	{
 		TIMER_EVENT attackTimer{ std::chrono::system_clock::now() + std::chrono::milliseconds(300), m_roomId ,EV_BOSS_ATTACK };
-		g_Timer.InsertTimerQueue(attackTimer);		
+		g_Timer.InsertTimerQueue(attackTimer);
 		attackTimer.wakeupTime += std::chrono::milliseconds(300);
 		g_Timer.InsertTimerQueue(attackTimer);
+		TIMER_EVENT endAttackTimer{ std::chrono::system_clock::now() + std::chrono::seconds(1), m_roomId , EV_BOSS_STATE };
+		g_Timer.InsertTimerQueue(endAttackTimer);
+	}
+	break;
+	case ATTACK_METEO:
+	{		
 		TIMER_EVENT endAttackTimer{ std::chrono::system_clock::now() + std::chrono::seconds(1), m_roomId , EV_BOSS_STATE };
 		g_Timer.InsertTimerQueue(endAttackTimer);
 	}

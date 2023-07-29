@@ -444,6 +444,12 @@ void Logic::BroadCastInRoomByPlayer(int userId, void* p)
 	}
 }
 
+void Logic::BroadCastTimeSyncPacket()
+{
+	for (auto& cli : g_iocpNetwork.m_session)
+		SendTimeSyncPacket(cli.GetId());
+}
+
 void Logic::BroadCastInRoom(int roomId, void* p)
 {
 	auto roomPlayermap = g_RoomManager.GetRunningRoomRef(roomId).GetPlayerMap();
