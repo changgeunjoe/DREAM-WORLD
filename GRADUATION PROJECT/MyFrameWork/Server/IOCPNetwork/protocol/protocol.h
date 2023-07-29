@@ -212,6 +212,10 @@ namespace SERVER_PACKET {
 	constexpr unsigned char COMMON_ATTACK_START = 116;
 
 	constexpr unsigned char BOSS_ATTACK_PALYER = 117;
+	constexpr unsigned char BOSS_CHANGE_DIRECION = 118;
+	constexpr unsigned char METEO_PLAYER_ATTACK = 119;
+	constexpr unsigned char METEO_DESTROY = 120;
+	constexpr unsigned char METEO_CREATE = 121;
 
 	struct MovePacket
 	{
@@ -350,9 +354,14 @@ namespace SERVER_PACKET {
 	struct InGameBossState {
 		int hp;
 		XMFLOAT3 pos;
-		XMFLOAT3 rot;		
+		XMFLOAT3 rot;
 		XMFLOAT3 moveVec;
 		XMFLOAT3 desVec;
+	};
+
+	struct MeteoInfo {
+		XMFLOAT3 pos;
+		float speed;
 	};
 
 	struct GameState_BOSS {//Player State-> pos rot...추가하여 보정?
@@ -459,6 +468,24 @@ namespace SERVER_PACKET {
 		short size;
 		char type;
 		float currentHp;
+	};
+
+	struct BossDirectionPacket {
+		short size;
+		char type;
+		XMFLOAT3 directionVec;
+	};
+
+	struct DestroyedMeteoPacket {
+		short size;
+		char type;
+		char idx;
+	};
+
+	struct MeteoStartPacket {
+		short size;
+		char type;
+		MeteoInfo meteoInfo[10];
 	};
 }
 

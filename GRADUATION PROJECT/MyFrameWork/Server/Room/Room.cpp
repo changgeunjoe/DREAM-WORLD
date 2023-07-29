@@ -41,11 +41,16 @@ Room::Room() :m_boss(MonsterSessionObject(m_roomId))
 		m_arrows[i].SetInfo(i);
 		m_arrows[i].SetRoomId(m_roomId);
 		m_arrows[i].SetOwnerRole(ROLE::ARCHER);
+
 		m_balls[i].SetInfo(i);
 		m_balls[i].SetRoomId(m_roomId);
 		m_balls[i].SetOwnerRole(ROLE::PRIEST);
+
 		m_restArrow.push(i);
 		m_restBall.push(i);
+
+		m_meteos[i].SetId(i);
+		m_meteos[i].SetRoomId(m_roomId);
 	}
 	for (int i = 0; i < 3; i++) {
 		m_skillarrow[i];
@@ -93,6 +98,7 @@ void Room::SetRoomId(int roomId)
 	for (int i = 0; i < 10; i++) {
 		m_arrows[i].SetRoomId(m_roomId);
 		m_balls[i].SetRoomId(m_roomId);
+		m_meteos[i].SetRoomId(m_roomId);
 	}
 	for (int i = 0; i < 3; i++)
 		m_skillarrow[i].SetRoomId(m_roomId);
@@ -139,7 +145,7 @@ void Room::InsertInGamePlayer(ROLE r, int playerId)
 	//m_Players.insert(std::make_pair(r, playerId));
 }
 
-void Room::DeleteInGamePlayer(int playerId)
+bool Room::DeleteInGamePlayer(int playerId)
 {
 	m_lockInGamePlayers.lock();
 	auto findPlayerIter = std::find_if(m_inGamePlayers.begin(), m_inGamePlayers.end(), [&playerId](std::pair<ROLE, int> p)
@@ -148,15 +154,30 @@ void Room::DeleteInGamePlayer(int playerId)
 		}
 	);
 	if (findPlayerIter == m_inGamePlayers.end()) {
+		if (m_inGamePlayers.empty()) {
+			m_isAlive = false;
+			//init room
+			m_lockInGamePlayers.unlock();
+			return true;
+		}
 		m_lockInGamePlayers.unlock();
-		return;
+		return false;
 	}
 	m_lockInGamePlayers.unlock();
 	{
 		std::lock_guard<std::mutex> lg{ m_lockInGamePlayers };
 		m_inGamePlayers.erase(findPlayerIter);//disconnected된 플레이어 처리
 	}
+	{
+		std::lock_guard<std::mutex> lg{ m_lockInGamePlayers };
+		if (m_inGamePlayers.empty()) {
+			m_isAlive = false;
+			//init room
+			return true;
+		}
+	}
 	SkipNPC_Communication();
+	return false;
 }
 
 std::map<ROLE, int> Room::GetPlayerMap()
@@ -321,6 +342,7 @@ void Room::BossStageStart()//클라에서 받아서 서버로 왔고 -> 클라에서 움직임 막아
 	TIMER_EVENT bossStateEvent{ std::chrono::system_clock::now() + std::chrono::milliseconds(30), m_roomId, EV_BOSS_STATE };
 	//TIMER_EVENT bossStateEvent{ std::chrono::system_clock::now() + std::chrono::seconds(11), m_roomId ,EV_BOSS_STATE };
 	g_Timer.InsertTimerQueue(bossStateEvent);
+	m_meteoTime = std::chrono::high_resolution_clock::now();
 }
 
 void Room::GameRunningLogic()
@@ -357,6 +379,12 @@ void Room::GameRunningLogic()
 	for (auto& arrow : m_skillarrow)
 	{
 		arrow.AutoMove();
+	}
+	for (auto& meteo : m_meteos)
+	{
+		if (meteo.GetActive()) {
+			meteo.AutoMove();
+		}
 	}
 }
 
@@ -420,10 +448,29 @@ void Room::ChangeBossState()
 		g_Timer.InsertTimerQueue(bossStateEvent);
 	}
 	else {
+
+		auto durationTime = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - m_meteoTime);
+		if (durationTime > std::chrono::seconds(30)) {
+			m_boss.isMove = false;
+			m_boss.isAttack = true;
+			m_boss.currentAttack = (BOSS_ATTACK)ATTACK_METEO;
+			m_boss.AttackTimer();
+			SetMeteo();
+			SERVER_PACKET::MeteoStartPacket sendPacket;
+			sendPacket.size = sizeof(SERVER_PACKET::MeteoStartPacket);
+			sendPacket.type = SERVER_PACKET::METEO_CREATE;
+			for (int i = 0; i < 10; i++) {
+				sendPacket.meteoInfo[i].pos = m_meteos[i].GetPos();
+				sendPacket.meteoInfo[i].speed = m_meteos[i].GetSpeed();
+			}
+			g_logic.BroadCastInRoom(m_roomId, &sendPacket);
+			StartMeteo();
+			return;
+		}
 		SERVER_PACKET::BossAttackPacket sendPacket;
 		sendPacket.size = sizeof(SERVER_PACKET::BossAttackPacket);
-		int randAttackNum = bossRandAttack(dre);
 		sendPacket.type = SERVER_PACKET::BOSS_ATTACK;
+		int randAttackNum = bossRandAttack(dre);
 		sendPacket.bossAttackType = (BOSS_ATTACK)randAttackNum;
 		m_boss.currentAttack = (BOSS_ATTACK)randAttackNum;
 		m_boss.AttackTimer();
@@ -496,6 +543,7 @@ void Room::UpdateSmallMonster()
 		pos[chracterCnt] = character.second->GetPos();
 		chracterCnt++;
 	}
+
 	for (int i = 0; i < 15; i++)
 	{
 		if (!m_StageSmallMonster[i].StartAttack()) {
@@ -538,7 +586,7 @@ void Room::UpdateGameStateForPlayer_BOSS()
 		{
 			std::lock_guard<std::mutex> lg{ m_lockInGamePlayers };
 			playerMap = m_inGamePlayers;
-		}
+		}	
 		sendPacket.userState[0].role = ROLE::NONE_SELECT;
 		sendPacket.userState[1].role = ROLE::NONE_SELECT;
 		sendPacket.userState[2].role = ROLE::NONE_SELECT;
@@ -602,6 +650,33 @@ void Room::BossAttackExecute()
 			auto bossToPlayerVector = Vector3::Subtract(playCharater.second->GetPos(), m_boss.GetPos());
 			float bossToPlayerDis = Vector3::Length(bossToPlayerVector);
 			if (bossToPlayerDis < 45.0f) {
+				//playCharater.second->AttackedHp(15);
+				sendPacket.currentHp = playCharater.second->GetHp();
+				g_logic.OnlySendPlayerInRoom_R(m_roomId, playCharater.first, &sendPacket);
+			}
+		}
+	}
+	break;
+	case ATTACK_FLOOR_BOOM:
+	{
+		for (auto& playCharater : m_characterMap) {
+			auto bossToPlayerVector = Vector3::Subtract(playCharater.second->GetPos(), m_boss.GetPos());
+			float bossToPlayerDis = Vector3::Length(bossToPlayerVector);
+			if (50.0f <= bossToPlayerDis && bossToPlayerDis <= 70.0f) {
+				//playCharater.second->AttackedHp(15);
+				sendPacket.currentHp = playCharater.second->GetHp();
+				g_logic.OnlySendPlayerInRoom_R(m_roomId, playCharater.first, &sendPacket);
+			}
+		}
+		m_boss.currentAttack = ATTACK_FLOOR_BOOM_SECOND;
+	}
+	break;
+	case ATTACK_FLOOR_BOOM_SECOND:
+	{
+		for (auto& playCharater : m_characterMap) {
+			auto bossToPlayerVector = Vector3::Subtract(playCharater.second->GetPos(), m_boss.GetPos());
+			float bossToPlayerDis = Vector3::Length(bossToPlayerVector);
+			if (bossToPlayerDis <= 50.0f) {
 				//playCharater.second->AttackedHp(15);
 				sendPacket.currentHp = playCharater.second->GetHp();
 				g_logic.OnlySendPlayerInRoom_R(m_roomId, playCharater.first, &sendPacket);
@@ -686,6 +761,29 @@ void Room::RemoveBarrier()
 	sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
 	sendPacket.type = SERVER_PACKET::SHIELD_END;
 	g_logic.BroadCastInRoom(m_roomId, &sendPacket);
+}
+
+void Room::SetMeteo()
+{
+	//speed는 100~150
+	//포지션은 -300 300 * -300 300
+	static std::random_device rd;
+	static std::default_random_engine dre;
+	static std::uniform_real_distribution<float> positionRand(-300, 300);
+	static std::uniform_real_distribution<float> speedRand(100, 250);
+
+	for (int i = 0; i < 10; i++) {
+		XMFLOAT3 pos = XMFLOAT3(positionRand(dre), positionRand(dre), positionRand(dre));
+		float speed = speedRand(dre);
+		m_meteos[i].SetStart(speed, pos);
+	}
+}
+
+void Room::StartMeteo()
+{
+	for (int i = 0; i < 10; i++) {
+		m_meteos[i].OnActive();
+	}
 }
 
 void Room::Recv_SkipNPC_Communication()

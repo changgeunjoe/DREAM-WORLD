@@ -17,7 +17,7 @@ IOCPNetwork::IOCPNetwork()
 {
 	b_isRunning = false;
 	m_currentClientId = 0;
-	Initialize();
+	Initialize();	
 }
 
 IOCPNetwork::~IOCPNetwork()
@@ -45,7 +45,7 @@ void IOCPNetwork::Initialize()
 	bind(m_listenSocket, reinterpret_cast<sockaddr*>(&server_addr), sizeof(server_addr));
 	listen(m_listenSocket, SOMAXCONN);
 	m_hIocp = CreateIoCompletionPort(INVALID_HANDLE_VALUE, 0, 0, 0);
-	CreateIoCompletionPort(reinterpret_cast<HANDLE>(m_listenSocket), m_hIocp, 9999, 0);
+	CreateIoCompletionPort(reinterpret_cast<HANDLE>(m_listenSocket), m_hIocp, 9999, 0);	
 }
 
 void IOCPNetwork::Start()
@@ -115,14 +115,13 @@ void IOCPNetwork::WorkerThread()
 
 				CreateIoCompletionPort(reinterpret_cast<HANDLE>(m_clientSocket), m_hIocp, userId, 0);
 				g_logic.AcceptPlayer(&m_session[userId], userId, m_clientSocket);
-				
+
 				m_session[userId].SetInfoIpAndPort(clientIP, chlientPort);
-				
+
 				m_clientSocket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
 				//중복 로그인 확인 - logic::ProcessPacket::Login 부분에서 처리함
 				ZeroMemory(&m_acceptOver->m_overlap, sizeof(m_acceptOver->m_overlap));
 				AcceptEx(m_listenSocket, m_clientSocket, m_acceptOver->m_buffer, 0, addr_size + 16, addr_size + 16, 0, &m_acceptOver->m_overlap);
-				g_logic.SendTimeSyncPacket(userId);
 			}
 		}
 		break;
@@ -212,6 +211,20 @@ void IOCPNetwork::WorkerThread()
 				delete ex_over;
 		}
 		break;
+		case OP_BOSS_CHANGE_DIRECTION:
+		{
+			g_logic.BroadCastInRoom(key, ex_over->m_buffer);
+			if (ex_over != nullptr)
+				delete ex_over;
+		}
+		break;
+		case OP_SYNC_TIME:
+		{
+			g_logic.BroadCastTimeSyncPacket();
+			if (ex_over != nullptr)
+				delete ex_over;
+		}
+		break;
 		default: break;
 		}
 	}
@@ -233,8 +246,12 @@ void IOCPNetwork::DisconnectClient(int id)
 	//만약 인게임 중에 disconnect 된다면.
 	if (id < 0)return;
 	if (m_session[id].GetPlayerState() == PLAYER_STATE::IN_GAME_ROOM) {
-		Room& room = g_RoomManager.GetRunningRoomRef(m_session[id].GetRoomId());
-		room.DeleteInGamePlayer(id);
+		int roomId = m_session[id].GetRoomId();
+		Room& room = g_RoomManager.GetRunningRoomRef(roomId);
+		bool isRoomEnd = room.DeleteInGamePlayer(id);
+		if (isRoomEnd) {
+			g_RoomManager.RoomDestroy(roomId);
+		}
 	}
 	g_logic.DeleteInGameUserSet(m_session[id].GetLoginId());//로직에 있는 인게임 유저 정보 삭제
 	m_session[id].ResetSession();

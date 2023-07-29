@@ -299,7 +299,7 @@ void MapData::GetReadCollisionData()
 }
 
 std::list<int> MapData::AStarLoad(std::atomic_int& myTriangleIdx, float desX, float desZ)
-{	
+{
 	std::cout << "bossIdx: " << myTriangleIdx << std::endl;
 	std::map<int, AstarNode> openList;
 	std::map<int, AstarNode> closeList;
@@ -312,24 +312,40 @@ std::list<int> MapData::AStarLoad(std::atomic_int& myTriangleIdx, float desX, fl
 	std::set<int> candidateNodes = m_navMeshQuadTree.GetNearbyNavMeshes(desX, desZ);
 	float minDis = FLT_MAX;
 	int idx = -1;
+	bool isOnResult = false;
+	XMFLOAT3 desPos = XMFLOAT3(desX, 0, desZ);
 	for (int node : candidateNodes) {
-		XMFLOAT3 desPos = XMFLOAT3(desX, 0, desZ);
-		bool isOnResult = m_triangleMesh[node].IsOnTriangleMesh(desPos);
+		isOnResult = m_triangleMesh[node].IsOnTriangleMesh(desPos);
 		if (isOnResult) {
 			idx = node;
 			break;
 		}
 		float dis = m_triangleMesh[node].GetDistanceByPoint(desPos);
-		if (minDis > dis)
+		if (minDis > dis) {
+			minDis = dis;
 			idx = node;
+		}
 	}
 	std::cout << "playerIdx: " << idx << std::endl;
+	int reFindIdx = -1;
+	if (!isOnResult) {
+		for (auto relationList : m_triangleMesh[idx].m_relationMesh) {
+			isOnResult = m_triangleMesh[relationList.first].IsOnTriangleMesh(desPos);
+			reFindIdx = relationList.first;
+			if (isOnResult) break;
+		}
+	}
+
 	int desNodeIdx = -1;
 	if (idx == -1)
 		return std::list<int>{myTriangleIdx};
-	else desNodeIdx = idx;
+	else {
+		if (reFindIdx == -1)
+			desNodeIdx = idx;
+		else desNodeIdx = reFindIdx;
+	}
 
-	if(myTriangleIdx == desNodeIdx)
+	if (myTriangleIdx == desNodeIdx)
 		return std::list<int>{myTriangleIdx};
 
 	while (true) {
@@ -354,6 +370,7 @@ std::list<int> MapData::AStarLoad(std::atomic_int& myTriangleIdx, float desX, fl
 				minNode = openNode.second;
 		}
 		if (minNode.GetIdx() == -1) {
+			return std::list<int>{myTriangleIdx};
 			std::cout << "last Index: ";
 			for (auto& triangle : relationTriangleIdx) {
 				std::cout << triangle.first << " ";
@@ -378,10 +395,10 @@ std::list<int> MapData::AStarLoad(std::atomic_int& myTriangleIdx, float desX, fl
 			int currentIdx = currentTriangleIdx;
 			while (true) {
 				AstarNode& currentNode = closeList[currentIdx];
+				resList.emplace_front(currentIdx);
 				if (currentIdx == myTriangleIdx) {
 					return resList;
 				}
-				resList.emplace_front(currentIdx);
 				currentIdx = currentNode.GetParentIdx();
 			}
 		}

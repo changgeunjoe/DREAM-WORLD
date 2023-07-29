@@ -28,6 +28,7 @@ public:
 public:
 	BoundingSphere& GetSpbb() { return m_SPBB; }
 	float GetHp() { return m_hp; }
+	float GetMaxHp() { return m_maxHp; }
 	XMFLOAT3& GetPos() { return m_position; }
 	XMFLOAT3& GetRot() { return m_rotateAngle; }
 	XMFLOAT3& GetDirectionVector() { return m_directionVector; }

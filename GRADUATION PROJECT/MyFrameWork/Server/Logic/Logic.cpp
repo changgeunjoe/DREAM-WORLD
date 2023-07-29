@@ -445,6 +445,12 @@ void Logic::BroadCastInRoomByPlayer(int userId, void* p)
 	}
 }
 
+void Logic::BroadCastTimeSyncPacket()
+{
+	for (auto& cli : g_iocpNetwork.m_session)
+		SendTimeSyncPacket(cli.GetId());
+}
+
 void Logic::BroadCastInRoom(int roomId, void* p)
 {
 	auto roomPlayermap = g_RoomManager.GetRunningRoomRef(roomId).GetPlayerMap();
@@ -492,7 +498,7 @@ void Logic::MatchMaking()
 		//아무도 없을 때, 
 		if (restRole.size() == 4) {}
 		//모두가 Role을 가지고 돌렸을때
-		else if (restRole.size() == 1) {
+		else if (restRole.size() == 0) {
 			std::map<ROLE, int> matchPlayer;
 			if (warriorPlayerIdQueue.unsafe_size() > 0) {
 				int playerId = -1;

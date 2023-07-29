@@ -88,21 +88,7 @@ void Timer::TimerThreadFunc()
 				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, ev.targetId, &ov->m_overlap);
 			}
 			break;
-			case EV_BOSS_KICK:
-			{
-				ExpOver* ov = new ExpOver();
-				ov->m_opCode = OP_BOSS_ATTACK_EXECUTE;
-				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, ev.targetId, &ov->m_overlap);
-			}
-			break;
-			case EV_BOSS_PUNCH:
-			{
-				ExpOver* ov = new ExpOver();
-				ov->m_opCode = OP_BOSS_ATTACK_EXECUTE;
-				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, ev.targetId, &ov->m_overlap);
-			}
-			break;
-			case EV_BOSS_SPIN:
+			case EV_BOSS_ATTACK:
 			{
 				ExpOver* ov = new ExpOver();
 				ov->m_opCode = OP_BOSS_ATTACK_EXECUTE;
@@ -135,6 +121,13 @@ void Timer::TimerThreadFunc()
 				ExpOver* ov = new ExpOver();
 				ov->m_opCode = OP_SKY_ARROW_ATTACK;
 				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, ev.targetId, &ov->m_overlap);
+			}
+			break;
+			case EV_SYNC_TIME:
+			{
+				ExpOver* ov = new ExpOver();
+				ov->m_opCode = OP_SYNC_TIME;
+				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, 0, &ov->m_overlap);
 			}
 			break;
 			default: break;
