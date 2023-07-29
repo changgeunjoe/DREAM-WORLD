@@ -80,6 +80,17 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	m_pSkyboxObject->SetPosition(m_pCamera->GetPosition());
 	m_pLight->UpdatePosition(XMFLOAT3(m_pCamera->GetPosition().x,
 		m_pCamera->GetPosition().y + 600, m_pCamera->GetPosition().z));
+
+	if (m_pNPCPressGObject)//23.04.18 몬스터 체력바 -> 카메라를 바라 보도록 .ccg
+	{
+		m_pNPCPressGObject->SetLookAt(m_pCamera->GetPosition());
+		m_pNPCPressGObject->SetPosition(XMFLOAT3(m_pAngelNPCObject->GetPosition().x,
+			m_pAngelNPCObject->GetPosition().y + 23, m_pAngelNPCObject->GetPosition().z));
+		m_pNPCPressGObject->Rotate(0, 180, 0);
+		m_pNPCPressGObject->SetScale(1, 1, 1);
+		//m_pNPCPressGObject->SetCurrentHP(m_pAngelNPCObject->GetCurrentHP());
+	}
+
 	//MonsterHpBarAnimate(fTimeElapsed);
 	if (m_pMonsterHPBarObject)//23.04.18 몬스터 체력바 -> 카메라를 바라 보도록 .ccg
 	{
@@ -149,6 +160,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	if (m_pLightEffectObject) {
 		if (m_pLightEffectObject->m_bActive) {
 			if (m_pLightEffectObject->m_fEffectLifeTime > FLT_EPSILON) {
+				m_pLightEffectObject->SetActive(m_pLightEffectObject->m_bActive);
 				m_pLightEffectObject->AnimateEffect(m_pCamera, m_LightningTargetPos, fTimeElapsed, m_fTime * 10);
 				m_pLightningSpriteObject->m_bActive = m_pLightEffectObject->m_bActive;
 				if (m_pLightEffectObject->m_bActive == false) {
@@ -390,6 +402,7 @@ void GameobjectManager::NormalMonsterConditionAnimate(float fTimeElapsed)
 	for (int i = 0; i < 15; i++) {
 		if (m_ppNormalMonsterObject[i]->GetCurrentHP() != m_ppNormalMonsterObject[i]->GetTempHP() && m_ppNormalMonsterObject[i]->GetTempHP() > 0) {
 			//m_ppNormalMonsterObject[i]->SetColor(XMFLOAT4(1,0,0,0.00012));
+			g_sound.Play("MonsterAttackedSound", m_ppNormalMonsterObject[i]->CalculateDistanceSound());
 			AddDamageFontToUiLayer(XMFLOAT3(m_ppNormalMonsterObject[i]->GetPosition().x,
 				m_ppNormalMonsterObject[i]->GetPosition().y + 20,
 				m_ppNormalMonsterObject[i]->GetPosition().z), int(m_ppNormalMonsterObject[i]->GetTempHP() - m_ppNormalMonsterObject[i]->GetCurrentHP()));
@@ -506,6 +519,9 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	{
 		m_pShadowmapShaderComponent->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature, m_fTimeElapsed, m_nStageType);
 
+	}
+	if (m_pNPCPressGObject) {
+		m_pNPCPressGObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 	//몬스터 체력바
 	if (m_pMonsterHPBarObject) {
@@ -1233,10 +1249,6 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pCamera->SetPosition(XMFLOAT3(-1450, 18, -1490));
 	m_pCamera->Rotate(0, 90, 0);
 
-	BuildStage1(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	BuildBossStageObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-
-
 	m_pPlaneObject = new GameObject(UNDEF_ENTITY);
 	m_pPlaneObject->InsertComponent<RenderComponent>();
 	m_pPlaneObject->InsertComponent<CLoadedModelInfoCompnent>();
@@ -1247,6 +1259,11 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	//m_pPlaneObject->SetColor(XMFLOAT4(0, 0, 0, 1));
 	m_pPlaneObject->SetRimLight(false);
 	m_ppGameObjects.emplace_back(m_pPlaneObject);
+	BuildStage1(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	BuildBossStageObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+
+
+
 
 	for (int i = 0; i < 4; ++i)
 	{
@@ -2259,9 +2276,19 @@ void GameobjectManager::BuildNPC(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	m_pAngelNPCObject->SetAnimationSets(1);
 	m_pAngelNPCObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pAngelNPCObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1);
-	m_pAngelNPCObject->SetScale(10.0f);
-	m_pAngelNPCObject->Rotate(0, 27.959, 0);
+	m_pAngelNPCObject->SetScale(15.0f);
+	m_pAngelNPCObject->Rotate(0, -120.959, 0);
 	m_ppGameObjects.emplace_back(m_pAngelNPCObject);
+
+	m_pNPCPressGObject = new GameObject(UNDEF_ENTITY);
+	m_pNPCPressGObject->InsertComponent<RenderComponent>();
+	m_pNPCPressGObject->InsertComponent<UIMeshComponent>();
+	m_pNPCPressGObject->InsertComponent <BlendShaderComponent>();
+	m_pNPCPressGObject->InsertComponent<TextureComponent>();
+	m_pNPCPressGObject->SetTexture(L"UI/PressG.dds", RESOURCE_TEXTURE2D, 3);
+	m_pNPCPressGObject->SetPosition(XMFLOAT3(0, 40, 100));
+	m_pNPCPressGObject->SetScale(10);
+	m_pNPCPressGObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
 
 enum UI
@@ -2292,6 +2319,7 @@ void GameobjectManager::SetLightningEffect(XMFLOAT3& targetPos)
 {
 	g_sound.NoLoopPlay("LightningSound", m_pLightningSpriteObject->CalculateDistanceSound()+0.3);
 	m_LightningTargetPos = targetPos;
+	m_pLightEffectObject->SetActive(m_pLightEffectObject->m_bActive);
 	m_pLightEffectObject->AnimateEffect(m_pCamera, targetPos, m_fTimeElapsed, m_fTime * 5);
 	targetPos.y += 50.0f;
 	m_pLightningSpriteObject->SetPosition(targetPos);
@@ -2699,7 +2727,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		case 'P':
 		{
 			m_bTest = true;
-			g_sound.NoLoopPlay("WarriorQskillSound", 1.0f);
+			g_sound.NoLoopPlay("MonsterAttackedSound", 1.0f);
 			g_sound.Play("ClickSound", 1.0f);
 		}
 		break;
@@ -2746,11 +2774,11 @@ bool GameobjectManager::onProcessingKeyboardMessageLobby(HWND hWnd, UINT nMessag
 	if (nMessageID == WM_KEYDOWN && wParam == VK_F2)
 	{
 #ifdef LOCAL_TASK
-		g_Logic.SetMyRole(ROLE::ARCHER);
+		g_Logic.SetMyRole(ROLE::PRIEST);//캐릭
 		m_pCamera->Rotate(0, -90, 0);
-		m_pPlayerObject = m_pArcherObject;
+		m_pPlayerObject = m_pPriestObject;
 		m_pPlayerObject->SetCamera(m_pCamera);
-		m_pArcherObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
+		m_pPriestObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
 #else
 		g_Logic.SetMyRole(ROLE::ARCHER);
 		m_pArcherObject->SetCamera(m_pCamera);

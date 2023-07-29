@@ -182,6 +182,7 @@ private:
 	GameObject* m_pUIEnterRoomObject{ NULL };
 	GameObject* m_pSelectedObject{ NULL };
 
+
 	//GmaeUI-HPBAR,CharacterUI - Á¶Ã¢±Ù 23.04.13
 	GameObject* m_pMonsterHPBarObject{ NULL };
 	array<GameObject*,15> m_pNormalMonsterHPBarObject{ NULL };
@@ -236,6 +237,7 @@ private:
 	//NPC Object 
 	GameObject* m_pAngelNPCObject{ NULL };
 	GameObject* m_pAngelMageNPCObject{ NULL };
+	GameObject* m_pNPCPressGObject{ NULL };
 
 	POINT						m_ptOldCursorPos;
 

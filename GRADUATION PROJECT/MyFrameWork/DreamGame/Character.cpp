@@ -762,6 +762,7 @@ constexpr float ATTACK4_ATTACK_POINT = 0.60f;
 Warrior::Warrior() : Character()
 {
 	m_fMaxHp = 400.0f;
+	m_fTempHp = m_fMaxHp;
 	m_fSpeed = 50.0f;
 	m_fDamage = 100.0f;
 
@@ -1087,6 +1088,7 @@ void Warrior::ExecuteSkill_E()
 Archer::Archer() : Character()
 {
 	m_fMaxHp = 250.0f;
+	m_fTempHp = m_fMaxHp;
 	m_fSpeed = 50.0f;
 	m_fDamage = 80.0f;
 	m_CameraLook = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -1647,6 +1649,7 @@ void Archer::ExecuteSkill_E()
 Tanker::Tanker() : Character()
 {
 	m_fMaxHp = 600.0f;
+	m_fTempHp = m_fMaxHp;
 	m_fSpeed = 50.0f;
 	m_fDamage = 50.0f;
 
@@ -1991,6 +1994,7 @@ Priest::Priest() : Character()
 {
 	m_fHp = 480.0f;
 	m_fMaxHp = 480.0f;
+	m_fTempHp = m_fMaxHp;
 	m_fSpeed = 50.0f;
 	m_fDamage = 80.0f;
 
