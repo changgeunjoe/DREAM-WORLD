@@ -126,7 +126,9 @@ public:
 
 	void SetRimLight(bool bRimLight);
 	void SetCurrentHP(float fHP);
+	void SetMaxHP(float fHP) { m_fMaxHp = fHP; }
 	void SetShield(float fShield);
+	void SetShieldPercent(float fShieldPercent) { m_xmf4Color.w = fShieldPercent; }
 	void SetSkillTime(float fSkillTime);
 	void SetTempHp(float fHp) { m_fTempHp = fHp; };
 	float GetCurrentHP() { return m_fHp; }

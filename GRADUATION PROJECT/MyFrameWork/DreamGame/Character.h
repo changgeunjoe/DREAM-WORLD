@@ -99,6 +99,7 @@ private:
 public:
 	Warrior();
 	virtual ~Warrior();
+	virtual void Reset();
 	virtual void Attack();
 	virtual void Move(float fTimeElapsed)override;
 	virtual void Animate(float fTimeElapsed) override;
@@ -128,6 +129,7 @@ public:
 public:
 	Archer();
 	virtual ~Archer();
+	virtual void Reset();
 	virtual void Attack();
 	virtual void RbuttonClicked(float fTimeElapsed) {};
 	virtual void SetArrow(Projectile** pArrow);
@@ -163,6 +165,7 @@ private:
 public:
 	Tanker();
 	virtual ~Tanker();
+	virtual void Reset();
 	virtual void Attack();
 	virtual void RbuttonUp(const XMFLOAT3& CameraAxis);
 	virtual void FirstSkillDown();
@@ -189,6 +192,7 @@ private:
 public:
 	Priest();
 	virtual ~Priest();
+	virtual void Reset();
 	virtual void Attack();
 	virtual void Attack(const XMFLOAT3& xmf3Direction);
 	virtual void SetProjectile(Projectile** pEnergyBall);
@@ -309,6 +313,9 @@ public:
 
 class IceLance : public Projectile
 {
+private:
+	float m_fDistance = 0.0f;
+	float m_fTime = 0.0f;
 public:
 	IceLance();
 	virtual ~IceLance();

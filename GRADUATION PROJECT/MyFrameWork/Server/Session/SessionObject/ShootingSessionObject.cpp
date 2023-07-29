@@ -67,11 +67,10 @@ bool ShootingSessionObject::Move(float elapsedTime)
 	m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, elapsedTime * m_speed));
 	m_SPBB.Center = m_position;
 	m_distance += elapsedTime * m_speed;
+	bool isMonsterCollide = false;
 
 	if (roomRef.GetRoomState() == ROOM_STAGE1) {
 		SmallMonsterSessionObject* monsters = roomRef.GetStageMonsterArr();
-
-		bool isMonsterCollide = false;
 		for (int i = 0; i < 15; i++) {
 			if (!monsters[i].IsAlive())continue;
 			if (m_SPBB.Intersects(monsters[i].GetSpbb())) {
@@ -128,16 +127,17 @@ bool ShootingSessionObject::Move(float elapsedTime)
 		ExpOver* postOver = new ExpOver(reinterpret_cast<char*>(&sendPacket));
 		postOver->m_opCode = OP_PROJECTILE_ATTACK;
 		PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, m_roomId, &postOver->m_overlap);
-		if (m_distance > 250.0f) {
-			m_active = false;
-			if (m_OwnerRole == ROLE::PRIEST) {
-				roomRef.PushRestBall(m_id);
-			}
-			else if (!m_isSkill) {
-				roomRef.PushRestArrow(m_id);
-			}
-			m_distance = 0.0f;
+		isMonsterCollide = true;
+	}
+	if (isMonsterCollide || m_distance > 250.0f) {
+		m_active = false;
+		if (m_OwnerRole == ROLE::PRIEST) {
+			roomRef.PushRestBall(m_id);
 		}
+		else if (!m_isSkill) {
+			roomRef.PushRestArrow(m_id);
+		}
+		m_distance = 0.0f;
 	}
 	return true;
 }

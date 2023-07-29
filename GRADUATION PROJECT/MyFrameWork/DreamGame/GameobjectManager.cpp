@@ -1029,26 +1029,12 @@ void GameobjectManager::SetCharactersBossStagePostion()
 void GameobjectManager::SetCharactersLobbyPosition()
 {
 	m_pMonsterObject->SetPosition(XMFLOAT3(0, 0, 0));
-
 	m_pPriestObject->SetPosition(XMFLOAT3(-1400.f, 0.f, -1520.f));
-	m_pPriestObject->SetRotateAxis(XMFLOAT3(0.0f, -90.0f, 0.0f));
-	m_pPriestObject->SetCurrentHP(100.0f);
-	m_pPriestObject->SetTempHp(100.0f);
-
 	m_pWarriorObject->SetPosition(XMFLOAT3(-1400.f, 0.f, -1460.f));
-	m_pWarriorObject->SetRotateAxis(XMFLOAT3(0.0f, -90.0f, 0.0f));
-	m_pWarriorObject->SetCurrentHP(100.0f);
-	m_pWarriorObject->SetTempHp(100.0f);
-
+	m_pWarriorObject->Rotate(0.0f, -90.0f, 0.0f);
 	m_pArcherObject->SetPosition(XMFLOAT3(-1400.f, 0.f, -1480.f));
-	m_pArcherObject->SetRotateAxis(XMFLOAT3(0.0f, -90.0f, 0.0f));
-	m_pArcherObject->SetCurrentHP(100.0f);
-	m_pArcherObject->SetTempHp(100.0f);
-
 	m_pTankerObject->SetPosition(XMFLOAT3(-1400.f, 0.f, -1500.0f));
-	m_pTankerObject->SetRotateAxis(XMFLOAT3(0.0f, -90.0f, 0.0f));
-	m_pTankerObject->SetCurrentHP(100.0f);
-	m_pTankerObject->SetTempHp(100.0f);
+	m_pTankerObject->Rotate(0.0f, -90.0f, 0.0f);
 }
 
 void GameobjectManager::EffectRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float ftimeElapsed)
@@ -2892,7 +2878,6 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 		case WM_RBUTTONUP:
 		case WM_LBUTTONUP:
 			g_NetworkHelper.SendTestGameEndOKPacket();
-			myPlayCharacter->m_pCamera = nullptr;
 			g_Logic.ResetMyRole();
 			ResetObject();
 			break;
@@ -3102,10 +3087,10 @@ void GameobjectManager::SetPlayerCamera(GameObject* obj)
 
 void GameobjectManager::ResetObject()
 {
-	//for (int i = 0; i < m_ppGameObjects.size(); ++i)
-	//{
-	//	m_ppGameObjects[i]->Reset();
-	//}
+	for (int i = 0; i < m_ppGameObjects.size(); ++i)
+	{
+		m_ppGameObjects[i]->Reset();
+	}
 	SetCharactersLobbyPosition();
 
 	m_pCamera->ReInitCamrea();

@@ -736,7 +736,6 @@ void MageSessionObject::SetStage_1Position()
 {
 	SetPosition(XMFLOAT3(-1370.45, 0, -1450.89f));
 	m_maxHp = m_hp = 480;
-	m_hp = 100.0f;
 	m_attackDamage = 30;
 }
 

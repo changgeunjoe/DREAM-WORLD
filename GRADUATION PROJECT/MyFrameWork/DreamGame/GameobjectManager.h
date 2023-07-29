@@ -297,6 +297,6 @@ public:
 	void SetPortalCheck(bool b) { m_bPortalCheck = b; }
 	void ResetLobbyUI();
 	void SetLightningEffect(XMFLOAT3& targetPos);
-	
+	float GetTotalProgressTime() { return m_fTime; }
 };
 

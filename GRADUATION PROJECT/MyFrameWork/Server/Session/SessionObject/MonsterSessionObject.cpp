@@ -17,6 +17,7 @@ extern MapData g_bossMapData;
 
 MonsterSessionObject::MonsterSessionObject() : SessionObject(30.0f)
 {
+	m_fBoundingSize = 40.0f;
 	m_speed = 50.0f;
 	m_maxHp = m_hp = 6500.0f;
 	m_DestinationPos = XMFLOAT3{ 0,0,0 };

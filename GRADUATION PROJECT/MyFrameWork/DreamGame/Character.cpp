@@ -56,13 +56,24 @@ void Character::RbuttonUp(const XMFLOAT3& CameraAxis)
 
 void Character::Reset()
 {
-	m_fHp = m_fMaxHp;
+	m_bOnAttack = false;
+	m_bOnSkill = false;
+	m_bShieldActive = false;
+	m_fShield = false;
+	m_bCanAttack = true;
+
+	m_currentDirection = DIRECTION::IDLE;
+	m_fHp = 100.0f;
+	m_fTempHp = 100.0f;
+	m_bActive = true;
 	SetPosition(XMFLOAT3(0.0f, 0.0f, 0.0f));
+	SetLook(XMFLOAT3(0.0f, 0.0f, 1.0f));
+	m_xmf3RotateAxis = XMFLOAT3(0.0f, -90.0f, 0.0f);
 	m_pSkinnedAnimationController->ResetTrack();
 	m_bMoveState = false;
-	SetLook(XMFLOAT3(0.0f, 0.0f, 1.0f));
 	m_bLButtonClicked = false;
 	m_bRButtonClicked = false;
+
 	for (int i = 0; i < m_ppProjectiles.size(); ++i)
 		if (m_ppProjectiles[i]) m_ppProjectiles[i]->m_bActive = false;
 
@@ -774,6 +785,16 @@ Warrior::~Warrior()
 {
 }
 
+void Warrior::Reset()
+{
+	m_iAttackType = 0;
+	m_bAnimationLock = false;
+	m_bComboAttack = false;
+	m_attackAnimation = CharacterAnimation::CA_ATTACK;
+	m_nextAnimation = CharacterAnimation::CA_NOTHING;
+	Character::Reset();
+}
+
 void Warrior::Attack()
 {
 	if (m_bQSkillClicked)
@@ -994,9 +1015,9 @@ void Warrior::Animate(float fTimeElapsed)
 	if (m_pTrailComponent)
 		m_pTrailComponent->SetRenderingTrail(m_bOnAttack || m_bComboAttack);
 
+	SetLookDirection();
 	if (m_bMoveState)
 	{
-		SetLookDirection();
 		Move(fTimeElapsed);
 	}
 	GameObject::Animate(fTimeElapsed);
@@ -1103,6 +1124,14 @@ Archer::~Archer()
 		if (i != nullptr)
 			delete i;
 	}
+}
+
+void Archer::Reset()
+{
+	m_CameraLook = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	m_bZoomInState = false;
+	m_xmf3TargetPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	Character::Reset();
 }
 
 void Archer::Attack()
@@ -1660,6 +1689,12 @@ Tanker::~Tanker()
 
 }
 
+void Tanker::Reset()
+{
+	m_CanActiveQSkill = false;
+	Character::Reset();
+}
+
 void Tanker::Attack()
 {
 	if (m_pCamera) {
@@ -1989,7 +2024,6 @@ void Tanker::ExecuteSkill_E()
 
 Priest::Priest() : Character()
 {
-	m_fHp = 480.0f;
 	m_fMaxHp = 480.0f;
 	m_fSpeed = 50.0f;
 	m_fDamage = 80.0f;
@@ -2001,6 +2035,12 @@ Priest::Priest() : Character()
 
 Priest::~Priest()
 {
+}
+
+void Priest::Reset()
+{
+	m_fHealTime = 0.0f;
+	Character::Reset();
 }
 
 void Priest::Move(float fTimeElapsed)
@@ -2154,9 +2194,6 @@ void Priest::Animate(float fTimeElapsed)
 		UpdateEffect();
 	}
 
-	for (int i = 0; i < m_ppProjectiles.size(); ++i)
-		if (m_ppProjectiles[i]) m_ppProjectiles[i]->Animate(fTimeElapsed);
-
 	SetLookDirection();
 	Move(fTimeElapsed);
 	GameObject::Animate(fTimeElapsed);
@@ -2176,14 +2213,14 @@ void Priest::Attack()
 	XMFLOAT3 xmf3LanceDirection = Vector3::Normalize(Vector3::Subtract(xmf3Destination, xmf3LanceStartPosition));
 	if (xmf3LanceDirection.y < 0.0f) xmf3LanceDirection.y = 0.0f;
 
+	if (g_Logic.GetMyRole() == ROLE::PRIEST)
+		g_NetworkHelper.SendCommonAttackExecute(xmf3LanceDirection, 0);
+
 	m_ppProjectiles[m_nProjectiles]->m_xmf3direction = xmf3LanceDirection;
 	m_ppProjectiles[m_nProjectiles]->m_xmf3startPosition = xmf3LanceStartPosition;
 	m_ppProjectiles[m_nProjectiles]->SetPosition(m_ppProjectiles[m_nProjectiles]->m_xmf3startPosition);
 	m_ppProjectiles[m_nProjectiles]->m_bActive = true;
 	m_ppProjectiles[m_nProjectiles]->m_fSpeed = 100.0f;
-
-	if (g_Logic.GetMyRole() == ROLE::PRIEST)
-		g_NetworkHelper.SendCommonAttackExecute(ObjectLookVector, 0);
 	m_nProjectiles++;
 }
 
@@ -2341,7 +2378,7 @@ void Priest::ExecuteSkill_E()
 Monster::Monster() : Character()
 {
 	m_fHp = 100.0f;
-	m_fMaxHp = 2500;
+	m_fMaxHp = 6500.0f;
 }
 
 Monster::~Monster()
@@ -2778,6 +2815,7 @@ void TrailObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLis
 NormalMonster::NormalMonster() : Character()
 {
 	m_fHp = 100.000f;
+	m_fMaxHp = 150.0f;
 	m_fSpeed = 30.0f;
 }
 
@@ -3289,7 +3327,7 @@ std::pair<float, XMFLOAT3> Character::GetNormalVectorSphere(const XMFLOAT3& poin
 IceLance::IceLance() : Projectile()
 {
 	m_HostRole = ROLE::PRIEST;
-	m_fSpeed = 75.0f;
+	m_fSpeed = 100.0f;
 }
 
 IceLance::~IceLance()
@@ -3300,5 +3338,6 @@ void IceLance::Animate(float fTimeElapsed)
 {
 	if (m_bActive == false) return;
 	SetLook(m_xmf3direction);
-	Move(m_xmf3direction, fTimeElapsed * m_fSpeed);
+	XMFLOAT3 xmf3Direction = Vector3::Normalize(m_xmf3direction);
+	Move(xmf3Direction, fTimeElapsed * m_fSpeed);
 }
