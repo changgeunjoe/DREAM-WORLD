@@ -2164,6 +2164,7 @@ void Priest::Animate(float fTimeElapsed)
 
 void Priest::Attack()
 {
+	g_sound.NoLoopPlay("PriestAttackSound", 1.0f);
 	m_nProjectiles = (m_nProjectiles < 10) ? m_nProjectiles : m_nProjectiles % 10;
 	XMFLOAT3 ObjectLookVector = GetLook();
 	ObjectLookVector.y = -m_xmf3RotateAxis.x / 90.0f;
@@ -2188,10 +2189,10 @@ void Priest::Attack()
 
 void Priest::Attack(const XMFLOAT3& xmf3Direction)
 {
+	g_sound.NoLoopPlay("PriestAttackSound", 1.0f);
 	m_nProjectiles = (m_nProjectiles < 10) ? m_nProjectiles : m_nProjectiles % 10;
 	XMFLOAT3 objectPosition = GetPosition();
 	objectPosition.y += 8.0f;
-	g_sound.NoLoopPlay("PriestAttackSound", 1.0f);
 	m_ppProjectiles[m_nProjectiles]->m_xmf3direction = xmf3Direction;
 	m_ppProjectiles[m_nProjectiles]->m_xmf3startPosition = objectPosition;
 	m_ppProjectiles[m_nProjectiles]->SetPosition(objectPosition);

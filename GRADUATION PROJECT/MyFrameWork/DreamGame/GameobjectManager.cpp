@@ -2745,11 +2745,11 @@ bool GameobjectManager::onProcessingKeyboardMessageLobby(HWND hWnd, UINT nMessag
 	if (nMessageID == WM_KEYDOWN && wParam == VK_F2)
 	{
 #ifdef LOCAL_TASK
-		g_Logic.SetMyRole(ROLE::WARRIOR);
+		g_Logic.SetMyRole(ROLE::PRIEST);
 		m_pCamera->Rotate(0, -90, 0);
-		m_pPlayerObject = m_pWarriorObject;
+		m_pPlayerObject = m_pPriestObject;
 		m_pPlayerObject->SetCamera(m_pCamera);
-		m_pWarriorObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
+		m_pPriestObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
 #else
 		g_Logic.SetMyRole(ROLE::ARCHER);
 		m_pArcherObject->SetCamera(m_pCamera);
