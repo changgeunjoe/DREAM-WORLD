@@ -51,6 +51,8 @@ public:
 	virtual void BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,  vector<GameObject*> *mppEffectObject);
 	virtual void AnimateEffect(CCamera* pCamera, XMFLOAT3 xm3position, float ftimeelapsed, float fTime);
 	virtual void AnimateLight(CCamera* pCamera, XMFLOAT3 xm3position, float ftimeelapsed, float fTime);
+	virtual void CheckActive(bool bactive);
+
 
 	array<GameObject*, 5> m_pLightningSpriteObject;
 
@@ -82,6 +84,7 @@ public:
 	virtual void AnimateEffect(CCamera* pCamera, XMFLOAT3 xm3position, float ftimeelapsed, float fTime);
 
 	GameObject* m_pPortalEffectObject;
+	GameObject* m_pPressGPuppleObject;
 
 };
 

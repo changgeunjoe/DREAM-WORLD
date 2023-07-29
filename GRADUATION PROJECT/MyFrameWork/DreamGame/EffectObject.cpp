@@ -182,8 +182,7 @@ void EffectObject::SortEffect()
 
 void EffectObject::Particle(CCamera* pCamera, float fTimeElapsed, XMFLOAT3& xm3position)
 {
-	if (gGameFramework.GetScene()->GetObjectManager()->m_bPickingenemy)
-	{
+	
 		for (int i = 0; i < m_ppParticleObjects.size(); i++) {
 			if (m_fParticleLifeTime == 0)
 				m_ppParticleObjects[i]->SetPosition(xm3position);
@@ -216,7 +215,7 @@ void EffectObject::Particle(CCamera* pCamera, float fTimeElapsed, XMFLOAT3& xm3p
 			m_fParticleLifeTime = 0;
 			gGameFramework.GetScene()->GetObjectManager()->m_bPickingenemy = false;
 		}
-	}
+	
 }
 
 void EffectObject::SetActive(bool bActive)
@@ -323,6 +322,10 @@ void LightningEffectObject::AnimateLight(CCamera* pCamera, XMFLOAT3 xm3position,
 			xm3position.z + i * 2));
 		m_pLightningSpriteObject[i]->AnimateRowColumn(ftimeelapsed);
 	}
+}
+
+void LightningEffectObject::CheckActive(bool bactive)
+{
 }
 
 SheildEffectObject::SheildEffectObject()
@@ -503,6 +506,19 @@ void PortalEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 	m_pPortalEffectObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pEffectObjects.emplace_back(m_pPortalEffectObject);
 	mppEffectObject->emplace_back(m_pPortalEffectObject);
+
+	m_pPressGPuppleObject = new GameObject(UNDEF_ENTITY);
+	m_pPressGPuppleObject->InsertComponent<RenderComponent>();
+	m_pPressGPuppleObject->InsertComponent<UIMeshComponent>();
+	m_pPressGPuppleObject->InsertComponent <BlendShaderComponent>();
+	m_pPressGPuppleObject->InsertComponent<TextureComponent>();
+	m_pPressGPuppleObject->SetTexture(L"UI/PressGPupple.dds", RESOURCE_TEXTURE2D, 3);
+	m_pPressGPuppleObject->SetPosition(XMFLOAT3(0, 40, 100));
+	m_pPressGPuppleObject->m_bActive = true;
+	m_pPressGPuppleObject->SetScale(15);
+	m_pPressGPuppleObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pEffectObjects.emplace_back(m_pPressGPuppleObject);
+	mppEffectObject->emplace_back(m_pPressGPuppleObject);
 }
 
 void PortalEffectObject::AnimateEffect(CCamera* pCamera, XMFLOAT3 xm3position, float ftimeelapsed, float fTime)
@@ -517,6 +533,16 @@ void PortalEffectObject::AnimateEffect(CCamera* pCamera, XMFLOAT3 xm3position, f
 		m_pPortalEffectObject->SetScale(10, 10, 1);
 		//m_pPortalEffectObject->SetColor(XMFLOAT4(0, 1, 0, 0.4));
 		m_pPortalEffectObject->SetCurrentHP(100);
+	}
+
+	if (m_pPressGPuppleObject)//23.04.18 몬스터 체력바 -> 카메라를 바라 보도록 .ccg
+	{
+		m_pPressGPuppleObject->SetLookAt(pCamera->GetPosition());
+		m_pPressGPuppleObject->SetPosition(XMFLOAT3(m_pPortalEffectObject->GetPosition().x,
+			m_pPortalEffectObject->GetPosition().y + 30, m_pPortalEffectObject->GetPosition().z));
+		m_pPressGPuppleObject->Rotate(0, 180, 0);
+		m_pPressGPuppleObject->SetScale(1, 1, 1);
+		//m_pNPCPressGObject->SetCurrentHP(m_pAngelNPCObject->GetCurrentHP());
 	}
 }
 
