@@ -1701,7 +1701,7 @@ void Tanker::Reset()
 void Tanker::Attack()
 {
 	if (m_pCamera) {
-		g_sound.NoLoopPlay("TankerAttackSound", CalculateDistanceSound()-0.3f);
+		g_sound.NoLoopPlay("TankerAttackSound", CalculateDistanceSound()*0.7);
 		g_NetworkHelper.SendCommonAttackExecute(GetLook(), 0);
 	}
 }
@@ -1739,6 +1739,7 @@ void Tanker::SecondSkillDown()
 		auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[1]);
 		if (m_skillCoolTime[1] > duration) return;
 		g_NetworkHelper.Send_SkillInput_E();
+		g_sound.NoLoopPlay("TankerSwingSound",CalculateDistanceSound());
 		m_skillInputTime[1] = std::chrono::high_resolution_clock::now();
 	}
 	m_currentDirection = DIRECTION::IDLE;
@@ -1887,6 +1888,8 @@ void Tanker::Animate(float fTimeElapsed)
 	}
 	if (CheckAnimationEnd(CA_SECONDSKILL) == true)
 	{
+		gGameFramework.GetScene()->GetObjectManager()->GetTankerAttackEffect()->SetEarthquekePosition();
+		g_sound.NoLoopPlay("TankerBombSound", CalculateDistanceSound());
 		m_bESkillClicked = false;
 		m_bOnAttack = false;
 		m_bCanAttack = true;

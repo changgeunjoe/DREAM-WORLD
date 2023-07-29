@@ -97,9 +97,10 @@ public:
 public:
 	virtual void BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, vector<GameObject*> *mppEffectObject);
 	virtual void AnimateEffect(CCamera* pCamera, XMFLOAT3 xm3position, float ftimeelapsed, float fTime);
-
-	GameObject* m_pTankerEffectObject;
-	XMFLOAT3 m_f3EarquakePos;
+	virtual void SetEarthquekePosition();
+	array<GameObject*, 4> m_pTankerEffectObject{};
+	XMFLOAT3 m_f3EarquakePos{};
+	bool m_bEarthQuake{};
 
 };
 class PriestEffectObject :
@@ -114,6 +115,8 @@ public:
 	virtual void Particle(CCamera* pCamera, float fTimeElapsed, XMFLOAT3& xm3position);//중력 파티클
 
 	GameObject* m_pTankerEffectObject;
+
+
 
 };
 class BossEffectObject :
