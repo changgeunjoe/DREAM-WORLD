@@ -256,8 +256,10 @@ void Logic::ProcessPacket(char* p)
 		Monster* bossMonster = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster();
 		bossMonster->m_UIScale = static_cast<float>(recvPacket->bossState.hp) / 250.0f;//maxHp 2500입니다
 		bossMonster->SetCurrentHP(static_cast<float>(recvPacket->bossState.hp) / 25.0f);//maxHp 2500입니다
-		bossMonster->m_desDirecionVec = recvPacket->bossState.moveVec;
+		
+		//bossMonster->m_desDirecionVec = recvPacket->bossState.moveVec;
 		//bossMonster->m_serverDesDirecionVec = recvPacket->bossState.desVec;
+
 		if (bossMonster->GetCurrentHP() < FLT_EPSILON)
 		{
 			GameEnd = true;

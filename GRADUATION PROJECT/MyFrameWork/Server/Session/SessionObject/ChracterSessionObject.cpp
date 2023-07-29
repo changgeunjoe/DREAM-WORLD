@@ -177,9 +177,6 @@ void ChracterSessionObject::SetShield(bool active)
 
 bool ChracterSessionObject::Move(float elapsedTime)
 {
-	if (m_position.y < 0.0f) {
-		std::cout << "이상" << std::endl;
-	}
 	if (m_applyDirection != DIRECTION::IDLE)
 	{
 #ifdef _DEBUG
@@ -188,6 +185,9 @@ bool ChracterSessionObject::Move(float elapsedTime)
 		if (!CheckCollision(m_directionVector, elapsedTime)) {
 			m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, elapsedTime * m_speed));
 			SetPosition(m_position);
+		}
+		if (m_position.y < DBL_EPSILON || m_position.y > 1.0f) {
+			m_position.y = 0.0f;			
 		}
 		return true;
 	}
@@ -449,18 +449,21 @@ bool ChracterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ftimeE
 	else if (roomRef.GetRoomState() == ROOM_BOSS) {
 		mapCollideResult = CheckCollisionMap_Boss(mapNormalVector, moveDirection, ftimeElapsed);
 	}
+	mapCollideResult.second.y = 0;
 	auto CharacterCollide = CheckCollisionCharacter(moveDirection, ftimeElapsed);
+	CharacterCollide.second.y = 0;
 	if (CharacterCollide.first && std::abs(CharacterCollide.second.x) < DBL_EPSILON && std::abs(CharacterCollide.second.z) < DBL_EPSILON) {//캐릭터 콜리전으로 인해 아예 못움직임
 #ifdef CHARCTER_MOVE_LOG
 		std::cout << "character no Move" << std::endl;
 #endif
 		return true;
-	}
+}
 	if (mapCollideResult.first) {//맵에 충돌 됨
 		if (CharacterCollide.first) {//캐릭터가 충돌 됨		
 			float dotRes = Vector3::DotProduct(Vector3::Normalize(mapCollideResult.second), Vector3::Normalize(CharacterCollide.second));
 			if (dotRes > 0.2f) {//충돌 벡터가 방향이 비슷함
 				auto normalMonsterCollide = CheckCollisionNormalMonster(moveDirection, ftimeElapsed);
+				normalMonsterCollide.second.y = 0;
 				if (normalMonsterCollide.first && std::abs(normalMonsterCollide.second.x) < DBL_EPSILON && std::abs(normalMonsterCollide.second.z) < DBL_EPSILON) {//노말 몬스터 콜리전으로 인해 아예 못움직임
 #ifdef CHARCTER_MOVE_LOG
 					PrintCurrentTime();
@@ -468,7 +471,7 @@ bool ChracterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ftimeE
 					std::cout << std::endl;
 #endif
 					return true;
-				}
+			}
 				XMFLOAT3 moveDir = Vector3::Normalize(Vector3::Add(mapCollideResult.second, CharacterCollide.second));
 				if (normalMonsterCollide.first) {//노말 몬스터 충돌 됨
 					float dotRes = Vector3::DotProduct(Vector3::Normalize(normalMonsterCollide.second), moveDir);
@@ -489,8 +492,8 @@ bool ChracterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ftimeE
 						std::cout << std::endl;
 #endif
 						return true;
-					}
 				}
+		}
 				else {//노말 몬스터와 충돌하지 않음					
 					m_position = Vector3::Add(m_position, Vector3::ScalarProduct(Vector3::Normalize(moveDir), 0.9f * m_speed * ftimeElapsed));
 					SetPosition(m_position);
@@ -501,7 +504,7 @@ bool ChracterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ftimeE
 #endif
 					return true;
 				}
-			}
+	}
 			else {//아무것도 충돌하지 암ㅎ음
 #ifdef CHARCTER_MOVE_LOG
 				PrintCurrentTime();
@@ -514,6 +517,7 @@ bool ChracterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ftimeE
 		}
 		//캐릭터가 충돌하진 않았지만 노말 몬스터 체크
 		auto normalMonsterCollide = CheckCollisionNormalMonster(moveDirection, ftimeElapsed);
+		normalMonsterCollide.second.y = 0;
 		if (normalMonsterCollide.first) {//노말 몬스터와 충돌함
 			if (normalMonsterCollide.first && std::abs(normalMonsterCollide.second.x) < DBL_EPSILON && std::abs(normalMonsterCollide.second.z) < DBL_EPSILON) {//노말 몬스터 콜리전으로 인해 아예 못움직임
 #ifdef CHARCTER_MOVE_LOG
@@ -522,7 +526,7 @@ bool ChracterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ftimeE
 				std::cout << std::endl;
 #endif
 				return true;
-			}
+		}
 			float dotRes = Vector3::DotProduct(Vector3::Normalize(normalMonsterCollide.second), Vector3::Normalize(mapCollideResult.second));
 			if (dotRes > 0.2f) {//맵과 노말 몬스터 충돌 벡터 방향이 비슷함
 				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(Vector3::Normalize(Vector3::Add(normalMonsterCollide.second, mapCollideResult.second)), 0.9f * m_speed * ftimeElapsed));
@@ -559,11 +563,12 @@ bool ChracterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ftimeE
 			std::cout << "after collision position: " << m_position.x << ", " << m_position.y << ", " << m_position.z << std::endl;
 #endif
 			return true;
+			}
 		}
-	}
 	//맵 충돌 하지 않음
 	if (CharacterCollide.first) {//캐릭터 와 충돌
 		auto normalMonsterCollide = CheckCollisionNormalMonster(moveDirection, ftimeElapsed);
+		normalMonsterCollide.second.y = 0;
 		if (normalMonsterCollide.first && std::abs(normalMonsterCollide.second.x) < DBL_EPSILON && std::abs(normalMonsterCollide.second.z) < DBL_EPSILON) {//캐릭터 콜리전으로 인해 아예 못움직임
 #ifdef CHARCTER_MOVE_LOG
 			PrintCurrentTime();
@@ -571,7 +576,7 @@ bool ChracterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ftimeE
 			std::cout << std::endl;
 #endif
 			return true;
-		}
+	}
 		if (normalMonsterCollide.first) {//노말 몬스터와 충돌
 			float dotRes = Vector3::DotProduct(Vector3::Normalize(normalMonsterCollide.second), Vector3::Normalize(CharacterCollide.second));
 			if (dotRes > 0.2f) {//캐릭터 노말 몬스터 벡터
@@ -618,6 +623,7 @@ bool ChracterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ftimeE
 	}
 	//캐릭터와 충돌하지 않음
 	auto normalMonsterCollide = CheckCollisionNormalMonster(moveDirection, ftimeElapsed);
+	normalMonsterCollide.second.y = 0;
 	if (normalMonsterCollide.first && std::abs(normalMonsterCollide.second.x) < DBL_EPSILON && std::abs(normalMonsterCollide.second.z) < DBL_EPSILON) {//노말 몬스터 콜리전으로 인해 아예 못움직임
 #ifdef CHARCTER_MOVE_LOG
 		PrintCurrentTime();
