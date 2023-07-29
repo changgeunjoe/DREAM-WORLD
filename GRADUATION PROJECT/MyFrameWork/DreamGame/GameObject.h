@@ -83,6 +83,7 @@ public:
 	XMFLOAT3 GetUp();
 	XMFLOAT3 GetRight();
 
+	float CalculateDistanceSound();
 	void SetLookAt(XMFLOAT3& xmf3Target, XMFLOAT3& xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f));
 
 	unordered_map<component_id, ComponentBase*> Getcomponents();
@@ -126,7 +127,9 @@ public:
 
 	void SetRimLight(bool bRimLight);
 	void SetCurrentHP(float fHP);
+	void SetMaxHP(float fHP) { m_fMaxHp = fHP; }
 	void SetShield(float fShield);
+	void SetShieldPercent(float fShieldPercent) { m_xmf4Color.w = fShieldPercent; }
 	void SetSkillTime(float fSkillTime);
 	void SetTempHp(float fHp) { m_fTempHp = fHp; };
 	float GetCurrentHP() { return m_fHp; }

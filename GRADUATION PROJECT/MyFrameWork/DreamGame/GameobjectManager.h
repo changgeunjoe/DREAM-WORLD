@@ -25,6 +25,8 @@ class Warrior;
 class Archer;
 class Tanker;
 class Priest;
+class TankerEffectObject;
+class RockSpike;
 
 class GameobjectManager
 {
@@ -41,6 +43,7 @@ public:
 	virtual void MonsterHpBarAnimate(float fTimeElapsed);
 	virtual void NormalMonsterConditionAnimate(float fTimeElapsed);
 	virtual void PlayerConditionAnimate(float fTimeElapsed);
+	virtual void BossConditionAnimate(float fTimeElapsed);
 	virtual void PlayerCurrentHpAnimate(float fTimeElapsed);
 	//Render
 	virtual void OnPreRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
@@ -98,6 +101,8 @@ public:
 	float CalculateDistance(const XMFLOAT3& firstPosition, const XMFLOAT3& lastPosition);
 	virtual void SortEffect();//게임 오브젝트를 카메라와 거리별로 sort하는 함수입니다. ->이펙트가 블랜드가 꼬이는 걸 막기위한 소트 
 
+	
+
 
 private: //active object 
 	vector<GameObject*> m_ppGameObjects;
@@ -109,6 +114,8 @@ private: //active object
 	array<GameObject*, 10> m_pBoundingBox;
 	vector<GameObject*> m_ppObstacleBoundingBox;
 	vector<GameObject*> m_ppNormalMonsterBoundingBox;
+	vector<RockSpike*> m_ppRockSpikeObjects;
+	vector<GameObject*> m_ppRockSpikeAttackedArea;
 
 	int				m_nObjects{};
 	GameObject* m_pGameObject{ NULL };
@@ -182,6 +189,7 @@ private:
 	GameObject* m_pUIEnterRoomObject{ NULL };
 	GameObject* m_pSelectedObject{ NULL };
 
+
 	//GmaeUI-HPBAR,CharacterUI - 조창근 23.04.13
 	GameObject* m_pMonsterHPBarObject{ NULL };
 	array<GameObject*,15> m_pNormalMonsterHPBarObject{ NULL };
@@ -229,13 +237,14 @@ private:
 	EffectObject* m_pSheildEffectObject{ NULL };
 	EffectObject* m_pPortalEffectObject{ NULL };
 	EffectObject* m_pPreistAttackEffectObject{ NULL };
-	EffectObject* m_pTankerAttackEffectObject{ NULL };
+	TankerEffectObject* m_pTankerAttackEffectObject{ NULL };
 
 	vector<GameObject*> m_ppEffectObjects{};
 
 	//NPC Object 
 	GameObject* m_pAngelNPCObject{ NULL };
 	GameObject* m_pAngelMageNPCObject{ NULL };
+	GameObject* m_pNPCPressGObject{ NULL };
 
 	POINT						m_ptOldCursorPos;
 
@@ -291,12 +300,14 @@ public:
 	NormalMonster** GetNormalMonsterArr() { return m_ppNormalMonsterObject; };
 	EffectObject** GetShieldEffectArr() { return &m_ppShieldEffectObject[0]; }
 	EffectObject** GetHealingEffectArr() { return &m_ppHealingEffectObject[0]; }
+	TankerEffectObject* GetTankerAttackEffect() { return m_pTankerAttackEffectObject; }
+	vector<RockSpike*>& GetRockSpikeArr() { return m_ppRockSpikeObjects; }
 	void SetCharactersStage1Postion();
 	void SetCharactersBossStagePostion();
 	void SetCharactersLobbyPosition();
 	void SetPortalCheck(bool b) { m_bPortalCheck = b; }
 	void ResetLobbyUI();
 	void SetLightningEffect(XMFLOAT3& targetPos);
-	
+	float GetTotalProgressTime() { return m_fTime; }
 };
 

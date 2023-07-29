@@ -80,6 +80,17 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	m_pSkyboxObject->SetPosition(m_pCamera->GetPosition());
 	m_pLight->UpdatePosition(XMFLOAT3(m_pCamera->GetPosition().x,
 		m_pCamera->GetPosition().y + 600, m_pCamera->GetPosition().z));
+
+	if (m_pNPCPressGObject)//23.04.18 몬스터 체력바 -> 카메라를 바라 보도록 .ccg
+	{
+		m_pNPCPressGObject->SetLookAt(m_pCamera->GetPosition());
+		m_pNPCPressGObject->SetPosition(XMFLOAT3(m_pAngelNPCObject->GetPosition().x,
+			m_pAngelNPCObject->GetPosition().y + 23, m_pAngelNPCObject->GetPosition().z));
+		m_pNPCPressGObject->Rotate(0, 180, 0);
+		m_pNPCPressGObject->SetScale(1, 1, 1);
+		//m_pNPCPressGObject->SetCurrentHP(m_pAngelNPCObject->GetCurrentHP());
+	}
+
 	//MonsterHpBarAnimate(fTimeElapsed);
 	if (m_pMonsterHPBarObject)//23.04.18 몬스터 체력바 -> 카메라를 바라 보도록 .ccg
 	{
@@ -122,7 +133,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	if (m_bPickingenemy) {
 		if (m_pSelectedObject != nullptr) {
 			if (g_Logic.GetMyRole() == ROLE::PRIEST) {
-				g_sound.NoLoopPlay("LightningSound", 1.0f);
+
 				m_pLightEffectObject->AnimateEffect(m_pCamera, XMFLOAT3(m_pSelectedObject->GetPosition().x,
 					m_pSelectedObject->GetPosition().y + 10, m_pSelectedObject->GetPosition().z), fTimeElapsed, m_fTime * 5);
 				m_pLightningSpriteObject->SetPosition(XMFLOAT3(
@@ -135,6 +146,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 				m_pLightningSpriteObject->m_bActive = m_pLightEffectObject->m_bActive = true;
 				XMFLOAT3 TargetPosition = m_pSelectedObject->GetPosition();
 				g_NetworkHelper.Send_SkillExecute_E(TargetPosition);
+				g_sound.NoLoopPlay("LightningSound", m_pLightningSpriteObject->CalculateDistanceSound() + 0.3);
 			}
 			m_bPickingenemy = false;
 		}
@@ -148,6 +160,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	if (m_pLightEffectObject) {
 		if (m_pLightEffectObject->m_bActive) {
 			if (m_pLightEffectObject->m_fEffectLifeTime > FLT_EPSILON) {
+				m_pLightEffectObject->SetActive(m_pLightEffectObject->m_bActive);
 				m_pLightEffectObject->AnimateEffect(m_pCamera, m_LightningTargetPos, fTimeElapsed, m_fTime * 10);
 				m_pLightningSpriteObject->m_bActive = m_pLightEffectObject->m_bActive;
 				if (m_pLightEffectObject->m_bActive == false) {
@@ -199,6 +212,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	PlayerCurrentHpAnimate(fTimeElapsed);
 	PlayerConditionAnimate(fTimeElapsed);
 	NormalMonsterConditionAnimate(fTimeElapsed);
+	BossConditionAnimate(fTimeElapsed);
 	ChangeStage1ToStage2(fTimeElapsed);//포탈과 상호작용시에 스테이지 1이 사라지고 보스스테이지 2가 나오는 함수
 	CharacterUIAnimate(fTimeElapsed);
 	TrailAnimate(fTimeElapsed);
@@ -389,6 +403,7 @@ void GameobjectManager::NormalMonsterConditionAnimate(float fTimeElapsed)
 	for (int i = 0; i < 15; i++) {
 		if (m_ppNormalMonsterObject[i]->GetCurrentHP() != m_ppNormalMonsterObject[i]->GetTempHP() && m_ppNormalMonsterObject[i]->GetTempHP() > 0) {
 			//m_ppNormalMonsterObject[i]->SetColor(XMFLOAT4(1,0,0,0.00012));
+			g_sound.NoLoopPlay("MonsterAttackedSound", m_ppNormalMonsterObject[i]->CalculateDistanceSound());
 			AddDamageFontToUiLayer(XMFLOAT3(m_ppNormalMonsterObject[i]->GetPosition().x,
 				m_ppNormalMonsterObject[i]->GetPosition().y + 20,
 				m_ppNormalMonsterObject[i]->GetPosition().z), int(m_ppNormalMonsterObject[i]->GetTempHP() - m_ppNormalMonsterObject[i]->GetCurrentHP()));
@@ -441,7 +456,7 @@ void GameobjectManager::PlayerConditionAnimate(float fTimeElapsed)
 				m_pConditionUIObject->SetColor(XMFLOAT4(1, 0, 0, 0));
 				myPlayCharacter->m_nCondition = 1;
 			}
-				myPlayCharacter->m_fConditionTime += fTimeElapsed;
+			myPlayCharacter->m_fConditionTime += fTimeElapsed;
 		}
 		else
 		{
@@ -452,6 +467,42 @@ void GameobjectManager::PlayerConditionAnimate(float fTimeElapsed)
 
 		myPlayCharacter->SetTempHp(myPlayCharacter->GetCurrentHP());
 	}
+}
+
+void GameobjectManager::BossConditionAnimate(float fTimeElapsed)
+{
+	if (!m_bGameStart) {
+		SetTempHP();
+	}
+
+	if (m_pMonsterObject->GetCurrentHP() != m_pMonsterObject->GetTempHP() && m_pMonsterObject->GetTempHP() > 0) {
+		//m_pMonsterObject->SetColor(XMFLOAT4(1,0,0,0.00012));
+		g_sound.NoLoopPlay("MonsterAttackedSound", m_pMonsterObject->CalculateDistanceSound());
+		AddDamageFontToUiLayer(XMFLOAT3(m_pMonsterObject->GetPosition().x,
+			m_pMonsterObject->GetPosition().y + 20,
+			m_pMonsterObject->GetPosition().z), int(m_pMonsterObject->GetTempHP() - m_pMonsterObject->GetCurrentHP()));
+		m_pMonsterObject->m_bAttacked = true;
+	}
+	if (m_pMonsterObject->m_bAttacked && m_pMonsterObject->m_fConditionTime < 0.23) {
+		m_pMonsterObject->SetColor(XMFLOAT4(0.8, 0.3, 0.1, 0.00012));
+		m_pMonsterObject->m_fConditionTime += fTimeElapsed;
+	}
+	else {
+		if (m_pMonsterObject->GetTempHP() <= 0) {
+			if (m_pMonsterObject->m_bActive) {
+				//m_pMonsterObject->DieMonster(fTimeElapsed / 10);
+			}
+			if (m_pMonsterObject->m_xmf4Color.w > 0.95) {
+				//m_pMonsterObject->m_bActive = false;
+			}
+		}
+		else {
+			m_pMonsterObject->m_bAttacked = false;
+			m_pMonsterObject->SetColor(XMFLOAT4(0, 0, 0, 0.00));
+			m_pMonsterObject->m_fConditionTime = 0;
+		}
+	}
+	m_pMonsterObject->SetTempHp(m_pMonsterObject->GetCurrentHP());
 }
 
 void GameobjectManager::PlayerCurrentHpAnimate(float fTimeElapsed)
@@ -505,6 +556,19 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	{
 		m_pShadowmapShaderComponent->Render(pd3dDevice, pd3dCommandList, 0, pd3dGraphicsRootSignature, m_fTimeElapsed, m_nStageType);
 
+	}
+	for (int i = 0; i < m_ppRockSpikeObjects.size(); ++i)
+	{
+		if (m_ppRockSpikeObjects[i] == nullptr) continue;
+		if (m_ppRockSpikeObjects[i]->m_bActive == false) continue;
+		m_ppRockSpikeObjects[i]->Animate(m_fTimeElapsed);
+		m_ppRockSpikeObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		if(m_ppRockSpikeObjects[i]->m_pAttackedArea != nullptr)
+			m_ppRockSpikeObjects[i]->m_pAttackedArea->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
+
+	if (m_pNPCPressGObject) {
+		m_pNPCPressGObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 	//몬스터 체력바
 	if (m_pMonsterHPBarObject) {
@@ -983,7 +1047,7 @@ void GameobjectManager::CheckCollideNPCColorChange()//엔피씨 충돌시에 생기는 마�
 	Character* myCharacter = GetChracterInfo(g_Logic.GetMyRole());
 	if (m_pAngelNPCObject->m_SPBBNPC.Intersects(myCharacter->m_SPBB))
 	{
-	//	m_pAngelNPCObject->SetColor(XMFLOAT4(0.5, 0.5, 0.5, 0.5));
+		//	m_pAngelNPCObject->SetColor(XMFLOAT4(0.5, 0.5, 0.5, 0.5));
 	}
 }
 
@@ -1029,26 +1093,12 @@ void GameobjectManager::SetCharactersBossStagePostion()
 void GameobjectManager::SetCharactersLobbyPosition()
 {
 	m_pMonsterObject->SetPosition(XMFLOAT3(0, 0, 0));
-
 	m_pPriestObject->SetPosition(XMFLOAT3(-1400.f, 0.f, -1520.f));
-	m_pPriestObject->SetRotateAxis(XMFLOAT3(0.0f, -90.0f, 0.0f));
-	m_pPriestObject->SetCurrentHP(100.0f);
-	m_pPriestObject->SetTempHp(100.0f);
-
 	m_pWarriorObject->SetPosition(XMFLOAT3(-1400.f, 0.f, -1460.f));
-	m_pWarriorObject->SetRotateAxis(XMFLOAT3(0.0f, -90.0f, 0.0f));
-	m_pWarriorObject->SetCurrentHP(100.0f);
-	m_pWarriorObject->SetTempHp(100.0f);
-
+	m_pWarriorObject->Rotate(0.0f, -90.0f, 0.0f);
 	m_pArcherObject->SetPosition(XMFLOAT3(-1400.f, 0.f, -1480.f));
-	m_pArcherObject->SetRotateAxis(XMFLOAT3(0.0f, -90.0f, 0.0f));
-	m_pArcherObject->SetCurrentHP(100.0f);
-	m_pArcherObject->SetTempHp(100.0f);
-
 	m_pTankerObject->SetPosition(XMFLOAT3(-1400.f, 0.f, -1500.0f));
-	m_pTankerObject->SetRotateAxis(XMFLOAT3(0.0f, -90.0f, 0.0f));
-	m_pTankerObject->SetCurrentHP(100.0f);
-	m_pTankerObject->SetTempHp(100.0f);
+	m_pTankerObject->Rotate(0.0f, -90.0f, 0.0f);
 }
 
 void GameobjectManager::EffectRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float ftimeElapsed)
@@ -1125,28 +1175,37 @@ void GameobjectManager::BuildBossStageObject(ID3D12Device* pd3dDevice, ID3D12Gra
 	CLoadedModelInfoCompnent* Rock02Model = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock02.bin", NULL, true);
 	CLoadedModelInfoCompnent* Rock03Model = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock03.bin", NULL, true);
 	CLoadedModelInfoCompnent* DeathModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Death.bin", NULL, true);
-	CLoadedModelInfoCompnent* RockSpike = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/RockSpike.bin", NULL, true);
+	CLoadedModelInfoCompnent* RockSpikeModel = GameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/RockSpike.bin", NULL, true);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock1.txt", Rock01Model, 1, STAGE2);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock2.txt", Rock02Model, 1, STAGE2);
 	ReadObjectFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Rock3.txt", Rock03Model, 1, STAGE2);
 
-	Projectile** m_ppRockSpikeObjects = new Projectile * [10];
 	for (int i = 0; i < 10; ++i)
 	{
-		m_ppRockSpikeObjects[i] = new IceLance();
-		m_ppRockSpikeObjects[i]->InsertComponent<RenderComponent>();
-		m_ppRockSpikeObjects[i]->InsertComponent<CLoadedModelInfoCompnent>();
-		m_ppRockSpikeObjects[i]->SetPosition(XMFLOAT3(25 * i, 0, 0));
-		m_ppRockSpikeObjects[i]->SetModel(RockSpike);
-		//m_pEnergyBallObjects[i]->SetColor(XMFLOAT3(0,0.5,0);
-		m_ppRockSpikeObjects[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-		m_ppRockSpikeObjects[i]->SetScale(15.f, 20.f, 15.f);
-		m_ppRockSpikeObjects[i]->SetBoundingSize(4.0f);
-	//	m_pEnergyBallObjects[i] = m_ppIceLanceObjects[i];
-		m_ppGameObjects.emplace_back(m_ppRockSpikeObjects[i]);
+		RockSpike* pRockSpikeObject = new RockSpike();
+		pRockSpikeObject->InsertComponent<RenderComponent>();
+		pRockSpikeObject->InsertComponent<CLoadedModelInfoCompnent>();
+		pRockSpikeObject->SetPosition(XMFLOAT3(0.0f, 0.0f, 0.0f));
+		pRockSpikeObject->SetModel(RockSpikeModel);
+		pRockSpikeObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		pRockSpikeObject->SetScale(50.0f, 50.0f, 50.0f);
+		XMFLOAT3 right = XMFLOAT3(1.0f, 0.0f, 0.0f);
+		pRockSpikeObject->Rotate(&right, 90.0f);
+		pRockSpikeObject->m_bActive = false;
+
+		GameObject* pBossSkillRange = new GameObject(SQUARE_ENTITY);
+		pBossSkillRange->InsertComponent<RenderComponent>();
+		pBossSkillRange->InsertComponent<SquareMeshComponent>();
+		pBossSkillRange->InsertComponent<BossSkillShaderComponent>();
+		pBossSkillRange->SetSkillSize(10.0f);
+		pBossSkillRange->m_iObjType = 1;
+		pBossSkillRange->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		pBossSkillRange->SetPosition(XMFLOAT3(0, 0.1, 0));
+		pBossSkillRange->m_fSkillTime = 0.0f;
+		pRockSpikeObject->m_pAttackedArea = pBossSkillRange;
+
+		m_ppRockSpikeObjects.emplace_back(pRockSpikeObject);
 	}
-//	m_pPriestObject->SetProjectile(m_ppIceLanceObjects);
-	//ReadNormalMonsterFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/NormalMonster.txt", DeathModel, 0, STAGE2);
 }
 
 void GameobjectManager::BuildProjectileObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -1232,10 +1291,6 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pCamera->SetPosition(XMFLOAT3(-1450, 18, -1490));
 	m_pCamera->Rotate(0, 90, 0);
 
-	BuildStage1(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	BuildBossStageObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-
-
 	m_pPlaneObject = new GameObject(UNDEF_ENTITY);
 	m_pPlaneObject->InsertComponent<RenderComponent>();
 	m_pPlaneObject->InsertComponent<CLoadedModelInfoCompnent>();
@@ -1246,6 +1301,11 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	//m_pPlaneObject->SetColor(XMFLOAT4(0, 0, 0, 1));
 	m_pPlaneObject->SetRimLight(false);
 	m_ppGameObjects.emplace_back(m_pPlaneObject);
+	BuildStage1(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	BuildBossStageObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+
+
+
 
 	for (int i = 0; i < 4; ++i)
 	{
@@ -1980,7 +2040,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pArcherObject->m_pSkillQUI->InsertComponent<UIMeshComponent>();
 	m_pArcherObject->m_pSkillQUI->InsertComponent<UiShaderComponent>();
 	m_pArcherObject->m_pSkillQUI->InsertComponent<TextureComponent>();
-	m_pArcherObject->m_pSkillQUI->SetTexture(L"UI/ArrowSkill.dds", RESOURCE_TEXTURE2D, 3);
+	m_pArcherObject->m_pSkillQUI->SetTexture(L"UI/AcherQSkill.dds", RESOURCE_TEXTURE2D, 3);
 	m_pArcherObject->m_pSkillQUI->SetPosition(XMFLOAT3(5, 5, 1.00));
 	m_pArcherObject->m_pSkillQUI->SetScale(0.02, 0.02, 1);
 	m_pArcherObject->m_pSkillQUI->SetCurrentHP(70);
@@ -1993,7 +2053,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pArcherObject->m_pSkillEUI->InsertComponent<UIMeshComponent>();
 	m_pArcherObject->m_pSkillEUI->InsertComponent<UiShaderComponent>();
 	m_pArcherObject->m_pSkillEUI->InsertComponent<TextureComponent>();
-	m_pArcherObject->m_pSkillEUI->SetTexture(L"UI/ArrowSkill.dds", RESOURCE_TEXTURE2D, 3);
+	m_pArcherObject->m_pSkillEUI->SetTexture(L"UI/AcherESkill.dds", RESOURCE_TEXTURE2D, 3);
 	m_pArcherObject->m_pSkillEUI->SetPosition(XMFLOAT3(5, 5, 1.00));
 	m_pArcherObject->m_pSkillEUI->SetColor(XMFLOAT4(0.06f, 0.05f, 0, 0));
 	m_pArcherObject->m_pSkillEUI->SetScale(0.02, 0.02, 1);
@@ -2126,7 +2186,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pWarriorObject->m_pSkillQUI->InsertComponent<UIMeshComponent>();
 	m_pWarriorObject->m_pSkillQUI->InsertComponent<UiShaderComponent>();
 	m_pWarriorObject->m_pSkillQUI->InsertComponent<TextureComponent>();
-	m_pWarriorObject->m_pSkillQUI->SetTexture(L"UI/ShieldSkill.dds", RESOURCE_TEXTURE2D, 3);
+	m_pWarriorObject->m_pSkillQUI->SetTexture(L"UI/WarriorQSkill.dds", RESOURCE_TEXTURE2D, 3);
 	m_pWarriorObject->m_pSkillQUI->SetPosition(XMFLOAT3(5, 5, 1.00));
 	m_pWarriorObject->m_pSkillQUI->SetScale(0.02, 0.02, 1);
 	m_pWarriorObject->m_pSkillQUI->SetColor(XMFLOAT4(0.06f, 0.05f, 0, 0));
@@ -2138,7 +2198,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pWarriorObject->m_pSkillEUI->InsertComponent<UIMeshComponent>();
 	m_pWarriorObject->m_pSkillEUI->InsertComponent<UiShaderComponent>();
 	m_pWarriorObject->m_pSkillEUI->InsertComponent<TextureComponent>();
-	m_pWarriorObject->m_pSkillEUI->SetTexture(L"UI/ShieldSkill.dds", RESOURCE_TEXTURE2D, 3);
+	m_pWarriorObject->m_pSkillEUI->SetTexture(L"UI/WarriorESkill.dds", RESOURCE_TEXTURE2D, 3);
 	m_pWarriorObject->m_pSkillEUI->SetPosition(XMFLOAT3(5, 5, 1.00));
 	m_pWarriorObject->m_pSkillEUI->SetScale(0.02, 0.02, 1);
 	m_pWarriorObject->m_pSkillEUI->SetColor(XMFLOAT4(0.06f, 0.05f, 0, 0));
@@ -2258,9 +2318,19 @@ void GameobjectManager::BuildNPC(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	m_pAngelNPCObject->SetAnimationSets(1);
 	m_pAngelNPCObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pAngelNPCObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1);
-	m_pAngelNPCObject->SetScale(10.0f);
-	m_pAngelNPCObject->Rotate(0, 27.959, 0);
+	m_pAngelNPCObject->SetScale(15.0f);
+	m_pAngelNPCObject->Rotate(0, -120.959, 0);
 	m_ppGameObjects.emplace_back(m_pAngelNPCObject);
+
+	m_pNPCPressGObject = new GameObject(UNDEF_ENTITY);
+	m_pNPCPressGObject->InsertComponent<RenderComponent>();
+	m_pNPCPressGObject->InsertComponent<UIMeshComponent>();
+	m_pNPCPressGObject->InsertComponent <BlendShaderComponent>();
+	m_pNPCPressGObject->InsertComponent<TextureComponent>();
+	m_pNPCPressGObject->SetTexture(L"UI/PressG.dds", RESOURCE_TEXTURE2D, 3);
+	m_pNPCPressGObject->SetPosition(XMFLOAT3(0, 40, 100));
+	m_pNPCPressGObject->SetScale(10);
+	m_pNPCPressGObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
 
 enum UI
@@ -2289,8 +2359,9 @@ void GameobjectManager::ResetLobbyUI()
 
 void GameobjectManager::SetLightningEffect(XMFLOAT3& targetPos)
 {
-	g_sound.NoLoopPlay("LightningSound", 1.0f);
+	g_sound.NoLoopPlay("LightningSound", m_pLightningSpriteObject->CalculateDistanceSound() + 0.3);
 	m_LightningTargetPos = targetPos;
+	m_pLightEffectObject->SetActive(m_pLightEffectObject->m_bActive);
 	m_pLightEffectObject->AnimateEffect(m_pCamera, targetPos, m_fTimeElapsed, m_fTime * 5);
 	targetPos.y += 50.0f;
 	m_pLightningSpriteObject->SetPosition(targetPos);
@@ -2485,35 +2556,42 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		{
 		case 'W':
 		{
-			g_Logic.m_KeyInput->m_bWKey = true;
-			myPlayCharacter->SetMoveState(true);
-			myPlayCharacter->AddDirection(DIRECTION::FRONT);
-			g_NetworkHelper.SendMovePacket(DIRECTION::FRONT);
-
+			if (myPlayCharacter->CanMove() == true) {
+				g_Logic.m_KeyInput->m_bWKey = true;
+				myPlayCharacter->SetMoveState(true);
+				myPlayCharacter->AddDirection(DIRECTION::FRONT);
+				g_NetworkHelper.SendMovePacket(DIRECTION::FRONT);
+			}
 		}
 		break;
 		case 'A':
 		{
-			g_Logic.m_KeyInput->m_bAKey = true;
-			myPlayCharacter->SetMoveState(true);
-			myPlayCharacter->AddDirection(DIRECTION::LEFT);
-			g_NetworkHelper.SendMovePacket(DIRECTION::LEFT);
+			if (myPlayCharacter->CanMove() == true) {
+				g_Logic.m_KeyInput->m_bAKey = true;
+				myPlayCharacter->SetMoveState(true);
+				myPlayCharacter->AddDirection(DIRECTION::LEFT);
+				g_NetworkHelper.SendMovePacket(DIRECTION::LEFT);
+			}
 		}
 		break;
 		case 'S':
 		{
-			g_Logic.m_KeyInput->m_bSKey = true;
-			myPlayCharacter->SetMoveState(true);
-			myPlayCharacter->AddDirection(DIRECTION::BACK);
-			g_NetworkHelper.SendMovePacket(DIRECTION::BACK);
+			if (myPlayCharacter->CanMove() == true) {
+				g_Logic.m_KeyInput->m_bSKey = true;
+				myPlayCharacter->SetMoveState(true);
+				myPlayCharacter->AddDirection(DIRECTION::BACK);
+				g_NetworkHelper.SendMovePacket(DIRECTION::BACK);
+			}
 		}
 		break;
 		case 'D':
-		{
-			g_Logic.m_KeyInput->m_bDKey = true;
-			myPlayCharacter->SetMoveState(true);
-			myPlayCharacter->AddDirection(DIRECTION::RIGHT);
-			g_NetworkHelper.SendMovePacket(DIRECTION::RIGHT);
+		{			
+			if (myPlayCharacter->CanMove() == true) {
+				g_Logic.m_KeyInput->m_bDKey = true;
+				myPlayCharacter->SetMoveState(true);
+				myPlayCharacter->AddDirection(DIRECTION::RIGHT);
+				g_NetworkHelper.SendMovePacket(DIRECTION::RIGHT);
+			}
 		}
 		break;
 		case 'Q':
@@ -2698,7 +2776,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		case 'P':
 		{
 			m_bTest = true;
-			g_sound.NoLoopPlay("WarriorQskillSound", 1.0f);
+			g_sound.NoLoopPlay("MonsterAttackedSound", 1.0f);
 			g_sound.Play("ClickSound", 1.0f);
 		}
 		break;
@@ -2745,11 +2823,11 @@ bool GameobjectManager::onProcessingKeyboardMessageLobby(HWND hWnd, UINT nMessag
 	if (nMessageID == WM_KEYDOWN && wParam == VK_F2)
 	{
 #ifdef LOCAL_TASK
-		g_Logic.SetMyRole(ROLE::PRIEST);
+		g_Logic.SetMyRole(ROLE::TANKER);//캐릭
 		m_pCamera->Rotate(0, -90, 0);
-		m_pPlayerObject = m_pPriestObject;
+		m_pPlayerObject = m_pTankerObject;
 		m_pPlayerObject->SetCamera(m_pCamera);
-		m_pPriestObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
+		m_pTankerObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
 #else
 		g_Logic.SetMyRole(ROLE::ARCHER);
 		m_pArcherObject->SetCamera(m_pCamera);
@@ -2892,7 +2970,6 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 		case WM_RBUTTONUP:
 		case WM_LBUTTONUP:
 			g_NetworkHelper.SendTestGameEndOKPacket();
-			myPlayCharacter->m_pCamera = nullptr;
 			g_Logic.ResetMyRole();
 			ResetObject();
 			break;
@@ -2916,18 +2993,18 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 		myPlayCharacter->SetLButtonClicked(false);
 		SomethingChanging = true;
 
-	/*	if (ROLE::PRIEST) {
-			g_sound.NoLoopPlay("PriestAttackSound", 1.0f);
-		}
-		if (ROLE::ARCHER) {
-			g_sound.NoLoopPlay("AcherAttackSound", 1.0f);
-		}
-		if (ROLE::WARRIOR) {
-			g_sound.NoLoopPlay("WarriorAttackSound", 1.0f);
-		}
-		if (ROLE::TANKER) {
-			g_sound.NoLoopPlay("TankerAttackSound", 1.0f);
-		}*/
+		/*	if (ROLE::PRIEST) {
+				g_sound.NoLoopPlay("PriestAttackSound", 1.0f);
+			}
+			if (ROLE::ARCHER) {
+				g_sound.NoLoopPlay("AcherAttackSound", 1.0f);
+			}
+			if (ROLE::WARRIOR) {
+				g_sound.NoLoopPlay("WarriorAttackSound", 1.0f);
+			}
+			if (ROLE::TANKER) {
+				g_sound.NoLoopPlay("TankerAttackSound", 1.0f);
+			}*/
 		break;
 	}
 	case WM_RBUTTONDOWN:
@@ -3102,10 +3179,10 @@ void GameobjectManager::SetPlayerCamera(GameObject* obj)
 
 void GameobjectManager::ResetObject()
 {
-	//for (int i = 0; i < m_ppGameObjects.size(); ++i)
-	//{
-	//	m_ppGameObjects[i]->Reset();
-	//}
+	for (int i = 0; i < m_ppGameObjects.size(); ++i)
+	{
+		m_ppGameObjects[i]->Reset();
+	}
 	SetCharactersLobbyPosition();
 
 	m_pCamera->ReInitCamrea();
@@ -3159,6 +3236,7 @@ void GameobjectManager::ChangeStage1ToStage2(float fTimeelpased)
 
 void GameobjectManager::ChangeStage2ToStage1()
 {
+	m_bSendNpccollisionPK = !m_bSendNpccollisionPK;
 	m_bGameStart = !m_bGameStart;
 	m_bPortalCheck = !m_bPortalCheck;
 	m_nStageType = 1;
@@ -3168,7 +3246,7 @@ void GameobjectManager::ChangeStage2ToStage1()
 		m_ppGameObjects[i]->m_xmf4Color.w = 0;//모든 오브젝트들 다시 블랜딩 초기화 
 	}
 	g_sound.Pause("BossStage");
-	g_sound.Play("LobbySound",  0.52);
+	g_sound.Play("LobbySound", 0.42);
 }
 
 void GameobjectManager::SetTempHP()

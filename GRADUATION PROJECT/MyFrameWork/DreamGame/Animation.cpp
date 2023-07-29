@@ -256,6 +256,14 @@ void CAnimationController::ResetTrack()
 		for (int i = 0; i < m_nAnimationTracks; ++i)
 		{
 			m_pAnimationTracks[i].m_fPosition = 0.0f;
+			m_pAnimationTracks[i].m_bAnimationEnd = false;
+		}
+	}
+	if (m_pAnimationSets)
+	{
+		for (int i = 0; i < m_pAnimationSets->m_nAnimationSets; ++i)
+		{
+			m_pAnimationSets->m_pAnimationSets[i]->m_fPosition = -ANIMATION_CALLBACK_EPSILON;
 		}
 	}
 }

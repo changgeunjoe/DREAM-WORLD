@@ -218,6 +218,8 @@ public:
 class BossSkillShaderComponent : public SquareShaderComponent
 {
 public:
+	int m_nSkillNum = 0;
+public:
 	BossSkillShaderComponent() {};
 	virtual ~BossSkillShaderComponent() {};
 

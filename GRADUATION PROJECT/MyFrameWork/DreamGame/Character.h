@@ -29,6 +29,7 @@ public:
 	virtual void SecondSkillUp(const XMFLOAT3& CameraAxis = XMFLOAT3{ 0.0f, 0.0f, 0.0f }) {};
 	virtual void StartEffect(int nSkillNum) {};
 	virtual void EndEffect(int nSkillNum) {};
+	virtual bool CanMove() { return true; }
 protected:
 	bool CheckAnimationEnd(int nAnimation);
 	void ChangeAnimation(pair< CharacterAnimation, CharacterAnimation> nextAnimation);
@@ -99,11 +100,13 @@ private:
 public:
 	Warrior();
 	virtual ~Warrior();
+	virtual void Reset();
 	virtual void Attack();
 	virtual void Move(float fTimeElapsed)override;
 	virtual void Animate(float fTimeElapsed) override;
 	virtual void SetLButtonClicked(bool bLButtonClicked);
 	virtual void FirstSkillDown();
+	virtual bool CanMove() { return !m_bQSkillClicked; }
 public:
 	void SetStage1Position();
 	void SetBossStagePostion();
@@ -128,6 +131,7 @@ public:
 public:
 	Archer();
 	virtual ~Archer();
+	virtual void Reset();
 	virtual void Attack();
 	virtual void RbuttonClicked(float fTimeElapsed) {};
 	virtual void SetArrow(Projectile** pArrow);
@@ -163,6 +167,7 @@ private:
 public:
 	Tanker();
 	virtual ~Tanker();
+	virtual void Reset();
 	virtual void Attack();
 	virtual void RbuttonUp(const XMFLOAT3& CameraAxis);
 	virtual void FirstSkillDown();
@@ -172,6 +177,7 @@ public:
 	virtual void SetSkillBall(Projectile* pBall);
 	virtual void StartEffect(int nSkillNum);
 	virtual void EndEffect(int nSkillNum);
+	virtual bool CanMove() { return !m_bQSkillClicked && !m_bESkillClicked; }
 public:
 	void SetStage1Position();
 	void SetBossStagePostion();
@@ -189,6 +195,7 @@ private:
 public:
 	Priest();
 	virtual ~Priest();
+	virtual void Reset();
 	virtual void Attack();
 	virtual void Attack(const XMFLOAT3& xmf3Direction);
 	virtual void SetProjectile(Projectile** pEnergyBall);
@@ -289,6 +296,7 @@ public:
 	virtual void Move(XMFLOAT3 dir, float fDistance);
 	virtual void SetActive(bool bActive) { m_bActive = bActive; }
 	virtual void SetHostRole(ROLE r) { m_HostRole = r; }
+	virtual void SetSpeed(float speed) { m_fSpeed = speed; }
 };
 
 class Arrow : public Projectile
@@ -310,6 +318,9 @@ public:
 
 class IceLance : public Projectile
 {
+private:
+	float m_fDistance = 0.0f;
+	float m_fTime = 0.0f;
 public:
 	IceLance();
 	virtual ~IceLance();
@@ -327,6 +338,17 @@ public:
 	virtual void Animate(float fTimeElapsed);
 	void SetTarget(ROLE r) { m_Target = r; }
 	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender = false);
+};
+
+class RockSpike : public Projectile
+{
+public:
+	GameObject* m_pAttackedArea = nullptr;
+public:
+	RockSpike();
+	virtual ~RockSpike();
+	virtual void Move(XMFLOAT3 dir, float fDistance);
+	virtual void Animate(float fTimeElapsed);
 };
 
 class TrailObject : public GameObject

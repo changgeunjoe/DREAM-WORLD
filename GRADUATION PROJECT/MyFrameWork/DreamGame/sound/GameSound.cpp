@@ -16,12 +16,15 @@ GameSound::GameSound()
 	MakeSound("LightningSound", "sound/sounds/LightningSound.wav");
 	MakeSound("PriestAttackSound", "sound/sounds/PriestAttackSound.wav");
 	MakeSound("AcherAttackSound", "sound/sounds/AcherAttackSound.wav");
-	MakeSound("ArcherESkillSound", "sound/sounds/ArcherESkillSound.mp3");
-	MakeSound("ArcherQSkillSound", "sound/sounds/AcherQSkillSound.wav");
+	MakeSound("ArcherESkillSound", "sound/sounds/ArcherEskill.wav");
+	MakeSound("ArcherQSkillSound", "sound/sounds/AcherQSkillSound.wav"); 
+	MakeSound("TankerBombSound", "sound/sounds/TankerBombSound.mp3");
 	//MakeSound("AcherBow", "sound/sounds/AcherAcherBow.mp3");
+	MakeSound("MonsterAttackedSound", "sound/sounds/MonsterAttackedSound.mp3");
 	MakeSound("WarriorAttackSound", "sound/sounds/WarriorAttackSound.mp3");
 	MakeSound("WarriorQskillSound", "sound/sounds/WarriorQskill.mp3");
 	MakeSound("TankerAttackSound", "sound/sounds/TankerAttackSound.mp3"); 
+	MakeSound("TankerSwingSound", "sound/sounds/TankerSwingSound.mp3");
 	MakeSound("WalkSound", "sound/sounds/WalkSound2.wav");
 	MakeSound("ArrowBow", "sound/sounds/ArrowBow.mp3");
 	MakeSound("NormalMonsterAttackSound", "sound/sounds/NormalMonsterAttack.mp3");

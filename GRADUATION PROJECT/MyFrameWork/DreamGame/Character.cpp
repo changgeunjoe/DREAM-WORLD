@@ -56,13 +56,24 @@ void Character::RbuttonUp(const XMFLOAT3& CameraAxis)
 
 void Character::Reset()
 {
-	m_fHp = m_fMaxHp;
+	m_bOnAttack = false;
+	m_bOnSkill = false;
+	m_bShieldActive = false;
+	m_fShield = false;
+	m_bCanAttack = true;
+
+	m_currentDirection = DIRECTION::IDLE;
+	m_fHp = 100.0f;
+	m_fTempHp = 100.0f;
+	m_bActive = true;
 	SetPosition(XMFLOAT3(0.0f, 0.0f, 0.0f));
+	SetLook(XMFLOAT3(0.0f, 0.0f, 1.0f));
+	m_xmf3RotateAxis = XMFLOAT3(0.0f, -90.0f, 0.0f);
 	m_pSkinnedAnimationController->ResetTrack();
 	m_bMoveState = false;
-	SetLook(XMFLOAT3(0.0f, 0.0f, 1.0f));
 	m_bLButtonClicked = false;
 	m_bRButtonClicked = false;
+
 	for (int i = 0; i < m_ppProjectiles.size(); ++i)
 		if (m_ppProjectiles[i]) m_ppProjectiles[i]->m_bActive = false;
 
@@ -189,7 +200,7 @@ void Character::MoveForward(int forwardDirection, float ftimeElapsed)
 
 	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, 10.0f * m_interpolationDistance * ftimeElapsed);
 
-	g_sound.Play("WalkSound", 0.95f);
+	g_sound.Play("WalkSound", CalculateDistanceSound());
 	GameObject::SetPosition(xmf3Position);
 	if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
 	return;
@@ -213,7 +224,7 @@ void Character::MoveStrafe(int rightDirection, float ftimeElapsed)
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Right, ftimeElapsed * m_fSpeed);
 
 	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, 10.0f * m_interpolationDistance * ftimeElapsed);
-	g_sound.Play("WalkSound", 0.95f);
+	g_sound.Play("WalkSound", CalculateDistanceSound());
 	GameObject::SetPosition(xmf3Position);
 	if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
 	return;
@@ -241,7 +252,7 @@ void Character::MoveDiagonal(int fowardDirection, int rightDirection, float ftim
 	xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(resultDirection, ftimeElapsed * m_fSpeed));
 
 	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, 10.0f * m_interpolationDistance * ftimeElapsed);
-	g_sound.Play("WalkSound", 0.95f);
+	g_sound.Play("WalkSound", CalculateDistanceSound());
 	SetPosition(xmf3Position);
 	if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
 }
@@ -762,6 +773,7 @@ constexpr float ATTACK4_ATTACK_POINT = 0.60f;
 Warrior::Warrior() : Character()
 {
 	m_fMaxHp = 400.0f;
+	m_fTempHp = m_fMaxHp;
 	m_fSpeed = 50.0f;
 	m_fDamage = 100.0f;
 
@@ -772,6 +784,16 @@ Warrior::Warrior() : Character()
 
 Warrior::~Warrior()
 {
+}
+
+void Warrior::Reset()
+{
+	m_iAttackType = 0;
+	m_bAnimationLock = false;
+	m_bComboAttack = false;
+	m_attackAnimation = CharacterAnimation::CA_ATTACK;
+	m_nextAnimation = CharacterAnimation::CA_NOTHING;
+	Character::Reset();
 }
 
 void Warrior::Attack()
@@ -787,7 +809,7 @@ void Warrior::Attack()
 	else if (m_attackAnimation != CA_NOTHING)
 	{
 		int attackPower = 0;
-		g_sound.NoLoopPlay("WarriorAttackSound", 1.0f);
+		g_sound.NoLoopPlay("WarriorAttackSound", CalculateDistanceSound());
 		switch (m_attackAnimation)
 		{
 		case CA_ATTACK: attackPower = 0; break;
@@ -951,7 +973,7 @@ void Warrior::Animate(float fTimeElapsed)
 
 	if (m_bQSkillClicked)
 	{
-		g_sound.Play("WarriorQskillSound", 1.0f);
+		g_sound.Play("WarriorQskillSound", CalculateDistanceSound());
 		m_currentDirection = DIRECTION::IDLE;
 		m_bMoveState = false;
 	}
@@ -994,9 +1016,9 @@ void Warrior::Animate(float fTimeElapsed)
 	if (m_pTrailComponent)
 		m_pTrailComponent->SetRenderingTrail(m_bOnAttack || m_bComboAttack);
 
+	SetLookDirection();
 	if (m_bMoveState)
 	{
-		SetLookDirection();
 		Move(fTimeElapsed);
 	}
 	GameObject::Animate(fTimeElapsed);
@@ -1087,6 +1109,7 @@ void Warrior::ExecuteSkill_E()
 Archer::Archer() : Character()
 {
 	m_fMaxHp = 250.0f;
+	m_fTempHp = m_fMaxHp;
 	m_fSpeed = 50.0f;
 	m_fDamage = 80.0f;
 	m_CameraLook = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -1103,6 +1126,14 @@ Archer::~Archer()
 		if (i != nullptr)
 			delete i;
 	}
+}
+
+void Archer::Reset()
+{
+	m_CameraLook = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	m_bZoomInState = false;
+	m_xmf3TargetPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	Character::Reset();
 }
 
 void Archer::Attack()
@@ -1335,8 +1366,8 @@ void Archer::ZoomInCamera()
 		CheckAnimationEnd(CA_ATTACK) == false)
 		|| m_bLButtonClicked == true)
 	{
-		g_sound.Play("ArrowBow", 1.0f);
-
+		g_sound.Play("ArrowBow", CalculateDistanceSound());
+		
 		if (m_iRButtionCount == 0)
 		{
 			// 줌인을 위해서 애니메이션 타입 및 속도 변경
@@ -1421,7 +1452,7 @@ void Archer::ShootArrow()//스킬
 	m_nProjectiles = (m_nProjectiles < MAX_ARROW) ? m_nProjectiles : m_nProjectiles % MAX_ARROW;
 	if (!m_bQSkillClicked && !m_bESkillClicked) {
 		g_sound.Pause("ArrowBow");
-		g_sound.NoLoopPlay("AcherAttackSound", 0.7f);
+		g_sound.NoLoopPlay("AcherAttackSound", CalculateDistanceSound()-0.2);
 
 	}
 	if (m_bQSkillClicked == true)
@@ -1430,7 +1461,7 @@ void Archer::ShootArrow()//스킬
 			g_NetworkHelper.Send_SkillExecute_Q(Vector3::Normalize(GetObjectLook()));
 		for (int i = 0; i < 3; ++i)//서버에 옮겨야됨
 		{
-			g_sound.NoLoopPlay("ArcherQSkillSound", 1.0f);
+			g_sound.NoLoopPlay("ArcherQSkillSound", CalculateDistanceSound());
 			XMFLOAT3 objectLook = GetObjectLook();
 			XMFLOAT3 objectRight = GetRight();
 			XMFLOAT3 objPosition = GetPosition();
@@ -1448,7 +1479,7 @@ void Archer::ShootArrow()//스킬
 	}
 	else if (m_bESkillClicked == true)
 	{
-		g_sound.NoLoopPlay("ArcherESkillSound", 0.6f);
+		g_sound.NoLoopPlay("ArcherESkillSound", CalculateDistanceSound());
 		XMFLOAT3 xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
 		if (g_Logic.GetMyRole() == ROLE::ARCHER)
 			g_NetworkHelper.Send_SkillExecute_E(m_xmf3TargetPos);
@@ -1647,6 +1678,7 @@ void Archer::ExecuteSkill_E()
 Tanker::Tanker() : Character()
 {
 	m_fMaxHp = 600.0f;
+	m_fTempHp = m_fMaxHp;
 	m_fSpeed = 50.0f;
 	m_fDamage = 50.0f;
 
@@ -1660,10 +1692,16 @@ Tanker::~Tanker()
 
 }
 
+void Tanker::Reset()
+{
+	m_CanActiveQSkill = false;
+	Character::Reset();
+}
+
 void Tanker::Attack()
 {
 	if (m_pCamera) {
-		g_sound.NoLoopPlay("TankerAttackSound", 0.7f);
+		g_sound.NoLoopPlay("TankerAttackSound", CalculateDistanceSound()*0.7);
 		g_NetworkHelper.SendCommonAttackExecute(GetLook(), 0);
 	}
 }
@@ -1701,6 +1739,7 @@ void Tanker::SecondSkillDown()
 		auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[1]);
 		if (m_skillCoolTime[1] > duration) return;
 		g_NetworkHelper.Send_SkillInput_E();
+		g_sound.NoLoopPlay("TankerSwingSound",CalculateDistanceSound());
 		m_skillInputTime[1] = std::chrono::high_resolution_clock::now();
 	}
 	m_currentDirection = DIRECTION::IDLE;
@@ -1849,6 +1888,8 @@ void Tanker::Animate(float fTimeElapsed)
 	}
 	if (CheckAnimationEnd(CA_SECONDSKILL) == true)
 	{
+		gGameFramework.GetScene()->GetObjectManager()->GetTankerAttackEffect()->SetEarthquekePosition();
+		g_sound.NoLoopPlay("TankerBombSound", CalculateDistanceSound());
 		m_bESkillClicked = false;
 		m_bOnAttack = false;
 		m_bCanAttack = true;
@@ -1989,8 +2030,8 @@ void Tanker::ExecuteSkill_E()
 
 Priest::Priest() : Character()
 {
-	m_fHp = 480.0f;
 	m_fMaxHp = 480.0f;
+	m_fTempHp = m_fMaxHp;
 	m_fSpeed = 50.0f;
 	m_fDamage = 80.0f;
 
@@ -2001,6 +2042,12 @@ Priest::Priest() : Character()
 
 Priest::~Priest()
 {
+}
+
+void Priest::Reset()
+{
+	m_fHealTime = 0.0f;
+	Character::Reset();
 }
 
 void Priest::Move(float fTimeElapsed)
@@ -2154,9 +2201,6 @@ void Priest::Animate(float fTimeElapsed)
 		UpdateEffect();
 	}
 
-	for (int i = 0; i < m_ppProjectiles.size(); ++i)
-		if (m_ppProjectiles[i]) m_ppProjectiles[i]->Animate(fTimeElapsed);
-
 	SetLookDirection();
 	Move(fTimeElapsed);
 	GameObject::Animate(fTimeElapsed);
@@ -2164,7 +2208,7 @@ void Priest::Animate(float fTimeElapsed)
 
 void Priest::Attack()
 {
-	g_sound.NoLoopPlay("PriestAttackSound", 1.0f);
+	g_sound.NoLoopPlay("PriestAttackSound", CalculateDistanceSound());
 	m_nProjectiles = (m_nProjectiles < 10) ? m_nProjectiles : m_nProjectiles % 10;
 	XMFLOAT3 ObjectLookVector = GetLook();
 	ObjectLookVector.y = -m_xmf3RotateAxis.x / 90.0f;
@@ -2176,20 +2220,20 @@ void Priest::Attack()
 	XMFLOAT3 xmf3LanceDirection = Vector3::Normalize(Vector3::Subtract(xmf3Destination, xmf3LanceStartPosition));
 	if (xmf3LanceDirection.y < 0.0f) xmf3LanceDirection.y = 0.0f;
 
+	if (g_Logic.GetMyRole() == ROLE::PRIEST)
+		g_NetworkHelper.SendCommonAttackExecute(xmf3LanceDirection, 0);
+
 	m_ppProjectiles[m_nProjectiles]->m_xmf3direction = xmf3LanceDirection;
 	m_ppProjectiles[m_nProjectiles]->m_xmf3startPosition = xmf3LanceStartPosition;
 	m_ppProjectiles[m_nProjectiles]->SetPosition(m_ppProjectiles[m_nProjectiles]->m_xmf3startPosition);
 	m_ppProjectiles[m_nProjectiles]->m_bActive = true;
 	m_ppProjectiles[m_nProjectiles]->m_fSpeed = 100.0f;
-
-	if (g_Logic.GetMyRole() == ROLE::PRIEST)
-		g_NetworkHelper.SendCommonAttackExecute(ObjectLookVector, 0);
 	m_nProjectiles++;
 }
 
 void Priest::Attack(const XMFLOAT3& xmf3Direction)
 {
-	g_sound.NoLoopPlay("PriestAttackSound", 1.0f);
+	g_sound.NoLoopPlay("PriestAttackSound", CalculateDistanceSound());
 	m_nProjectiles = (m_nProjectiles < 10) ? m_nProjectiles : m_nProjectiles % 10;
 	XMFLOAT3 objectPosition = GetPosition();
 	objectPosition.y += 8.0f;
@@ -2266,7 +2310,7 @@ void Priest::SecondSkillDown()
 void Priest::StartEffect(int nSkillNum)
 {
 	m_pHealRange->m_bActive = true;
-	g_sound.Play("HealSound", 1.0);
+	g_sound.Play("HealSound", CalculateDistanceSound()-0.2);
 	UpdateEffect();
 }
 
@@ -2341,7 +2385,7 @@ void Priest::ExecuteSkill_E()
 Monster::Monster() : Character()
 {
 	m_fHp = 100.0f;
-	m_fMaxHp = 2500;
+	m_fMaxHp = 6500.0f;
 }
 
 Monster::~Monster()
@@ -2825,6 +2869,7 @@ void TrailObject::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLis
 NormalMonster::NormalMonster() : Character()
 {
 	m_fHp = 100.000f;
+	m_fMaxHp = 150.0f;
 	m_fSpeed = 30.0f;
 }
 
@@ -2957,7 +3002,7 @@ void NormalMonster::SetAnimation()
 	{
 		if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CA_ATTACK)
 		{
-			g_sound.NoLoopPlay("NormalMonsterAttackSound", 1.0f);
+			g_sound.NoLoopPlay("NormalMonsterAttackSound", CalculateDistanceSound());
 			NextAnimations = { CharacterAnimation::CA_ATTACK, CharacterAnimation::CA_ATTACK };
 			m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_fPosition = -ANIMATION_CALLBACK_EPSILON;
 		}
@@ -3336,7 +3381,7 @@ std::pair<float, XMFLOAT3> Character::GetNormalVectorSphere(const XMFLOAT3& poin
 IceLance::IceLance() : Projectile()
 {
 	m_HostRole = ROLE::PRIEST;
-	m_fSpeed = 75.0f;
+	m_fSpeed = 100.0f;
 }
 
 IceLance::~IceLance()
@@ -3347,5 +3392,35 @@ void IceLance::Animate(float fTimeElapsed)
 {
 	if (m_bActive == false) return;
 	SetLook(m_xmf3direction);
+	XMFLOAT3 xmf3Direction = Vector3::Normalize(m_xmf3direction);
+	Move(xmf3Direction, fTimeElapsed * m_fSpeed);
+}
+
+RockSpike::RockSpike()
+{
+	m_xmf3direction = XMFLOAT3(0.0f, -1.0f, 0.0f);
+	m_fSpeed = 50.0f;
+
+}
+
+RockSpike::~RockSpike()
+{
+}
+
+void RockSpike::Move(XMFLOAT3 dir, float fDistance)
+{
+	XMFLOAT3 xmf3Position = GetPosition();
+	xmf3Position = Vector3::Add(xmf3Position, dir, fDistance);
+	if (xmf3Position.y < 0.0f)
+	{
+		m_bActive = false;
+		return;
+	}
+	GameObject::SetPosition(xmf3Position);
+}
+
+void RockSpike::Animate(float fTimeElapsed)
+{
+	if (m_bActive == false) return;
 	Move(m_xmf3direction, fTimeElapsed * m_fSpeed);
 }

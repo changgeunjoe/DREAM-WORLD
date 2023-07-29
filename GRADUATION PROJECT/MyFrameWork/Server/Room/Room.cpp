@@ -780,10 +780,11 @@ void Room::SetMeteo()
 	static std::random_device rd;
 	static std::default_random_engine dre;
 	static std::uniform_real_distribution<float> positionRand(-300, 300);
+	static std::uniform_real_distribution<float> positionYRand(200, 500);
 	static std::uniform_real_distribution<float> speedRand(100, 250);
 
 	for (int i = 0; i < 10; i++) {
-		XMFLOAT3 pos = XMFLOAT3(positionRand(dre), positionRand(dre), positionRand(dre));
+		XMFLOAT3 pos = XMFLOAT3(positionRand(dre), positionYRand(dre), positionRand(dre));
 		float speed = speedRand(dre);
 		m_meteos[i].SetStart(speed, pos);
 	}

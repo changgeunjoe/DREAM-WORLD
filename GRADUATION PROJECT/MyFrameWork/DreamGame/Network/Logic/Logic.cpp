@@ -34,6 +34,7 @@ Logic::~Logic()
 void Logic::ProcessPacket(char* p)
 {
 	static XMFLOAT3 upVec = XMFLOAT3(0, 1, 0);
+	if (GameEnd) return;
 	switch (p[2])
 	{
 	case SERVER_PACKET::MOVE_KEY_DOWN:
@@ -237,7 +238,7 @@ void Logic::ProcessPacket(char* p)
 			float maxHp = smallMonsterArr[i]->GetMaxHP();
 			smallMonsterArr[i]->SetCurrentHP(recvPacket->smallMonster[i].hp / maxHp * 100.0f);
 			if(recvPacket->smallMonster[i].hp == 150)
-			smallMonsterArr[i]->SetTempHp(recvPacket->smallMonster[i].hp / maxHp * 100.0f);
+				smallMonsterArr[i]->SetTempHp(recvPacket->smallMonster[i].hp / maxHp * 100.0f);
 			smallMonsterArr[i]->SetAliveState(recvPacket->smallMonster[i].isAlive);
 
 		}
@@ -258,13 +259,13 @@ void Logic::ProcessPacket(char* p)
 	{
 		//std::cout << "ProcessPacket()::SERVER_PACKET::GAME_STATE" << std::endl;
 		SERVER_PACKET::GameState_BOSS* recvPacket = reinterpret_cast<SERVER_PACKET::GameState_BOSS*>(p);
-		if (recvPacket->bossState.hp != 2500) {
-			//std::cout << "ProcessPacket()::SERVER_PACKET::GAME_STATE - Boss HP: " << recvPacket->bossState.hp << std::endl;
-
-		}
 		Monster* bossMonster = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster();
-		bossMonster->m_UIScale = static_cast<float>(recvPacket->bossState.hp) / 250.0f;//maxHp 2500입니다
-		bossMonster->SetCurrentHP(static_cast<float>(recvPacket->bossState.hp) / 25.0f);//maxHp 2500입니다
+		float fMaxHp = bossMonster->GetMaxHP();
+
+		bossMonster->m_UIScale = static_cast<float>(recvPacket->bossState.hp) / fMaxHp * 100.0f;//maxHp 2500입니다
+		bossMonster->SetCurrentHP(static_cast<float>(recvPacket->bossState.hp) / fMaxHp * 100.0f);//maxHp 2500입니다
+		if (recvPacket->bossState.hp == 6500)
+			bossMonster->SetTempHp(recvPacket->bossState.hp / fMaxHp * 100.0f);
 
 		//bossMonster->m_desDirecionVec = recvPacket->bossState.moveVec;
 		//bossMonster->m_serverDesDirecionVec = recvPacket->bossState.desVec;
@@ -299,55 +300,75 @@ void Logic::ProcessPacket(char* p)
 			switch (recvPacket->bossAttackType)
 			{
 			case BOSS_ATTACK::ATTACK_PUNCH:
+			{
 				if (bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation != BOSS_ANIMATION::BA_RIGHT_PUNCH)
 				{
 					bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_RIGHT_PUNCH;
 					bossMonster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_RIGHT_PUNCH, 2);
 				}
-				break;
+			}
+			break;
 			case BOSS_ATTACK::ATTACK_SPIN:
+			{
 				if (bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation != BOSS_ANIMATION::BA_SPIN_ATTACK)
 				{
 					bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_SPIN_ATTACK;
 					bossMonster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_SPIN_ATTACK, 2);
 				}
-				break;
+			}
+			break;
 			case BOSS_ATTACK::ATTACK_KICK:
+			{
 				if (bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation != BOSS_ANIMATION::BA_KICK_ATTACK)
 				{
 					bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_KICK_ATTACK;
 					bossMonster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_KICK_ATTACK, 2);
 				}
-				break;
-			case BOSS_ATTACK::SKILL_DASH:
-				if (bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation != BOSS_ANIMATION::BA_DASH_SKILL)
-				{
-					bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_DASH_SKILL;
-					bossMonster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_DASH_SKILL, 2);
-					XMFLOAT3 xmf3BossPos = bossMonster->GetPosition();
-					XMFLOAT3 xmf3BossLook = bossMonster->GetLook();
-					XMFLOAT3 xmf3SkillPos = Vector3::Add(xmf3BossPos, xmf3BossLook, 160.0f);	// 보스가 스킬 써서 이동하는 거리의 1/2만큼 이동
-					static_cast<Monster*>(bossMonster)->m_pSkillRange->m_bActive = true;
-					static_cast<Monster*>(bossMonster)->m_pSkillRange->SetPosition(xmf3SkillPos);
-				}
-				break;
-			case BOSS_ATTACK::SKILL_PUNCH:
-				if (bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation != BOSS_ANIMATION::BA_PUNCHING_SKILL)
-				{
-					bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_PUNCHING_SKILL;
-					bossMonster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_PUNCHING_SKILL, 2);
-				}
-				break;
-			case BOSS_ATTACK::SKILL_CASTING:
+			}
+			break;
+			//case BOSS_ATTACK::SKILL_DASH:
+			//{
+			//	if (bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation != BOSS_ANIMATION::BA_DASH_SKILL)
+			//	{
+			//		bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_DASH_SKILL;
+			//		bossMonster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_DASH_SKILL, 2);
+			//		XMFLOAT3 xmf3BossPos = bossMonster->GetPosition();
+			//		XMFLOAT3 xmf3BossLook = bossMonster->GetLook();
+			//		XMFLOAT3 xmf3SkillPos = Vector3::Add(xmf3BossPos, xmf3BossLook, 160.0f);	// 보스가 스킬 써서 이동하는 거리의 1/2만큼 이동
+			//		static_cast<Monster*>(bossMonster)->m_pSkillRange->m_bActive = true;
+			//		static_cast<Monster*>(bossMonster)->m_pSkillRange->SetPosition(xmf3SkillPos);
+			//	}
+			//}
+			//	break;
+			//case BOSS_ATTACK::SKILL_PUNCH:
+			//{
+			//	if (bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation != BOSS_ANIMATION::BA_PUNCHING_SKILL)
+			//	{
+			//		bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_PUNCHING_SKILL;
+			//		bossMonster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_PUNCHING_SKILL, 2);
+			//	}
+			//}
+			//break;
+			//case BOSS_ATTACK::SKILL_CASTING:
+			//{
+			//	if (bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation != BOSS_ANIMATION::BA_CAST_SPELL)
+			//	{
+			//		bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_CAST_SPELL;
+			//		bossMonster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_CAST_SPELL, 2);
+			//	}
+			//}
+			//break;
+			case BOSS_ATTACK::ATTACK_FLOOR_BOOM:
+			{
 				if (bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation != BOSS_ANIMATION::BA_CAST_SPELL)
 				{
 					bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_CAST_SPELL;
 					bossMonster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_CAST_SPELL, 2);
+					bossMonster->m_pSkillRange->m_bActive = true;
+					bossMonster->m_pSkillRange->m_bBossSkillActive = true;
+					bossMonster->m_pSkillRange->m_fBossSkillTime = gGameFramework.GetScene()->GetObjectManager()->GetTotalProgressTime();
+					bossMonster->m_pSkillRange->SetPosition(bossMonster->GetPosition());
 				}
-				break;
-			case BOSS_ATTACK::FIRE_FLOOR_BOOM:
-			{
-
 			}
 			break;			
 			}
@@ -506,7 +527,11 @@ void Logic::ProcessPacket(char* p)
 		for (int i = 0; i < 4; i++) {
 			Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo((ROLE)recvPacket->applyShieldPlayerInfo[i].role);
 			if (possessObj)
-				possessObj->SetShield(recvPacket->applyShieldPlayerInfo[i].shield);
+			{
+				possessObj->SetShield(recvPacket->applyShieldPlayerInfo[i].shield);	//최대 실드 200
+				possessObj->m_pHPBarUI->SetShield(recvPacket->applyShieldPlayerInfo[i].shield / possessObj->GetMaxHP() * 100.0f);
+				possessObj->m_pHPBarUI->SetCurrentHP(possessObj->GetCurrentHP() / possessObj->GetMaxHP() * 100.0f);
+			}
 		}
 	}
 	break;
@@ -642,24 +667,45 @@ void Logic::ProcessPacket(char* p)
 	case SERVER_PACKET::METEO_PLAYER_ATTACK:
 	{
 		SERVER_PACKET::BossAttackPlayerPacket* recvPacket = reinterpret_cast<SERVER_PACKET::BossAttackPlayerPacket*>(p);
-		recvPacket->currentHp;//플레이어 본인 피격 후, 체력
+		GameObject* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo(GetMyRole());
+		if (possessObj != nullptr) {
+			float maxHp = possessObj->GetMaxHP();
+			possessObj->SetCurrentHP(recvPacket->currentHp / maxHp * 100.0f);
+		}
 	}
 	break;
 	case SERVER_PACKET::METEO_DESTROY:
 	{
 		SERVER_PACKET::DestroyedMeteoPacket* recvPacket = reinterpret_cast<SERVER_PACKET::DestroyedMeteoPacket*>(p);
-		recvPacket->idx;//이 메테오 비지블 off
+		vector<RockSpike*> ppRockSpike = gGameFramework.GetScene()->GetObjectManager()->GetRockSpikeArr();
+		if (ppRockSpike[recvPacket->idx] != nullptr)
+			ppRockSpike[recvPacket->idx]->m_bActive = false;
+		//이 메테오 비지블 off
 	}
 	break;
 	case SERVER_PACKET::METEO_CREATE:
 	{
 		SERVER_PACKET::MeteoStartPacket* recvPacket = reinterpret_cast<SERVER_PACKET::MeteoStartPacket*>(p);
 		Monster* bossMonster = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster();
+		vector<RockSpike*> ppRockSpike = gGameFramework.GetScene()->GetObjectManager()->GetRockSpikeArr();
 		bossMonster->SetMoveState(false);
 		//보스 이동 멈추고 애니메이션 실행해주세요.
+		if (bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation != BOSS_ANIMATION::BA_CAST_SPELL)
+		{
+			bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_CAST_SPELL;
+			bossMonster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_CAST_SPELL, 2);
+		}
 		for (int i = 0; i < 10; i++) {
-			recvPacket->meteoInfo[i].pos;//i번째 메테오 시작 포지션
-			recvPacket->meteoInfo[i].speed;//i번째 메테오 스피드
+			if (ppRockSpike[i] == nullptr) continue;
+			if (ppRockSpike[i]->m_bActive == true) continue;
+			XMFLOAT3 rockPosition = recvPacket->meteoInfo[i].pos;
+			ppRockSpike[i]->m_bActive = true;
+			ppRockSpike[i]->SetPosition(rockPosition);
+			ppRockSpike[i]->SetSpeed(recvPacket->meteoInfo[i].speed);
+			rockPosition.y = 0.1;
+
+			if (ppRockSpike[i]->m_pAttackedArea != nullptr)
+				ppRockSpike[i]->m_pAttackedArea->SetPosition(rockPosition);
 		}
 	}
 	break;

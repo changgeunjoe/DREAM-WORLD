@@ -23,7 +23,7 @@ MonsterSessionObject::MonsterSessionObject() : SessionObject(30.0f)
 	m_onIdx = g_bossMapData.GetFirstIdxs();
 }
 
-MonsterSessionObject::MonsterSessionObject(int roomId) :SessionObject()
+MonsterSessionObject::MonsterSessionObject(int roomId) :SessionObject(30.0f)
 {
 	m_speed = 50.0f;
 	m_maxHp = m_hp = 6500.0f;
