@@ -177,6 +177,7 @@ void ChracterSessionObject::SetShield(bool active)
 
 bool ChracterSessionObject::Move(float elapsedTime)
 {
+	if (GetHp() < FLT_EPSILON) return false;
 	if (m_applyDirection != DIRECTION::IDLE)
 	{
 #ifdef _DEBUG

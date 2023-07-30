@@ -130,49 +130,45 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	//	AddDamageFontToUiLayer();
 	//}
 	//Effect
-	//if (m_bPickingenemy) {
-	//	if (m_pSelectedObject != nullptr) {
-	//		if (g_Logic.GetMyRole() == ROLE::PRIEST) {
+	if (m_bPickingenemy) {
+		if (m_pSelectedObject != nullptr) {
+			if (g_Logic.GetMyRole() == ROLE::PRIEST) {
 
-	//			m_pLightEffectObject->AnimateEffect(m_pCamera, XMFLOAT3(m_pSelectedObject->GetPosition().x,
-	//				m_pSelectedObject->GetPosition().y + 10, m_pSelectedObject->GetPosition().z), fTimeElapsed, m_fTime * 5);
-	//			m_pLightningSpriteObject->SetPosition(XMFLOAT3(
-	//				m_pSelectedObject->GetPosition().x,
-	//				m_pSelectedObject->GetPosition().y + 50,
-	//				m_pSelectedObject->GetPosition().z));
+				m_pLightEffectObject->AnimateEffect(m_pCamera, XMFLOAT3(m_pSelectedObject->GetPosition().x,
+					m_pSelectedObject->GetPosition().y + 10, m_pSelectedObject->GetPosition().z), fTimeElapsed, m_fTime * 5);
+				m_pLightningSpriteObject->SetPosition(XMFLOAT3(
+					m_pSelectedObject->GetPosition().x,
+					m_pSelectedObject->GetPosition().y + 50,
+					m_pSelectedObject->GetPosition().z));
 
-	//			m_pLightEffectObject->m_fEffectLifeTime = 2.0f;
+				for (auto p : m_pLightEffectObject->m_ppParticleObjects)
+				{
+					p->SetPosition(m_pLightningSpriteObject->GetPosition());
+				}
 
-	//			m_pLightningSpriteObject->m_bActive = m_pLightEffectObject->m_bActive = true;
-	//			XMFLOAT3 TargetPosition = m_pSelectedObject->GetPosition();
-	//			g_NetworkHelper.Send_SkillExecute_E(TargetPosition);
-	//			g_sound.Play("LightningSound", m_pLightningSpriteObject->CalculateDistanceSound() + 0.3);
-	//		}
-	//	//	m_bPickingenemy = false;
-	//	}
-	//	//m_pEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 10);
-	//	//라이트닝
+				m_pLightEffectObject->m_fEffectLifeTime = 3.0f;
 
-	//	//m_pLightningSpriteObject->SetScale(7.0f, 20.0f, 7.0f);
-	//	//m_pSheildEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 10);
-	//}
+				m_pLightningSpriteObject->m_bActive = m_pLightEffectObject->m_bActive = true;
+				XMFLOAT3 TargetPosition = m_pSelectedObject->GetPosition();
+				g_NetworkHelper.Send_SkillExecute_E(TargetPosition);
+				g_sound.NoLoopPlay("LightningSound", m_pLightningSpriteObject->CalculateDistanceSound() + 0.3);
+			}
+			m_bPickingenemy = false;
+		}
+	}
 
-	//if (m_pLightEffectObject) {
-	//	m_pLightEffectObject->SetActive(m_pLightEffectObject->m_bActive);
-	//	if (m_pLightEffectObject->m_bActive) {
-	//		if (m_pLightEffectObject->m_fEffectLifeTime > FLT_EPSILON) {	
-	//			m_pLightEffectObject->AnimateEffect(m_pCamera, m_LightningTargetPos, fTimeElapsed, m_fTime * 10);
-	//			m_pLightningSpriteObject->SetPosition(XMFLOAT3(
-	//				//				m_pSelectedObject->GetPosition().x,
-	//				//				m_pSelectedObject->GetPosition().y + 50,
-	//				//				m_pSelectedObject->GetPosition().z));
-	//			m_pLightningSpriteObject->m_bActive = m_pLightEffectObject->m_bActive;
-	//			if (m_pLightEffectObject->m_bActive == false) {
-	//				m_pSelectedObject = nullptr;
-	//			}
-	//		}
-	//	}
-	//}
+	if (m_pLightEffectObject) {
+		if (m_pLightEffectObject->m_bActive) {
+			if (m_pLightEffectObject->m_fEffectLifeTime > FLT_EPSILON) {
+				m_pLightEffectObject->SetActive(m_pLightEffectObject->m_bActive);
+				m_pLightEffectObject->AnimateEffect(m_pCamera, m_LightningTargetPos, fTimeElapsed, m_fTime * 10);
+				m_pLightningSpriteObject->m_bActive = m_pLightEffectObject->m_bActive;
+				if (m_pLightEffectObject->m_bActive == false) {
+					m_pSelectedObject = nullptr;
+				}
+			}
+		}
+	}
 
 	for (auto& effect : m_ppShieldEffectObject)
 	{
@@ -614,7 +610,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	{
 		if (m_pBossSkillRange->m_bActive)
 		{
-			if (m_fTime - m_pBossSkillRange->m_fBossSkillTime > 6.0f)
+			if (m_fTime - m_pBossSkillRange->m_fBossSkillTime > 2.0f)
 				m_pBossSkillRange->m_bActive = false;
 			m_pBossSkillRange->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		}
@@ -1208,7 +1204,7 @@ void GameobjectManager::BuildBossStageObject(ID3D12Device* pd3dDevice, ID3D12Gra
 		pRockSpikeObject->SetPosition(XMFLOAT3(0.0f, 0.0f, 0.0f));
 		pRockSpikeObject->SetModel(RockSpikeModel);
 		pRockSpikeObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-		pRockSpikeObject->SetScale(50.0f, 50.0f, 50.0f);
+		pRockSpikeObject->SetScale(100.0f, 100.0f, 100.0f);
 		XMFLOAT3 right = XMFLOAT3(1.0f, 0.0f, 0.0f);
 		pRockSpikeObject->Rotate(&right, 90.0f);
 		pRockSpikeObject->m_bActive = false;
@@ -1217,7 +1213,7 @@ void GameobjectManager::BuildBossStageObject(ID3D12Device* pd3dDevice, ID3D12Gra
 		pBossSkillRange->InsertComponent<RenderComponent>();
 		pBossSkillRange->InsertComponent<SquareMeshComponent>();
 		pBossSkillRange->InsertComponent<BossSkillShaderComponent>();
-		pBossSkillRange->SetSkillSize(10.0f);
+		pBossSkillRange->SetSkillSize(20.0f);
 		pBossSkillRange->m_iObjType = 1;
 		pBossSkillRange->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		pBossSkillRange->SetPosition(XMFLOAT3(0, 0.1, 0));
@@ -2624,8 +2620,8 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			{
 				myPlayCharacter->FirstSkillDown();
 			}
-			break;
 		}
+		break;
 		case 'E':
 		{
 			if (myPlayCharacter->GetESkillState() == false && myPlayCharacter->GetOnAttack() == false)
@@ -2650,8 +2646,8 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 				}
 
 			}
-			break;
 		}
+		break;
 		case 'O':
 		{
 #ifdef  LOCAL_TASK
@@ -2756,21 +2752,12 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		break;
 		case 'Q':
 		{
-			//g_Logic.m_KeyInput->m_bQKey = false;
-			myPlayCharacter->FirstSkillUp();
-			break;
 		}
+		break;
 		case 'E':
 		{
-			//g_Logic.m_KeyInput->m_bEKey = false;
-			myPlayCharacter->SecondSkillUp(myPlayCharacter->GetRotateAxis());
-
-			if (myPlayCharacter == GetChracterInfo(ROLE::ARCHER))
-			{
-				//g_NetworkHelper.SendSkillStatePacket(myPlayCharacter->GetQSkillState(), false);
-			}
-			break;
 		}
+		break;
 		//NPC와 대화하거나 포털들어갈 때 상호작용 키
 		case 'G':
 		{
@@ -2781,13 +2768,13 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 				m_bNPCinteraction = true;
 			}
 			CheckCollidePortal();
-			break;
 		}
+		break;
 		case 'H':
 		{
 			m_bSkipText = true;
-			break;
 		}
+		break;
 		case 'V':
 		{
 			m_bNPCinteraction = true;
@@ -3223,6 +3210,8 @@ void GameobjectManager::ResetObject()
 		if (m_ppProjectileObjects[i] == nullptr) continue;
 		m_ppProjectileObjects[i]->Reset();
 	}
+	m_bPickingenemy = false;
+	m_pSelectedObject = nullptr;
 
 	SetCharactersLobbyPosition();
 	m_pCamera->ReInitCamrea();

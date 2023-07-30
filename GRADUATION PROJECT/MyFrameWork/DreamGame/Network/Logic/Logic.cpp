@@ -371,7 +371,9 @@ void Logic::ProcessPacket(char* p)
 					bossMonster->m_pSkillRange->m_bActive = true;
 					bossMonster->m_pSkillRange->m_bBossSkillActive = true;
 					bossMonster->m_pSkillRange->m_fBossSkillTime = gGameFramework.GetScene()->GetObjectManager()->GetTotalProgressTime();
-					bossMonster->m_pSkillRange->SetPosition(bossMonster->GetPosition());
+					XMFLOAT3 BossPosition = bossMonster->GetPosition();
+					BossPosition.y = 0.2f;
+					bossMonster->m_pSkillRange->SetPosition(BossPosition);
 				}
 			}
 			break;			
@@ -501,15 +503,29 @@ void Logic::ProcessPacket(char* p)
 	case SERVER_PACKET::SHIELD_START:
 	{
 		//쉴드 이펙트 출발 해서 적용
-		Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::TANKER);
-		possessObj->StartEffect(0);
+		Character* TankerObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::TANKER);
+		TankerObj->StartEffect(0);
+
+		for (int i = 0; i < 4; ++i)
+		{
+			Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(static_cast<ROLE>(0x01 << i));
+			possessObj->SetShield(200.0f);
+			possessObj->m_pHPBarUI->SetShield(200.0f);
+		}
 	}
 	break;
 	case SERVER_PACKET::SHIELD_END:
 	{
 		//쉴드 끝
-		Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::TANKER);
-		possessObj->EndEffect(0);
+		Character* TankerObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::TANKER);
+		TankerObj->EndEffect(0);
+
+		for (int i = 0; i < 4; ++i)
+		{
+			Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(static_cast<ROLE>(0x01 << i));
+			possessObj->SetShield(0.0f);
+			possessObj->m_pHPBarUI->SetShield(0.0f);
+		}
 	}
 	break;
 	case SERVER_PACKET::NOTIFY_HEAL_HP:
@@ -529,6 +545,7 @@ void Logic::ProcessPacket(char* p)
 	{
 		SERVER_PACKET::NotifyShieldPacket* recvPacket = reinterpret_cast<SERVER_PACKET::NotifyShieldPacket*>(p);
 		for (int i = 0; i < 4; i++) {
+			if (recvPacket->applyShieldPlayerInfo[i].shield < FLT_EPSILON) continue;
 			Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo((ROLE)recvPacket->applyShieldPlayerInfo[i].role);
 			if (possessObj)
 			{
@@ -673,7 +690,7 @@ void Logic::ProcessPacket(char* p)
 			g_sound.Play(sound, ppRockSpike[i]->CalculateDistanceSound()*0.65);
 		}
 		if (ppRockSpike[recvPacket->idx] != nullptr)
-		ppRockSpike[recvPacket->idx]->m_bActive = false;
+			ppRockSpike[recvPacket->idx]->m_bActive = false;
 		//이 메테오 비지블 off
 	}
 	break;
@@ -697,7 +714,7 @@ void Logic::ProcessPacket(char* p)
 			ppRockSpike[i]->m_bActive = true;
 			ppRockSpike[i]->SetPosition(rockPosition);
 			ppRockSpike[i]->SetSpeed(recvPacket->meteoInfo[i].speed);
-			rockPosition.y = 0.1;
+			rockPosition.y = 0.2;
 
 			if (ppRockSpike[i]->m_pAttackedArea != nullptr)
 				ppRockSpike[i]->m_pAttackedArea->SetPosition(rockPosition);

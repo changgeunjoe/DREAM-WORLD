@@ -51,6 +51,7 @@ Room::Room() :m_boss(MonsterSessionObject(m_roomId))
 
 		m_meteos[i].SetId(i);
 		m_meteos[i].SetRoomId(m_roomId);
+		m_meteos[i].InitSetDamage();
 	}
 	for (int i = 0; i < 3; i++) {
 		m_skillarrow[i];
@@ -632,7 +633,7 @@ void Room::BossAttackExecute()
 			bossToPlayerVector = Vector3::Normalize(bossToPlayerVector);
 			float dotProductRes = Vector3::DotProduct(bossToPlayerVector, m_boss.GetDirectionVector());
 			if (bossToPlayerDis < 60.0f && abs(dotProductRes) >= MONSTER_ABLE_ATTACK_COS_VALUE) {// 15 + 15 도 총 30도 내에 있다면
-				//playCharater.second->AttackedHp(40);
+				playCharater.second->AttackedHp(40);
 				sendPacket.currentHp = playCharater.second->GetHp();
 				g_logic.OnlySendPlayerInRoom_R(m_roomId, playCharater.first, &sendPacket);
 			}
@@ -647,7 +648,7 @@ void Room::BossAttackExecute()
 			bossToPlayerVector = Vector3::Normalize(bossToPlayerVector);
 			float dotProductRes = Vector3::DotProduct(bossToPlayerVector, m_boss.GetDirectionVector());
 			if (bossToPlayerDis < 50.0f && abs(dotProductRes) >= MONSTER_ABLE_ATTACK_COS_VALUE) { // 15 + 15 도 총 30도 내에 있다면
-				//playCharater.second->AttackedHp(20);
+				playCharater.second->AttackedHp(20);
 				sendPacket.currentHp = playCharater.second->GetHp();
 				g_logic.OnlySendPlayerInRoom_R(m_roomId, playCharater.first, &sendPacket);
 			}
@@ -660,7 +661,7 @@ void Room::BossAttackExecute()
 			auto bossToPlayerVector = Vector3::Subtract(playCharater.second->GetPos(), m_boss.GetPos());
 			float bossToPlayerDis = Vector3::Length(bossToPlayerVector);
 			if (bossToPlayerDis < 45.0f) {
-				//playCharater.second->AttackedHp(15);
+				playCharater.second->AttackedHp(15);
 				sendPacket.currentHp = playCharater.second->GetHp();
 				g_logic.OnlySendPlayerInRoom_R(m_roomId, playCharater.first, &sendPacket);
 			}
@@ -673,7 +674,7 @@ void Room::BossAttackExecute()
 			auto bossToPlayerVector = Vector3::Subtract(playCharater.second->GetPos(), m_boss.GetPos());
 			float bossToPlayerDis = Vector3::Length(bossToPlayerVector);
 			if (50.0f <= bossToPlayerDis && bossToPlayerDis <= 70.0f) {
-				//playCharater.second->AttackedHp(15);
+				playCharater.second->AttackedHp(15);
 				sendPacket.currentHp = playCharater.second->GetHp();
 				g_logic.OnlySendPlayerInRoom_R(m_roomId, playCharater.first, &sendPacket);
 			}
@@ -687,7 +688,7 @@ void Room::BossAttackExecute()
 			auto bossToPlayerVector = Vector3::Subtract(playCharater.second->GetPos(), m_boss.GetPos());
 			float bossToPlayerDis = Vector3::Length(bossToPlayerVector);
 			if (bossToPlayerDis <= 50.0f) {
-				//playCharater.second->AttackedHp(15);
+				playCharater.second->AttackedHp(15);
 				sendPacket.currentHp = playCharater.second->GetHp();
 				g_logic.OnlySendPlayerInRoom_R(m_roomId, playCharater.first, &sendPacket);
 			}
@@ -742,7 +743,20 @@ void Room::StartHealPlayerCharacter()
 
 void Room::UpdateShieldData()
 {
-	if (m_characterMap[ROLE::TANKER]->IsDurationEndTimeSkill_1()) RemoveBarrier();
+	if (m_characterMap[ROLE::TANKER]->IsDurationEndTimeSkill_1()) 
+		RemoveBarrier();
+	else {
+		SERVER_PACKET::NotifyShieldPacket sendPacket;
+		sendPacket.size = sizeof(SERVER_PACKET::NotifyShieldPacket);
+		sendPacket.type = SERVER_PACKET::NOTIFY_SHIELD_APPLY;
+		int i = 0;
+		for (auto& playCharcter : m_characterMap) {
+			sendPacket.applyShieldPlayerInfo[i].shield = playCharcter.second->GetShield();
+			sendPacket.applyShieldPlayerInfo[i].role = playCharcter.first;
+			++i;
+		}
+		g_logic.BroadCastInRoom(m_roomId, &sendPacket);
+	}
 }
 
 void Room::PutBarrierOnPlayer()
@@ -750,16 +764,6 @@ void Room::PutBarrierOnPlayer()
 	for (auto& p : m_characterMap) {
 		p.second->SetShield(true);
 	}
-	SERVER_PACKET::NotifyShieldPacket sendPacket;
-	sendPacket.size = sizeof(SERVER_PACKET::NotifyShieldPacket);
-	sendPacket.type = SERVER_PACKET::NOTIFY_SHIELD_APPLY;
-	int i = 0;
-	for (auto& playCharcter : m_characterMap) {
-		sendPacket.applyShieldPlayerInfo[i].shield = playCharcter.second->GetShield();
-		sendPacket.applyShieldPlayerInfo[i].role = playCharcter.first;
-		++i;
-	}
-	g_logic.BroadCastInRoom(m_roomId, &sendPacket);
 }
 
 void Room::RemoveBarrier()

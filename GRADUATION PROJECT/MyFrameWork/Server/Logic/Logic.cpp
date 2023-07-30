@@ -315,7 +315,6 @@ void Logic::ProcessPacket(int userId, char* p)
 		sendPacket.type = SERVER_PACKET::START_ANIMATION_E;
 		sendPacket.role = g_iocpNetwork.m_session[userId].GetRole();
 		MultiCastOtherPlayerInRoom_R(roomRef.GetRoomId(), g_iocpNetwork.m_session[userId].GetRole(), &sendPacket);
-		roomRef.StopMovePlayCharacter(g_iocpNetwork.m_session[userId].GetRole());
 		if (g_iocpNetwork.m_session[userId].GetRole() == TANKER) {
 			roomRef.StopMovePlayCharacter(g_iocpNetwork.m_session[userId].GetRole());
 		}

@@ -7,7 +7,7 @@
 extern RoomManager g_RoomManager;
 extern IOCPNetwork g_iocpNetwork;
 
-MeteoSessionObject::MeteoSessionObject() :SessionObject(10.0f)
+MeteoSessionObject::MeteoSessionObject() :SessionObject(20.0f)
 {
 	m_position = XMFLOAT3(0, 150, 0);
 	m_directionVector = XMFLOAT3(0, -1, 0);

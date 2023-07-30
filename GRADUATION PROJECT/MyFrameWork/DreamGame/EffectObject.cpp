@@ -303,6 +303,10 @@ void LightningEffectObject::AnimateEffect(CCamera* pCamera, XMFLOAT3 xm3position
 		{
 			p->m_bActive = false;
 		}
+		for (auto p : m_ppParticleObjects)
+		{
+			p->m_bActive = false;
+		}
 		m_bActive = false;
 		return;
 	}

@@ -166,12 +166,12 @@ void Character::VisualizeSkillCoolTime()
 	double QSkillDuration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[0]).count();
 	double QSkillCoolTime = std::chrono::duration_cast<std::chrono::seconds>(m_skillCoolTime[0]).count();
 	if(QSkillCoolTime > DBL_EPSILON)
-		m_pSkillQUI->SetSkillTime(QSkillDuration / QSkillCoolTime);
+		m_pSkillQUI->SetSkillTime(1 - (QSkillDuration / QSkillCoolTime));
 
 	double ESkillDuration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[1]).count();
-	double ESkillCoolTime = std::chrono::duration_cast<std::chrono::seconds>(m_skillCoolTime[0]).count();
+	double ESkillCoolTime = std::chrono::duration_cast<std::chrono::seconds>(m_skillCoolTime[1]).count();
 	if (ESkillCoolTime > DBL_EPSILON)
-		m_pSkillEUI->SetSkillTime(ESkillDuration / ESkillCoolTime);
+		m_pSkillEUI->SetSkillTime(1 - (ESkillDuration / ESkillCoolTime));
 }
 
 bool Character::CheckAnimationEnd(int nAnimation)
@@ -210,6 +210,7 @@ void Character::MoveForward(int forwardDirection, float ftimeElapsed)
 		}
 #endif
 		xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, 10.0f * m_interpolationDistance * ftimeElapsed);
+		xmf3Position.y = 0.0f;
 		GameObject::SetPosition(xmf3Position);
 #ifdef CHARCTER_MOVE_LOG
 		if (m_interpolationDistance > DBL_EPSILON) {
@@ -223,6 +224,7 @@ void Character::MoveForward(int forwardDirection, float ftimeElapsed)
 	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, 10.0f * m_interpolationDistance * ftimeElapsed);
 
 	g_sound.Play("WalkSound", CalculateDistanceSound());
+	xmf3Position.y = 0.0f;
 	GameObject::SetPosition(xmf3Position);
 	if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
 	return;
@@ -239,6 +241,7 @@ void Character::MoveStrafe(int rightDirection, float ftimeElapsed)
 		xmf3Position = GetPosition();
 
 		xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, 10.0f * m_interpolationDistance * ftimeElapsed);
+		xmf3Position.y = 0.0f;
 		GameObject::SetPosition(xmf3Position);
 
 		return;
@@ -247,6 +250,7 @@ void Character::MoveStrafe(int rightDirection, float ftimeElapsed)
 
 	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, 10.0f * m_interpolationDistance * ftimeElapsed);
 	g_sound.Play("WalkSound", CalculateDistanceSound());
+	xmf3Position.y = 0.0f;
 	GameObject::SetPosition(xmf3Position);
 	if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
 	return;
@@ -267,7 +271,7 @@ void Character::MoveDiagonal(int fowardDirection, int rightDirection, float ftim
 		xmf3Position = GetPosition();
 
 		xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, 10.0f * m_interpolationDistance * ftimeElapsed);
-
+		xmf3Position.y = 0.0f;
 		GameObject::SetPosition(xmf3Position);
 		return;
 	}
@@ -275,6 +279,7 @@ void Character::MoveDiagonal(int fowardDirection, int rightDirection, float ftim
 
 	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, 10.0f * m_interpolationDistance * ftimeElapsed);
 	g_sound.Play("WalkSound", CalculateDistanceSound());
+	xmf3Position.y = 0.0f;
 	SetPosition(xmf3Position);
 	if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
 }
@@ -1593,7 +1598,6 @@ void Archer::ShootArrow()//스킬
 void Archer::ShootArrow(const XMFLOAT3& xmf3Direction)
 {
 	// 플레이어 캐릭터가 아닐 때
-	cout << "Shoot Arrow By Other Client" << endl;
 	m_nProjectiles = (m_nProjectiles < MAX_ARROW) ? m_nProjectiles : m_nProjectiles % MAX_ARROW;
 
 	if (m_bQSkillClicked == true)
@@ -2931,6 +2935,9 @@ void NormalMonster::Animate(float fTimeElapsed)
 	{
 		if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CA_DIE)
 		{
+			m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_DIE].m_fProgressRate = 0.0f;
+			m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_DIE].m_fPosition = -ANIMATION_CALLBACK_EPSILON;
+			m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_DIE]->m_fPosition = -ANIMATION_CALLBACK_EPSILON;
 			pair<CharacterAnimation, CharacterAnimation> NextAnimations = { CharacterAnimation::CA_DIE, CharacterAnimation::CA_DIE };
 			m_pSkinnedAnimationController->m_CurrentAnimations = NextAnimations;
 			m_pSkinnedAnimationController->SetTrackEnable(NextAnimations);
