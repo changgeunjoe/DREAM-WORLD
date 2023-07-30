@@ -39,7 +39,7 @@ public:
 	virtual void TrailAnimate(float fTimeElapsed);
 	virtual void StoryUIAnimate(float fTimeElapsed);
 	virtual void ConditionAnimate(float fTimeElapsed);
-	virtual void SceneSwapAnimate(float fTimeElapsed);
+	virtual void SceneSwapAnimate();
 	virtual void MonsterHpBarAnimate(float fTimeElapsed);
 	virtual void NormalMonsterConditionAnimate(float fTimeElapsed);
 	virtual void PlayerConditionAnimate(float fTimeElapsed);

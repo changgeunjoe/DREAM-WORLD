@@ -329,30 +329,29 @@ float4 PSUITextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
         }
 
     }
-    if (gmtxGameObjectColor.x == 0.06 && gmtxGameObjectColor.y == 0.05)//½ºÅ³ ÄðÅ¸ÀÓ
+    else if (gmtxGameObjectColor.x == 0.06 && gmtxGameObjectColor.y == 0.05)//½ºÅ³ ÄðÅ¸ÀÓ
     {
-        if (input.uv.y > 1 - gmtxGameObjectColor.w && cColor.w > 0.1)
+        if (input.uv.y > 1 - gmtxGameObjectColor.w && cColor.w > 0.5)
         {
         
             float4 f = float4(0.9, 0.9, 0.9, 1);
             return lerp(f, cColor, 0.5);
                // return float4(cColor.xyz, 0.3);
         }
-        else if (input.uv.y < 1 - gmtxGameObjectColor.w && cColor.w > 0.1)
+        else if (input.uv.y < 1 - gmtxGameObjectColor.w && cColor.w > 0.5)
         {
             return float4(cColor.xyz, 1);
         }   
-        else if (cColor.w < 0.1)
+        else if (cColor.w < 0.5)
         {
             return float4(cColor.xyz, 0.0);
         }      
     }
-    
+    else if (gmtxGameObjectColor.w != 0)//ÆäÀÌµåÀÎ ¾Æ¿ô
+        cColor.w = gmtxGameObjectColor.w;
     
 
-    //if (gmtxGameObjectColor.w !=0)
-    //    cColor.w= gmtxGameObjectColor.w;
-  //  cColor.w = 0.5;
+  
     if (!bUIActive && cColor.w!=0)
     {
         float4 f = float4(0.5, 0.5, 0.5, 0);
