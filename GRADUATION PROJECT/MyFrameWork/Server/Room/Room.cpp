@@ -1008,7 +1008,7 @@ void Room::ExecuteHammerAttack(DirectX::XMFLOAT3& dir, XMFLOAT3& pos)
 				sendPacket.type = SERVER_PACKET::PLAYER_ATTACK_RESULT_BOSS;
 				sendPacket.size = sizeof(SERVER_PACKET::PlayerAttackBossDamagePacket);
 				sendPacket.damage = 140.0f;
-				g_logic.OnlySendPlayerInRoom_R(m_roomId, ROLE::TANKER, &sendPacket);
+				g_logic.BroadCastInRoom(m_roomId, &sendPacket);
 				return;
 			}
 		}
@@ -1034,7 +1034,7 @@ void Room::ExecuteHammerAttack(DirectX::XMFLOAT3& dir, XMFLOAT3& pos)
 			sendPacket.monsterIdx[i] = (char)attackedMonster[i];
 		sendPacket.size = sizeof(SERVER_PACKET::PlayerAttackMonsterDamagePacket);
 		sendPacket.damage = 140.0f;
-		g_logic.OnlySendPlayerInRoom_R(m_roomId, ROLE::TANKER, &sendPacket);
+		g_logic.BroadCastInRoom(m_roomId, &sendPacket);
 	}
 }
 

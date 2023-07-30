@@ -1188,7 +1188,7 @@ void GameobjectManager::SetCharactersLobbyPosition()
 	m_pTankerObject->SetPosition(XMFLOAT3(-1400.f, 0.f, -1500.0f));
 	m_pTankerObject->Rotate(0.0f, -90.0f, 0.0f);
 
-	m_pAngelNPCObject->SetPosition(XMFLOAT3(-1264.9f, 0.f, -1448.1f));//
+	m_pAngelNPCObject->SetPosition(XMFLOAT3(-1264.9f, 0.f, -1448.1f));
 	m_pAngelNPCObject->Rotate(0, -120.959, 0);
 }
 
@@ -2707,7 +2707,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		break;
 		case 'E':
 		{
-			if (myPlayCharacter->GetQSkillState() == false && myPlayCharacter->GetOnAttack() == false
+			if (myPlayCharacter->GetESkillState() == false && myPlayCharacter->GetOnAttack() == false
 				&& !myPlayCharacter->GetLButtonClicked())
 			{
 				if (g_Logic.GetMyRole() == ROLE::PRIEST || g_Logic.GetMyRole() == ROLE::ARCHER)
