@@ -26,6 +26,7 @@ class Archer;
 class Tanker;
 class Priest;
 class TankerEffectObject;
+class BossEffectObject;
 class RockSpike;
 
 class GameobjectManager
@@ -238,6 +239,7 @@ private:
 	EffectObject* m_pPortalEffectObject{ NULL };
 	EffectObject* m_pPreistAttackEffectObject{ NULL };
 	TankerEffectObject* m_pTankerAttackEffectObject{ NULL };
+	BossEffectObject* m_pBossEgEffectObject{ NULL };
 
 	vector<GameObject*> m_ppEffectObjects{};
 
@@ -301,6 +303,7 @@ public:
 	EffectObject** GetShieldEffectArr() { return &m_ppShieldEffectObject[0]; }
 	EffectObject** GetHealingEffectArr() { return &m_ppHealingEffectObject[0]; }
 	TankerEffectObject* GetTankerAttackEffect() { return m_pTankerAttackEffectObject; }
+	
 	vector<RockSpike*>& GetRockSpikeArr() { return m_ppRockSpikeObjects; }
 	void SetCharactersStage1Postion();
 	void SetCharactersBossStagePostion();

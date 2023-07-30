@@ -400,8 +400,12 @@ void CNPCTextBlock::Update(const float& fTimeElapsed, bool& bInteraction, bool& 
 		wstring curTotalStr = m_qTotalText.front();
 		//m_strText.assign(m_strTotalText, 0, ++m_iIndex);
 		if (!m_bInitSentences) {
-			g_sound.NoLoopPlay("UISound", 0.6f);
+			
+			
 			m_strText.append(curTotalStr, m_iIndex++, 1);
+			if (curTotalStr[m_iIndex-1] != ' ') {
+				g_sound.NoLoopPlay("UISound", 0.6f);
+			}
 		}
 		if (m_iIndex > curTotalStr.size()) //한 문장 끝나면
 		{

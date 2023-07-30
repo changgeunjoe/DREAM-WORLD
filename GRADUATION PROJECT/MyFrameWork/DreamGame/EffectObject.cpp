@@ -753,10 +753,39 @@ BossEffectObject::~BossEffectObject()
 
 void BossEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, vector<GameObject*>* mppEffectObject)
 {
+	for (int i = 0; i < m_pBossFireObject.size(); i++) {
+		m_pBossFireObject[i] = new GameObject(UNDEF_ENTITY);
+		m_pBossFireObject[i]->InsertComponent<RenderComponent>();
+		m_pBossFireObject[i]->InsertComponent<UIMeshComponent>();
+		m_pBossFireObject[i]->InsertComponent<MultiSpriteShaderComponent>();
+		m_pBossFireObject[i]->InsertComponent<TextureComponent>();
+		m_pBossFireObject[i]->SetTexture(L"MagicEffect/BossFire.dds", RESOURCE_TEXTURE2D, 3);
+		m_pBossFireObject[i]->SetPosition(XMFLOAT3(5000, 5000, 5000));
+		m_pBossFireObject[i]->SetScale(8);
+		m_pBossFireObject[i]->m_bActive=true;
+		m_pBossFireObject[i]->SetRowColumn(4, 4, 0.03);
+		m_pBossFireObject[i]->m_xmf3RamdomDirection = Vector3::ScalarProduct(XMFLOAT3(RandF(-1, 1), RandF(-3, 3), RandF(-1, 1)), 1, false);
+		m_pBossFireObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		m_pEffectObjects.emplace_back(m_ppParticleObjects[i]);
+		mppEffectObject->emplace_back(m_pBossFireObject[i]);
+	}
 }
 
-void BossEffectObject::AnimateEffect(CCamera* pCamera, XMFLOAT3 xm3position, float ftimeelapsed, float fTime)
+void BossEffectObject::AnimateEffect(CCamera* pCamera, XMFLOAT3 xm3position, float ftimeelapsed, float fTime, float size)
 {
+	//float size = 50;
+	for (int i = 0; i < m_pBossFireObject.size(); i++) {
+		m_pBossFireObject[i]->SetLookAt(pCamera->GetPosition());
+		m_pBossFireObject[i]->SetScale(8, m_pBossFireObject[i]->m_xmf3RamdomDirection.y*sin(m_pBossFireObject[i]->m_fTime)+7,8);
+		m_pBossFireObject[i]->m_fTime += ftimeelapsed;
+		m_pBossFireObject[i]->Rotate(0, 180, 0);
+		//m_pBossFireObject[i]->SetPosition(Vector3::Add(xm3position,Vector3::Multiply(size,m_pBossFireObject[i]->m_xmf3RamdomDirection)));
+		XMFLOAT3 Point = XMFLOAT3(cos(i * 10), 0, sin(i * 10));
+		Point = Vector3::Multiply(size, Point);
+		m_pBossFireObject[i]->SetPosition(Vector3::Add(xm3position, Point));
+		m_pBossFireObject[i]->AnimateRowColumn(ftimeelapsed);
+	}
+	
 }
 
 void BossEffectObject::Particle(CCamera* pCamera, float fTimeElapsed, XMFLOAT3& xm3position)
