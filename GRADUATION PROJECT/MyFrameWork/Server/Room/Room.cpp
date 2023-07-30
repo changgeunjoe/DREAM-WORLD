@@ -113,6 +113,7 @@ void Room::SendAllPlayerInfo()
 		players = m_inGamePlayers;
 	}
 	for (auto& p : players) {
+		if (p.first == ROLE::NONE_SELECT) continue;
 		SERVER_PACKET::AddPlayerPacket playerInfo;
 		playerInfo.role = p.first;
 		playerInfo.userId = p.second;
@@ -341,9 +342,9 @@ void Room::BossStageStart()//클라에서 받아서 서버로 왔고 -> 클라에서 움직임 막아
 
 	TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::milliseconds(1), m_roomId ,EV_GAME_STATE_B_SEND };//GameState 30ms마다 전송하게 수정
 	g_Timer.InsertTimerQueue(new_ev);
-	TIMER_EVENT findEv{ std::chrono::system_clock::now() + std::chrono::milliseconds(1), m_roomId ,EV_FIND_PLAYER };
+	TIMER_EVENT findEv{ std::chrono::system_clock::now() + std::chrono::seconds(3), m_roomId ,EV_FIND_PLAYER };
 	g_Timer.InsertTimerQueue(findEv);
-	TIMER_EVENT bossStateEvent{ std::chrono::system_clock::now() + std::chrono::milliseconds(100), m_roomId, EV_BOSS_STATE };
+	TIMER_EVENT bossStateEvent{ std::chrono::system_clock::now() + std::chrono::seconds(8), m_roomId, EV_BOSS_STATE };
 	//TIMER_EVENT bossStateEvent{ std::chrono::system_clock::now() + std::chrono::seconds(11), m_roomId ,EV_BOSS_STATE };
 	g_Timer.InsertTimerQueue(bossStateEvent);
 	m_meteoTime = std::chrono::high_resolution_clock::now();
@@ -351,7 +352,7 @@ void Room::BossStageStart()//클라에서 받아서 서버로 왔고 -> 클라에서 움직임 막아
 
 void Room::GameRunningLogic()
 {
-	for (auto& playCharacter : m_characterMap) {//플레이어 무브		
+	for (auto& playCharacter : m_characterMap) {//플레이어 무브
 		playCharacter.second->AutoMove();
 	}
 	if (m_roomState == ROOM_STATE::ROOM_STAGE1) {
@@ -743,7 +744,7 @@ void Room::StartHealPlayerCharacter()
 
 void Room::UpdateShieldData()
 {
-	if (m_characterMap[ROLE::TANKER]->IsDurationEndTimeSkill_1()) 
+	if (m_characterMap[ROLE::TANKER]->IsDurationEndTimeSkill_1())
 		RemoveBarrier();
 	else {
 		SERVER_PACKET::NotifyShieldPacket sendPacket;
@@ -892,6 +893,7 @@ void Room::ChangeStageBoss()
 {
 	if (m_roomState == ROOM_STAGE1) {
 		m_roomState = ROOM_BOSS;
+		m_boss.SetBossStagePosition();
 		BossStageStart();
 	}
 
@@ -1069,4 +1071,15 @@ void Room::ExecuteSkyArrow()
 		}
 		g_logic.OnlySendPlayerInRoom_R(m_roomId, ROLE::ARCHER, &sendPacket);
 	}
+}
+
+void Room::ResetRoom()
+{
+	for (auto& character : m_characterMap) {
+		character.second->SetStage_1Position();
+	}
+	m_boss.SetBossStagePosition();
+	m_roomState = ROOM_STAGE1;
+	m_isAlive = false;
+	m_boss.isBossDie = false;
 }

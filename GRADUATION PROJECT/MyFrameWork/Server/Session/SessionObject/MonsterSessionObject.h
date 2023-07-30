@@ -67,4 +67,5 @@ public:
 	///////////////
 	bool isBossDie = false;
 	void SetZeroHp() { m_hp = 0; }
+	void SetBossStagePosition();
 };

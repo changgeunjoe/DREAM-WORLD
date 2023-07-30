@@ -367,7 +367,7 @@ std::list<int> MapData::AStarLoad(std::atomic_int& myTriangleIdx, float desX, fl
 				std::cout << triangle.first << " ";
 			}
 		}
-		std::cout << std::endl;
+		//std::cout << std::endl;
 
 		currentTriangleIdx = minNode.GetIdx();
 	
