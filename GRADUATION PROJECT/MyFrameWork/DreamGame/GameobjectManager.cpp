@@ -246,15 +246,14 @@ void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)//나중에 처리
 		m_pTankerObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.4, 1.005));
 		m_pPriestObject->m_pHPBarUI->SetinitScale(0.07, 0.005, 1);
 		m_pPriestObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.26, 1.005));
-
 		m_pPriestObject->m_pProfileUI->SetinitScale(0.03, 0.015, 1);
 		m_pPriestObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.28, 1.005));
 		m_pWarriorObject->m_pHPBarUI->SetinitScale(0.07, 0.005, 1);
 		m_pWarriorObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.14, 1.005));
 		m_pWarriorObject->m_pProfileUI->SetinitScale(0.03, 0.015, 1);
 		m_pWarriorObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.16, 1.005));
-		m_pArcherObject->m_pSkillQUI->SetPosition(XMFLOAT3(-0.975, 0.0, 1.005));
-		m_pArcherObject->m_pSkillEUI->SetPosition(XMFLOAT3(-0.975, -0.1, 1.005));
+		m_pArcherObject->m_pSkillQUI->SetPosition(XMFLOAT3(0.975, 0.1, 1.005));
+		m_pArcherObject->m_pSkillEUI->SetPosition(XMFLOAT3(0.975, 0.0, 1.005));
 	}
 	else if (g_Logic.GetMyRole() == ROLE::TANKER) {
 		m_pTankerObject->m_pHPBarUI->SetinitScale(0.07, 0.005, 1);
@@ -539,6 +538,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 			m_pBoundingBox[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		for (auto& p : m_ppObstacleBoundingBox)
 		{
+			if(p->m_nStageType==m_nStageType)
 			p->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		}
 		int normalMonsterIndex = 0;
@@ -613,7 +613,10 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	{
 		if (m_pBossSkillRange->m_bActive)
 		{
+			m_pBossEgEffectObject->AnimateEffect(m_pCamera, XMFLOAT3(0, 15, 0), m_fTimeElapsed, m_fTime, 50);
+			g_sound.Play("FireSound", 0.8f);
 			if (m_fTime - m_pBossSkillRange->m_fBossSkillTime > 2.0f)
+				g_sound.Pause("FireSound");
 				m_pBossSkillRange->m_bActive = false;
 			m_pBossSkillRange->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		}
@@ -1528,17 +1531,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 }
 void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	m_pFireballSpriteObject = new GameObject(UNDEF_ENTITY);
-	m_pFireballSpriteObject->InsertComponent<RenderComponent>();
-	m_pFireballSpriteObject->InsertComponent<UIMeshComponent>();
-	m_pFireballSpriteObject->InsertComponent<MultiSpriteShaderComponent>();
-	m_pFireballSpriteObject->InsertComponent<TextureComponent>();
-	m_pFireballSpriteObject->SetTexture(L"MagicEffect/BossFire.dds", RESOURCE_TEXTURE2D, 3);
-	m_pFireballSpriteObject->SetPosition(XMFLOAT3(100, 40, 100));
-	m_pFireballSpriteObject->SetScale(10);
-	m_pFireballSpriteObject->SetRowColumn(4, 4, 0.03);
-	m_pFireballSpriteObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppParticleObjects.emplace_back(m_pFireballSpriteObject);
+
 
 	m_pLightningSpriteObject = new GameObject(UNDEF_ENTITY);
 	m_pLightningSpriteObject->InsertComponent<RenderComponent>();
@@ -1546,7 +1539,7 @@ void GameobjectManager::BuildParticle(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	m_pLightningSpriteObject->InsertComponent<MultiSpriteShaderComponent>();
 	m_pLightningSpriteObject->InsertComponent<TextureComponent>();
 	m_pLightningSpriteObject->SetTexture(L"MagicEffect/Lightning_2x2.dds", RESOURCE_TEXTURE2D, 3);
-	m_pLightningSpriteObject->SetPosition(XMFLOAT3(0, 0, 100));
+	m_pLightningSpriteObject->SetPosition(XMFLOAT3(5000, 5000, 100));
 	m_pLightningSpriteObject->SetScale(7.0f, 20.0f, 7.0f);
 	m_pLightningSpriteObject->SetRowColumn(2.0f, 2.0f, 0.06f);
 	m_pLightningSpriteObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -2330,6 +2323,9 @@ void GameobjectManager::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 
 	m_pTankerAttackEffectObject = new TankerEffectObject;
 	m_pTankerAttackEffectObject->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, &m_ppEffectObjects);
+
+	m_pBossEgEffectObject = new BossEffectObject;
+	m_pBossEgEffectObject->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, &m_ppEffectObjects);
 }
 
 void GameobjectManager::BuildNPC(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -3093,9 +3089,9 @@ void GameobjectManager::AddTextToUILayer(int& iIndex)
 	}
 	if (iIndex == BOSS_TEXT)
 	{
-		queueStr.emplace(L"너희가 꿈을 지킬 수 있을거 같으냐!!!");
-		queueStr.emplace(L"으하하하하하 이 꿈은 내가 가져가마");
-		queueStr.emplace(L"너희들 모두 다 죽여주마!!!");
+		queueStr.emplace(L"너희가 꿈을 지킬 수 있을거 같으냐!!!      ");
+		queueStr.emplace(L"으하하하하하 이 꿈은 내가 가져가마         ");
+		queueStr.emplace(L"너희들 모두 다 죽여주마!!!      ");
 	}
 	//if (iIndex == TEXT::WARRIOR_TEXT)
 	//{
@@ -3273,7 +3269,7 @@ void GameobjectManager::ChangeStage1ToStage2(float fTimeelpased)
 			g_sound.Pause("BossRespawnSound");
 			g_sound.Play("BossStage", 0.75);
 		}
-		if (m_fStroyTime > 8) {
+		if (m_fStroyTime > 15) {
 			m_bNPCscreen = false;
 		}
 	}
