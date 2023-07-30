@@ -247,10 +247,13 @@ void IOCPNetwork::DisconnectClient(int id)
 	if (id < 0)return;
 	if (m_session[id].GetPlayerState() == PLAYER_STATE::IN_GAME_ROOM) {
 		int roomId = m_session[id].GetRoomId();
-		Room& room = g_RoomManager.GetRunningRoomRef(roomId);
-		bool isRoomEnd = room.DeleteInGamePlayer(id);
-		if (isRoomEnd) {
-			g_RoomManager.RoomDestroy(roomId);
+		if (roomId != -1) {
+			Room& room = g_RoomManager.GetRunningRoomRef(roomId);
+			bool isRoomEnd = room.DeleteInGamePlayer(id);
+			if (isRoomEnd) {
+				room.ResetRoom();
+				g_RoomManager.RoomDestroy(roomId);
+			}
 		}
 	}
 	g_logic.DeleteInGameUserSet(m_session[id].GetLoginId());//로직에 있는 인게임 유저 정보 삭제

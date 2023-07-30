@@ -276,7 +276,7 @@ bool MonsterSessionObject::Move(float elapsedTime)
 				bool OnRight = (Vector3::DotProduct(m_rightVector, m_desVector) > 0) ? true : false;	// 목적지가 오른쪽 왼
 				float ChangingAngle = Vector3::Angle(m_desVector, m_directionVector);
 
-			
+
 				if (ChangingAngle > 20.0f) {
 					//std::cout << "Astar Move - Rotate angle >40" << std::endl;
 					SERVER_PACKET::BossDirectionPacket postData;
@@ -511,15 +511,15 @@ void MonsterSessionObject::AttackTimer()
 	{
 		TIMER_EVENT attackTimer{ std::chrono::system_clock::now() + std::chrono::seconds(1), m_roomId ,EV_BOSS_ATTACK };
 		g_Timer.InsertTimerQueue(attackTimer);
-		attackTimer.wakeupTime += std::chrono::seconds(1);
+		attackTimer.wakeupTime += std::chrono::seconds(1) + std::chrono::milliseconds(500);
 		g_Timer.InsertTimerQueue(attackTimer);
-		TIMER_EVENT endAttackTimer{ std::chrono::system_clock::now() + std::chrono::seconds(2) + std::chrono::milliseconds(150), m_roomId , EV_BOSS_STATE };
+		TIMER_EVENT endAttackTimer{ std::chrono::system_clock::now() + std::chrono::seconds(2) + std::chrono::milliseconds(700), m_roomId , EV_BOSS_STATE };
 		g_Timer.InsertTimerQueue(endAttackTimer);
 	}
 	break;
 	case ATTACK_METEO:
 	{
-		TIMER_EVENT endAttackTimer{ std::chrono::system_clock::now() + std::chrono::seconds(1) + std::chrono::milliseconds(150), m_roomId , EV_BOSS_STATE };
+		TIMER_EVENT endAttackTimer{ std::chrono::system_clock::now() + std::chrono::seconds(1) + std::chrono::milliseconds(250), m_roomId , EV_BOSS_STATE };
 		g_Timer.InsertTimerQueue(endAttackTimer);
 	}
 	break;
@@ -561,4 +561,9 @@ bool MonsterSessionObject::StartAttack()
 		}
 	}
 	return false;
+}
+
+void MonsterSessionObject::SetBossStagePosition()
+{
+	m_position = XMFLOAT3(-13.8, 0, -61);
 }

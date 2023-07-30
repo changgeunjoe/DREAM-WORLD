@@ -188,7 +188,7 @@ bool ChracterSessionObject::Move(float elapsedTime)
 			SetPosition(m_position);
 		}
 		if (m_position.y < DBL_EPSILON || m_position.y > 1.0f) {
-			m_position.y = 0.0f;			
+			m_position.y = 0.0f;
 		}
 		return true;
 	}
@@ -396,7 +396,7 @@ std::pair<bool, XMFLOAT3> ChracterSessionObject::CheckCollisionCharacter(XMFLOAT
 	}
 	resultNormal = Vector3::Normalize(resultNormal);
 	resultSliding = Vector3::Normalize(resultSliding);
-	resultNormal = Vector3::ScalarProduct(resultNormal, 0.3f, false);
+	resultSliding = Vector3::Add(resultSliding, resultNormal, 0.05f);
 	//std::cout <<"moveDir"
 	return std::pair<bool, XMFLOAT3>(true, resultSliding);
 }
@@ -460,7 +460,7 @@ bool ChracterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ftimeE
 		std::cout << "character no Move" << std::endl;
 #endif
 		return true;
-}
+	}
 	if (mapCollideResult.first) {//맵에 충돌 됨
 		if (CharacterCollide.first) {//캐릭터가 충돌 됨		
 			float dotRes = Vector3::DotProduct(Vector3::Normalize(mapCollideResult.second), Vector3::Normalize(CharacterCollide.second));
@@ -474,7 +474,7 @@ bool ChracterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ftimeE
 					std::cout << std::endl;
 #endif
 					return true;
-			}
+				}
 				XMFLOAT3 moveDir = Vector3::Normalize(Vector3::Add(mapCollideResult.second, CharacterCollide.second));
 				if (normalMonsterCollide.first) {//노말 몬스터 충돌 됨
 					float dotRes = Vector3::DotProduct(Vector3::Normalize(normalMonsterCollide.second), moveDir);
@@ -495,8 +495,8 @@ bool ChracterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ftimeE
 						std::cout << std::endl;
 #endif
 						return true;
+					}
 				}
-		}
 				else {//노말 몬스터와 충돌하지 않음					
 					m_position = Vector3::Add(m_position, Vector3::ScalarProduct(Vector3::Normalize(moveDir), 0.9f * m_speed * ftimeElapsed));
 					SetPosition(m_position);
@@ -507,7 +507,7 @@ bool ChracterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ftimeE
 #endif
 					return true;
 				}
-	}
+			}
 			else {//아무것도 충돌하지 암ㅎ음
 #ifdef CHARCTER_MOVE_LOG
 				PrintCurrentTime();
@@ -529,7 +529,7 @@ bool ChracterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ftimeE
 				std::cout << std::endl;
 #endif
 				return true;
-		}
+			}
 			float dotRes = Vector3::DotProduct(Vector3::Normalize(normalMonsterCollide.second), Vector3::Normalize(mapCollideResult.second));
 			if (dotRes > 0.2f) {//맵과 노말 몬스터 충돌 벡터 방향이 비슷함
 				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(Vector3::Normalize(Vector3::Add(normalMonsterCollide.second, mapCollideResult.second)), 0.9f * m_speed * ftimeElapsed));
@@ -566,8 +566,8 @@ bool ChracterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ftimeE
 			std::cout << "after collision position: " << m_position.x << ", " << m_position.y << ", " << m_position.z << std::endl;
 #endif
 			return true;
-			}
 		}
+	}
 	//맵 충돌 하지 않음
 	if (CharacterCollide.first) {//캐릭터 와 충돌
 		auto normalMonsterCollide = CheckCollisionNormalMonster(moveDirection, ftimeElapsed);
@@ -579,7 +579,7 @@ bool ChracterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ftimeE
 			std::cout << std::endl;
 #endif
 			return true;
-	}
+		}
 		if (normalMonsterCollide.first) {//노말 몬스터와 충돌
 			float dotRes = Vector3::DotProduct(Vector3::Normalize(normalMonsterCollide.second), Vector3::Normalize(CharacterCollide.second));
 			if (dotRes > 0.2f) {//캐릭터 노말 몬스터 벡터
@@ -690,7 +690,7 @@ void WarriorSessionObject::SetStage_1Position()
 
 void WarriorSessionObject::SetBossStagePosition()
 {
-	SetPosition(XMFLOAT3(0, 0, -211.0f));
+	SetPosition(XMFLOAT3(118, 0, 5));
 	m_maxHp = m_hp = 400;
 	m_attackDamage = 150;
 }
@@ -742,7 +742,7 @@ void MageSessionObject::SetStage_1Position()
 
 void MageSessionObject::SetBossStagePosition()
 {
-	SetPosition(XMFLOAT3(20, 0, -285));
+	SetPosition(XMFLOAT3(-77.7, 0, -164.7));
 	m_maxHp = m_hp = 480;
 	m_attackDamage = 30;
 }
@@ -787,7 +787,7 @@ void TankerSessionObject::SetStage_1Position()
 
 void TankerSessionObject::SetBossStagePosition()
 {
-	SetPosition(XMFLOAT3(82, 0, -223.0f));
+	SetPosition(XMFLOAT3(106.8, 0, -157));
 	m_maxHp = m_hp = 600;
 	m_attackDamage = 60;
 }
@@ -856,7 +856,7 @@ void ArcherSessionObject::SetStage_1Position()
 
 void ArcherSessionObject::SetBossStagePosition()
 {
-	SetPosition(XMFLOAT3(123, 0, -293));
+	SetPosition(XMFLOAT3(-193, 0, -52));
 	m_maxHp = m_hp = 250;
 	m_attackDamage = 200;
 }

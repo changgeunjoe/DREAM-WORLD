@@ -126,4 +126,5 @@ public:
 	SmallMonsterSessionObject* GetStageMonsterArr() { return m_StageSmallMonster; }
 	SmallMonsterSessionObject* GetBossMonsterArr() { return m_BossSmallMonster; }
 	std::map<ROLE, ChracterSessionObject*>& GetPlayCharacters();
+	void ResetRoom();
 };
