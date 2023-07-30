@@ -569,22 +569,6 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pDepthShaderComponent->UpdateShaderVariables(pd3dCommandList);//오브젝트의 깊이값의 렌더입니다.
 	}
 	//g_Logic.m_MonsterSession.m_currentPlayGameObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	if (m_bDebugMode)
-	{
-		for (int i = 0; i < 5; i++)
-			m_pBoundingBox[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-		for (auto& p : m_ppObstacleBoundingBox)
-		{
-			if(p->m_nStageType==m_nStageType)
-			p->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-		}
-		int normalMonsterIndex = 0;
-		for (auto& p : m_ppNormalMonsterBoundingBox)
-		{
-			if (m_ppNormalMonsterObject[normalMonsterIndex++]->GetAliveState())
-				p->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-		}
-	}
 
 	//m_pUIGameSearchObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
@@ -680,14 +664,29 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		}
 	}
 
+	if (m_bDebugMode)
+	{
+		for (int i = 0; i < 5; i++)
+			m_pBoundingBox[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		for (auto& p : m_ppObstacleBoundingBox)
+		{
+			if (p->m_nStageType == m_nStageType)
+				p->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		}
+		int normalMonsterIndex = 0;
+		for (auto& p : m_ppNormalMonsterBoundingBox)
+		{
+			if (m_ppNormalMonsterObject[normalMonsterIndex++]->GetAliveState())
+				p->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		}
+		AstarRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
+
 	for (int i = 0; i < m_ppParticleObjects.size(); i++) {
 		if (m_ppParticleObjects[i]->m_bActive == true)
 			m_ppParticleObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//파티클
 	}
 
-
-	AstarRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	
 	TrailRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 	EffectRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_fTime);

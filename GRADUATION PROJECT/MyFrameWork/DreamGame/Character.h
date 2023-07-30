@@ -124,6 +124,7 @@ class Archer : public Character
 private:
 	XMFLOAT3 m_CameraLook;
 	bool m_bZoomInState;
+	float m_fZoomInStartTime = 0.0f;
 public:
 	array<Arrow*, 3> m_ppArrowForQSkill;
 	array<Arrow*, 15> m_ppArrowForESkill;
