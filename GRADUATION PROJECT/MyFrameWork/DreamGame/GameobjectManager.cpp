@@ -254,6 +254,12 @@ void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)//나중에 처리
 		m_pWarriorObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.16, 1.005));
 		m_pArcherObject->m_pSkillQUI->SetPosition(XMFLOAT3(0.975, 0.1, 1.005));
 		m_pArcherObject->m_pSkillEUI->SetPosition(XMFLOAT3(0.975, 0.0, 1.005));
+		m_pTankerObject->m_pSkillQUI->SetPosition(XMFLOAT3(500, 500, 1.005));
+		m_pTankerObject->m_pSkillEUI->SetPosition(XMFLOAT3(500, 500, 1.005));
+		m_pWarriorObject->m_pSkillQUI->SetPosition(XMFLOAT3(500, 500, 1.005));
+		m_pWarriorObject->m_pSkillEUI->SetPosition(XMFLOAT3(500, 500, 1.005));
+		m_pPriestObject->m_pSkillQUI->SetPosition(XMFLOAT3(500, 500, 1.005));
+		m_pPriestObject->m_pSkillEUI->SetPosition(XMFLOAT3(500, 500, 1.005));
 	}
 	else if (g_Logic.GetMyRole() == ROLE::TANKER) {
 		m_pTankerObject->m_pHPBarUI->SetinitScale(0.07, 0.005, 1);
@@ -274,6 +280,12 @@ void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)//나중에 처리
 		m_pWarriorObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.14, 1.005));
 		m_pTankerObject->m_pSkillQUI->SetPosition(XMFLOAT3(0.975, 0.1, 1.005));
 		m_pTankerObject->m_pSkillEUI->SetPosition(XMFLOAT3(0.975, 0.0, 1.005));
+		m_pArcherObject->m_pSkillQUI->SetPosition(XMFLOAT3(500, 500, 1.005));
+		m_pArcherObject->m_pSkillEUI->SetPosition(XMFLOAT3(500, 500, 1.005));
+		m_pWarriorObject->m_pSkillQUI->SetPosition(XMFLOAT3(500, 500, 1.005));
+		m_pWarriorObject->m_pSkillEUI->SetPosition(XMFLOAT3(500, 500, 1.005));
+		m_pPriestObject->m_pSkillQUI->SetPosition(XMFLOAT3(500, 500, 1.005));
+		m_pPriestObject->m_pSkillEUI->SetPosition(XMFLOAT3(500, 500, 1.005));
 	}
 	else if (g_Logic.GetMyRole() == ROLE::PRIEST) {
 		m_pPriestObject->m_pHPBarUI->SetinitScale(0.07, 0.005, 1);
@@ -294,6 +306,12 @@ void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)//나중에 처리
 		m_pWarriorObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.14, 1.005));
 		m_pPriestObject->m_pSkillQUI->SetPosition(XMFLOAT3(0.975, 0.1, 1.005));
 		m_pPriestObject->m_pSkillEUI->SetPosition(XMFLOAT3(0.975, 0.0, 1.005));
+		m_pArcherObject->m_pSkillQUI->SetPosition(XMFLOAT3(500, 500, 1.005));
+		m_pArcherObject->m_pSkillEUI->SetPosition(XMFLOAT3(500, 500, 1.005));
+		m_pWarriorObject->m_pSkillQUI->SetPosition(XMFLOAT3(500, 500, 1.005));
+		m_pWarriorObject->m_pSkillEUI->SetPosition(XMFLOAT3(500, 500, 1.005));
+		m_pTankerObject->m_pSkillQUI->SetPosition(XMFLOAT3(500, 500, 1.005));
+		m_pTankerObject->m_pSkillEUI->SetPosition(XMFLOAT3(500, 500, 1.005));
 	}
 	else if (g_Logic.GetMyRole() == ROLE::WARRIOR) {
 		m_pWarriorObject->m_pHPBarUI->SetinitScale(0.07, 0.005, 1);
@@ -314,6 +332,12 @@ void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)//나중에 처리
 		m_pArcherObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.14, 1.005));
 		m_pWarriorObject->m_pSkillQUI->SetPosition(XMFLOAT3(0.975, 0.1, 1.005));
 		m_pWarriorObject->m_pSkillEUI->SetPosition(XMFLOAT3(0.975, 0.0, 1.005));
+		m_pPriestObject->m_pSkillQUI->SetPosition(XMFLOAT3(500, 500, 1.005));
+		m_pPriestObject->m_pSkillEUI->SetPosition(XMFLOAT3(500, 500, 1.005));
+		m_pWarriorObject->m_pSkillQUI->SetPosition(XMFLOAT3(500, 500, 1.005));
+		m_pWarriorObject->m_pSkillEUI->SetPosition(XMFLOAT3(500, 500, 1.005));
+		m_pTankerObject->m_pSkillQUI->SetPosition(XMFLOAT3(500, 500, 1.005));
+		m_pTankerObject->m_pSkillEUI->SetPosition(XMFLOAT3(500, 500, 1.005));
 	}
 }
 
@@ -490,6 +514,7 @@ void GameobjectManager::BossConditionAnimate(float fTimeElapsed)
 	}
 	else {
 		if (m_pMonsterObject->GetTempHP() <= 0) {
+			m_pMonsterObject->SetColor(XMFLOAT4(0, 0, 0, 0.00));
 			if (m_pMonsterObject->m_bActive) {
 				//m_pMonsterObject->DieMonster(fTimeElapsed / 10);
 			}
@@ -526,6 +551,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	UpdateShaderVariables(pd3dCommandList);
 
 	SkyboxRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	
 	
 
 	if (m_pDepthShaderComponent) {
@@ -613,7 +639,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	{
 		if (m_pBossSkillRange->m_bActive)
 		{
-			m_pBossEgEffectObject->AnimateEffect(m_pCamera, XMFLOAT3(0, 15, 0), m_fTimeElapsed, m_fTime, 50);
+			m_pBossEgEffectObject->AnimateEffect(m_pCamera, m_pMonsterObject->GetPosition(), m_fTimeElapsed, m_fTime, 50);
 			g_sound.Play("FireSound", 0.8f);
 			if (m_fTime - m_pBossSkillRange->m_fBossSkillTime > 2.0f)
 				g_sound.Pause("FireSound");
@@ -633,12 +659,13 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pConditionUIObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 
-
+	AstarRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	
 	TrailRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 	EffectRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_fTime);
 
-	AstarRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+
 
 	CrossHairRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//m_pNaviMeshObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//네비 메쉬
@@ -1076,8 +1103,7 @@ void GameobjectManager::CheckCollidePortal()
 	{
 
 		m_bPortalCheck = true;
-		m_iTEXTiIndex = BOSS_TEXT;
-		AddTextToUILayer(m_iTEXTiIndex);
+		
 		//m_nStageType = 2;
 		g_NetworkHelper.SendChangeStage_BOSS();
 	}
@@ -1975,7 +2001,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pAttackUIObject->InsertComponent<UiShaderComponent>();
 	m_pAttackUIObject->InsertComponent<TextureComponent>();
 	m_pAttackUIObject->SetTexture(L"UI/RedCrossHair.dds", RESOURCE_TEXTURE2D, 3);
-	m_pAttackUIObject->SetPosition(XMFLOAT3(0.0, 0.0, 1.05));
+	m_pAttackUIObject->SetPosition(XMFLOAT3(0.0, 0.0, 1.00));
 	m_pAttackUIObject->SetScale(0.01, 0.01, 1);
 	//m_pAttackUIObject->SetColor(XMFLOAT4(0, -0.7, -5, 0));
 	//m_pAttackUIObject->SetColor(XMFLOAT4(0, 0, 0, 0.75));
@@ -3243,6 +3269,7 @@ void GameobjectManager::ChangeStage1ToStage2(float fTimeelpased)
 
 			for (int i = 0; i < m_ppGameObjects.size(); ++i)
 			{
+				m_bBossText = true;
 				if (m_ppGameObjects[i]->m_nStageType == STAGE1)
 					m_ppGameObjects[i]->Die(m_fStroyTime / 13);
 				g_sound.Pause("LobbySound");
@@ -3252,9 +3279,13 @@ void GameobjectManager::ChangeStage1ToStage2(float fTimeelpased)
 			//m_pSkyboxObject->Die(m_fStroyTime );
 		}
 		if (m_fStroyTime > 6) {
+			if (m_bBossText) {
+				m_iTEXTiIndex = BOSS_TEXT;
+				AddTextToUILayer(m_iTEXTiIndex);
+				m_bBossText = false;
+			}
 			m_bNPCscreen = true;
 			m_bNPCinteraction = true;
-			
 			m_nStageType = 2;
 			for (int i = 0; i < m_ppGameObjects.size(); ++i)
 			{

@@ -347,6 +347,16 @@ float4 PSUITextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
             return float4(cColor.xyz, 0.0);
         }      
     }
+    else if (gmtxGameObjectColor.x == 1 && gmtxGameObjectColor.y == 0.0)
+    {
+        cColor.xyz += gmtxGameObjectColor.xyz;
+        return (cColor);
+    }
+    else if (gmtxGameObjectColor.y == 0.7  && gmtxGameObjectColor.z == 0.2)
+    {
+        cColor.xyz += gmtxGameObjectColor.xyz;
+        return (cColor);
+    }
     else if (gmtxGameObjectColor.w != 0)//페이드인 아웃
         cColor.w = gmtxGameObjectColor.w;
     
