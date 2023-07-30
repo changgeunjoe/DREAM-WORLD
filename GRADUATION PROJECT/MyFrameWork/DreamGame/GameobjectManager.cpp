@@ -231,7 +231,7 @@ void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)//나중에 처리
 	m_pWarriorObject->m_pHPBarUI->SetCurrentHP(m_pWarriorObject->GetCurrentHP());
 	m_pTankerObject->m_pHPBarUI->SetCurrentHP(m_pTankerObject->GetCurrentHP());
 	m_pPriestObject->m_pHPBarUI->SetCurrentHP(m_pPriestObject->GetCurrentHP());
-
+	//m_pPriestObject->m_pHPBarUI->SetShield(100);
 	if (g_Logic.GetMyRole() == ROLE::ARCHER) {
 		m_pArcherObject->m_pHPBarUI->SetinitScale(0.07, 0.005, 1);
 		m_pArcherObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.48, 1.005));
@@ -243,6 +243,7 @@ void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)//나중에 처리
 		m_pTankerObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.4, 1.005));
 		m_pPriestObject->m_pHPBarUI->SetinitScale(0.07, 0.005, 1);
 		m_pPriestObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.26, 1.005));
+
 		m_pPriestObject->m_pProfileUI->SetinitScale(0.03, 0.015, 1);
 		m_pPriestObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.28, 1.005));
 		m_pWarriorObject->m_pHPBarUI->SetinitScale(0.07, 0.005, 1);
@@ -1290,7 +1291,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 
 	m_pCamera->SetPosition(XMFLOAT3(-1450, 18, -1490));
 	m_pCamera->Rotate(0, 90, 0);
-
+	BuildStage1(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pPlaneObject = new GameObject(UNDEF_ENTITY);
 	m_pPlaneObject->InsertComponent<RenderComponent>();
 	m_pPlaneObject->InsertComponent<CLoadedModelInfoCompnent>();
@@ -1298,10 +1299,12 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPlaneObject->SetModel("Model/Floor.bin");
 	m_pPlaneObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pPlaneObject->SetScale(1.0f, 1.0f, 1.0f);
-	//m_pPlaneObject->SetColor(XMFLOAT4(0, 0, 0, 1));
+	m_pPlaneObject->m_nStageType = 2;
+	m_pPlaneObject->SetColor(XMFLOAT4(0, 0, 102.6,0.f ));
 	m_pPlaneObject->SetRimLight(false);
 	m_ppGameObjects.emplace_back(m_pPlaneObject);
-	BuildStage1(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	
+
 	BuildBossStageObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 
@@ -2118,7 +2121,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pPriestObject->m_pHPBarUI->SetTexture(L"UI/HP.dds", RESOURCE_TEXTURE2D, 3);
 	m_pPriestObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, -0.06, 1.01));
 	m_pPriestObject->m_pHPBarUI->SetScale(0.07, 0.005, 1);
-	m_pPriestObject->m_pHPBarUI->SetShield(0.2);
+	//m_pPriestObject->m_pHPBarUI->SetShield(100);
 	m_pPriestObject->m_pHPBarUI->SetColor(XMFLOAT4(0.02, 0.08, 0, 0));
 	m_pPriestObject->m_pHPBarUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppCharacterUIObjects.emplace_back(m_pPriestObject->m_pHPBarUI);

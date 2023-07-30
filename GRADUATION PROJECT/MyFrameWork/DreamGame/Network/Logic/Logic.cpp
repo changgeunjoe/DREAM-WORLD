@@ -529,8 +529,8 @@ void Logic::ProcessPacket(char* p)
 			if (possessObj)
 			{
 				possessObj->SetShield(recvPacket->applyShieldPlayerInfo[i].shield);	//최대 실드 200
-				possessObj->m_pHPBarUI->SetShield(recvPacket->applyShieldPlayerInfo[i].shield / possessObj->GetMaxHP() * 100.0f);
-				possessObj->m_pHPBarUI->SetCurrentHP(possessObj->GetCurrentHP() / possessObj->GetMaxHP() * 100.0f);
+				possessObj->m_pHPBarUI->SetShield(recvPacket->applyShieldPlayerInfo[i].shield);
+				possessObj->m_pHPBarUI->SetCurrentHP(possessObj->GetCurrentHP());
 			}
 		}
 	}
