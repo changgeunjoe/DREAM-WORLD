@@ -653,13 +653,14 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 			float durationTime = m_fTime - m_pBossSkillRange->m_fBossSkillTime;
 			if (durationTime > 3.0f)
 			{
-				g_sound.Pause("FireSound");
+				g_sound.Pause("BossEgStartSound");
 				m_pBossSkillRange->m_bActive = false;
 				m_pBossEgEffectObject->SetActive(false);
 				m_pBossEgEffectObject->AnimateEffect(m_pCamera, m_pMonsterObject->GetPosition(), m_fTimeElapsed, m_fTime, 60.0f);
 			}
 			else if (durationTime > 2.5f)
 			{
+				g_sound.NoLoopPlay("FireSound", 0.8f);
 				m_pBossEgEffectObject->SetActive(true);
 				m_pBossEgEffectObject->AnimateEffect(m_pCamera, m_pMonsterObject->GetPosition(), m_fTimeElapsed, m_fTime, 42.5f);
 			}
@@ -670,10 +671,11 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 			}
 			else if (durationTime > 1.0f)
 			{
+				g_sound.NoLoopPlay("FireSound", 0.8f);
 				m_pBossEgEffectObject->SetActive(true);
 				m_pBossEgEffectObject->AnimateEffect(m_pCamera, m_pMonsterObject->GetPosition(), m_fTimeElapsed, m_fTime, 60.0f);
 			}
-			g_sound.Play("FireSound", 0.8f);
+			g_sound.Play("BossEgStartSound", 0.8f);
 			m_pBossSkillRange->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		}
 	}
@@ -691,8 +693,8 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	EffectRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_fTime);
 
 
-	if(!gGameFramework.GetIsLobbyScene())
-	CrossHairRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//if(!gGameFramework.GetIsLobbyScene())
+
 	//m_pNaviMeshObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//네비 메쉬
 
 	
@@ -772,6 +774,8 @@ void GameobjectManager::CharacterUIRender(ID3D12Device* pd3dDevice, ID3D12Graphi
 		//if(m_fStroyTime> m_ppStoryUIObjects.size()* ScreenSTORY)
 		m_ppCharacterUIObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
+	CrossHairRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+
 	if (m_bSceneSwap) {
 		m_pSceneChangeUIObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
@@ -2866,6 +2870,11 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		case 'P':
 		{
 			m_bTest = true;
+			for (int i = 0; i < 10; i++) {
+				string sound = "RockSpkieSound";
+				sound = sound + to_string(i);
+				g_sound.Play(sound, 1);
+			}
 			g_sound.NoLoopPlay("MonsterAttackedSound", 1.0f);
 			g_sound.Play("ClickSound", 1.0f);
 		}
@@ -3316,20 +3325,20 @@ void GameobjectManager::ChangeStage1ToStage2(float fTimeelpased)
 	if (m_bPortalCheck) {
 		m_fStroyTime += fTimeelpased;
 
-		if (m_fStroyTime < 6) {
+		if (m_fStroyTime < 4) {
 
 			for (int i = 0; i < m_ppGameObjects.size(); ++i)
 			{
 				m_bBossText = true;
 				if (m_ppGameObjects[i]->m_nStageType == STAGE1)
-					m_ppGameObjects[i]->Die(m_fStroyTime / 13);
+					m_ppGameObjects[i]->Die(m_fStroyTime / 8);
 				g_sound.Pause("LobbySound");
 				g_sound.Pause("Stage1Sound");
 				g_sound.Play("BossRespawnSound", 0.6);
 			}
 			//m_pSkyboxObject->Die(m_fStroyTime );
 		}
-		if (m_fStroyTime > 6) {
+		if (m_fStroyTime > 4) {
 			if (m_bBossText) {
 				m_iTEXTiIndex = BOSS_TEXT;
 				AddTextToUILayer(m_iTEXTiIndex);
@@ -3342,7 +3351,7 @@ void GameobjectManager::ChangeStage1ToStage2(float fTimeelpased)
 			{
 				if (m_ppGameObjects[i]->m_nStageType == STAGE2)
 				{
-					m_ppGameObjects[i]->Die(1 - (m_fStroyTime - 6) / 5);
+					m_ppGameObjects[i]->Die(1 - (m_fStroyTime - 4) / 5);
 				}
 			}
 			
@@ -3351,7 +3360,7 @@ void GameobjectManager::ChangeStage1ToStage2(float fTimeelpased)
 			g_sound.Pause("BossRespawnSound");
 			g_sound.Play("BossStage", 0.75);
 		}
-		if (m_fStroyTime > 15) {
+		if (m_fStroyTime > 13) {
 			m_bNPCscreen = false;
 		}
 	}

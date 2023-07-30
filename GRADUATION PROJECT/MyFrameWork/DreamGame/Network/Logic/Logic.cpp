@@ -666,6 +666,8 @@ void Logic::ProcessPacket(char* p)
 	case SERVER_PACKET::BOSS_ATTACK_PALYER:
 	{
 		SERVER_PACKET::BossAttackPlayerPacket* recvPacket = reinterpret_cast<SERVER_PACKET::BossAttackPlayerPacket*>(p);
+		
+			g_sound.Play("BossMonsterAttack", gGameFramework.GetScene()->GetObjectManager()->GetBossMonster()->CalculateDistanceSound());
 		recvPacket->currentHp;//보스한테 피격당하여 버린 나의 HP이건 필요 있나 싶음... => 나중에 notift로 변경할듯?
 	}
 	break;

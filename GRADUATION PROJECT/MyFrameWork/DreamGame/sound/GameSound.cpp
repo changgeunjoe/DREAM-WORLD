@@ -28,7 +28,9 @@ GameSound::GameSound()
 	MakeSound("TankerSwingSound", "sound/sounds/TankerSwingSound.mp3");
 	MakeSound("WalkSound", "sound/sounds/WalkSound2.wav");
 	MakeSound("ArrowBow", "sound/sounds/ArrowBow.mp3");
-	MakeSound("FireSound", "sound/sounds/FireSound.mp3");
+	MakeSound("FireSound", "sound/sounds/FireSound.mp3"); 
+	MakeSound("BossMonsterAttack", "sound/sounds/BossMonsterAttack.wav"); 
+	MakeSound("BossEgStartSound", "sound/sounds/BossEgStartSound.wav");
 	MakeSound("NormalMonsterAttackSound", "sound/sounds/NormalMonsterAttack.wav");
 	MakeSound("RockSpkieSound1", "sound/sounds/RockSpike.mp3");
 	MakeSound("RockSpkieSound2", "sound/sounds/RockSpike.mp3");
