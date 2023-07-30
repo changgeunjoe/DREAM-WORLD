@@ -381,6 +381,7 @@ void Logic::ProcessPacket(char* p)
 			break;			
 			}
 			bossMonster->SetMoveState(false);
+			g_sound.Pause("BossMoveSound");
 			cout << "ProcessPacket::SERVER_PACKET::BOSS_ATTACK - recvPacket: " << (int)recvPacket->bossAttackType << endl;
 		}
 	}
@@ -447,6 +448,7 @@ void Logic::ProcessPacket(char* p)
 			bossMonster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_MOVE, 2);
 		}
 		bossMonster->SetMoveState(true);
+		g_sound.Play("BossMoveSound", gGameFramework.GetScene()->GetObjectManager()->GetBossMonster()->CalculateDistanceSound());
 		cout << endl;
 	}
 	break;
@@ -674,6 +676,8 @@ void Logic::ProcessPacket(char* p)
 	case SERVER_PACKET::BOSS_ATTACK_PALYER:
 	{
 		SERVER_PACKET::BossAttackPlayerPacket* recvPacket = reinterpret_cast<SERVER_PACKET::BossAttackPlayerPacket*>(p);
+		
+			g_sound.Play("BossMonsterAttack", gGameFramework.GetScene()->GetObjectManager()->GetBossMonster()->CalculateDistanceSound());
 		recvPacket->currentHp;//보스한테 피격당하여 버린 나의 HP이건 필요 있나 싶음... => 나중에 notift로 변경할듯?
 	}
 	break;
@@ -714,6 +718,7 @@ void Logic::ProcessPacket(char* p)
 		Monster* bossMonster = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster();
 		vector<RockSpike*> ppRockSpike = gGameFramework.GetScene()->GetObjectManager()->GetRockSpikeArr();
 		bossMonster->SetMoveState(false);
+		g_sound.Pause("BossMoveSound");
 		g_sound.Play("BossSKillSound", 0.9f);
 		//보스 이동 멈추고 애니메이션 실행해주세요.
 		if (bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation != BOSS_ANIMATION::BA_CAST_SPELL)
