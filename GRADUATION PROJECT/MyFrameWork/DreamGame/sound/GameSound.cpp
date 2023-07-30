@@ -19,6 +19,7 @@ GameSound::GameSound()
 	MakeSound("ArcherESkillSound", "sound/sounds/ArcherEskill.wav");
 	MakeSound("ArcherQSkillSound", "sound/sounds/AcherQSkillSound.wav"); 
 	MakeSound("TankerBombSound", "sound/sounds/TankerBombSound.mp3");
+	MakeSound("TankerQSkill", "sound/sounds/TankerQSkill.mp3");
 	//MakeSound("AcherBow", "sound/sounds/AcherAcherBow.mp3");
 	MakeSound("MonsterAttackedSound", "sound/sounds/MonsterAttackedSound.mp3");
 	MakeSound("WarriorAttackSound", "sound/sounds/WarriorAttackSound.mp3");

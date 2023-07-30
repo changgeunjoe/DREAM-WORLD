@@ -1900,6 +1900,7 @@ void Tanker::Animate(float fTimeElapsed)
 	{
 		if (m_CanActiveQSkill)
 		{
+			g_sound.NoLoopPlay("TankerQSkill", CalculateDistanceSound());
 			for (int i = 0; i < 4; ++i)
 			{
 				m_ppProjectiles[i]->m_bActive = true;

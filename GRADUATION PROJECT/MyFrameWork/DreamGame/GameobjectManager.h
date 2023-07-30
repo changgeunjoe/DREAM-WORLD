@@ -97,7 +97,7 @@ public:
 
 
 	void AddTextToUILayer(int& index);
-	void AddDamageFontToUiLayer(XMFLOAT3 xmf3Pos, float fDamage);
+	void AddDamageFontToUiLayer(XMFLOAT3 xmf3Pos, int fDamage);
 	float CalculateDistance(const XMFLOAT3& firstPosition, const XMFLOAT3& lastPosition);
 	virtual void SortEffect();//게임 오브젝트를 카메라와 거리별로 sort하는 함수입니다. ->이펙트가 블랜드가 꼬이는 걸 막기위한 소트 
 
@@ -309,5 +309,6 @@ public:
 	void ResetLobbyUI();
 	void SetLightningEffect(XMFLOAT3& targetPos);
 	float GetTotalProgressTime() { return m_fTime; }
+	float GetTimeElapesed() { return m_fTimeElapsed; }
 };
 

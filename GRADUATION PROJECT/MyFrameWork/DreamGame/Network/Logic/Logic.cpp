@@ -9,6 +9,7 @@
 #include "../../Character.h"
 #include "../../sound/GameSound.h"
 #include "../NetworkHelper.h"
+#include"../../EffectObject.h"
 
 
 
@@ -570,6 +571,9 @@ void Logic::ProcessPacket(char* p)
 				int index = recvPacket->monsterIdx[i];
 				if (smallMonsterArr[index] == nullptr) continue;
 				smallMonsterArr[index]->GetPosition();	// 피격당한 일반 몬스터 위치
+				gGameFramework.GetScene()->GetObjectManager()->GetTankerAttackEffect()->AnimateEffect(
+					gGameFramework.GetScene()->m_pCamera, smallMonsterArr[index]->GetPosition(),
+					gGameFramework.GetScene()->GetObjectManager()->GetTimeElapesed(), 0);
 			}
 		}
 	}
