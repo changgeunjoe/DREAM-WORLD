@@ -1491,9 +1491,9 @@ void Archer::ShootArrow()//스킬
 	{
 		if (g_Logic.GetMyRole() == ROLE::ARCHER)
 			g_NetworkHelper.Send_SkillExecute_Q(Vector3::Normalize(GetObjectLook()));
+		g_sound.NoLoopPlay("ArcherQSkillSound", CalculateDistanceSound());
 		for (int i = 0; i < 3; ++i)//서버에 옮겨야됨
 		{
-			g_sound.NoLoopPlay("ArcherQSkillSound", CalculateDistanceSound());
 			XMFLOAT3 objectLook = GetObjectLook();
 			XMFLOAT3 objectRight = GetRight();
 			XMFLOAT3 objPosition = GetPosition();
@@ -1599,9 +1599,14 @@ void Archer::ShootArrow(const XMFLOAT3& xmf3Direction)
 {
 	// 플레이어 캐릭터가 아닐 때
 	m_nProjectiles = (m_nProjectiles < MAX_ARROW) ? m_nProjectiles : m_nProjectiles % MAX_ARROW;
+	if (!m_bQSkillClicked && !m_bESkillClicked) {
+		g_sound.Pause("ArrowBow");
+		g_sound.NoLoopPlay("AcherAttackSound", CalculateDistanceSound() - 0.2);
 
+	}
 	if (m_bQSkillClicked == true)
 	{
+		g_sound.NoLoopPlay("ArcherQSkillSound", CalculateDistanceSound());
 		for (int i = 0; i < 3; ++i)//서버에 옮겨야됨
 		{
 			XMFLOAT3 objectLook = GetObjectLook();
@@ -1621,6 +1626,7 @@ void Archer::ShootArrow(const XMFLOAT3& xmf3Direction)
 	}
 	else if (m_bESkillClicked == true)
 	{
+		g_sound.NoLoopPlay("ArcherESkillSound", CalculateDistanceSound());
 		m_xmf3TargetPos = xmf3Direction;
 		XMFLOAT3 xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
 		for (int i = 0; i < m_ppArrowForESkill.size(); ++i)
@@ -2938,15 +2944,13 @@ void NormalMonster::Animate(float fTimeElapsed)
 		{
 			m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_DIE].m_fProgressRate = 0.0f;
 			m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_DIE].m_fPosition = -ANIMATION_CALLBACK_EPSILON;
-			m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_DIE]->m_fPosition = -ANIMATION_CALLBACK_EPSILON;
+			m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_DIE].m_bAnimationEnd = false;
+
 			pair<CharacterAnimation, CharacterAnimation> NextAnimations = { CharacterAnimation::CA_DIE, CharacterAnimation::CA_DIE };
 			m_pSkinnedAnimationController->m_CurrentAnimations = NextAnimations;
 			m_pSkinnedAnimationController->SetTrackEnable(NextAnimations);
 		}
-		/*	if (CheckAnimationEnd(CA_DIE))
-			{
-				m_bActive = false;
-			}*/
+
 		GameObject::Animate(fTimeElapsed);
 		return;
 	}
@@ -2958,7 +2962,7 @@ void NormalMonster::Animate(float fTimeElapsed)
 	Move(fTimeElapsed);
 	SetAnimation();
 	GameObject::Animate(fTimeElapsed);
-	}
+}
 
 void NormalMonster::Move(float fTimeElapsed)
 {

@@ -17,7 +17,7 @@ public:
 	virtual void Particle(CCamera* pCamera,float fTimeElapsed, XMFLOAT3& xm3position);//중력 파티클
 	virtual void AnimateLight(CCamera* pCamera, XMFLOAT3 xm3position, float ftimeelapsed, float fTime) {};
 	//virtual void ParticleReset(float fTimeElapsed);
-	void SetActive(bool bActive);
+	virtual void SetActive(bool bActive);
 	
 public:
 
@@ -28,6 +28,7 @@ public:
 	float	m_fParticleLifeTime = 0.0f;
 	float	m_fEarthquakeLifeTime = 0.0f;
 	float	m_fEffectLifeTime = 0.0f;
+	XMFLOAT3 m_xmf3TargetPosition = XMFLOAT3(0.0f, 0.0f, 0.0f);
 
 
 	vector< GameObject*> m_pEffectObjects;
@@ -99,6 +100,7 @@ public:
 	virtual void AnimateEffect(CCamera* pCamera, XMFLOAT3 xm3position, float ftimeelapsed, float fTime);
 	virtual void AnimateEarthQuake(float ftimeelapsed);
 	virtual void SetEarthquekePosition();
+	virtual void SetActive(bool bActive);
 	array<GameObject*, 4> m_pTankerEffectObject{};
 	XMFLOAT3 m_f3EarquakePos{};
 	bool m_bEarthQuake{};

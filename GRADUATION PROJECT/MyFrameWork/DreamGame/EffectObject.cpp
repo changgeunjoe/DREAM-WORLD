@@ -603,42 +603,56 @@ void TankerEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 
 void TankerEffectObject::AnimateEffect(CCamera* pCamera, XMFLOAT3 xm3position, float ftimeelapsed, float fTime)
 {
-		/*m_fEffectLifeTime -= ftimeelapsed;
-		if (m_fEffectLifeTime < FLT_EPSILON) {
-			for (auto p : m_ppParticleObjects)
-			{
-				p->m_bActive = false;
-			}
-			m_bActive = false;
-			return;
-		}*/
-		for (int i = 0; i < m_ppParticleObjects.size(); i++) {
-			if (m_fParticleLifeTime == 0)
-				m_ppParticleObjects[i]->SetPosition(xm3position);
-		}
-		m_fParticleLifeTime += ftimeelapsed;
-		if (m_fParticleLifeTime < 3)
+	/*m_fEffectLifeTime -= ftimeelapsed;
+	if (m_fEffectLifeTime < FLT_EPSILON) {
+		for (auto p : m_ppParticleObjects)
 		{
-			for (int i = 0; i < m_ppParticleObjects.size(); i++) {
-				float t = m_ppParticleObjects[i]->m_fTime, tt = t * t * 0.6f;
-				/////////////////////////////////////
-				m_ppParticleObjects[i]->m_fTime += ftimeelapsed;
-				m_ppParticleObjects[i]->SetLookAt(pCamera->GetPosition());
-				//m_ppParticleObjects[i]->SetScale(1);
-				m_ppParticleObjects[i]->Rotate(0, 180, 0);
-				if (m_ppParticleObjects[i]->m_fTime > 3) {
-					m_ppParticleObjects[i]->m_fTime = 0;
-				}
-				XMFLOAT3 mxmf3Accel = { 0.f, -0.0f, 0.f };
-				m_ppParticleObjects[i]->SetPosition(Vector3::Add(m_ppParticleObjects[i]->GetPosition(), Vector3::Add(Vector3::ScalarProduct(mxmf3Accel, tt, false), Vector3::ScalarProduct(m_ppParticleObjects[i]->m_xmf3RamdomDirection, t, false))));
-				if (sin(m_fParticleLifeTime) < 0.95) {
-					m_ppParticleObjects[i]->SetScale(sin(m_fParticleLifeTime));
-				}
+			p->m_bActive = false;
+		}
+		m_bActive = false;
+		return;
+	}*/
+	m_fEffectLifeTime -= ftimeelapsed;
+	if (m_fEffectLifeTime < FLT_EPSILON) {
+		for (auto p : m_pTankerEffectObject)
+		{
+			p->m_bActive = false;
+		}
+		for (auto p : m_ppParticleObjects)
+		{
+			p->m_bActive = false;
+		}
+		m_bActive = false;
+		return;
+	}
+
+	for (int i = 0; i < m_ppParticleObjects.size(); i++) {
+		if (m_fParticleLifeTime == 0)
+			m_ppParticleObjects[i]->SetPosition(xm3position);
+	}
+	m_fParticleLifeTime += ftimeelapsed;
+	if (m_fParticleLifeTime < 3)
+	{
+		for (int i = 0; i < m_ppParticleObjects.size(); i++) {
+			float t = m_ppParticleObjects[i]->m_fTime, tt = t * t * 0.6f;
+			/////////////////////////////////////
+			m_ppParticleObjects[i]->m_fTime += ftimeelapsed;
+			m_ppParticleObjects[i]->SetLookAt(pCamera->GetPosition());
+			//m_ppParticleObjects[i]->SetScale(1);
+			m_ppParticleObjects[i]->Rotate(0, 180, 0);
+			if (m_ppParticleObjects[i]->m_fTime > 3) {
+				m_ppParticleObjects[i]->m_fTime = 0;
+			}
+			XMFLOAT3 mxmf3Accel = { 0.f, -0.0f, 0.f };
+			m_ppParticleObjects[i]->SetPosition(Vector3::Add(m_ppParticleObjects[i]->GetPosition(), Vector3::Add(Vector3::ScalarProduct(mxmf3Accel, tt, false), Vector3::ScalarProduct(m_ppParticleObjects[i]->m_xmf3RamdomDirection, t, false))));
+			if (sin(m_fParticleLifeTime) < 0.95) {
+				m_ppParticleObjects[i]->SetScale(sin(m_fParticleLifeTime));
 			}
 		}
-		else if (m_fParticleLifeTime > 2.5) {
-			m_fParticleLifeTime = 0;
-		}
+	}
+	else if (m_fParticleLifeTime > 2.5) {
+		m_fParticleLifeTime = 0;
+	}
 }
 
 void TankerEffectObject::AnimateEarthQuake(float ftimeelapsed)
@@ -668,6 +682,19 @@ void TankerEffectObject::SetEarthquekePosition()
 		XMFLOAT3 xmf3Position = XMFLOAT3(RandF(-4, 4), RandF(0, 0.5), RandF(-4, 4));
 		m_pTankerEffectObject[i]->m_bActive = true;
 		m_pTankerEffectObject[i]->SetPosition(Vector3::Add(m_f3EarquakePos, xmf3Position));
+	}
+}
+
+void TankerEffectObject::SetActive(bool bActive)
+{
+	m_bActive = bActive;
+	for (auto p : m_pTankerEffectObject)
+	{
+		p->m_bActive = bActive;
+	}
+	for (auto p : m_ppParticleObjects)
+	{
+		p->m_bActive = bActive;
 	}
 }
 

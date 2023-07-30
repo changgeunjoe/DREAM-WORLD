@@ -256,6 +256,7 @@ void CAnimationController::ResetTrack()
 		for (int i = 0; i < m_nAnimationTracks; ++i)
 		{
 			m_pAnimationTracks[i].m_fPosition = -ANIMATION_CALLBACK_EPSILON;
+			m_pAnimationTracks[i].m_fProgressRate = 0.0f;
 			m_pAnimationTracks[i].m_bAnimationEnd = false;
 		}
 	}

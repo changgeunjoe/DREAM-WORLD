@@ -186,15 +186,16 @@ void GameobjectManager::Animate(float fTimeElapsed)
 		effect->AnimateEffect(m_pCamera, possessChracter->GetPosition(), fTimeElapsed, m_fTime * 10);
 	}
 
-
 	m_pPortalEffectObject->AnimateEffect(m_pCamera, XMFLOAT3(-5, 0, -15), fTimeElapsed, m_fTime * 5);
-	if (m_bTest) {
-		//m_pPreistAttackEffectObject->AnimateEffect(m_pCamera, XMFLOAT3(0, 20, 0), fTimeElapsed, m_fTime * 5);
-		m_pTankerAttackEffectObject->AnimateEffect(m_pCamera, XMFLOAT3(0, 20, 0), fTimeElapsed, m_fTime * 5);
-		m_pTankerAttackEffectObject->AnimateEarthQuake(fTimeElapsed);
-		m_pTankerAttackEffectObject->m_fEffectLifeTime = 2.0f;
 
+	if (m_pTankerAttackEffectObject->m_bActive) {
+		if (m_pTankerAttackEffectObject->m_fEffectLifeTime > FLT_EPSILON) {
+			m_pTankerAttackEffectObject->m_xmf3TargetPosition.y = 20.0f;
+			m_pTankerAttackEffectObject->AnimateEffect(m_pCamera, m_pTankerAttackEffectObject->m_xmf3TargetPosition, fTimeElapsed, m_fTime * 5);
+			m_pTankerAttackEffectObject->AnimateEarthQuake(fTimeElapsed);
+		}
 	}
+	
 	//Effect
 	// if (m_pSelectedObject) {
 		// Èú ÀÌÆåÆ®
@@ -2621,7 +2622,8 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		{
 			//g_Logic.m_KeyInput->m_bQKey = true;
 
-			if (myPlayCharacter->GetQSkillState() == false && myPlayCharacter->GetOnAttack() == false)
+			if (myPlayCharacter->GetQSkillState() == false && myPlayCharacter->GetOnAttack() == false
+				&& !myPlayCharacter->GetLButtonClicked())
 			{
 				myPlayCharacter->FirstSkillDown();
 			}
@@ -2629,7 +2631,8 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		break;
 		case 'E':
 		{
-			if (myPlayCharacter->GetESkillState() == false && myPlayCharacter->GetOnAttack() == false)
+			if (myPlayCharacter->GetQSkillState() == false && myPlayCharacter->GetOnAttack() == false
+				&& !myPlayCharacter->GetLButtonClicked())
 			{
 				if (g_Logic.GetMyRole() == ROLE::PRIEST || g_Logic.GetMyRole() == ROLE::ARCHER)
 				{

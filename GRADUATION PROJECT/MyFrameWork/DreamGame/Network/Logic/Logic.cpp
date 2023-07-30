@@ -583,14 +583,15 @@ void Logic::ProcessPacket(char* p)
 		NormalMonster** smallMonsterArr = gGameFramework.GetScene()->GetObjectManager()->GetNormalMonsterArr();
 		if (recvPacket->role == ROLE::TANKER)
 		{
+			Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::TANKER);
+			if (possessObj->GetESkillState() == false) return;
 			for (int i = 0; i < recvPacket->attackedMonsterCnt; ++i)
 			{
 				int index = recvPacket->monsterIdx[i];
 				if (smallMonsterArr[index] == nullptr) continue;
-				smallMonsterArr[index]->GetPosition();	// 피격당한 일반 몬스터 위치
-				gGameFramework.GetScene()->GetObjectManager()->GetTankerAttackEffect()->AnimateEffect(
-					gGameFramework.GetScene()->m_pCamera, smallMonsterArr[index]->GetPosition(),
-					gGameFramework.GetScene()->GetObjectManager()->GetTimeElapesed(), 0);
+				gGameFramework.GetScene()->GetObjectManager()->GetTankerAttackEffect()->m_xmf3TargetPosition = smallMonsterArr[index]->GetPosition();
+				gGameFramework.GetScene()->GetObjectManager()->GetTankerAttackEffect()->SetActive(true);
+				gGameFramework.GetScene()->GetObjectManager()->GetTankerAttackEffect()->m_fEffectLifeTime = 3.0f;
 			}
 		}
 	}
