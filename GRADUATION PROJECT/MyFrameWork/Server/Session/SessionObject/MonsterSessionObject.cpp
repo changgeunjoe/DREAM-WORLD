@@ -83,6 +83,7 @@ bool MonsterSessionObject::Move(float elapsedTime)
 {
 	if (isMove) {
 		XMFLOAT3 destinationPlayerPos = g_RoomManager.GetRunningRoomRef(m_roomId).GetPositionPlayCharacter(m_aggroPlayerRole);//플레이어 위치
+		destinationPlayerPos.y = 0.0;
 		XMFLOAT3 desPlayerVector = Vector3::Subtract(destinationPlayerPos, m_position);
 		float playerDistance = Vector3::Length(desPlayerVector);
 		desPlayerVector = Vector3::Normalize(desPlayerVector);
@@ -91,193 +92,298 @@ bool MonsterSessionObject::Move(float elapsedTime)
 		bool isOnNode = g_bossMapData.GetTriangleMesh(m_onIdx).IsOnTriangleMesh(m_position);
 		bool isPlayerOnNode = g_bossMapData.GetTriangleMesh(m_onIdx).IsOnTriangleMesh(destinationPlayerPos);
 
+		XMFLOAT3 monsterVector = m_directionVector;
 
-
-		if (isOnNode && isPlayerOnNode) {
-			if (Vector3::Angle(m_desVector, desPlayerVector) > 0.3f) {
-				m_desVector = desPlayerVector;
-				SERVER_PACKET::BossDirectionPacket postData;
-				postData.size = sizeof(SERVER_PACKET::BossDirectionPacket);
-				postData.type = SERVER_PACKET::BOSS_CHANGE_DIRECION;
-				postData.directionVec = m_desVector;
-				ExpOver* postQueue = new ExpOver(reinterpret_cast<char*>(&postData));
-				postQueue->m_opCode = OP_BOSS_CHANGE_DIRECTION;
-				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, m_roomId, &postQueue->m_overlap);
-			}
-			float ChangingAngle = Vector3::Angle(desPlayerVector, m_directionVector);
-			if (ChangingAngle > 40.0f) {
-				std::cout << "EQ IDX - angle > 40" << std::endl;
-				bool OnRight = (Vector3::DotProduct(m_rightVector, desPlayerVector) > 0) ? true : false;	// 목적지가 오른쪽 왼
-				OnRight ? Rotate(ROTATE_AXIS::Y, 180.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -180.0f * elapsedTime);
-				return true;
-			}
-			else if (ChangingAngle > 1.8f) {
-				std::cout << "EQ IDX - angle > 1.8 & move" << std::endl;
-				bool OnRight = (Vector3::DotProduct(m_rightVector, desPlayerVector) > 0) ? true : false;	// 목적지가 오른쪽 왼
-				OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
-				//공격은 외부 if에서 알아서 조건 맞으면 함
-			}
-			if (playerDistance >= 42.0f && g_bossMapData.GetTriangleMesh(m_onIdx).IsOnTriangleMesh(destinationPlayerPos)) {
-				std::cout << "EQ IDX - move forward" << std::endl;
-				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, m_speed * elapsedTime, false));//틱마다 움직임
-				m_SPBB.Center = m_position;
-				m_SPBB.Center.y = m_fBoundingSize;
-			}
-			return true;
-		}
-		else {
-			if (!isOnNode) {
-
-				m_reserveRoadLock.lock();
-				if (m_ReserveRoad.size() > 1) {
-					bool nextNodeOnIdx = g_bossMapData.GetTriangleMesh(*(++m_ReserveRoad.begin())).IsOnTriangleMesh(m_position);
-					if (nextNodeOnIdx) {
-						std::cout << "eraseIDX: " << m_onIdx << std::endl;
-						m_ReserveRoad.erase(m_ReserveRoad.begin());
-						m_onIdx = *m_ReserveRoad.begin();
-					}
-				}
-				else {
-					m_onIdx = *m_ReserveRoad.begin();
-				}
-				m_reserveRoadLock.unlock();
-				if (m_onIdx == 262) {
-					std::cout << "262" << std::endl;
-
-				}
-				if (m_onIdx == 309) {
-					std::cout << "309" << std::endl;
-				}
-				if (m_onIdx == 249) {
-					std::cout << "249" << std::endl;
-				}
-			}
-			int currentNodeIdx;
-			int secondNodeIdx;
+		if (m_changeRoad) {
+			int firstIdx;
+			int secondIdx;
 			m_reserveRoadLock.lock();
 			if (m_ReserveRoad.size() > 1) {
-				currentNodeIdx = *m_ReserveRoad.begin();
-				secondNodeIdx = *(++m_ReserveRoad.begin());
+				firstIdx = *m_ReserveRoad.begin();
+				secondIdx = *(++m_ReserveRoad.begin());
 				m_reserveRoadLock.unlock();
+				TrinangleMesh& firstTriangle = g_bossMapData.GetTriangleMesh(firstIdx);
+				TrinangleMesh& secondTriangle = g_bossMapData.GetTriangleMesh(secondIdx);
+				std::vector<int> sharedPoint = firstTriangle.IsShareLine(secondTriangle.GetVertexIdxs());
+				auto& mapVertexData = g_bossMapData.GetVertexData();
 
-				TrinangleMesh destinationNodeCenter = g_bossMapData.GetTriangleMesh(currentNodeIdx);
-				TrinangleMesh nextMoveNode = g_bossMapData.GetTriangleMesh(secondNodeIdx);
-				std::vector<int> sharedPoints = destinationNodeCenter.IsShareLine(nextMoveNode.GetVertexIdxs());
+				XMFLOAT3 sharedPointVec1 = Vector3::Subtract(mapVertexData[sharedPoint[0]], m_position);
+				XMFLOAT3 normalizeSharedPointVec1 = Vector3::Normalize(sharedPointVec1);
 
-				std::vector<XMFLOAT3> mapVertexData = g_bossMapData.GetVertexData();
-				XMFLOAT3 nodeVec1 = Vector3::Normalize(Vector3::Subtract(mapVertexData[sharedPoints[0]], m_position));
-				XMFLOAT3 nodeVec2 = Vector3::Normalize(Vector3::Subtract(mapVertexData[sharedPoints[1]], m_position));
-				if (std::abs(nodeVec1.x) < DBL_EPSILON && std::abs(nodeVec1.z) < DBL_EPSILON) {
-					nodeVec1 = m_directionVector;
-				}
-				if (std::abs(nodeVec2.x) < DBL_EPSILON && std::abs(nodeVec2.z) < DBL_EPSILON) {
-					nodeVec2 = m_directionVector;
-				}
+				XMFLOAT3 sharedPointVec2 = Vector3::Subtract(mapVertexData[sharedPoint[1]], m_position);
+				XMFLOAT3 normalizeSharedPointVec2 = Vector3::Normalize(sharedPointVec2);
 
-				float dotResult1 = Vector3::DotProduct(desPlayerVector, nodeVec1);
-				float dotResult2 = Vector3::DotProduct(desPlayerVector, nodeVec2);
+				XMFLOAT3 centerVec = Vector3::Add(normalizeSharedPointVec1, normalizeSharedPointVec2);
+				XMFLOAT3 normalizeCenterVec = Vector3::Normalize(centerVec);
 
-				XMFLOAT3 centerVec = Vector3::Normalize(Vector3::Add(nodeVec1, nodeVec2));
-				centerVec;
+				float centerToPDot = Vector3::DotProduct(desPlayerVector, normalizeCenterVec);
+				float sharedToPDot1 = Vector3::DotProduct(desPlayerVector, normalizeSharedPointVec1);
+				float sharedToPDot2 = Vector3::DotProduct(desPlayerVector, normalizeSharedPointVec2);
 
-				XMFLOAT3 monsterLookTo = m_directionVector;
+				float sharedToCenter1 = Vector3::DotProduct(normalizeCenterVec, normalizeSharedPointVec1);
+				float sharedToCenter2 = Vector3::DotProduct(normalizeCenterVec, normalizeSharedPointVec2);
 
-				bool isForward = false;
-				if (dotResult1 > 0) {
-					if (dotResult2 > 0) {
-						float dotPVec1 = Vector3::DotProduct(centerVec, nodeVec1);
-						float dotPVec2 = Vector3::DotProduct(centerVec, nodeVec2);
-						float centerPotP = Vector3::DotProduct(centerVec, desPlayerVector);
-						if (centerPotP >= dotPVec1 && centerPotP >= dotPVec2) {
-							monsterLookTo = desPlayerVector;
-							isForward = true;
-						}
-						else {
-							if (dotResult1 > dotResult2) {
-								monsterLookTo = nodeVec1;
-							}
-							else monsterLookTo = nodeVec2;
-						}
-					}
-					else {
-						monsterLookTo = nodeVec1;
-					}
+				if (centerToPDot >= sharedToCenter1 && centerToPDot >= sharedToCenter2) {
+					monsterVector = desPlayerVector;
 				}
 				else {
-					if (dotResult2 > 0) {
-						monsterLookTo = nodeVec2;
+					XMFLOAT3 middleLineVec = Vector3::Add(sharedPointVec1, sharedPointVec2);
+					XMFLOAT3 normalizeMiddleLineVec = Vector3::Normalize(middleLineVec);
+					if (sharedToPDot1 > sharedToPDot2) {
+						monsterVector = Vector3::Normalize(Vector3::Add(middleLineVec, sharedPointVec1));
+					}
+					else {
+						monsterVector = Vector3::Normalize(Vector3::Add(middleLineVec, sharedPointVec2));
 					}
 				}
-				if (!isForward) {
-					XMFLOAT3 c2cVec = Vector3::Normalize(Vector3::Subtract(nextMoveNode.GetCenter(), destinationNodeCenter.GetCenter()));
-					monsterLookTo = Vector3::Normalize(Vector3::Add(c2cVec, monsterLookTo));
-				}
 
-				SERVER_PACKET::BossDirectionPacket postData;
-				postData.size = sizeof(SERVER_PACKET::BossDirectionPacket);
-				postData.type = SERVER_PACKET::BOSS_CHANGE_DIRECION;
-				postData.directionVec = monsterLookTo;
-				ExpOver* postQueue = new ExpOver(reinterpret_cast<char*>(&postData));
-				postQueue->m_opCode = OP_BOSS_CHANGE_DIRECTION;
-				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, m_roomId, &postQueue->m_overlap);
-				m_desVector = monsterLookTo;
+				m_desVector = monsterVector;
 				bool OnRight = (Vector3::DotProduct(m_rightVector, m_desVector) > 0) ? true : false;	// 목적지가 오른쪽 왼
-				float ChangingAngle = Vector3::Angle(m_desVector, m_directionVector);
-				//거리와 벡터 계산				
-				if (ChangingAngle > 40.0f) {
+				float ChangingAngle = Vector3::Angle(monsterVector, m_directionVector);
+
+				if (ChangingAngle > 20.0f) {
 					//std::cout << "Astar Move - Rotate angle >40" << std::endl;
+					SERVER_PACKET::BossDirectionPacket postData;
+					postData.size = sizeof(SERVER_PACKET::BossDirectionPacket);
+					postData.type = SERVER_PACKET::BOSS_CHANGE_DIRECION;
+					postData.directionVec = monsterVector;
+					ExpOver* postQueue = new ExpOver(reinterpret_cast<char*>(&postData));
+					postQueue->m_opCode = OP_BOSS_CHANGE_DIRECTION;
+					PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, m_roomId, &postQueue->m_overlap);
 					OnRight ? Rotate(ROTATE_AXIS::Y, 180.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -180.0f * elapsedTime);
 				}
 				else if (ChangingAngle > 1.7f) {
 					//std::cout << "Astar Move - Rotate angle <1.7 && move" << std::endl;
+					SERVER_PACKET::BossDirectionPacket postData;
+					postData.size = sizeof(SERVER_PACKET::BossDirectionPacket);
+					postData.type = SERVER_PACKET::BOSS_CHANGE_DIRECION;
+					postData.directionVec = monsterVector;
+					ExpOver* postQueue = new ExpOver(reinterpret_cast<char*>(&postData));
+					postQueue->m_opCode = OP_BOSS_CHANGE_DIRECTION;
+					PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, m_roomId, &postQueue->m_overlap);
+
 					OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
-					m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, m_speed * elapsedTime, false));//틱마다 움직임
-					m_SPBB.Center = m_position;
-					m_SPBB.Center.y += m_fBoundingSize;
+					if (playerDistance >= 42.0f) {
+						m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, m_speed * elapsedTime, false));//틱마다 움직임
+						m_SPBB.Center = m_position;
+						m_SPBB.Center.y += m_fBoundingSize;
+					}
 				}
 				else {
 					//std::cout << "Astar Move - move forward" << std::endl;
+					if (playerDistance >= 42.0f) {
+						m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, m_speed * elapsedTime, false));//틱마다 움직임
+						m_SPBB.Center = m_position;
+						m_SPBB.Center.y += m_fBoundingSize;
+					}
+				}
+			}
+			else {
+				m_reserveRoadLock.unlock();
+				monsterVector = desPlayerVector;
+				m_desVector = monsterVector;
+				bool OnRight = (Vector3::DotProduct(m_rightVector, m_desVector) > 0) ? true : false;	// 목적지가 오른쪽 왼
+				float ChangingAngle = Vector3::Angle(m_desVector, m_directionVector);
+				if (ChangingAngle > 20.0f) {
+					//std::cout << "Astar Move - Rotate angle >40" << std::endl;
+					SERVER_PACKET::BossDirectionPacket postData;
+					postData.size = sizeof(SERVER_PACKET::BossDirectionPacket);
+					postData.type = SERVER_PACKET::BOSS_CHANGE_DIRECION;
+					postData.directionVec = m_desVector;
+					ExpOver* postQueue = new ExpOver(reinterpret_cast<char*>(&postData));
+					postQueue->m_opCode = OP_BOSS_CHANGE_DIRECTION;
+					PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, m_roomId, &postQueue->m_overlap);
+					OnRight ? Rotate(ROTATE_AXIS::Y, 180.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -180.0f * elapsedTime);
+				}
+				else if (ChangingAngle > 1.7f) {
+					//std::cout << "Astar Move - Rotate angle <1.7 && move" << std::endl;
+					SERVER_PACKET::BossDirectionPacket postData;
+					postData.size = sizeof(SERVER_PACKET::BossDirectionPacket);
+					postData.type = SERVER_PACKET::BOSS_CHANGE_DIRECION;
+					postData.directionVec = m_desVector;
+					ExpOver* postQueue = new ExpOver(reinterpret_cast<char*>(&postData));
+					postQueue->m_opCode = OP_BOSS_CHANGE_DIRECTION;
+					PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, m_roomId, &postQueue->m_overlap);
+
+					OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
+					if (playerDistance >= 42.0f) {
+						m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, m_speed * elapsedTime, false));//틱마다 움직임
+						m_SPBB.Center = m_position;
+						m_SPBB.Center.y += m_fBoundingSize;
+					}
+				}
+				else {
+					//std::cout << "Astar Move - move forward" << std::endl;
+					if (playerDistance >= 42.0f) {
+						m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, m_speed * elapsedTime, false));//틱마다 움직임
+						m_SPBB.Center = m_position;
+						m_SPBB.Center.y += m_fBoundingSize;
+					}
+				}
+				//플레이어 따라가기
+
+			}
+			m_changeRoad = false;
+		}
+		else if (!isOnNode) {
+			m_reserveRoadLock.lock();
+			if (!m_ReserveRoad.empty() && m_ReserveRoad.size() > 1) {
+				m_onIdx = *m_ReserveRoad.begin();
+				m_ReserveRoad.erase(m_ReserveRoad.begin());
+				m_reserveRoadLock.unlock();
+
+			}
+			else m_reserveRoadLock.unlock();
+			int firstIdx;
+			int secondIdx;
+			m_reserveRoadLock.lock();
+			if (m_ReserveRoad.size() > 1) {
+				firstIdx = *m_ReserveRoad.begin();
+				secondIdx = *(++m_ReserveRoad.begin());
+				m_reserveRoadLock.unlock();
+				TrinangleMesh& firstTriangle = g_bossMapData.GetTriangleMesh(firstIdx);
+				TrinangleMesh& secondTriangle = g_bossMapData.GetTriangleMesh(secondIdx);
+				std::vector<int> sharedPoint = firstTriangle.IsShareLine(secondTriangle.GetVertexIdxs());
+				auto& mapVertexData = g_bossMapData.GetVertexData();
+
+				XMFLOAT3 sharedPointVec1 = Vector3::Subtract(mapVertexData[sharedPoint[0]], m_position);
+				XMFLOAT3 normalizeSharedPointVec1 = Vector3::Normalize(sharedPointVec1);
+
+				XMFLOAT3 sharedPointVec2 = Vector3::Subtract(mapVertexData[sharedPoint[1]], m_position);
+				XMFLOAT3 normalizeSharedPointVec2 = Vector3::Normalize(sharedPointVec2);
+
+				XMFLOAT3 centerVec = Vector3::Add(normalizeSharedPointVec1, normalizeSharedPointVec2);
+				XMFLOAT3 normalizeCenterVec = Vector3::Normalize(centerVec);
+
+				float centerToPDot = Vector3::DotProduct(desPlayerVector, normalizeCenterVec);
+				float sharedToPDot1 = Vector3::DotProduct(desPlayerVector, normalizeSharedPointVec1);
+				float sharedToPDot2 = Vector3::DotProduct(desPlayerVector, normalizeSharedPointVec2);
+
+				if (centerToPDot >= sharedToPDot1 && centerToPDot >= sharedToPDot2) {
+					monsterVector = desPlayerVector;
+				}
+				else {
+					XMFLOAT3 middleLineVec = Vector3::Add(sharedPointVec1, sharedPointVec2);
+					XMFLOAT3 normalizeMiddleLineVec = Vector3::Normalize(middleLineVec);
+					if (sharedToPDot1 > sharedToPDot2) {
+						monsterVector = Vector3::Normalize(Vector3::Add(middleLineVec, sharedPointVec1));
+					}
+					else {
+						monsterVector = Vector3::Normalize(Vector3::Add(middleLineVec, sharedPointVec2));
+					}
+				}
+				m_desVector = monsterVector;
+				bool OnRight = (Vector3::DotProduct(m_rightVector, m_desVector) > 0) ? true : false;	// 목적지가 오른쪽 왼
+				float ChangingAngle = Vector3::Angle(m_desVector, m_directionVector);
+
+				if (ChangingAngle > 20.0f) {
+					//std::cout << "Astar Move - Rotate angle >40" << std::endl;
+					SERVER_PACKET::BossDirectionPacket postData;
+					postData.size = sizeof(SERVER_PACKET::BossDirectionPacket);
+					postData.type = SERVER_PACKET::BOSS_CHANGE_DIRECION;
+					postData.directionVec = m_desVector;
+					ExpOver* postQueue = new ExpOver(reinterpret_cast<char*>(&postData));
+					postQueue->m_opCode = OP_BOSS_CHANGE_DIRECTION;
+					PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, m_roomId, &postQueue->m_overlap);
+					OnRight ? Rotate(ROTATE_AXIS::Y, 180.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -180.0f * elapsedTime);
+				}
+				else if (ChangingAngle > 1.7f) {
+					//std::cout << "Astar Move - Rotate angle <1.7 && move" << std::endl;
+					SERVER_PACKET::BossDirectionPacket postData;
+					postData.size = sizeof(SERVER_PACKET::BossDirectionPacket);
+					postData.type = SERVER_PACKET::BOSS_CHANGE_DIRECION;
+					postData.directionVec = m_desVector;
+					ExpOver* postQueue = new ExpOver(reinterpret_cast<char*>(&postData));
+					postQueue->m_opCode = OP_BOSS_CHANGE_DIRECTION;
+					PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, m_roomId, &postQueue->m_overlap);
+
+					OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
+					if (playerDistance >= 42.0f) {
+						m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, m_speed * elapsedTime, false));//틱마다 움직임
+						m_SPBB.Center = m_position;
+						m_SPBB.Center.y += m_fBoundingSize;
+					}
+				}
+				else {
+					//std::cout << "Astar Move - move forward" << std::endl;
+					if (playerDistance >= 42.0f) {
+						m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, m_speed * elapsedTime, false));//틱마다 움직임
+						m_SPBB.Center = m_position;
+						m_SPBB.Center.y += m_fBoundingSize;
+					}
+				}
+			}
+			else {
+				m_reserveRoadLock.unlock();
+				monsterVector = desPlayerVector;
+				m_desVector = monsterVector;
+				bool OnRight = (Vector3::DotProduct(m_rightVector, m_desVector) > 0) ? true : false;	// 목적지가 오른쪽 왼
+				float ChangingAngle = Vector3::Angle(m_desVector, m_directionVector);
+				if (ChangingAngle > 20.0f) {
+					//std::cout << "Astar Move - Rotate angle >40" << std::endl;
+					SERVER_PACKET::BossDirectionPacket postData;
+					postData.size = sizeof(SERVER_PACKET::BossDirectionPacket);
+					postData.type = SERVER_PACKET::BOSS_CHANGE_DIRECION;
+					postData.directionVec = m_desVector;
+					ExpOver* postQueue = new ExpOver(reinterpret_cast<char*>(&postData));
+					postQueue->m_opCode = OP_BOSS_CHANGE_DIRECTION;
+					PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, m_roomId, &postQueue->m_overlap);
+					OnRight ? Rotate(ROTATE_AXIS::Y, 180.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -180.0f * elapsedTime);
+				}
+				else if (ChangingAngle > 1.7f) {
+					//std::cout << "Astar Move - Rotate angle <1.7 && move" << std::endl;
+					SERVER_PACKET::BossDirectionPacket postData;
+					postData.size = sizeof(SERVER_PACKET::BossDirectionPacket);
+					postData.type = SERVER_PACKET::BOSS_CHANGE_DIRECION;
+					postData.directionVec = m_desVector;
+					ExpOver* postQueue = new ExpOver(reinterpret_cast<char*>(&postData));
+					postQueue->m_opCode = OP_BOSS_CHANGE_DIRECTION;
+					PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, m_roomId, &postQueue->m_overlap);
+
+					OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
+					if (playerDistance >= 42.0f) {
+					m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, m_speed * elapsedTime, false));//틱마다 움직임
+					m_SPBB.Center = m_position;
+					m_SPBB.Center.y += m_fBoundingSize;
+					}
+				}
+				else {
+					//std::cout << "Astar Move - move forward" << std::endl;
+					if (playerDistance >= 42.0f) {
+						m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, m_speed * elapsedTime, false));//틱마다 움직임
+						m_SPBB.Center = m_position;
+						m_SPBB.Center.y += m_fBoundingSize;
+					}
+				}
+				//플레이어 따라가기
+			}
+		}
+		else {
+			bool OnRight = (Vector3::DotProduct(m_rightVector, m_desVector) > 0) ? true : false;	// 목적지가 오른쪽 왼
+			float ChangingAngle = Vector3::Angle(m_desVector, m_directionVector);
+
+			if (ChangingAngle > 20.0f) {
+				//std::cout << "Astar Move - Rotate angle >40" << std::endl;				
+				OnRight ? Rotate(ROTATE_AXIS::Y, 180.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -180.0f * elapsedTime);
+			}
+			else if (ChangingAngle > 1.7f) {
+				//std::cout << "Astar Move - Rotate angle <1.7 && move" << std::endl;			
+				OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
+				if (playerDistance >= 42.0f) {
 					m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, m_speed * elapsedTime, false));//틱마다 움직임
 					m_SPBB.Center = m_position;
 					m_SPBB.Center.y += m_fBoundingSize;
 				}
 			}
 			else {
-				m_reserveRoadLock.unlock();
-				m_desVector = desPlayerVector;
-
-				SERVER_PACKET::BossDirectionPacket postData;
-				postData.size = sizeof(SERVER_PACKET::BossDirectionPacket);
-				postData.type = SERVER_PACKET::BOSS_CHANGE_DIRECION;
-				postData.directionVec = m_desVector;
-				ExpOver* postQueue = new ExpOver(reinterpret_cast<char*>(&postData));
-				postQueue->m_opCode = OP_BOSS_CHANGE_DIRECTION;
-				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, m_roomId, &postQueue->m_overlap);
-				float ChangingAngle = Vector3::Angle(desPlayerVector, m_directionVector);
-				if (ChangingAngle > 40.0f) {
-					//std::cout << "EQ IDX - angle > 40" << std::endl;
-					bool OnRight = (Vector3::DotProduct(m_rightVector, desPlayerVector) > 0) ? true : false;	// 목적지가 오른쪽 왼
-					OnRight ? Rotate(ROTATE_AXIS::Y, 180.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -180.0f * elapsedTime);
-					return true;
-				}
-				else if (ChangingAngle > 1.8f) {
-					//std::cout << "EQ IDX - angle > 1.8 & move" << std::endl;
-					bool OnRight = (Vector3::DotProduct(m_rightVector, desPlayerVector) > 0) ? true : false;	// 목적지가 오른쪽 왼
-					OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
-					//공격은 외부 if에서 알아서 조건 맞으면 함
-				}
-				if (playerDistance >= 42.0f && g_bossMapData.GetTriangleMesh(m_onIdx).IsOnTriangleMesh(destinationPlayerPos)) {
-					//std::cout << "EQ IDX - move forward" << std::endl;
+				//std::cout << "Astar Move - move forward" << std::endl;
+				if (playerDistance >= 42.0f) {
 					m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, m_speed * elapsedTime, false));//틱마다 움직임
 					m_SPBB.Center = m_position;
-					m_SPBB.Center.y = m_fBoundingSize;
+					m_SPBB.Center.y += m_fBoundingSize;
 				}
-				return true;
-
 			}
 		}
-
-
 	}
 	return true;
 }
@@ -293,9 +399,46 @@ void MonsterSessionObject::SetDestinationPos()
 	XMFLOAT3& pPos = g_RoomManager.GetRunningRoomRef(m_roomId).GetPositionPlayCharacter(sendPacket.targetRole);
 	//std::cout << "aggro Role: " << sendPacket.targetRole << std::endl;
 	//DataRace	
+	bool isOnNode = g_bossMapData.GetTriangleMesh(m_onIdx).IsOnTriangleMesh(m_position);
+	if (!isOnNode) {
+		auto& quadTree = g_bossMapData.GetNavMeshQuadTree();
+		auto candidateNodes = quadTree.GetNearbyNavMeshes(m_position.x, m_position.z);
+		auto triangleMesh = g_bossMapData.GetTriangleMeshes();
+		float minDis = FLT_MAX;
+		int idx = -1;
+		bool isOnResult = false;
+		XMFLOAT3 desPos = XMFLOAT3(m_position.x, 0, m_position.z);
+		for (int node : candidateNodes) {
+			isOnResult = triangleMesh[node].IsOnTriangleMesh(desPos);
+			if (isOnResult) {
+				idx = node;
+				break;
+			}
+			float dis = triangleMesh[node].GetDistanceByPoint(desPos);
+			if (minDis > dis) {
+				minDis = dis;
+				idx = node;
+			}
+		}
+		std::cout << "playerIdx: " << idx << std::endl;
+		int reFindIdx = -1;
+		if (!isOnResult) {
+			for (auto relationList : triangleMesh[idx].m_relationMesh) {
+				isOnResult = triangleMesh[relationList.first].IsOnTriangleMesh(desPos);
+				reFindIdx = relationList.first;
+				if (isOnResult) break;
+			}
+		}
+		int desNodeIdx = -1;
+		if (reFindIdx == -1)
+			desNodeIdx = idx;
+		else desNodeIdx = reFindIdx;
+		m_onIdx = desNodeIdx;
+	}
 	m_reserveRoadLock.lock();
 	m_ReserveRoad = g_bossMapData.AStarLoad(m_onIdx, pPos.x, pPos.z);
 	m_reserveRoadLock.unlock();
+	m_changeRoad = true;
 	m_reserveRoadLock.lock();
 	if (m_ReserveRoad.size() < 2) {
 		m_reserveRoadLock.unlock();

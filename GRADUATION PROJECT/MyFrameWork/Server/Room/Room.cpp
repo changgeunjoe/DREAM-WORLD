@@ -825,6 +825,7 @@ void Room::StopMovePlayCharacter(ROLE r)
 
 DirectX::XMFLOAT3 Room::GetPositionPlayCharacter(ROLE r)
 {
+	if (r == ROLE::NONE_SELECT)return XMFLOAT3(0, 0, 0);
 	return m_characterMap[r]->GetPos();
 }
 

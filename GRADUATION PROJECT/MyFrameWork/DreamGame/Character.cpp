@@ -2460,7 +2460,7 @@ void Monster::Move(float fTimeElapsed)
 		else {
 			XMFLOAT3 myLook = GetLook();
 			float serverChangingAngle = Vector3::Angle(m_desDirecionVec, myLook);
-			if (serverChangingAngle > 40.0f) {
+			if (serverChangingAngle > 20.0f) {
 				bool OnRight = (Vector3::DotProduct(GetRight(), m_desDirecionVec) > 0) ? true : false;
 				if (OnRight) {
 					Rotate(&up, 180.0f * fTimeElapsed);
@@ -2506,7 +2506,7 @@ void Monster::Move(float fTimeElapsed)
 		SetPosition(xmf3Position);
 		XMFLOAT3 myLook = GetLook();
 		float serverChangingAngle = Vector3::Angle(m_desDirecionVec, myLook);
-		if (serverChangingAngle > 40.0f) {
+		if (serverChangingAngle > 20.0f) {
 			bool OnRight = (Vector3::DotProduct(GetRight(), m_desDirecionVec) > 0) ? true : false;
 			if (OnRight) {
 				Rotate(&up, 180.0f * fTimeElapsed);

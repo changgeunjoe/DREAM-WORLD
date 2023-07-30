@@ -17,6 +17,7 @@ private:
 	ROLE m_newAggroPlayerRole = ROLE::NONE_SELECT;
 	std::mutex m_reserveRoadLock;
 	std::list<int> m_ReserveRoad;
+	std::atomic_bool m_changeRoad = false;
 	std::atomic_int m_onIdx = -1;
 public:
 	XMFLOAT3 m_desVector = XMFLOAT3(0, 0, 1);
