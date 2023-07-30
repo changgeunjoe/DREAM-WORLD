@@ -3255,9 +3255,9 @@ void GameobjectManager::ChangeStage1ToStage2(float fTimeelpased)
 
 void GameobjectManager::ChangeStage2ToStage1()
 {
-	m_bSendNpccollisionPK = !m_bSendNpccollisionPK;
-	m_bGameStart = !m_bGameStart;
-	m_bPortalCheck = !m_bPortalCheck;
+	m_bSendNpccollisionPK = false;
+	m_bGameStart = false;
+	m_bPortalCheck = false;
 	m_nStageType = 1;
 	m_fStroyTime = 0;//스테이지 1에서 스테이지 2로 넘어가는 스토리 타임 초기화
 	for (int i = 0; i < m_ppGameObjects.size(); ++i)
