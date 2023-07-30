@@ -130,16 +130,16 @@ bool MonsterSessionObject::Move(float elapsedTime)
 					XMFLOAT3 middleLineVec = Vector3::Add(sharedPointVec1, sharedPointVec2);
 					XMFLOAT3 normalizeMiddleLineVec = Vector3::Normalize(middleLineVec);
 					if (sharedToPDot1 > sharedToPDot2) {
-						monsterVector = Vector3::Normalize(Vector3::Add(middleLineVec, sharedPointVec1));
+						monsterVector = Vector3::Normalize(Vector3::Add(middleLineVec, sharedPointVec1, 1.4f));
 					}
 					else {
-						monsterVector = Vector3::Normalize(Vector3::Add(middleLineVec, sharedPointVec2));
+						monsterVector = Vector3::Normalize(Vector3::Add(middleLineVec, sharedPointVec2, 1.4f));
 					}
 				}
 
 				m_desVector = monsterVector;
 				bool OnRight = (Vector3::DotProduct(m_rightVector, m_desVector) > 0) ? true : false;	// 목적지가 오른쪽 왼
-				float ChangingAngle = Vector3::Angle(monsterVector, m_directionVector);
+				float ChangingAngle = Vector3::Angle(m_desVector, m_directionVector);
 
 				if (ChangingAngle > 20.0f) {
 					//std::cout << "Astar Move - Rotate angle >40" << std::endl;
@@ -266,16 +266,17 @@ bool MonsterSessionObject::Move(float elapsedTime)
 					XMFLOAT3 middleLineVec = Vector3::Add(sharedPointVec1, sharedPointVec2);
 					XMFLOAT3 normalizeMiddleLineVec = Vector3::Normalize(middleLineVec);
 					if (sharedToPDot1 > sharedToPDot2) {
-						monsterVector = Vector3::Normalize(Vector3::Add(middleLineVec, sharedPointVec1));
+						monsterVector = Vector3::Normalize(Vector3::Add(middleLineVec, sharedPointVec1, 1.4f));
 					}
 					else {
-						monsterVector = Vector3::Normalize(Vector3::Add(middleLineVec, sharedPointVec2));
+						monsterVector = Vector3::Normalize(Vector3::Add(middleLineVec, sharedPointVec2, 1.4f));
 					}
 				}
 				m_desVector = monsterVector;
 				bool OnRight = (Vector3::DotProduct(m_rightVector, m_desVector) > 0) ? true : false;	// 목적지가 오른쪽 왼
 				float ChangingAngle = Vector3::Angle(m_desVector, m_directionVector);
 
+			
 				if (ChangingAngle > 20.0f) {
 					//std::cout << "Astar Move - Rotate angle >40" << std::endl;
 					SERVER_PACKET::BossDirectionPacket postData;
@@ -342,9 +343,9 @@ bool MonsterSessionObject::Move(float elapsedTime)
 
 					OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
 					if (playerDistance >= 42.0f) {
-					m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, m_speed * elapsedTime, false));//틱마다 움직임
-					m_SPBB.Center = m_position;
-					m_SPBB.Center.y += m_fBoundingSize;
+						m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, m_speed * elapsedTime, false));//틱마다 움직임
+						m_SPBB.Center = m_position;
+						m_SPBB.Center.y += m_fBoundingSize;
 					}
 				}
 				else {
@@ -420,7 +421,6 @@ void MonsterSessionObject::SetDestinationPos()
 				idx = node;
 			}
 		}
-		std::cout << "playerIdx: " << idx << std::endl;
 		int reFindIdx = -1;
 		if (!isOnResult) {
 			for (auto relationList : triangleMesh[idx].m_relationMesh) {
@@ -434,11 +434,12 @@ void MonsterSessionObject::SetDestinationPos()
 			desNodeIdx = idx;
 		else desNodeIdx = reFindIdx;
 		m_onIdx = desNodeIdx;
+		m_changeRoad = true;
 	}
 	m_reserveRoadLock.lock();
 	m_ReserveRoad = g_bossMapData.AStarLoad(m_onIdx, pPos.x, pPos.z);
 	m_reserveRoadLock.unlock();
-	m_changeRoad = true;
+
 	m_reserveRoadLock.lock();
 	if (m_ReserveRoad.size() < 2) {
 		m_reserveRoadLock.unlock();
