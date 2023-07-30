@@ -269,7 +269,7 @@ private:
 	bool				m_bTest = false;
 	XMFLOAT3			m_LightningTargetPos;
 	bool				m_bGameStart = false;
-
+	bool				m_bBossText{ false };
 
 public:
 	std::vector<int> m_VecNodeQueue;
@@ -284,7 +284,6 @@ public:
 	bool m_bSendNpccollisionPK{ false };
 	bool m_bSceneSwap{ false };
 	bool m_bPickingenemy{ false };
-	bool m_bBossText{ false };
 	bool m_bLobbyTalkScreenSend{ true };
 public:
 	void SetPlayCharacter(Session* pSession);

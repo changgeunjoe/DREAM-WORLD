@@ -791,9 +791,9 @@ void BossEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 		m_pBossFireObject[i]->SetScale(8);
 		m_pBossFireObject[i]->m_bActive=true;
 		m_pBossFireObject[i]->SetRowColumn(4, 4, 0.03);
-		m_pBossFireObject[i]->m_xmf3RamdomDirection = Vector3::ScalarProduct(XMFLOAT3(RandF(-1, 1), RandF(-3, 3), RandF(-1, 1)), 1, false);
+		m_pBossFireObject[i]->m_xmf3RamdomDirection = XMFLOAT3(RandF(-1, 1), RandF(8, 24), RandF(-1, 1));
 		m_pBossFireObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-		m_pEffectObjects.emplace_back(m_ppParticleObjects[i]);
+		m_pEffectObjects.emplace_back(m_pBossFireObject[i]);
 		mppEffectObject->emplace_back(m_pBossFireObject[i]);
 	}
 }
@@ -803,16 +803,16 @@ void BossEffectObject::AnimateEffect(CCamera* pCamera, XMFLOAT3 xm3position, flo
 	//float size = 50;
 	for (int i = 0; i < m_pBossFireObject.size(); i++) {
 		m_pBossFireObject[i]->SetLookAt(pCamera->GetPosition());
-		m_pBossFireObject[i]->SetScale(8, m_pBossFireObject[i]->m_xmf3RamdomDirection.y*sin(m_pBossFireObject[i]->m_fTime)+7,8);
-		m_pBossFireObject[i]->m_fTime += ftimeelapsed;
+		m_pBossFireObject[i]->SetScale(8, m_pBossFireObject[i]->m_xmf3RamdomDirection.y, 8);
+		m_pBossFireObject[i]->m_fTime += ftimeelapsed / 50.0f;
 		m_pBossFireObject[i]->Rotate(0, 180, 0);
 		//m_pBossFireObject[i]->SetPosition(Vector3::Add(xm3position,Vector3::Multiply(size,m_pBossFireObject[i]->m_xmf3RamdomDirection)));
 		XMFLOAT3 Point = XMFLOAT3(cos(i * 10), 0, sin(i * 10));
 		Point = Vector3::Multiply(size, Point);
+		xm3position.y = 15.0f;
 		m_pBossFireObject[i]->SetPosition(Vector3::Add(xm3position, Point));
 		m_pBossFireObject[i]->AnimateRowColumn(ftimeelapsed);
 	}
-	
 }
 
 void BossEffectObject::Particle(CCamera* pCamera, float fTimeElapsed, XMFLOAT3& xm3position)
