@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "ChracterSessionObject.h"
+#include "MonsterSessionObject.h"
 #include "../UserSession.h"
 #include "../../Logic/Logic.h"
 #include "../../IOCPNetwork/protocol/protocol.h"
@@ -444,6 +445,25 @@ std::pair<bool, XMFLOAT3> ChracterSessionObject::CheckCollisionNormalMonster(XMF
 	return std::pair<bool, XMFLOAT3>(true, slidingVecResult);
 }
 
+std::pair<bool, XMFLOAT3> ChracterSessionObject::CheckCollisionBossMonster(XMFLOAT3& moveDirection, float ftimeElapsed)
+{
+	Room& roomRef = g_RoomManager.GetRunningRoomRef(m_roomId);
+	MonsterSessionObject& boss = roomRef.GetBoss();
+	boss.GetPos();
+
+	auto normalVecRes = GetNormalVectorSphere(boss.GetPos());
+	if (Vector3::DotProduct(normalVecRes.second, moveDirection) > 0.2f)return std::pair<bool, XMFLOAT3>(false, XMFLOAT3(0, 0, 0));
+	if (normalVecRes.first >= m_SPBB.Radius + 37.0f) return std::pair<bool, XMFLOAT3>(false, XMFLOAT3(0, 0, 0));
+	else {
+		XMFLOAT3 normalVec = normalVecRes.second;
+		XMFLOAT3 slidingVec = XMFLOAT3(-normalVec.z, 0.0f, normalVec.x);
+		float directionVectorDotslidingVec = Vector3::DotProduct(slidingVec, moveDirection);
+		if (directionVectorDotslidingVec < 0)slidingVec = Vector3::ScalarProduct(slidingVec, -1.0f, false);
+		return std::pair<bool, XMFLOAT3>(true, slidingVec);
+	}
+	return std::pair<bool, XMFLOAT3>(false, XMFLOAT3(0, 0, 0));
+}
+
 bool ChracterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
 {
 	Room& roomRef = g_RoomManager.GetRunningRoomRef(m_roomId);
@@ -451,211 +471,364 @@ bool ChracterSessionObject::CheckCollision(XMFLOAT3& moveDirection, float ftimeE
 	XMFLOAT3 mapNormalVector;
 	if (roomRef.GetRoomState() == ROOM_STAGE1) {
 		mapCollideResult = CheckCollisionMap_Stage(mapNormalVector, moveDirection, ftimeElapsed);
-	}
-	else if (roomRef.GetRoomState() == ROOM_BOSS) {
-		mapCollideResult = CheckCollisionMap_Boss(mapNormalVector, moveDirection, ftimeElapsed);
-	}
-	mapCollideResult.second.y = 0;
-	auto CharacterCollide = CheckCollisionCharacter(moveDirection, ftimeElapsed);
-	CharacterCollide.second.y = 0;
-	if (CharacterCollide.first && std::abs(CharacterCollide.second.x) < DBL_EPSILON && std::abs(CharacterCollide.second.z) < DBL_EPSILON) {//캐릭터 콜리전으로 인해 아예 못움직임
+		mapCollideResult.second.y = 0;
+		auto CharacterCollide = CheckCollisionCharacter(moveDirection, ftimeElapsed);
+		CharacterCollide.second.y = 0;
+		if (CharacterCollide.first && std::abs(CharacterCollide.second.x) < DBL_EPSILON && std::abs(CharacterCollide.second.z) < DBL_EPSILON) {//캐릭터 콜리전으로 인해 아예 못움직임
 #ifdef CHARCTER_MOVE_LOG
-		std::cout << "character no Move" << std::endl;
+			std::cout << "character no Move" << std::endl;
 #endif
-		return true;
+			return true;
 	}
-	if (mapCollideResult.first) {//맵에 충돌 됨
-		if (CharacterCollide.first) {//캐릭터가 충돌 됨		
-			float dotRes = Vector3::DotProduct(Vector3::Normalize(mapCollideResult.second), Vector3::Normalize(CharacterCollide.second));
-			if (dotRes > 0.2f) {//충돌 벡터가 방향이 비슷함
-				auto normalMonsterCollide = CheckCollisionNormalMonster(moveDirection, ftimeElapsed);
-				normalMonsterCollide.second.y = 0;
-				if (normalMonsterCollide.first && std::abs(normalMonsterCollide.second.x) < DBL_EPSILON && std::abs(normalMonsterCollide.second.z) < DBL_EPSILON) {//노말 몬스터 콜리전으로 인해 아예 못움직임
+		if (mapCollideResult.first) {//맵에 충돌 됨
+			if (CharacterCollide.first) {//캐릭터가 충돌 됨		
+				float dotRes = Vector3::DotProduct(Vector3::Normalize(mapCollideResult.second), Vector3::Normalize(CharacterCollide.second));
+				if (dotRes > 0.2f) {//충돌 벡터가 방향이 비슷함
+					auto normalMonsterCollide = CheckCollisionNormalMonster(moveDirection, ftimeElapsed);
+					normalMonsterCollide.second.y = 0;
+					if (normalMonsterCollide.first && std::abs(normalMonsterCollide.second.x) < DBL_EPSILON && std::abs(normalMonsterCollide.second.z) < DBL_EPSILON) {//노말 몬스터 콜리전으로 인해 아예 못움직임
 #ifdef CHARCTER_MOVE_LOG
-					PrintCurrentTime();
-					std::cout << "normalMonster no Move" << std::endl;
-					std::cout << std::endl;
+						PrintCurrentTime();
+						std::cout << "normalMonster no Move" << std::endl;
+						std::cout << std::endl;
 #endif
-					return true;
+						return true;
 				}
-				XMFLOAT3 moveDir = Vector3::Normalize(Vector3::Add(mapCollideResult.second, CharacterCollide.second));
-				if (normalMonsterCollide.first) {//노말 몬스터 충돌 됨
-					float dotRes = Vector3::DotProduct(Vector3::Normalize(normalMonsterCollide.second), moveDir);
-					if (dotRes > 0.2f) {//방향이 맞음						
-						m_position = Vector3::Add(m_position, Vector3::ScalarProduct(Vector3::Normalize(Vector3::Add(normalMonsterCollide.second, moveDir)), 0.9f * m_speed * ftimeElapsed));
+					XMFLOAT3 moveDir = Vector3::Normalize(Vector3::Add(mapCollideResult.second, CharacterCollide.second));
+					if (normalMonsterCollide.first) {//노말 몬스터 충돌 됨
+						float dotRes = Vector3::DotProduct(Vector3::Normalize(normalMonsterCollide.second), moveDir);
+						if (dotRes > 0.2f) {//방향이 맞음						
+							m_position = Vector3::Add(m_position, Vector3::ScalarProduct(Vector3::Normalize(Vector3::Add(normalMonsterCollide.second, moveDir)), 0.9f * m_speed * ftimeElapsed));
+							SetPosition(m_position);
+#ifdef CHARCTER_MOVE_LOG
+							PrintCurrentTime();
+							std::cout << "normalMonster &char & map Move" << std::endl;
+							std::cout << std::endl;
+#endif
+							return true;
+						}
+						else {//움직일 수가 없음
+#ifdef CHARCTER_MOVE_LOG
+							PrintCurrentTime();
+							std::cout << "normalMonster &char & map Move" << std::endl;
+							std::cout << std::endl;
+#endif
+							return true;
+					}
+			}
+					else {//노말 몬스터와 충돌하지 않음					
+						m_position = Vector3::Add(m_position, Vector3::ScalarProduct(Vector3::Normalize(moveDir), 0.9f * m_speed * ftimeElapsed));
 						SetPosition(m_position);
 #ifdef CHARCTER_MOVE_LOG
 						PrintCurrentTime();
-						std::cout << "normalMonster &char & map Move" << std::endl;
+						std::cout << "char & map Move" << std::endl;
 						std::cout << std::endl;
 #endif
 						return true;
 					}
-					else {//움직일 수가 없음
+		}
+				else {//아무것도 충돌하지 암ㅎ음
 #ifdef CHARCTER_MOVE_LOG
-						PrintCurrentTime();
-						std::cout << "normalMonster &char & map Move" << std::endl;
-						std::cout << std::endl;
+					PrintCurrentTime();
+					std::cout << "map & char no Move" << std::endl;
+					std::cout << std::endl;
 #endif
-						return true;
-					}
-				}
-				else {//노말 몬스터와 충돌하지 않음					
-					m_position = Vector3::Add(m_position, Vector3::ScalarProduct(Vector3::Normalize(moveDir), 0.9f * m_speed * ftimeElapsed));
+					return true;
+}
+				return true;
+			}
+			//캐릭터가 충돌하진 않았지만 노말 몬스터 체크
+			auto normalMonsterCollide = CheckCollisionNormalMonster(moveDirection, ftimeElapsed);
+			normalMonsterCollide.second.y = 0;
+			if (normalMonsterCollide.first) {//노말 몬스터와 충돌함
+				if (normalMonsterCollide.first && std::abs(normalMonsterCollide.second.x) < DBL_EPSILON && std::abs(normalMonsterCollide.second.z) < DBL_EPSILON) {//노말 몬스터 콜리전으로 인해 아예 못움직임
+#ifdef CHARCTER_MOVE_LOG
+					PrintCurrentTime();
+					std::cout << "monster no Move" << std::endl;
+					std::cout << std::endl;
+#endif
+					return true;
+			}
+				float dotRes = Vector3::DotProduct(Vector3::Normalize(normalMonsterCollide.second), Vector3::Normalize(mapCollideResult.second));
+				if (dotRes > 0.2f) {//맵과 노말 몬스터 충돌 벡터 방향이 비슷함
+					m_position = Vector3::Add(m_position, Vector3::ScalarProduct(Vector3::Normalize(Vector3::Add(normalMonsterCollide.second, mapCollideResult.second)), 0.9f * m_speed * ftimeElapsed));
 					SetPosition(m_position);
 #ifdef CHARCTER_MOVE_LOG
 					PrintCurrentTime();
-					std::cout << "char & map Move" << std::endl;
+					std::cout << "map & monster Move" << std::endl;
+					std::cout << std::endl;
+#endif
+					return true;
+				}
+				else {//아예 다름 -> 움직임 x
+#ifdef CHARCTER_MOVE_LOG
+					PrintCurrentTime();
+					std::cout << "map & monster no Move" << std::endl;
 					std::cout << std::endl;
 #endif
 					return true;
 				}
 			}
-			else {//아무것도 충돌하지 암ㅎ음
+			else {//노말 몬스터와 충돌하지 않음 => 맵만 충돌
+				float dotResult = Vector3::DotProduct(mapNormalVector, moveDirection);
+				if (dotResult > 0.121) {
+					return false;
+				}
 #ifdef CHARCTER_MOVE_LOG
 				PrintCurrentTime();
-				std::cout << "map & char no Move" << std::endl;
-				std::cout << std::endl;
-#endif
-				return true;
-			}
-			return true;
-		}
-		//캐릭터가 충돌하진 않았지만 노말 몬스터 체크
-		auto normalMonsterCollide = CheckCollisionNormalMonster(moveDirection, ftimeElapsed);
-		normalMonsterCollide.second.y = 0;
-		if (normalMonsterCollide.first) {//노말 몬스터와 충돌함
-			if (normalMonsterCollide.first && std::abs(normalMonsterCollide.second.x) < DBL_EPSILON && std::abs(normalMonsterCollide.second.z) < DBL_EPSILON) {//노말 몬스터 콜리전으로 인해 아예 못움직임
-#ifdef CHARCTER_MOVE_LOG
-				PrintCurrentTime();
-				std::cout << "monster no Move" << std::endl;
-				std::cout << std::endl;
-#endif
-				return true;
-			}
-			float dotRes = Vector3::DotProduct(Vector3::Normalize(normalMonsterCollide.second), Vector3::Normalize(mapCollideResult.second));
-			if (dotRes > 0.2f) {//맵과 노말 몬스터 충돌 벡터 방향이 비슷함
-				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(Vector3::Normalize(Vector3::Add(normalMonsterCollide.second, mapCollideResult.second)), 0.9f * m_speed * ftimeElapsed));
+				std::cout << "map Move" << std::endl;
+				std::cout << "prev collision position: " << m_position.x << ", " << m_position.y << ", " << m_position.z << std::endl;
+#endif 
+				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(mapCollideResult.second, m_speed * ftimeElapsed, false));
 				SetPosition(m_position);
 #ifdef CHARCTER_MOVE_LOG
-				PrintCurrentTime();
-				std::cout << "map & monster Move" << std::endl;
-				std::cout << std::endl;
+				std::cout << "after collision position: " << m_position.x << ", " << m_position.y << ", " << m_position.z << std::endl;
 #endif
 				return true;
+				}
 			}
-			else {//아예 다름 -> 움직임 x
+		//맵 충돌 하지 않음
+		if (CharacterCollide.first) {//캐릭터 와 충돌
+			auto bossMonsterCollide = CheckCollisionBossMonster(moveDirection, ftimeElapsed);
+			bossMonsterCollide.second.y = 0;
+			if (bossMonsterCollide.first) {//노말 몬스터와 충돌
+				float dotRes = Vector3::DotProduct(Vector3::Normalize(bossMonsterCollide.second), Vector3::Normalize(CharacterCollide.second));
+				if (dotRes > 0.2f) {//캐릭터 노말 몬스터 벡터
+					m_position = Vector3::Add(m_position, Vector3::ScalarProduct(Vector3::Normalize(Vector3::Add(bossMonsterCollide.second, CharacterCollide.second)), 0.9f * m_speed * ftimeElapsed));
+					SetPosition(m_position);
+#ifdef CHARCTER_MOVE_LOG
+					PrintCurrentTime();
+					std::cout << "monster & character Move" << std::endl;
+					std::cout << std::endl;
+#endif
+					return true;
+				}
+				else {//벡터가 달라서 움직이지 못함
+#ifdef CHARCTER_MOVE_LOG
+					PrintCurrentTime();
+					std::cout << "monster & character no Move" << std::endl;
+					std::cout << std::endl;
+#endif
+					return true;
+			}
+		}
+			else {// 노말 몬스터와 충돌하지 않음 -> 캐릭터만 충돌
+				XMFLOAT3 moveVec = Vector3::ScalarProduct(CharacterCollide.second, 0.9f * m_speed * ftimeElapsed);
 #ifdef CHARCTER_MOVE_LOG
 				PrintCurrentTime();
-				std::cout << "map & monster no Move" << std::endl;
-				std::cout << std::endl;
+				std::cout << "character Move" << std::endl;
+				std::cout << "prev collision position: " << m_position.x << ", " << m_position.y << ", " << m_position.z << std::endl;
+#endif
+				m_position = Vector3::Add(m_position, moveVec);
+				SetPosition(m_position);
+				//PrintCurrentTime();
+				//std::cout << "elapsedTime: " << ftimeElapsed << std::endl;
+				//std::cout << "speed: " << m_speed << std::endl;
+				//std::cout << "position: " << m_position.x << ", " << m_position.y << ", " << m_position.z << std::endl;
+				//std::cout << "moveVec: " << moveVec.x << ", " << moveVec.y << ", " << moveVec.z << std::endl << std::endl;
+#ifdef CHARCTER_MOVE_LOG
+				std::cout << "after collision position: " << m_position.x << ", " << m_position.y << ", " << m_position.z << std::endl;
+				std::cout << "character MoveDirecion: " << moveDirection.x << ", " << moveDirection.y << ", " << moveDirection.z << std::endl;
+				std::cout << "slidingVec: " << moveVec.x << ", " << moveVec.y << ", " << moveVec.z << std::endl;
+				std::cout << "slidingVec Size: " << Vector3::Length(moveVec) << std::endl << std::endl;
 #endif
 				return true;
 			}
 		}
-		else {//노말 몬스터와 충돌하지 않음 => 맵만 충돌
-			float dotResult = Vector3::DotProduct(mapNormalVector, moveDirection);
-			if (dotResult > 0.121) {
-				return false;
-			}
+		//캐릭터와 충돌하지 않음
+		auto bossMonsterCollide = CheckCollisionBossMonster(moveDirection, ftimeElapsed);
+		bossMonsterCollide.second.y = 0;
+		if (bossMonsterCollide.first) {//노말 몬스터와 충돌함
+			XMFLOAT3 slidingVec = Vector3::ScalarProduct(bossMonsterCollide.second, 1.0f * m_speed * ftimeElapsed);
 #ifdef CHARCTER_MOVE_LOG
 			PrintCurrentTime();
-			std::cout << "map Move" << std::endl;
-			std::cout << "prev collision position: " << m_position.x << ", " << m_position.y << ", " << m_position.z << std::endl;
-#endif 
-			m_position = Vector3::Add(m_position, Vector3::ScalarProduct(mapCollideResult.second, m_speed * ftimeElapsed, false));
+			std::cout << "monster Move" << std::endl;
+			std::cout << "collision slidingVec: " << bossMonsterCollide.second.x << ", " << bossMonsterCollide.second.y << ", " << bossMonsterCollide.second.z << std::endl;
+			std::cout << "collision slidingSize: " << Vector3::Length(slidingVec) << std::endl;
+			std::cout << "collision prev position: " << m_position.x << ", " << m_position.y << ", " << m_position.z << std::endl;
+#endif
+			m_position = Vector3::Add(m_position, slidingVec);
 			SetPosition(m_position);
 #ifdef CHARCTER_MOVE_LOG
-			std::cout << "after collision position: " << m_position.x << ", " << m_position.y << ", " << m_position.z << std::endl;
-#endif
-			return true;
-		}
-	}
-	//맵 충돌 하지 않음
-	if (CharacterCollide.first) {//캐릭터 와 충돌
-		auto normalMonsterCollide = CheckCollisionNormalMonster(moveDirection, ftimeElapsed);
-		normalMonsterCollide.second.y = 0;
-		if (normalMonsterCollide.first && std::abs(normalMonsterCollide.second.x) < DBL_EPSILON && std::abs(normalMonsterCollide.second.z) < DBL_EPSILON) {//캐릭터 콜리전으로 인해 아예 못움직임
-#ifdef CHARCTER_MOVE_LOG
-			PrintCurrentTime();
-			std::cout << "monster no Move" << std::endl;
+			std::cout << "collision after position: " << m_position.x << ", " << m_position.y << ", " << m_position.z << std::endl << std::endl;
 			std::cout << std::endl;
 #endif
 			return true;
 		}
-		if (normalMonsterCollide.first) {//노말 몬스터와 충돌
-			float dotRes = Vector3::DotProduct(Vector3::Normalize(normalMonsterCollide.second), Vector3::Normalize(CharacterCollide.second));
-			if (dotRes > 0.2f) {//캐릭터 노말 몬스터 벡터
-				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(Vector3::Normalize(Vector3::Add(normalMonsterCollide.second, CharacterCollide.second)), 0.9f * m_speed * ftimeElapsed));
-				SetPosition(m_position);
+		return false;
+	}
+	else if (roomRef.GetRoomState() == ROOM_BOSS) {
+		mapCollideResult = CheckCollisionMap_Boss(mapNormalVector, moveDirection, ftimeElapsed);
+		mapCollideResult.second.y = 0;
+		auto CharacterCollide = CheckCollisionCharacter(moveDirection, ftimeElapsed);
+		CharacterCollide.second.y = 0;
+		if (CharacterCollide.first && std::abs(CharacterCollide.second.x) < DBL_EPSILON && std::abs(CharacterCollide.second.z) < DBL_EPSILON) {//캐릭터 콜리전으로 인해 아예 못움직임
 #ifdef CHARCTER_MOVE_LOG
-				PrintCurrentTime();
-				std::cout << "monster & character Move" << std::endl;
-				std::cout << std::endl;
+			std::cout << "character no Move" << std::endl;
 #endif
+			return true;
+	}
+		if (mapCollideResult.first) {//맵에 충돌 됨
+			if (CharacterCollide.first) {//캐릭터가 충돌 됨		
+				float dotRes = Vector3::DotProduct(Vector3::Normalize(mapCollideResult.second), Vector3::Normalize(CharacterCollide.second));
+				if (dotRes > 0.2f) {//충돌 벡터가 방향이 비슷함
+					auto bossMonsterCollide = CheckCollisionBossMonster(moveDirection, ftimeElapsed);
+					bossMonsterCollide.second.y = 0;
+					XMFLOAT3 moveDir = Vector3::Normalize(Vector3::Add(mapCollideResult.second, CharacterCollide.second));
+					if (bossMonsterCollide.first) {//노말 몬스터 충돌 됨
+						float dotRes = Vector3::DotProduct(Vector3::Normalize(bossMonsterCollide.second), moveDir);
+						if (dotRes > 0.2f) {//방향이 맞음						
+							m_position = Vector3::Add(m_position, Vector3::ScalarProduct(Vector3::Normalize(Vector3::Add(bossMonsterCollide.second, moveDir)), 0.9f * m_speed * ftimeElapsed));
+							SetPosition(m_position);
+#ifdef CHARCTER_MOVE_LOG
+							PrintCurrentTime();
+							std::cout << "normalMonster &char & map Move" << std::endl;
+							std::cout << std::endl;
+#endif
+							return true;
+				}
+						else {//움직일 수가 없음
+#ifdef CHARCTER_MOVE_LOG
+							PrintCurrentTime();
+							std::cout << "normalMonster &char & map Move" << std::endl;
+							std::cout << std::endl;
+#endif
+							return true;
+			}
+					}
+					else {//노말 몬스터와 충돌하지 않음					
+						m_position = Vector3::Add(m_position, Vector3::ScalarProduct(Vector3::Normalize(moveDir), 0.9f * m_speed * ftimeElapsed));
+						SetPosition(m_position);
+#ifdef CHARCTER_MOVE_LOG
+						PrintCurrentTime();
+						std::cout << "char & map Move" << std::endl;
+						std::cout << std::endl;
+#endif
+						return true;
+		}
+				}
+				else {//아무것도 충돌하지 암ㅎ음
+#ifdef CHARCTER_MOVE_LOG
+					PrintCurrentTime();
+					std::cout << "map & char no Move" << std::endl;
+					std::cout << std::endl;
+#endif
+					return true;
+					}
 				return true;
 			}
-			else {//벡터가 달라서 움직이지 못함
+			//캐릭터가 충돌하진 않았지만 노말 몬스터 체크
+			auto bossMonsterCollide = CheckCollisionBossMonster(moveDirection, ftimeElapsed);
+			bossMonsterCollide.second.y = 0;
+			if (bossMonsterCollide.first) {//노말 몬스터와 충돌함
+				float dotRes = Vector3::DotProduct(Vector3::Normalize(bossMonsterCollide.second), Vector3::Normalize(mapCollideResult.second));
+				if (dotRes > 0.2f) {//맵과 노말 몬스터 충돌 벡터 방향이 비슷함
+					m_position = Vector3::Add(m_position, Vector3::ScalarProduct(Vector3::Normalize(Vector3::Add(bossMonsterCollide.second, mapCollideResult.second)), 0.9f * m_speed * ftimeElapsed));
+					SetPosition(m_position);
+#ifdef CHARCTER_MOVE_LOG
+					PrintCurrentTime();
+					std::cout << "map & monster Move" << std::endl;
+					std::cout << std::endl;
+#endif
+					return true;
+				}
+				else {//아예 다름 -> 움직임 x
+#ifdef CHARCTER_MOVE_LOG
+					PrintCurrentTime();
+					std::cout << "map & monster no Move" << std::endl;
+					std::cout << std::endl;
+#endif
+					return true;
+				}
+			}
+			else {//노말 몬스터와 충돌하지 않음 => 맵만 충돌
+				float dotResult = Vector3::DotProduct(mapNormalVector, moveDirection);
+				if (dotResult > 0.121) {
+					return false;
+			}
 #ifdef CHARCTER_MOVE_LOG
 				PrintCurrentTime();
-				std::cout << "monster & character no Move" << std::endl;
-				std::cout << std::endl;
+				std::cout << "map Move" << std::endl;
+				std::cout << "prev collision position: " << m_position.x << ", " << m_position.y << ", " << m_position.z << std::endl;
+#endif 
+				m_position = Vector3::Add(m_position, Vector3::ScalarProduct(mapCollideResult.second, m_speed * ftimeElapsed, false));
+				SetPosition(m_position);
+#ifdef CHARCTER_MOVE_LOG
+				std::cout << "after collision position: " << m_position.x << ", " << m_position.y << ", " << m_position.z << std::endl;
 #endif
 				return true;
 			}
 		}
-		else {// 노말 몬스터와 충돌하지 않음 -> 캐릭터만 충돌
-			XMFLOAT3 moveVec = Vector3::ScalarProduct(CharacterCollide.second, 0.9f * m_speed * ftimeElapsed);
+		//맵 충돌 하지 않음
+		if (CharacterCollide.first) {//캐릭터 와 충돌
+			auto bossMonsterCollide = CheckCollisionBossMonster(moveDirection, ftimeElapsed);
+			bossMonsterCollide.second.y = 0;
+			if (bossMonsterCollide.first) {//노말 몬스터와 충돌
+				float dotRes = Vector3::DotProduct(Vector3::Normalize(bossMonsterCollide.second), Vector3::Normalize(CharacterCollide.second));
+				if (dotRes > 0.2f) {//캐릭터 노말 몬스터 벡터
+					m_position = Vector3::Add(m_position, Vector3::ScalarProduct(Vector3::Normalize(Vector3::Add(bossMonsterCollide.second, CharacterCollide.second)), 0.9f * m_speed * ftimeElapsed));
+					SetPosition(m_position);
+#ifdef CHARCTER_MOVE_LOG
+					PrintCurrentTime();
+					std::cout << "monster & character Move" << std::endl;
+					std::cout << std::endl;
+#endif
+					return true;
+				}
+				else {//벡터가 달라서 움직이지 못함
+#ifdef CHARCTER_MOVE_LOG
+					PrintCurrentTime();
+					std::cout << "monster & character no Move" << std::endl;
+					std::cout << std::endl;
+#endif
+					return true;
+				}
+				}
+			else {// 노말 몬스터와 충돌하지 않음 -> 캐릭터만 충돌
+				XMFLOAT3 moveVec = Vector3::ScalarProduct(CharacterCollide.second, 0.9f * m_speed * ftimeElapsed);
+#ifdef CHARCTER_MOVE_LOG
+				PrintCurrentTime();
+				std::cout << "character Move" << std::endl;
+				std::cout << "prev collision position: " << m_position.x << ", " << m_position.y << ", " << m_position.z << std::endl;
+#endif
+				m_position = Vector3::Add(m_position, moveVec);
+				SetPosition(m_position);
+				//PrintCurrentTime();
+				//std::cout << "elapsedTime: " << ftimeElapsed << std::endl;
+				//std::cout << "speed: " << m_speed << std::endl;
+				//std::cout << "position: " << m_position.x << ", " << m_position.y << ", " << m_position.z << std::endl;
+				//std::cout << "moveVec: " << moveVec.x << ", " << moveVec.y << ", " << moveVec.z << std::endl << std::endl;
+#ifdef CHARCTER_MOVE_LOG
+				std::cout << "after collision position: " << m_position.x << ", " << m_position.y << ", " << m_position.z << std::endl;
+				std::cout << "character MoveDirecion: " << moveDirection.x << ", " << moveDirection.y << ", " << moveDirection.z << std::endl;
+				std::cout << "slidingVec: " << moveVec.x << ", " << moveVec.y << ", " << moveVec.z << std::endl;
+				std::cout << "slidingVec Size: " << Vector3::Length(moveVec) << std::endl << std::endl;
+#endif
+				return true;
+			}
+		}
+		//캐릭터와 충돌하지 않음
+		auto bossMonsterCollide = CheckCollisionBossMonster(moveDirection, ftimeElapsed);
+		bossMonsterCollide.second.y = 0;
+		if (bossMonsterCollide.first) {//노말 몬스터와 충돌함
+			XMFLOAT3 slidingVec = Vector3::ScalarProduct(bossMonsterCollide.second, 0.9f * m_speed * ftimeElapsed);
 #ifdef CHARCTER_MOVE_LOG
 			PrintCurrentTime();
-			std::cout << "character Move" << std::endl;
-			std::cout << "prev collision position: " << m_position.x << ", " << m_position.y << ", " << m_position.z << std::endl;
+			std::cout << "monster Move" << std::endl;
+			std::cout << "collision slidingVec: " << bossMonsterCollide.second.x << ", " << bossMonsterCollide.second.y << ", " << bossMonsterCollide.second.z << std::endl;
+			std::cout << "collision slidingSize: " << Vector3::Length(slidingVec) << std::endl;
+			std::cout << "collision prev position: " << m_position.x << ", " << m_position.y << ", " << m_position.z << std::endl;
 #endif
-			m_position = Vector3::Add(m_position, moveVec);
+			m_position = Vector3::Add(m_position, slidingVec);
 			SetPosition(m_position);
-			//PrintCurrentTime();
-			//std::cout << "elapsedTime: " << ftimeElapsed << std::endl;
-			//std::cout << "speed: " << m_speed << std::endl;
-			//std::cout << "position: " << m_position.x << ", " << m_position.y << ", " << m_position.z << std::endl;
-			//std::cout << "moveVec: " << moveVec.x << ", " << moveVec.y << ", " << moveVec.z << std::endl << std::endl;
 #ifdef CHARCTER_MOVE_LOG
-			std::cout << "after collision position: " << m_position.x << ", " << m_position.y << ", " << m_position.z << std::endl;
-			std::cout << "character MoveDirecion: " << moveDirection.x << ", " << moveDirection.y << ", " << moveDirection.z << std::endl;
-			std::cout << "slidingVec: " << moveVec.x << ", " << moveVec.y << ", " << moveVec.z << std::endl;
-			std::cout << "slidingVec Size: " << Vector3::Length(moveVec) << std::endl << std::endl;
+			std::cout << "collision after position: " << m_position.x << ", " << m_position.y << ", " << m_position.z << std::endl << std::endl;
+			std::cout << std::endl;
 #endif
 			return true;
 		}
+		return false;
 	}
-	//캐릭터와 충돌하지 않음
-	auto normalMonsterCollide = CheckCollisionNormalMonster(moveDirection, ftimeElapsed);
-	normalMonsterCollide.second.y = 0;
-	if (normalMonsterCollide.first && std::abs(normalMonsterCollide.second.x) < DBL_EPSILON && std::abs(normalMonsterCollide.second.z) < DBL_EPSILON) {//노말 몬스터 콜리전으로 인해 아예 못움직임
-#ifdef CHARCTER_MOVE_LOG
-		PrintCurrentTime();
-		std::cout << "monster no Move" << std::endl;
-		std::cout << std::endl;
-#endif
-		return true;
-	}
-	if (normalMonsterCollide.first) {//노말 몬스터와 충돌함
-		XMFLOAT3 slidingVec = Vector3::ScalarProduct(normalMonsterCollide.second, 0.9f * m_speed * ftimeElapsed);
-#ifdef CHARCTER_MOVE_LOG
-		PrintCurrentTime();
-		std::cout << "monster Move" << std::endl;
-		std::cout << "collision slidingVec: " << normalMonsterCollide.second.x << ", " << normalMonsterCollide.second.y << ", " << normalMonsterCollide.second.z << std::endl;
-		std::cout << "collision slidingSize: " << Vector3::Length(slidingVec) << std::endl;
-		std::cout << "collision prev position: " << m_position.x << ", " << m_position.y << ", " << m_position.z << std::endl;
-#endif
-		m_position = Vector3::Add(m_position, slidingVec);
-		SetPosition(m_position);
-#ifdef CHARCTER_MOVE_LOG
-		std::cout << "collision after position: " << m_position.x << ", " << m_position.y << ", " << m_position.z << std::endl << std::endl;
-		std::cout << std::endl;
-#endif
-		return true;
-	}
-	return false;
 }
 
 

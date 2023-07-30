@@ -92,6 +92,9 @@ void GameObject::SetPosition(const XMFLOAT3& position)
 	//if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(position, m_pCamera->GetOffset()));
 
 	UpdateTransform(NULL);
+	if (std::isnan(m_xmf4x4ToParent._11)) {
+		std::cout << "문제 있음" << std::endl;
+	}
 }
 
 void GameObject::UpdateCameraPosition()
@@ -127,12 +130,17 @@ XMFLOAT3 GameObject::GetObjectLook()
 
 void GameObject::SetLook(const XMFLOAT3& xmfLook)
 {
+	if (std::isnan(m_xmf4x4ToParent._11)) {
+		std::cout << "문제 있음" << std::endl;
+	}
 	XMFLOAT3 xmftLook = Vector3::Normalize(xmfLook);
 	XMFLOAT3 xmftUp = GetUp();
 	XMFLOAT3 xmftRight = GetRight();
 
-	xmftRight = Vector3::CrossProduct(xmftUp, xmftLook, true);
-	xmftUp = Vector3::CrossProduct(xmftLook, xmftRight, true);
+	xmftRight = Vector3::CrossProduct(xmftUp, xmftLook, false);
+	xmftUp = Vector3::CrossProduct(xmftLook, xmftRight, false);
+
+	XMFLOAT4X4	copyXmf4x4ToParent = m_xmf4x4ToParent;
 
 	m_xmf4x4ToParent._11 = xmftRight.x;	m_xmf4x4ToParent._12 = xmftRight.y;	m_xmf4x4ToParent._13 = xmftRight.z;
 	m_xmf4x4ToParent._21 = xmftUp.x;	m_xmf4x4ToParent._22 = xmftUp.y;	m_xmf4x4ToParent._23 = xmftUp.z;
@@ -142,6 +150,9 @@ void GameObject::SetLook(const XMFLOAT3& xmfLook)
 	m_xmf4x4ToParent = Matrix4x4::Multiply(mtxScale, m_xmf4x4ToParent);
 
 	UpdateTransform(NULL);
+	if (std::isnan(m_xmf4x4ToParent._11)) {
+		std::cout << "문제 있음" << std::endl;
+	}
 }
 
 XMFLOAT3 GameObject::GetUp()
@@ -165,7 +176,7 @@ float GameObject::CalculateDistanceSound()
 
 	float distance;
 	XMStoreFloat(&distance, distanceVec);
-	return (300-distance)/300 ;
+	return (300 - distance) / 300;
 }
 
 void GameObject::SetLookAt(XMFLOAT3& xmf3Target, XMFLOAT3& xmf3Up)
@@ -177,6 +188,9 @@ void GameObject::SetLookAt(XMFLOAT3& xmf3Target, XMFLOAT3& xmf3Up)
 	m_xmf4x4ToParent._31 = mtxLookAt._13; m_xmf4x4ToParent._32 = mtxLookAt._23; m_xmf4x4ToParent._33 = mtxLookAt._33;
 
 	UpdateTransform(NULL);
+	if (std::isnan(m_xmf4x4ToParent._11)) {
+		std::cout << "문제 있음" << std::endl;
+	}
 }
 
 
@@ -187,7 +201,11 @@ void GameObject::SetScale(float x, float y, float z)
 	m_xmf4x4ToParent = Matrix4x4::Multiply(mtxScale, m_xmf4x4ToParent);
 
 	UpdateTransform(NULL);
+	if (std::isnan(m_xmf4x4ToParent._11)) {
+		std::cout << "문제 있음" << std::endl;
+	}
 }
+
 void GameObject::SetinitScale(float x, float y, float z)
 {
 	m_xmf3Scale = XMFLOAT3(x, y, z);
@@ -196,6 +214,9 @@ void GameObject::SetinitScale(float x, float y, float z)
 	m_xmf4x4ToParent = Matrix4x4::Multiply(mtxScale, m_xmf4x4ToParent);
 
 	UpdateTransform(NULL);
+	if (std::isnan(m_xmf4x4ToParent._11)) {
+		std::cout << "문제 있음" << std::endl;
+	}
 }
 
 void GameObject::SetScale(float fScale)
@@ -206,6 +227,9 @@ void GameObject::SetScale(float fScale)
 	m_xmf4x4ToParent = Matrix4x4::Multiply(mtxScale, m_xmf4x4ToParent);
 
 	UpdateTransform(NULL);
+	if (std::isnan(m_xmf4x4ToParent._11)) {
+		std::cout << "문제 있음" << std::endl;
+	}
 }
 
 void GameObject::SetTexture(wchar_t* pszFileName, int nSamplers, int nRootParameter)
@@ -415,7 +439,7 @@ void GameObject::BuildShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	ComponentBase* pBossSkillShaderComponent = GetComponent(component_id::BOSSSKILLSHADER_COMPONENT);
 	if (pShaderComponent != NULL || pSkyShaderComponent != NULL || pUiShaderComponent != NULL || pSpriteShaderComponent != NULL
 		|| pBoundingBoxShaderComponent != NULL || pBlendingUiShaderComponent != NULL || pTrailShaderComponent != NULL
-		|| pTerrainShaderComponent != NULL || pEffectShaderComponent || pBlendShaderComponent || pCylinderShaderComponent 
+		|| pTerrainShaderComponent != NULL || pEffectShaderComponent || pBlendShaderComponent || pCylinderShaderComponent
 		|| pSquareShaderComponent || pBossSkillShaderComponent)
 	{
 		if (pShaderComponent != NULL)
@@ -689,7 +713,7 @@ void GameObject::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 	m_pd3dcbGameObjectSkill = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes6, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 
 	m_pd3dcbGameObjectSkill->Map(0, NULL, (void**)&m_pcbMappedGameObjectsSkill);
-	
+
 	UINT ncbElementBytes7 = ((sizeof(CB_GAMEOBJECTSKILL_INFO) + 255) & ~255); //256의 배수
 	m_pd3dcbGameObjectBossSkill = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes7, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 
@@ -701,7 +725,7 @@ void GameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandLis
 	{
 		float mfhp = 0;
 		//float mfshield = 100;
-		mfhp = (m_fHp / (m_fMaxHp+ m_fShield));//현재 체력값을 최대체력 비례로 나타낸식 23.04.18 .ccg
+		mfhp = (m_fHp / (m_fMaxHp + m_fShield));//현재 체력값을 최대체력 비례로 나타낸식 23.04.18 .ccg
 		::memcpy(&m_pcbMappedGameObjects->m_xmfHP, &mfhp, sizeof(float));
 		::memcpy(&m_pcbMappedGameObjects->m_bRimLight, &m_bRimLight, sizeof(bool));
 		D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbGameObjects->GetGPUVirtualAddress();
@@ -882,7 +906,7 @@ CLoadedModelInfoCompnent* GameObject::LoadGeometryAndAnimationFromFile(ID3D12Dev
 #endif
 
 	return(pLoadedModel);
-}
+	}
 
 void GameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, GameObject* pParent, FILE* pInFile, ShaderComponent* pShader, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
@@ -1244,6 +1268,9 @@ void GameObject::Rotate(float fPitch, float fYaw, float fRoll)
 	m_xmf4x4ToParent = Matrix4x4::Multiply(mtxRotate, m_xmf4x4ToParent);
 
 	UpdateTransform(NULL);
+	if (std::isnan(m_xmf4x4ToParent._11)) {
+		std::cout << "문제 있음" << std::endl;
+	}
 }
 
 void GameObject::Rotate(XMFLOAT3* pxmf3Axis, float fAngle)
@@ -1252,6 +1279,9 @@ void GameObject::Rotate(XMFLOAT3* pxmf3Axis, float fAngle)
 	m_xmf4x4ToParent = Matrix4x4::Multiply(mtxRotate, m_xmf4x4ToParent);
 
 	UpdateTransform(NULL);
+	if (std::isnan(m_xmf4x4ToParent._11)) {
+		std::cout << "문제 있음" << std::endl;
+	}
 }
 
 void GameObject::Rotate(XMFLOAT4* pxmf4Quaternion)
@@ -1260,6 +1290,9 @@ void GameObject::Rotate(XMFLOAT4* pxmf4Quaternion)
 	m_xmf4x4ToParent = Matrix4x4::Multiply(mtxRotate, m_xmf4x4ToParent);
 
 	UpdateTransform(NULL);
+	if (std::isnan(m_xmf4x4ToParent._11)) {
+		std::cout << "문제 있음" << std::endl;
+	}
 }
 
 void GameObject::UpdateTransform(XMFLOAT4X4* pxmf4x4Parent)
@@ -1320,7 +1353,7 @@ void GameObject::MoveForward(int forwardDirection, float ftimeElapsed)
 {
 	XMFLOAT3 xmf3Position = GetPosition();
 	XMFLOAT3 xmf3Look = GetLook();
-	xmf3Look.y = 0.0f;	
+	xmf3Look.y = 0.0f;
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, ftimeElapsed * m_fSpeed);
 	GameObject::SetPosition(xmf3Position);
 	if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(xmf3Position, m_pCamera->GetOffset()));
