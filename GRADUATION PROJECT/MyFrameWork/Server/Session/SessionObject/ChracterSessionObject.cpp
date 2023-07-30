@@ -183,6 +183,9 @@ bool ChracterSessionObject::Move(float elapsedTime)
 #ifdef _DEBUG
 		//std::cout << "character::Move() - elapsedTime: " << elapsedTime << std::endl;
 #endif 		 
+		if (elapsedTime > 2.0f) {
+			return false;
+		}
 		if (!CheckCollision(m_directionVector, elapsedTime)) {
 			m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, elapsedTime * m_speed));
 			SetPosition(m_position);
@@ -684,15 +687,15 @@ void WarriorSessionObject::ExecuteCommonAttack(XMFLOAT3& attackDir, int power)
 void WarriorSessionObject::SetStage_1Position()
 {
 	SetPosition(XMFLOAT3(-1290.0f, 0, -1470.0f));
-	m_maxHp = m_hp = 400;
-	m_attackDamage = 150;
+	m_maxHp = m_hp = 600;
+	m_attackDamage = 110;
 }
 
 void WarriorSessionObject::SetBossStagePosition()
 {
 	SetPosition(XMFLOAT3(118, 0, 5));
-	m_maxHp = m_hp = 400;
-	m_attackDamage = 150;
+	m_maxHp = m_hp = 600;
+	m_attackDamage = 110;
 }
 
 void MageSessionObject::Skill_1(XMFLOAT3& posOrDir)
@@ -736,15 +739,15 @@ void MageSessionObject::ExecuteCommonAttack(XMFLOAT3& attackDir, int power)
 void MageSessionObject::SetStage_1Position()
 {
 	SetPosition(XMFLOAT3(-1370.45, 0, -1450.89f));
-	m_maxHp = m_hp = 480;
-	m_attackDamage = 30;
+	m_maxHp = m_hp = 500;
+	m_attackDamage = 50;
 }
 
 void MageSessionObject::SetBossStagePosition()
 {
 	SetPosition(XMFLOAT3(-77.7, 0, -164.7));
-	m_maxHp = m_hp = 480;
-	m_attackDamage = 30;
+	m_maxHp = m_hp = 500;
+	m_attackDamage = 50;
 }
 
 void TankerSessionObject::Skill_1(XMFLOAT3& posOrDir)
@@ -781,15 +784,15 @@ void TankerSessionObject::ExecuteCommonAttack(XMFLOAT3& attackDir, int power)
 void TankerSessionObject::SetStage_1Position()
 {
 	SetPosition(XMFLOAT3(-1260.3f, 0, -1510.7f));
-	m_maxHp = m_hp = 600;
-	m_attackDamage = 60;
+	m_maxHp = m_hp = 780;
+	m_attackDamage = 80;
 }
 
 void TankerSessionObject::SetBossStagePosition()
 {
 	SetPosition(XMFLOAT3(106.8, 0, -157));
-	m_maxHp = m_hp = 600;
-	m_attackDamage = 60;
+	m_maxHp = m_hp = 780;
+	m_attackDamage = 80;
 }
 
 void ArcherSessionObject::Skill_1(XMFLOAT3& posOrDir)
@@ -831,13 +834,13 @@ void ArcherSessionObject::ExecuteCommonAttack(XMFLOAT3& attackDir, int power)
 	//offset ShootArrow 내부에서 적용함
 
 	if (power == 0) {
-		roomRef.ShootArrow(attackDir, m_position, 100.0f, 100.0f);
+		roomRef.ShootArrow(attackDir, m_position, 100.0f, 80.0f);
 	}
 	else if (power == 1) {
-		roomRef.ShootArrow(attackDir, m_position, 140.0f, 140.0f);
+		roomRef.ShootArrow(attackDir, m_position, 140.0f, 115.0f);
 	}
 	else if (power == 2) {
-		roomRef.ShootArrow(attackDir, m_position, 200.0f, 200.0f);
+		roomRef.ShootArrow(attackDir, m_position, 200.0f, 140.0f);
 	}
 
 	SERVER_PACKET::ShootingObject sendPacket;
@@ -850,13 +853,13 @@ void ArcherSessionObject::ExecuteCommonAttack(XMFLOAT3& attackDir, int power)
 void ArcherSessionObject::SetStage_1Position()
 {
 	SetPosition(XMFLOAT3(-1340.84f, 0, -1520.93f));
-	m_maxHp = m_hp = 250;
-	m_attackDamage = 200;
+	m_maxHp = m_hp = 400;
+	m_attackDamage = 120;
 }
 
 void ArcherSessionObject::SetBossStagePosition()
 {
 	SetPosition(XMFLOAT3(-193, 0, -52));
-	m_maxHp = m_hp = 250;
-	m_attackDamage = 200;
+	m_maxHp = m_hp = 400;
+	m_attackDamage = 120;
 }
