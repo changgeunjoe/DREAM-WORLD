@@ -263,7 +263,7 @@ private:
 	//CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
 	CB_GAMEFRAMEWORK_INFO* m_pcbMappedGameObjects = nullptr;
 
-	BoundingSphere		m_SPBBPortal = BoundingSphere(XMFLOAT3(0.0f, 0.0f, 0.0f), 30);
+	BoundingSphere		m_SPBBPortal = BoundingSphere(XMFLOAT3(-51.0f, 0.0f, -152.0f), 30);
 	float				m_fStageChangeTime = 0.0f;
 	bool				m_bPortalCheck = false;
 	bool				m_bTest = false;

@@ -18,5 +18,6 @@ public:
 	void MakeSoundLoop(string soundKey, string soundDirName);
 	void Play(string soundName, float volume);
 	void Pause(string soundName);
+	void ALLPause();
 	void NoLoopPlay(string soundName, float volume);
 };

@@ -32,7 +32,7 @@ GameSound::GameSound()
 	MakeSound("BossMonsterAttack", "sound/sounds/BossMonsterAttack.wav"); 
 	MakeSound("BossEgStartSound", "sound/sounds/BossEgStartSound.wav");
 	MakeSound("NormalMonsterAttackSound", "sound/sounds/NormalMonsterAttack.wav"); 
-	MakeSound("BossMoveSound", "sound/sounds/BossMoveSound.wav");
+	MakeSound("BossMoveSound", "sound/sounds/BossMoveSound.mp3");
 	MakeSound("RockSpkieSound1", "sound/sounds/RockSpike.mp3");
 	MakeSound("RockSpkieSound2", "sound/sounds/RockSpike.mp3");
 	MakeSound("RockSpkieSound3", "sound/sounds/RockSpike.mp3");
@@ -111,6 +111,49 @@ void GameSound::Pause(string soundName)
 	if (!isPlay)return;
 	m_sounds[soundName].second->setPaused(true);
 	m_sounds[soundName].second->setPosition(0, FMOD_TIMEUNIT_MS);
+}
+
+void GameSound::ALLPause()
+{
+	Pause("testSound");
+	Pause("ClickSound");
+	Pause("UISound");
+	Pause("BossRespawnSound");
+	Pause("LightningSound");
+	Pause("PriestAttackSound");
+	Pause("AcherAttackSound");
+	Pause("ArcherESkillSound");
+	Pause("ArcherQSkillSound");
+	Pause("TankerBombSound");
+	Pause("TankerQSkill");
+	Pause("AcherBow");
+	Pause("MonsterAttackedSound");
+	Pause("WarriorAttackSound");
+	Pause("WarriorQskillSound");
+	Pause("TankerAttackSound");
+	Pause("TankerSwingSound");
+	Pause("WalkSound");
+	Pause("ArrowBow");
+	Pause("FireSound");
+	Pause("BossMonsterAttack");
+	Pause("BossEgStartSound");
+	Pause("NormalMonsterAttackSound");
+	Pause("BossMoveSound");
+	Pause("RockSpkieSound1");
+	Pause("RockSpkieSound2");
+	Pause("RockSpkieSound3");
+	Pause("RockSpkieSound4");
+	Pause("RockSpkieSound5");
+	Pause("RockSpkieSound6");
+	Pause("RockSpkieSound7");
+	Pause("RockSpkieSound8");
+	Pause("RockSpkieSound9");
+	Pause("RockSpkieSound0");
+	Pause("BossSKillSound");
+	Pause("LobbySound");
+	Pause("Stage1Sound");
+	Pause("BossStage");
+	Pause("HealSound");
 }
 
 void GameSound::NoLoopPlay(string soundName, float volume)

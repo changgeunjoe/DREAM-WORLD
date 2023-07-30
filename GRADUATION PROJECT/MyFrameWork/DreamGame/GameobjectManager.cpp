@@ -161,7 +161,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 		if (m_pLightEffectObject->m_bActive) {
 			if (m_pLightEffectObject->m_fEffectLifeTime > FLT_EPSILON) {
 				m_pLightEffectObject->SetActive(m_pLightEffectObject->m_bActive);
-				m_pLightEffectObject->AnimateEffect(m_pCamera, m_LightningTargetPos, fTimeElapsed, m_fTime * 10);
+				m_pLightEffectObject->AnimateEffect(m_pCamera, m_LightningTargetPos, fTimeElapsed, m_fTime * 5);
 				m_pLightningSpriteObject->m_bActive = m_pLightEffectObject->m_bActive;
 				if (m_pLightEffectObject->m_bActive == false) {
 					m_pSelectedObject = nullptr;
@@ -186,7 +186,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 		effect->AnimateEffect(m_pCamera, possessChracter->GetPosition(), fTimeElapsed, m_fTime * 10);
 	}
 
-	m_pPortalEffectObject->AnimateEffect(m_pCamera, XMFLOAT3(-5, 0, -15), fTimeElapsed, m_fTime * 5);
+	m_pPortalEffectObject->AnimateEffect(m_pCamera, XMFLOAT3(-51.0f, 0.0f, -152.0f), fTimeElapsed, m_fTime * 5);
 
 	if (m_pTankerAttackEffectObject->m_bActive) {
 		if (m_pTankerAttackEffectObject->m_fEffectLifeTime > FLT_EPSILON) {
@@ -334,8 +334,8 @@ void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)//나중에 처리
 		m_pWarriorObject->m_pSkillEUI->SetPosition(XMFLOAT3(0.975, 0.0, 1.005));
 		m_pPriestObject->m_pSkillQUI->SetPosition(XMFLOAT3(500, 500, 1.005));
 		m_pPriestObject->m_pSkillEUI->SetPosition(XMFLOAT3(500, 500, 1.005));
-		m_pWarriorObject->m_pSkillQUI->SetPosition(XMFLOAT3(500, 500, 1.005));
-		m_pWarriorObject->m_pSkillEUI->SetPosition(XMFLOAT3(500, 500, 1.005));
+		m_pArcherObject->m_pSkillQUI->SetPosition(XMFLOAT3(500, 500, 1.005));
+		m_pArcherObject->m_pSkillEUI->SetPosition(XMFLOAT3(500, 500, 1.005));
 		m_pTankerObject->m_pSkillQUI->SetPosition(XMFLOAT3(500, 500, 1.005));
 		m_pTankerObject->m_pSkillEUI->SetPosition(XMFLOAT3(500, 500, 1.005));
 	}
@@ -516,7 +516,7 @@ void GameobjectManager::BossConditionAnimate(float fTimeElapsed)
 		g_sound.NoLoopPlay("MonsterAttackedSound", m_pMonsterObject->CalculateDistanceSound());
 		AddDamageFontToUiLayer(XMFLOAT3(m_pMonsterObject->GetPosition().x,
 			m_pMonsterObject->GetPosition().y + 20,
-			m_pMonsterObject->GetPosition().z), m_pMonsterObject->GetTempHP() - m_pMonsterObject->GetCurrentHP());
+			m_pMonsterObject->GetPosition().z), (m_pMonsterObject->GetTempHP() - m_pMonsterObject->GetCurrentHP())*10+100);
 		m_pMonsterObject->m_bAttacked = true;
 	}
 	if (m_pMonsterObject->m_bAttacked && m_pMonsterObject->m_fConditionTime < 0.23&& m_pMonsterObject->GetTempHP() > 0) {
@@ -1241,7 +1241,7 @@ void GameobjectManager::EffectRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 
 void GameobjectManager::SkyboxRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	if (m_fStroyTime > 3) {
+	if (m_fStroyTime > 0.4) {
 		m_pMonsterCubeObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 	else {
@@ -2465,7 +2465,7 @@ void GameobjectManager::SetLightningEffect(XMFLOAT3& targetPos)
 	m_pLightEffectObject->AnimateEffect(m_pCamera, targetPos, m_fTimeElapsed, m_fTime * 5);
 	targetPos.y += 50.0f;
 	m_pLightningSpriteObject->SetPosition(targetPos);
-	m_pLightEffectObject->m_fEffectLifeTime = 2.0f;
+	m_pLightEffectObject->m_fEffectLifeTime = 3.0f;
 	m_pLightningSpriteObject->m_bActive = m_pLightEffectObject->m_bActive = true;
 }
 
@@ -2874,6 +2874,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 				sound = sound + to_string(i);
 				g_sound.Play(sound, 1);
 			}
+			g_sound.ALLPause();
 			g_sound.NoLoopPlay("MonsterAttackedSound", 1.0f);
 			g_sound.Play("ClickSound", 1.0f);
 		}
@@ -3323,7 +3324,7 @@ void GameobjectManager::ChangeStage1ToStage2(float fTimeelpased)
 {
 	if (m_bPortalCheck) {
 		m_fStroyTime += fTimeelpased;
-
+		m_pPortalEffectObject->SetActive(false);//포탑끄기
 		if (m_fStroyTime < 4) {
 
 			for (int i = 0; i < m_ppGameObjects.size(); ++i)
@@ -3338,7 +3339,7 @@ void GameobjectManager::ChangeStage1ToStage2(float fTimeelpased)
 			//m_pSkyboxObject->Die(m_fStroyTime );
 		}
 		if (m_fStroyTime > 4) {
-			m_pPortalEffectObject->SetActive(false);//포탑끄기
+		
 			if (m_bBossText) {
 				m_iTEXTiIndex = BOSS_TEXT;
 				AddTextToUILayer(m_iTEXTiIndex);
