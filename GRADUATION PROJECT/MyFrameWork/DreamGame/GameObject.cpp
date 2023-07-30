@@ -648,7 +648,8 @@ void GameObject::SetCurrentHP(float fHP)
 }
 void GameObject::SetShield(float fShield)
 {
-	m_xmf4Color.w = fShield;
+	m_fShield = fShield;
+	m_xmf4Color.w = m_fShield / (m_fMaxHp + m_fShield);
 }
 void GameObject::SetSkillTime(float fSkillTime)
 {
@@ -699,7 +700,8 @@ void GameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandLis
 	if (m_pd3dcbGameObjects)
 	{
 		float mfhp = 0;
-		mfhp = (m_fHp / m_fMaxHp);//현재 체력값을 최대체력 비례로 나타낸식 23.04.18 .ccg
+		//float mfshield = 100;
+		mfhp = (m_fHp / (m_fMaxHp+ m_fShield));//현재 체력값을 최대체력 비례로 나타낸식 23.04.18 .ccg
 		::memcpy(&m_pcbMappedGameObjects->m_xmfHP, &mfhp, sizeof(float));
 		::memcpy(&m_pcbMappedGameObjects->m_bRimLight, &m_bRimLight, sizeof(bool));
 		D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbGameObjects->GetGPUVirtualAddress();

@@ -28,6 +28,17 @@ GameSound::GameSound()
 	MakeSound("WalkSound", "sound/sounds/WalkSound2.wav");
 	MakeSound("ArrowBow", "sound/sounds/ArrowBow.mp3");
 	MakeSound("NormalMonsterAttackSound", "sound/sounds/NormalMonsterAttack.mp3");
+	MakeSound("RockSpkieSound1", "sound/sounds/RockSpike.mp3");
+	MakeSound("RockSpkieSound2", "sound/sounds/RockSpike.mp3");
+	MakeSound("RockSpkieSound3", "sound/sounds/RockSpike.mp3");
+	MakeSound("RockSpkieSound4", "sound/sounds/RockSpike.mp3");
+	MakeSound("RockSpkieSound5", "sound/sounds/RockSpike.mp3");
+	MakeSound("RockSpkieSound6", "sound/sounds/RockSpike.mp3");
+	MakeSound("RockSpkieSound7", "sound/sounds/RockSpike.mp3");
+	MakeSound("RockSpkieSound8", "sound/sounds/RockSpike.mp3");
+	MakeSound("RockSpkieSound9", "sound/sounds/RockSpike.mp3");
+	MakeSound("RockSpkieSound0", "sound/sounds/RockSpike.mp3");
+	MakeSound("BossSKillSound", "sound/sounds/BossSKillSound.mp3");
 	MakeSoundLoop("LobbySound", "sound/sounds/LobbySound1.wav"); 
 	MakeSoundLoop("Stage1Sound", "sound/sounds/Stage1Sound.wav"); 
 	MakeSoundLoop("BossStage", "sound/sounds/BossStage1.mp3");

@@ -212,6 +212,9 @@ void EffectObject::Particle(CCamera* pCamera, float fTimeElapsed, XMFLOAT3& xm3p
 	}
 	else if (m_fParticleLifeTime > 3) {
 
+		for (int i = 0; i < m_ppParticleObjects.size(); i++) {
+				m_ppParticleObjects[i]->m_bActive = false;
+		}
 		m_fParticleLifeTime = 0;
 		gGameFramework.GetScene()->GetObjectManager()->m_bPickingenemy = false;
 	}
@@ -279,7 +282,7 @@ void LightningEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12Graphics
 		m_ppParticleObjects[i]->InsertComponent<UIMeshComponent>();
 		m_ppParticleObjects[i]->InsertComponent<EffectShaderComponent>();
 		m_ppParticleObjects[i]->InsertComponent<TextureComponent>();
-		m_ppParticleObjects[i]->SetTexture(L"MagicEffect/electro.dds", RESOURCE_TEXTURE2D, 3);
+		m_ppParticleObjects[i]->SetTexture(L"MagicEffect/Snowflake.dds", RESOURCE_TEXTURE2D, 3);
 		m_ppParticleObjects[i]->SetAddPosition(XMFLOAT3(RandF(-5, 5), RandF(-5, 5), RandF(-5, 5)));
 		m_ppParticleObjects[i]->SetPosition(XMFLOAT3(0, 0, 0));
 		m_ppParticleObjects[i]->SetColor(XMFLOAT4(0.2666f, 0.58039f, 0.8862f, 0));

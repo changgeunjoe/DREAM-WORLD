@@ -7,12 +7,15 @@
 #include "../../Animation.h"
 #include "../Room/RoomManger.h"
 #include "../../Character.h"
+#include "../../sound/GameSound.h"
 #include "../NetworkHelper.h"
+
 
 
 extern CGameFramework gGameFramework;
 extern RoomManger g_RoomManager;
 extern NetworkHelper g_NetworkHelper;
+extern GameSound g_sound;
 extern bool GameEnd;
 
 extern HWND g_wnd;
@@ -167,6 +170,7 @@ void Logic::ProcessPacket(char* p)
 	{
 		//로딩창이면 좋을듯?
 		gGameFramework.m_bLobbyScene = false;
+		gGameFramework.GetScene()->GetObjectManager()->m_bSceneSwap = true;
 		gGameFramework.GetScene()->GetObjectManager()->SetCharactersStage1Postion();
 		gGameFramework.GetLobbyScene()->GetObjectManager()->ResetLobbyUI();
 	}
@@ -529,8 +533,8 @@ void Logic::ProcessPacket(char* p)
 			if (possessObj)
 			{
 				possessObj->SetShield(recvPacket->applyShieldPlayerInfo[i].shield);	//최대 실드 200
-				possessObj->m_pHPBarUI->SetShield(recvPacket->applyShieldPlayerInfo[i].shield / possessObj->GetMaxHP() * 100.0f);
-				possessObj->m_pHPBarUI->SetCurrentHP(possessObj->GetCurrentHP() / possessObj->GetMaxHP() * 100.0f);
+				possessObj->m_pHPBarUI->SetShield(recvPacket->applyShieldPlayerInfo[i].shield);
+				possessObj->m_pHPBarUI->SetCurrentHP(possessObj->GetCurrentHP());
 			}
 		}
 	}
@@ -663,8 +667,13 @@ void Logic::ProcessPacket(char* p)
 	{
 		SERVER_PACKET::DestroyedMeteoPacket* recvPacket = reinterpret_cast<SERVER_PACKET::DestroyedMeteoPacket*>(p);
 		vector<RockSpike*> ppRockSpike = gGameFramework.GetScene()->GetObjectManager()->GetRockSpikeArr();
+		for (int i = 0; i < 10; i++) {
+			string sound = "RockSpkieSound";
+			sound = sound + to_string(i);
+			g_sound.Play(sound, ppRockSpike[i]->CalculateDistanceSound()*0.65);
+		}
 		if (ppRockSpike[recvPacket->idx] != nullptr)
-			ppRockSpike[recvPacket->idx]->m_bActive = false;
+		ppRockSpike[recvPacket->idx]->m_bActive = false;
 		//이 메테오 비지블 off
 	}
 	break;
@@ -674,6 +683,7 @@ void Logic::ProcessPacket(char* p)
 		Monster* bossMonster = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster();
 		vector<RockSpike*> ppRockSpike = gGameFramework.GetScene()->GetObjectManager()->GetRockSpikeArr();
 		bossMonster->SetMoveState(false);
+		g_sound.Play("BossSKillSound", 0.9f);
 		//보스 이동 멈추고 애니메이션 실행해주세요.
 		if (bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation != BOSS_ANIMATION::BA_CAST_SPELL)
 		{

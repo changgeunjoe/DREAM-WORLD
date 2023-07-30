@@ -316,32 +316,42 @@ float4 PSUITextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
    
     if (gmtxGameObjectColor.x == 0.02 && gmtxGameObjectColor.y == 0.08)
     {
-        if (cColor.x < 0.1 || cColor.y < 0.1 || cColor.z < 0.1  )
+        if (cColor.x < 0.1 || cColor.y < 0.1 || cColor.z < 0.1 )
         {
-            if (gfCharactertHP < input.uv.x && input.uv.x < gfCharactertHP + gmtxGameObjectColor.w)
+            if (gfCharactertHP < input.uv.x && input.uv.x < gfCharactertHP + gmtxGameObjectColor.w&& cColor.w > 0.1)
             {
-                if (cColor.w!=0)
-                return float4(0.7, 0.7, 0.7, 1);
+                //float4 f = float4(0.4, 0.4, 0.4, 1);
+                //return lerp(f, cColor, 0.);
+                return float4(0.65, 0.65, 0.65, 1);
             }
-            if (input.uv.x > gfCharactertHP)
-            return float4(0,0,0,0);
+            if (input.uv.x > gfCharactertHP && cColor.w > 0.1)
+                return float4(0.7, 0.7, 0.7, 0);
         }
+
     }
-    if (gmtxGameObjectColor.x == 0.06 && gmtxGameObjectColor.y == 0.05)
+    else if (gmtxGameObjectColor.x == 0.06 && gmtxGameObjectColor.y == 0.05)//스킬 쿨타임
     {
-        if (input.uv.y >1- gmtxGameObjectColor.w && cColor.w > 0.1)
-                return float4(cColor.xyz, 0.3);
-        else if (cColor.w < 0.1)
+        if (input.uv.y > 1 - gmtxGameObjectColor.w && cColor.w > 0.5)
+        {
+        
+            float4 f = float4(0.9, 0.9, 0.9, 1);
+            return lerp(f, cColor, 0.5);
+               // return float4(cColor.xyz, 0.3);
+        }
+        else if (input.uv.y < 1 - gmtxGameObjectColor.w && cColor.w > 0.5)
+        {
+            return float4(cColor.xyz, 1);
+        }   
+        else if (cColor.w < 0.5)
         {
             return float4(cColor.xyz, 0.0);
         }      
     }
-    
+    else if (gmtxGameObjectColor.w != 0)//페이드인 아웃
+        cColor.w = gmtxGameObjectColor.w;
     
 
-    if (gmtxGameObjectColor.w !=0)
-        cColor.w= gmtxGameObjectColor.w;
-  //  cColor.w = 0.5;
+  
     if (!bUIActive && cColor.w!=0)
     {
         float4 f = float4(0.5, 0.5, 0.5, 0);
@@ -840,6 +850,10 @@ float4 PSShadowMapShadow(VS_SHADOW_MAP_OUTPUT input) : SV_TARGET
         cGammaColor += gmtxGameObjectColor.xyz;
         return float4(cGammaColor, 1);
     }
+    if (gmtxGameObjectColor.z == 102.6)
+    {
+        return float4(cGammaColor, 1);
+    }
     if (cGammaColor.x < gmtxGameObjectColor.w||
         cGammaColor.y < gmtxGameObjectColor.w ||
         cGammaColor.z < gmtxGameObjectColor.w)
@@ -848,10 +862,7 @@ float4 PSShadowMapShadow(VS_SHADOW_MAP_OUTPUT input) : SV_TARGET
     }
     if (cColor.w < 0.1f && gmtxGameObjectColor.z != 102.7)
         return cColor;
-    if (gmtxGameObjectColor.w == 102.7)
-    {
-        return float4(cGammaColor, 1);
-    }
+ 
     // Dissolve 활성화 여부를 확인
     //if (cAlbedoColor.r < gmtxGameObjectColor.w && gfMode == DISSOLVE_MODE)
     //{

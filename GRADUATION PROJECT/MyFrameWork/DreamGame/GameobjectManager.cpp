@@ -75,7 +75,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	//	AddDamageFontToUiLayer();
 	//}
 	//Effect
-
+	SceneSwapAnimate();
 	m_pMonsterCubeObject->SetPosition(m_pCamera->GetPosition());
 	m_pSkyboxObject->SetPosition(m_pCamera->GetPosition());
 	m_pLight->UpdatePosition(XMFLOAT3(m_pCamera->GetPosition().x,
@@ -124,51 +124,55 @@ void GameobjectManager::Animate(float fTimeElapsed)
 			m_ppParticleObjects[i]->AnimateRowColumn(fTimeElapsed);
 		}
 	}
-	SceneSwapAnimate(fTimeElapsed);
+	
 	//if (int(m_fTime) % 5 > 3)
 	//{
 	//	AddDamageFontToUiLayer();
 	//}
 	//Effect
-	if (m_bPickingenemy) {
-		if (m_pSelectedObject != nullptr) {
-			if (g_Logic.GetMyRole() == ROLE::PRIEST) {
+	//if (m_bPickingenemy) {
+	//	if (m_pSelectedObject != nullptr) {
+	//		if (g_Logic.GetMyRole() == ROLE::PRIEST) {
 
-				m_pLightEffectObject->AnimateEffect(m_pCamera, XMFLOAT3(m_pSelectedObject->GetPosition().x,
-					m_pSelectedObject->GetPosition().y + 10, m_pSelectedObject->GetPosition().z), fTimeElapsed, m_fTime * 5);
-				m_pLightningSpriteObject->SetPosition(XMFLOAT3(
-					m_pSelectedObject->GetPosition().x,
-					m_pSelectedObject->GetPosition().y + 50,
-					m_pSelectedObject->GetPosition().z));
+	//			m_pLightEffectObject->AnimateEffect(m_pCamera, XMFLOAT3(m_pSelectedObject->GetPosition().x,
+	//				m_pSelectedObject->GetPosition().y + 10, m_pSelectedObject->GetPosition().z), fTimeElapsed, m_fTime * 5);
+	//			m_pLightningSpriteObject->SetPosition(XMFLOAT3(
+	//				m_pSelectedObject->GetPosition().x,
+	//				m_pSelectedObject->GetPosition().y + 50,
+	//				m_pSelectedObject->GetPosition().z));
 
-				m_pLightEffectObject->m_fEffectLifeTime = 2.0f;
+	//			m_pLightEffectObject->m_fEffectLifeTime = 2.0f;
 
-				m_pLightningSpriteObject->m_bActive = m_pLightEffectObject->m_bActive = true;
-				XMFLOAT3 TargetPosition = m_pSelectedObject->GetPosition();
-				g_NetworkHelper.Send_SkillExecute_E(TargetPosition);
-				g_sound.NoLoopPlay("LightningSound", m_pLightningSpriteObject->CalculateDistanceSound() + 0.3);
-			}
-			m_bPickingenemy = false;
-		}
-		//m_pEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 10);
-		//라이트닝
+	//			m_pLightningSpriteObject->m_bActive = m_pLightEffectObject->m_bActive = true;
+	//			XMFLOAT3 TargetPosition = m_pSelectedObject->GetPosition();
+	//			g_NetworkHelper.Send_SkillExecute_E(TargetPosition);
+	//			g_sound.Play("LightningSound", m_pLightningSpriteObject->CalculateDistanceSound() + 0.3);
+	//		}
+	//	//	m_bPickingenemy = false;
+	//	}
+	//	//m_pEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 10);
+	//	//라이트닝
 
-		//m_pLightningSpriteObject->SetScale(7.0f, 20.0f, 7.0f);
-		//m_pSheildEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 10);
-	}
+	//	//m_pLightningSpriteObject->SetScale(7.0f, 20.0f, 7.0f);
+	//	//m_pSheildEffectObject->AnimateEffect(m_pCamera, m_pSelectedObject->GetPosition(), fTimeElapsed, m_fTime * 10);
+	//}
 
-	if (m_pLightEffectObject) {
-		if (m_pLightEffectObject->m_bActive) {
-			if (m_pLightEffectObject->m_fEffectLifeTime > FLT_EPSILON) {
-				m_pLightEffectObject->SetActive(m_pLightEffectObject->m_bActive);
-				m_pLightEffectObject->AnimateEffect(m_pCamera, m_LightningTargetPos, fTimeElapsed, m_fTime * 10);
-				m_pLightningSpriteObject->m_bActive = m_pLightEffectObject->m_bActive;
-				if (m_pLightEffectObject->m_bActive == false) {
-					m_pSelectedObject = nullptr;
-				}
-			}
-		}
-	}
+	//if (m_pLightEffectObject) {
+	//	m_pLightEffectObject->SetActive(m_pLightEffectObject->m_bActive);
+	//	if (m_pLightEffectObject->m_bActive) {
+	//		if (m_pLightEffectObject->m_fEffectLifeTime > FLT_EPSILON) {	
+	//			m_pLightEffectObject->AnimateEffect(m_pCamera, m_LightningTargetPos, fTimeElapsed, m_fTime * 10);
+	//			m_pLightningSpriteObject->SetPosition(XMFLOAT3(
+	//				//				m_pSelectedObject->GetPosition().x,
+	//				//				m_pSelectedObject->GetPosition().y + 50,
+	//				//				m_pSelectedObject->GetPosition().z));
+	//			m_pLightningSpriteObject->m_bActive = m_pLightEffectObject->m_bActive;
+	//			if (m_pLightEffectObject->m_bActive == false) {
+	//				m_pSelectedObject = nullptr;
+	//			}
+	//		}
+	//	}
+	//}
 
 	for (auto& effect : m_ppShieldEffectObject)
 	{
@@ -231,7 +235,7 @@ void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)//나중에 처리
 	m_pWarriorObject->m_pHPBarUI->SetCurrentHP(m_pWarriorObject->GetCurrentHP());
 	m_pTankerObject->m_pHPBarUI->SetCurrentHP(m_pTankerObject->GetCurrentHP());
 	m_pPriestObject->m_pHPBarUI->SetCurrentHP(m_pPriestObject->GetCurrentHP());
-
+	//m_pPriestObject->m_pHPBarUI->SetShield(100);
 	if (g_Logic.GetMyRole() == ROLE::ARCHER) {
 		m_pArcherObject->m_pHPBarUI->SetinitScale(0.07, 0.005, 1);
 		m_pArcherObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.48, 1.005));
@@ -243,6 +247,7 @@ void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)//나중에 처리
 		m_pTankerObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.4, 1.005));
 		m_pPriestObject->m_pHPBarUI->SetinitScale(0.07, 0.005, 1);
 		m_pPriestObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.26, 1.005));
+
 		m_pPriestObject->m_pProfileUI->SetinitScale(0.03, 0.015, 1);
 		m_pPriestObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.28, 1.005));
 		m_pWarriorObject->m_pHPBarUI->SetinitScale(0.07, 0.005, 1);
@@ -361,11 +366,11 @@ void GameobjectManager::ConditionAnimate(float fTimeElapsed)
 	//m_pConditionUIObject->SetColor(XMFLOAT4(10, 0, 0, 0));
 }
 
-void GameobjectManager::SceneSwapAnimate(float fTimeElapsed)
+void GameobjectManager::SceneSwapAnimate()
 {
 	if (m_bSceneSwap)
 	{
-		float mftime = float(fTimeElapsed / 2);
+		float mftime = float(m_fTimeElapsed / 2);
 		m_pSceneChangeUIObject->m_fTime += mftime;
 		m_pSceneChangeUIObject->SetColor(XMFLOAT4(0, 0, 0, sin(m_pSceneChangeUIObject->m_fTime)));
 		if (sin(m_pSceneChangeUIObject->m_fTime) < 0) {
@@ -523,6 +528,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	UpdateShaderVariables(pd3dCommandList);
 
 	SkyboxRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	
 
 	if (m_pDepthShaderComponent) {
 		m_pDepthShaderComponent->UpdateShaderVariables(pd3dCommandList);//오브젝트의 깊이값의 렌더입니다.
@@ -618,6 +624,13 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		if (m_ppParticleObjects[i]->m_bActive == true)
 			m_ppParticleObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//파티클
 	}
+		if (m_bSceneSwap ) {
+		m_pSceneChangeUIObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
+	else if(!m_bSceneSwap) {
+		m_pConditionUIObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
+
 
 	TrailRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
@@ -627,6 +640,8 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 
 	CrossHairRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//m_pNaviMeshObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//네비 메쉬
+
+	
 	if (m_pTextureToViewportComponent)
 	{
 		//m_pTextureToViewportComponent->Render(pd3dCommandList, m_pCamera, 0, pd3dGraphicsRootSignature);//뎊스 렌더
@@ -1295,7 +1310,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 
 	m_pCamera->SetPosition(XMFLOAT3(-1450, 18, -1490));
 	m_pCamera->Rotate(0, 90, 0);
-
+	BuildStage1(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pPlaneObject = new GameObject(UNDEF_ENTITY);
 	m_pPlaneObject->InsertComponent<RenderComponent>();
 	m_pPlaneObject->InsertComponent<CLoadedModelInfoCompnent>();
@@ -1303,10 +1318,12 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPlaneObject->SetModel("Model/Floor.bin");
 	m_pPlaneObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pPlaneObject->SetScale(1.0f, 1.0f, 1.0f);
-	//m_pPlaneObject->SetColor(XMFLOAT4(0, 0, 0, 1));
+	m_pPlaneObject->m_nStageType = 2;
+	m_pPlaneObject->SetColor(XMFLOAT4(0, 0, 102.6,0.f ));
 	m_pPlaneObject->SetRimLight(false);
 	m_ppGameObjects.emplace_back(m_pPlaneObject);
-	BuildStage1(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	
+
 	BuildBossStageObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 
@@ -1963,7 +1980,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pAttackUIObject->InsertComponent<UiShaderComponent>();
 	m_pAttackUIObject->InsertComponent<TextureComponent>();
 	m_pAttackUIObject->SetTexture(L"UI/RedCrossHair.dds", RESOURCE_TEXTURE2D, 3);
-	m_pAttackUIObject->SetPosition(XMFLOAT3(0.0, 0.0, 1.01));
+	m_pAttackUIObject->SetPosition(XMFLOAT3(0.0, 0.0, 1.05));
 	m_pAttackUIObject->SetScale(0.01, 0.01, 1);
 	//m_pAttackUIObject->SetColor(XMFLOAT4(0, -0.7, -5, 0));
 	//m_pAttackUIObject->SetColor(XMFLOAT4(0, 0, 0, 0.75));
@@ -2123,7 +2140,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pPriestObject->m_pHPBarUI->SetTexture(L"UI/HP.dds", RESOURCE_TEXTURE2D, 3);
 	m_pPriestObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, -0.06, 1.01));
 	m_pPriestObject->m_pHPBarUI->SetScale(0.07, 0.005, 1);
-	m_pPriestObject->m_pHPBarUI->SetShield(0.2);
+	//m_pPriestObject->m_pHPBarUI->SetShield(100);
 	m_pPriestObject->m_pHPBarUI->SetColor(XMFLOAT4(0.02, 0.08, 0, 0));
 	m_pPriestObject->m_pHPBarUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppCharacterUIObjects.emplace_back(m_pPriestObject->m_pHPBarUI);
@@ -2221,7 +2238,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pConditionUIObject->SetColor(XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));
 	m_pConditionUIObject->SetScale(0.44f, 0.24f, 1.0f);
 	m_pConditionUIObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppCharacterUIObjects.emplace_back(m_pConditionUIObject);
+	//m_ppCharacterUIObjects.emplace_back(m_pConditionUIObject);
 
 
 	m_pSceneChangeUIObject = new GameObject(UI_ENTITY);
@@ -2230,11 +2247,11 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pSceneChangeUIObject->InsertComponent<UiShaderComponent>();
 	m_pSceneChangeUIObject->InsertComponent<TextureComponent>();
 	m_pSceneChangeUIObject->SetTexture(L"UI/Black.dds", RESOURCE_TEXTURE2D, 3);
-	m_pSceneChangeUIObject->SetPosition(XMFLOAT3(0.0, 0.0, 1.00));
+	m_pSceneChangeUIObject->SetPosition(XMFLOAT3(0.0, 0.0, 1.01));
 	m_pSceneChangeUIObject->SetColor(XMFLOAT4(0.4f, 0.0f, 0.0f, 0.0f));
 	m_pSceneChangeUIObject->SetScale(0.44f, 0.24f, 1.0f);
 	m_pSceneChangeUIObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//	m_ppCharacterUIObjects.emplace_back(m_pSceneChangeUIObject);
+		//m_ppCharacterUIObjects.emplace_back(m_pSceneChangeUIObject);
 
 	m_pVictoryUIObject = new GameObject(UI_ENTITY);
 	m_pVictoryUIObject->InsertComponent<RenderComponent>();
@@ -2828,11 +2845,11 @@ bool GameobjectManager::onProcessingKeyboardMessageLobby(HWND hWnd, UINT nMessag
 	if (nMessageID == WM_KEYDOWN && wParam == VK_F2)
 	{
 #ifdef LOCAL_TASK
-		g_Logic.SetMyRole(ROLE::TANKER);//캐릭
+		g_Logic.SetMyRole(ROLE::PRIEST);//캐릭
 		m_pCamera->Rotate(0, -90, 0);
-		m_pPlayerObject = m_pTankerObject;
+		m_pPlayerObject = m_pPriestObject;
 		m_pPlayerObject->SetCamera(m_pCamera);
-		m_pTankerObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
+		m_pPriestObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
 #else
 		g_Logic.SetMyRole(ROLE::ARCHER);
 		m_pArcherObject->SetCamera(m_pCamera);
@@ -3228,7 +3245,9 @@ void GameobjectManager::ChangeStage1ToStage2(float fTimeelpased)
 {
 	if (m_bPortalCheck) {
 		m_fStroyTime += fTimeelpased;
+
 		if (m_fStroyTime < 6) {
+
 			for (int i = 0; i < m_ppGameObjects.size(); ++i)
 			{
 				if (m_ppGameObjects[i]->m_nStageType == STAGE1)
@@ -3259,9 +3278,9 @@ void GameobjectManager::ChangeStage1ToStage2(float fTimeelpased)
 
 void GameobjectManager::ChangeStage2ToStage1()
 {
-	m_bSendNpccollisionPK = !m_bSendNpccollisionPK;
-	m_bGameStart = !m_bGameStart;
-	m_bPortalCheck = !m_bPortalCheck;
+	m_bSendNpccollisionPK = false;
+	m_bGameStart = false;
+	m_bPortalCheck = false;
 	m_nStageType = 1;
 	m_fStroyTime = 0;//스테이지 1에서 스테이지 2로 넘어가는 스토리 타임 초기화
 	for (int i = 0; i < m_ppGameObjects.size(); ++i)
