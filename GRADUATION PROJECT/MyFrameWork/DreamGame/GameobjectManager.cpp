@@ -187,10 +187,12 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	}
 
 
-	m_pPortalEffectObject->AnimateEffect(m_pCamera, XMFLOAT3(0, 0, 0), fTimeElapsed, m_fTime * 5);
+	m_pPortalEffectObject->AnimateEffect(m_pCamera, XMFLOAT3(-5, 0, -15), fTimeElapsed, m_fTime * 5);
 	if (m_bTest) {
 		//m_pPreistAttackEffectObject->AnimateEffect(m_pCamera, XMFLOAT3(0, 20, 0), fTimeElapsed, m_fTime * 5);
 		m_pTankerAttackEffectObject->AnimateEffect(m_pCamera, XMFLOAT3(0, 20, 0), fTimeElapsed, m_fTime * 5);
+		m_pTankerAttackEffectObject->AnimateEarthQuake(fTimeElapsed);
+		m_pTankerAttackEffectObject->m_fEffectLifeTime = 2.0f;
 
 	}
 	//Effect
@@ -479,10 +481,10 @@ void GameobjectManager::BossConditionAnimate(float fTimeElapsed)
 		g_sound.NoLoopPlay("MonsterAttackedSound", m_pMonsterObject->CalculateDistanceSound());
 		AddDamageFontToUiLayer(XMFLOAT3(m_pMonsterObject->GetPosition().x,
 			m_pMonsterObject->GetPosition().y + 20,
-			m_pMonsterObject->GetPosition().z), int(m_pMonsterObject->GetTempHP() - m_pMonsterObject->GetCurrentHP()));
+			m_pMonsterObject->GetPosition().z), m_pMonsterObject->GetTempHP() - m_pMonsterObject->GetCurrentHP());
 		m_pMonsterObject->m_bAttacked = true;
 	}
-	if (m_pMonsterObject->m_bAttacked && m_pMonsterObject->m_fConditionTime < 0.23) {
+	if (m_pMonsterObject->m_bAttacked && m_pMonsterObject->m_fConditionTime < 0.23&& m_pMonsterObject->GetTempHP() > 0) {
 		m_pMonsterObject->SetColor(XMFLOAT4(0.8, 0.3, 0.1, 0.00012));
 		m_pMonsterObject->m_fConditionTime += fTimeElapsed;
 	}
@@ -1068,7 +1070,10 @@ void GameobjectManager::CheckCollidePortal()
 	}
 	if (m_SPBBPortal.Intersects(myCharacter->m_SPBB) && m_bPortalCheck == false)
 	{
+
 		m_bPortalCheck = true;
+		m_iTEXTiIndex = BOSS_TEXT;
+		AddTextToUILayer(m_iTEXTiIndex);
 		//m_nStageType = 2;
 		g_NetworkHelper.SendChangeStage_BOSS();
 	}
@@ -1166,7 +1171,7 @@ void GameobjectManager::EffectRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 
 void GameobjectManager::SkyboxRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	if (m_fStroyTime > 6) {
+	if (m_fStroyTime > 3) {
 		m_pMonsterCubeObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 	else {
@@ -2832,11 +2837,11 @@ bool GameobjectManager::onProcessingKeyboardMessageLobby(HWND hWnd, UINT nMessag
 	if (nMessageID == WM_KEYDOWN && wParam == VK_F2)
 	{
 #ifdef LOCAL_TASK
-		g_Logic.SetMyRole(ROLE::PRIEST);//캐릭
+		g_Logic.SetMyRole(ROLE::TANKER);//캐릭
 		m_pCamera->Rotate(0, -90, 0);
-		m_pPlayerObject = m_pPriestObject;
+		m_pPlayerObject = m_pTankerObject;
 		m_pPlayerObject->SetCamera(m_pCamera);
-		m_pPriestObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
+		m_pTankerObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
 #else
 		g_Logic.SetMyRole(ROLE::ARCHER);
 		m_pArcherObject->SetCamera(m_pCamera);
@@ -3079,15 +3084,15 @@ void GameobjectManager::AddTextToUILayer(int& iIndex)
 	}
 	if (iIndex == NPC_TEXT)
 	{
-		queueStr.emplace(L"용사님들 꿈마을이 악몽에게 공격을 받았어요");
+		queueStr.emplace(L"용사님들 우리의 꿈이 악몽에게 공격을 받았어요");
 		queueStr.emplace(L"앞에 있는 악몽들을 처치해주세요!");
 		//queueStr.emplace(L"앞에 있는 악몽들을 처치해주세요!");
 	}
 	if (iIndex == BOSS_TEXT)
 	{
-		queueStr.emplace(L"너희가 꿈마을을 지킬 수 있을거 같으냐!!!");
-		queueStr.emplace(L"으하하하하하");
-		queueStr.emplace(L"다 죽여주마!");
+		queueStr.emplace(L"너희가 꿈을 지킬 수 있을거 같으냐!!!");
+		queueStr.emplace(L"으하하하하하 이 꿈은 내가 가져가마");
+		queueStr.emplace(L"너희들 모두 다 죽여주마!!!");
 	}
 	//if (iIndex == TEXT::WARRIOR_TEXT)
 	//{
@@ -3248,6 +3253,9 @@ void GameobjectManager::ChangeStage1ToStage2(float fTimeelpased)
 			//m_pSkyboxObject->Die(m_fStroyTime );
 		}
 		if (m_fStroyTime > 6) {
+			m_bNPCscreen = true;
+			m_bNPCinteraction = true;
+			
 			m_nStageType = 2;
 			for (int i = 0; i < m_ppGameObjects.size(); ++i)
 			{
@@ -3256,10 +3264,14 @@ void GameobjectManager::ChangeStage1ToStage2(float fTimeelpased)
 					m_ppGameObjects[i]->Die(1 - (m_fStroyTime - 6) / 5);
 				}
 			}
+			
 			g_sound.Pause("LobbySound");
 			g_sound.Pause("Stage1Sound");
 			g_sound.Pause("BossRespawnSound");
 			g_sound.Play("BossStage", 0.75);
+		}
+		if (m_fStroyTime > 8) {
+			m_bNPCscreen = false;
 		}
 	}
 
@@ -3314,7 +3326,7 @@ bool GameobjectManager::CheckCollision(vector<GameObject*> m_ppObjects)
 	return false;
 }
 
-void GameobjectManager::AddDamageFontToUiLayer(XMFLOAT3 xmf3Pos, float	fDamage)
+void GameobjectManager::AddDamageFontToUiLayer(XMFLOAT3 xmf3Pos, int	fDamage)
 {
 	//XMFLOAT3 xmf3Pos = XMFLOAT3(-1400, 10, -1500);//충돌 포지션
 	//float	fDamage = 300;

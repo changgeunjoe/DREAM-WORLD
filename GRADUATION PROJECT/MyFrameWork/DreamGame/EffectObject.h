@@ -97,10 +97,12 @@ public:
 public:
 	virtual void BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, vector<GameObject*> *mppEffectObject);
 	virtual void AnimateEffect(CCamera* pCamera, XMFLOAT3 xm3position, float ftimeelapsed, float fTime);
+	virtual void AnimateEarthQuake(float ftimeelapsed);
 	virtual void SetEarthquekePosition();
 	array<GameObject*, 4> m_pTankerEffectObject{};
 	XMFLOAT3 m_f3EarquakePos{};
 	bool m_bEarthQuake{};
+	bool m_bParticle{};
 
 };
 class PriestEffectObject :

@@ -260,7 +260,6 @@ void UILayer::AddDamageFont(XMFLOAT3 xmf3WorldPos, wstring strText)
 	pTb->m_eColor = TEXT_RED;
 	m_vecTextBlocks[TEXT_DAMAGE].emplace_back(pTb);
 
-
 }
 
 void UILayer::AddTextFont(queue<wstring>& queueStr)
