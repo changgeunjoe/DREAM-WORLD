@@ -57,4 +57,12 @@ public:
 	std::vector<MapCollide>& GetCollideData() { return m_collisionDatas; }
 	std::vector<MonsterInitData>& GetMonsterData() { return m_initMonsterDatas; }
 	std::vector<XMFLOAT3>& GetVertexData() { return m_vertex; }
+	NavMeshQuadTree& GetNavMeshQuadTree()
+	{
+		return m_navMeshQuadTree;
+	}
+	std::vector<TrinangleMesh>& GetTriangleMeshes() {
+		return m_triangleMesh
+			;
+	}
 };

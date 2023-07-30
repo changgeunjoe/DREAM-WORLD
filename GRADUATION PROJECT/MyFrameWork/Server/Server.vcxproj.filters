@@ -91,6 +91,9 @@
     <ClCompile Include="MapData\NavMeshQuadTree.cpp">
       <Filter>MapData</Filter>
     </ClCompile>
+    <ClCompile Include="Session\SessionObject\MeteoSessionObject.cpp">
+      <Filter>Session\SessionObject</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Session\ExpOver.h">
@@ -146,6 +149,9 @@
     </ClInclude>
     <ClInclude Include="MapData\NavMeshQuadTree.h">
       <Filter>MapData</Filter>
+    </ClInclude>
+    <ClInclude Include="Session\SessionObject\MeteoSessionObject.h">
+      <Filter>Session\SessionObject</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
