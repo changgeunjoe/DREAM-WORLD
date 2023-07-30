@@ -649,7 +649,7 @@ float4 PSBossSkillRange(VS_HEAL_RANGE_OUTPUT input) : SV_TARGET
     if (distance > 70.0f)
         return float4(0.0f, 0.0f, 0.0f, alpha);
 
-    if (TimeElpased < 1.0f)
+    if (TimeElpased < 1.5f)
         alpha = floor(distance / 50.0f) * 0.6f;
     else
         alpha = 0.6f - floor(distance / 50.0f);

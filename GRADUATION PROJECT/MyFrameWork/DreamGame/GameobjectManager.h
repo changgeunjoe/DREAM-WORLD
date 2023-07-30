@@ -267,7 +267,7 @@ private:
 	bool				m_bTest = false;
 	XMFLOAT3			m_LightningTargetPos;
 	bool				m_bGameStart = false;
-
+	bool				m_bBossText{ false };
 
 public:
 	std::vector<int> m_VecNodeQueue;

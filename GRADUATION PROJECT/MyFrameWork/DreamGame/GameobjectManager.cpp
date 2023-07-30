@@ -639,11 +639,30 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	{
 		if (m_pBossSkillRange->m_bActive)
 		{
-			m_pBossEgEffectObject->AnimateEffect(m_pCamera, m_pMonsterObject->GetPosition(), m_fTimeElapsed, m_fTime, 50);
-			g_sound.Play("FireSound", 0.8f);
-			if (m_fTime - m_pBossSkillRange->m_fBossSkillTime > 2.0f)
+			float durationTime = m_fTime - m_pBossSkillRange->m_fBossSkillTime;
+			if (durationTime > 3.0f)
+			{
 				g_sound.Pause("FireSound");
 				m_pBossSkillRange->m_bActive = false;
+				m_pBossEgEffectObject->SetActive(false);
+				m_pBossEgEffectObject->AnimateEffect(m_pCamera, m_pMonsterObject->GetPosition(), m_fTimeElapsed, m_fTime, 60.0f);
+			}
+			else if (durationTime > 2.5f)
+			{
+				m_pBossEgEffectObject->SetActive(true);
+				m_pBossEgEffectObject->AnimateEffect(m_pCamera, m_pMonsterObject->GetPosition(), m_fTimeElapsed, m_fTime, 42.5f);
+			}
+			else if (durationTime > 1.5f)
+			{
+				m_pBossEgEffectObject->SetActive(false);
+				m_pBossEgEffectObject->AnimateEffect(m_pCamera, m_pMonsterObject->GetPosition(), m_fTimeElapsed, m_fTime, 42.5f);
+			}
+			else if (durationTime > 1.0f)
+			{
+				m_pBossEgEffectObject->SetActive(true);
+				m_pBossEgEffectObject->AnimateEffect(m_pCamera, m_pMonsterObject->GetPosition(), m_fTimeElapsed, m_fTime, 60.0f);
+			}
+			g_sound.Play("FireSound", 0.8f);
 			m_pBossSkillRange->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		}
 	}

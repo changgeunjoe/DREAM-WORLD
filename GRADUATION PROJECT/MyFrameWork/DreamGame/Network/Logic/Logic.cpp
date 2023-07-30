@@ -369,6 +369,7 @@ void Logic::ProcessPacket(char* p)
 				{
 					bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_CAST_SPELL;
 					bossMonster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_CAST_SPELL, 2);
+
 					bossMonster->m_pSkillRange->m_bActive = true;
 					bossMonster->m_pSkillRange->m_bBossSkillActive = true;
 					bossMonster->m_pSkillRange->m_fBossSkillTime = gGameFramework.GetScene()->GetObjectManager()->GetTotalProgressTime();
