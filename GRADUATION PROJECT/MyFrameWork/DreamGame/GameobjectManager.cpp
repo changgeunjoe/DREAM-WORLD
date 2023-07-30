@@ -186,7 +186,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 		effect->AnimateEffect(m_pCamera, possessChracter->GetPosition(), fTimeElapsed, m_fTime * 10);
 	}
 
-	m_pPortalEffectObject->AnimateEffect(m_pCamera, XMFLOAT3(-51.0f, 0.0f, -152.0f), fTimeElapsed, m_fTime * 5);
+	m_pPortalEffectObject->AnimateEffect(m_pCamera, XMFLOAT3(-70.0f, 0.0f, -152.0f), fTimeElapsed, m_fTime * 5);
 
 	if (m_pTankerAttackEffectObject->m_bActive) {
 		if (m_pTankerAttackEffectObject->m_fEffectLifeTime > FLT_EPSILON) {
@@ -595,7 +595,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pNPCPressGObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 	//몬스터 체력바
-	if (m_pMonsterHPBarObject) {
+	if (m_pMonsterHPBarObject&&m_nStageType==2) {
 		m_pMonsterHPBarObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 	for (int i = 0; i < m_pNormalMonsterHPBarObject.size(); i++) {
@@ -1515,6 +1515,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pMonsterObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pMonsterObject->SetModel("Model/Boss.bin");
 	m_pMonsterObject->SetAnimationSets(13);
+	m_pMonsterObject->m_nStageType=2;
 	m_pMonsterObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackAnimationSet(13);
 	m_pMonsterObject->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[BOSS_ANIMATION::BA_DIE]->m_nType = ANIMATION_TYPE_ONCE;
@@ -3361,7 +3362,7 @@ void GameobjectManager::ChangeStage1ToStage2(float fTimeelpased)
 			g_sound.Pause("BossRespawnSound");
 			g_sound.Play("BossStage", 0.75);
 		}
-		if (m_fStroyTime > 13) {
+		if (m_fStroyTime > 12.34) {
 			m_bNPCscreen = false;
 		}
 	}
@@ -3380,6 +3381,7 @@ void GameobjectManager::ChangeStage2ToStage1()
 		m_ppGameObjects[i]->m_xmf4Color.w = 0;//모든 오브젝트들 다시 블랜딩 초기화 
 	}
 	m_pPortalEffectObject->SetActive(true);//재생성
+	g_sound.ALLPause();
 	g_sound.Pause("BossStage");
 	g_sound.Play("LobbySound", 0.42);
 }
