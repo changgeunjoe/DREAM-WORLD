@@ -482,6 +482,14 @@ void Logic::ProcessPacket(char* p)
 				possessObj->SetPosition(recvPacket->userState[i].pos);
 				float maxHp = possessObj->GetMaxHP();
 				possessObj->SetCurrentHP(recvPacket->userState[i].hp / maxHp * 100.0f);
+
+				if (possessObj->m_pSkinnedAnimationController->m_CurrentAnimations.first != CharacterAnimation::CA_IDLE)
+				{
+					possessObj->m_pSkinnedAnimationController->m_CurrentAnimations.first = CharacterAnimation::CA_IDLE;
+					possessObj->m_pSkinnedAnimationController->m_CurrentAnimations.second = CharacterAnimation::CA_IDLE;
+					possessObj->m_pSkinnedAnimationController->SetTrackEnable(possessObj->m_pSkinnedAnimationController->m_CurrentAnimations);
+					possessObj->m_pSkinnedAnimationController->ResetTrack();
+				}
 			}
 		}
 	}

@@ -799,7 +799,7 @@ constexpr float ATTACK4_ATTACK_POINT = 0.60f;
 
 Warrior::Warrior() : Character()
 {
-	m_fMaxHp = 400.0f;
+	m_fMaxHp = 600.0f;
 	m_fTempHp = m_fMaxHp;
 	m_fSpeed = 50.0f;
 	m_fDamage = 100.0f;
@@ -924,9 +924,17 @@ void Warrior::Animate(float fTimeElapsed)
 	{
 		if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CharacterAnimation::CA_DIE)
 		{
+			m_pSkinnedAnimationController->ResetTrack();
 			m_pSkinnedAnimationController->m_CurrentAnimations.first = CharacterAnimation::CA_DIE;
 			m_pSkinnedAnimationController->m_CurrentAnimations.second = CharacterAnimation::CA_DIE;
 			m_pSkinnedAnimationController->SetTrackEnable(m_pSkinnedAnimationController->m_CurrentAnimations);
+
+			m_bQSkillClicked = false;
+			m_bESkillClicked = false;
+			m_bLButtonClicked = false;
+			m_bRButtonClicked = false;
+			m_bCanAttack = true;
+			m_bOnAttack = false;
 		}
 		GameObject::Animate(fTimeElapsed);
 		return;
@@ -1137,7 +1145,7 @@ void Warrior::ExecuteSkill_E()
 
 Archer::Archer() : Character()
 {
-	m_fMaxHp = 250.0f;
+	m_fMaxHp = 400.0f;
 	m_fTempHp = m_fMaxHp;
 	m_fSpeed = 50.0f;
 	m_fDamage = 80.0f;
@@ -1301,8 +1309,16 @@ void Archer::Animate(float fTimeElapsed)
 	{
 		if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CharacterAnimation::CA_DIE)
 		{
+			m_pSkinnedAnimationController->ResetTrack();
 			m_pSkinnedAnimationController->m_CurrentAnimations = { CharacterAnimation::CA_DIE, CharacterAnimation::CA_DIE };
 			m_pSkinnedAnimationController->SetTrackEnable(m_pSkinnedAnimationController->m_CurrentAnimations);
+
+			m_bQSkillClicked = false;
+			m_bESkillClicked = false;
+			m_bLButtonClicked = false;
+			m_bRButtonClicked = false;
+			m_bCanAttack = true;
+			m_bOnAttack = false;
 		}
 		GameObject::Animate(fTimeElapsed);
 		return;
@@ -1399,15 +1415,16 @@ void Archer::ZoomInCamera()
 		|| m_bLButtonClicked == true)
 	{
 		g_sound.Play("ArrowBow", CalculateDistanceSound());
-		
+		float currentTime = gGameFramework.GetScene()->GetObjectManager()->GetTotalProgressTime();
 		if (m_iRButtionCount == 0)
 		{
 			// 줌인을 위해서 애니메이션 타입 및 속도 변경
 			m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_ATTACK]->m_nType = ANIMATION_TYPE_HALF;
 			m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_fPosition = -ANIMATION_CALLBACK_EPSILON;
 			m_pSkinnedAnimationController->m_pAnimationTracks[CharacterAnimation::CA_ATTACK].m_fSpeed = 0.3f;
+			m_fZoomInStartTime = gGameFramework.GetScene()->GetObjectManager()->GetTotalProgressTime();
 		}
-		if (m_iRButtionCount < 50)
+		if (currentTime - m_fZoomInStartTime < 1.8f)
 		{
 			// 카메라 줌인 효과
 			if (m_pCamera)
@@ -1714,7 +1731,7 @@ void Archer::ExecuteSkill_E()
 
 Tanker::Tanker() : Character()
 {
-	m_fMaxHp = 600.0f;
+	m_fMaxHp = 780.0f;
 	m_fTempHp = m_fMaxHp;
 	m_fSpeed = 50.0f;
 	m_fDamage = 50.0f;
@@ -1858,9 +1875,17 @@ void Tanker::Animate(float fTimeElapsed)
 	{
 		if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CharacterAnimation::CA_DIE)
 		{
+			m_pSkinnedAnimationController->ResetTrack();
 			m_pSkinnedAnimationController->m_CurrentAnimations.first = CharacterAnimation::CA_DIE;
 			m_pSkinnedAnimationController->m_CurrentAnimations.second = CharacterAnimation::CA_DIE;
 			m_pSkinnedAnimationController->SetTrackEnable(m_pSkinnedAnimationController->m_CurrentAnimations);
+
+			m_bQSkillClicked = false;
+			m_bESkillClicked = false;
+			m_bLButtonClicked = false;
+			m_bRButtonClicked = false;
+			m_bCanAttack = true;
+			m_bOnAttack = false;
 		}
 		GameObject::Animate(fTimeElapsed);
 		return;
@@ -2067,7 +2092,7 @@ void Tanker::ExecuteSkill_E()
 
 Priest::Priest() : Character()
 {
-	m_fMaxHp = 480.0f;
+	m_fMaxHp = 500.0f;
 	m_fTempHp = m_fMaxHp;
 	m_fSpeed = 50.0f;
 	m_fDamage = 80.0f;
@@ -2153,11 +2178,20 @@ void Priest::Animate(float fTimeElapsed)
 	{
 		if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CharacterAnimation::CA_DIE)
 		{
+			m_pSkinnedAnimationController->ResetTrack();
 			m_pSkinnedAnimationController->m_CurrentAnimations.first = CharacterAnimation::CA_DIE;
 			m_pSkinnedAnimationController->m_CurrentAnimations.second = CharacterAnimation::CA_DIE;
 			m_pSkinnedAnimationController->SetTrackEnable(m_pSkinnedAnimationController->m_CurrentAnimations);
+
+			m_bQSkillClicked = false;
+			m_bESkillClicked = false;
+			m_bLButtonClicked = false;
+			m_bRButtonClicked = false;
+			m_bCanAttack = true;
+			m_bOnAttack = false;
 		}
 		GameObject::Animate(fTimeElapsed);
+
 		return;
 	}
 	if (GameEnd)
