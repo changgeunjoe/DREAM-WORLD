@@ -374,6 +374,16 @@ void GameobjectManager::TrailAnimate(float fTimeElapsed)
 				m_pWarriorObject->m_pLoadedModelComponent->m_pWeaponEnd->GetPosition().y,
 				m_pWarriorObject->m_pLoadedModelComponent->m_pWeaponEnd->GetPosition().z));
 	}
+	if (m_pTrailTankerComponent)
+	{
+		m_pTrailTankerComponent->AddTrail(XMFLOAT3(m_pTankerObject->m_pLoadedModelComponent->m_pWeaponStart->GetPosition().x,
+			m_pTankerObject->m_pLoadedModelComponent->m_pWeaponStart->GetPosition().y,
+			m_pTankerObject->m_pLoadedModelComponent->m_pWeaponStart->GetPosition().z),
+			XMFLOAT3(m_pTankerObject->m_pLoadedModelComponent->m_pWeaponEnd->GetPosition().x,
+				m_pTankerObject->m_pLoadedModelComponent->m_pWeaponEnd->GetPosition().y,
+				m_pTankerObject->m_pLoadedModelComponent->m_pWeaponEnd->GetPosition().z));
+	}
+
 
 }
 
@@ -488,6 +498,7 @@ void GameobjectManager::PlayerConditionAnimate(float fTimeElapsed)
 			myPlayCharacter->m_nCondition = 0;
 			myPlayCharacter->m_fConditionTime = 0;
 			m_pConditionUIObject->SetColor(XMFLOAT4(0, 0, 0, -1));
+			//m_pConditionUIObject->SetColor(XMFLOAT4(0, 0.7, 0.2, 0));
 		}
 
 		myPlayCharacter->SetTempHp(myPlayCharacter->GetCurrentHP());
@@ -652,12 +663,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		if (m_ppParticleObjects[i]->m_bActive == true)
 			m_ppParticleObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//파티클
 	}
-		if (m_bSceneSwap ) {
-		m_pSceneChangeUIObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	}
-	else if(!m_bSceneSwap) {
-		m_pConditionUIObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	}
+
 
 	AstarRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	
@@ -666,7 +672,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	EffectRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_fTime);
 
 
-
+	if(!gGameFramework.GetIsLobbyScene())
 	CrossHairRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//m_pNaviMeshObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//네비 메쉬
 
@@ -695,6 +701,9 @@ void GameobjectManager::TrailRender(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	//}
 	if (m_pTrailComponent) {
 		m_pTrailComponent->RenderTrail(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
+	if (m_pTrailTankerComponent) {
+		m_pTrailTankerComponent->RenderTrail(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 	for (int i = 0; i < m_pTrailArrowComponent.size(); i++) {
 		if (m_pTrailArrowComponent[i]) {
@@ -738,10 +747,19 @@ void GameobjectManager::UIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 #define ScreenSTORY 0
 void GameobjectManager::CharacterUIRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
+
+
 	for (int i = 0; i < m_ppCharacterUIObjects.size(); i++) {
 		//if(m_fStroyTime> m_ppStoryUIObjects.size()* ScreenSTORY)
 		m_ppCharacterUIObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
+	if (m_bSceneSwap) {
+		m_pSceneChangeUIObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
+	else if (!m_bSceneSwap) {
+		m_pConditionUIObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
+	
 
 }
 
@@ -931,7 +949,7 @@ void GameobjectManager::ReadObjectFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 			tempBoundingBox->InsertComponent<CubeMeshComponent>();
 			tempBoundingBox->InsertComponent<BoundingBoxShaderComponent>();
 			tempBoundingBox->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-
+			tempBoundingBox->m_nStageType = stagetype;
 			tempBoundingBox->SetPosition(colliderWorldPosition[i]);
 			tempBoundingBox->Rotate(&quaternion[i]);
 			tempBoundingBox->SetScale(colliderWorldBoundSize[i].x, colliderWorldBoundSize[i].y, colliderWorldBoundSize[i].z);
@@ -1630,6 +1648,20 @@ void GameobjectManager::BuildTrail(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	m_pTrailComponent = new TrailComponent();
 	m_pTrailComponent->ReadyComponent(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pTrailObject);
 	m_pWarriorObject->SetTrailComponent(m_pTrailComponent);
+
+	m_pTrailTankerObject = new GameObject(UNDEF_ENTITY);
+	m_pTrailTankerObject->InsertComponent<RenderComponent>();
+	m_pTrailTankerObject->InsertComponent<TrailMeshComponent>();
+	m_pTrailTankerObject->InsertComponent<TrailShaderComponent>();
+	m_pTrailTankerObject->InsertComponent<TextureComponent>();
+	m_pTrailTankerObject->SetTexture(L"Trail/Trail.dds", RESOURCE_TEXTURE2D, 3);
+	m_pTrailTankerObject->SetPosition(XMFLOAT3(0, 0, 0));
+	m_pTrailTankerObject->SetColor(XMFLOAT4(0.7f, 1.0f, 0.0f, 0.0f));
+	m_pTrailTankerObject->SetScale(1);
+	m_pTrailTankerObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pTrailTankerComponent = new TrailComponent();
+	m_pTrailTankerComponent->ReadyComponent(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pTrailTankerObject);
+	m_pTankerObject->SetTrailComponent(m_pTrailTankerComponent);
 	/////////////////////////////////////////Arrow///////////////////////////////
 	//conflict
 	for (int i = 0; i < m_pTrailArrowObject.size(); i++) {
@@ -1732,7 +1764,7 @@ void GameobjectManager::BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 		BoundingBox->InsertComponent<CubeMeshComponent>();
 		BoundingBox->InsertComponent<BoundingBoxShaderComponent>();
 		BoundingBox->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-
+		BoundingBox-> m_nStageType = STAGE1;
 		BoundingBox->SetPosition(boundingBox.Center);
 		BoundingBox->Rotate(&q);
 		BoundingBox->SetScale(boundingBox.Extents.x * 2.0f, boundingBox.Extents.y * 2.0f, boundingBox.Extents.z * 2.0f);
@@ -2001,7 +2033,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pAttackUIObject->InsertComponent<UiShaderComponent>();
 	m_pAttackUIObject->InsertComponent<TextureComponent>();
 	m_pAttackUIObject->SetTexture(L"UI/RedCrossHair.dds", RESOURCE_TEXTURE2D, 3);
-	m_pAttackUIObject->SetPosition(XMFLOAT3(0.0, 0.0, 1.00));
+	m_pAttackUIObject->SetPosition(XMFLOAT3(0.0, 0.0, 1.005));
 	m_pAttackUIObject->SetScale(0.01, 0.01, 1);
 	//m_pAttackUIObject->SetColor(XMFLOAT4(0, -0.7, -5, 0));
 	//m_pAttackUIObject->SetColor(XMFLOAT4(0, 0, 0, 0.75));
@@ -2014,7 +2046,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pBlueAttackUIObject->InsertComponent<UiShaderComponent>();
 	m_pBlueAttackUIObject->InsertComponent<TextureComponent>();
 	m_pBlueAttackUIObject->SetTexture(L"UI/BlueCrossHair.dds", RESOURCE_TEXTURE2D, 3);
-	m_pBlueAttackUIObject->SetPosition(XMFLOAT3(0.0, 0.0, 1.01));
+	m_pBlueAttackUIObject->SetPosition(XMFLOAT3(0.0, 0.0, 1.005));
 	m_pBlueAttackUIObject->SetScale(0.01, 0.01, 1);
 	//m_pAttackUIObject->SetColor(XMFLOAT4(0, -0.7, -5, 0));
 	//m_pAttackUIObject->SetColor(XMFLOAT4(0, 0, 0, 0.75));
@@ -2124,7 +2156,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pTankerObject->m_pProfileUI->InsertComponent<UiShaderComponent>();
 	m_pTankerObject->m_pProfileUI->InsertComponent<TextureComponent>();
 	m_pTankerObject->m_pProfileUI->SetTexture(L"UI/TankerUI.dds", RESOURCE_TEXTURE2D, 3);
-	m_pTankerObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.08, 1.01));
+	m_pTankerObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.08, 1.00));
 	m_pTankerObject->m_pProfileUI->SetScale(0.03, 0.015, 1);
 	m_pTankerObject->m_pProfileUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppCharacterUIObjects.emplace_back(m_pTankerObject->m_pProfileUI);
@@ -2159,7 +2191,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pPriestObject->m_pHPBarUI->InsertComponent<UiShaderComponent>();
 	m_pPriestObject->m_pHPBarUI->InsertComponent<TextureComponent>();
 	m_pPriestObject->m_pHPBarUI->SetTexture(L"UI/HP.dds", RESOURCE_TEXTURE2D, 3);
-	m_pPriestObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, -0.06, 1.01));
+	m_pPriestObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, -0.06, 1.00));
 	m_pPriestObject->m_pHPBarUI->SetScale(0.07, 0.005, 1);
 	//m_pPriestObject->m_pHPBarUI->SetShield(100);
 	m_pPriestObject->m_pHPBarUI->SetColor(XMFLOAT4(0.02, 0.08, 0, 0));
@@ -2172,7 +2204,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pPriestObject->m_pProfileUI->InsertComponent<UiShaderComponent>();
 	m_pPriestObject->m_pProfileUI->InsertComponent<TextureComponent>();
 	m_pPriestObject->m_pProfileUI->SetTexture(L"UI/PriestUI.dds", RESOURCE_TEXTURE2D, 3);
-	m_pPriestObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, -0.04, 1.01));
+	m_pPriestObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, -0.04, 1.00));
 	m_pPriestObject->m_pProfileUI->SetScale(0.03, 0.015, 1);
 	m_pPriestObject->m_pProfileUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppCharacterUIObjects.emplace_back(m_pPriestObject->m_pProfileUI);
@@ -2207,7 +2239,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pWarriorObject->m_pHPBarUI->InsertComponent<UiShaderComponent>();
 	m_pWarriorObject->m_pHPBarUI->InsertComponent<TextureComponent>();
 	m_pWarriorObject->m_pHPBarUI->SetTexture(L"UI/HP.dds", RESOURCE_TEXTURE2D, 3);
-	m_pWarriorObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, -0.18, 1.01));
+	m_pWarriorObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, -0.18, 1.00));
 	m_pWarriorObject->m_pHPBarUI->SetScale(0.07, 0.005, 1);
 	m_pWarriorObject->m_pHPBarUI->SetColor(XMFLOAT4(0.02, 0.08, 0, 0));
 	m_pWarriorObject->m_pHPBarUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -2219,7 +2251,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pWarriorObject->m_pProfileUI->InsertComponent<UiShaderComponent>();
 	m_pWarriorObject->m_pProfileUI->InsertComponent<TextureComponent>();
 	m_pWarriorObject->m_pProfileUI->SetTexture(L"UI/WarriorUI.dds", RESOURCE_TEXTURE2D, 3);
-	m_pWarriorObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, -0.16, 1.01));
+	m_pWarriorObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, -0.16, 1.00));
 	m_pWarriorObject->m_pProfileUI->SetScale(0.03, 0.015, 1);
 	m_pWarriorObject->m_pProfileUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppCharacterUIObjects.emplace_back(m_pWarriorObject->m_pProfileUI);
@@ -2268,7 +2300,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pSceneChangeUIObject->InsertComponent<UiShaderComponent>();
 	m_pSceneChangeUIObject->InsertComponent<TextureComponent>();
 	m_pSceneChangeUIObject->SetTexture(L"UI/Black.dds", RESOURCE_TEXTURE2D, 3);
-	m_pSceneChangeUIObject->SetPosition(XMFLOAT3(0.0, 0.0, 1.01));
+	m_pSceneChangeUIObject->SetPosition(XMFLOAT3(0.0, 0.0, 1.00));
 	m_pSceneChangeUIObject->SetColor(XMFLOAT4(0.4f, 0.0f, 0.0f, 0.0f));
 	m_pSceneChangeUIObject->SetScale(0.44f, 0.24f, 1.0f);
 	m_pSceneChangeUIObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
