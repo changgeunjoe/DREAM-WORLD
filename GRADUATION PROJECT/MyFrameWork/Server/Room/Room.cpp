@@ -408,8 +408,22 @@ void Room::BossFindPlayer()
 		playerMap = m_inGamePlayers;
 	}
 #ifdef ALONE_TEST
-	m_boss.ReserveAggroPlayerRole(playerMap.begin()->first);
-	m_boss.SetAggroPlayerRole();
+	m_lockInGamePlayers.lock();
+	auto players = m_inGamePlayers;
+	m_lockInGamePlayers.unlock();
+	if (m_inGamePlayers.size() == 0) {
+		return;
+	}
+	std::vector<ROLE> randVec;
+	randVec.reserve(4);
+	std::transform(players.begin(), players.end(), std::back_inserter(randVec),
+		[](const std::pair<ROLE, int>& pair) {
+			return pair.first;
+		});
+	std::uniform_int_distribution<int> aggroRandomPlayer(0, randVec.size() - 1);//inclusive
+	ROLE randR = randVec[aggroRandomPlayer(dre)];
+	m_boss.ReserveAggroPlayerRole(randR);
+
 #endif // ALONE_TEST
 #ifndef ALONE_TEST
 	m_lockInGamePlayers.lock();
@@ -427,9 +441,9 @@ void Room::BossFindPlayer()
 	static std::uniform_int_distribution<> aggroRandomPlayer(0, randVec.size() - 1);//inclusive
 	ROLE randR = randVec[aggroRandomPlayer(dre)];
 	m_boss.ReserveAggroPlayerRole(randR);
+#endif // ALONE_TEST
 	TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::seconds(5) + std::chrono::milliseconds(500), m_roomId ,EV_FIND_PLAYER };
 	g_Timer.InsertTimerQueue(new_ev);
-#endif // ALONE_TEST
 }
 
 void Room::ChangeBossState()

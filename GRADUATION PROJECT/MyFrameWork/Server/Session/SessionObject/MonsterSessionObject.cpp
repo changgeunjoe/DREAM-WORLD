@@ -513,7 +513,7 @@ void MonsterSessionObject::AttackTimer()
 		g_Timer.InsertTimerQueue(attackTimer);
 		attackTimer.wakeupTime += std::chrono::seconds(1) + std::chrono::milliseconds(500);
 		g_Timer.InsertTimerQueue(attackTimer);
-		TIMER_EVENT endAttackTimer{ std::chrono::system_clock::now() + std::chrono::seconds(2) + std::chrono::milliseconds(700), m_roomId , EV_BOSS_STATE };
+		TIMER_EVENT endAttackTimer{ std::chrono::system_clock::now() + std::chrono::seconds(3), m_roomId , EV_BOSS_STATE };
 		g_Timer.InsertTimerQueue(endAttackTimer);
 	}
 	break;

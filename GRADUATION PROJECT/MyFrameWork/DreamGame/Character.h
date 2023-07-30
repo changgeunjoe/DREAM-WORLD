@@ -49,6 +49,7 @@ protected://collision check
 	virtual std::pair<bool, XMFLOAT3> CheckCollisionMap_Stage(XMFLOAT3& normalVector, XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
 	virtual std::pair<bool, XMFLOAT3> CheckCollisionCharacter(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
 	virtual std::pair<bool, XMFLOAT3> CheckCollisionNormalMonster(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
+	std::pair<bool, XMFLOAT3> CheckCollisionBoss(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
 	virtual bool CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
 
 public:
