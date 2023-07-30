@@ -558,18 +558,16 @@ void Logic::ProcessPacket(char* p)
 	case SERVER_PACKET::PLAYER_ATTACK_RESULT:
 	{
 		SERVER_PACKET::PlayerAttackMonsterDamagePacket* recvPacket = reinterpret_cast<SERVER_PACKET::PlayerAttackMonsterDamagePacket*>(p);
-		recvPacket->role;//내 직업이면
-		recvPacket->damage;//데미지를 출력하세ㅐ요 -> 모든 데미지 다 같음
-		//for (int i = 0; i < recvPacket->attackedMonsterCnt; i++) {//현재 온 패킷의 몬스터 갯수
-		//	recvPacket->monsterIdx[i];//배열 15개짜리 몬스터 idx배열  
-		//	gGameFramework.GetScene()->GetObjectManager()->AddDamageFontToUiLayer(XMFLOAT3(
-		//		gGameFramework.GetScene()->GetObjectManager()->m_ppNormalMonsterObject[recvPacket->monsterIdx[i]]->GetPosition().x,
-		//		gGameFramework.GetScene()->GetObjectManager()->m_ppNormalMonsterObject[recvPacket->monsterIdx[i]]->GetPosition().y+20,
-		//		gGameFramework.GetScene()->GetObjectManager()->m_ppNormalMonsterObject[recvPacket->monsterIdx[i]]->GetPosition().z
-		//	), recvPacket->damage);
-		//}
-		recvPacket->monsterIdx;//배열 15개짜리 몬스터 idx배열
-		recvPacket->attackedMonsterCnt;//현재 온 패킷의 몬스터 갯수
+		NormalMonster** smallMonsterArr = gGameFramework.GetScene()->GetObjectManager()->GetNormalMonsterArr();
+		if (recvPacket->role == ROLE::TANKER)
+		{
+			for (int i = 0; i < recvPacket->attackedMonsterCnt; ++i)
+			{
+				int index = recvPacket->monsterIdx[i];
+				if (smallMonsterArr[index] == nullptr) continue;
+				smallMonsterArr[index]->GetPosition();	// 피격당한 일반 몬스터 위치
+			}
+		}
 	}
 	break;
 	case SERVER_PACKET::SMALL_MONSTER_ATTACK:
@@ -611,11 +609,7 @@ void Logic::ProcessPacket(char* p)
 		if (myRole == ROLE::ARCHER) {
 			Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::ARCHER);
 			possessObj->m_ppProjectiles[recvPacket->projectileId]->m_bActive = false;
-
-			recvPacket->damage;//데미지
-			recvPacket->position;//데미지 폰트 위치
 		}
-		recvPacket->projectileId;//현재 회수할 화살 아이디
 	}
 	break;
 	case SERVER_PACKET::MONSTER_DAMAGED_ARROW_SKILL:
@@ -624,12 +618,7 @@ void Logic::ProcessPacket(char* p)
 		if (myRole == ROLE::ARCHER) {
 			Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::ARCHER);
 			static_cast<Archer*>(possessObj)->m_ppArrowForQSkill[recvPacket->projectileId]->m_bActive = false;
-
-
-			recvPacket->damage;//데미지
-			recvPacket->position;//데미지 폰트 위치
 		}
-		;//얘는 스킬인데 필요 하려나 모르겠음
 	}
 	break;
 	case SERVER_PACKET::MONSTER_DAMAGED_BALL:
@@ -638,11 +627,7 @@ void Logic::ProcessPacket(char* p)
 		if (myRole == ROLE::PRIEST) {
 			Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::PRIEST);
 			possessObj->m_ppProjectiles[recvPacket->projectileId]->m_bActive = false;
-
-			recvPacket->damage;//데미지
-			recvPacket->position;//데미지 폰트 위치
 		}
-		;//현재 회수할 에너지볼 아이디
 	}
 	break;
 	case SERVER_PACKET::PLAYER_ATTACK_RESULT_BOSS:

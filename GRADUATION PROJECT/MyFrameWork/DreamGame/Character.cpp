@@ -61,6 +61,8 @@ void Character::Reset()
 	m_bShieldActive = false;
 	m_fShield = false;
 	m_bCanAttack = true;
+	m_bQSkillClicked = false;
+	m_bESkillClicked = false;
 
 	m_currentDirection = DIRECTION::IDLE;
 	m_fHp = 100.0f;
@@ -73,6 +75,12 @@ void Character::Reset()
 	m_bMoveState = false;
 	m_bLButtonClicked = false;
 	m_bRButtonClicked = false;
+
+	m_interpolationDistance = 0.0f;
+	m_interpolationRotateAngleY = 0.0f;
+	m_interpolationVector = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	m_skillInputTime[0] = std::chrono::high_resolution_clock::now() - m_skillCoolTime[0];
+	m_skillInputTime[1] = std::chrono::high_resolution_clock::now() - m_skillCoolTime[1];
 
 	for (int i = 0; i < m_ppProjectiles.size(); ++i)
 		if (m_ppProjectiles[i]) m_ppProjectiles[i]->m_bActive = false;
@@ -150,6 +158,20 @@ void Character::SetLookDirection()
 	{
 		SetLook(xmf3Rev);
 	}
+}
+
+void Character::VisualizeSkillCoolTime()
+{
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	double QSkillDuration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[0]).count();
+	double QSkillCoolTime = std::chrono::duration_cast<std::chrono::seconds>(m_skillCoolTime[0]).count();
+	if(QSkillCoolTime > DBL_EPSILON)
+		m_pSkillQUI->SetSkillTime(QSkillDuration / QSkillCoolTime);
+
+	double ESkillDuration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[1]).count();
+	double ESkillCoolTime = std::chrono::duration_cast<std::chrono::seconds>(m_skillCoolTime[0]).count();
+	if (ESkillCoolTime > DBL_EPSILON)
+		m_pSkillEUI->SetSkillTime(ESkillDuration / ESkillCoolTime);
 }
 
 bool Character::CheckAnimationEnd(int nAnimation)
@@ -891,6 +913,8 @@ void Warrior::Move(float fTimeElapsed)
 
 void Warrior::Animate(float fTimeElapsed)
 {
+	VisualizeSkillCoolTime();
+
 	if (m_fHp < FLT_EPSILON)
 	{
 		if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CharacterAnimation::CA_DIE)
@@ -1260,10 +1284,13 @@ void Archer::Move(float fTimeElapsed)
 
 void Archer::Animate(float fTimeElapsed)
 {
+	VisualizeSkillCoolTime();
+
 	m_fTimeElapsed = fTimeElapsed;
 	if (m_bLButtonClicked)
 		ZoomInCamera();
-
+	
+	VisualizeSkillCoolTime();
 	pair<CharacterAnimation, CharacterAnimation> AfterAnimation = m_pSkinnedAnimationController->m_CurrentAnimations;
 	if (m_fHp < FLT_EPSILON)
 	{
@@ -1816,8 +1843,7 @@ void Tanker::Move(float fTimeElapsed)
 
 void Tanker::Animate(float fTimeElapsed)
 {
-	//if (m_bRButtonClicked)
-	//	RbuttonClicked(fTimeElapsed);
+	VisualizeSkillCoolTime();
 	if (m_fHp < FLT_EPSILON)
 	{
 		if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CharacterAnimation::CA_DIE)
@@ -2110,6 +2136,8 @@ void Priest::Move(float fTimeElapsed)
 
 void Priest::Animate(float fTimeElapsed)
 {
+	VisualizeSkillCoolTime();
+
 	if (m_fHp < FLT_EPSILON)
 	{
 		if (m_pSkinnedAnimationController->m_CurrentAnimations.first != CharacterAnimation::CA_DIE)
@@ -2736,6 +2764,16 @@ void Projectile::Move(XMFLOAT3 dir, float fDistance)
 
 }
 
+void Projectile::Reset()
+{
+	m_xmf3startPosition = XMFLOAT3(-1.0f, -1.0f, -1.0f);
+	m_xmf3direction = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	m_xmf4x4Transform = Matrix4x4::Identity();
+	m_fSpeed = 0.0f;
+	m_bActive = false;
+	m_Angle = 0.0f;
+}
+
 Arrow::Arrow() : Projectile()
 {
 	m_fSpeed = 150.0f;
@@ -2745,6 +2783,11 @@ Arrow::Arrow() : Projectile()
 	//m_xmf3TargetPos = XMFLOAT3(0.0f, -1.0f, 0.0f);
 	//m_ArrowPos = 0;
 	// Y값이 마우스 회전 범위 안쪽이면 일반 화살 아니면 꺾이는 화살
+}
+
+void Arrow::Reset()
+{
+	m_fArrowPos = 1.0f;
 }
 
 Arrow::~Arrow()
@@ -2851,6 +2894,11 @@ void EnergyBall::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3
 	{
 		GameObject::Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
 	}
+}
+
+void EnergyBall::Reset()
+{
+	m_fProgress = 0.0f;
 }
 
 TrailObject::TrailObject(entity_id eid) : GameObject(eid)
@@ -3423,4 +3471,9 @@ void RockSpike::Animate(float fTimeElapsed)
 {
 	if (m_bActive == false) return;
 	Move(m_xmf3direction, fTimeElapsed * m_fSpeed);
+}
+
+void RockSpike::Reset()
+{
+	m_xmf3direction = XMFLOAT3(0.0f, -1.0f, 0.0f);
 }

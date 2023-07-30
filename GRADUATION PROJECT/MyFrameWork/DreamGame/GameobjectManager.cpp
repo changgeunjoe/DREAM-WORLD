@@ -289,7 +289,6 @@ void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)//나중에 처리
 		m_pWarriorObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.12, 1.005));
 		m_pWarriorObject->m_pProfileUI->SetinitScale(0.03, 0.015, 1);
 		m_pWarriorObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.14, 1.005));
-		m_pPriestObject->m_pSkillQUI->SetPosition(XMFLOAT3(-0.975, -0.2, 1.005));
 		m_pPriestObject->m_pSkillQUI->SetPosition(XMFLOAT3(0.975, 0.1, 1.005));
 		m_pPriestObject->m_pSkillEUI->SetPosition(XMFLOAT3(0.975, 0.0, 1.005));
 	}
@@ -310,7 +309,6 @@ void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)//나중에 처리
 		m_pArcherObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.12, 1.005));
 		m_pArcherObject->m_pProfileUI->SetinitScale(0.03, 0.015, 1);
 		m_pArcherObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.14, 1.005));
-		m_pWarriorObject->m_pSkillQUI->SetPosition(XMFLOAT3(-0.975, -0.2, 1.005));
 		m_pWarriorObject->m_pSkillQUI->SetPosition(XMFLOAT3(0.975, 0.1, 1.005));
 		m_pWarriorObject->m_pSkillEUI->SetPosition(XMFLOAT3(0.975, 0.0, 1.005));
 	}
@@ -1093,12 +1091,19 @@ void GameobjectManager::SetCharactersBossStagePostion()
 void GameobjectManager::SetCharactersLobbyPosition()
 {
 	m_pMonsterObject->SetPosition(XMFLOAT3(0, 0, 0));
+
 	m_pPriestObject->SetPosition(XMFLOAT3(-1400.f, 0.f, -1520.f));
+
 	m_pWarriorObject->SetPosition(XMFLOAT3(-1400.f, 0.f, -1460.f));
 	m_pWarriorObject->Rotate(0.0f, -90.0f, 0.0f);
+
 	m_pArcherObject->SetPosition(XMFLOAT3(-1400.f, 0.f, -1480.f));
+
 	m_pTankerObject->SetPosition(XMFLOAT3(-1400.f, 0.f, -1500.0f));
 	m_pTankerObject->Rotate(0.0f, -90.0f, 0.0f);
+
+	m_pAngelNPCObject->SetPosition(XMFLOAT3(-1264.9f, 0.f, -1448.1f));//
+	m_pAngelNPCObject->Rotate(0, -120.959, 0);
 }
 
 void GameobjectManager::EffectRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float ftimeElapsed)
@@ -3183,8 +3188,26 @@ void GameobjectManager::ResetObject()
 	{
 		m_ppGameObjects[i]->Reset();
 	}
-	SetCharactersLobbyPosition();
 
+	for (int i = 0; i < m_ppEffectObjects.size(); ++i)
+	{
+		if (m_ppEffectObjects[i] == nullptr) continue;
+		m_ppEffectObjects[i]->m_bActive = false;
+	}
+
+	for (int i = 0; i < m_ppParticleObjects.size(); ++i)
+	{
+		if (m_ppParticleObjects[i] == nullptr) continue;
+		m_ppParticleObjects[i]->m_bActive = false;
+	}
+
+	for (int i = 0; i < m_ppProjectileObjects.size(); ++i)
+	{
+		if (m_ppProjectileObjects[i] == nullptr) continue;
+		m_ppProjectileObjects[i]->Reset();
+	}
+
+	SetCharactersLobbyPosition();
 	m_pCamera->ReInitCamrea();
 	m_pCamera->GenerateProjectionMatrix(1.01f, 5000.0f, ASPECT_RATIO, 60.0f);
 	m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 0.98f);

@@ -30,6 +30,7 @@ public:
 	virtual void StartEffect(int nSkillNum) {};
 	virtual void EndEffect(int nSkillNum) {};
 	virtual bool CanMove() { return true; }
+	void VisualizeSkillCoolTime();
 protected:
 	bool CheckAnimationEnd(int nAnimation);
 	void ChangeAnimation(pair< CharacterAnimation, CharacterAnimation> nextAnimation);
@@ -297,6 +298,7 @@ public:
 	virtual void SetActive(bool bActive) { m_bActive = bActive; }
 	virtual void SetHostRole(ROLE r) { m_HostRole = r; }
 	virtual void SetSpeed(float speed) { m_fSpeed = speed; }
+	virtual void Reset();
 };
 
 class Arrow : public Projectile
@@ -314,6 +316,7 @@ public:
 	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender = false);
 	virtual bool GetRButtonClicked() { return m_RButtonClicked; }
 	virtual void SetActive(bool bActive);
+	virtual void Reset();
 };
 
 class IceLance : public Projectile
@@ -338,6 +341,7 @@ public:
 	virtual void Animate(float fTimeElapsed);
 	void SetTarget(ROLE r) { m_Target = r; }
 	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender = false);
+	virtual void Reset();
 };
 
 class RockSpike : public Projectile
@@ -349,6 +353,7 @@ public:
 	virtual ~RockSpike();
 	virtual void Move(XMFLOAT3 dir, float fDistance);
 	virtual void Animate(float fTimeElapsed);
+	virtual void Reset();
 };
 
 class TrailObject : public GameObject
