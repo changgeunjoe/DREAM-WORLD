@@ -291,7 +291,7 @@ void MapData::GetReadCollisionData()
 
 std::list<int> MapData::AStarLoad(std::atomic_int& myTriangleIdx, float desX, float desZ)
 {
-	std::cout << "bossIdx: " << myTriangleIdx << std::endl;
+	
 	std::map<int, AstarNode> openList;
 	std::map<int, AstarNode> closeList;
 
@@ -317,7 +317,7 @@ std::list<int> MapData::AStarLoad(std::atomic_int& myTriangleIdx, float desX, fl
 			idx = node;
 		}
 	}
-	std::cout << "playerIdx: " << idx << std::endl;
+
 	int reFindIdx = -1;
 	if (!isOnResult) {
 		for (auto relationList : m_triangleMesh[idx].m_relationMesh) {
@@ -370,9 +370,7 @@ std::list<int> MapData::AStarLoad(std::atomic_int& myTriangleIdx, float desX, fl
 		std::cout << std::endl;
 
 		currentTriangleIdx = minNode.GetIdx();
-		if (currentTriangleIdx == desNodeIdx) {
-			std::cout << "DES: " << desX << ", " << desZ << " - eq Pos" << std::endl;
-		}
+	
 		closeList.try_emplace(currentTriangleIdx, minNode);
 		openList.erase(currentTriangleIdx);
 		//#ifdef _DEBUG
