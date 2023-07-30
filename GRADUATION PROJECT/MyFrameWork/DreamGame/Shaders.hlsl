@@ -334,7 +334,7 @@ float4 PSUITextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
         if (input.uv.y > 1 - gmtxGameObjectColor.w && cColor.w > 0.5)
         {
         
-            float4 f = float4(0.9, 0.9, 0.9, 1);
+            float4 f = float4(0.2, 0.2, 0.2, 1);
             return lerp(f, cColor, 0.5);
                // return float4(cColor.xyz, 0.3);
         }

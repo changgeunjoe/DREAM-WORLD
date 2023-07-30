@@ -653,13 +653,14 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 			float durationTime = m_fTime - m_pBossSkillRange->m_fBossSkillTime;
 			if (durationTime > 3.0f)
 			{
-				g_sound.Pause("FireSound");
+				g_sound.Pause("BossEgStartSound");
 				m_pBossSkillRange->m_bActive = false;
 				m_pBossEgEffectObject->SetActive(false);
 				m_pBossEgEffectObject->AnimateEffect(m_pCamera, m_pMonsterObject->GetPosition(), m_fTimeElapsed, m_fTime, 60.0f);
 			}
 			else if (durationTime > 2.5f)
 			{
+				g_sound.NoLoopPlay("FireSound", 0.8f);
 				m_pBossEgEffectObject->SetActive(true);
 				m_pBossEgEffectObject->AnimateEffect(m_pCamera, m_pMonsterObject->GetPosition(), m_fTimeElapsed, m_fTime, 42.5f);
 			}
@@ -670,10 +671,11 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 			}
 			else if (durationTime > 1.0f)
 			{
+				g_sound.NoLoopPlay("FireSound", 0.8f);
 				m_pBossEgEffectObject->SetActive(true);
 				m_pBossEgEffectObject->AnimateEffect(m_pCamera, m_pMonsterObject->GetPosition(), m_fTimeElapsed, m_fTime, 60.0f);
 			}
-			g_sound.Play("FireSound", 0.8f);
+			g_sound.Play("BossEgStartSound", 0.8f);
 			m_pBossSkillRange->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		}
 	}
@@ -772,13 +774,14 @@ void GameobjectManager::CharacterUIRender(ID3D12Device* pd3dDevice, ID3D12Graphi
 		//if(m_fStroyTime> m_ppStoryUIObjects.size()* ScreenSTORY)
 		m_ppCharacterUIObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
+	CrossHairRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+
 	if (m_bSceneSwap) {
 		m_pSceneChangeUIObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 	else if (!m_bSceneSwap) {
 		m_pConditionUIObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
-	CrossHairRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	
 
 }
