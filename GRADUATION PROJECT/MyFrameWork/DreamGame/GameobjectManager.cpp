@@ -3339,6 +3339,7 @@ void GameobjectManager::ChangeStage1ToStage2(float fTimeelpased)
 			//m_pSkyboxObject->Die(m_fStroyTime );
 		}
 		if (m_fStroyTime > 4) {
+			m_pPortalEffectObject->SetActive(false);//포탑끄기
 			if (m_bBossText) {
 				m_iTEXTiIndex = BOSS_TEXT;
 				AddTextToUILayer(m_iTEXTiIndex);
@@ -3378,6 +3379,7 @@ void GameobjectManager::ChangeStage2ToStage1()
 	{
 		m_ppGameObjects[i]->m_xmf4Color.w = 0;//모든 오브젝트들 다시 블랜딩 초기화 
 	}
+	m_pPortalEffectObject->SetActive(true);//재생성
 	g_sound.Pause("BossStage");
 	g_sound.Play("LobbySound", 0.42);
 }
