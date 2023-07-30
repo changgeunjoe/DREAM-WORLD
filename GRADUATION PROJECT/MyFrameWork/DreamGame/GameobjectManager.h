@@ -218,7 +218,9 @@ private:
 
 	//TrailObject
 	GameObject* m_pTrailObject{ NULL };
+	GameObject* m_pTrailTankerObject{ NULL };
 	TrailComponent* m_pTrailComponent{ NULL };
+	TrailComponent* m_pTrailTankerComponent{ NULL };
 	array<GameObject*, 28> m_pTrailArrowObject{ NULL };
 	array<TrailComponent*, 28>m_pTrailArrowComponent{ NULL };
 	array<GameObject*, 10> m_pTrailIceRanceObject{ NULL };
@@ -282,6 +284,7 @@ public:
 	bool m_bSendNpccollisionPK{ false };
 	bool m_bSceneSwap{ false };
 	bool m_bPickingenemy{ false };
+	bool m_bBossText{ false };
 	bool m_bLobbyTalkScreenSend{ true };
 public:
 	void SetPlayCharacter(Session* pSession);
