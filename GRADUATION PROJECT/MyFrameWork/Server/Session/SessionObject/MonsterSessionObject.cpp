@@ -163,7 +163,7 @@ bool MonsterSessionObject::Move(float elapsedTime)
 					PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, m_roomId, &postQueue->m_overlap);
 
 					OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
-					if (playerDistance >= 42.0f) {
+					if (playerDistance >= 34.0f) {
 						m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, m_speed * elapsedTime, false));//틱마다 움직임
 						m_SPBB.Center = m_position;
 						m_SPBB.Center.y += m_fBoundingSize;
@@ -171,7 +171,7 @@ bool MonsterSessionObject::Move(float elapsedTime)
 				}
 				else {
 					//std::cout << "Astar Move - move forward" << std::endl;
-					if (playerDistance >= 42.0f) {
+					if (playerDistance >= 34.0f) {
 						m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, m_speed * elapsedTime, false));//틱마다 움직임
 						m_SPBB.Center = m_position;
 						m_SPBB.Center.y += m_fBoundingSize;
@@ -206,7 +206,7 @@ bool MonsterSessionObject::Move(float elapsedTime)
 					PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, m_roomId, &postQueue->m_overlap);
 
 					OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
-					if (playerDistance >= 42.0f) {
+					if (playerDistance >= 34.0f) {
 						m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, m_speed * elapsedTime, false));//틱마다 움직임
 						m_SPBB.Center = m_position;
 						m_SPBB.Center.y += m_fBoundingSize;
@@ -214,7 +214,7 @@ bool MonsterSessionObject::Move(float elapsedTime)
 				}
 				else {
 					//std::cout << "Astar Move - move forward" << std::endl;
-					if (playerDistance >= 42.0f) {
+					if (playerDistance >= 34.0f) {
 						m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, m_speed * elapsedTime, false));//틱마다 움직임
 						m_SPBB.Center = m_position;
 						m_SPBB.Center.y += m_fBoundingSize;
@@ -299,7 +299,7 @@ bool MonsterSessionObject::Move(float elapsedTime)
 					PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, m_roomId, &postQueue->m_overlap);
 
 					OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
-					if (playerDistance >= 42.0f) {
+					if (playerDistance >= 34.0f) {
 						m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, m_speed * elapsedTime, false));//틱마다 움직임
 						m_SPBB.Center = m_position;
 						m_SPBB.Center.y += m_fBoundingSize;
@@ -307,7 +307,7 @@ bool MonsterSessionObject::Move(float elapsedTime)
 				}
 				else {
 					//std::cout << "Astar Move - move forward" << std::endl;
-					if (playerDistance >= 42.0f) {
+					if (playerDistance >= 34.0f) {
 						m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, m_speed * elapsedTime, false));//틱마다 움직임
 						m_SPBB.Center = m_position;
 						m_SPBB.Center.y += m_fBoundingSize;
@@ -342,7 +342,7 @@ bool MonsterSessionObject::Move(float elapsedTime)
 					PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, m_roomId, &postQueue->m_overlap);
 
 					OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
-					if (playerDistance >= 42.0f) {
+					if (playerDistance >= 34.0f) {
 						m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, m_speed * elapsedTime, false));//틱마다 움직임
 						m_SPBB.Center = m_position;
 						m_SPBB.Center.y += m_fBoundingSize;
@@ -350,7 +350,7 @@ bool MonsterSessionObject::Move(float elapsedTime)
 				}
 				else {
 					//std::cout << "Astar Move - move forward" << std::endl;
-					if (playerDistance >= 42.0f) {
+					if (playerDistance >= 34.0f) {
 						m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, m_speed * elapsedTime, false));//틱마다 움직임
 						m_SPBB.Center = m_position;
 						m_SPBB.Center.y += m_fBoundingSize;
@@ -370,7 +370,7 @@ bool MonsterSessionObject::Move(float elapsedTime)
 			else if (ChangingAngle > 1.7f) {
 				//std::cout << "Astar Move - Rotate angle <1.7 && move" << std::endl;			
 				OnRight ? Rotate(ROTATE_AXIS::Y, 90.0f * elapsedTime) : Rotate(ROTATE_AXIS::Y, -90.0f * elapsedTime);
-				if (playerDistance >= 42.0f) {
+				if (playerDistance >= 34.0f) {
 					m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, m_speed * elapsedTime, false));//틱마다 움직임
 					m_SPBB.Center = m_position;
 					m_SPBB.Center.y += m_fBoundingSize;
@@ -378,7 +378,7 @@ bool MonsterSessionObject::Move(float elapsedTime)
 			}
 			else {
 				//std::cout << "Astar Move - move forward" << std::endl;
-				if (playerDistance >= 42.0f) {
+				if (playerDistance >= 34.0f) {
 					m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, m_speed * elapsedTime, false));//틱마다 움직임
 					m_SPBB.Center = m_position;
 					m_SPBB.Center.y += m_fBoundingSize;

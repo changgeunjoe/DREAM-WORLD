@@ -525,7 +525,7 @@ std::pair<bool, XMFLOAT3> Character::CheckCollisionBoss(XMFLOAT3& moveDirection,
 	Monster* boss = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster();
 	auto normalVecRes = GetNormalVectorSphere(boss->GetPosition());
 	if (Vector3::DotProduct(normalVecRes.second, moveDirection) > 0.2f)return std::pair<bool, XMFLOAT3>(false, XMFLOAT3(0, 0, 0));
-	if (normalVecRes.first >= m_SPBB.Radius + 37.0f) return std::pair<bool, XMFLOAT3>(false, XMFLOAT3(0, 0, 0));
+	if (normalVecRes.first >= m_SPBB.Radius + 25.0f) return std::pair<bool, XMFLOAT3>(false, XMFLOAT3(0, 0, 0));
 	else {
 		XMFLOAT3 normalVec = normalVecRes.second;
 		XMFLOAT3 slidingVec = XMFLOAT3(-normalVec.z, 0.0f, normalVec.x);
@@ -2741,7 +2741,7 @@ void Monster::Move(float fTimeElapsed)
 					m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
 				}
 			}
-			if (playerDistance >= 42.0f) {
+			if (playerDistance >= 34.0f) {
 				MoveForward(50 * fTimeElapsed);
 			}
 			else {

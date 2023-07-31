@@ -178,7 +178,7 @@ void Logic::ProcessPacket(char* p)
 	break;
 	case SERVER_PACKET::BOSS_CHANGE_STATE_MOVE_DES:
 	{
-		std::cout << "ProcessPacket()::SERVER_PACKET::BOSS_CHANGE_STATE_MOVE_DES" << std::endl;
+		//std::cout << "ProcessPacket()::SERVER_PACKET::BOSS_CHANGE_STATE_MOVE_DES" << std::endl;
 		SERVER_PACKET::BossChangeStateMovePacket* recvPacket = reinterpret_cast<SERVER_PACKET::BossChangeStateMovePacket*>(p);
 		auto durationTime = chrono::duration_cast<milliseconds>(chrono::high_resolution_clock::now() - attckPacketRecvTime);
 		//attckPacketRecvTime = chrono::high_resolution_clock::now();		
@@ -296,7 +296,7 @@ void Logic::ProcessPacket(char* p)
 	{
 		auto durationTime = chrono::duration_cast<milliseconds>(chrono::high_resolution_clock::now() - attckPacketRecvTime);
 		attckPacketRecvTime = chrono::high_resolution_clock::now();
-		std::cout << "Attack Packet recv ElapsedTime: " << durationTime << endl;
+		//std::cout << "Attack Packet recv ElapsedTime: " << durationTime << endl;
 		SERVER_PACKET::BossAttackPacket* recvPacket = reinterpret_cast<SERVER_PACKET::BossAttackPacket*>(p);
 		Monster* bossMonster = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster();
 
@@ -382,7 +382,7 @@ void Logic::ProcessPacket(char* p)
 			}
 			bossMonster->SetMoveState(false);
 			g_sound.Pause("BossMoveSound");
-			cout << "ProcessPacket::SERVER_PACKET::BOSS_ATTACK - recvPacket: " << (int)recvPacket->bossAttackType << endl;
+			//cout << "ProcessPacket::SERVER_PACKET::BOSS_ATTACK - recvPacket: " << (int)recvPacket->bossAttackType << endl;
 		}
 	}
 	break;
@@ -416,18 +416,18 @@ void Logic::ProcessPacket(char* p)
 		bossMonster->m_roleDesPlayer = recvPacket->targetRole;
 		//std::cout << "recv aggro Id: " << recvPacket->desPlayerId << std::endl;
 		if (recvPacket->nodeCnt > 0) {
-			cout << "보스 이동 인덱스 : ";
+			//cout << "보스 이동 인덱스 : ";
 			vector<int> triangleIdxVec;
 			std::list<int> recvNodeQueue;
 			for (int i = 0; i < recvPacket->nodeCnt; i++) {
 				//보스가 이동할 노드 데이터
 				// 받아온 노드들 벡터에 새로 넣기
-				cout << recvPacket->node[i] << ", ";
+				//cout << recvPacket->node[i] << ", ";
 				//recvNodeQueue.push_back(recvPacket->node[i]);
 				triangleIdxVec.push_back(recvPacket->node[i]);
 			}
 			bossMonster->m_astarIdx = recvPacket->node[0];
-			cout << endl;
+			//cout << endl;
 			//gGameFramework.m_pScene->m_pObjectManager->m_VecNodeQueue.push_back(recvPacket->node[i]);
 			//AStart Node Mesh
 			gGameFramework.m_pScene->m_pObjectManager->m_nodeLock.lock();
@@ -442,14 +442,14 @@ void Logic::ProcessPacket(char* p)
 
 		if (!bossMonster->GetMoveState())
 		{
-			cout << "SERVER_PACKET::BOSS_MOVE_NODE - SetMoveState True" << endl;
+			//cout << "SERVER_PACKET::BOSS_MOVE_NODE - SetMoveState True" << endl;
 			bossMonster->SetMoveState(true);
 			bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_MOVE;
 			bossMonster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_MOVE, 2);
 		}
 		bossMonster->SetMoveState(true);
 		g_sound.Play("BossMoveSound", gGameFramework.GetScene()->GetObjectManager()->GetBossMonster()->CalculateDistanceSound());
-		cout << endl;
+		// cout << endl;
 	}
 	break;
 	case SERVER_PACKET::PRE_EXIST_LOGIN://이미 존재하는 플레이어가 있기 때문에, 지금 들어온 플레이어(내 클라이언트는) 접속 해제 패킷을 수신

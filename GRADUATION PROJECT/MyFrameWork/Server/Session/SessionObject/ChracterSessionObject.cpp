@@ -453,7 +453,7 @@ std::pair<bool, XMFLOAT3> ChracterSessionObject::CheckCollisionBossMonster(XMFLO
 
 	auto normalVecRes = GetNormalVectorSphere(boss.GetPos());
 	if (Vector3::DotProduct(normalVecRes.second, moveDirection) > 0.2f)return std::pair<bool, XMFLOAT3>(false, XMFLOAT3(0, 0, 0));
-	if (normalVecRes.first >= m_SPBB.Radius + 37.0f) return std::pair<bool, XMFLOAT3>(false, XMFLOAT3(0, 0, 0));
+	if (normalVecRes.first >= m_SPBB.Radius + 25.0f) return std::pair<bool, XMFLOAT3>(false, XMFLOAT3(0, 0, 0));
 	else {
 		XMFLOAT3 normalVec = normalVecRes.second;
 		XMFLOAT3 slidingVec = XMFLOAT3(-normalVec.z, 0.0f, normalVec.x);
