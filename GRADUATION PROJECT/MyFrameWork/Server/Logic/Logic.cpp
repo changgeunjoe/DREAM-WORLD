@@ -189,26 +189,28 @@ void Logic::ProcessPacket(int userId, char* p)
 	{
 #ifdef ALONE_TEST
 		CLIENT_PACKET::MatchPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::MatchPacket*>(p);
-		std::map<ROLE, int> alonePlayerMap;
-		alonePlayerMap.insert(std::make_pair((ROLE)recvPacket->Role, userId));
-		int newRoomId = g_RoomManager.GetRoomId();//새로운 룸 오브젝트 가져오기
-		Room& roomRef = g_RoomManager.GetRunningRoomRef(newRoomId);
-		roomRef.InsertInGamePlayer(alonePlayerMap);
-		roomRef.GameStart();
-		g_iocpNetwork.m_session[userId].SetRole((ROLE)recvPacket->Role);
-		g_iocpNetwork.m_session[userId].SetRoomId(newRoomId);
-		roomRef.SendAllPlayerInfo();
+		if (recvPacket->Role != ROLE::NONE_SELECT && recvPacket->Role != ROLE::RAND) {
+			std::map<ROLE, int> alonePlayerMap;
+			alonePlayerMap.insert(std::make_pair((ROLE)recvPacket->Role, userId));
+			int newRoomId = g_RoomManager.GetRoomId();//새로운 룸 오브젝트 가져오기
+			Room& roomRef = g_RoomManager.GetRunningRoomRef(newRoomId);
+			roomRef.InsertInGamePlayer(alonePlayerMap);
+			roomRef.GameStart();
+			g_iocpNetwork.m_session[userId].SetRole((ROLE)recvPacket->Role);
+			g_iocpNetwork.m_session[userId].SetRoomId(newRoomId);
+			roomRef.SendAllPlayerInfo();
 
-		SERVER_PACKET::NotifyPacket sendPacket;
-		sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
-		sendPacket.type = SERVER_PACKET::INTO_GAME;
-		g_iocpNetwork.m_session[userId].Send(&sendPacket);
+			SERVER_PACKET::NotifyPacket sendPacket;
+			sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
+			sendPacket.type = SERVER_PACKET::INTO_GAME;
+			g_iocpNetwork.m_session[userId].Send(&sendPacket);
 #else
 		std::cout << "match: " << userId << std::endl;
 		CLIENT_PACKET::MatchPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::MatchPacket*>(p);
 		InsertMatchQueue((ROLE)recvPacket->Role, userId);
 		//매치 큐 걸어놓고 끝
 #endif // ALONE_TEST
+		}
 
 	}
 	break;
