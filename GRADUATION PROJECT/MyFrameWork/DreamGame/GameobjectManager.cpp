@@ -3333,7 +3333,7 @@ void GameobjectManager::ChangeStage1ToStage2(float fTimeelpased)
 			}
 			//m_pSkyboxObject->Die(m_fStroyTime );
 		}
-		if (m_fStroyTime > 4) {
+		if (m_fStroyTime > 4&& m_fStroyTime < 13) {
 		
 			if (m_bBossText) {
 				m_iTEXTiIndex = BOSS_TEXT;
