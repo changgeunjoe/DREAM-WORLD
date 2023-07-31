@@ -210,9 +210,8 @@ void Logic::ProcessPacket(int userId, char* p)
 		InsertMatchQueue((ROLE)recvPacket->Role, userId);
 		//매치 큐 걸어놓고 끝
 #endif // ALONE_TEST
-		}
-
 	}
+
 	break;
 	case CLIENT_PACKET::MOUSE_INPUT:
 	{
@@ -663,13 +662,13 @@ std::string Logic::MakeRoomId()
 	return roomId;
 }
 
-void Logic::InsertInGameUserSet(std::wstring& id)
+void Logic::InsertInGameUserSet(std::wstring & id)
 {
 	std::lock_guard<std::mutex>ll{ m_inGameUserLock };
 	m_inGameUser.emplace(id);
 }
 
-void Logic::DeleteInGameUserSet(std::wstring& id)
+void Logic::DeleteInGameUserSet(std::wstring & id)
 {
 	std::lock_guard<std::mutex>ll{ m_inGameUserLock };
 	m_inGameUser.erase(id);
