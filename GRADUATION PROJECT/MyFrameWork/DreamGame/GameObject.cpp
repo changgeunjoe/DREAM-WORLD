@@ -168,6 +168,7 @@ XMFLOAT3 GameObject::GetRight()
 float GameObject::CalculateDistanceSound()
 {
 	Character* myPlayCharacter = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(g_Logic.GetMyRole());
+	if (myPlayCharacter == nullptr) return 0.0f;
 	XMVECTOR firstVec = XMLoadFloat3(&myPlayCharacter->GetPosition());
 	XMVECTOR lastVec = XMLoadFloat3(&GetPosition());
 

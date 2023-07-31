@@ -482,6 +482,7 @@ void GameobjectManager::PlayerConditionAnimate(float fTimeElapsed)
 {
 	if (g_Logic.GetMyRole()) {
 		Character* myPlayCharacter = GetChracterInfo(g_Logic.GetMyRole());
+		if (myPlayCharacter == nullptr) return;
 		if (myPlayCharacter->m_fConditionTime < 1.2) {
 			if (myPlayCharacter->GetCurrentHP() > myPlayCharacter->GetTempHP()) {
 				m_pConditionUIObject->SetColor(XMFLOAT4(0, 0.7, 0.2, 0));
@@ -1108,7 +1109,7 @@ bool GameobjectManager::CheckCollideNPC()
 {
 	Character* myCharacter = GetChracterInfo(g_Logic.GetMyRole());
 	if (myCharacter == nullptr) {
-		exit(0);
+		return false;
 	}
 	if (m_pAngelNPCObject->m_SPBBNPC.Intersects(myCharacter->m_SPBB))
 	{
@@ -1127,6 +1128,7 @@ bool GameobjectManager::CheckCollideNPC()
 void GameobjectManager::CheckCollideNPCColorChange()//엔피씨 충돌시에 생기는 마법
 {
 	Character* myCharacter = GetChracterInfo(g_Logic.GetMyRole());
+	if (myCharacter == nullptr) return;
 	if (m_pAngelNPCObject->m_SPBBNPC.Intersects(myCharacter->m_SPBB))
 	{
 		//	m_pAngelNPCObject->SetColor(XMFLOAT4(0.5, 0.5, 0.5, 0.5));
@@ -1137,7 +1139,7 @@ void GameobjectManager::CheckCollidePortal()
 {
 	Character* myCharacter = GetChracterInfo(g_Logic.GetMyRole());
 	if (myCharacter == nullptr) {
-		exit(0);
+		return;
 	}
 	if (m_SPBBPortal.Intersects(myCharacter->m_SPBB) && m_bPortalCheck == false)
 	{
@@ -2503,12 +2505,11 @@ void GameobjectManager::ProcessingUI(int n)
 	switch (n)
 	{
 	case UI::UI_GAMESEARCHING: {
-		m_pUIGameEndObject->m_bUIActive = false;
 		g_sound.NoLoopPlay("ClickSound", 1.0f);
-		//g_sound.Pause("ClickSound");
-		if (!m_bInMatching)
+		if (!m_bInMatching && g_Logic.GetMyRole() != ROLE::NONE_SELECT)
 		{
-			cout << "StartMatching" << endl;
+			// cout << "StartMatching" << endl;
+			m_pUIGameEndObject->m_bUIActive = false;
 			g_NetworkHelper.SendMatchRequestPacket();
 			m_bInMatching = true;
 		}
@@ -2523,7 +2524,7 @@ void GameobjectManager::ProcessingUI(int n)
 		m_pUIArcherCharacterObject->m_bUIActive = false;
 		m_pUITankerCharacterObject->m_bUIActive = false;
 		m_pUIPriestCharacterObject->m_bUIActive = false;
-		cout << "Choose Warrior Character" << endl;
+		// cout << "Choose Warrior Character" << endl;
 		break;
 	}
 	case UI::UI_ARCHERCHARACTER:
@@ -2535,7 +2536,7 @@ void GameobjectManager::ProcessingUI(int n)
 		m_pUIArcherCharacterObject->m_bUIActive = true;
 		m_pUITankerCharacterObject->m_bUIActive = false;
 		m_pUIPriestCharacterObject->m_bUIActive = false;
-		cout << "Choose Archer Character" << endl;
+		// cout << "Choose Archer Character" << endl;
 		break;
 	}
 	case UI::UI_TANKERCHARACTER:
@@ -2547,7 +2548,7 @@ void GameobjectManager::ProcessingUI(int n)
 		m_pUIArcherCharacterObject->m_bUIActive = false;
 		m_pUITankerCharacterObject->m_bUIActive = true;
 		m_pUIPriestCharacterObject->m_bUIActive = false;
-		cout << "Choose Tanker Character" << endl;
+		// cout << "Choose Tanker Character" << endl;
 		break;
 	}
 	case UI::UI_PRIESTCHARACTER:
@@ -2559,20 +2560,20 @@ void GameobjectManager::ProcessingUI(int n)
 		m_pUIArcherCharacterObject->m_bUIActive = false;
 		m_pUITankerCharacterObject->m_bUIActive = false;
 		m_pUIPriestCharacterObject->m_bUIActive = true;
-		cout << "Choose Priest Character" << endl;
+		// cout << "Choose Priest Character" << endl;
 		break;
 	}
 	case UI::UI_ENTERROOM:
 	{
 		g_sound.NoLoopPlay("ClickSound", 1.0f);
 		// 방 입장 요청 Send
-		cout << "Request Entering The Room" << endl;
+		// cout << "Request Entering The Room" << endl;
 		break;
 	}
 	case UI::UI_CREATEROOM:
 	{
 		g_sound.NoLoopPlay("ClickSound", 1.0f);
-		cout << "Create Room" << endl;
+		// cout << "Create Room" << endl;
 		break;
 	}
 	default:
@@ -2611,6 +2612,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 {
 	static XMFLOAT3 upVec = XMFLOAT3(0, 1, 0);
 	Character* myPlayCharacter = GetChracterInfo(g_Logic.GetMyRole());
+	if (myPlayCharacter == nullptr) return false;
 	if (nMessageID == WM_KEYDOWN && wParam == VK_F4)
 	{
 		g_NetworkHelper.SendTestGameEndPacket();
@@ -2621,12 +2623,12 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 	{
 		m_bDebugMode = !m_bDebugMode;
 	}
-	if (nMessageID == WM_KEYDOWN && wParam == VK_TAB)
-	{
-		int curGameState = gGameFramework.GetCurrentGameState();
-		curGameState = (curGameState + 1) % 3;
-		gGameFramework.SetCurrentGameState(static_cast<GAME_STATE>(curGameState));
-	}
+	//if (nMessageID == WM_KEYDOWN && wParam == VK_TAB)
+	//{
+	//	int curGameState = gGameFramework.GetCurrentGameState();
+	//	curGameState = (curGameState + 1) % 3;
+	//	gGameFramework.SetCurrentGameState(static_cast<GAME_STATE>(curGameState));
+	//}
 	if (nMessageID == WM_KEYDOWN && wParam == VK_F5)
 	{
 		m_xmfMode = DEFAULT_MODE;
@@ -2732,25 +2734,23 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			}
 		}
 		break;
-		case 'O':
-		{
-#ifdef  LOCAL_TASK
-			m_pPlayerObject->m_pCamera->ReInitCamrea();
-			m_pPlayerObject->SetCamera(m_pCamera);
-#endif //  
-#ifndef LOCAL_TASK
-			myPlayCharacter->m_pCamera->ReInitCamrea();
-			myPlayCharacter->SetCamera(m_pCamera);
-#endif // !LOCAL_TASK
-
-			break;
-		}
+//		case 'O':
+//		{
+//#ifdef  LOCAL_TASK
+//			m_pPlayerObject->m_pCamera->ReInitCamrea();
+//			m_pPlayerObject->SetCamera(m_pCamera);
+//#endif //  
+//#ifndef LOCAL_TASK
+//			myPlayCharacter->m_pCamera->ReInitCamrea();
+//			myPlayCharacter->SetCamera(m_pCamera);
+//#endif // !LOCAL_TASK
+//
+//			break;
+//		}
 		case VK_CONTROL:
 			break;
 		case VK_F1:
 			break;
-		case VK_F2:
-
 		case VK_F3:
 
 			break;
@@ -2854,41 +2854,39 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			CheckCollidePortal();
 		}
 		break;
-		case 'H':
-		{
-			m_bSkipText = true;
-		}
-		break;
-		case 'V':
-		{
-			m_bNPCinteraction = true;
-
-
-			break;
-		}
-		case 'P':
-		{
-			m_bTest = true;
-			for (int i = 0; i < 10; i++) {
-				string sound = "RockSpkieSound";
-				sound = sound + to_string(i);
-				g_sound.Play(sound, 1);
-			}
-			g_sound.ALLPause();
-			g_sound.NoLoopPlay("MonsterAttackedSound", 1.0f);
-			g_sound.Play("ClickSound", 1.0f);
-		}
-		break;
-		case 'O':
-		{
-			g_sound.Pause("testSound");
-		}
-		break;
-		case 'U':
-		{
-			//AddDamageFontToUiLayer();
-			break;
-		}
+		//case 'H':
+		//{
+		//	m_bSkipText = true;
+		//}
+		//break;
+		//case 'V':
+		//{
+		//	m_bNPCinteraction = true;
+		//	break;
+		//}
+		//case 'P':
+		//{
+		//	m_bTest = true;
+		//	for (int i = 0; i < 10; i++) {
+		//		string sound = "RockSpkieSound";
+		//		sound = sound + to_string(i);
+		//		g_sound.Play(sound, 1);
+		//	}
+		//	g_sound.ALLPause();
+		//	g_sound.NoLoopPlay("MonsterAttackedSound", 1.0f);
+		//	g_sound.Play("ClickSound", 1.0f);
+		//}
+		//break;
+		//case 'O':
+		//{
+		//	g_sound.Pause("testSound");
+		//}
+		//break;
+		//case 'U':
+		//{
+		//	//AddDamageFontToUiLayer();
+		//	break;
+		//}
 
 		case 'T':
 		{
@@ -2919,22 +2917,22 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 
 bool GameobjectManager::onProcessingKeyboardMessageLobby(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
-	if (nMessageID == WM_KEYDOWN && wParam == VK_F2)
-	{
-#ifdef LOCAL_TASK
-		g_Logic.SetMyRole(ROLE::TANKER);//캐릭
-		m_pCamera->Rotate(0, -90, 0);
-		m_pPlayerObject = m_pTankerObject;
-		m_pPlayerObject->SetCamera(m_pCamera);
-		m_pTankerObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
-#else
-		g_Logic.SetMyRole(ROLE::ARCHER);
-		m_pArcherObject->SetCamera(m_pCamera);
-		m_pArcherObject->SetLook(XMFLOAT3(0, 0, 1));
-		g_NetworkHelper.SendMatchRequestPacket();
-#endif
-		m_bSceneSwap = true;//페이드 인 아웃
-	}
+//	if (nMessageID == WM_KEYDOWN && wParam == VK_F2)
+//	{
+//#ifdef LOCAL_TASK
+//		g_Logic.SetMyRole(ROLE::TANKER);//캐릭
+//		m_pCamera->Rotate(0, -90, 0);
+//		m_pPlayerObject = m_pTankerObject;
+//		m_pPlayerObject->SetCamera(m_pCamera);
+//		m_pTankerObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
+//#else
+//		g_Logic.SetMyRole(ROLE::ARCHER);
+//		m_pArcherObject->SetCamera(m_pCamera);
+//		m_pArcherObject->SetLook(XMFLOAT3(0, 0, 1));
+//		g_NetworkHelper.SendMatchRequestPacket();
+//#endif
+//		m_bSceneSwap = true;//페이드 인 아웃
+//	}
 	if (nMessageID == WM_KEYDOWN && wParam == 'G')
 	{
 		m_bNPCinteraction = true;
@@ -2943,125 +2941,123 @@ bool GameobjectManager::onProcessingKeyboardMessageLobby(HWND hWnd, UINT nMessag
 			m_bNPCscreen = true;
 		}
 	}
-	if (nMessageID == WM_KEYDOWN && wParam == 'I')
-	{
-		g_Logic.SetMyRole(ROLE::TANKER);
-		m_pTankerObject->SetCamera(m_pCamera);
-		m_pTankerObject->SetLook(XMFLOAT3(0, 0, 1));
-		g_NetworkHelper.SendMatchRequestPacket();
-	}
+	//if (nMessageID == WM_KEYDOWN && wParam == 'I')
+	//{
+	//	g_Logic.SetMyRole(ROLE::TANKER);
+	//	m_pTankerObject->SetCamera(m_pCamera);
+	//	m_pTankerObject->SetLook(XMFLOAT3(0, 0, 1));
+	//	g_NetworkHelper.SendMatchRequestPacket();
+	//}
 	return false;
 }
 
 bool GameobjectManager::onProcessingKeyboardMessageUI(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
-	switch (nMessageID)
-	{
-	case WM_KEYDOWN:
-		std::cout << "GameobjectManager::onProcessingKeyboardMessage() -key down: " << endl;
-		switch (wParam)
-		{
-		case 'P':
-		{
-			if (m_pSelectedObject)
-			{
-				XMFLOAT3 TempPosition = m_pSelectedObject->GetPosition();
-				TempPosition.x += 0.01f;
-				m_pSelectedObject->SetPosition(TempPosition);
-
-			}
-		}
-		break;
-		case 'O':
-		{
-			if (m_pSelectedObject)
-			{
-				XMFLOAT3 TempPosition = m_pSelectedObject->GetPosition();
-				TempPosition.x -= 0.01f;
-				m_pSelectedObject->SetPosition(TempPosition);
-			}
-		}
-		break;
-		case 'K':
-		{
-
-			if (m_pSelectedObject)
-			{
-				XMFLOAT3 TempPosition = m_pSelectedObject->GetPosition();
-				TempPosition.y += 0.01f;
-				m_pSelectedObject->SetPosition(TempPosition);
-			}
-		}
-		break;
-		case 'L':
-		{
-
-			if (m_pSelectedObject)
-			{
-				XMFLOAT3 TempPosition = m_pSelectedObject->GetPosition();
-				TempPosition.y -= 0.01f;
-				m_pSelectedObject->SetPosition(TempPosition);
-			}
-		}
-		break;
-		case 'I':
-		{
-		}
-		break;
-		case 'q':
-		case 'Q':
-		{
-		}
-		break;
-		case 'w':
-		case 'W':
-		{
-		}
-		break;
-		case 'r':
-		case 'R':
-		{
-			//g_NetworkHelper.SendMatchRequestPacket(ROLE::RAND);
-		}
-		break;
-		case 'z':
-		case 'Z': //탱커
-		{
-			//g_NetworkHelper.SendMatchRequestPacket(ROLE::TANKER);
-		}
-		break;
-		case 'x':
-		case 'X': // 전사
-		{
-			//g_NetworkHelper.SendMatchRequestPacket(ROLE::WARRIOR);
-		}
-		break;
-		case 'c':
-		case 'C': //프리스트
-		{
-			//g_NetworkHelper.SendMatchRequestPacket(ROLE::PRIEST);
-		}
-		break;
-		case 'v':
-		case 'V': // 궁수
-		{
-			//g_NetworkHelper.SendMatchRequestPacket(ROLE::ARCHER);
-		}
-		break;
-		break;
-		default:
-			break;
-		}
-		break;
-	}
-	return(false);
+	//switch (nMessageID)
+	//{
+	//case WM_KEYDOWN:
+	//	std::cout << "GameobjectManager::onProcessingKeyboardMessage() -key down: " << endl;
+	//	switch (wParam)
+	//	{
+	//	case 'P':
+	//	{
+	//		if (m_pSelectedObject)
+	//		{
+	//			XMFLOAT3 TempPosition = m_pSelectedObject->GetPosition();
+	//			TempPosition.x += 0.01f;
+	//			m_pSelectedObject->SetPosition(TempPosition);
+	//		}
+	//	}
+	//	break;
+	//	case 'O':
+	//	{
+	//		if (m_pSelectedObject)
+	//		{
+	//			XMFLOAT3 TempPosition = m_pSelectedObject->GetPosition();
+	//			TempPosition.x -= 0.01f;
+	//			m_pSelectedObject->SetPosition(TempPosition);
+	//		}
+	//	}
+	//	break;
+	//	case 'K':
+	//	{
+	//		if (m_pSelectedObject)
+	//		{
+	//			XMFLOAT3 TempPosition = m_pSelectedObject->GetPosition();
+	//			TempPosition.y += 0.01f;
+	//			m_pSelectedObject->SetPosition(TempPosition);
+	//		}
+	//	}
+	//	break;
+	//	case 'L':
+	//	{
+	//		if (m_pSelectedObject)
+	//		{
+	//			XMFLOAT3 TempPosition = m_pSelectedObject->GetPosition();
+	//			TempPosition.y -= 0.01f;
+	//			m_pSelectedObject->SetPosition(TempPosition);
+	//		}
+	//	}
+	//	break;
+	//	case 'I':
+	//	{
+	//	}
+	//	break;
+	//	case 'q':
+	//	case 'Q':
+	//	{
+	//	}
+	//	break;
+	//	case 'w':
+	//	case 'W':
+	//	{
+	//	}
+	//	break;
+	//	case 'r':
+	//	case 'R':
+	//	{
+	//		//g_NetworkHelper.SendMatchRequestPacket(ROLE::RAND);
+	//	}
+	//	break;
+	//	case 'z':
+	//	case 'Z': //탱커
+	//	{
+	//		//g_NetworkHelper.SendMatchRequestPacket(ROLE::TANKER);
+	//	}
+	//	break;
+	//	case 'x':
+	//	case 'X': // 전사
+	//	{
+	//		//g_NetworkHelper.SendMatchRequestPacket(ROLE::WARRIOR);
+	//	}
+	//	break;
+	//	case 'c':
+	//	case 'C': //프리스트
+	//	{
+	//		//g_NetworkHelper.SendMatchRequestPacket(ROLE::PRIEST);
+	//	}
+	//	break;
+	//	case 'v':
+	//	case 'V': // 궁수
+	//	{
+	//		//g_NetworkHelper.SendMatchRequestPacket(ROLE::ARCHER);
+	//	}
+	//	break;
+	//	break;
+	//	default:
+	//		break;
+	//	}
+	//	break;
+	//}
+	//return(false);
+	return false;
 }
 
 void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
 	bool SomethingChanging = false;
 	Character* myPlayCharacter = GetChracterInfo(g_Logic.GetMyRole());
-
+	if (myPlayCharacter == nullptr) return;
 	if (GameEnd)
 	{
 		switch (nMessageID)
@@ -3141,7 +3137,6 @@ void GameobjectManager::onProcessingMouseMessageUI(HWND hWnd, UINT nMessageID, W
 	case WM_LBUTTONDOWN:
 		break;
 	case WM_LBUTTONUP:
-		cout << "마우스 클릭 성공" << endl;
 		PickObjectByRayIntersection(LOWORD(lParam), HIWORD(lParam));
 		break;
 	case WM_RBUTTONDOWN:
@@ -3160,12 +3155,11 @@ void GameobjectManager::AddTextToUILayer(int& iIndex)
 	queue<wstring> queueStr;
 	if (iIndex == START_TEXT)
 	{
-		queueStr.emplace(L"z!");
-		//queueStr.emplace(L"안녕하세요! 드림월드에 오신 것을 환영해요");
-		//queueStr.emplace(L"먼저 플레이 방법에 대해서 알려드릴게요!");
-		//queueStr.emplace(L"앞에 보이는 캐릭터들 중 원하는 캐릭터를");
-		//queueStr.emplace(L"선택하신 후에 게임 시작을 누르시면");
-		//queueStr.emplace(L"선택한 캐릭터를 플레이 하실 수 있어요!");
+		queueStr.emplace(L"안녕하세요! 드림월드에 오신 것을 환영해요");
+		queueStr.emplace(L"먼저 플레이 방법에 대해서 알려드릴게요!");
+		queueStr.emplace(L"앞에 보이는 캐릭터들 중 원하는 캐릭터를");
+		queueStr.emplace(L"선택하신 후에 게임 시작을 누르시면");
+		queueStr.emplace(L"선택한 캐릭터를 플레이 하실 수 있어요!");
 	}
 	if (iIndex == NPC_TEXT)
 	{
