@@ -204,6 +204,7 @@ void Logic::ProcessPacket(int userId, char* p)
 			sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
 			sendPacket.type = SERVER_PACKET::INTO_GAME;
 			g_iocpNetwork.m_session[userId].Send(&sendPacket);
+		}
 #else
 		std::cout << "match: " << userId << std::endl;
 		CLIENT_PACKET::MatchPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::MatchPacket*>(p);
@@ -211,7 +212,6 @@ void Logic::ProcessPacket(int userId, char* p)
 		//매치 큐 걸어놓고 끝
 #endif // ALONE_TEST
 	}
-
 	break;
 	case CLIENT_PACKET::MOUSE_INPUT:
 	{
@@ -574,7 +574,7 @@ void Logic::MatchMaking()
 		//아무도 없을 때, 
 		if (restRole.size() == 4) {}
 		//모두가 Role을 가지고 돌렸을때
-		else if (restRole.size() == 1) {
+		else if (restRole.size() == 2) {
 			std::map<ROLE, int> matchPlayer;
 			if (warriorPlayerIdQueue.unsafe_size() > 0) {
 				int playerId = -1;
@@ -662,13 +662,13 @@ std::string Logic::MakeRoomId()
 	return roomId;
 }
 
-void Logic::InsertInGameUserSet(std::wstring & id)
+void Logic::InsertInGameUserSet(std::wstring& id)
 {
 	std::lock_guard<std::mutex>ll{ m_inGameUserLock };
 	m_inGameUser.emplace(id);
 }
 
-void Logic::DeleteInGameUserSet(std::wstring & id)
+void Logic::DeleteInGameUserSet(std::wstring& id)
 {
 	std::lock_guard<std::mutex>ll{ m_inGameUserLock };
 	m_inGameUser.erase(id);

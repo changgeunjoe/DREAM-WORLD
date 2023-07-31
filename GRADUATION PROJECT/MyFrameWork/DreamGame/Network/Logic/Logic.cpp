@@ -671,6 +671,7 @@ void Logic::ProcessPacket(char* p)
 	{
 		SERVER_PACKET::PlayerAttackBossDamagePacket* recvPacket = reinterpret_cast<SERVER_PACKET::PlayerAttackBossDamagePacket*>(p);
 		recvPacket->damage;//현재 클라이언트 보스 위치에다가 띄울 데미지 폰트의 데미지
+		recvPacket->role;//직업
 	}
 	break;
 	case SERVER_PACKET::BOSS_ATTACK_PALYER:

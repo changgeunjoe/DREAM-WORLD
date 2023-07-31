@@ -157,9 +157,9 @@ void TrailComponent::RenderAstar(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 		/*g_bossMapData.GetTriangleMesh(*iter).GetVertex1();
 		g_bossMapData.GetTriangleMesh(*iter).GetVertex2();
 		g_bossMapData.GetTriangleMesh(*iter).GetVertex3();*/
-		xmf3Pos.push_back(Vector3::Add(g_bossMapData.GetTriangleMesh(*iter).GetVertex1(), XMFLOAT3(0, (float)i * 1.5f, 0)));
-		xmf3Pos.push_back(Vector3::Add(g_bossMapData.GetTriangleMesh(*iter).GetVertex2(), XMFLOAT3(0, (float)i * 1.5f, 0)));
-		xmf3Pos.push_back(Vector3::Add(g_bossMapData.GetTriangleMesh(*iter).GetVertex3(), XMFLOAT3(0, (float)i * 1.5f, 0)));
+		xmf3Pos.push_back(Vector3::Add(g_bossMapData.GetTriangleMesh(*iter).GetVertex1(), XMFLOAT3(0, (float)i * 0.3f + 0.3f, 0)));
+		xmf3Pos.push_back(Vector3::Add(g_bossMapData.GetTriangleMesh(*iter).GetVertex2(), XMFLOAT3(0, (float)i * 0.3f + 0.3f, 0)));
+		xmf3Pos.push_back(Vector3::Add(g_bossMapData.GetTriangleMesh(*iter).GetVertex3(), XMFLOAT3(0, (float)i * 0.3f + 0.3f, 0)));
 		i++;
 	}
 	size_t iVertexCount = xmf3Pos.size();//사각형 당 정점 6개

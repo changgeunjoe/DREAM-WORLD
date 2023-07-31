@@ -121,8 +121,8 @@ void ChracterSessionObject::StartMove(DIRECTION d, std::chrono::utc_clock::time_
 		durationTime = (double)durationTime / 1000.0f;//microseconds to mill
 		durationTime = (double)durationTime / 1000.0f;//milliseconds to sec
 		XMFLOAT3 pos = m_position = Vector3::Add(m_position, m_directionVector, durationTime * 50.0f);
-		std::cout << "ChracterSessionObject::StartMove() - m_position:" << m_position.x << ", "
-			<< m_position.y << ", " << m_position.z << std::endl;
+		/*std::cout << "ChracterSessionObject::StartMove() - m_position:" << m_position.x << ", "
+			<< m_position.y << ", " << m_position.z << std::endl;*/
 		SERVER_PACKET::MovePacket sendPacket;
 		sendPacket.direction = d;
 		sendPacket.role = m_InGameRole;

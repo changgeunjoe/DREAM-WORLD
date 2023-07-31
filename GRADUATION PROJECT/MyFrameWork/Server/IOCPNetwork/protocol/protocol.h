@@ -449,6 +449,7 @@ namespace SERVER_PACKET {
 	struct PlayerAttackBossDamagePacket {
 		short size;
 		char type;
+		char role;
 		float damage;// 플레이어가 입힌 데미지
 	};
 

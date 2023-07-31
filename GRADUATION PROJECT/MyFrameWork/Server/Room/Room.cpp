@@ -201,7 +201,7 @@ MonsterSessionObject& Room::GetBoss()
 
 void Room::PushRestArrow(int id)
 {
-	std::cout << "push arrowIdx: " << id << std::endl;
+	//std::cout << "push arrowIdx: " << id << std::endl;
 	m_restArrow.push(id);
 }
 
@@ -215,7 +215,7 @@ void Room::ShootArrow(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 srcPos, float spe
 	if (!m_isAlive)return;
 	int arrowIndex = -1;
 	if (m_restArrow.try_pop(arrowIndex)) {
-		std::cout << "pop arrowIdx: " << arrowIndex << std::endl;
+		//std::cout << "pop arrowIdx: " << arrowIndex << std::endl;
 		XMFLOAT3 xmf3Position = srcPos;
 		xmf3Position.y += 8.0f;
 		XMFLOAT3 rightVector = Vector3::CrossProduct(DirectX::XMFLOAT3(0, 1, 0), dir);
@@ -257,6 +257,7 @@ void Room::MeleeAttack(ROLE r, DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 pos, int
 				sendPacket.type = SERVER_PACKET::PLAYER_ATTACK_RESULT_BOSS;
 				sendPacket.size = sizeof(SERVER_PACKET::PlayerAttackBossDamagePacket);
 				sendPacket.damage = damage;
+				sendPacket.role = r;
 				g_logic.OnlySendPlayerInRoom_R(m_roomId, r, &sendPacket);
 				return;
 			}
@@ -949,6 +950,7 @@ void Room::ExecuteMageThunder(XMFLOAT3& position)
 		sendPacket.type = SERVER_PACKET::PLAYER_ATTACK_RESULT_BOSS;
 		sendPacket.size = sizeof(SERVER_PACKET::PlayerAttackBossDamagePacket);
 		sendPacket.damage = 120.0f;
+		sendPacket.role = ROLE::PRIEST;
 		g_logic.OnlySendPlayerInRoom_R(m_roomId, ROLE::PRIEST, &sendPacket);
 	}
 }
@@ -966,6 +968,7 @@ void Room::ExecuteLongSwordAttack(DirectX::XMFLOAT3& dir, DirectX::XMFLOAT3& pos
 				sendPacket.type = SERVER_PACKET::PLAYER_ATTACK_RESULT_BOSS;
 				sendPacket.size = sizeof(SERVER_PACKET::PlayerAttackBossDamagePacket);
 				sendPacket.damage = 180.0f;
+				sendPacket.role = ROLE::WARRIOR;
 				g_logic.OnlySendPlayerInRoom_R(m_roomId, ROLE::WARRIOR, &sendPacket);
 				return;
 			}
@@ -1022,6 +1025,7 @@ void Room::ExecuteHammerAttack(DirectX::XMFLOAT3& dir, XMFLOAT3& pos)
 				sendPacket.type = SERVER_PACKET::PLAYER_ATTACK_RESULT_BOSS;
 				sendPacket.size = sizeof(SERVER_PACKET::PlayerAttackBossDamagePacket);
 				sendPacket.damage = 140.0f;
+				sendPacket.role = ROLE::TANKER;
 				g_logic.BroadCastInRoom(m_roomId, &sendPacket);
 				return;
 			}
@@ -1060,6 +1064,7 @@ void Room::ExecuteSkyArrow()
 		sendPacket.type = SERVER_PACKET::PLAYER_ATTACK_RESULT_BOSS;
 		sendPacket.size = sizeof(SERVER_PACKET::PlayerAttackBossDamagePacket);
 		sendPacket.damage = 150.0f;
+		sendPacket.role = ROLE::ARCHER;
 		g_logic.OnlySendPlayerInRoom_R(m_roomId, ROLE::ARCHER, &sendPacket);
 	}
 	else {
