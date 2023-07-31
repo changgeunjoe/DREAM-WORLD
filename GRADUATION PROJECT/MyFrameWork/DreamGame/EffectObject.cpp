@@ -27,6 +27,7 @@ void EffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pSmokeObject[i]->InsertComponent<TextureComponent>();
 		m_pSmokeObject[i]->SetTexture(L"MagicEffect/Smoke.dds", RESOURCE_TEXTURE2D, 3);
 		m_pSmokeObject[i]->SetAddPosition(XMFLOAT3(RandF(-5, 5), RandF(-0, 10), RandF(-5, 5)));
+		m_pSmokeObject[i]->SetPosition(XMFLOAT3(5000, 5000, 5000));
 		m_pSmokeObject[i]->SetColor(XMFLOAT4(0.0f, 1.0f, 0.2568f, 0));
 		m_pSmokeObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pSmokeObject[i]->m_fTime = RandF(0, 10);
@@ -41,7 +42,7 @@ void EffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pPointObject[i]->InsertComponent<TextureComponent>();
 		m_pPointObject[i]->SetTexture(L"MagicEffect/Point1.dds", RESOURCE_TEXTURE2D, 3);
 		m_pPointObject[i]->SetAddPosition(XMFLOAT3(RandF(-5, 5), RandF(-5, 5), RandF(-5, 5)));
-		m_pPointObject[i]->SetPosition(XMFLOAT3(0, 0, 0));
+		m_pPointObject[i]->SetPosition(XMFLOAT3(5000, 5000, 5000));
 		m_pPointObject[i]->SetColor(XMFLOAT4(0.0f, 1.0f, 0.2568f, 0));
 		m_pPointObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pPointObject[i]->m_fTime = RandF(0, 10);
@@ -55,7 +56,7 @@ void EffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pArrowObject[i]->InsertComponent<EffectShaderComponent>();
 		m_pArrowObject[i]->InsertComponent<TextureComponent>();
 		m_pArrowObject[i]->SetTexture(L"MagicEffect/Arrow.dds", RESOURCE_TEXTURE2D, 3);
-		m_pArrowObject[i]->SetPosition(XMFLOAT3(0, 40, 50));
+		m_pArrowObject[i]->SetPosition(XMFLOAT3(5000, 5000, 5000));
 		m_pArrowObject[i]->SetAddPosition(XMFLOAT3(RandF(-5, 5), RandF(-5, 5), RandF(-5, 5)));
 		m_pArrowObject[i]->SetRowColumn(16, 8, 0.05);
 		m_pArrowObject[i]->SetColor(XMFLOAT4(0.0f, 1.0f, 0.2568f, 0));
@@ -71,7 +72,7 @@ void EffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pFlareObject[i]->InsertComponent<EffectShaderComponent>();
 		m_pFlareObject[i]->InsertComponent<TextureComponent>();
 		m_pFlareObject[i]->SetTexture(L"MagicEffect/Flare.dds", RESOURCE_TEXTURE2D, 3);
-		m_pFlareObject[i]->SetPosition(XMFLOAT3(0, 40, 50));
+		m_pFlareObject[i]->SetPosition(XMFLOAT3(5000, 5000, 5000));
 		m_pFlareObject[i]->SetAddPosition(XMFLOAT3(RandF(-5, 5), RandF(-5, 5), RandF(-5, 5)));
 		m_pFlareObject[i]->SetColor(XMFLOAT4(0.0f, 1.0f, 0.2568f, 0));
 		m_pFlareObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -267,7 +268,7 @@ void LightningEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12Graphics
 		m_pLightningSpriteObject[i]->InsertComponent<MultiSpriteShaderComponent>();
 		m_pLightningSpriteObject[i]->InsertComponent<TextureComponent>();
 		m_pLightningSpriteObject[i]->SetTexture(L"MagicEffect/Lightning_2x2.dds", RESOURCE_TEXTURE2D, 3);
-		m_pLightningSpriteObject[i]->SetPosition(XMFLOAT3(0, 40, 100 + 10 * i));
+		m_pLightningSpriteObject[i]->SetPosition(XMFLOAT3(5000, 5000, 5000));
 		m_pLightningSpriteObject[i]->SetScale(7.0f, 12.0f, 7.0f);
 		m_pLightningSpriteObject[i]->SetRowColumn(2.0f, 2.0f, 0.06f + 0.5 * i);
 		m_pLightningSpriteObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -284,7 +285,7 @@ void LightningEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12Graphics
 		m_ppParticleObjects[i]->InsertComponent<TextureComponent>();
 		m_ppParticleObjects[i]->SetTexture(L"MagicEffect/Snowflake.dds", RESOURCE_TEXTURE2D, 3);
 		m_ppParticleObjects[i]->SetAddPosition(XMFLOAT3(RandF(-5, 5), RandF(-5, 5), RandF(-5, 5)));
-		m_ppParticleObjects[i]->SetPosition(XMFLOAT3(0, 0, 0));
+		m_ppParticleObjects[i]->SetPosition(XMFLOAT3(5000, 5000, 5000));
 		m_ppParticleObjects[i]->SetColor(XMFLOAT4(0.2666f, 0.58039f, 0.8862f, 0));
 		m_ppParticleObjects[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_ppParticleObjects[i]->m_fTime = 0;
@@ -354,6 +355,7 @@ void SheildEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 		m_pSmokeObject[i]->SetTexture(L"MagicEffect/Smoke.dds", RESOURCE_TEXTURE2D, 3);
 		m_pSmokeObject[i]->SetAddPosition(XMFLOAT3(RandF(-5, 5), RandF(-0, 10), RandF(-5, 5)));
 		m_pSmokeObject[i]->SetColor(XMFLOAT4(0.7f, 0.7f, 0.7f, 0));
+		m_pSmokeObject[i]->SetPosition(XMFLOAT3(5000, 5000, 5000));
 		m_pSmokeObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pSmokeObject[i]->m_fTime = RandF(0, 10);
 		m_pEffectObjects.emplace_back(m_pSmokeObject[i]);
@@ -367,7 +369,7 @@ void SheildEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 		m_pPointObject[i]->InsertComponent<TextureComponent>();
 		m_pPointObject[i]->SetTexture(L"MagicEffect/Point1.dds", RESOURCE_TEXTURE2D, 3);
 		m_pPointObject[i]->SetAddPosition(XMFLOAT3(RandF(-5, 5), RandF(-5, 5), RandF(-5, 5)));
-		m_pPointObject[i]->SetPosition(XMFLOAT3(0, 0, 0));
+		m_pPointObject[i]->SetPosition(XMFLOAT3(5000, 5000, 5000));
 		m_pPointObject[i]->SetColor(XMFLOAT4(0.7f, 0.7f, 0.7f, 0));
 		m_pPointObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_pPointObject[i]->m_fTime = RandF(0, 10);
@@ -381,7 +383,7 @@ void SheildEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 		m_pArrowObject[i]->InsertComponent<BlendShaderComponent>();
 		m_pArrowObject[i]->InsertComponent<TextureComponent>();
 		m_pArrowObject[i]->SetTexture(L"MagicEffect/Shield.dds", RESOURCE_TEXTURE2D, 3);
-		m_pArrowObject[i]->SetPosition(XMFLOAT3(0, 40, 50));
+		m_pArrowObject[i]->SetPosition(XMFLOAT3(5000, 5000, 5000));
 		m_pArrowObject[i]->SetAddPosition(XMFLOAT3(RandF(-5, 5), RandF(-5, 5), RandF(-5, 5)));
 		m_pArrowObject[i]->SetRowColumn(16, 8, 0.05);
 		m_pArrowObject[i]->SetColor(XMFLOAT4(0.7f, 0.7f, 0.7f, 0));
@@ -397,7 +399,7 @@ void SheildEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 		m_pFlareObject[i]->InsertComponent<EffectShaderComponent>();
 		m_pFlareObject[i]->InsertComponent<TextureComponent>();
 		m_pFlareObject[i]->SetTexture(L"MagicEffect/Flare.dds", RESOURCE_TEXTURE2D, 3);
-		m_pFlareObject[i]->SetPosition(XMFLOAT3(0, 40, 50));
+		m_pFlareObject[i]->SetPosition(XMFLOAT3(5000, 5000, 5000));
 		m_pFlareObject[i]->SetAddPosition(XMFLOAT3(RandF(-5, 5), RandF(-5, 5), RandF(-5, 5)));
 		m_pFlareObject[i]->SetColor(XMFLOAT4(0.7f, 0.7f, 0.7f, 0));
 		m_pFlareObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -571,7 +573,7 @@ void TankerEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 		m_pTankerEffectObject[i]->InsertComponent<BlendShaderComponent>();
 		m_pTankerEffectObject[i]->InsertComponent<TextureComponent>();
 		m_pTankerEffectObject[i]->SetTexture(L"MagicEffect/Earthquake.dds", RESOURCE_TEXTURE2D, 3);
-		m_pTankerEffectObject[i]->SetPosition(XMFLOAT3(0, 40, 50));
+		m_pTankerEffectObject[i]->SetPosition(XMFLOAT3(5000, 5000, 5000));
 		m_pTankerEffectObject[i]->SetScale(6);
 		m_pTankerEffectObject[i]->SetAddPosition(XMFLOAT3(RandF(-5, 5), RandF(-5, 5), RandF(-5, 5)));
 		m_pTankerEffectObject[i]->SetRowColumn(16, 8, 0.05);
@@ -591,7 +593,7 @@ void TankerEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 		m_ppParticleObjects[i]->InsertComponent<TextureComponent>();
 		m_ppParticleObjects[i]->SetTexture(L"MagicEffect/Star.dds", RESOURCE_TEXTURE2D, 3);
 		m_ppParticleObjects[i]->SetAddPosition(XMFLOAT3(RandF(-5, 5), RandF(-5, 5), RandF(-5, 5)));
-		m_ppParticleObjects[i]->SetPosition(XMFLOAT3(0, 0, 0));
+		m_ppParticleObjects[i]->SetPosition(XMFLOAT3(5000, 5000, 5000));
 		m_ppParticleObjects[i]->SetColor(XMFLOAT4(0.9f, 1.0f, 0.8862f, 0));
 		m_ppParticleObjects[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_ppParticleObjects[i]->m_fTime = 0;
@@ -716,7 +718,7 @@ void PriestEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 		m_ppParticleObjects[i]->InsertComponent<TextureComponent>();
 		m_ppParticleObjects[i]->SetTexture(L"MagicEffect/Snowflake.dds", RESOURCE_TEXTURE2D, 3);
 		m_ppParticleObjects[i]->SetAddPosition(XMFLOAT3(RandF(-5, 5), RandF(-5, 5), RandF(-5, 5)));
-		m_ppParticleObjects[i]->SetPosition(XMFLOAT3(0, 0, 0));
+		m_ppParticleObjects[i]->SetPosition(XMFLOAT3(5000, 5000, 5000));
 		m_ppParticleObjects[i]->SetColor(XMFLOAT4(0.2666f, 0.58039f, 0.8862f, 0));
 		m_ppParticleObjects[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_ppParticleObjects[i]->m_fTime = 0;
