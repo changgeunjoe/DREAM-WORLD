@@ -34,10 +34,10 @@ namespace CLIENT_PACKET {
 
 	constexpr unsigned char PLAYER_COMMON_ATTACK_EXECUTE = 25;
 
-	constexpr unsigned char ARCHER_SKILL_ARROW = 26;
-	constexpr unsigned char CLIENT_SYNC_TIME = 27;
-	constexpr unsigned char CLIENT_FIRST_RECV = 28;
+	constexpr unsigned char ARCHER_SKILL_ARROW = 26;	
 
+	constexpr unsigned char TIME_SYNC_REQUEST = 27;
+	
 	constexpr unsigned char PLAYER_COMMON_ATTACK = 29;//애니 실행
 
 	struct MovePacket
@@ -131,14 +131,6 @@ namespace CLIENT_PACKET {
 		int power;// 아처 줌인, 워리어 3단계
 	};
 
-	struct TimeSyncAdaptPacket {
-		short size;
-		char type;
-		std::chrono::utc_clock::time_point time;
-		std::chrono::utc_clock::time_point clientTime;
-		long long diff;
-	};
-
 	struct SkillAttackPacket {
 		short size;
 		char type;
@@ -146,6 +138,7 @@ namespace CLIENT_PACKET {
 		XMFLOAT3 postionOrDirection;
 	};
 
+	
 }
 
 namespace SERVER_PACKET {
@@ -203,10 +196,8 @@ namespace SERVER_PACKET {
 
 	constexpr unsigned char SMALL_MONSTER_ATTACK = 110;
 
-	constexpr unsigned char FIRST_SEND = 111;
-	constexpr unsigned char TIME_SYNC = 112;
-	constexpr unsigned char NOTIFY_LATENCY = 113;
-
+	constexpr unsigned char TIME_SYNC_RESPONSE = 111;
+	
 	constexpr unsigned char START_ANIMATION_Q = 114;
 	constexpr unsigned char START_ANIMATION_E = 115;
 	constexpr unsigned char COMMON_ATTACK_START = 116;
@@ -216,6 +207,8 @@ namespace SERVER_PACKET {
 	constexpr unsigned char METEO_PLAYER_ATTACK = 119;
 	constexpr unsigned char METEO_DESTROY = 120;
 	constexpr unsigned char METEO_CREATE = 121;
+
+
 
 	struct MovePacket
 	{
@@ -265,18 +258,6 @@ namespace SERVER_PACKET {
 	struct NotifyPacket {
 		short size;
 		char type;
-	};
-
-	struct TimeSyncPacket {
-		short size;
-		char type;
-		std::chrono::utc_clock::time_point serverTime;
-	};
-
-	struct TimeLatencyNotifyPacket {
-		short size;
-		char type;
-		long long diff;
 	};
 
 	//struct RoomInfoPacket { // 패킷 사이즈 오버됨
@@ -488,6 +469,12 @@ namespace SERVER_PACKET {
 		short size;
 		char type;
 		MeteoInfo meteoInfo[10];
+	};
+
+	struct TimeSyncPacket {
+		short size;
+		char type;
+		std::chrono::utc_clock::time_point t;
 	};
 }
 

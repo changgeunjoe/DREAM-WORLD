@@ -20,8 +20,6 @@ Logic		g_logic;
 int main()
 {
 	std::wcout.imbue(std::locale("KOREAN"));
-	g_iocpNetwork.Start();
-	TIMER_EVENT timeSnycEvent{ std::chrono::system_clock::now() + std::chrono::seconds(1), 0 , EV_SYNC_TIME };
-	g_Timer.InsertTimerQueue(timeSnycEvent);
+	g_iocpNetwork.Start();	
 	g_iocpNetwork.Destroy();
 }

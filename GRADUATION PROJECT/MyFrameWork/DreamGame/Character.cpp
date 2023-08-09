@@ -965,17 +965,15 @@ void Character::InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT
 	auto clientUtcTime = std::chrono::utc_clock::now();
 	double durationTime = std::chrono::duration_cast<std::chrono::microseconds>(clientUtcTime - recvTime).count();
 	XMFLOAT3 xmf3Postion = GetPosition();
-	durationTime -= g_Logic.GetDiffTime();
+	durationTime += g_Logic.GetDiffTime();//1초 마다 업데이트
 	durationTime = (double)durationTime / 1000.0f;//microseconds to mill
 	durationTime = (double)durationTime / 1000.0f;//milliseconds to sec
 
 	XMFLOAT3 diff_S2C_Position = Vector3::Subtract(recvPos, xmf3Postion);
+	float diff_S2C_Size = Vector3::Length(diff_S2C_Position);
+	diff_S2C_Position = Vector3::Normalize(diff_S2C_Position);
+	float interpolateSize = diff_S2C_Size - durationTime * 50.0f;
 
-	XMFLOAT3 moveDir = Vector3::ScalarProduct(moveVec, durationTime * 50.0f);
-
-	XMFLOAT3 interpolateVec = Vector3::Add(diff_S2C_Position, moveDir);
-	float interpolateSize = Vector3::Length(interpolateVec);
-	interpolateVec = Vector3::Normalize(interpolateVec);
 	if (m_currentDirection == DIRECTION::IDLE && Vector3::Length(diff_S2C_Position) < DBL_EPSILON) {
 		m_interpolationDistance = 0.0f;
 		m_interpolationVector = XMFLOAT3(0, 0, 0);
@@ -986,13 +984,10 @@ void Character::InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT
 		m_interpolationVector = XMFLOAT3(0, 0, 0);
 	}
 	else if (interpolateSize > 8.0f) {
-		//std::cout << "interpolateSize > 8.0f - SetPosition()" << endl;		
-		//std::cout << "diff_S2C_Position Size: " << Vector3::Length(diff_S2C_Position) << ", diff_S2C_Position: " << diff_S2C_Position.x << ", " << diff_S2C_Position.y << ", " << diff_S2C_Position.z << endl;
-		//std::cout << "moveDir Size: " << Vector3::Length(moveDir) << ", diff_S2C_Position: " << moveVec.x << ", " << moveVec.y << ", " << moveVec.z << endl;
-		//XMFLOAT3 diff = Vector3::Normalize(diff_S2C_Position);
-		//float dotP = Vector3::DotProduct(diff, moveVec);
-		//std::cout << "dotP: " << dotP << endl;
-		SetPosition(Vector3::Add(xmf3Postion, interpolateVec, interpolateSize));
+		/*std::cout << "interpolateSize > 8.0f - SetPosition()" << endl;
+		std::cout << "diff_S2C_Position Size: " << Vector3::Length(diff_S2C_Position) << ", diff_S2C_Position: " << diff_S2C_Position.x << ", " << diff_S2C_Position.y << ", " << diff_S2C_Position.z << endl;
+		std::cout << "moveDir Size: " << Vector3::Length(moveDir) << ", diff_S2C_Position: " << moveVec.x << ", " << moveVec.y << ", " << moveVec.z << endl;*/
+		SetPosition(Vector3::Add(xmf3Postion, diff_S2C_Position, interpolateSize));
 		m_interpolationDistance = 0.0f;
 		m_interpolationVector = XMFLOAT3(0, 0, 0);
 	}
@@ -1002,7 +997,7 @@ void Character::InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT
 		//std::cout << "diff_S2C_Position Size: " << Vector3::Length(diff_S2C_Position) << ", diff_S2C_Position: " << diff_S2C_Position.x << ", " << diff_S2C_Position.y << ", "
 		//	<< diff_S2C_Position.z << endl;
 		m_interpolationDistance = interpolateSize;
-		m_interpolationVector = interpolateVec;
+		m_interpolationVector = diff_S2C_Position;
 	}
 }
 
@@ -1485,6 +1480,12 @@ void Archer::Move(float fTimeElapsed)
 	//else
 	//{
 		//fDistance /= 3;
+	if (m_interpolationDistance > 3.0f) {
+
+		std::cout << "interpolate prev position: " << GetPosition().x << ", " << GetPosition().y << ", " << GetPosition().z << std::endl;
+		std::cout << "interpolate Vec: " << m_interpolationVector.x << ", " << m_interpolationVector.y << ", " << m_interpolationVector.z << std::endl;
+		std::cout << "interpolate Size: " << m_interpolationDistance << std::endl;
+	}
 	switch (tempDir)
 	{
 	case DIRECTION::IDLE:
@@ -1508,6 +1509,12 @@ void Archer::Move(float fTimeElapsed)
 	case DIRECTION::LEFT: MoveStrafe(-1, fTimeElapsed); break;
 	case DIRECTION::FRONT | DIRECTION::LEFT: MoveDiagonal(1, -1, fTimeElapsed); break;
 	default: break;
+	}
+	if (m_interpolationDistance > 3.0f) {
+
+		std::cout << "interpolate after position: " << GetPosition().x << ", " << GetPosition().y << ", " << GetPosition().z << std::endl;
+		std::cout << "interpolate Vec: " << m_interpolationVector.x << ", " << m_interpolationVector.y << ", " << m_interpolationVector.z << std::endl;
+		std::cout << "interpolate Size: " << m_interpolationDistance << std::endl;
 	}
 }
 
@@ -2926,7 +2933,7 @@ void Monster::InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3&
 	auto clientUtcTime = std::chrono::utc_clock::now();
 	double durationTime = std::chrono::duration_cast<std::chrono::microseconds>(clientUtcTime - recvTime).count();
 	XMFLOAT3 xmf3Postion = GetPosition();
-	durationTime -= g_Logic.GetDiffTime();
+	durationTime += g_Logic.GetDiffTime();
 	durationTime = (double)durationTime / 1000.0f;//microseconds to mill
 	durationTime = (double)durationTime / 1000.0f;//milliseconds to sec
 
@@ -3340,7 +3347,7 @@ void NormalMonster::InterpolateMove(chrono::utc_clock::time_point& recvTime, XMF
 	auto clientUtcTime = std::chrono::utc_clock::now();
 	double durationTime = std::chrono::duration_cast<std::chrono::microseconds>(clientUtcTime - recvTime).count();
 	XMFLOAT3 xmf3Postion = GetPosition();
-	durationTime -= g_Logic.GetDiffTime();
+	durationTime += g_Logic.GetDiffTime();
 	durationTime = (double)durationTime / 1000.0f;//microseconds to mill
 	durationTime = (double)durationTime / 1000.0f;//milliseconds to sec
 

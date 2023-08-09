@@ -52,13 +52,7 @@ void Logic::ProcessPacket(int userId, char* p)
 			int roomId = g_iocpNetwork.m_session[userId].GetRoomId();
 			if (roomId != -1) {
 				Room& roomRef = g_RoomManager.GetRunningRoomRef(roomId);
-				//auto& playCharacters = roomRef.GetPlayCharacters();
-				//auto currentTime = std::chrono::utc_clock::now();
-				//double durationTime = std::chrono::duration_cast<std::chrono::microseconds>(currentTime - recvPacket->time).count();
-				//std::cout << "Logic::ProcessPacket() - C2S latency" << durationTime / 1000'000.0f << "second" << std::endl;
-				//XMFLOAT3 serverPosition = playCharacters[(ROLE)recvPacket->role]->GetPos();
-				//serverPosition = Vector3::Add(serverPosition, playCharacters[g_iocpNetwork.m_session[userId].GetRole()]->GetDirectionVector(), 50.0f * durationTime);
-				roomRef.StartMovePlayCharacter(g_iocpNetwork.m_session[userId].GetRole(), recvPacket->direction, recvPacket->time); // 움직임 start;			
+				roomRef.StartMovePlayCharacter(g_iocpNetwork.m_session[userId].GetRole(), recvPacket->direction, recvPacket->time); // 움직임 start;
 			}
 #ifdef _DEBUG
 			//PrintCurrentTime();
@@ -410,29 +404,12 @@ void Logic::ProcessPacket(int userId, char* p)
 		}
 	}
 	break;
-	case  CLIENT_PACKET::CLIENT_FIRST_RECV:
+	case CLIENT_PACKET::TIME_SYNC_REQUEST:
 	{
-		auto currentServerTime = std::chrono::utc_clock::now();
-		g_iocpNetwork.m_session[userId].firstRecvTime = currentServerTime;//e
-
 		SERVER_PACKET::TimeSyncPacket sendPacket;
 		sendPacket.size = sizeof(SERVER_PACKET::TimeSyncPacket);
-		sendPacket.type = SERVER_PACKET::TIME_SYNC;
-		sendPacket.serverTime = std::chrono::utc_clock::now();
-		g_iocpNetwork.m_session[userId].Send(&sendPacket);
-	}
-	break;
-	case CLIENT_PACKET::CLIENT_SYNC_TIME:
-	{
-		CLIENT_PACKET::TimeSyncAdaptPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::TimeSyncAdaptPacket*>(p);
-		auto latency = std::chrono::duration_cast<std::chrono::microseconds>(g_iocpNetwork.m_session[userId].firstRecvTime - g_iocpNetwork.m_session[userId].firstSendTime).count();
-		latency /= 2;
-		latency = std::abs(latency);
-		auto diff = recvPacket->diff - std::chrono::microseconds(latency).count();
-		SERVER_PACKET::TimeLatencyNotifyPacket sendPacket;
-		sendPacket.size = sizeof(SERVER_PACKET::TimeLatencyNotifyPacket);
-		sendPacket.type = SERVER_PACKET::NOTIFY_LATENCY;
-		sendPacket.diff = diff;
+		sendPacket.type = SERVER_PACKET::TIME_SYNC_RESPONSE;
+		sendPacket.t = std::chrono::utc_clock::now();
 		g_iocpNetwork.m_session[userId].Send(&sendPacket);
 	}
 	break;
@@ -522,7 +499,7 @@ void Logic::BroadCastTimeSyncPacket()
 	for (auto& cli : connectPlayer) {
 		SendTimeSyncPacket(cli);
 	}
-	TIMER_EVENT timeSnycEvent{ std::chrono::system_clock::now() + std::chrono::seconds(1), 0 , EV_SYNC_TIME };
+	TIMER_EVENT timeSnycEvent{ std::chrono::system_clock::now() + std::chrono::seconds(2), 0 , EV_SYNC_TIME };
 	g_Timer.InsertTimerQueue(timeSnycEvent);
 }
 
@@ -574,7 +551,7 @@ void Logic::MatchMaking()
 		//아무도 없을 때, 
 		if (restRole.size() == 4) {}
 		//모두가 Role을 가지고 돌렸을때
-		else if (restRole.size() == 2) {
+		else if (restRole.size() == 1) {
 			std::map<ROLE, int> matchPlayer;
 			if (warriorPlayerIdQueue.unsafe_size() > 0) {
 				int playerId = -1;
@@ -688,10 +665,6 @@ void Logic::DeleteInGameUserIdSet(int id)
 
 void Logic::SendTimeSyncPacket(int id)
 {
-	SERVER_PACKET::NotifyPacket sendPacket;
-	sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
-	sendPacket.type = SERVER_PACKET::FIRST_SEND;
-	g_iocpNetwork.m_session[id].Send(&sendPacket);
-	g_iocpNetwork.m_session[id].firstSendTime = std::chrono::utc_clock::now();
+
 }
 

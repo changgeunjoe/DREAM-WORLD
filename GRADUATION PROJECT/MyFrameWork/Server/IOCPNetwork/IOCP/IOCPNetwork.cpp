@@ -217,14 +217,7 @@ void IOCPNetwork::WorkerThread()
 			if (ex_over != nullptr)
 				delete ex_over;
 		}
-		break;
-		case OP_SYNC_TIME:
-		{
-			g_logic.BroadCastTimeSyncPacket();
-			if (ex_over != nullptr)
-				delete ex_over;
-		}
-		break;
+		break;	
 		default: break;
 		}
 	}

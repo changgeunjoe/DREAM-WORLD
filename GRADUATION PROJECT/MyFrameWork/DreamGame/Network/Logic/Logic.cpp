@@ -28,6 +28,8 @@ Logic::Logic()
 {
 	m_KeyInput = new CKeyInput();
 	attckPacketRecvTime = chrono::high_resolution_clock::now();
+	m_requestTime = std::chrono::utc_clock::now();
+	m_responseTime = std::chrono::utc_clock::now();
 }
 
 Logic::~Logic()
@@ -242,7 +244,7 @@ void Logic::ProcessPacket(char* p)
 			//float maxHp = smallMonsterArr[i]->GetMaxCurrentHP(); //conflict
 			float maxHp = smallMonsterArr[i]->GetMaxHP();
 			smallMonsterArr[i]->SetCurrentHP(recvPacket->smallMonster[i].hp / maxHp * 100.0f);
-			if(recvPacket->smallMonster[i].hp == 150)
+			if (recvPacket->smallMonster[i].hp == 150)
 				smallMonsterArr[i]->SetTempHp(recvPacket->smallMonster[i].hp / maxHp * 100.0f);
 			smallMonsterArr[i]->SetAliveState(recvPacket->smallMonster[i].isAlive);
 
@@ -378,7 +380,7 @@ void Logic::ProcessPacket(char* p)
 					bossMonster->m_pSkillRange->SetPosition(BossPosition);
 				}
 			}
-			break;			
+			break;
 			}
 			bossMonster->SetMoveState(false);
 			g_sound.Pause("BossMoveSound");
@@ -433,7 +435,7 @@ void Logic::ProcessPacket(char* p)
 			gGameFramework.m_pScene->m_pObjectManager->m_nodeLock.lock();
 			gGameFramework.m_pScene->m_pObjectManager->m_VecNodeQueue.swap(triangleIdxVec);
 			gGameFramework.m_pScene->m_pObjectManager->m_nodeLock.unlock();
-		
+
 			//boss Move Node Data
 			//bossMonster->m_lockBossRoute.lock();
 			//bossMonster->m_BossRoute = recvNodeQueue;
@@ -568,26 +570,6 @@ void Logic::ProcessPacket(char* p)
 		}
 	}
 	break;
-	case SERVER_PACKET::FIRST_SEND:
-	{
-		g_NetworkHelper.SendFirstPacket();
-	}
-	break;
-	case SERVER_PACKET::TIME_SYNC:
-	{
-		SERVER_PACKET::TimeSyncPacket* recvPacket = reinterpret_cast<SERVER_PACKET::TimeSyncPacket*>(p);
-		auto clientCurrentTime = std::chrono::utc_clock::now();
-		auto diff = std::chrono::duration_cast<std::chrono::microseconds>(clientCurrentTime - recvPacket->serverTime).count();
-		g_NetworkHelper.SendAdaptTime(diff, clientCurrentTime);
-	}
-	break;
-
-	case SERVER_PACKET::NOTIFY_LATENCY:
-	{
-		SERVER_PACKET::TimeLatencyNotifyPacket* recvPacket = reinterpret_cast<SERVER_PACKET::TimeLatencyNotifyPacket*>(p);
-		C2S_DiffTime = recvPacket->diff;
-	}
-	break;
 	case SERVER_PACKET::PLAYER_ATTACK_RESULT:
 	{
 		SERVER_PACKET::PlayerAttackMonsterDamagePacket* recvPacket = reinterpret_cast<SERVER_PACKET::PlayerAttackMonsterDamagePacket*>(p);
@@ -709,7 +691,7 @@ void Logic::ProcessPacket(char* p)
 		for (int i = 0; i < 10; i++) {
 			string sound = "RockSpkieSound";
 			sound = sound + to_string(i);
-			g_sound.Play(sound, ppRockSpike[i]->CalculateDistanceSound()*0.65);
+			g_sound.Play(sound, ppRockSpike[i]->CalculateDistanceSound() * 0.65);
 		}
 		if (ppRockSpike[recvPacket->idx] != nullptr)
 			ppRockSpike[recvPacket->idx]->m_bActive = false;
@@ -744,6 +726,22 @@ void Logic::ProcessPacket(char* p)
 		}
 	}
 	break;
+	case SERVER_PACKET::TIME_SYNC_RESPONSE:
+	{
+		m_responseTime = std::chrono::utc_clock::now();
+		SERVER_PACKET::TimeSyncPacket* recvPacket = reinterpret_cast<SERVER_PACKET::TimeSyncPacket*>(p);
+		auto RTT = std::chrono::duration_cast<microseconds>(m_responseTime - m_requestTime).count();
+		if (RTT < 0) return;
+		RTT = RTT / 2;
+		auto clientTime = m_requestTime + std::chrono::microseconds(RTT);
+		C2S_DiffTime = std::chrono::duration_cast<microseconds>(recvPacket->t - clientTime).count();//diff는 클라이언트 시간에 더해줘야됨
+		auto generalDiff = std::chrono::duration_cast<microseconds>(recvPacket->t - m_requestTime).count();
+
+		std::cout << "RTT: " << RTT << endl;
+		std::cout << "C2S_DiffTime: " << C2S_DiffTime /1000 << endl;
+		std::cout << "generalDiff: " << generalDiff / 1000 << endl;
+	}
+	break;
 	default:
 	{
 		std::cout << "Unknown Packet Recv" << std::endl;
@@ -756,4 +754,9 @@ XMFLOAT3 Logic::GetPostion(ROLE r)
 {
 	return gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo(r)->GetPosition();
 	// TODO: 여기에 return 문을 삽입합니다.
+}
+
+void Logic::SetrequestTime()
+{
+	m_requestTime = std::chrono::utc_clock::now();
 }

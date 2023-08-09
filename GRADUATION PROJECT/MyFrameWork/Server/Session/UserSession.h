@@ -21,10 +21,7 @@ private:
 	std::string		m_ip;
 	short		m_port;
 public:
-	std::string GetUserAddrIn();
-public:
-	std::chrono::utc_clock::time_point firstSendTime;
-	std::chrono::utc_clock::time_point firstRecvTime;
+	std::string GetUserAddrIn();	
 private:
 	ChracterSessionObject* m_sessionObject;
 	int m_roomId;

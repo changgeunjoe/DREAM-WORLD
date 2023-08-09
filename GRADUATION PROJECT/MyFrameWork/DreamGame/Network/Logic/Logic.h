@@ -53,4 +53,15 @@ public:
 			;
 	}
 	HWND loginWnd;
+private:
+	std::chrono::utc_clock::time_point m_requestTime;
+	std::chrono::utc_clock::time_point m_responseTime;
+public:
+	void SetrequestTime();
+	std::chrono::utc_clock::time_point& GetResponseTime() {
+		return m_responseTime;
+	}
+	std::chrono::utc_clock::time_point& GetReQuestTime() {
+		return m_requestTime;
+	}
 };

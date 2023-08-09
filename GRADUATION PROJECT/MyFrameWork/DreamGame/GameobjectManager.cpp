@@ -3156,11 +3156,12 @@ void GameobjectManager::AddTextToUILayer(int& iIndex)
 	queue<wstring> queueStr;
 	if (iIndex == START_TEXT)
 	{
-		queueStr.emplace(L"안녕하세요! 드림월드에 오신 것을 환영해요");
-		queueStr.emplace(L"먼저 플레이 방법에 대해서 알려드릴게요!");
-		queueStr.emplace(L"앞에 보이는 캐릭터들 중 원하는 캐릭터를");
-		queueStr.emplace(L"선택하신 후에 게임 시작을 누르시면");
-		queueStr.emplace(L"선택한 캐릭터를 플레이 하실 수 있어요!");
+		queueStr.emplace(L"ㅅ1발");
+		//queueStr.emplace(L"안녕하세요! 드림월드에 오신 것을 환영해요");
+		//queueStr.emplace(L"먼저 플레이 방법에 대해서 알려드릴게요!");
+		//queueStr.emplace(L"앞에 보이는 캐릭터들 중 원하는 캐릭터를");
+		//queueStr.emplace(L"선택하신 후에 게임 시작을 누르시면");
+		//queueStr.emplace(L"선택한 캐릭터를 플레이 하실 수 있어요!");
 	}
 	if (iIndex == NPC_TEXT)
 	{
@@ -3356,7 +3357,7 @@ void GameobjectManager::ChangeStage1ToStage2(float fTimeelpased)
 			g_sound.Pause("BossRespawnSound");
 			g_sound.Play("BossStage", 0.75);
 		}
-		if (m_fStroyTime > 12.34) {
+		if (m_fStroyTime > 13.2) {
 			m_bNPCscreen = false;
 		}
 	}

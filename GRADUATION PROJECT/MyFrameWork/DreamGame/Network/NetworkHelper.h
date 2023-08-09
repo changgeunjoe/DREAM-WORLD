@@ -19,7 +19,7 @@ private:
 	int m_prevPacketSize = 0;
 private:
 	bool m_bIsRunnung = false;
-	std::thread m_runThread;	
+	std::thread m_runThread;
 public:
 	NetworkHelper();
 	~NetworkHelper();
@@ -55,11 +55,9 @@ public:
 	void SendCommonAttackExecute(const XMFLOAT3& attackDirection, int power);//기본 공격 실제 공격 시행
 	void SendCommonAttackStart();//기본 공격 애니메이션
 
-
-
 public:
-	void SendFirstPacket();
-	void SendAdaptTime(long long diff, std::chrono::utc_clock::time_point& time);
+	void SendTimeSyncPacket();
+
 private:
 	void ConstructPacket(int ioByte);
 private:
