@@ -114,10 +114,10 @@ void ChracterSessionObject::StartMove(DIRECTION d, std::chrono::utc_clock::time_
 	//std::cout << "ChracterSessionObject::StartMove()" << std::endl;
 	if (m_inputDirection == DIRECTION::IDLE) {
 		auto serverUtcTime = std::chrono::utc_clock::now();
-		double durationTime = std::chrono::duration_cast<std::chrono::microseconds>(serverUtcTime - recvTime).count();
-		durationTime = (double)durationTime / 1000.0f;//microseconds to mill
-		durationTime = (double)durationTime / 1000.0f;//milliseconds to sec
-		XMFLOAT3 pos = m_position = Vector3::Add(m_position, m_directionVector, durationTime * 50.0f);
+		//double durationTime = std::chrono::duration_cast<std::chrono::microseconds>(serverUtcTime - recvTime).count();
+		//durationTime = (double)durationTime / 1000.0f;//microseconds to mill
+		//durationTime = (double)durationTime / 1000.0f;//milliseconds to sec
+		//XMFLOAT3 pos = m_position = Vector3::Add(m_position, m_directionVector, durationTime * 50.0f);
 
 		m_lastMoveTime = std::chrono::high_resolution_clock::now();
 		m_inputDirection = (DIRECTION)(m_inputDirection | d);
@@ -130,10 +130,10 @@ void ChracterSessionObject::StartMove(DIRECTION d, std::chrono::utc_clock::time_
 		sendPacket.role = m_InGameRole;
 		sendPacket.type = SERVER_PACKET::MOVE_KEY_DOWN;
 		sendPacket.time = serverUtcTime;
-		sendPacket.position = pos;
+		sendPacket.position = m_position;
 		sendPacket.moveVec = m_directionVector;
 		sendPacket.size = sizeof(SERVER_PACKET::MovePacket);
-		g_logic.MultiCastOtherPlayerInRoom_R(m_roomId, m_InGameRole, &sendPacket);
+		g_logic.BroadCastInRoom(m_roomId, &sendPacket);
 		return;
 	}
 	m_inputDirection = (DIRECTION)(m_inputDirection | d);
@@ -147,7 +147,7 @@ void ChracterSessionObject::StartMove(DIRECTION d, std::chrono::utc_clock::time_
 	sendPacket.position = m_position;
 	sendPacket.moveVec = m_directionVector;
 	sendPacket.size = sizeof(SERVER_PACKET::MovePacket);
-	g_logic.MultiCastOtherPlayerInRoom_R(m_roomId, m_InGameRole, &sendPacket);
+	g_logic.BroadCastInRoom(m_roomId, &sendPacket);
 }
 
 void ChracterSessionObject::StopMove()

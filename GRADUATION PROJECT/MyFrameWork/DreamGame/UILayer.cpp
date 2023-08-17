@@ -330,7 +330,7 @@ CDamageTextBlock::CDamageTextBlock(IDWriteTextFormat* pdwFormat, D2D1_RECT_F& d2
 	:CTextBlock(pdwFormat, d2dLayoutRect, strText)
 {
 	m_xmf3WorldPos = xmf3WorldPos;
-	m_fLifeTime = 0.45f;
+	m_fLifeTime = 0.03f;
 
 	m_xmf3Velocity = { RandomValue(-0.4f, 0.4f), 0.3f, RandomValue(-0.4f, 0.4f) };
 	// m_xmf3Velocity = Vector3::Normalize(m_xmf3Velocity);

@@ -124,7 +124,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 			m_ppParticleObjects[i]->AnimateRowColumn(fTimeElapsed);
 		}
 	}
-	
+
 	//if (int(m_fTime) % 5 > 3)
 	//{
 	//	AddDamageFontToUiLayer();
@@ -195,7 +195,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 			m_pTankerAttackEffectObject->AnimateEarthQuake(fTimeElapsed);
 		}
 	}
-	
+
 	//Effect
 	// if (m_pSelectedObject) {
 		// 힐 이펙트
@@ -517,10 +517,10 @@ void GameobjectManager::BossConditionAnimate(float fTimeElapsed)
 		g_sound.NoLoopPlay("MonsterAttackedSound", m_pMonsterObject->CalculateDistanceSound());
 		AddDamageFontToUiLayer(XMFLOAT3(m_pMonsterObject->GetPosition().x,
 			m_pMonsterObject->GetPosition().y + 20,
-			m_pMonsterObject->GetPosition().z), (m_pMonsterObject->GetTempHP() - m_pMonsterObject->GetCurrentHP())*10+100);
+			m_pMonsterObject->GetPosition().z), (m_pMonsterObject->GetTempHP() - m_pMonsterObject->GetCurrentHP()) * 10 + 100);
 		m_pMonsterObject->m_bAttacked = true;
 	}
-	if (m_pMonsterObject->m_bAttacked && m_pMonsterObject->m_fConditionTime < 0.23&& m_pMonsterObject->GetTempHP() > 0) {
+	if (m_pMonsterObject->m_bAttacked && m_pMonsterObject->m_fConditionTime < 0.23 && m_pMonsterObject->GetTempHP() > 0) {
 		m_pMonsterObject->SetColor(XMFLOAT4(0.8, 0.3, 0.1, 0.00012));
 		m_pMonsterObject->m_fConditionTime += fTimeElapsed;
 	}
@@ -559,12 +559,21 @@ void GameobjectManager::OnPreRender(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 
 void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {//렌더
+	Character* myCharacter = GetChracterInfo(g_Logic.GetMyRole());
+	if (myCharacter != nullptr)
+		if (myCharacter->m_pCamera != nullptr) {
+			XMFLOAT3 pingFont = XMFLOAT3(0, 20, 0);// = myCharacter->m_pCamera->GetPosition();
+			//pingFont = Vector3::Add(pingFont, myCharacter->m_pCamera->GetLookVector(), 6);
+			//pingFont = Vector3::Add(pingFont, myCharacter->m_pCamera->GetRightVector(), 5);
+			//pingFont = Vector3::Add(pingFont, myCharacter->m_pCamera->GetUpVector(), 3);
+			m_pUILayer->AddDamageFont(pingFont, std::to_wstring(g_Logic.GetRTT()));
+		}
 
 	UpdateShaderVariables(pd3dCommandList);
 
 	SkyboxRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	
-	
+
+
 
 	if (m_pDepthShaderComponent) {
 		m_pDepthShaderComponent->UpdateShaderVariables(pd3dCommandList);//오브젝트의 깊이값의 렌더입니다.
@@ -588,7 +597,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		if (m_ppRockSpikeObjects[i]->m_bActive == false) continue;
 		m_ppRockSpikeObjects[i]->Animate(m_fTimeElapsed);
 		m_ppRockSpikeObjects[i]->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-		if(m_ppRockSpikeObjects[i]->m_pAttackedArea != nullptr)
+		if (m_ppRockSpikeObjects[i]->m_pAttackedArea != nullptr)
 			m_ppRockSpikeObjects[i]->m_pAttackedArea->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 
@@ -596,7 +605,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pNPCPressGObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 	//몬스터 체력바
-	if (m_pMonsterHPBarObject&&m_nStageType==2) {
+	if (m_pMonsterHPBarObject && m_nStageType == 2) {
 		m_pMonsterHPBarObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 	for (int i = 0; i < m_pNormalMonsterHPBarObject.size(); i++) {
@@ -697,7 +706,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 
 	//m_pNaviMeshObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);//네비 메쉬
 
-	
+
 	if (m_pTextureToViewportComponent)
 	{
 		//m_pTextureToViewportComponent->Render(pd3dCommandList, m_pCamera, 0, pd3dGraphicsRootSignature);//뎊스 렌더
@@ -782,7 +791,7 @@ void GameobjectManager::CharacterUIRender(ID3D12Device* pd3dDevice, ID3D12Graphi
 	else if (!m_bSceneSwap) {
 		m_pConditionUIObject->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
-	
+
 
 }
 
@@ -1145,7 +1154,7 @@ void GameobjectManager::CheckCollidePortal()
 	{
 
 		m_bPortalCheck = true;
-		
+
 		//m_nStageType = 2;
 		g_NetworkHelper.SendChangeStage_BOSS();
 	}
@@ -1392,10 +1401,10 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPlaneObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pPlaneObject->SetScale(1.0f, 1.0f, 1.0f);
 	m_pPlaneObject->m_nStageType = 2;
-	m_pPlaneObject->SetColor(XMFLOAT4(0, 0, 102.6,0.f ));
+	m_pPlaneObject->SetColor(XMFLOAT4(0, 0, 102.6, 0.f));
 	m_pPlaneObject->SetRimLight(false);
 	m_ppGameObjects.emplace_back(m_pPlaneObject);
-	
+
 
 	BuildBossStageObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
@@ -1517,7 +1526,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pMonsterObject->SetPosition(XMFLOAT3(0, 0, 0));
 	m_pMonsterObject->SetModel("Model/Boss.bin");
 	m_pMonsterObject->SetAnimationSets(13);
-	m_pMonsterObject->m_nStageType=2;
+	m_pMonsterObject->m_nStageType = 2;
 	m_pMonsterObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pMonsterObject->m_pSkinnedAnimationController->SetTrackAnimationSet(13);
 	m_pMonsterObject->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[BOSS_ANIMATION::BA_DIE]->m_nType = ANIMATION_TYPE_ONCE;
@@ -1789,7 +1798,7 @@ void GameobjectManager::BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 		BoundingBox->InsertComponent<CubeMeshComponent>();
 		BoundingBox->InsertComponent<BoundingBoxShaderComponent>();
 		BoundingBox->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-		BoundingBox-> m_nStageType = STAGE1;
+		BoundingBox->m_nStageType = STAGE1;
 		BoundingBox->SetPosition(boundingBox.Center);
 		BoundingBox->Rotate(&q);
 		BoundingBox->SetScale(boundingBox.Extents.x * 2.0f, boundingBox.Extents.y * 2.0f, boundingBox.Extents.z * 2.0f);
@@ -2329,7 +2338,7 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pSceneChangeUIObject->SetColor(XMFLOAT4(0.4f, 0.0f, 0.0f, 0.0f));
 	m_pSceneChangeUIObject->SetScale(0.44f, 0.24f, 1.0f);
 	m_pSceneChangeUIObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-		//m_ppCharacterUIObjects.emplace_back(m_pSceneChangeUIObject);
+	//m_ppCharacterUIObjects.emplace_back(m_pSceneChangeUIObject);
 
 	m_pVictoryUIObject = new GameObject(UI_ENTITY);
 	m_pVictoryUIObject->InsertComponent<RenderComponent>();
@@ -2688,7 +2697,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		}
 		break;
 		case 'D':
-		{			
+		{
 			if (myPlayCharacter->CanMove() == true) {
 				g_Logic.m_KeyInput->m_bDKey = true;
 				myPlayCharacter->SetMoveState(true);
@@ -2735,19 +2744,19 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			}
 		}
 		break;
-//		case 'O':
-//		{
-//#ifdef  LOCAL_TASK
-//			m_pPlayerObject->m_pCamera->ReInitCamrea();
-//			m_pPlayerObject->SetCamera(m_pCamera);
-//#endif //  
-//#ifndef LOCAL_TASK
-//			myPlayCharacter->m_pCamera->ReInitCamrea();
-//			myPlayCharacter->SetCamera(m_pCamera);
-//#endif // !LOCAL_TASK
-//
-//			break;
-//		}
+		//		case 'O':
+		//		{
+		//#ifdef  LOCAL_TASK
+		//			m_pPlayerObject->m_pCamera->ReInitCamrea();
+		//			m_pPlayerObject->SetCamera(m_pCamera);
+		//#endif //  
+		//#ifndef LOCAL_TASK
+		//			myPlayCharacter->m_pCamera->ReInitCamrea();
+		//			myPlayCharacter->SetCamera(m_pCamera);
+		//#endif // !LOCAL_TASK
+		//
+		//			break;
+		//		}
 		case VK_CONTROL:
 			break;
 		case VK_F1:
@@ -2899,7 +2908,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			else if (m_nStageType == 2) {
 				//m_nStageType = 1;
 				m_pPlayerObject->SetPosition(XMFLOAT3(-1400, 0, -1500));
-			}
+		}
 #endif
 			if (m_nStageType == 1) {
 				//m_nStageType = 2;
@@ -2907,9 +2916,9 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 				g_NetworkHelper.SendChangeStage_BOSS();
 			}
 			break;
-		}
-		}
 	}
+	}
+}
 	default:
 		break;
 	}
@@ -2918,22 +2927,22 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 
 bool GameobjectManager::onProcessingKeyboardMessageLobby(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
-//	if (nMessageID == WM_KEYDOWN && wParam == VK_F2)
-//	{
-//#ifdef LOCAL_TASK
-//		g_Logic.SetMyRole(ROLE::TANKER);//캐릭
-//		m_pCamera->Rotate(0, -90, 0);
-//		m_pPlayerObject = m_pTankerObject;
-//		m_pPlayerObject->SetCamera(m_pCamera);
-//		m_pTankerObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
-//#else
-//		g_Logic.SetMyRole(ROLE::ARCHER);
-//		m_pArcherObject->SetCamera(m_pCamera);
-//		m_pArcherObject->SetLook(XMFLOAT3(0, 0, 1));
-//		g_NetworkHelper.SendMatchRequestPacket();
-//#endif
-//		m_bSceneSwap = true;//페이드 인 아웃
-//	}
+	//	if (nMessageID == WM_KEYDOWN && wParam == VK_F2)
+	//	{
+	//#ifdef LOCAL_TASK
+	//		g_Logic.SetMyRole(ROLE::TANKER);//캐릭
+	//		m_pCamera->Rotate(0, -90, 0);
+	//		m_pPlayerObject = m_pTankerObject;
+	//		m_pPlayerObject->SetCamera(m_pCamera);
+	//		m_pTankerObject->SetRotateAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
+	//#else
+	//		g_Logic.SetMyRole(ROLE::ARCHER);
+	//		m_pArcherObject->SetCamera(m_pCamera);
+	//		m_pArcherObject->SetLook(XMFLOAT3(0, 0, 1));
+	//		g_NetworkHelper.SendMatchRequestPacket();
+	//#endif
+	//		m_bSceneSwap = true;//페이드 인 아웃
+	//	}
 	if (nMessageID == WM_KEYDOWN && wParam == 'G')
 	{
 		m_bNPCinteraction = true;
@@ -3156,7 +3165,7 @@ void GameobjectManager::AddTextToUILayer(int& iIndex)
 	queue<wstring> queueStr;
 	if (iIndex == START_TEXT)
 	{
-		queueStr.emplace(L"ㅅ1발");
+		queueStr.emplace(L"데드레커닝 살려줘");
 		//queueStr.emplace(L"안녕하세요! 드림월드에 오신 것을 환영해요");
 		//queueStr.emplace(L"먼저 플레이 방법에 대해서 알려드릴게요!");
 		//queueStr.emplace(L"앞에 보이는 캐릭터들 중 원하는 캐릭터를");
@@ -3334,8 +3343,8 @@ void GameobjectManager::ChangeStage1ToStage2(float fTimeelpased)
 			}
 			//m_pSkyboxObject->Die(m_fStroyTime );
 		}
-		if (m_fStroyTime > 4&& m_fStroyTime < 13) {
-		
+		if (m_fStroyTime > 4 && m_fStroyTime < 13) {
+
 			if (m_bBossText) {
 				m_iTEXTiIndex = BOSS_TEXT;
 				AddTextToUILayer(m_iTEXTiIndex);
@@ -3351,7 +3360,7 @@ void GameobjectManager::ChangeStage1ToStage2(float fTimeelpased)
 					m_ppGameObjects[i]->Die(1 - (m_fStroyTime - 4) / 5);
 				}
 			}
-			
+
 			g_sound.Pause("LobbySound");
 			g_sound.Pause("Stage1Sound");
 			g_sound.Pause("BossRespawnSound");

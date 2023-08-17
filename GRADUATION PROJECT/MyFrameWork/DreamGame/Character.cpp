@@ -963,41 +963,52 @@ void Character::ExecuteSkill_E()
 void Character::InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos, XMFLOAT3& moveVec)
 {
 	auto clientUtcTime = std::chrono::utc_clock::now();
-	double durationTime = std::chrono::duration_cast<std::chrono::microseconds>(clientUtcTime - recvTime).count();
+	long long durationTime = std::chrono::duration_cast<std::chrono::microseconds>(clientUtcTime - recvTime).count();
 	XMFLOAT3 xmf3Postion = GetPosition();
 	durationTime += g_Logic.GetDiffTime();//1초 마다 업데이트
-	durationTime = (double)durationTime / 1000.0f;//microseconds to mill
-	durationTime = (double)durationTime / 1000.0f;//milliseconds to sec
+	double dDurationTime = (double)durationTime / 1000.0f;
+	dDurationTime = dDurationTime / 1000.0f;
 
 	XMFLOAT3 diff_S2C_Position = Vector3::Subtract(recvPos, xmf3Postion);
 	float diff_S2C_Size = Vector3::Length(diff_S2C_Position);
 	diff_S2C_Position = Vector3::Normalize(diff_S2C_Position);
-	float interpolateSize = diff_S2C_Size - durationTime * 50.0f;
-
-	if (m_currentDirection == DIRECTION::IDLE && Vector3::Length(diff_S2C_Position) < DBL_EPSILON) {
+	double t = g_Logic.GetRTT();
+	t /= 1000.0f;
+	float interpolateSize = diff_S2C_Size - dDurationTime * 50.0f;
+	if (interpolateSize > 0) {
+		if (m_currentDirection == DIRECTION::IDLE && interpolateSize < DBL_EPSILON) {
+			m_interpolationDistance = 0.0f;
+			m_interpolationVector = XMFLOAT3(0, 0, 0);
+		}
+		else if (interpolateSize < 3.0f) {
+			std::cout << "interpolateSize < 3.0f" << endl;
+			cout << "InsterpolateSize: " << interpolateSize << endl;
+			std::cout << "diff_S2C_Position Size: " << diff_S2C_Size << endl;
+			cout << "durationT: " << dDurationTime << endl;
+			m_interpolationDistance = 0.0f;
+			m_interpolationVector = XMFLOAT3(0, 0, 0);
+		}
+		else if (interpolateSize > 8.0f) {
+			cout << "SetPosition" << endl;
+			cout << "InsterpolateSize: " << interpolateSize << endl;
+			std::cout << "diff_S2C_Position Size: " << diff_S2C_Size << endl;
+			cout << "durationT: " << dDurationTime << endl;
+			SetPosition(Vector3::Add(xmf3Postion, diff_S2C_Position, interpolateSize));
+			m_interpolationDistance = 0.0f;
+			m_interpolationVector = XMFLOAT3(0, 0, 0);
+		}
+		else {
+			cout << "Interpolate Start" << endl;
+			cout << "InterpolateSize: " << interpolateSize << endl;
+			std::cout << "diff_S2C_Position Size: " << diff_S2C_Size << endl;
+			cout << "durationT: " << dDurationTime << endl;
+			m_interpolationDistance = interpolateSize;
+			m_interpolationVector = diff_S2C_Position;
+		}
+	}
+	else {	
 		m_interpolationDistance = 0.0f;
 		m_interpolationVector = XMFLOAT3(0, 0, 0);
-	}
-	else if (interpolateSize < 3.0f) {
-		//std::cout << "interpolateSize < 3.0f" << endl;
-		m_interpolationDistance = 0.0f;
-		m_interpolationVector = XMFLOAT3(0, 0, 0);
-	}
-	else if (interpolateSize > 8.0f) {
-		/*std::cout << "interpolateSize > 8.0f - SetPosition()" << endl;
-		std::cout << "diff_S2C_Position Size: " << Vector3::Length(diff_S2C_Position) << ", diff_S2C_Position: " << diff_S2C_Position.x << ", " << diff_S2C_Position.y << ", " << diff_S2C_Position.z << endl;
-		std::cout << "moveDir Size: " << Vector3::Length(moveDir) << ", diff_S2C_Position: " << moveVec.x << ", " << moveVec.y << ", " << moveVec.z << endl;*/
-		SetPosition(Vector3::Add(xmf3Postion, diff_S2C_Position, interpolateSize));
-		m_interpolationDistance = 0.0f;
-		m_interpolationVector = XMFLOAT3(0, 0, 0);
-	}
-	else {
-		//std::cout << "interpolateSize: " << interpolateSize << ", interpolateVec" << interpolateVec.x << ", " << interpolateVec.y << ", "
-		//	<< interpolateVec.z << endl;
-		//std::cout << "diff_S2C_Position Size: " << Vector3::Length(diff_S2C_Position) << ", diff_S2C_Position: " << diff_S2C_Position.x << ", " << diff_S2C_Position.y << ", "
-		//	<< diff_S2C_Position.z << endl;
-		m_interpolationDistance = interpolateSize;
-		m_interpolationVector = diff_S2C_Position;
 	}
 }
 
@@ -1480,24 +1491,23 @@ void Archer::Move(float fTimeElapsed)
 	//else
 	//{
 		//fDistance /= 3;
-	if (m_interpolationDistance > 3.0f) {
+	//if (m_interpolationDistance > 3.0f) {
 
-		std::cout << "interpolate prev position: " << GetPosition().x << ", " << GetPosition().y << ", " << GetPosition().z << std::endl;
-		std::cout << "interpolate Vec: " << m_interpolationVector.x << ", " << m_interpolationVector.y << ", " << m_interpolationVector.z << std::endl;
-		std::cout << "interpolate Size: " << m_interpolationDistance << std::endl;
-	}
+	//	std::cout << "interpolate prev position: " << GetPosition().x << ", " << GetPosition().y << ", " << GetPosition().z << std::endl;
+	//	std::cout << "interpolate Vec: " << m_interpolationVector.x << ", " << m_interpolationVector.y << ", " << m_interpolationVector.z << std::endl;
+	//	std::cout << "interpolate Size: " << m_interpolationDistance << std::endl;
+	//}
 	switch (tempDir)
 	{
 	case DIRECTION::IDLE:
 	{
-
 		if (std::isnan(m_xmf4x4ToParent._11)) {
 			std::cout << "문제 있음" << std::endl;
 		}
-		XMFLOAT3 xmf3Position = GetPosition();
+		/*XMFLOAT3 xmf3Position = GetPosition();
 		xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * fTimeElapsed);
 		SetPosition(xmf3Position);
-		if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
+		if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));*/
 	}
 	break;
 	case DIRECTION::FRONT: MoveForward(1, fTimeElapsed); break;
@@ -1510,12 +1520,12 @@ void Archer::Move(float fTimeElapsed)
 	case DIRECTION::FRONT | DIRECTION::LEFT: MoveDiagonal(1, -1, fTimeElapsed); break;
 	default: break;
 	}
-	if (m_interpolationDistance > 3.0f) {
+	/*if (m_interpolationDistance > 3.0f) {
 
 		std::cout << "interpolate after position: " << GetPosition().x << ", " << GetPosition().y << ", " << GetPosition().z << std::endl;
 		std::cout << "interpolate Vec: " << m_interpolationVector.x << ", " << m_interpolationVector.y << ", " << m_interpolationVector.z << std::endl;
 		std::cout << "interpolate Size: " << m_interpolationDistance << std::endl;
-	}
+	}*/
 }
 
 void Archer::Animate(float fTimeElapsed)
@@ -2931,15 +2941,15 @@ void Monster::MoveForward(int forwardDirection, float ftimeElapsed)
 void Monster::InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos, XMFLOAT3& moveVec)
 {
 	auto clientUtcTime = std::chrono::utc_clock::now();
-	double durationTime = std::chrono::duration_cast<std::chrono::microseconds>(clientUtcTime - recvTime).count();
+	long long durationTime = std::chrono::duration_cast<std::chrono::microseconds>(clientUtcTime - recvTime).count();
 	XMFLOAT3 xmf3Postion = GetPosition();
-	durationTime += g_Logic.GetDiffTime();
-	durationTime = (double)durationTime / 1000.0f;//microseconds to mill
-	durationTime = (double)durationTime / 1000.0f;//milliseconds to sec
+	durationTime += g_Logic.GetDiffTime();//1초 마다 업데이트
+	double dDurationTime = (double)durationTime / 1000.0f;
+	dDurationTime = dDurationTime / 1000.0f;
 
 	XMFLOAT3 diff_S2C_Position = Vector3::Subtract(recvPos, xmf3Postion);
 
-	XMFLOAT3 moveDir = Vector3::ScalarProduct(moveVec, durationTime * 50.0f);
+	XMFLOAT3 moveDir = Vector3::ScalarProduct(moveVec, dDurationTime * 50.0f);
 
 	XMFLOAT3 interpolateVec = Vector3::Add(diff_S2C_Position, moveDir);
 	float interpolateSize = Vector3::Length(interpolateVec);
@@ -3345,15 +3355,15 @@ void NormalMonster::SetAnimation()
 void NormalMonster::InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos, XMFLOAT3& moveVec)
 {
 	auto clientUtcTime = std::chrono::utc_clock::now();
-	double durationTime = std::chrono::duration_cast<std::chrono::microseconds>(clientUtcTime - recvTime).count();
+	long long durationTime = std::chrono::duration_cast<std::chrono::microseconds>(clientUtcTime - recvTime).count();
 	XMFLOAT3 xmf3Postion = GetPosition();
-	durationTime += g_Logic.GetDiffTime();
-	durationTime = (double)durationTime / 1000.0f;//microseconds to mill
-	durationTime = (double)durationTime / 1000.0f;//milliseconds to sec
+	durationTime += g_Logic.GetDiffTime();//1초 마다 업데이트
+	double dDurationTime = (double)durationTime / 1000.0f;
+	dDurationTime = dDurationTime / 1000.0f;
 
 	XMFLOAT3 diff_S2C_Position = Vector3::Subtract(recvPos, xmf3Postion);
 
-	XMFLOAT3 moveDir = Vector3::ScalarProduct(moveVec, durationTime * 30.0f);
+	XMFLOAT3 moveDir = Vector3::ScalarProduct(moveVec, dDurationTime * 30.0f);
 
 	XMFLOAT3 interpolateVec = Vector3::Add(diff_S2C_Position, moveDir);
 	float interpolateSize = Vector3::Length(interpolateVec);
@@ -3514,7 +3524,7 @@ bool NormalMonster::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
 					std::cout << std::endl;
 #endif
 					return true;
-			}
+				}
 				XMFLOAT3 moveDir = Vector3::Normalize(Vector3::Add(mapCollideResult.second, CharacterCollide.second));
 				if (normalMonsterCollide.first) {//노말 몬스터 충돌 됨
 					float dotRes = Vector3::DotProduct(Vector3::Normalize(normalMonsterCollide.second), moveDir);
@@ -3538,8 +3548,8 @@ bool NormalMonster::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
 						std::cout << std::endl;
 #endif
 						return true;
+					}
 				}
-		}
 				else {//노말 몬스터와 충돌하지 않음
 					XMFLOAT3 xmf3Position = GetPosition();
 					xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(Vector3::Normalize(moveDir), m_fSpeed * ftimeElapsed));
@@ -3552,7 +3562,7 @@ bool NormalMonster::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
 #endif
 					return true;
 				}
-	}
+			}
 			else {//움직일 수 없음
 				if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
 #ifdef MONSTER_MOVE_LOG
@@ -3561,7 +3571,7 @@ bool NormalMonster::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
 				std::cout << std::endl;
 #endif
 				return true;
-}
+			}
 			return true;
 		}
 		//캐릭터가 충돌하진 않았지만 노말 몬스터 체크
@@ -3575,7 +3585,7 @@ bool NormalMonster::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
 				std::cout << std::endl;
 #endif
 				return true;
-		}
+			}
 			float dotRes = Vector3::DotProduct(Vector3::Normalize(normalMonsterCollide.second), Vector3::Normalize(mapCollideResult.second));
 			if (dotRes > 0.2f) {//맵과 노말 몬스터 충돌 벡터 방향이 비슷함
 				XMFLOAT3 xmf3Position = GetPosition();
@@ -3623,7 +3633,7 @@ bool NormalMonster::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
 			std::cout << std::endl;
 #endif
 			return true;
-	}
+		}
 		if (normalMonsterCollide.first) {//노말 몬스터와 충돌
 			float dotRes = Vector3::DotProduct(Vector3::Normalize(normalMonsterCollide.second), Vector3::Normalize(CharacterCollide.second));
 			if (dotRes > 0.2f) {//캐릭터 노말 몬스터 벡터
@@ -3646,7 +3656,7 @@ bool NormalMonster::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
 				std::cout << std::endl;
 #endif
 				return true;
-		}
+			}
 		}
 		else {// 노말 몬스터와 충돌하지 않음 -> 캐릭터만 충돌
 			XMFLOAT3 xmf3Position = GetPosition();

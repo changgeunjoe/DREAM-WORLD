@@ -26,6 +26,7 @@ public:
 	//Session m_SmallMonsterSession[15];
 private:
 	long long C2S_DiffTime = 0;//C2S_DiffTime -> micro second
+	double m_RTT = 0.0f;
 private:
 	int myId = -1;
 	ROLE myRole = ROLE::NONE_SELECT;
@@ -64,4 +65,5 @@ public:
 	std::chrono::utc_clock::time_point& GetReQuestTime() {
 		return m_requestTime;
 	}
+	double GetRTT() { return  m_RTT; }
 };

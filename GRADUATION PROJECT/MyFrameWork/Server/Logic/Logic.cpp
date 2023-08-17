@@ -138,7 +138,7 @@ void Logic::ProcessPacket(int userId, char* p)
 #endif
 				}
 				else {
-					MultiCastOtherPlayerInRoom(userId, &sendPacket);
+					BroadCastInRoomByPlayer(userId, &sendPacket);
 #ifdef _DEBUG
 					//PrintCurrentTime();
 					//std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::STOP - MultiCastOtherPlayer" << std::endl;
@@ -551,7 +551,7 @@ void Logic::MatchMaking()
 		//아무도 없을 때, 
 		if (restRole.size() == 4) {}
 		//모두가 Role을 가지고 돌렸을때
-		else if (restRole.size() == 1) {
+		else if (restRole.size() == 2) {
 			std::map<ROLE, int> matchPlayer;
 			if (warriorPlayerIdQueue.unsafe_size() > 0) {
 				int playerId = -1;
