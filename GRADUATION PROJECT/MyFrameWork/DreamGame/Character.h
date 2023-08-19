@@ -69,7 +69,7 @@ public:
 	void SetShield(float fShield) { m_fShield = fShield; }
 	//movedir
 protected:
-	DIRECTION m_currentDirection = DIRECTION::IDLE;
+	std::atomic<DIRECTION> m_currentDirection = DIRECTION::IDLE;
 public:
 	void AddDirection(DIRECTION d)
 	{
@@ -89,6 +89,8 @@ protected:
 	std::pair<float, XMFLOAT3> GetNormalVectorSphere(const XMFLOAT3& point);
 public:
 	GameObject* m_pHPBarObject{ NULL };
+	std::atomic_bool m_applyStop = false;
+	XMFLOAT3 m_StopDestinationPosition = XMFLOAT3(0, 0, 0);
 };
 
 class Warrior : public Character

@@ -253,7 +253,7 @@ void Room::MeleeAttack(ROLE r, DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 pos, int
 		if (Vector3::DotProduct(dir, Vector3::Normalize(toBoss)) > PLAYER_ABLE_ATTACK_COS_VALUE) {
 			if (Vector3::Length(toBoss) < 45.0f) {
 				m_boss.AttackedHp(damage);
-				SERVER_PACKET::PlayerAttackBossDamagePacket sendPacket;				
+				SERVER_PACKET::PlayerAttackBossDamagePacket sendPacket;
 				return;
 			}
 		}
@@ -825,11 +825,20 @@ std::map<ROLE, ChracterSessionObject*>& Room::GetPlayCharacters()
 
 void Room::ChangeDirectionPlayCharacter(ROLE r, DIRECTION d)
 {
+	if (r == ROLE::NONE_SELECT) return;
 	m_characterMap[r]->ChangeDirection(d);
+}
+
+void Room::StopMovePlayCharacter(ROLE r, XMFLOAT3& desPosition)
+{
+	if (r == ROLE::NONE_SELECT) return;
+	m_characterMap[r]->StopMove();
+	m_characterMap[r]->SetStopDestinationPosition(desPosition);
 }
 
 void Room::StopMovePlayCharacter(ROLE r)
 {
+	if (r == ROLE::NONE_SELECT) return;
 	m_characterMap[r]->StopMove();
 }
 
@@ -841,46 +850,55 @@ DirectX::XMFLOAT3 Room::GetPositionPlayCharacter(ROLE r)
 
 bool Room::AdjustPlayCharacterInfo(ROLE r, DirectX::XMFLOAT3& postion)
 {
-	return m_characterMap[r]->AdjustPlayerInfo(postion);;
+	if (r == ROLE::NONE_SELECT) return true;
+	return m_characterMap[r]->AdjustPlayerInfo(postion);
 }
 
 void Room::RotatePlayCharacter(ROLE r, ROTATE_AXIS axis, float& angle)
 {
+	if (r == ROLE::NONE_SELECT) return;
 	m_characterMap[r]->Rotate(axis, angle);
 }
 
 void Room::StartMovePlayCharacter(ROLE r, DIRECTION d, std::chrono::utc_clock::time_point& recvTime)
 {
+	if (r == ROLE::NONE_SELECT) return;
 	m_characterMap[r]->StartMove(d, recvTime);
 }
 
 void Room::SetMouseInputPlayCharacter(ROLE r, bool left, bool right)
 {
+	if (r == ROLE::NONE_SELECT) return;
 	m_characterMap[r]->SetMouseInput(left, right);
 }
 
 bool Room::GetLeftAttackPlayCharacter(ROLE r)
 {
+	if (r == ROLE::NONE_SELECT) return false;
 	return m_characterMap[r]->GetLeftAttack();
 }
 
 short Room::GetAttackDamagePlayCharacter(ROLE r)
 {
+	if (r == ROLE::NONE_SELECT) return false;
 	return m_characterMap[r]->GetAttackDamage();
 }
 
 void Room::StartFirstSkillPlayCharacter(ROLE r, XMFLOAT3& dirOrPosition)
 {
+	if (r == ROLE::NONE_SELECT) return;
 	m_characterMap[r]->Skill_1(dirOrPosition);
 }
 
 void Room::StartSecondSkillPlayCharacter(ROLE r, XMFLOAT3& dirOrPosition)
 {
+	if (r == ROLE::NONE_SELECT) return;
 	m_characterMap[r]->Skill_2(dirOrPosition);
 }
 
 void Room::StartAttackPlayCharacter(ROLE r, XMFLOAT3& attackDir, int power)
 {
+	if (r == ROLE::NONE_SELECT) return;
 	m_characterMap[r]->ExecuteCommonAttack(attackDir, power);
 }
 
@@ -940,7 +958,7 @@ void Room::ExecuteMageThunder(XMFLOAT3& position)
 		g_logic.OnlySendPlayerInRoom_R(m_roomId, ROLE::PRIEST, &sendPacket);
 	}
 	else {
-		m_boss.AttackedHp(120.0f);	
+		m_boss.AttackedHp(120.0f);
 	}
 }
 
@@ -952,7 +970,7 @@ void Room::ExecuteLongSwordAttack(DirectX::XMFLOAT3& dir, DirectX::XMFLOAT3& pos
 		dir = Vector3::Normalize(dir);
 		if (Vector3::DotProduct(dir, Vector3::Normalize(toBoss)) > MONSTER_ABLE_ATTACK_COS_VALUE) {
 			if (Vector3::Length(toBoss) < 80.0f) {
-				m_boss.AttackedHp(180.0f);			
+				m_boss.AttackedHp(180.0f);
 				return;
 			}
 		}
@@ -1042,7 +1060,7 @@ void Room::ExecuteHammerAttack(DirectX::XMFLOAT3& dir, XMFLOAT3& pos)
 void Room::ExecuteSkyArrow()
 {
 	if (m_roomState == ROOM_BOSS) {
-		m_boss.AttackedHp(120.0f);	
+		m_boss.AttackedHp(120.0f);
 	}
 	else {
 		std::vector<int> positions;

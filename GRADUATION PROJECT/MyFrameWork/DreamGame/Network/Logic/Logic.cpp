@@ -48,6 +48,7 @@ void Logic::ProcessPacket(char* p)
 		SERVER_PACKET::MovePacket* recvPacket = reinterpret_cast<SERVER_PACKET::MovePacket*>(p);
 		if (recvPacket->role == myRole) return;
 		Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->role);
+		possessObj->m_applyStop = false;
 		possessObj->AddDirection(recvPacket->direction);
 		possessObj->SetMoveState(true);
 		/*if (m_RTT > 200) {
@@ -108,8 +109,11 @@ void Logic::ProcessPacket(char* p)
 		SERVER_PACKET::StopPacket* recvPacket = reinterpret_cast<SERVER_PACKET::StopPacket*>(p);
 		Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->role);
 		//possessObj->SetPosition(recvPacket->position);
-		//possessObj->stopInterpolatePosition(recvPacket->position);
-		possessObj->SetMoveState(false);
+		possessObj->m_StopDestinationPosition = recvPacket->position;
+		possessObj->m_applyStop = true;
+		possessObj->SetStopDirection();
+		//possessObj->SetMoveState(false);
+		//possessObj->SetStopDirection();
 		//if ((ROLE)recvPacket->role != myRole) {
 		//}
 	}

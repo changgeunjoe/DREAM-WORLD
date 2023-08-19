@@ -79,6 +79,7 @@ public:
 	void MeleeAttack(ROLE r, DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 pos, int power);
 public:
 	void ChangeDirectionPlayCharacter(ROLE r, DIRECTION d);
+	void StopMovePlayCharacter(ROLE r, XMFLOAT3& desPosition);
 	void StopMovePlayCharacter(ROLE r);
 	DirectX::XMFLOAT3 GetPositionPlayCharacter(ROLE r);
 	bool AdjustPlayCharacterInfo(ROLE r, DirectX::XMFLOAT3& postion);

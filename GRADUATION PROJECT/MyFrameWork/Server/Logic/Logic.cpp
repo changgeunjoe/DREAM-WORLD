@@ -114,36 +114,14 @@ void Logic::ProcessPacket(int userId, char* p)
 			int roomId = g_iocpNetwork.m_session[userId].GetRoomId();
 			if (roomId != -1) {
 				Room& roomRef = g_RoomManager.GetRunningRoomRef(roomId);
-				roomRef.StopMovePlayCharacter(g_iocpNetwork.m_session[userId].GetRole());
+				roomRef.StopMovePlayCharacter(g_iocpNetwork.m_session[userId].GetRole(), recvPacket->position);
 				SERVER_PACKET::StopPacket sendPacket;
 				sendPacket.role = g_iocpNetwork.m_session[userId].GetRole();
 				sendPacket.type = SERVER_PACKET::STOP;
 				sendPacket.size = sizeof(SERVER_PACKET::StopPacket);
 				sendPacket.position = recvPacket->position;
-				//sendPacket.rotate = recvPacket->rotate;
-#ifdef _DEBUG
-			//PrintCurrentTime();
-			//std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::STOP - " << std::endl;
-			//std::cout << "position: " << sendPacket.position.x << ", " << sendPacket.position.y << ", " << sendPacket.position.z << std::endl;
-			//std::cout << "rotation: " << sendPacket.rotate.x << ", " << sendPacket.rotate.y << ", " << sendPacket.rotate.z << std::endl;
-#endif
-
-				bool adjustRes = roomRef.AdjustPlayCharacterInfo(g_iocpNetwork.m_session[userId].GetRole(), recvPacket->position);
-				if (!adjustRes) {
-					sendPacket.position = roomRef.GetPositionPlayCharacter(g_iocpNetwork.m_session[userId].GetRole());
-					BroadCastInRoomByPlayer(userId, &sendPacket);
-#ifdef _DEBUG
-					//	PrintCurrentTime();
-					//std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::STOP - BroadCastPacket" << std::endl;
-#endif
-				}
-				else {
-					BroadCastInRoomByPlayer(userId, &sendPacket);
-#ifdef _DEBUG
-					//PrintCurrentTime();
-					//std::cout << "Logic::ProcessPacket() - CLIENT_PACKET::STOP - MultiCastOtherPlayer" << std::endl;
-#endif
-				}
+				//Server Player Position 보정 장치 추가하기
+				BroadCastInRoomByPlayer(userId, &sendPacket);
 			}
 		}
 
