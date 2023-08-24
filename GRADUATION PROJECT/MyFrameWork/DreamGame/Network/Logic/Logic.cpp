@@ -108,6 +108,7 @@ void Logic::ProcessPacket(char* p)
 		XMFLOAT3 rightVec = XMFLOAT3(1, 0, 0);
 		XMFLOAT3 dirVec = XMFLOAT3(0, 0, 1);
 		SERVER_PACKET::StopPacket* recvPacket = reinterpret_cast<SERVER_PACKET::StopPacket*>(p);
+		if (myRole == recvPacket->role)return;
 		Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->role);
 		//possessObj->SetPosition(recvPacket->position);
 		possessObj->m_StopDestinationPosition = recvPacket->position;

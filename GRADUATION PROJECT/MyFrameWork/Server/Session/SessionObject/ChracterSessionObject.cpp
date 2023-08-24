@@ -44,6 +44,7 @@ void ChracterSessionObject::AttackedHp(float damage)
 
 void ChracterSessionObject::SetStopDestinationPosition(XMFLOAT3& desPosition)
 {
+	m_position = desPosition;
 	m_stopDestinationPosition = desPosition;
 	m_applyStop = true;
 }
@@ -188,25 +189,26 @@ void ChracterSessionObject::SetShield(bool active)
 bool ChracterSessionObject::Move(float elapsedTime)
 {
 	if (GetHp() < FLT_EPSILON) return false;
-	if (m_applyStop) {
-	XMFLOAT3 xmf3Position = m_position;
-	XMFLOAT3 diff_S2C_Vector = Vector3::Subtract(m_stopDestinationPosition, xmf3Position);
-	float diff_S2C_Size = Vector3::Length(diff_S2C_Vector);
-	diff_S2C_Vector = Vector3::Normalize(diff_S2C_Vector);
-		if (diff_S2C_Size > 1.0f) {
-			m_position = Vector3::Add(m_position, Vector3::ScalarProduct(diff_S2C_Vector, elapsedTime * diff_S2C_Size * 10));
-			SetPosition(m_position);
-		}
-		else {
-			m_applyStop = false;
-		}
-		return true;
-	}
-	else if (m_applyDirection != DIRECTION::IDLE)
-	{		
+	//if (m_applyStop) {
+	//XMFLOAT3 xmf3Position = m_position;
+	//XMFLOAT3 diff_S2C_Vector = Vector3::Subtract(m_stopDestinationPosition, xmf3Position);
+	//float diff_S2C_Size = Vector3::Length(diff_S2C_Vector);
+	//diff_S2C_Vector = Vector3::Normalize(diff_S2C_Vector);
+	//	if (diff_S2C_Size > 1.0f) {
+	//		xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(diff_S2C_Vector, elapsedTime * diff_S2C_Size * 10));
+	//		SetPosition(m_position);
+	//	}
+	//	else {
+	//		m_applyStop = false;
+	//	}
+	//	return true;
+	//}
+	if (m_applyDirection != DIRECTION::IDLE)
+	{
+		XMFLOAT3 xmf3Position = m_position;
 		if (!CheckCollision(m_directionVector, elapsedTime)) {
-			m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, elapsedTime * m_speed));
-			SetPosition(m_position);
+			xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(m_directionVector, elapsedTime * m_speed));
+			SetPosition(xmf3Position);
 		}
 		if (m_position.y < DBL_EPSILON || m_position.y > 1.0f) {
 			m_position.y = 0.0f;
