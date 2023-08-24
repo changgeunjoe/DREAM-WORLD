@@ -29,6 +29,17 @@ Character::Character() : GameObject(UNDEF_ENTITY)
 	m_skillInputTime = { std::chrono::high_resolution_clock::now(), std::chrono::high_resolution_clock::now() };
 	m_fHp = 100.0f;
 	m_fSpeed = 50.0f;
+	m_role = ROLE::NONE_SELECT;
+}
+
+Character::Character(ROLE r) :m_role(r)
+{
+	m_xmf3RotateAxis = XMFLOAT3(0.0f, -90.0f, 0.0f);
+	m_skillDuration = { std::chrono::seconds(0), std::chrono::seconds(0) };
+	m_skillCoolTime = { std::chrono::seconds(0), std::chrono::seconds(0) };
+	m_skillInputTime = { std::chrono::high_resolution_clock::now(), std::chrono::high_resolution_clock::now() };
+	m_fHp = 100.0f;
+	m_fSpeed = 50.0f;
 }
 
 Character::~Character()
@@ -204,28 +215,34 @@ void Character::MoveForward(int forwardDirection, float ftimeElapsed)
 	XMFLOAT3 xmf3Position = GetPosition();
 	if (CheckCollision(xmf3Look, ftimeElapsed)) {
 		xmf3Position = GetPosition();
-#ifdef CHARCTER_MOVE_LOG
-		if (m_interpolationDistance > DBL_EPSILON) {
 
+		if (m_interpolationDistance > DBL_EPSILON) {
+			std::cout << "CheckCollision" << endl;
 			std::cout << "interpolate prev position: " << xmf3Position.x << ", " << xmf3Position.y << ", " << xmf3Position.z << std::endl;
 			std::cout << "interpolate Vec: " << m_interpolationVector.x << ", " << m_interpolationVector.y << ", " << m_interpolationVector.z << std::endl;
 			std::cout << "interpolate Size: " << m_interpolationDistance << std::endl;
 		}
-#endif
+
 		xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, 10.0f * m_interpolationDistance * ftimeElapsed);
 		xmf3Position.y = 0.0f;
 		GameObject::SetPosition(xmf3Position);
-#ifdef CHARCTER_MOVE_LOG
+
 		if (m_interpolationDistance > DBL_EPSILON) {
 			std::cout << "interpolate after position: " << xmf3Position.x << ", " << xmf3Position.y << ", " << xmf3Position.z << std::endl << std::endl;
 		}
-#endif
 		return;
 	}
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, ftimeElapsed * m_fSpeed);
+	if (m_interpolationDistance > DBL_EPSILON) {
 
+		std::cout << "interpolate prev position: " << xmf3Position.x << ", " << xmf3Position.y << ", " << xmf3Position.z << std::endl;
+		std::cout << "interpolate Vec: " << m_interpolationVector.x << ", " << m_interpolationVector.y << ", " << m_interpolationVector.z << std::endl;
+		std::cout << "interpolate Size: " << m_interpolationDistance << std::endl;
+	}
 	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, 10.0f * m_interpolationDistance * ftimeElapsed);
-
+	if (m_interpolationDistance > DBL_EPSILON) {
+		std::cout << "interpolate after position: " << xmf3Position.x << ", " << xmf3Position.y << ", " << xmf3Position.z << std::endl << std::endl;
+	}
 	g_sound.Play("WalkSound", CalculateDistanceSound());
 	xmf3Position.y = 0.0f;
 	GameObject::SetPosition(xmf3Position);
@@ -404,9 +421,9 @@ std::pair<bool, XMFLOAT3> Character::CheckCollisionMap_Stage(XMFLOAT3& normalVec
 
 std::pair<bool, XMFLOAT3> Character::CheckCollisionCharacter(XMFLOAT3& moveDirection, float ftimeElapsed)
 {
-	int collideCnt = 0;
+	int collideCnt = 0;	
 	std::vector<std::pair<XMFLOAT3, XMFLOAT3> >  collideCharacterData;
-	if (g_Logic.GetMyRole() != ROLE::ARCHER)
+	if (m_role != ROLE::ARCHER)
 	{
 		Character* obj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::ARCHER);
 		auto normalVecRes = GetNormalVectorSphere(obj->GetPosition());
@@ -420,7 +437,7 @@ std::pair<bool, XMFLOAT3> Character::CheckCollisionCharacter(XMFLOAT3& moveDirec
 			collideCharacterData.emplace_back(normalVec, slidingVec);
 		}
 	}
-	if (g_Logic.GetMyRole() != ROLE::PRIEST)
+	if (m_role != ROLE::PRIEST)
 	{
 		Character* obj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::PRIEST);
 		auto normalVecRes = GetNormalVectorSphere(obj->GetPosition());
@@ -434,7 +451,7 @@ std::pair<bool, XMFLOAT3> Character::CheckCollisionCharacter(XMFLOAT3& moveDirec
 			collideCharacterData.emplace_back(normalVec, slidingVec);
 		}
 	}
-	if (g_Logic.GetMyRole() != ROLE::TANKER)
+	if (m_role != ROLE::TANKER)
 	{
 		Character* obj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::TANKER);
 		auto normalVecRes = GetNormalVectorSphere(obj->GetPosition());
@@ -448,7 +465,7 @@ std::pair<bool, XMFLOAT3> Character::CheckCollisionCharacter(XMFLOAT3& moveDirec
 			collideCharacterData.emplace_back(normalVec, slidingVec);
 		}
 	}
-	if (g_Logic.GetMyRole() != ROLE::WARRIOR)
+	if (m_role != ROLE::WARRIOR)
 	{
 		Character* obj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::WARRIOR);
 		auto normalVecRes = GetNormalVectorSphere(obj->GetPosition());
@@ -962,55 +979,61 @@ void Character::ExecuteSkill_E()
 
 void Character::InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos, XMFLOAT3& moveVec)
 {
-	auto clientUtcTime = std::chrono::utc_clock::now();
-	long long durationTime = std::chrono::duration_cast<std::chrono::microseconds>(clientUtcTime - recvTime).count();
-	XMFLOAT3 xmf3Postion = GetPosition();
-	durationTime += g_Logic.GetDiffTime();//1초 마다 업데이트
-	double dDurationTime = (double)durationTime / 1000.0f;
-	dDurationTime = dDurationTime / 1000.0f;
+	if (!m_applyStop) {
+		auto clientUtcTime = std::chrono::utc_clock::now();
+		long long durationTime = std::chrono::duration_cast<std::chrono::microseconds>(clientUtcTime - recvTime).count();
+		XMFLOAT3 xmf3Postion = GetPosition();
+		durationTime += g_Logic.GetDiffTime();//1초 마다 업데이트
+		double dDurationTime = (double)durationTime / 1000.0f;
+		dDurationTime = dDurationTime / 1000.0f;
 
-	XMFLOAT3 diff_S2C_Position = Vector3::Subtract(recvPos, xmf3Postion);
-	float diff_S2C_Size = Vector3::Length(diff_S2C_Position);
-	diff_S2C_Position = Vector3::Normalize(diff_S2C_Position);
-	double t = g_Logic.GetRTT();
-	t /= 1000.0f;
-	float interpolateSize = diff_S2C_Size - dDurationTime * 50.0f;
+		XMFLOAT3 diff_S2C_Position = Vector3::Subtract(recvPos, xmf3Postion);
+		float diff_S2C_Size = Vector3::Length(diff_S2C_Position);
+		diff_S2C_Position = Vector3::Normalize(diff_S2C_Position);
+		double t = g_Logic.GetRTT();
+		t /= 1000.0f;
+		float interpolateSize = diff_S2C_Size - dDurationTime * 50.0f;
 
-	if (interpolateSize > 0) {
-		if (interpolateSize < 3.0f) {
-			/*	std::cout << "interpolateSize < 3.0f" << endl;
+		if (interpolateSize > 0) {
+			if (interpolateSize < 3.0f) {
+				/*	std::cout << "interpolateSize < 3.0f" << endl;
+					cout << "InsterpolateSize: " << interpolateSize << endl;
+					std::cout << "diff_S2C_Position Size: " << diff_S2C_Size << endl;
+					cout << "durationT: " << dDurationTime << endl;*/
+				m_interpolationDistance = 0.0f;
+				m_interpolationVector = XMFLOAT3(0, 0, 0);
+			}
+			else if (interpolateSize > 8.0f) {
+				cout << "SetPosition" << endl;
 				cout << "InsterpolateSize: " << interpolateSize << endl;
 				std::cout << "diff_S2C_Position Size: " << diff_S2C_Size << endl;
+				cout << "durationT: " << dDurationTime << endl;
+				SetPosition(Vector3::Add(xmf3Postion, diff_S2C_Position, interpolateSize));
+				m_interpolationDistance = 0.0f;
+				m_interpolationVector = XMFLOAT3(0, 0, 0);
+			}
+			else {
+				/*cout << "Interpolate Start" << endl;
+				cout << "InterpolateSize: " << interpolateSize << endl;
+				std::cout << "diff_S2C_Position Size: " << diff_S2C_Size << endl;
 				cout << "durationT: " << dDurationTime << endl;*/
-			m_interpolationDistance = 0.0f;
-			m_interpolationVector = XMFLOAT3(0, 0, 0);
-		}
-		else if (interpolateSize > 8.0f) {
-			cout << "SetPosition" << endl;
-			cout << "InsterpolateSize: " << interpolateSize << endl;
-			std::cout << "diff_S2C_Position Size: " << diff_S2C_Size << endl;
-			cout << "durationT: " << dDurationTime << endl;
-			SetPosition(Vector3::Add(xmf3Postion, diff_S2C_Position, interpolateSize));
-			m_interpolationDistance = 0.0f;
-			m_interpolationVector = XMFLOAT3(0, 0, 0);
+				/*	if (m_currentDirection & DIRECTION::RIGHT) {
+						if (Vector3::DotProduct(moveVec, GetRight()) < 0.73f) {
+							cout << "NON DIR EQ: " << dDurationTime << endl;
+						}
+					}
+					else if (m_currentDirection & DIRECTION::LEFT) {
+						if (Vector3::DotProduct(moveVec, Vector3::ScalarProduct(GetRight(), -1, false)) < 0.73f) {
+							cout << "NON DIR EQ: " << dDurationTime << endl;
+						}
+					}*/
+				m_interpolationDistance = interpolateSize;
+				m_interpolationVector = diff_S2C_Position;
+			}
 		}
 		else {
-			/*cout << "Interpolate Start" << endl;
-			cout << "InterpolateSize: " << interpolateSize << endl;
-			std::cout << "diff_S2C_Position Size: " << diff_S2C_Size << endl;
-			cout << "durationT: " << dDurationTime << endl;*/
-			/*	if (m_currentDirection & DIRECTION::RIGHT) {
-					if (Vector3::DotProduct(moveVec, GetRight()) < 0.73f) {
-						cout << "NON DIR EQ: " << dDurationTime << endl;
-					}
-				}
-				else if (m_currentDirection & DIRECTION::LEFT) {
-					if (Vector3::DotProduct(moveVec, Vector3::ScalarProduct(GetRight(), -1, false)) < 0.73f) {
-						cout << "NON DIR EQ: " << dDurationTime << endl;
-					}
-				}*/
-			m_interpolationDistance = interpolateSize;
-			m_interpolationVector = diff_S2C_Position;
+			m_interpolationDistance = 0.0f;
+			m_interpolationVector = XMFLOAT3(0, 0, 0);
 		}
 	}
 	else {
@@ -1022,7 +1045,7 @@ void Character::InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT
 constexpr float ATTACK1_ATTACK_POINT = 0.24f;
 constexpr float ATTACK4_ATTACK_POINT = 0.60f;
 
-Warrior::Warrior() : Character()
+Warrior::Warrior() : Character(ROLE::WARRIOR)
 {
 	m_fMaxHp = 600.0f;
 	m_fTempHp = m_fMaxHp;
@@ -1085,7 +1108,7 @@ void Warrior::Move(float fTimeElapsed)
 		if (diff_S2C_Size > 1.0f) {
 			m_interpolationDistance = diff_S2C_Size;
 			m_interpolationVector = diff_S2C_Vector;
-			xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * m_interpolationDistance * 10.0f);
+			xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, fTimeElapsed * m_interpolationDistance * 10.0f);
 			SetPosition(xmf3Position);
 		}
 		else {
@@ -1391,7 +1414,7 @@ void Warrior::ExecuteSkill_E()
 {//None
 }
 
-Archer::Archer() : Character()
+Archer::Archer() : Character(ROLE::ARCHER)
 {
 	m_fMaxHp = 400.0f;
 	m_fTempHp = m_fMaxHp;
@@ -1497,7 +1520,7 @@ void Archer::Move(float fTimeElapsed)
 		if (diff_S2C_Size > 1.0f) {
 			m_interpolationDistance = diff_S2C_Size;
 			m_interpolationVector = diff_S2C_Vector;
-			xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * m_interpolationDistance * 10.0f);
+			xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, fTimeElapsed * m_interpolationDistance * 10.0f);
 			SetPosition(xmf3Position);
 		}
 		else {
@@ -2015,7 +2038,7 @@ void Archer::ExecuteSkill_E()
 //	GameObject::ShadowRender(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender, pShaderComponent);
 //}
 
-Tanker::Tanker() : Character()
+Tanker::Tanker() : Character(ROLE::TANKER)
 {
 	m_fMaxHp = 780.0f;
 	m_fTempHp = m_fMaxHp;
@@ -2098,7 +2121,7 @@ void Tanker::Move(float fTimeElapsed)
 		if (diff_S2C_Size > 1.0f) {
 			m_interpolationDistance = diff_S2C_Size;
 			m_interpolationVector = diff_S2C_Vector;
-			xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * m_interpolationDistance * 10.0f);
+			xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * fTimeElapsed * 10.0f);
 			SetPosition(xmf3Position);
 		}
 		else {
@@ -2132,10 +2155,7 @@ void Tanker::Move(float fTimeElapsed)
 	{
 	case DIRECTION::IDLE:
 	{
-		XMFLOAT3 xmf3Position = GetPosition();
-		xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * fTimeElapsed);
-		SetPosition(xmf3Position);
-		if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
+
 	}
 	break;
 	case DIRECTION::FRONT:
@@ -2399,7 +2419,7 @@ void Tanker::ExecuteSkill_E()
 	}
 }
 
-Priest::Priest() : Character()
+Priest::Priest() : Character(ROLE::PRIEST)
 {
 	m_fMaxHp = 500.0f;
 	m_fTempHp = m_fMaxHp;
@@ -2433,7 +2453,7 @@ void Priest::Move(float fTimeElapsed)
 		if (diff_S2C_Size > 1.0f) {
 			m_interpolationDistance = diff_S2C_Size;
 			m_interpolationVector = diff_S2C_Vector;
-			xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * m_interpolationDistance * 10.0f);
+			xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * fTimeElapsed * 10.0f);
 			SetPosition(xmf3Position);
 		}
 		else {
@@ -2484,10 +2504,6 @@ void Priest::Move(float fTimeElapsed)
 	{
 	case DIRECTION::IDLE:
 	{
-		XMFLOAT3 xmf3Position = GetPosition();
-		xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * fTimeElapsed);
-		SetPosition(xmf3Position);
-		if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
 	}
 	break;
 	case DIRECTION::FRONT: MoveForward(1, fTimeElapsed); break;
@@ -3623,7 +3639,7 @@ bool NormalMonster::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
 					std::cout << std::endl;
 #endif
 					return true;
-			}
+				}
 				XMFLOAT3 moveDir = Vector3::Normalize(Vector3::Add(mapCollideResult.second, CharacterCollide.second));
 				if (normalMonsterCollide.first) {//노말 몬스터 충돌 됨
 					float dotRes = Vector3::DotProduct(Vector3::Normalize(normalMonsterCollide.second), moveDir);
@@ -3647,8 +3663,8 @@ bool NormalMonster::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
 						std::cout << std::endl;
 #endif
 						return true;
+					}
 				}
-		}
 				else {//노말 몬스터와 충돌하지 않음
 					XMFLOAT3 xmf3Position = GetPosition();
 					xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(Vector3::Normalize(moveDir), m_fSpeed * ftimeElapsed));
@@ -3661,7 +3677,7 @@ bool NormalMonster::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
 #endif
 					return true;
 				}
-	}
+			}
 			else {//움직일 수 없음
 				if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
 #ifdef MONSTER_MOVE_LOG
@@ -3670,7 +3686,7 @@ bool NormalMonster::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
 				std::cout << std::endl;
 #endif
 				return true;
-}
+			}
 			return true;
 		}
 		//캐릭터가 충돌하진 않았지만 노말 몬스터 체크
@@ -3684,7 +3700,7 @@ bool NormalMonster::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
 				std::cout << std::endl;
 #endif
 				return true;
-		}
+			}
 			float dotRes = Vector3::DotProduct(Vector3::Normalize(normalMonsterCollide.second), Vector3::Normalize(mapCollideResult.second));
 			if (dotRes > 0.2f) {//맵과 노말 몬스터 충돌 벡터 방향이 비슷함
 				XMFLOAT3 xmf3Position = GetPosition();
@@ -3732,7 +3748,7 @@ bool NormalMonster::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
 			std::cout << std::endl;
 #endif
 			return true;
-	}
+		}
 		if (normalMonsterCollide.first) {//노말 몬스터와 충돌
 			float dotRes = Vector3::DotProduct(Vector3::Normalize(normalMonsterCollide.second), Vector3::Normalize(CharacterCollide.second));
 			if (dotRes > 0.2f) {//캐릭터 노말 몬스터 벡터
@@ -3755,7 +3771,7 @@ bool NormalMonster::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
 				std::cout << std::endl;
 #endif
 				return true;
-		}
+			}
 		}
 		else {// 노말 몬스터와 충돌하지 않음 -> 캐릭터만 충돌
 			XMFLOAT3 xmf3Position = GetPosition();
@@ -3798,7 +3814,8 @@ bool NormalMonster::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
 
 std::pair<float, XMFLOAT3> Character::GetNormalVectorSphere(const XMFLOAT3& point)
 {
-	XMFLOAT3 normalVec = Vector3::Subtract(GetPosition(), point);
+	XMFLOAT3 position = GetPosition();
+	XMFLOAT3 normalVec = Vector3::Subtract(position, point);
 	float normalSize = Vector3::Length(normalVec);
 	normalVec = Vector3::Normalize(normalVec);
 	return std::pair<float, XMFLOAT3>(normalSize, normalVec);

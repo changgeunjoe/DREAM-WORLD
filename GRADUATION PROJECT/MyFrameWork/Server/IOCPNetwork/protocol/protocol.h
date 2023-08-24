@@ -39,6 +39,7 @@ namespace CLIENT_PACKET {
 	constexpr unsigned char TIME_SYNC_REQUEST = 27;
 	
 	constexpr unsigned char PLAYER_COMMON_ATTACK = 29;//애니 실행
+	constexpr unsigned char PLAYER_POSITION_STATE = 30;
 
 	struct MovePacket
 	{//시간과 진행 방향, 이동 입력
@@ -138,6 +139,12 @@ namespace CLIENT_PACKET {
 		XMFLOAT3 postionOrDirection;
 	};
 
+	struct PlayerPositionPacket {
+		short size;
+		char type;
+		XMFLOAT3 position;
+		std::chrono::utc_clock::time_point t;
+	};
 	
 }
 

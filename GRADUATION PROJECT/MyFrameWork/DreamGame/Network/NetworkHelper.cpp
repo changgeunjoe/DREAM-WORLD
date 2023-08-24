@@ -5,7 +5,6 @@
 #include "Room/RoomManger.h"
 
 extern Logic g_Logic;
-extern RoomManger g_RoomManager;
 
 NetworkHelper::NetworkHelper()
 {
@@ -63,7 +62,10 @@ void NetworkHelper::RunThread()
 		if (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::utc_clock::now() - g_Logic.GetReQuestTime()).count() > 1) {
 			SendTimeSyncPacket();
 		}
-
+		if (m_positionSendTime + std::chrono::milliseconds(30) > std::chrono::utc_clock::now()) {
+			
+			g_Logic.GetMyRole();
+		}
 	}
 }
 
@@ -293,6 +295,17 @@ void NetworkHelper::SendCommonAttackStart()
 	CLIENT_PACKET::NotifyPacket sendPacket;
 	sendPacket.size = sizeof(CLIENT_PACKET::NotifyPacket);
 	sendPacket.type = CLIENT_PACKET::PLAYER_COMMON_ATTACK;
+	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
+}
+
+void NetworkHelper::SendPlayerPosition(XMFLOAT3& position)
+{
+	CLIENT_PACKET::PlayerPositionPacket sendPacket;
+	sendPacket.size = sizeof(CLIENT_PACKET::PlayerPositionPacket);
+	sendPacket.type = CLIENT_PACKET::PLAYER_POSITION_STATE;
+	sendPacket.position = position;
+	sendPacket.t = std::chrono::utc_clock::now();
+	sendPacket.t += std::chrono::microseconds(g_Logic.GetDiffTime());
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 

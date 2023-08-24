@@ -20,6 +20,8 @@ private:
 private:
 	bool m_bIsRunnung = false;
 	std::thread m_runThread;
+private:
+	std::chrono::utc_clock::time_point m_positionSendTime = std::chrono::utc_clock::now();
 public:
 	NetworkHelper();
 	~NetworkHelper();
@@ -54,7 +56,7 @@ public:
 	void SendChangeStage_BOSS();
 	void SendCommonAttackExecute(const XMFLOAT3& attackDirection, int power);//기본 공격 실제 공격 시행
 	void SendCommonAttackStart();//기본 공격 애니메이션
-
+	void SendPlayerPosition(XMFLOAT3& position);
 public:
 	void SendTimeSyncPacket();
 

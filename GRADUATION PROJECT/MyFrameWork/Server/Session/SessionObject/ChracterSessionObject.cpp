@@ -188,31 +188,22 @@ void ChracterSessionObject::SetShield(bool active)
 bool ChracterSessionObject::Move(float elapsedTime)
 {
 	if (GetHp() < FLT_EPSILON) return false;
+	if (m_applyStop) {
 	XMFLOAT3 xmf3Position = m_position;
-	m_stopDestinationPosition;
 	XMFLOAT3 diff_S2C_Vector = Vector3::Subtract(m_stopDestinationPosition, xmf3Position);
 	float diff_S2C_Size = Vector3::Length(diff_S2C_Vector);
 	diff_S2C_Vector = Vector3::Normalize(diff_S2C_Vector);
-	if (m_applyStop) {
 		if (diff_S2C_Size > 1.0f) {
 			m_position = Vector3::Add(m_position, Vector3::ScalarProduct(diff_S2C_Vector, elapsedTime * diff_S2C_Size * 10));
 			SetPosition(m_position);
 		}
-		else {		
+		else {
 			m_applyStop = false;
 		}
 		return true;
 	}
-	if (m_applyDirection != DIRECTION::IDLE)
-	{
-		std::cout << "ChracterSessionObject::Move() - before Position: " << m_position.x << ", " << m_position.y << ", " << m_position.z << std::endl;
-		std::cout << "ChracterSessionObject::Move() - elapsedT: " << elapsedTime << std::endl;
-#ifdef _DEBUG
-		//std::cout << "character::Move() - elapsedTime: " << elapsedTime << std::endl;
-#endif 		 
-		//if (elapsedTime > 2.0f) {
-	//return false;
-	//	}
+	else if (m_applyDirection != DIRECTION::IDLE)
+	{		
 		if (!CheckCollision(m_directionVector, elapsedTime)) {
 			m_position = Vector3::Add(m_position, Vector3::ScalarProduct(m_directionVector, elapsedTime * m_speed));
 			SetPosition(m_position);
@@ -220,10 +211,8 @@ bool ChracterSessionObject::Move(float elapsedTime)
 		if (m_position.y < DBL_EPSILON || m_position.y > 1.0f) {
 			m_position.y = 0.0f;
 		}
-		std::cout << "ChracterSessionObject::Move() - after Position: " << m_position.x << ", " << m_position.y << ", " << m_position.z << std::endl;
 		return true;
 	}
-	//std::cout << "ChracterSessionObject::Move() - after Position: " << m_position.x << ", " << m_position.y << ", " << m_position.z << std::endl;
 	return false;
 }
 

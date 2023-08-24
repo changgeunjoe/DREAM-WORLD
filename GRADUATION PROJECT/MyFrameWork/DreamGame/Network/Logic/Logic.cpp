@@ -48,9 +48,10 @@ void Logic::ProcessPacket(char* p)
 		SERVER_PACKET::MovePacket* recvPacket = reinterpret_cast<SERVER_PACKET::MovePacket*>(p);
 		if (recvPacket->role == myRole) return;
 		Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->role);
-		possessObj->m_applyStop = false;
 		possessObj->AddDirection(recvPacket->direction);
+		possessObj->m_applyStop = false;
 		possessObj->SetMoveState(true);
+
 		/*if (m_RTT > 200) {
 			XMFLOAT3 futurePos = recvPacket->position;
 			futurePos = Vector3::Add(futurePos, recvPacket->moveVec, m_RTT / 1000.0f);
@@ -110,6 +111,12 @@ void Logic::ProcessPacket(char* p)
 		Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->role);
 		//possessObj->SetPosition(recvPacket->position);
 		possessObj->m_StopDestinationPosition = recvPacket->position;
+		if (std::abs(recvPacket->position.x) > 2000 ||
+			std::abs(recvPacket->position.y) > 2000 ||
+			std::abs(recvPacket->position.z) > 2000
+			) {
+			std::cout << "Àß¸øµÊ" << std::endl;
+		}
 		possessObj->m_applyStop = true;
 		possessObj->SetStopDirection();
 		//possessObj->SetMoveState(false);
@@ -761,8 +768,8 @@ void Logic::ProcessPacket(char* p)
 				C2S_DiffTime = requestDiff + RTT;
 			}
 		}
-		std::cout << "RTT: " << RTT << endl;
-		std::cout << "C2S_DiffTime: " << C2S_DiffTime / 1000 << endl;
+		//std::cout << "RTT: " << RTT << endl;
+		//std::cout << "C2S_DiffTime: " << C2S_DiffTime / 1000 << endl;
 		//std::cout << "generalDiff: " << generalDiff / 1000 << endl;
 	}
 	break;

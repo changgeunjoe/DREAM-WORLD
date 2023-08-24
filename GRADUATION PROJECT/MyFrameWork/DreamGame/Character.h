@@ -16,8 +16,11 @@ protected:
 	std::array<std::chrono::seconds, 2> m_skillDuration;
 	std::array<std::chrono::seconds, 2> m_skillCoolTime;
 	std::array<std::chrono::high_resolution_clock::time_point, 2> m_skillInputTime;
+protected:
+	ROLE m_role;
 public:
 	Character();
+	Character(ROLE r);
 	virtual ~Character();
 	virtual GameObject* GetHpBar() { return m_pHPBarObject; };
 	virtual void RbuttonClicked(float fTimeElapsed);

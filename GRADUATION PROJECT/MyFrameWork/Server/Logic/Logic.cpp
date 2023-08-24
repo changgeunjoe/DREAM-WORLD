@@ -114,12 +114,14 @@ void Logic::ProcessPacket(int userId, char* p)
 			int roomId = g_iocpNetwork.m_session[userId].GetRoomId();
 			if (roomId != -1) {
 				Room& roomRef = g_RoomManager.GetRunningRoomRef(roomId);
-				roomRef.StopMovePlayCharacter(g_iocpNetwork.m_session[userId].GetRole(), recvPacket->position);
+				roomRef.AdjustPlayCharacterInfo(g_iocpNetwork.m_session[userId].GetRole(), recvPacket->position);
 				SERVER_PACKET::StopPacket sendPacket;
+				roomRef.StopMovePlayCharacter(g_iocpNetwork.m_session[userId].GetRole(), recvPacket->position);
+				roomRef.GetPlayCharacters()[(ROLE)recvPacket->role]->GetPos();
+				sendPacket.position = recvPacket->position;
 				sendPacket.role = g_iocpNetwork.m_session[userId].GetRole();
 				sendPacket.type = SERVER_PACKET::STOP;
 				sendPacket.size = sizeof(SERVER_PACKET::StopPacket);
-				sendPacket.position = recvPacket->position;
 				//Server Player Position 보정 장치 추가하기
 				BroadCastInRoomByPlayer(userId, &sendPacket);
 			}
