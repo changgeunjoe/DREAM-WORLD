@@ -2781,8 +2781,9 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 				{
 					myPlayCharacter->SetMoveState(false);
 					myPlayCharacter->SetStopDirection();
-					myPlayCharacter->SetPrevStopPosition(myPlayCharacter->GetPosition());
-					g_NetworkHelper.SendStopPacket(myPlayCharacter->GetPosition()); //, g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate				
+					XMFLOAT3 curPos = myPlayCharacter->GetPosition();
+					myPlayCharacter->SetPrevStopPosition(curPos);
+					g_NetworkHelper.SendStopPacket(curPos);
 				}
 				else {
 					myPlayCharacter->RemoveDIrection(DIRECTION::FRONT);
@@ -2799,9 +2800,9 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 				if (g_Logic.m_KeyInput->IsAllMovekeyUp())
 				{
 					myPlayCharacter->SetMoveState(false);
-					myPlayCharacter->SetStopDirection();
-					myPlayCharacter->SetPrevStopPosition(myPlayCharacter->GetPosition());
-					g_NetworkHelper.SendStopPacket(myPlayCharacter->GetPosition()); //, g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate				
+					XMFLOAT3 curPos = myPlayCharacter->GetPosition();
+					myPlayCharacter->SetPrevStopPosition(curPos);
+					g_NetworkHelper.SendStopPacket(curPos);
 				}
 				else {
 					myPlayCharacter->RemoveDIrection(DIRECTION::LEFT);
@@ -2818,9 +2819,9 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 				if (g_Logic.m_KeyInput->IsAllMovekeyUp())
 				{
 					myPlayCharacter->SetMoveState(false);
-					myPlayCharacter->SetStopDirection();
-					myPlayCharacter->SetPrevStopPosition(myPlayCharacter->GetPosition());
-					g_NetworkHelper.SendStopPacket(myPlayCharacter->GetPosition()); //, g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate				
+					XMFLOAT3 curPos = myPlayCharacter->GetPosition();
+					myPlayCharacter->SetPrevStopPosition(curPos);
+					g_NetworkHelper.SendStopPacket(curPos);
 				}
 				else {
 					myPlayCharacter->RemoveDIrection(DIRECTION::BACK);
@@ -2837,9 +2838,9 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 				if (g_Logic.m_KeyInput->IsAllMovekeyUp())
 				{
 					myPlayCharacter->SetMoveState(false);
-					myPlayCharacter->SetStopDirection();
-					myPlayCharacter->SetPrevStopPosition(myPlayCharacter->GetPosition());
-					g_NetworkHelper.SendStopPacket(myPlayCharacter->GetPosition()); //, g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate				
+					XMFLOAT3 curPos = myPlayCharacter->GetPosition();
+					myPlayCharacter->SetPrevStopPosition(curPos);
+					g_NetworkHelper.SendStopPacket(curPos);
 				}
 				else {
 					myPlayCharacter->RemoveDIrection(DIRECTION::RIGHT);

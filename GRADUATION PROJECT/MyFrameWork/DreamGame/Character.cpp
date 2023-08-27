@@ -3823,7 +3823,7 @@ std::pair<float, XMFLOAT3> Character::GetNormalVectorSphere(const XMFLOAT3& poin
 
 void Character::AdjustStopPosition(XMFLOAT3& stopPosition)
 {
-	XMFLOAT3 diff = Vector3::Subtract(m_prevStopPosition, stopPosition);
+	XMFLOAT3 diff = Vector3::Subtract(stopPosition, m_prevStopPosition);
 	float length = Vector3::Length(diff);
 	if (length > 3.0f) {
 		XMFLOAT3 currentPosition = GetPosition();

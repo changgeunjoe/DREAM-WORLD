@@ -97,8 +97,10 @@ public:
 private:
 	XMFLOAT3 m_prevStopPosition = XMFLOAT3(0, 0, 0);
 public:
-	void SetPrevStopPosition(XMFLOAT3& stopPosition) { m_prevStopPosition = stopPosition; }
-	void SetPrevStopPosition(XMFLOAT3 stopPosition) { m_prevStopPosition = stopPosition; }
+	void SetPrevStopPosition(XMFLOAT3& stopPosition) {
+		m_prevStopPosition = stopPosition; 
+	}
+
 	void AdjustStopPosition(XMFLOAT3& stopPosition);
 };
 

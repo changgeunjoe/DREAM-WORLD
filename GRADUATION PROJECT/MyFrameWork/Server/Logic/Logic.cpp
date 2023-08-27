@@ -114,8 +114,8 @@ void Logic::ProcessPacket(int userId, char* p)
 			int roomId = g_iocpNetwork.m_session[userId].GetRoomId();
 			if (roomId != -1) {
 				Room& roomRef = g_RoomManager.GetRunningRoomRef(roomId);
-				bool adjustRes = roomRef.AdjustPlayCharacterInfo(g_iocpNetwork.m_session[userId].GetRole(), recvPacket->position);
 				roomRef.StopMovePlayCharacter(g_iocpNetwork.m_session[userId].GetRole(), recvPacket->position);
+				bool adjustRes = roomRef.AdjustPlayCharacterInfo(g_iocpNetwork.m_session[userId].GetRole(), recvPacket->position);
 				SERVER_PACKET::StopPacket sendPacket;
 				sendPacket.position = roomRef.GetPlayCharacters()[(ROLE)recvPacket->role]->GetPos();
 				sendPacket.role = g_iocpNetwork.m_session[userId].GetRole();
