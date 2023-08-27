@@ -2800,6 +2800,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 				if (g_Logic.m_KeyInput->IsAllMovekeyUp())
 				{
 					myPlayCharacter->SetMoveState(false);
+					myPlayCharacter->SetStopDirection();
 					XMFLOAT3 curPos = myPlayCharacter->GetPosition();
 					myPlayCharacter->SetPrevStopPosition(curPos);
 					g_NetworkHelper.SendStopPacket(curPos);
@@ -2819,6 +2820,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 				if (g_Logic.m_KeyInput->IsAllMovekeyUp())
 				{
 					myPlayCharacter->SetMoveState(false);
+					myPlayCharacter->SetStopDirection();
 					XMFLOAT3 curPos = myPlayCharacter->GetPosition();
 					myPlayCharacter->SetPrevStopPosition(curPos);
 					g_NetworkHelper.SendStopPacket(curPos);
@@ -2838,6 +2840,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 				if (g_Logic.m_KeyInput->IsAllMovekeyUp())
 				{
 					myPlayCharacter->SetMoveState(false);
+					myPlayCharacter->SetStopDirection();
 					XMFLOAT3 curPos = myPlayCharacter->GetPosition();
 					myPlayCharacter->SetPrevStopPosition(curPos);
 					g_NetworkHelper.SendStopPacket(curPos);
