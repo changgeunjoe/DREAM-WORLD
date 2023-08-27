@@ -2781,6 +2781,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 				{
 					myPlayCharacter->SetMoveState(false);
 					myPlayCharacter->SetStopDirection();
+					myPlayCharacter->SetPrevStopPosition(myPlayCharacter->GetPosition());
 					g_NetworkHelper.SendStopPacket(myPlayCharacter->GetPosition()); //, g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate				
 				}
 				else {
@@ -2799,6 +2800,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 				{
 					myPlayCharacter->SetMoveState(false);
 					myPlayCharacter->SetStopDirection();
+					myPlayCharacter->SetPrevStopPosition(myPlayCharacter->GetPosition());
 					g_NetworkHelper.SendStopPacket(myPlayCharacter->GetPosition()); //, g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate				
 				}
 				else {
@@ -2817,6 +2819,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 				{
 					myPlayCharacter->SetMoveState(false);
 					myPlayCharacter->SetStopDirection();
+					myPlayCharacter->SetPrevStopPosition(myPlayCharacter->GetPosition());
 					g_NetworkHelper.SendStopPacket(myPlayCharacter->GetPosition()); //, g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate				
 				}
 				else {
@@ -2835,6 +2838,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 				{
 					myPlayCharacter->SetMoveState(false);
 					myPlayCharacter->SetStopDirection();
+					myPlayCharacter->SetPrevStopPosition(myPlayCharacter->GetPosition());
 					g_NetworkHelper.SendStopPacket(myPlayCharacter->GetPosition()); //, g_Logic.m_inGamePlayerSession[0].m_rotateAngle); // XMFLOAT3 postion, XMFOAT3 Rotate				
 				}
 				else {
