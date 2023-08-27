@@ -421,7 +421,7 @@ std::pair<bool, XMFLOAT3> Character::CheckCollisionMap_Stage(XMFLOAT3& normalVec
 
 std::pair<bool, XMFLOAT3> Character::CheckCollisionCharacter(XMFLOAT3& moveDirection, float ftimeElapsed)
 {
-	int collideCnt = 0;	
+	int collideCnt = 0;
 	std::vector<std::pair<XMFLOAT3, XMFLOAT3> >  collideCharacterData;
 	if (m_role != ROLE::ARCHER)
 	{
@@ -3819,6 +3819,17 @@ std::pair<float, XMFLOAT3> Character::GetNormalVectorSphere(const XMFLOAT3& poin
 	float normalSize = Vector3::Length(normalVec);
 	normalVec = Vector3::Normalize(normalVec);
 	return std::pair<float, XMFLOAT3>(normalSize, normalVec);
+}
+
+void Character::AdjustStopPosition(XMFLOAT3& stopPosition)
+{
+	XMFLOAT3 diff = Vector3::Subtract(m_prevStopPosition, stopPosition);
+	float length = Vector3::Length(diff);
+	if (length > 3.0f) {
+		XMFLOAT3 currentPosition = GetPosition();
+		currentPosition = Vector3::Add(currentPosition, diff);
+		SetPosition(currentPosition);
+	}
 }
 
 IceLance::IceLance() : Projectile()

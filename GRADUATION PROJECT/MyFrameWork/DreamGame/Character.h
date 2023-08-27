@@ -94,6 +94,12 @@ public:
 	GameObject* m_pHPBarObject{ NULL };
 	std::atomic_bool m_applyStop = false;
 	XMFLOAT3 m_StopDestinationPosition = XMFLOAT3(0, 0, 0);
+private:
+	XMFLOAT3 m_prevStopPosition = XMFLOAT3(0, 0, 0);
+public:
+	void SetPrevStopPosition(XMFLOAT3& stopPosition) { m_prevStopPosition = stopPosition; }
+	void SetPrevStopPosition(XMFLOAT3 stopPosition) { m_prevStopPosition = stopPosition; }
+	void AdjustStopPosition(XMFLOAT3& stopPosition);
 };
 
 class Warrior : public Character

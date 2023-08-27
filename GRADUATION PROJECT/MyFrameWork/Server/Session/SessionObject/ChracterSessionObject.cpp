@@ -43,8 +43,7 @@ void ChracterSessionObject::AttackedHp(float damage)
 }
 
 void ChracterSessionObject::SetStopDestinationPosition(XMFLOAT3& desPosition)
-{
-	m_position = desPosition;
+{	
 	m_stopDestinationPosition = desPosition;
 	m_applyStop = true;
 }
