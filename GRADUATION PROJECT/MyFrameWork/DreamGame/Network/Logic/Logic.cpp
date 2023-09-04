@@ -250,13 +250,13 @@ void Logic::ProcessPacket(char* p)
 		//auto clientUtcTime = std::chrono::utc_clock::now();		
 		//std::cout << "Logic::ProcessPacket() - SERVER_PACKET::GAME_STATE_S, utcTime: " << clientUtcTime << std::endl;
 		for (int i = 0; i < 4; i++) {//그냥 4개 여서 도는 for문 주의
-			Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->userState[i].role);
 			if (recvPacket->userState[i].role != ROLE::NONE_SELECT) {
+				Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->userState[i].role);
+				float maxHp = possessObj->GetMaxHP();
+				possessObj->SetCurrentHP(recvPacket->userState[i].hp / maxHp * 100.0f);
 				if (recvPacket->userState[i].role == myRole) continue;
 				possessObj->InterpolateMove(recvPacket->userTime, recvPacket->userState[i].pos, recvPacket->userState[i].moveVec);
 			}
-			float maxHp = possessObj->GetMaxHP();
-			possessObj->SetCurrentHP(recvPacket->userState[i].hp / maxHp * 100.0f);
 		}
 		//small monster		
 		NormalMonster** smallMonsterArr = gGameFramework.GetScene()->GetObjectManager()->GetNormalMonsterArr();
@@ -308,13 +308,13 @@ void Logic::ProcessPacket(char* p)
 		bossMonster->InterpolateMove(recvPacket->time, recvPacket->bossState.pos, recvPacket->bossState.moveVec);
 		//Player Session
 		for (int i = 0; i < 4; i++) {//그냥 4개 여서 도는 for문 주의			
-			Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->userState[i].role);
 			if (recvPacket->userState[i].role != ROLE::NONE_SELECT) {
+				Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->userState[i].role);
+				float maxHp = possessObj->GetMaxHP();
+				possessObj->SetCurrentHP(recvPacket->userState[i].hp / maxHp * 100.0f);
 				if (recvPacket->userState[i].role == myRole) continue;
 				possessObj->InterpolateMove(recvPacket->time, recvPacket->userState[i].pos, recvPacket->userState[i].moveVec);
 			}
-			float maxHp = possessObj->GetMaxHP();
-			possessObj->SetCurrentHP(recvPacket->userState[i].hp / maxHp * 100.0f);
 		}
 	}
 	break;
