@@ -1,10 +1,12 @@
-//-----------------------------------------------------------------------------
+f//-----------------------------------------------------------------------------
 // File: CGameTimer.cpp
 //-----------------------------------------------------------------------------
 
 #include "stdafx.h"
 #include "Timer.h"
+#include "Network/Logic/Logic.h"
 
+extern Logic g_Logic;
 CGameTimer::CGameTimer()
 {
 	::QueryPerformanceFrequency((LARGE_INTEGER*)&m_nPerformanceFrequencyPerSec);
@@ -71,13 +73,16 @@ void CGameTimer::Tick(float fLockFPS)
 
 unsigned long CGameTimer::GetFrameRate(LPTSTR lpszString, int nCharacters)
 {
+	int ping = static_cast<int>(g_Logic.GetRTT());
 	if (lpszString)
 	{
-		_itow_s(m_nCurrentFrameRate, lpszString, nCharacters, 10);
-		wcscat_s(lpszString, nCharacters, _T(" FPS)"));
+		_itow_s(ping, lpszString, nCharacters, 10);
+		wcscat_s(lpszString, nCharacters, _T(" ms)"));
 	}
 
-	return(m_nCurrentFrameRate);
+	return(ping);
+
+//	return(m_nCurrentFrameRate);
 }
 
 float CGameTimer::GetTimeElapsed()
