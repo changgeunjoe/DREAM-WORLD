@@ -559,15 +559,15 @@ void GameobjectManager::OnPreRender(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 
 void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {//렌더
-	Character* myCharacter = GetChracterInfo(g_Logic.GetMyRole());
-	if (myCharacter != nullptr)
-		if (myCharacter->m_pCamera != nullptr) {
-			XMFLOAT3 pingFont = XMFLOAT3(0, 20, 0);// = myCharacter->m_pCamera->GetPosition();
-			//pingFont = Vector3::Add(pingFont, myCharacter->m_pCamera->GetLookVector(), 6);
-			//pingFont = Vector3::Add(pingFont, myCharacter->m_pCamera->GetRightVector(), 5);
-			//pingFont = Vector3::Add(pingFont, myCharacter->m_pCamera->GetUpVector(), 3);
-			m_pUILayer->AddDamageFont(pingFont, std::to_wstring(g_Logic.GetRTT()));
-		}
+	//Character* myCharacter = GetChracterInfo(g_Logic.GetMyRole());
+	//if (myCharacter != nullptr)
+	//	if (myCharacter->m_pCamera != nullptr) {
+	//		XMFLOAT3 pingFont = XMFLOAT3(0, 20, 0);// = myCharacter->m_pCamera->GetPosition();
+	//		//pingFont = Vector3::Add(pingFont, myCharacter->m_pCamera->GetLookVector(), 6);
+	//		//pingFont = Vector3::Add(pingFont, myCharacter->m_pCamera->GetRightVector(), 5);
+	//		//pingFont = Vector3::Add(pingFont, myCharacter->m_pCamera->GetUpVector(), 3);
+	//		m_pUILayer->AddDamageFont(pingFont, std::to_wstring(g_Logic.GetRTT()));
+	//	}
 
 	UpdateShaderVariables(pd3dCommandList);
 
@@ -3173,12 +3173,12 @@ void GameobjectManager::AddTextToUILayer(int& iIndex)
 	queue<wstring> queueStr;
 	if (iIndex == START_TEXT)
 	{
-		queueStr.emplace(L"데드레커닝 살려줘");
-		//queueStr.emplace(L"안녕하세요! 드림월드에 오신 것을 환영해요");
-		//queueStr.emplace(L"먼저 플레이 방법에 대해서 알려드릴게요!");
-		//queueStr.emplace(L"앞에 보이는 캐릭터들 중 원하는 캐릭터를");
-		//queueStr.emplace(L"선택하신 후에 게임 시작을 누르시면");
-		//queueStr.emplace(L"선택한 캐릭터를 플레이 하실 수 있어요!");
+		//queueStr.emplace(L"데드레커닝 살려줘");
+		queueStr.emplace(L"안녕하세요! 드림월드에 오신 것을 환영해요");
+		queueStr.emplace(L"먼저 플레이 방법에 대해서 알려드릴게요!");
+		queueStr.emplace(L"앞에 보이는 캐릭터들 중 원하는 캐릭터를");
+		queueStr.emplace(L"선택하신 후에 게임 시작을 누르시면");
+		queueStr.emplace(L"선택한 캐릭터를 플레이 하실 수 있어요!");
 	}
 	if (iIndex == NPC_TEXT)
 	{
