@@ -2951,6 +2951,12 @@ bool GameobjectManager::onProcessingKeyboardMessageLobby(HWND hWnd, UINT nMessag
 	//#endif
 	//		m_bSceneSwap = true;//페이드 인 아웃
 	//	}
+	if (nMessageID == WM_KEYDOWN && wParam == VK_INSERT)
+	{
+		if (gGameFramework.GetIsLobbyScene() == 1)
+			ResetObject();
+	}
+
 	if (nMessageID == WM_KEYDOWN && wParam == 'G')
 	{
 		m_bNPCinteraction = true;
