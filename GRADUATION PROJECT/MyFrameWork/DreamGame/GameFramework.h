@@ -61,7 +61,7 @@ private:
 	CScene* m_pScene;
 	LobbyCScene* m_pLobbyScene;
 
-	bool m_bLobbyScene;
+	bool m_bLobbyScene{ true };
 	bool m_bSceneBuild{false};
 
 	CCamera* m_pCamera = NULL;
@@ -164,6 +164,5 @@ public:
 	void SetCurrentGameState(GAME_STATE gs) { m_gameState = gs; }
 	void SetLobbyScene() { m_bLobbyScene = !m_bLobbyScene; }
 	bool GetIsLobbyScene() { return m_bLobbyScene; }
-
 
 };
