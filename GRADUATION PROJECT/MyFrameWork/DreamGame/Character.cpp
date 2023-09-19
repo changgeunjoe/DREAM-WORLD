@@ -216,33 +216,33 @@ void Character::MoveForward(int forwardDirection, float ftimeElapsed)
 	if (CheckCollision(xmf3Look, ftimeElapsed)) {
 		xmf3Position = GetPosition();
 
-		if (m_interpolationDistance > DBL_EPSILON) {
-			std::cout << "CheckCollision" << endl;
-			std::cout << "interpolate prev position: " << xmf3Position.x << ", " << xmf3Position.y << ", " << xmf3Position.z << std::endl;
-			std::cout << "interpolate Vec: " << m_interpolationVector.x << ", " << m_interpolationVector.y << ", " << m_interpolationVector.z << std::endl;
-			std::cout << "interpolate Size: " << m_interpolationDistance << std::endl;
-		}
+		//if (m_interpolationDistance > DBL_EPSILON) {
+		//	std::cout << "CheckCollision" << endl;
+		//	std::cout << "interpolate prev position: " << xmf3Position.x << ", " << xmf3Position.y << ", " << xmf3Position.z << std::endl;
+		//	std::cout << "interpolate Vec: " << m_interpolationVector.x << ", " << m_interpolationVector.y << ", " << m_interpolationVector.z << std::endl;
+		//	std::cout << "interpolate Size: " << m_interpolationDistance << std::endl;
+		//}
 
 		xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, 10.0f * m_interpolationDistance * ftimeElapsed);
 		xmf3Position.y = 0.0f;
 		GameObject::SetPosition(xmf3Position);
 
-		if (m_interpolationDistance > DBL_EPSILON) {
-			std::cout << "interpolate after position: " << xmf3Position.x << ", " << xmf3Position.y << ", " << xmf3Position.z << std::endl << std::endl;
-		}
+		//if (m_interpolationDistance > DBL_EPSILON) {
+		//	std::cout << "interpolate after position: " << xmf3Position.x << ", " << xmf3Position.y << ", " << xmf3Position.z << std::endl << std::endl;
+		//}
 		return;
 	}
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, ftimeElapsed * m_fSpeed);
-	if (m_interpolationDistance > DBL_EPSILON) {
-
-		std::cout << "interpolate prev position: " << xmf3Position.x << ", " << xmf3Position.y << ", " << xmf3Position.z << std::endl;
-		std::cout << "interpolate Vec: " << m_interpolationVector.x << ", " << m_interpolationVector.y << ", " << m_interpolationVector.z << std::endl;
-		std::cout << "interpolate Size: " << m_interpolationDistance << std::endl;
-	}
+	//if (m_interpolationDistance > DBL_EPSILON) {
+	//
+	//	std::cout << "interpolate prev position: " << xmf3Position.x << ", " << xmf3Position.y << ", " << xmf3Position.z << std::endl;
+	//	std::cout << "interpolate Vec: " << m_interpolationVector.x << ", " << m_interpolationVector.y << ", " << m_interpolationVector.z << std::endl;
+	//	std::cout << "interpolate Size: " << m_interpolationDistance << std::endl;
+	//}
 	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, 10.0f * m_interpolationDistance * ftimeElapsed);
-	if (m_interpolationDistance > DBL_EPSILON) {
-		std::cout << "interpolate after position: " << xmf3Position.x << ", " << xmf3Position.y << ", " << xmf3Position.z << std::endl << std::endl;
-	}
+	//if (m_interpolationDistance > DBL_EPSILON) {
+	//	std::cout << "interpolate after position: " << xmf3Position.x << ", " << xmf3Position.y << ", " << xmf3Position.z << std::endl << std::endl;
+	//}
 	g_sound.Play("WalkSound", CalculateDistanceSound());
 	xmf3Position.y = 0.0f;
 	GameObject::SetPosition(xmf3Position);
@@ -531,7 +531,7 @@ std::pair<bool, XMFLOAT3> Character::CheckCollisionNormalMonster(XMFLOAT3& moveD
 	normalVecResult = Vector3::ScalarProduct(normalVecResult, 0.02f);
 	slidingVecResult = Vector3::Normalize(slidingVecResult);
 
-	std::cout << "monster slidingVec: " << slidingVecResult.x << ", " << slidingVecResult.y << ", " << slidingVecResult.z << std::endl;
+	//std::cout << "monster slidingVec: " << slidingVecResult.x << ", " << slidingVecResult.y << ", " << slidingVecResult.z << std::endl;
 	XMFLOAT3 collideNPCMoveDir = Vector3::Normalize(Vector3::Add(normalVecResult, slidingVecResult));
 	return std::pair<bool, XMFLOAT3>(true, slidingVecResult);
 }
@@ -632,6 +632,7 @@ bool Character::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
 			}
 			//캐릭터가 충돌하진 않았지만 노말 몬스터 체크
 			auto normalMonsterCollide = CheckCollisionNormalMonster(moveDirection, ftimeElapsed);
+			normalMonsterCollide.second.y = 0;
 			if (normalMonsterCollide.first) {//노말 몬스터와 충돌함
 				if (normalMonsterCollide.first && std::abs(normalMonsterCollide.second.x) < DBL_EPSILON && std::abs(normalMonsterCollide.second.z) < DBL_EPSILON) {//노말 몬스터 콜리전으로 인해 아예 못움직임
 					if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));

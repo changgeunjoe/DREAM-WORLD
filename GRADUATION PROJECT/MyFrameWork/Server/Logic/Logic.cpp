@@ -256,6 +256,11 @@ void Logic::ProcessPacket(int userId, char* p)
 				room.GetBoss().isBossDie = true;
 				room.GetBoss().isMove = false;
 				room.GetBoss().isAttack = false;
+				SERVER_PACKET::NotifyPacket sendPacket;
+				sendPacket.type = SERVER_PACKET::GAME_END;
+				sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
+				
+				MultiCastOtherPlayerInRoom(userId, &sendPacket);
 			}
 		}
 	}
