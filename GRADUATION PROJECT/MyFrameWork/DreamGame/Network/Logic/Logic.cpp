@@ -41,19 +41,19 @@ void Logic::ProcessPacket(char* p)
 {
 	static XMFLOAT3 upVec = XMFLOAT3(0, 1, 0);
 	if (GameEnd) return;
-	//if (gGameFramework.m_bLobbyScene)
-	//{
-	//	switch (p[2])
-	//	{
-	//	case SERVER_PACKET::INTO_GAME:
-	//	case SERVER_PACKET::LOGIN_OK:
-	//	case SERVER_PACKET::ADD_PLAYER:
-	//	case SERVER_PACKET::PRE_EXIST_LOGIN:
-	//		break;
-	//	default:
-	//		return;
-	//	}
-	//}
+	if (gGameFramework.m_bLobbyScene)
+	{
+		switch (p[2])
+		{
+		case SERVER_PACKET::INTO_GAME:
+		case SERVER_PACKET::LOGIN_OK:
+		case SERVER_PACKET::ADD_PLAYER:
+		case SERVER_PACKET::PRE_EXIST_LOGIN:
+			break;
+		default:
+			return;
+		}
+	}
 	switch (p[2])
 	{
 	case SERVER_PACKET::MOVE_KEY_DOWN:
