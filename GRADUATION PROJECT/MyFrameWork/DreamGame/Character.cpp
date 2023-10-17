@@ -216,33 +216,14 @@ void Character::MoveForward(int forwardDirection, float ftimeElapsed)
 	if (CheckCollision(xmf3Look, ftimeElapsed)) {
 		xmf3Position = GetPosition();
 
-		//if (m_interpolationDistance > DBL_EPSILON) {
-		//	std::cout << "CheckCollision" << endl;
-		//	std::cout << "interpolate prev position: " << xmf3Position.x << ", " << xmf3Position.y << ", " << xmf3Position.z << std::endl;
-		//	std::cout << "interpolate Vec: " << m_interpolationVector.x << ", " << m_interpolationVector.y << ", " << m_interpolationVector.z << std::endl;
-		//	std::cout << "interpolate Size: " << m_interpolationDistance << std::endl;
-		//}
-
 		xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, 10.0f * m_interpolationDistance * ftimeElapsed);
 		xmf3Position.y = 0.0f;
 		GameObject::SetPosition(xmf3Position);
 
-		//if (m_interpolationDistance > DBL_EPSILON) {
-		//	std::cout << "interpolate after position: " << xmf3Position.x << ", " << xmf3Position.y << ", " << xmf3Position.z << std::endl << std::endl;
-		//}
 		return;
 	}
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, ftimeElapsed * m_fSpeed);
-	//if (m_interpolationDistance > DBL_EPSILON) {
-	//
-	//	std::cout << "interpolate prev position: " << xmf3Position.x << ", " << xmf3Position.y << ", " << xmf3Position.z << std::endl;
-	//	std::cout << "interpolate Vec: " << m_interpolationVector.x << ", " << m_interpolationVector.y << ", " << m_interpolationVector.z << std::endl;
-	//	std::cout << "interpolate Size: " << m_interpolationDistance << std::endl;
-	//}
 	xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, 10.0f * m_interpolationDistance * ftimeElapsed);
-	//if (m_interpolationDistance > DBL_EPSILON) {
-	//	std::cout << "interpolate after position: " << xmf3Position.x << ", " << xmf3Position.y << ", " << xmf3Position.z << std::endl << std::endl;
-	//}
 	g_sound.Play("WalkSound", CalculateDistanceSound());
 	xmf3Position.y = 0.0f;
 	GameObject::SetPosition(xmf3Position);
@@ -980,61 +961,32 @@ void Character::ExecuteSkill_E()
 
 void Character::InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos, XMFLOAT3& moveVec)
 {
-	if (!m_applyStop) {
-		auto clientUtcTime = std::chrono::utc_clock::now();
-		long long durationTime = std::chrono::duration_cast<std::chrono::microseconds>(clientUtcTime - recvTime).count();
-		XMFLOAT3 xmf3Postion = GetPosition();
-		durationTime += g_Logic.GetDiffTime();//1초 마다 업데이트
-		double dDurationTime = (double)durationTime / 1000.0f;
-		dDurationTime = dDurationTime / 1000.0f;
+	auto clientUtcTime = std::chrono::utc_clock::now();
+	long long durationTime = std::chrono::duration_cast<std::chrono::microseconds>(clientUtcTime - recvTime).count();
+	XMFLOAT3 xmf3Postion = GetPosition();
+	durationTime += g_Logic.GetDiffTime();
+	double dDurationTime = (double)durationTime / 1000.0f;
+	dDurationTime = dDurationTime / 1000.0f;
 
-		XMFLOAT3 diff_S2C_Position = Vector3::Subtract(recvPos, xmf3Postion);
-		float diff_S2C_Size = Vector3::Length(diff_S2C_Position);
-		diff_S2C_Position = Vector3::Normalize(diff_S2C_Position);
-		double t = g_Logic.GetRTT();
-		t /= 1000.0f;
-		float interpolateSize = diff_S2C_Size - dDurationTime * 50.0f;
+	XMFLOAT3 diff_S2C_Position = Vector3::Subtract(recvPos, xmf3Postion);
+	float diff_S2C_Size = Vector3::Length(diff_S2C_Position);
+	diff_S2C_Position = Vector3::Normalize(diff_S2C_Position);
 
-		if (interpolateSize > 0) {
-			if (interpolateSize < 3.0f) {
-				/*	std::cout << "interpolateSize < 3.0f" << endl;
-					cout << "InsterpolateSize: " << interpolateSize << endl;
-					std::cout << "diff_S2C_Position Size: " << diff_S2C_Size << endl;
-					cout << "durationT: " << dDurationTime << endl;*/
-				m_interpolationDistance = 0.0f;
-				m_interpolationVector = XMFLOAT3(0, 0, 0);
-			}
-			else if (interpolateSize > 8.0f) {
-				cout << "SetPosition" << endl;
-				cout << "InsterpolateSize: " << interpolateSize << endl;
-				std::cout << "diff_S2C_Position Size: " << diff_S2C_Size << endl;
-				cout << "durationT: " << dDurationTime << endl;
-				SetPosition(Vector3::Add(xmf3Postion, diff_S2C_Position, interpolateSize));
-				m_interpolationDistance = 0.0f;
-				m_interpolationVector = XMFLOAT3(0, 0, 0);
-			}
-			else {
-				/*cout << "Interpolate Start" << endl;
-				cout << "InterpolateSize: " << interpolateSize << endl;
-				std::cout << "diff_S2C_Position Size: " << diff_S2C_Size << endl;
-				cout << "durationT: " << dDurationTime << endl;*/
-				/*	if (m_currentDirection & DIRECTION::RIGHT) {
-						if (Vector3::DotProduct(moveVec, GetRight()) < 0.73f) {
-							cout << "NON DIR EQ: " << dDurationTime << endl;
-						}
-					}
-					else if (m_currentDirection & DIRECTION::LEFT) {
-						if (Vector3::DotProduct(moveVec, Vector3::ScalarProduct(GetRight(), -1, false)) < 0.73f) {
-							cout << "NON DIR EQ: " << dDurationTime << endl;
-						}
-					}*/
-				m_interpolationDistance = interpolateSize;
-				m_interpolationVector = diff_S2C_Position;
-			}
-		}
-		else {
+	float interpolateSize = diff_S2C_Size - dDurationTime * 50.0f;
+
+	if (interpolateSize > 0) {
+		if (interpolateSize < 3.0f) {
 			m_interpolationDistance = 0.0f;
 			m_interpolationVector = XMFLOAT3(0, 0, 0);
+		}
+		else if (interpolateSize > 8.0f) {
+			SetPosition(Vector3::Add(xmf3Postion, diff_S2C_Position, interpolateSize));
+			m_interpolationDistance = 0.0f;
+			m_interpolationVector = XMFLOAT3(0, 0, 0);
+		}
+		else {
+			m_interpolationDistance = interpolateSize;
+			m_interpolationVector = diff_S2C_Position;
 		}
 	}
 	else {
@@ -1105,7 +1057,7 @@ void Warrior::Move(float fTimeElapsed)
 	XMFLOAT3 diff_S2C_Vector = Vector3::Subtract(m_StopDestinationPosition, xmf3Position);
 	float diff_S2C_Size = Vector3::Length(diff_S2C_Vector);
 	diff_S2C_Vector = Vector3::Normalize(diff_S2C_Vector);
-	if (m_applyStop) {
+	/*if (m_applyStop) {
 		if (diff_S2C_Size > 1.0f) {
 			m_interpolationDistance = diff_S2C_Size;
 			m_interpolationVector = diff_S2C_Vector;
@@ -1122,7 +1074,7 @@ void Warrior::Move(float fTimeElapsed)
 			m_applyStop = false;
 		}
 		return;
-	}
+	}*/
 	DIRECTION tempDir = m_currentDirection;
 	if (((tempDir & DIRECTION::LEFT) == DIRECTION::LEFT) &&
 		((tempDir & DIRECTION::RIGHT) == DIRECTION::RIGHT))
@@ -1517,7 +1469,7 @@ void Archer::Move(float fTimeElapsed)
 	XMFLOAT3 diff_S2C_Vector = Vector3::Subtract(m_StopDestinationPosition, xmf3Position);
 	float diff_S2C_Size = Vector3::Length(diff_S2C_Vector);
 	diff_S2C_Vector = Vector3::Normalize(diff_S2C_Vector);
-	if (m_applyStop) {
+	/*if (m_applyStop) {
 		if (diff_S2C_Size > 1.0f) {
 			m_interpolationDistance = diff_S2C_Size;
 			m_interpolationVector = diff_S2C_Vector;
@@ -1534,7 +1486,7 @@ void Archer::Move(float fTimeElapsed)
 			m_applyStop = false;
 		}
 		return;
-	}
+	}*/
 	DIRECTION tempDir = m_currentDirection;
 	if (((tempDir & DIRECTION::LEFT) == DIRECTION::LEFT) &&
 		((tempDir & DIRECTION::RIGHT) == DIRECTION::RIGHT))
@@ -2118,7 +2070,7 @@ void Tanker::Move(float fTimeElapsed)
 	XMFLOAT3 diff_S2C_Vector = Vector3::Subtract(m_StopDestinationPosition, xmf3Position);
 	float diff_S2C_Size = Vector3::Length(diff_S2C_Vector);
 	diff_S2C_Vector = Vector3::Normalize(diff_S2C_Vector);
-	if (m_applyStop) {
+	/*if (m_applyStop) {
 		if (diff_S2C_Size > 1.0f) {
 			m_interpolationDistance = diff_S2C_Size;
 			m_interpolationVector = diff_S2C_Vector;
@@ -2135,7 +2087,7 @@ void Tanker::Move(float fTimeElapsed)
 			m_applyStop = false;
 		}
 		return;
-	}
+	}*/
 	DIRECTION tempDir = m_currentDirection;
 	if (((tempDir & DIRECTION::LEFT) == DIRECTION::LEFT) &&
 		((tempDir & DIRECTION::RIGHT) == DIRECTION::RIGHT))
@@ -2450,7 +2402,7 @@ void Priest::Move(float fTimeElapsed)
 	XMFLOAT3 diff_S2C_Vector = Vector3::Subtract(m_StopDestinationPosition, xmf3Position);
 	float diff_S2C_Size = Vector3::Length(diff_S2C_Vector);
 	diff_S2C_Vector = Vector3::Normalize(diff_S2C_Vector);
-	if (m_applyStop) {
+	/*if (m_applyStop) {
 		if (diff_S2C_Size > 1.0f) {
 			m_interpolationDistance = diff_S2C_Size;
 			m_interpolationVector = diff_S2C_Vector;
@@ -2467,7 +2419,7 @@ void Priest::Move(float fTimeElapsed)
 			m_applyStop = false;
 		}
 		return;
-	}
+	}*/
 	DIRECTION tempDir = m_currentDirection;
 	if (((tempDir & DIRECTION::LEFT) == DIRECTION::LEFT) &&
 		((tempDir & DIRECTION::RIGHT) == DIRECTION::RIGHT))

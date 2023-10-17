@@ -26,13 +26,15 @@ public:
 	//Session m_SmallMonsterSession[15];
 private:
 	long long C2S_DiffTime = 0;//C2S_DiffTime -> micro second
-	double m_RTT = 0.0f;
+	double m_RTT = 0.0f;//milliseconds
 private:
 	int myId = -1;
 	ROLE myRole = ROLE::NONE_SELECT;
 public:
 	CKeyInput* m_KeyInput;
 	char		m_MouseInput;
+public:
+	std::queue<PlayerCharacterOperation> m_inputOperation;
 public:
 	Logic();
 	~Logic();

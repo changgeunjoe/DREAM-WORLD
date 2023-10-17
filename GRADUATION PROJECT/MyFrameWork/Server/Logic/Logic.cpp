@@ -114,8 +114,9 @@ void Logic::ProcessPacket(int userId, char* p)
 			int roomId = g_iocpNetwork.m_session[userId].GetRoomId();
 			if (roomId != -1) {
 				Room& roomRef = g_RoomManager.GetRunningRoomRef(roomId);
+				//recv->postionÁ¦°Å
 				roomRef.StopMovePlayCharacter(g_iocpNetwork.m_session[userId].GetRole(), recvPacket->position);
-				bool adjustRes = roomRef.AdjustPlayCharacterInfo(g_iocpNetwork.m_session[userId].GetRole(), recvPacket->position);
+				//bool adjustRes = roomRef.AdjustPlayCharacterInfo(g_iocpNetwork.m_session[userId].GetRole(), recvPacket->position);
 				SERVER_PACKET::StopPacket sendPacket;
 				sendPacket.position = roomRef.GetPlayCharacters()[(ROLE)recvPacket->role]->GetPos();
 				sendPacket.role = g_iocpNetwork.m_session[userId].GetRole();
@@ -496,12 +497,11 @@ void Logic::BroadCastInRoom(int roomId, void* p)
 	}
 }
 
-void Logic::AutoMoveServer()//2500¸í?
+void Logic::AutoMoveServer()
 {
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	while (m_isRunningThread)
-	{
-		//if (g_iocpNetwork.GetCurrentId() == 0) continue;
+	{		
 		currentTime = std::chrono::high_resolution_clock::now();
 		g_RoomManager.RunningRoomLogic();
 		while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - currentTime).count() < 1000.0f / 60.0f) {}

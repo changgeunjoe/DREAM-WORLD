@@ -29,7 +29,7 @@ Logic::Logic()
 	m_KeyInput = new CKeyInput();
 	attckPacketRecvTime = chrono::high_resolution_clock::now();
 	m_requestTime = std::chrono::utc_clock::now();
-	m_responseTime = std::chrono::utc_clock::now();
+	m_responseTime = std::chrono::utc_clock::now();	
 }
 
 Logic::~Logic()
@@ -59,10 +59,10 @@ void Logic::ProcessPacket(char* p)
 	case SERVER_PACKET::MOVE_KEY_DOWN:
 	{
 		SERVER_PACKET::MovePacket* recvPacket = reinterpret_cast<SERVER_PACKET::MovePacket*>(p);
-		if (recvPacket->role == myRole) return;
+		//if (recvPacket->role == myRole) return;
 		Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->role);
 		possessObj->AddDirection(recvPacket->direction);
-		possessObj->m_applyStop = false;
+		//possessObj->m_applyStop = false;
 		possessObj->SetMoveState(true);
 
 		/*if (m_RTT > 200) {
@@ -79,7 +79,7 @@ void Logic::ProcessPacket(char* p)
 	case SERVER_PACKET::MOVE_KEY_UP:
 	{
 		SERVER_PACKET::MovePacket* recvPacket = reinterpret_cast<SERVER_PACKET::MovePacket*>(p);
-		if (recvPacket->role == myRole) return;
+		//if (recvPacket->role == myRole) return;
 		Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->role);
 		possessObj->RemoveDIrection(recvPacket->direction);
 	}
@@ -122,10 +122,10 @@ void Logic::ProcessPacket(char* p)
 		XMFLOAT3 dirVec = XMFLOAT3(0, 0, 1);
 		SERVER_PACKET::StopPacket* recvPacket = reinterpret_cast<SERVER_PACKET::StopPacket*>(p);
 		Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->role);
-		if (myRole == recvPacket->role) {
-			possessObj->AdjustStopPosition(recvPacket->position);
-			return;
-		}
+		//if (myRole == recvPacket->role) {
+		//	possessObj->AdjustStopPosition(recvPacket->position);
+		//	return;
+		//}
 		possessObj->m_StopDestinationPosition = recvPacket->position;
 		if (std::abs(recvPacket->position.x) > 2000 ||
 			std::abs(recvPacket->position.y) > 2000 ||
@@ -133,7 +133,7 @@ void Logic::ProcessPacket(char* p)
 			) {
 			std::cout << "잘못됨" << std::endl;
 		}
-		possessObj->m_applyStop = true;
+		//possessObj->m_applyStop = true;
 		possessObj->SetStopDirection();
 		//possessObj->SetMoveState(false);
 		//possessObj->SetStopDirection();
@@ -259,15 +259,12 @@ void Logic::ProcessPacket(char* p)
 	case SERVER_PACKET::GAME_STATE_S:
 	{
 		SERVER_PACKET::GameState_STAGE1* recvPacket = reinterpret_cast<SERVER_PACKET::GameState_STAGE1*>(p);
-		//Player Session
-		//auto clientUtcTime = std::chrono::utc_clock::now();		
-		//std::cout << "Logic::ProcessPacket() - SERVER_PACKET::GAME_STATE_S, utcTime: " << clientUtcTime << std::endl;
-		for (int i = 0; i < 4; i++) {//그냥 4개 여서 도는 for문 주의
+		//Player Session		
+		for (int i = 0; i < 4; i++) {
 			if (recvPacket->userState[i].role != ROLE::NONE_SELECT) {
 				Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->userState[i].role);
 				float maxHp = possessObj->GetMaxHP();
 				possessObj->SetCurrentHP(recvPacket->userState[i].hp / maxHp * 100.0f);
-				if (recvPacket->userState[i].role == myRole) continue;
 				possessObj->InterpolateMove(recvPacket->userTime, recvPacket->userState[i].pos, recvPacket->userState[i].moveVec);
 			}
 		}
@@ -275,9 +272,6 @@ void Logic::ProcessPacket(char* p)
 		NormalMonster** smallMonsterArr = gGameFramework.GetScene()->GetObjectManager()->GetNormalMonsterArr();
 		for (int i = 0; i < 15; i++) {
 			smallMonsterArr[i]->InterpolateMove(recvPacket->monsterTime, recvPacket->smallMonster[i].pos, recvPacket->smallMonster[i].moveVec);
-			//smallMonsterArr[i]->SetLook(recvPacket->smallMonster[i].moveVec);
-			//smallMonsterArr[i]->SetCurrentHP(recvPacket->smallMonster[i].hp);
-			//float maxHp = smallMonsterArr[i]->GetMaxCurrentHP(); //conflict
 			float maxHp = smallMonsterArr[i]->GetMaxHP();
 			smallMonsterArr[i]->SetCurrentHP(recvPacket->smallMonster[i].hp / maxHp * 100.0f);
 			if (recvPacket->smallMonster[i].hp == 150)
@@ -325,7 +319,7 @@ void Logic::ProcessPacket(char* p)
 				Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->userState[i].role);
 				float maxHp = possessObj->GetMaxHP();
 				possessObj->SetCurrentHP(recvPacket->userState[i].hp / maxHp * 100.0f);
-				if (recvPacket->userState[i].role == myRole) continue;
+				//if (recvPacket->userState[i].role == myRole) continue;
 				possessObj->InterpolateMove(recvPacket->time, recvPacket->userState[i].pos, recvPacket->userState[i].moveVec);
 			}
 		}
@@ -770,21 +764,7 @@ void Logic::ProcessPacket(char* p)
 		RTT = RTT / 2;
 		m_RTT = (double)RTT / 1000.0f;
 		auto requestDiff = std::chrono::duration_cast<microseconds>(recvPacket->t - m_requestTime).count();
-		auto responseDiff = std::chrono::duration_cast<microseconds>(m_responseTime - recvPacket->t).count();
-		if (requestDiff >= 0 && responseDiff >= 0) {
-			requestDiff < responseDiff ? C2S_DiffTime = requestDiff - RTT : responseDiff - RTT;
-		}
-		else {
-			if (requestDiff > 0) {
-				C2S_DiffTime = requestDiff - RTT;
-			}
-			else {
-				C2S_DiffTime = requestDiff + RTT;
-			}
-		}
-		//std::cout << "RTT: " << RTT << endl;
-		//std::cout << "C2S_DiffTime: " << C2S_DiffTime / 1000 << endl;
-		//std::cout << "generalDiff: " << generalDiff / 1000 << endl;
+		C2S_DiffTime = requestDiff - RTT;		
 	}
 	break;
 	default:

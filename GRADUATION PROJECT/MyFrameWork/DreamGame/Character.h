@@ -92,7 +92,7 @@ protected:
 	std::pair<float, XMFLOAT3> GetNormalVectorSphere(const XMFLOAT3& point);
 public:
 	GameObject* m_pHPBarObject{ NULL };
-	std::atomic_bool m_applyStop = false;
+	//std::atomic_bool m_applyStop = false;
 	XMFLOAT3 m_StopDestinationPosition = XMFLOAT3(0, 0, 0);
 private:
 	XMFLOAT3 m_prevStopPosition = XMFLOAT3(0, 0, 0);

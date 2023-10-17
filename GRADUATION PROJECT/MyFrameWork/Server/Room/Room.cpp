@@ -354,39 +354,22 @@ void Room::GameRunningLogic()
 	if (m_roomState == ROOM_STATE::ROOM_STAGE1) {
 		for (int i = 0; i < 15; i++) {
 			m_StageSmallMonster[i].AutoMove();
-			//if (m_StageSmallMonster[i].GetHp() > 0.0f)
 		}
 	}
 	else if (m_roomState == ROOM_STATE::ROOM_BOSS) {
-		if (m_boss.isPhaseChange) {//페이즈 바뀔때 작은 몬스터 나오기
-			for (int i = 0; i < 15; i++) {
-				if (m_BossSmallMonster->GetHp() > 0.0f)
-					m_BossSmallMonster->AutoMove();
-			}
-		}
 		if (m_boss.isMove)
 			m_boss.AutoMove();//보스 무브
+		for (auto& meteo : m_meteos)
+			if (meteo.GetActive()) {
+				meteo.AutoMove();
+			}
 	}
-
-	//여기에 화살이나 ball 오브젝트 이동 구현
 	for (auto& arrow : m_arrows)
-	{
 		arrow.AutoMove();
-	}
 	for (auto& ball : m_balls)
-	{
 		ball.AutoMove();
-	}
 	for (auto& arrow : m_skillarrow)
-	{
 		arrow.AutoMove();
-	}
-	for (auto& meteo : m_meteos)
-	{
-		if (meteo.GetActive()) {
-			meteo.AutoMove();
-		}
-	}
 }
 
 void Room::GameEnd()
@@ -434,9 +417,15 @@ void Room::BossFindPlayer()
 		[](const std::pair<ROLE, int>& pair) {
 			return pair.first;
 		});
-	static std::uniform_int_distribution<> aggroRandomPlayer(0, randVec.size() - 1);//inclusive
-	ROLE randR = randVec[aggroRandomPlayer(dre)];
-	m_boss.ReserveAggroPlayerRole(randR);
+	if (randVec.size() - 1 == 0) {
+		ROLE randR = randVec[0];
+		m_boss.ReserveAggroPlayerRole(randR);
+	}
+	else {
+		std::uniform_int_distribution<> aggroRandomPlayer(0, randVec.size() - 1);//inclusive
+		ROLE randR = randVec[aggroRandomPlayer(dre)];
+		m_boss.ReserveAggroPlayerRole(randR);
+	}
 #endif // ALONE_TEST
 	TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::seconds(5) + std::chrono::milliseconds(500), m_roomId ,EV_FIND_PLAYER };
 	g_Timer.InsertTimerQueue(new_ev);
@@ -549,7 +538,8 @@ void Room::UpdateGameStateForPlayer_STAGE1()
 		m_aliveSmallMonster = aliveCnt;
 		sendPacket.aliveMonsterCnt = aliveCnt;
 		g_logic.BroadCastInRoom(m_roomId, &sendPacket);
-		TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::milliseconds(30), m_roomId ,EV_GAME_STATE_S_SEND };//GameState 30ms마다 전송하게 수정
+		//GameState 30ms마다 전송하게 수정
+		TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::milliseconds(30), m_roomId ,EV_GAME_STATE_S_SEND };
 		g_Timer.InsertTimerQueue(new_ev);
 	}
 }
@@ -833,7 +823,7 @@ void Room::StopMovePlayCharacter(ROLE r, XMFLOAT3& desPosition)
 {
 	if (r == ROLE::NONE_SELECT) return;
 	m_characterMap[r]->StopMove();
-	m_characterMap[r]->SetStopDestinationPosition(desPosition);
+	//m_characterMap[r]->SetStopDestinationPosition(desPosition);
 }
 
 void Room::StopMovePlayCharacter(ROLE r)

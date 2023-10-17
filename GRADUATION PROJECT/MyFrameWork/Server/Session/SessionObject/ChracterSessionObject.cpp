@@ -42,11 +42,11 @@ void ChracterSessionObject::AttackedHp(float damage)
 	m_hp -= damage * (1.0f - m_damageRedutionRate);
 }
 
-void ChracterSessionObject::SetStopDestinationPosition(XMFLOAT3& desPosition)
-{
-	m_stopDestinationPosition = desPosition;
-	m_applyStop = true;
-}
+//void ChracterSessionObject::SetStopDestinationPosition(XMFLOAT3& desPosition)
+//{
+//	m_stopDestinationPosition = desPosition;
+//	//m_applyStop = true;
+//}
 
 bool ChracterSessionObject::AdjustPlayerInfo(DirectX::XMFLOAT3& position) // , DirectX::XMFLOAT3& rotate
 {
@@ -118,7 +118,7 @@ void ChracterSessionObject::SetMouseInput(bool LmouseInput, bool RmouseInput)
 void ChracterSessionObject::StartMove(DIRECTION d, std::chrono::utc_clock::time_point& recvTime)
 {
 	//std::cout << "ChracterSessionObject::StartMove()" << std::endl;
-	m_applyStop = false;
+	//m_applyStop = false;
 	if (m_inputDirection == DIRECTION::IDLE) {
 		auto serverUtcTime = std::chrono::utc_clock::now();
 		//double durationTime = std::chrono::duration_cast<std::chrono::microseconds>(serverUtcTime - recvTime).count();

@@ -37,12 +37,12 @@ protected:
 		m_SPBB.Center.y = m_fBoundingSize;
 	}
 protected:
-	std::atomic_bool m_applyStop = false;
-	XMFLOAT3 m_stopDestinationPosition = XMFLOAT3(0, 0, 0);
+	//std::atomic_bool m_applyStop = false;
+	/*XMFLOAT3 m_stopDestinationPosition = XMFLOAT3(0, 0, 0);
 	XMFLOAT3 m_stopInterpolateVector= XMFLOAT3(0, 0, 0);
-	float m_stopInterpolateDistance = 0.0f;
+	float m_stopInterpolateDistance = 0.0f;*/
 public:
-	void SetStopDestinationPosition(XMFLOAT3& desPosition);	
+	//void SetStopDestinationPosition(XMFLOAT3& desPosition);	
 public:
 	bool AdjustPlayerInfo(DirectX::XMFLOAT3& position); // , DirectX::XMFLOAT3& rotate
 public:

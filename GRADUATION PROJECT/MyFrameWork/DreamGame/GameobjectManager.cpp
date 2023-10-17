@@ -61,8 +61,42 @@ GameobjectManager::~GameobjectManager()
 
 void GameobjectManager::Animate(float fTimeElapsed)
 {
+	if (!g_Logic.m_inputOperation.empty()) {
+		auto currentDirectionOperation = g_Logic.m_inputOperation.front();
+
+		if (currentDirectionOperation.GetApplyTime() < std::chrono::high_resolution_clock::now()) {
+			g_Logic.m_inputOperation.pop();
+			Character* myCharacter = GetChracterInfo(g_Logic.GetMyRole());
+
+			if (currentDirectionOperation.IsApply()) {
+
+				if (DIRECTION::IDLE != currentDirectionOperation.GetDirction()) {
+					myCharacter->SetMoveState(true);
+					myCharacter->AddDirection(currentDirectionOperation.GetDirction());
+				}
+				else
+				{
+					myCharacter->SetStopDirection();
+					myCharacter->SetMoveState(false);
+				}
+			}
+			else {				
+				myCharacter->RemoveDIrection(currentDirectionOperation.GetDirction());
+			}
+		}
+	}
+
 	m_fTime += fTimeElapsed;
 	m_fTimeElapsed = fTimeElapsed;
+	/*
+		my Character stop, move apply after RTT millisecond
+		//input Move Time, Input Stop Time
+		//Set Direction => 하면 될듯
+		//데이터는 Logic에서 관리
+
+	*/
+	//g_Logic;
+
 	//<<<<<<< Updated upstream
 		/*m_pConditionUIObject->SetColor(XMFLOAT4(0, 0, 0, sin(m_fTime)+0.2));
 		*/
@@ -2669,40 +2703,54 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		case 'W':
 		{
 			if (myPlayCharacter->CanMove() == true) {
-				g_Logic.m_KeyInput->m_bWKey = true;
-				myPlayCharacter->SetMoveState(true);
-				myPlayCharacter->AddDirection(DIRECTION::FRONT);
-				g_NetworkHelper.SendMovePacket(DIRECTION::FRONT);
+				if (!g_Logic.m_KeyInput->m_bWKey) {
+					g_Logic.m_KeyInput->m_bWKey = true;
+					g_Logic.m_inputOperation.emplace((long long)g_Logic.GetRTT(), DIRECTION::FRONT, true);
+					g_NetworkHelper.SendMovePacket(DIRECTION::FRONT);
+					//myPlayCharacter->SetMoveState(true);
+					//myPlayCharacter->AddDirection(DIRECTION::FRONT);
+				}
 			}
 		}
 		break;
 		case 'A':
 		{
 			if (myPlayCharacter->CanMove() == true) {
-				g_Logic.m_KeyInput->m_bAKey = true;
-				myPlayCharacter->SetMoveState(true);
-				myPlayCharacter->AddDirection(DIRECTION::LEFT);
-				g_NetworkHelper.SendMovePacket(DIRECTION::LEFT);
+				if (!g_Logic.m_KeyInput->m_bAKey) {
+					g_Logic.m_KeyInput->m_bAKey = true;
+					g_Logic.m_inputOperation.emplace((long long)g_Logic.GetRTT(), DIRECTION::LEFT, true);
+					g_NetworkHelper.SendMovePacket(DIRECTION::LEFT);
+					//myPlayCharacter->SetMoveState(true);
+					//myPlayCharacter->AddDirection(DIRECTION::LEFT);
+				}
 			}
 		}
 		break;
 		case 'S':
 		{
 			if (myPlayCharacter->CanMove() == true) {
-				g_Logic.m_KeyInput->m_bSKey = true;
-				myPlayCharacter->SetMoveState(true);
-				myPlayCharacter->AddDirection(DIRECTION::BACK);
-				g_NetworkHelper.SendMovePacket(DIRECTION::BACK);
+				if (!g_Logic.m_KeyInput->m_bSKey) {
+					g_Logic.m_KeyInput->m_bSKey = true;
+					g_Logic.m_inputOperation.emplace((long long)g_Logic.GetRTT(), DIRECTION::BACK, true);
+					g_NetworkHelper.SendMovePacket(DIRECTION::BACK);
+					//myPlayCharacter->SetMoveState(true);
+					//myPlayCharacter->AddDirection(DIRECTION::BACK);
+				}
 			}
 		}
 		break;
 		case 'D':
 		{
 			if (myPlayCharacter->CanMove() == true) {
+				if (!g_Logic.m_KeyInput->m_bDKey) {
+					g_Logic.m_KeyInput->m_bDKey = true;
+					g_Logic.m_inputOperation.emplace((long long)g_Logic.GetRTT(), DIRECTION::RIGHT, true);
+					g_NetworkHelper.SendMovePacket(DIRECTION::RIGHT);
+					//myPlayCharacter->SetMoveState(true);
+					//myPlayCharacter->AddDirection(DIRECTION::RIGHT);
+				}
 				g_Logic.m_KeyInput->m_bDKey = true;
-				myPlayCharacter->SetMoveState(true);
-				myPlayCharacter->AddDirection(DIRECTION::RIGHT);
-				g_NetworkHelper.SendMovePacket(DIRECTION::RIGHT);
+
 			}
 		}
 		break;
@@ -2776,18 +2824,20 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 		{
 			if (g_Logic.m_KeyInput->m_bWKey)
 			{
-				g_Logic.m_KeyInput->m_bWKey = false;
-				if (g_Logic.m_KeyInput->IsAllMovekeyUp())
-				{
-					myPlayCharacter->SetMoveState(false);
-					myPlayCharacter->SetStopDirection();
-					XMFLOAT3 curPos = myPlayCharacter->GetPosition();
-					myPlayCharacter->SetPrevStopPosition(curPos);
-					g_NetworkHelper.SendStopPacket(curPos);
-				}
-				else {
-					myPlayCharacter->RemoveDIrection(DIRECTION::FRONT);
-					g_NetworkHelper.SendKeyUpPacket(DIRECTION::FRONT);
+				if (g_Logic.m_KeyInput->m_bWKey) {
+					g_Logic.m_KeyInput->m_bWKey = false;
+					if (g_Logic.m_KeyInput->IsAllMovekeyUp())
+					{
+						g_Logic.m_inputOperation.emplace((long long)g_Logic.GetRTT(), DIRECTION::IDLE, true);
+						XMFLOAT3 curPos = myPlayCharacter->GetPosition();
+						//myPlayCharacter->SetPrevStopPosition(curPos);
+						g_NetworkHelper.SendStopPacket(curPos);
+					}
+					else {
+						//myPlayCharacter->RemoveDIrection(DIRECTION::FRONT);
+						g_Logic.m_inputOperation.emplace((long long)g_Logic.GetRTT(), DIRECTION::FRONT, false);
+						g_NetworkHelper.SendKeyUpPacket(DIRECTION::FRONT);
+					}
 				}
 			}
 		}
@@ -2799,14 +2849,14 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 				g_Logic.m_KeyInput->m_bAKey = false;
 				if (g_Logic.m_KeyInput->IsAllMovekeyUp())
 				{
-					myPlayCharacter->SetMoveState(false);
-					myPlayCharacter->SetStopDirection();
+					g_Logic.m_inputOperation.emplace((long long)g_Logic.GetRTT(), DIRECTION::IDLE, true);
 					XMFLOAT3 curPos = myPlayCharacter->GetPosition();
-					myPlayCharacter->SetPrevStopPosition(curPos);
+					//myPlayCharacter->SetPrevStopPosition(curPos);
 					g_NetworkHelper.SendStopPacket(curPos);
 				}
 				else {
-					myPlayCharacter->RemoveDIrection(DIRECTION::LEFT);
+					//myPlayCharacter->RemoveDIrection(DIRECTION::LEFT);
+					g_Logic.m_inputOperation.emplace((long long)g_Logic.GetRTT(), DIRECTION::LEFT, false);
 					g_NetworkHelper.SendKeyUpPacket(DIRECTION::LEFT);
 				}
 			}
@@ -2819,14 +2869,14 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 				g_Logic.m_KeyInput->m_bSKey = false;
 				if (g_Logic.m_KeyInput->IsAllMovekeyUp())
 				{
-					myPlayCharacter->SetMoveState(false);
-					myPlayCharacter->SetStopDirection();
+					g_Logic.m_inputOperation.emplace((long long)g_Logic.GetRTT(), DIRECTION::IDLE, true);
 					XMFLOAT3 curPos = myPlayCharacter->GetPosition();
-					myPlayCharacter->SetPrevStopPosition(curPos);
+					//myPlayCharacter->SetPrevStopPosition(curPos);
 					g_NetworkHelper.SendStopPacket(curPos);
 				}
 				else {
-					myPlayCharacter->RemoveDIrection(DIRECTION::BACK);
+					//myPlayCharacter->RemoveDIrection(DIRECTION::BACK);
+					g_Logic.m_inputOperation.emplace((long long)g_Logic.GetRTT(), DIRECTION::BACK, false);
 					g_NetworkHelper.SendKeyUpPacket(DIRECTION::BACK);
 				}
 			}
@@ -2839,14 +2889,14 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 				g_Logic.m_KeyInput->m_bDKey = false;
 				if (g_Logic.m_KeyInput->IsAllMovekeyUp())
 				{
-					myPlayCharacter->SetMoveState(false);
-					myPlayCharacter->SetStopDirection();
+					g_Logic.m_inputOperation.emplace((long long)g_Logic.GetRTT(), DIRECTION::IDLE, true);
 					XMFLOAT3 curPos = myPlayCharacter->GetPosition();
-					myPlayCharacter->SetPrevStopPosition(curPos);
+					//myPlayCharacter->SetPrevStopPosition(curPos);
 					g_NetworkHelper.SendStopPacket(curPos);
 				}
 				else {
-					myPlayCharacter->RemoveDIrection(DIRECTION::RIGHT);
+					//myPlayCharacter->RemoveDIrection(DIRECTION::RIGHT);
+					g_Logic.m_inputOperation.emplace((long long)g_Logic.GetRTT(), DIRECTION::RIGHT, false);
 					g_NetworkHelper.SendKeyUpPacket(DIRECTION::RIGHT);
 				}
 			}

@@ -31,7 +31,7 @@
 #include<iostream>
 #include <chrono>
 #include <filesystem>
-using namespace std;
+
 #include <d3d12.h>
 #include <dxgi1_4.h>
 #include <D3Dcompiler.h>
@@ -57,6 +57,9 @@ using namespace std;
 #define PLAYER_MAX_RANGE 999288.0f
 const float MONSTER_ABLE_ATTACK_COS_VALUE = std::cos(20.0f * 3.14f / 180.0f);
 
+
+using namespace std;
+using namespace chrono;
 //#ifndef LOCAL_TASK
 //#define LOCAL_TASK 1
 //#endif // !LOCAL_TASK
@@ -81,6 +84,7 @@ const float MONSTER_ABLE_ATTACK_COS_VALUE = std::cos(20.0f * 3.14f / 180.0f);
 #include <map>
 #include <utility>
 #include <set>
+#include <queue>
 #include <ranges>
 
 #include "d3dx12.h"
@@ -832,6 +836,32 @@ public:
 		m_res = other.m_res;
 		m_parentNodeIdx = other.m_parentNodeIdx;
 		return *this;
+	}
+};
+
+
+class PlayerCharacterOperation
+{
+private:
+	chrono::high_resolution_clock::time_point m_inputTime;
+	DIRECTION m_inputDirection;
+	bool m_apply;
+public:
+	PlayerCharacterOperation(long long afterTime, const DIRECTION&& direction, const bool&& apply) : m_inputTime(high_resolution_clock::now() + milliseconds(afterTime)), m_inputDirection(direction), m_apply(apply) {}
+	PlayerCharacterOperation(PlayerCharacterOperation& other) : m_inputTime(other.m_inputTime), m_inputDirection(other.m_inputDirection), m_apply(other.m_apply) {}
+	PlayerCharacterOperation(const PlayerCharacterOperation&& other) noexcept : m_inputTime(other.m_inputTime), m_inputDirection(other.m_inputDirection), m_apply(other.m_apply) {}
+public:
+	chrono::high_resolution_clock::time_point& GetApplyTime()
+	{
+		return m_inputTime;
+	}
+	DIRECTION GetDirction()
+	{
+		return m_inputDirection;
+	}
+	bool IsApply()
+	{
+		return m_apply;
 	}
 };
 
