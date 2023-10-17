@@ -19,19 +19,10 @@ void MapData::GetReadMapData()
 	std::string line;
 	int vertexNum = 0;
 	int vertexNomalNum = 0;
-	int vertexTextureNum = 0;
-	//m_fileName = "\\\MapData\\\BossRoom.txt";
-	//cout << std::filesystem::current_path().string() << endl;
+	int vertexTextureNum = 0;	
 	std::ifstream inFile{ m_navFileName };
-	//cout << std::filesystem::current_path().filename() << endl;
-	////cout << filesystem::current_path() << endl;
-	//std::filesystem::directory_iterator itr(std::filesystem::current_path());
-	//for (auto a = itr; !a._At_end(); a++) {
-	//	cout << a->path() << endl;
-	//}
 	string fileDataString;
-	/*inFile >> std::noskipws;
-	copy(istream_iterator<char>(inFile), {}, back_inserter(fileDataString));*/
+	
 	const string verticesStr = "<Vertices>:";
 	const string indicesStr = "<Indices>:";
 	const string relationStr = "<Relay>:";

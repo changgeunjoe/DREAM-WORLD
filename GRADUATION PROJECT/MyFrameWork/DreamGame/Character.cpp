@@ -721,11 +721,6 @@ bool Character::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
 				std::cout << "slidingVec: " << moveVec.x << ", " << moveVec.y << ", " << moveVec.z << std::endl;
 				std::cout << "slidingVec Size: " << Vector3::Length(moveVec) << std::endl;
 #endif
-				//PrintCurrentTime();
-				//std::cout << "elapsedTime: " << ftimeElapsed << std::endl;
-				//std::cout << "speed: " << m_fSpeed << std::endl;
-				//std::cout << "position: " << xmf3Position.x << ", " << xmf3Position.y << ", " << xmf3Position.z << std::endl;
-				//std::cout << "moveVec: " << moveVec.x << ", " << moveVec.y << ", " << moveVec.z << std::endl << std::endl;
 				return true;
 			}
 		}
@@ -1052,29 +1047,6 @@ void Warrior::Attack()
 
 void Warrior::Move(float fTimeElapsed)
 {
-	XMFLOAT3 xmf3Position = GetPosition();
-	m_StopDestinationPosition;
-	XMFLOAT3 diff_S2C_Vector = Vector3::Subtract(m_StopDestinationPosition, xmf3Position);
-	float diff_S2C_Size = Vector3::Length(diff_S2C_Vector);
-	diff_S2C_Vector = Vector3::Normalize(diff_S2C_Vector);
-	/*if (m_applyStop) {
-		if (diff_S2C_Size > 1.0f) {
-			m_interpolationDistance = diff_S2C_Size;
-			m_interpolationVector = diff_S2C_Vector;
-			xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, fTimeElapsed * m_interpolationDistance * 10.0f);
-			SetPosition(xmf3Position);
-		}
-		else {
-			SetPosition(m_StopDestinationPosition);
-			m_interpolationDistance = 0.0f;
-			m_interpolationVector = XMFLOAT3(0, 0, 0);
-			if (m_currentDirection == DIRECTION::IDLE) {
-				SetMoveState(false);
-			}
-			m_applyStop = false;
-		}
-		return;
-	}*/
 	DIRECTION tempDir = m_currentDirection;
 	if (((tempDir & DIRECTION::LEFT) == DIRECTION::LEFT) &&
 		((tempDir & DIRECTION::RIGHT) == DIRECTION::RIGHT))
@@ -1093,14 +1065,6 @@ void Warrior::Move(float fTimeElapsed)
 	//{
 	switch (tempDir)
 	{
-	case DIRECTION::IDLE:
-	{
-		/*XMFLOAT3 xmf3Position = GetPosition();
-		xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * fTimeElapsed);
-		SetPosition(xmf3Position);
-		if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));*/
-	}
-	break;
 	case DIRECTION::FRONT:
 	case DIRECTION::FRONT | DIRECTION::RIGHT:
 	case DIRECTION::RIGHT:
@@ -1116,28 +1080,6 @@ void Warrior::Move(float fTimeElapsed)
 	break;
 	default: break;
 	}
-	//}
-	//else
-	//{
-	//	//fDistance /= 3;
-	//	switch (tempDir)
-	//	{
-	//	case DIRECTION::IDLE:
-	//	{
-
-	//	}
-	//	break;
-	//	case DIRECTION::FRONT: MoveForward(1, fTimeElapsed); break;
-	//	case DIRECTION::FRONT | DIRECTION::RIGHT: MoveDiagonal(1, 1, fTimeElapsed); break;
-	//	case DIRECTION::RIGHT: MoveStrafe(1, fTimeElapsed); break;
-	//	case DIRECTION::BACK | DIRECTION::RIGHT: MoveDiagonal(-1, 1, fTimeElapsed);  break;
-	//	case DIRECTION::BACK: MoveForward(-1, fTimeElapsed); break;
-	//	case DIRECTION::BACK | DIRECTION::LEFT: MoveDiagonal(-1, -1, fTimeElapsed); break;
-	//	case DIRECTION::LEFT: MoveStrafe(-1, fTimeElapsed); break;
-	//	case DIRECTION::FRONT | DIRECTION::LEFT: MoveDiagonal(1, -1, fTimeElapsed); break;
-	//	default: break;
-	//	}
-	//}
 }
 
 void Warrior::Animate(float fTimeElapsed)
@@ -1463,30 +1405,6 @@ void Archer::ResetArrow()
 
 void Archer::Move(float fTimeElapsed)
 {
-	//fDistance *= m_fSpeed;
-	XMFLOAT3 xmf3Position = GetPosition();
-	m_StopDestinationPosition;
-	XMFLOAT3 diff_S2C_Vector = Vector3::Subtract(m_StopDestinationPosition, xmf3Position);
-	float diff_S2C_Size = Vector3::Length(diff_S2C_Vector);
-	diff_S2C_Vector = Vector3::Normalize(diff_S2C_Vector);
-	/*if (m_applyStop) {
-		if (diff_S2C_Size > 1.0f) {
-			m_interpolationDistance = diff_S2C_Size;
-			m_interpolationVector = diff_S2C_Vector;
-			xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, fTimeElapsed * m_interpolationDistance * 10.0f);
-			SetPosition(xmf3Position);
-		}
-		else {
-			SetPosition(m_StopDestinationPosition);
-			m_interpolationDistance = 0.0f;
-			m_interpolationVector = XMFLOAT3(0, 0, 0);
-			if (m_currentDirection == DIRECTION::IDLE) {
-				SetMoveState(false);
-			}
-			m_applyStop = false;
-		}
-		return;
-	}*/
 	DIRECTION tempDir = m_currentDirection;
 	if (((tempDir & DIRECTION::LEFT) == DIRECTION::LEFT) &&
 		((tempDir & DIRECTION::RIGHT) == DIRECTION::RIGHT))
@@ -1501,44 +1419,8 @@ void Archer::Move(float fTimeElapsed)
 		tempDir = (DIRECTION)(tempDir ^ DIRECTION::BACK);
 	}
 
-	//if (!m_bRButtonClicked)
-	//{
-	//	switch (tempDir)
-	//	{
-	//	case DIRECTION::FRONT:
-	//	case DIRECTION::FRONT | DIRECTION::RIGHT:
-	//	case DIRECTION::RIGHT:
-	//	case DIRECTION::BACK | DIRECTION::RIGHT:
-	//	case DIRECTION::BACK:
-	//	case DIRECTION::BACK | DIRECTION::LEFT:
-	//	case DIRECTION::LEFT:
-	//	case DIRECTION::FRONT | DIRECTION::LEFT:
-	//		MoveForward(fDistance);
-	//	default: break;
-	//	}
-	//}
-	//else
-	//{
-		//fDistance /= 3;
-	//if (m_interpolationDistance > 3.0f) {
-
-	//	std::cout << "interpolate prev position: " << GetPosition().x << ", " << GetPosition().y << ", " << GetPosition().z << std::endl;
-	//	std::cout << "interpolate Vec: " << m_interpolationVector.x << ", " << m_interpolationVector.y << ", " << m_interpolationVector.z << std::endl;
-	//	std::cout << "interpolate Size: " << m_interpolationDistance << std::endl;
-	//}
 	switch (tempDir)
 	{
-	case DIRECTION::IDLE:
-	{
-		if (std::isnan(m_xmf4x4ToParent._11)) {
-			std::cout << "문제 있음" << std::endl;
-		}
-		/*XMFLOAT3 xmf3Position = GetPosition();
-		xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * fTimeElapsed);
-		SetPosition(xmf3Position);
-		if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));*/
-	}
-	break;
 	case DIRECTION::FRONT: MoveForward(1, fTimeElapsed); break;
 	case DIRECTION::FRONT | DIRECTION::RIGHT: MoveDiagonal(1, 1, fTimeElapsed); break;
 	case DIRECTION::RIGHT: MoveStrafe(1, fTimeElapsed); break;
@@ -1549,12 +1431,6 @@ void Archer::Move(float fTimeElapsed)
 	case DIRECTION::FRONT | DIRECTION::LEFT: MoveDiagonal(1, -1, fTimeElapsed); break;
 	default: break;
 	}
-	/*if (m_interpolationDistance > 3.0f) {
-
-		std::cout << "interpolate after position: " << GetPosition().x << ", " << GetPosition().y << ", " << GetPosition().z << std::endl;
-		std::cout << "interpolate Vec: " << m_interpolationVector.x << ", " << m_interpolationVector.y << ", " << m_interpolationVector.z << std::endl;
-		std::cout << "interpolate Size: " << m_interpolationDistance << std::endl;
-	}*/
 }
 
 void Archer::Animate(float fTimeElapsed)
@@ -2065,29 +1941,6 @@ void Tanker::SecondSkillDown()
 
 void Tanker::Move(float fTimeElapsed)
 {
-	XMFLOAT3 xmf3Position = GetPosition();
-	m_StopDestinationPosition;
-	XMFLOAT3 diff_S2C_Vector = Vector3::Subtract(m_StopDestinationPosition, xmf3Position);
-	float diff_S2C_Size = Vector3::Length(diff_S2C_Vector);
-	diff_S2C_Vector = Vector3::Normalize(diff_S2C_Vector);
-	/*if (m_applyStop) {
-		if (diff_S2C_Size > 1.0f) {
-			m_interpolationDistance = diff_S2C_Size;
-			m_interpolationVector = diff_S2C_Vector;
-			xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * fTimeElapsed * 10.0f);
-			SetPosition(xmf3Position);
-		}
-		else {
-			SetPosition(m_StopDestinationPosition);
-			m_interpolationDistance = 0.0f;
-			m_interpolationVector = XMFLOAT3(0, 0, 0);
-			if (m_currentDirection == DIRECTION::IDLE) {
-				SetMoveState(false);
-			}
-			m_applyStop = false;
-		}
-		return;
-	}*/
 	DIRECTION tempDir = m_currentDirection;
 	if (((tempDir & DIRECTION::LEFT) == DIRECTION::LEFT) &&
 		((tempDir & DIRECTION::RIGHT) == DIRECTION::RIGHT))
@@ -2102,15 +1955,8 @@ void Tanker::Move(float fTimeElapsed)
 		tempDir = (DIRECTION)(tempDir ^ DIRECTION::BACK);
 	}
 
-	//if (!m_bRButtonClicked)
-	//{
 	switch (tempDir)
 	{
-	case DIRECTION::IDLE:
-	{
-
-	}
-	break;
 	case DIRECTION::FRONT:
 	case DIRECTION::FRONT | DIRECTION::RIGHT:
 	case DIRECTION::RIGHT:
@@ -2123,31 +1969,6 @@ void Tanker::Move(float fTimeElapsed)
 		break;
 	default: break;
 	}
-	//}
-	//else
-	//{
-	//	//fDistance /= 3;
-	//	switch (tempDir)
-	//	{
-	//	case DIRECTION::IDLE:
-	//	{
-	//		XMFLOAT3 xmf3Position = GetPosition();
-	//		xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * fTimeElapsed);
-	//		SetPosition(xmf3Position);
-	//		if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
-	//	}
-	//	break;
-	//	case DIRECTION::FRONT: MoveForward(1, fTimeElapsed); break;
-	//	case DIRECTION::FRONT | DIRECTION::RIGHT: MoveDiagonal(1, 1, fTimeElapsed); break;
-	//	case DIRECTION::RIGHT: MoveStrafe(1, fTimeElapsed); break;
-	//	case DIRECTION::BACK | DIRECTION::RIGHT: MoveDiagonal(-1, 1, fTimeElapsed);  break;
-	//	case DIRECTION::BACK: MoveForward(-1, fTimeElapsed); break;
-	//	case DIRECTION::BACK | DIRECTION::LEFT: MoveDiagonal(-1, -1, fTimeElapsed); break;
-	//	case DIRECTION::LEFT: MoveStrafe(-1, fTimeElapsed); break;
-	//	case DIRECTION::FRONT | DIRECTION::LEFT: MoveDiagonal(1, -1, fTimeElapsed); break;
-	//	default: break;
-	//	}
-	//}
 }
 
 void Tanker::Animate(float fTimeElapsed)
@@ -2396,30 +2217,6 @@ void Priest::Reset()
 
 void Priest::Move(float fTimeElapsed)
 {
-	//fDistance *= m_fSpeed;
-	XMFLOAT3 xmf3Position = GetPosition();
-	m_StopDestinationPosition;
-	XMFLOAT3 diff_S2C_Vector = Vector3::Subtract(m_StopDestinationPosition, xmf3Position);
-	float diff_S2C_Size = Vector3::Length(diff_S2C_Vector);
-	diff_S2C_Vector = Vector3::Normalize(diff_S2C_Vector);
-	/*if (m_applyStop) {
-		if (diff_S2C_Size > 1.0f) {
-			m_interpolationDistance = diff_S2C_Size;
-			m_interpolationVector = diff_S2C_Vector;
-			xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, m_interpolationDistance * fTimeElapsed * 10.0f);
-			SetPosition(xmf3Position);
-		}
-		else {
-			SetPosition(m_StopDestinationPosition);
-			m_interpolationDistance = 0.0f;
-			m_interpolationVector = XMFLOAT3(0, 0, 0);
-			if (m_currentDirection == DIRECTION::IDLE) {
-				SetMoveState(false);
-			}
-			m_applyStop = false;
-		}
-		return;
-	}*/
 	DIRECTION tempDir = m_currentDirection;
 	if (((tempDir & DIRECTION::LEFT) == DIRECTION::LEFT) &&
 		((tempDir & DIRECTION::RIGHT) == DIRECTION::RIGHT))
@@ -2434,25 +2231,6 @@ void Priest::Move(float fTimeElapsed)
 		tempDir = (DIRECTION)(tempDir ^ DIRECTION::BACK);
 	}
 
-	//if (!m_bRButtonClicked)
-	//{
-	//	switch (tempDir)
-	//	{
-	//	case DIRECTION::FRONT:
-	//	case DIRECTION::FRONT | DIRECTION::RIGHT:
-	//	case DIRECTION::RIGHT:
-	//	case DIRECTION::BACK | DIRECTION::RIGHT:
-	//	case DIRECTION::BACK:
-	//	case DIRECTION::BACK | DIRECTION::LEFT:
-	//	case DIRECTION::LEFT:
-	//	case DIRECTION::FRONT | DIRECTION::LEFT:
-	//		MoveForward(fDistance);
-	//	default: break;
-	//	}
-	//}
-	//else
-	//{
-		//fDistance /= 3;
 	switch (tempDir)
 	{
 	case DIRECTION::IDLE:
@@ -2794,9 +2572,7 @@ void Monster::Move(float fTimeElapsed)
 	if (m_bMoveState)	// 움직이는 중
 	{
 		if (m_bOnSkill)
-		{
-			// 움직이는 스킬 (DASH_FORWARD)
-			// 이동방식 회의 후 구현 위치
+		{			
 		}
 		else {
 			XMFLOAT3 myLook = GetLook();
@@ -2834,11 +2610,6 @@ void Monster::Move(float fTimeElapsed)
 				xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, 10.0f * m_interpolationDistance * fTimeElapsed);
 				SetPosition(xmf3Position);
 			}
-
-			//float ChangingAngle = Vector3::Angle(m_desDirecionVec, GetLook());
-
-
-
 		}
 	}
 	else {
@@ -2870,128 +2641,6 @@ void Monster::Move(float fTimeElapsed)
 			}
 		}
 	}
-	//else
-	//{
-	//	{
-	//		std::lock_guard<mutex> lg(m_lockBossRoute);
-	//		if (m_BossRoute.empty()) return;
-	//	}
-
-	//	XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f);
-	//	XMFLOAT3 desPlayerPos = g_Logic.GetPostion(m_roleDesPlayer);
-	//	XMFLOAT3 desPlayerVector = Vector3::Subtract(desPlayerPos, GetPosition());
-	//	float playerDistance = Vector3::Length(desPlayerVector);
-	//	desPlayerVector = Vector3::Normalize(desPlayerVector);
-	//	//XMFLOAT3 desPlayerPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	//	if (m_roleDesPlayer != ROLE::NONE_SELECT) {
-	//		if (m_astarIdx == -1) return;
-	//		bool isOnNode = g_bossMapData.GetTriangleMesh(m_astarIdx).IsOnTriangleMesh(m_position);
-	//		if (!isOnNode) {
-	//			m_lockBossRoute.lock();
-	//			if (m_BossRoute.size() > 1) {
-	//				m_BossRoute.erase(m_BossRoute.begin());
-	//				m_astarIdx = *m_BossRoute.begin();
-	//			}
-	//			else {
-	//				m_BossRoute.erase(m_BossRoute.begin());
-	//			}
-	//			m_lockBossRoute.unlock();
-	//		}
-
-	//		m_lockBossRoute.lock();
-	//		if (m_BossRoute.size() > 1) {
-	//			int currentNodeIdx = m_BossRoute.front();
-	//			int secondNodeIdx = *(++m_BossRoute.begin());
-	//			m_lockBossRoute.unlock();
-	//			TrinangleMesh destinationNodeCenter = g_bossMapData.GetTriangleMesh(currentNodeIdx);
-	//			TrinangleMesh nextMoveNode = g_bossMapData.GetTriangleMesh(secondNodeIdx);
-	//			std::vector<int> sharedPoints = destinationNodeCenter.IsShareLine(g_bossMapData.GetTriangleMesh(secondNodeIdx).GetVertexIdxs());
-
-	//			std::vector<XMFLOAT3> mapVertexData = g_bossMapData.GetVertexData();
-
-	//			XMFLOAT3 nodeVec1 = Vector3::Normalize(Vector3::Subtract(mapVertexData[sharedPoints[0]], m_position));
-	//			XMFLOAT3 nodeVec2 = Vector3::Normalize(Vector3::Subtract(mapVertexData[sharedPoints[1]], m_position));
-	//			float dotResult1 = Vector3::DotProduct(desPlayerVector, nodeVec1);
-	//			float dotResult2 = Vector3::DotProduct(desPlayerVector, nodeVec2);
-
-	//			XMFLOAT3 monsterLookTo;
-	//			if (dotResult1 > 0) {
-	//				if (dotResult2 > 0) {
-	//					monsterLookTo = desPlayerVector;
-	//				}
-	//				else {
-	//					monsterLookTo = nodeVec1;
-	//				}
-	//			}
-	//			else {
-	//				if (dotResult2 > 0) {
-	//					monsterLookTo = nodeVec2;
-	//				}
-
-	//			}//위에서 나온 벡터 기준 회전하여 이동하자자
-
-	//			bool OnRight = (Vector3::DotProduct(GetRight(), monsterLookTo) > 0) ? true : false;
-	//			float ChangingAngle = Vector3::Angle(monsterLookTo, GetLook());
-	//			if (ChangingAngle > 40.0f) {
-	//				if (OnRight) {
-	//					Rotate(&up, 90.0f * fTimeElapsed);
-	//					m_xmf3rotateAngle.y += 90.0f * fTimeElapsed;
-	//				}
-	//				else {
-	//					Rotate(&up, -90.0f * fTimeElapsed);
-	//					m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
-	//				}
-	//			}
-	//			else if (ChangingAngle > 1.7f) {
-	//				if (OnRight) {
-	//					Rotate(&up, 90.0f * fTimeElapsed);
-	//					m_xmf3rotateAngle.y += 90.0f * fTimeElapsed;
-	//				}
-	//				else {
-	//					Rotate(&up, -90.0f * fTimeElapsed);
-	//					m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
-	//				}
-	//				MoveForward(50 * fTimeElapsed);
-	//			}
-	//			else {
-	//				MoveForward(50 * fTimeElapsed);
-	//			}
-
-	//			//std::cout << "BossPos: " << m_position.x << "0, " << m_position.z << std::endl;
-	//		}
-	//		else {
-	//			m_lockBossRoute.unlock();
-
-	//			float ChangingAngle = Vector3::Angle(desPlayerVector, GetLook());
-	//			if (ChangingAngle > 40.0f) {
-	//				bool OnRight = (Vector3::DotProduct(GetRight(), desPlayerVector) > 0) ? true : false;
-	//				if (OnRight) {
-	//					Rotate(&up, 90.0f * fTimeElapsed);
-	//					m_xmf3rotateAngle.y += 90.0f * fTimeElapsed;
-	//				}
-	//				else {
-	//					Rotate(&up, -90.0f * fTimeElapsed);
-	//					m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
-	//				}
-	//				return;
-	//			}
-	//			if (ChangingAngle > 1.6f) {
-	//				bool OnRight = (Vector3::DotProduct(GetRight(), desPlayerVector) > 0) ? true : false;
-	//				if (OnRight) {
-	//					Rotate(&up, 90.0f * fTimeElapsed);
-	//					m_xmf3rotateAngle.y += 90.0f * fTimeElapsed;
-	//				}
-	//				else {
-	//					Rotate(&up, -90.0f * fTimeElapsed);
-	//					m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
-	//				}
-	//			}
-	//			if (playerDistance >= 42.0f)
-	//				MoveForward(50 * fTimeElapsed);
-	//		}
-	//	}
-	//}
-
 }
 
 void Monster::MoveForward(int forwardDirection, float ftimeElapsed)
@@ -3351,7 +3000,7 @@ void NormalMonster::Move(float fTimeElapsed)
 		MyPos = Vector3::Add(MyPos, m_interpolationVector, 6.0f * m_interpolationDistance * fTimeElapsed);
 		SetPosition(MyPos);
 		return;
-	}
+			}
 	else if (desDis <= 80.0f) {
 		m_bMoveState = true;
 		if (frontDotRes <= MONSTER_ABLE_ATTACK_COS_VALUE) {//방향 바꿔야됨
@@ -3388,7 +3037,7 @@ void NormalMonster::Move(float fTimeElapsed)
 	}
 	MyPos = Vector3::Add(MyPos, m_interpolationVector, 6.0f * m_interpolationDistance * fTimeElapsed);
 	SetPosition(MyPos);
-}
+		}
 
 void NormalMonster::SetAnimation()
 {
@@ -3653,7 +3302,7 @@ bool NormalMonster::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
 				std::cout << std::endl;
 #endif
 				return true;
-			}
+		}
 			float dotRes = Vector3::DotProduct(Vector3::Normalize(normalMonsterCollide.second), Vector3::Normalize(mapCollideResult.second));
 			if (dotRes > 0.2f) {//맵과 노말 몬스터 충돌 벡터 방향이 비슷함
 				XMFLOAT3 xmf3Position = GetPosition();
@@ -3666,7 +3315,7 @@ bool NormalMonster::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
 				std::cout << std::endl;
 #endif
 				return true;
-			}
+	}
 			else {//아예 다름 -> 움직임 x
 				if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
 #ifdef MONSTER_MOVE_LOG
@@ -3675,8 +3324,8 @@ bool NormalMonster::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
 				std::cout << std::endl;
 #endif
 				return true;
-			}
-		}
+}
+	}
 		else {//노말 몬스터와 충돌하지 않음 => 맵만 충돌
 			XMFLOAT3 xmf3Position = GetPosition();
 			xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(mapCollideResult.second, m_fSpeed * ftimeElapsed, false));
@@ -3688,7 +3337,7 @@ bool NormalMonster::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
 			std::cout << std::endl;
 #endif
 			return true;
-		}
+}
 	}
 	//맵 충돌 하지 않음
 	if (CharacterCollide.first) {//캐릭터 와 충돌
@@ -3701,7 +3350,7 @@ bool NormalMonster::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
 			std::cout << std::endl;
 #endif
 			return true;
-		}
+	}
 		if (normalMonsterCollide.first) {//노말 몬스터와 충돌
 			float dotRes = Vector3::DotProduct(Vector3::Normalize(normalMonsterCollide.second), Vector3::Normalize(CharacterCollide.second));
 			if (dotRes > 0.2f) {//캐릭터 노말 몬스터 벡터
@@ -3724,7 +3373,7 @@ bool NormalMonster::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
 				std::cout << std::endl;
 #endif
 				return true;
-			}
+		}
 		}
 		else {// 노말 몬스터와 충돌하지 않음 -> 캐릭터만 충돌
 			XMFLOAT3 xmf3Position = GetPosition();
@@ -3738,7 +3387,7 @@ bool NormalMonster::CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed)
 #endif
 			return true;
 		}
-	}
+}
 	//캐릭터와 충돌하지 않음
 	auto normalMonsterCollide = CheckCollisionNormalMonster(moveDirection, ftimeElapsed);
 	if (normalMonsterCollide.first && std::abs(normalMonsterCollide.second.x) < DBL_EPSILON && std::abs(normalMonsterCollide.second.z) < DBL_EPSILON) {//몬스터 콜리전으로 인해 아예 못움직임
@@ -3772,17 +3421,6 @@ std::pair<float, XMFLOAT3> Character::GetNormalVectorSphere(const XMFLOAT3& poin
 	float normalSize = Vector3::Length(normalVec);
 	normalVec = Vector3::Normalize(normalVec);
 	return std::pair<float, XMFLOAT3>(normalSize, normalVec);
-}
-
-void Character::AdjustStopPosition(XMFLOAT3& stopPosition)
-{
-	XMFLOAT3 diff = Vector3::Subtract(stopPosition, m_prevStopPosition);
-	float length = Vector3::Length(diff);
-	if (length > 3.0f) {
-		XMFLOAT3 currentPosition = GetPosition();
-		currentPosition = Vector3::Add(currentPosition, diff);
-		SetPosition(currentPosition);
-	}
 }
 
 IceLance::IceLance() : Projectile()

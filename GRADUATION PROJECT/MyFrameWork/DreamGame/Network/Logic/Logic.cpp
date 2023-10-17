@@ -61,19 +61,8 @@ void Logic::ProcessPacket(char* p)
 		SERVER_PACKET::MovePacket* recvPacket = reinterpret_cast<SERVER_PACKET::MovePacket*>(p);
 		//if (recvPacket->role == myRole) return;
 		Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->role);
-		possessObj->AddDirection(recvPacket->direction);
-		//possessObj->m_applyStop = false;
-		possessObj->SetMoveState(true);
-
-		/*if (m_RTT > 200) {
-			XMFLOAT3 futurePos = recvPacket->position;
-			futurePos = Vector3::Add(futurePos, recvPacket->moveVec, m_RTT / 1000.0f);
-			possessObj->SetPosition(futurePos);
-		}
-		else*/
-		//possessObj->InterpolateMove(recvPacket->time, recvPacket->position, recvPacket->moveVec);
-		//params serverTime, serverPos, serverMoveVec
-
+		possessObj->AddDirection(recvPacket->direction);		
+		possessObj->SetMoveState(true);	
 	}
 	break;
 	case SERVER_PACKET::MOVE_KEY_UP:
@@ -121,24 +110,10 @@ void Logic::ProcessPacket(char* p)
 		XMFLOAT3 rightVec = XMFLOAT3(1, 0, 0);
 		XMFLOAT3 dirVec = XMFLOAT3(0, 0, 1);
 		SERVER_PACKET::StopPacket* recvPacket = reinterpret_cast<SERVER_PACKET::StopPacket*>(p);
-		Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->role);
-		//if (myRole == recvPacket->role) {
-		//	possessObj->AdjustStopPosition(recvPacket->position);
-		//	return;
-		//}
-		possessObj->m_StopDestinationPosition = recvPacket->position;
-		if (std::abs(recvPacket->position.x) > 2000 ||
-			std::abs(recvPacket->position.y) > 2000 ||
-			std::abs(recvPacket->position.z) > 2000
-			) {
-			std::cout << "Àß¸øµÊ" << std::endl;
-		}
-		//possessObj->m_applyStop = true;
+		Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->role);		
+		
 		possessObj->SetStopDirection();
-		//possessObj->SetMoveState(false);
-		//possessObj->SetStopDirection();
-		//if ((ROLE)recvPacket->role != myRole) {
-		//}
+		possessObj->SetMoveState(false);		
 	}
 	break;
 	case SERVER_PACKET::LOGIN_OK:
