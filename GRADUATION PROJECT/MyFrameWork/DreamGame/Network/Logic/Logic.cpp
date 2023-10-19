@@ -189,12 +189,9 @@ void Logic::ProcessPacket(char* p)
 	}
 	break;
 	case SERVER_PACKET::BOSS_CHANGE_STATE_MOVE_DES:
-	{
-		//std::cout << "ProcessPacket()::SERVER_PACKET::BOSS_CHANGE_STATE_MOVE_DES" << std::endl;
+	{		
 		SERVER_PACKET::BossChangeStateMovePacket* recvPacket = reinterpret_cast<SERVER_PACKET::BossChangeStateMovePacket*>(p);
-		auto durationTime = chrono::duration_cast<milliseconds>(chrono::high_resolution_clock::now() - attckPacketRecvTime);
-		//attckPacketRecvTime = chrono::high_resolution_clock::now();		
-		//cout << "boss Move Packet Recv ElapsedTime: " << durationTime << endl;
+		auto durationTime = chrono::duration_cast<milliseconds>(chrono::high_resolution_clock::now() - attckPacketRecvTime);		
 		recvPacket->desPos; //여기 목적지 까지 보스 몬스터 이동 시키면 됩니다
 		recvPacket->bossPos;
 		recvPacket->t;

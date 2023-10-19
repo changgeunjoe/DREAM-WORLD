@@ -77,6 +77,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 				else
 				{
 					myCharacter->SetStopDirection();
+					myCharacter->SetStopDirection();
 					myCharacter->SetMoveState(false);
 				}
 			}

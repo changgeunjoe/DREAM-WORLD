@@ -843,17 +843,17 @@ public:
 class PlayerCharacterOperation
 {
 private:
-	chrono::high_resolution_clock::time_point m_inputTime;
+	chrono::high_resolution_clock::time_point m_executeTime;
 	DIRECTION m_inputDirection;
 	bool m_apply;
 public:
-	PlayerCharacterOperation(long long afterTime, const DIRECTION&& direction, const bool&& apply) : m_inputTime(high_resolution_clock::now() + milliseconds(afterTime)), m_inputDirection(direction), m_apply(apply) {}
-	PlayerCharacterOperation(PlayerCharacterOperation& other) : m_inputTime(other.m_inputTime), m_inputDirection(other.m_inputDirection), m_apply(other.m_apply) {}
-	PlayerCharacterOperation(const PlayerCharacterOperation&& other) noexcept : m_inputTime(other.m_inputTime), m_inputDirection(other.m_inputDirection), m_apply(other.m_apply) {}
+	PlayerCharacterOperation(long long afterTime, const DIRECTION&& direction, const bool&& apply) : m_executeTime(high_resolution_clock::now() + milliseconds(afterTime)), m_inputDirection(direction), m_apply(apply) {}
+	PlayerCharacterOperation(PlayerCharacterOperation& other) : m_executeTime(other.m_executeTime), m_inputDirection(other.m_inputDirection), m_apply(other.m_apply) {}
+	PlayerCharacterOperation(const PlayerCharacterOperation&& other) noexcept : m_executeTime(other.m_executeTime), m_inputDirection(other.m_inputDirection), m_apply(other.m_apply) {}
 public:
 	chrono::high_resolution_clock::time_point& GetApplyTime()
 	{
-		return m_inputTime;
+		return m_executeTime;
 	}
 	DIRECTION GetDirction()
 	{
