@@ -4,6 +4,7 @@
 #include "Camera.h"
 #include "GameObject.h"
 #include "Character.h"
+#include "Player.h"
 #include "GameObjectManager.h"
 #include "Network/Logic/Logic.h"
 #include "Network/NetworkHelper.h"
@@ -811,7 +812,7 @@ void CGameFramework::ProcessInput()
 		{
 			if (cxDelta || cyDelta)
 			{
-				Character* possessObj = m_pScene->GetObjectManager()->GetChracterInfo(g_Logic.GetMyRole());
+				Player* possessObj = m_pScene->GetObjectManager()->GetChracterInfo(g_Logic.GetMyRole());
 				if (!possessObj) return;
 				XMFLOAT3 RotateAngle = possessObj->GetRotateAxis();
 				RotateAngle.x += cyDelta;

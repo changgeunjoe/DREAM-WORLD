@@ -162,6 +162,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h" />
+    <ClInclude Include="Monster.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CAnimationSets.h" />
     <ClInclude Include="Character.h" />
@@ -175,6 +176,7 @@
     <ClInclude Include="InstancingShaderComponent.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="LobbyScene.h" />
+    <ClInclude Include="MeleeCharacter.h" />
     <ClInclude Include="MultiSpriteShaderComponent.h" />
     <ClInclude Include="Network\Logic\Logic.h" />
     <ClInclude Include="Network\MapData\MapCollide.h" />
@@ -185,6 +187,9 @@
     <ClInclude Include="Network\Room\RoomManger.h" />
     <ClInclude Include="Network\Session\Session.h" />
     <ClInclude Include="DepthRenderShaderComponent.h" />
+    <ClInclude Include="Player.h" />
+    <ClInclude Include="Projectile.h" />
+    <ClInclude Include="RangedCharacter.h" />
     <ClInclude Include="ShadowMapShaderComponent.h" />
     <ClInclude Include="SkinnedMeshComponent.h" />
     <ClInclude Include="SkinnedShaderComponent.h" />
@@ -214,6 +219,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Animation.cpp" />
+    <ClCompile Include="Monster.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CAnimationSets.cpp" />
     <ClCompile Include="Character.cpp" />
@@ -226,6 +232,7 @@
     <ClCompile Include="InstancingShaderComponent.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="LobbyScene.cpp" />
+    <ClCompile Include="MeleeCharacter.cpp" />
     <ClCompile Include="MultiSpriteShaderComponent.cpp" />
     <ClCompile Include="Network\Logic\Logic.cpp" />
     <ClCompile Include="Network\MapData\MapCollide.cpp" />
@@ -236,6 +243,9 @@
     <ClCompile Include="Network\Room\RoomManger.cpp" />
     <ClCompile Include="Network\Session\Session.cpp" />
     <ClCompile Include="DepthRenderShaderComponent.cpp" />
+    <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Projectile.cpp" />
+    <ClCompile Include="RangedCharacter.cpp" />
     <ClCompile Include="ShadowMapShaderComponent.cpp" />
     <ClCompile Include="SkinnedMeshComponent.cpp" />
     <ClCompile Include="SkinnedShaderComponent.cpp" />

@@ -2,14 +2,19 @@
 #include "Logic.h"
 //#include "../../../Server/IOCPNetwork/protocol/protocol.h"
 #include "../../GameFramework.h"
+#include "../../Projectile.h"
 #include "../../Scene.h"
 #include "../../GameobjectManager.h"
 #include "../../Animation.h"
 #include "../Room/RoomManger.h"
 #include "../../Character.h"
+#include "../../MeleeCharacter.h"
+#include "../../RangedCharacter.h"
 #include "../../sound/GameSound.h"
 #include "../NetworkHelper.h"
 #include"../../EffectObject.h"
+#include "../../Player.h"
+#include "../../Monster.h"
 
 
 
@@ -60,7 +65,7 @@ void Logic::ProcessPacket(char* p)
 	{
 		SERVER_PACKET::MovePacket* recvPacket = reinterpret_cast<SERVER_PACKET::MovePacket*>(p);
 		//if (recvPacket->role == myRole) return;
-		Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->role);
+		Player* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->role);
 		possessObj->AddDirection(recvPacket->direction);		
 		possessObj->SetMoveState(true);	
 	}
@@ -69,14 +74,14 @@ void Logic::ProcessPacket(char* p)
 	{
 		SERVER_PACKET::MovePacket* recvPacket = reinterpret_cast<SERVER_PACKET::MovePacket*>(p);
 		//if (recvPacket->role == myRole) return;
-		Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->role);
+		Player* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->role);
 		possessObj->RemoveDIrection(recvPacket->direction);
 	}
 	break;
 	case SERVER_PACKET::ROTATE:
 	{
 		SERVER_PACKET::RotatePacket* recvPacket = reinterpret_cast<SERVER_PACKET::RotatePacket*>(p);
-		Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->role);
+		Player* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->role);
 		XMFLOAT3 rotateAngle = possessObj->GetRotateAxis();
 		switch (recvPacket->axis)
 		{
@@ -110,7 +115,7 @@ void Logic::ProcessPacket(char* p)
 		XMFLOAT3 rightVec = XMFLOAT3(1, 0, 0);
 		XMFLOAT3 dirVec = XMFLOAT3(0, 0, 1);
 		SERVER_PACKET::StopPacket* recvPacket = reinterpret_cast<SERVER_PACKET::StopPacket*>(p);
-		Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->role);		
+		Player* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->role);
 		
 		possessObj->SetStopDirection();
 		possessObj->SetMoveState(false);		
@@ -502,15 +507,14 @@ void Logic::ProcessPacket(char* p)
 	case SERVER_PACKET::HEAL_START:
 	{
 		//ÈúÀåÆÇ ÀÌÆåÆ® ½ÃÀÛ
-
-		Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::PRIEST);
+		Player* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::PRIEST);
 		possessObj->StartEffect(0);
 
 	}
 	break;
 	case SERVER_PACKET::HEAL_END:
 	{
-		Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::PRIEST);
+		Player* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::PRIEST);
 		possessObj->EndEffect(0);
 		//ÈúÀåÆÇ ÀÌÆåÆ® ³¡
 	}
@@ -518,12 +522,12 @@ void Logic::ProcessPacket(char* p)
 	case SERVER_PACKET::SHIELD_START:
 	{
 		//½¯µå ÀÌÆåÆ® Ãâ¹ß ÇØ¼­ Àû¿ë
-		Character* TankerObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::TANKER);
+		Player* TankerObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::TANKER);
 		TankerObj->StartEffect(0);
 
 		for (int i = 0; i < 4; ++i)
 		{
-			Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(static_cast<ROLE>(0x01 << i));
+			Player* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(static_cast<ROLE>(0x01 << i));
 			possessObj->SetShield(200.0f);
 			possessObj->m_pHPBarUI->SetShield(200.0f);
 		}
@@ -532,7 +536,7 @@ void Logic::ProcessPacket(char* p)
 	case SERVER_PACKET::SHIELD_END:
 	{
 		//½¯µå ³¡
-		Character* TankerObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::TANKER);
+		Player* TankerObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::TANKER);
 		TankerObj->EndEffect(0);
 
 		for (int i = 0; i < 4; ++i)
@@ -577,7 +581,7 @@ void Logic::ProcessPacket(char* p)
 		NormalMonster** smallMonsterArr = gGameFramework.GetScene()->GetObjectManager()->GetNormalMonsterArr();
 		if (recvPacket->role == ROLE::TANKER)
 		{
-			Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::TANKER);
+			Player* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::TANKER);
 			if (possessObj->GetESkillState() == false) return;
 			for (int i = 0; i < recvPacket->attackedMonsterCnt; ++i)
 			{
@@ -611,14 +615,14 @@ void Logic::ProcessPacket(char* p)
 	case SERVER_PACKET::START_ANIMATION_Q:
 	{
 		SERVER_PACKET::CommonAttackPacket* recvPacket = reinterpret_cast<SERVER_PACKET::CommonAttackPacket*>(p);
-		Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo((ROLE)recvPacket->role);
+		Player* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo((ROLE)recvPacket->role);
 		possessObj->FirstSkillDown();
 	}
 	break;
 	case SERVER_PACKET::START_ANIMATION_E:
 	{
 		SERVER_PACKET::CommonAttackPacket* recvPacket = reinterpret_cast<SERVER_PACKET::CommonAttackPacket*>(p);
-		Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo((ROLE)recvPacket->role);
+		Player* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo((ROLE)recvPacket->role);
 		possessObj->SecondSkillDown();
 	}
 	break;

@@ -5,6 +5,7 @@
 #include"GameobjectManager.h"
 #include "Network/Logic/Logic.h"
 #include"Character.h"
+#include "Player.h"
 extern CGameFramework gGameFramework;
 extern Logic g_Logic;
 
@@ -675,7 +676,7 @@ void TankerEffectObject::AnimateEarthQuake(float ftimeelapsed)
 
 void TankerEffectObject::SetEarthquekePosition()
 {
-	Character* myCharacter = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::TANKER);
+	Player* myCharacter = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::TANKER);
 	XMFLOAT3 mf3NormalLookVec = myCharacter->GetLook();
 	XMFLOAT3 mf3TankerPosition = myCharacter->GetPosition();
 	m_f3EarquakePos = Vector3::Add(mf3TankerPosition, Vector3::Multiply(30, mf3NormalLookVec));

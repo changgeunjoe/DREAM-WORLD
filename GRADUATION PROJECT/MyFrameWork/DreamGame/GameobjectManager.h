@@ -25,6 +25,7 @@ class Warrior;
 class Archer;
 class Tanker;
 class Priest;
+class Player;
 class TankerEffectObject;
 class BossEffectObject;
 class RockSpike;
@@ -299,7 +300,7 @@ public:
 	void CheckCollideNPCColorChange();
 	void CheckCollidePortal();
 	vector<GameObject*>& GetObstacle() { return m_ppObstacleObjects; }
-	Character* GetChracterInfo(ROLE r);
+	Player* GetChracterInfo(ROLE r);
 	Monster* GetBossMonster() { return m_pMonsterObject; }
 	NormalMonster** GetNormalMonsterArr() { return m_ppNormalMonsterObject; };
 	EffectObject** GetShieldEffectArr() { return &m_ppShieldEffectObject[0]; }

@@ -5,11 +5,12 @@
 #include "DepthRenderShaderComponent.h"
 #include "InstanceRenderComponent.h"
 #include "TrailShaderComponent.h"
-#include"TerrainShaderComponent.h"
+#include "TerrainShaderComponent.h"
 #include "Network/MapData/MapData.h"
 #include "GameFramework.h"
 #include "GameobjectManager.h"
-#include"Character.h"
+#include "Character.h"
+#include "Player.h"
 #include "Network/Logic/Logic.h"
 
 extern MapData g_bossMapData;
@@ -167,7 +168,7 @@ XMFLOAT3 GameObject::GetRight()
 
 float GameObject::CalculateDistanceSound()
 {
-	Character* myPlayCharacter = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(g_Logic.GetMyRole());
+	Player* myPlayCharacter = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(g_Logic.GetMyRole());
 	if (myPlayCharacter == nullptr) return 0.0f;
 	XMVECTOR firstVec = XMLoadFloat3(&myPlayCharacter->GetPosition());
 	XMVECTOR lastVec = XMLoadFloat3(&GetPosition());

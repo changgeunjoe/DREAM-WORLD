@@ -139,6 +139,15 @@
     <Filter Include="11.Sound">
       <UniqueIdentifier>{4101ddff-7b27-4299-9d53-3433a475e817}</UniqueIdentifier>
     </Filter>
+    <Filter Include="07.Character\PlayerCategory">
+      <UniqueIdentifier>{6b65ad8a-bb01-479a-a97e-d70d7cffa071}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="07.Character\NpcCategory">
+      <UniqueIdentifier>{de4cd295-6a91-4b74-b782-f7d04e910c70}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.GameObject\Projectile">
+      <UniqueIdentifier>{611ed8e4-9085-4cee-982f-ffa89b6c8a97}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -291,6 +300,21 @@
     <ClInclude Include="sound\GameSound.h">
       <Filter>11.Sound</Filter>
     </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>07.Character\PlayerCategory</Filter>
+    </ClInclude>
+    <ClInclude Include="MeleeCharacter.h">
+      <Filter>07.Character\PlayerCategory</Filter>
+    </ClInclude>
+    <ClInclude Include="RangedCharacter.h">
+      <Filter>07.Character\PlayerCategory</Filter>
+    </ClInclude>
+    <ClInclude Include="Monster.h">
+      <Filter>07.Character\NpcCategory</Filter>
+    </ClInclude>
+    <ClInclude Include="Projectile.h">
+      <Filter>03.GameObject\Projectile</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -433,6 +457,21 @@
     </ClCompile>
     <ClCompile Include="sound\GameSound.cpp">
       <Filter>11.Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>07.Character\PlayerCategory</Filter>
+    </ClCompile>
+    <ClCompile Include="MeleeCharacter.cpp">
+      <Filter>07.Character\PlayerCategory</Filter>
+    </ClCompile>
+    <ClCompile Include="RangedCharacter.cpp">
+      <Filter>07.Character\PlayerCategory</Filter>
+    </ClCompile>
+    <ClCompile Include="Monster.cpp">
+      <Filter>07.Character\NpcCategory</Filter>
+    </ClCompile>
+    <ClCompile Include="Projectile.cpp">
+      <Filter>03.GameObject\Projectile</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

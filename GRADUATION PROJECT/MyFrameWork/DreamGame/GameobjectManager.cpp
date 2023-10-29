@@ -18,6 +18,10 @@
 #include"UILayer.h"
 #include "GameFramework.h"
 #include "Character.h"
+#include "RangedCharacter.h"
+#include "MeleeCharacter.h"
+#include "Monster.h"
+#include "Projectile.h"
 #include "sound/GameSound.h"
 
 extern NetworkHelper g_NetworkHelper;
@@ -66,7 +70,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 
 		if (currentDirectionOperation.GetApplyTime() < std::chrono::high_resolution_clock::now()) {
 			g_Logic.m_inputOperation.pop();
-			Character* myCharacter = GetChracterInfo(g_Logic.GetMyRole());
+			Player* myCharacter = GetChracterInfo(g_Logic.GetMyRole());
 
 			if (currentDirectionOperation.IsApply()) {
 
@@ -1195,7 +1199,7 @@ void GameobjectManager::CheckCollidePortal()
 	}
 }
 
-Character* GameobjectManager::GetChracterInfo(ROLE r)
+Player* GameobjectManager::GetChracterInfo(ROLE r)
 {
 	if (r == ROLE::WARRIOR) return m_pWarriorObject;
 	if (r == ROLE::PRIEST) return m_pPriestObject;
@@ -2656,7 +2660,7 @@ void GameobjectManager::ReleaseShaderVariables()
 bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
 	static XMFLOAT3 upVec = XMFLOAT3(0, 1, 0);
-	Character* myPlayCharacter = GetChracterInfo(g_Logic.GetMyRole());
+	Player* myPlayCharacter = GetChracterInfo(g_Logic.GetMyRole());
 	if (myPlayCharacter == nullptr) return false;
 	if (nMessageID == WM_KEYDOWN && wParam == VK_F4)
 	{
@@ -3131,7 +3135,7 @@ bool GameobjectManager::onProcessingKeyboardMessageUI(HWND hWnd, UINT nMessageID
 void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
 	bool SomethingChanging = false;
-	Character* myPlayCharacter = GetChracterInfo(g_Logic.GetMyRole());
+	Player* myPlayCharacter = GetChracterInfo(g_Logic.GetMyRole());
 	if (myPlayCharacter == nullptr) return;
 	if (GameEnd)
 	{
