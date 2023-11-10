@@ -27,19 +27,18 @@ void Timer::TimerThreadFunc()
 {
 	while (isRunning)
 	{
-		if (!m_TimerQueue.empty()) { //복사한 객체로부터 try_pop()
+		m_TimerQueueLock.lock();
+		if (!m_TimerQueue.empty()) {
 			auto current_time = std::chrono::system_clock::now();
 			TIMER_EVENT ev = m_TimerQueue.top();
 			if (ev.wakeupTime > current_time) {
-				//m_TimerQueue.push(ev);		// 최적화 필요
-				// timer_queue에 다시 넣지 않고 처리해야 한다.
-				std::this_thread::sleep_for(std::chrono::milliseconds(1));  // 실행시간이 아직 안되었으므로 잠시 대기
+				m_TimerQueueLock.unlock();
+				//std::this_thread::sleep_for(std::chrono::milliseconds(1));  // 실행시간이 아직 안되었으므로 잠시 대기
+				std::this_thread::yield();
 				continue;
 			}
-			{
-				std::lock_guard<std::mutex> timer_lg{ m_TimerQueueLock };
-				m_TimerQueue.pop();
-			}
+			m_TimerQueue.pop();
+			m_TimerQueueLock.unlock();
 			switch (ev.eventId) {
 			case EV_FIND_PLAYER:
 			{
@@ -134,7 +133,7 @@ void Timer::TimerThreadFunc()
 			}
 			continue;		// 즉시 다음 작업 꺼내기
 		}
-		std::this_thread::sleep_for(std::chrono::milliseconds(1));   // timer_queue가 비어 있으니 잠시 기다렸다가 다시 시작
+		std::this_thread::yield();
 	}
 }
 void Timer::InsertTimerQueue(TIMER_EVENT ev)

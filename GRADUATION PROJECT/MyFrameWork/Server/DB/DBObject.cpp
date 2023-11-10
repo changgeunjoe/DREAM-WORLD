@@ -85,7 +85,7 @@ void DBObject::RunDBThread()
 				break;
 			}
 		}
-
+		std::this_thread::yield();
 	}
 }
 
