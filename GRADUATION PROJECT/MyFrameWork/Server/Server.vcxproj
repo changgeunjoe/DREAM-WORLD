@@ -70,6 +70,20 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ExternalIncludePath>$(ProjectDir)include;$(ProjectDir)include$(ProjectDir);$(ExternalIncludePath)</ExternalIncludePath>
+    <IncludePath>$(ProjectDir)include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ExternalIncludePath>$(ProjectDir)include;$(ProjectDir)include$(ProjectDir);$(ExternalIncludePath)</ExternalIncludePath>
+    <IncludePath>$(ProjectDir)include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ExternalIncludePath>$(ProjectDir)include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</ExternalIncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ExternalIncludePath>$(ProjectDir)include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</ExternalIncludePath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -95,6 +109,7 @@
       <ConformanceMode>false</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -129,6 +144,7 @@
       <ConformanceMode>false</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -140,12 +156,25 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="DB\DBObject.cpp" />
-    <ClCompile Include="IOCPNetwork\IOCP\IOCPNetwork.cpp" />
+    <ClCompile Include="GameObject\Character\ChracterObject.cpp" />
+    <ClCompile Include="GameObject\GameObject.cpp" />
+    <ClCompile Include="GameObject\Monster\MonsterObject.cpp" />
+    <ClCompile Include="GameObject\Monster\SmallMonsterObject.cpp" />
+    <ClCompile Include="GameObject\Projectile\MeteoObject.cpp" />
+    <ClCompile Include="GameObject\Projectile\ShootingObject.cpp" />
     <ClCompile Include="Logic\Logic.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="MapData\MapCollide.cpp" />
+    <ClCompile Include="MapData\AstarNode\AstarNode.cpp" />
+    <ClCompile Include="MapData\MapCollision\MapCollision.cpp" />
     <ClCompile Include="MapData\MapData.cpp" />
-    <ClCompile Include="MapData\NavMeshQuadTree.cpp" />
+    <ClCompile Include="MapData\NavMeshQuadTree\NavMeshQuadTree.cpp" />
+    <ClCompile Include="MapData\TriangleMesh\TriangleMesh.cpp" />
+    <ClCompile Include="Network\ExpOver\ExpOver.cpp" />
+    <ClCompile Include="Network\ExpOver\ExpOverManager.cpp" />
+    <ClCompile Include="Network\IOCP\IOCP.cpp" />
+    <ClCompile Include="Network\PacketManager\PacketManager.cpp" />
+    <ClCompile Include="Network\UserSession\UserManager.cpp" />
+    <ClCompile Include="Network\UserSession\UserSession.cpp" />
     <ClCompile Include="PCH\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -154,34 +183,33 @@
     </ClCompile>
     <ClCompile Include="Room\Room.cpp" />
     <ClCompile Include="Room\RoomManager.cpp" />
-    <ClCompile Include="Session\SessionObject\MeteoSessionObject.cpp" />
-    <ClCompile Include="Session\SessionObject\SmallMonsterSessionObject.cpp" />
-    <ClCompile Include="Session\UserSession.cpp" />
-    <ClCompile Include="Session\SessionObject\MonsterSessionObject.cpp" />
-    <ClCompile Include="Session\SessionObject\ChracterSessionObject.cpp" />
-    <ClCompile Include="Session\SessionObject\SessionObject.cpp" />
-    <ClCompile Include="Session\SessionObject\ShootingSessionObject.cpp" />
     <ClCompile Include="Timer\Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DB\DBObject.h" />
-    <ClInclude Include="IOCPNetwork\IOCP\IOCPNetwork.h" />
-    <ClInclude Include="IOCPNetwork\protocol\protocol.h" />
+    <ClInclude Include="GameObject\Character\ChracterObject.h" />
+    <ClInclude Include="GameObject\GameObject.h" />
+    <ClInclude Include="GameObject\Monster\MonsterObject.h" />
+    <ClInclude Include="GameObject\Monster\SmallMonsterObject.h" />
+    <ClInclude Include="GameObject\Projectile\MeteoObject.h" />
+    <ClInclude Include="GameObject\Projectile\ShootingObject.h" />
     <ClInclude Include="Logic\Logic.h" />
-    <ClInclude Include="MapData\MapCollide.h" />
+    <ClInclude Include="MapData\AstarNode\AstarNode.h" />
+    <ClInclude Include="MapData\MapCollision\MapCollision.h" />
     <ClInclude Include="MapData\MapData.h" />
-    <ClInclude Include="MapData\NavMeshQuadTree.h" />
+    <ClInclude Include="MapData\NavMeshQuadTree\NavMeshQuadTree.h" />
+    <ClInclude Include="MapData\TriangleMesh\TriangleMesh.h" />
+    <ClInclude Include="Network\ExpOver\ExpOver.h" />
+    <ClInclude Include="Network\ExpOver\ExpOverManager.h" />
+    <ClInclude Include="Network\IOCP\IOCP.h" />
+    <ClInclude Include="Network\PacketManager\PacketManager.h" />
+    <ClInclude Include="Network\protocol\protocol.h" />
+    <ClInclude Include="Network\UserSession\UserManager.h" />
+    <ClInclude Include="Network\UserSession\UserSession.h" />
     <ClInclude Include="PCH\stdafx.h" />
     <ClInclude Include="Room\Room.h" />
     <ClInclude Include="Room\RoomManager.h" />
-    <ClInclude Include="Session\ExpOver.h" />
-    <ClInclude Include="Session\SessionObject\MeteoSessionObject.h" />
-    <ClInclude Include="Session\SessionObject\SmallMonsterSessionObject.h" />
-    <ClInclude Include="Session\UserSession.h" />
-    <ClInclude Include="Session\SessionObject\MonsterSessionObject.h" />
-    <ClInclude Include="Session\SessionObject\ChracterSessionObject.h" />
-    <ClInclude Include="Session\SessionObject\SessionObject.h" />
-    <ClInclude Include="Session\SessionObject\ShootingSessionObject.h" />
+    <ClInclude Include="SingletonBase.h" />
     <ClInclude Include="Timer\Timer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

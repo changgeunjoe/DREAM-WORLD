@@ -1,18 +1,20 @@
 #pragma once
-
-class Timer
+#include "../PCH/stdafx.h"
+#include "../SingletonBase.h"
+class Timer : public SingletonBase<Timer>
 {
-public:
-	Timer();
+	friend SingletonBase;
+private:
+	Timer() :m_running(false) {}
 	~Timer();
 private:
-	bool isRunning = false;
+	volatile bool m_running;
 	std::thread m_TimerThread;
-private:
-	std::priority_queue <TIMER_EVENT> m_TimerQueue;
-	std::mutex m_TimerQueueLock;
+	std::priority_queue <TIMER_EVENT> m_timerQueue;
+	std::mutex m_timerQueueLock;
 private:
 	void TimerThreadFunc();
 public:
-	void InsertTimerQueue(TIMER_EVENT ev);
+	void StartTimer();
+	//void InsertTimerEvent(TIMER_EVENT ev);
 };
