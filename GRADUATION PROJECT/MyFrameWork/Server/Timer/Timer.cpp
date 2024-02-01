@@ -133,7 +133,10 @@ void Timer::TimerThreadFunc()
 			}
 			continue;		// 즉시 다음 작업 꺼내기
 		}
-		std::this_thread::yield();
+		else {
+			m_TimerQueueLock.unlock();
+			std::this_thread::yield();
+		}
 	}
 }
 void Timer::InsertTimerQueue(TIMER_EVENT ev)
