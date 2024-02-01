@@ -1,11 +1,19 @@
 constexpr int NAME_SIZE = 20;
 
 #pragma pack (push, 1)
+struct PacketHeader
+{
+	short size;
+	char type;
+};
+
 namespace CLIENT_PACKET {
+#pragma region Move
 	constexpr unsigned char MOVE_KEY_DOWN = 1;
 	constexpr unsigned char MOVE_KEY_UP = 2;
 	constexpr unsigned char STOP = 3;
 	constexpr unsigned char ROTATE = 4;
+#pragma endregion
 	constexpr unsigned char LOGIN = 5;
 	constexpr unsigned char MATCH = 6;
 	//constexpr unsigned char CREATE_ROOM = 7;
@@ -13,10 +21,12 @@ namespace CLIENT_PACKET {
 	//constexpr unsigned char PLAYER_APPLY_ROOM = 9; // 방 신청
 	//constexpr unsigned char CANCEL_APPLY_ROOM = 10; // 신청 취소
 
+#pragma region Skill
 	constexpr unsigned char SKILL_EXECUTE_Q = 7;
 	constexpr unsigned char SKILL_EXECUTE_E = 8;
 	constexpr unsigned char SKILL_INPUT_Q = 9;
 	constexpr unsigned char SKILL_INPUT_E = 10;
+#pragma endregion
 
 	constexpr unsigned char MOUSE_INPUT = 11;
 	constexpr unsigned char MATCH_REQUEST = 12;
@@ -41,39 +51,34 @@ namespace CLIENT_PACKET {
 	constexpr unsigned char PLAYER_COMMON_ATTACK = 29;//애니 실행
 	constexpr unsigned char PLAYER_POSITION_STATE = 30;
 
-	struct MovePacket
+	using NotifyPacket = PacketHeader;
+	struct MovePacket : public PacketHeader
 	{//시간과 진행 방향, 이동 입력
-		short size;
-		char type;
 		DIRECTION direction;
 		std::chrono::utc_clock::time_point time;
 	};
 
-	struct RotatePacket {
-		short size;
-		char type;
+	struct RotatePacket : public PacketHeader
+	{
 		ROTATE_AXIS axis;
 		float angle;
 	};
 
-	struct StopPacket {
-		short size;
-		char type;
+	struct StopPacket : public PacketHeader
+	{
 		DirectX::XMFLOAT3 position;
 		DirectX::XMFLOAT3 rotate;
 		std::chrono::utc_clock::time_point time;
 	};
 
-	struct LoginPacket {
-		short size;
-		char type;
+	struct LoginPacket : public PacketHeader
+	{
 		char id[NAME_SIZE];
 		char pw[NAME_SIZE];
 	};
 
-	struct MatchPacket {
-		short size;
-		char type;
+	struct MatchPacket : public PacketHeader
+	{
 		char Role;
 	};
 
@@ -102,42 +107,33 @@ namespace CLIENT_PACKET {
 		char roomId[40];
 	};*/
 
-	struct MouseInputPacket {
-		short size;
-		char type;
+	struct MouseInputPacket : public PacketHeader
+	{
 		bool LClickedButton;
 		bool RClickedButton;
 	};
 
-	struct ShootingObject {
-		short size;
-		char type;
+	struct ShootingObject : public PacketHeader
+	{
 		DirectX::XMFLOAT3 pos;
 		DirectX::XMFLOAT3 dir;
 		float speed;
 	};
 
-	struct NotifyPacket {
-		short size;
-		char type;
-	};
-
-	struct PlayerCommonAttackPacket {
-		short size;
-		char type;
+	struct PlayerCommonAttackPacket : public PacketHeader
+	{
 		DirectX::XMFLOAT3 dir;
 		int power;// 아처 줌인, 워리어 3단계
 	};
 
-	struct SkillAttackPacket {
-		short size;
-		char type;
+	struct SkillAttackPacket : public PacketHeader
+	{
 		XMFLOAT3 postionOrDirection;
 	};
 
-	struct PlayerPositionPacket {
-		short size;
-		char type;
+	struct PlayerPositionPacket : public PacketHeader
+	{
+
 		XMFLOAT3 position;
 		std::chrono::utc_clock::time_point t;
 	};
@@ -211,100 +207,62 @@ namespace SERVER_PACKET {
 	constexpr unsigned char METEO_DESTROY = 120;
 	constexpr unsigned char METEO_CREATE = 121;
 
+	using NotifyPacket = PacketHeader;
 
-
-	struct MovePacket
+	struct MovePacket : public PacketHeader
 	{
-		short size;
-		char type;
 		ROLE role;
 		DIRECTION direction;
 		XMFLOAT3 position;
 		XMFLOAT3 moveVec;
-		MovePacket(const char& packetType, const ROLE& r, const DIRECTION& dir, const XMFLOAT3& pos, const XMFLOAT3& moveVector)
-			: size(sizeof(MovePacket)), type(packetType), role(r), direction(dir), position(pos), moveVec(moveVector)
-		{}
 	};
 
-	struct RotatePacket {
-		short size;
-		char type;
+	struct RotatePacket : public PacketHeader
+	{
 		ROLE role;
 		ROTATE_AXIS axis;
 		float angle;
-		RotatePacket(const char& packetType, const ROLE& r, const ROTATE_AXIS& rotAxis, const float& rotAngle)
-			: size(sizeof(RotatePacket)), type(packetType), role(r), axis(rotAxis), angle(rotAngle)
-		{}
 	};
 
-	struct StopPacket {
-		short size;
-		char type;
+	struct StopPacket : public PacketHeader
+	{
 		ROLE role;
 		DirectX::XMFLOAT3 position;
 		std::chrono::utc_clock::time_point t;
-		StopPacket(const char& packetType, const ROLE& r, const XMFLOAT3& pos)
-			: size(sizeof(StopPacket)), type(packetType), role(r), position(pos)
-		{}
 	};
 
-	struct LoginPacket {
-		short size;
-		char type;
+	struct LoginPacket : public PacketHeader
+	{
 		int  userID;
-		LoginPacket(const char& packetType, int id)
-			: size(sizeof(LoginPacket)), type(packetType), userID(id)
-		{}
+
 	};
 
-	struct AddPlayerPacket { // ROLE 도 필요하다고 생각함 - 추가하는게 날듯?
-		short size;
-		char type;
+	struct AddPlayerPacket : public PacketHeader
+	{ // ROLE 도 필요하다고 생각함 - 추가하는게 날듯?
 		int userId;//나 인지 아닌지는 판단해야하니 - 더 이상 필요 없는 변수일거로 판단됨.
 		ROLE role;
 		DirectX::XMFLOAT3 position;
 		DirectX::XMFLOAT3 rotate;
-		AddPlayerPacket(const char& packetType, const ROLE& r, int id, const XMFLOAT3& pos, const XMFLOAT3& rot)
-			: size(sizeof(AddPlayerPacket)), type(packetType), role(r), userId(id), position(pos), rotate(rot)
-		{}
 	};
 
-	struct NotifyPacket {
-		short size;
-		char type;
-		NotifyPacket(const char& packetType) : size(sizeof(NotifyPacket)), type(packetType)
-		{}
-	};
-
-	struct MouseInputPacket {
-		short size;
-		char type;
+	struct MouseInputPacket : public PacketHeader
+	{
 		ROLE role;
 		bool LClickedButton;
 		bool RClickedButton;
-		MouseInputPacket(const char& packetType, const ROLE& r, const bool& left, const bool& right)
-			: size(sizeof(MouseInputPacket)), type(packetType), role(r), LClickedButton(left), RClickedButton(right)
-		{}
 	};
 
-	struct BossChangeStateMovePacket {//이걸 수정해야할듯?
-		short size;
-		char type;
+	struct BossChangeStateMovePacket : public PacketHeader
+	{//이걸 수정해야할듯?
+
 		DirectX::XMFLOAT3 desPos;
 		DirectX::XMFLOAT3 bossPos;
 		std::chrono::utc_clock::time_point t;
-		BossChangeStateMovePacket(const char& packetType, const XMFLOAT3& des, const XMFLOAT3& bossPosition, std::chrono::utc_clock::time_point& paramT)
-			: size(sizeof(BossChangeStateMovePacket)), type(packetType), desPos(des), bossPos(bossPosition), t(paramT)
-		{}
 	};
 
-	struct ShootingObject {
-		short size;
-		char type;
+	struct ShootingObject : public PacketHeader
+	{
 		XMFLOAT3 dir;
-		ShootingObject(const char& packetType, const ROLE& r, const XMFLOAT3& d)
-			: size(sizeof(ShootingObject)), type(packetType), dir(d)
-		{}
 	};
 
 	struct InGamePlayerState {
@@ -348,107 +306,70 @@ namespace SERVER_PACKET {
 		float speed;
 	};
 
-	struct GameState_BOSS {//Player State-> pos rot...추가하여 보정?
-		short size;
-		char type;
+	struct GameState_BOSS : public PacketHeader
+	{//Player State-> pos rot...추가하여 보정?		
 		InGamePlayerState userState[4];
 		InGameBossState bossState;
 		std::chrono::utc_clock::time_point time;
-		GameState_BOSS(const char& packetType) :size(sizeof(GameState_BOSS)), type(packetType) {}
 	};
 
-	struct GameState_STAGE1 {//Player State-> pos rot...추가하여 보정?
-		short size;
-		char type;
+	struct GameState_STAGE1 : public PacketHeader
+	{//Player State-> pos rot...추가하여 보정?		
 		InGamePlayerState userState[4];
 		InGameSmallMonster smallMonster[15];
 		int aliveMonsterCnt;//살아 있는 몬스터 갯수 입니다. 총 15개
 		std::chrono::utc_clock::time_point time;
-		GameState_STAGE1(const char& packetType) :size(sizeof(GameState_STAGE1)), type(packetType) {}
 	};
 
-	struct BossAttackPacket {
-		short size;
-		char type;
+	struct BossAttackPacket : public PacketHeader
+	{
 		BOSS_ATTACK bossAttackType;
-		BossAttackPacket(const char& packetType, const BOSS_ATTACK& attackType)
-			:size(sizeof(BossAttackPacket)), type(packetType), bossAttackType(attackType)
-		{}
 	};
 
-	struct BossHitObject {
-		short size;
-		char type;
+	struct BossHitObject : public PacketHeader
+	{
 		XMFLOAT3 pos;
-		BossHitObject(const char& packetType, const XMFLOAT3& position)
-			:size(sizeof(BossHitObject)), type(packetType), pos(position)
-		{}
 	};
 
-	struct BossMoveNodePacket {
-		short size;
-		char type;
+	struct BossMoveNodePacket : public PacketHeader
+	{
 		DirectX::XMFLOAT3 bossPos;
 		//DirectX::XMFLOAT3 desPos;
 		ROLE targetRole;
 		int nodeCnt;
 		int node[40];
-		BossMoveNodePacket(const char& packetType, const XMFLOAT3& position, const ROLE& targetR)
-			:size(sizeof(BossMoveNodePacket)), type(packetType), bossPos(position), targetRole(targetR)
-		{}		
 	};
 
-	struct SmallMonsterMovePacket {
-		short size;
-		char type;
+	struct SmallMonsterMovePacket : public PacketHeader
+	{
 		XMFLOAT3 desPositions[15];
-		SmallMonsterMovePacket(const char& packetType)
-			:size(sizeof(SmallMonsterMovePacket)), type(packetType)
-		{}
 	};
 
-	struct GameState_BOSS_INIT {//Player State-> pos rot...추가하여 보정?
-		short size;
-		char type;
+	struct GameState_BOSS_INIT : public PacketHeader
+	{//Player State-> pos rot...추가하여 보정?		
 		XMFLOAT3 bossPosition;
 		InGamePlayerState userState[4];
-		GameState_BOSS_INIT(const char& packetType, const XMFLOAT3& bossPos)
-			:size(sizeof(GameState_BOSS_INIT)), type(packetType), bossPosition(bossPos)
-		{}
 	};
 
-	struct NotifyHealPacket {
-		short size;
-		char type;
+	struct NotifyHealPacket : public PacketHeader
+	{
 		ApplyHealForPlayer applyHealPlayerInfo[4];
-		NotifyHealPacket(const char& packetType)
-			:size(sizeof(NotifyHealPacket)), type(packetType)
-		{}
 	};
 
-	struct NotifyShieldPacket {
-		short size;
-		char type;
+	struct NotifyShieldPacket : public PacketHeader
+	{
 		ApplyShieldForPlayer applyShieldPlayerInfo[4];
-		NotifyShieldPacket(const char& packetType)
-			:size(sizeof(NotifyShieldPacket)), type(packetType)
-		{}
 	};
 
-	struct ProjectileDamagePacket {//브로드 캐스트
-		short size;
-		char type;
+	struct ProjectileDamagePacket : public PacketHeader
+	{//브로드 캐스트	
 		char projectileId;//인덱스 번호
 		XMFLOAT3 position;//맞은 위치
-		float damage;// 데미지
-		ProjectileDamagePacket(const char& packetType, const char& projectileIdx, const XMFLOAT3& pos, const float& dam)
-			:size(sizeof(ProjectileDamagePacket)), type(packetType), projectileId(projectileIdx), position(pos), damage(dam)
-		{}
+		float damage;// 데미지		
 	};
 
-	struct PlayerAttackMonsterDamagePacket {//본인만 데미지 볼 수 있게
-		short size;
-		char type;
+	struct PlayerAttackMonsterDamagePacket : public PacketHeader
+	{//본인만 데미지 볼 수 있게	
 		char role;
 		char attackedMonsterCnt;//뎀지 입은 몬스터 갯수
 		char monsterIdx[15];//해당 몬스터의 인덱스값이 있는 배열
@@ -456,53 +377,44 @@ namespace SERVER_PACKET {
 
 	};
 
-	struct PlayerAttackBossDamagePacket {
-		short size;
-		char type;
+	struct PlayerAttackBossDamagePacket : public PacketHeader {
 		char role;
 		float damage;// 플레이어가 입힌 데미지
 	};
 
-	struct CommonAttackPacket {//전체 플레이어들에게 알려서 애니메이션 재생
-		short size;
-		char type;
+	struct CommonAttackPacket : public PacketHeader
+	{//전체 플레이어들에게 알려서 애니메이션 재생		
 		char role;
 	};
 
-	struct SmallMonsterAttackPlayerPacket {
-		short size;
-		char type;
+	struct SmallMonsterAttackPlayerPacket : public PacketHeader
+	{
 		char attackedRole;//자기 자신의 role인지 판단하고 피격 화면 출력
 		char attackMonsterIdx;//애니메이션 재생할 몬스터 인덱스
 	};
 
-	struct BossAttackPlayerPacket {
-		short size;
-		char type;
+	struct BossAttackPlayerPacket : public PacketHeader
+	{
 		float currentHp;
 	};
 
-	struct BossDirectionPacket {
-		short size;
-		char type;
+	struct BossDirectionPacket : public PacketHeader
+	{
 		XMFLOAT3 directionVec;
 	};
 
-	struct DestroyedMeteoPacket {
-		short size;
-		char type;
+	struct DestroyedMeteoPacket : public PacketHeader
+	{
 		char idx;
 	};
 
-	struct MeteoStartPacket {
-		short size;
-		char type;
+	struct MeteoStartPacket : public PacketHeader
+	{
 		MeteoInfo meteoInfo[10];
 	};
 
-	struct TimeSyncPacket {
-		short size;
-		char type;
+	struct TimeSyncPacket : public PacketHeader
+	{
 		std::chrono::utc_clock::time_point t;
 	};
 }

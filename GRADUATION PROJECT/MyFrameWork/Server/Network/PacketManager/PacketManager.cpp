@@ -1,12 +1,9 @@
 #include "stdafx.h"
 #include "PacketManager.h"
-#include "../ExpOver/ExpOver.h"
-#include "../../Logic/Logic.h"
 #include "../protocol/protocol.h"
-#include "../UserSession/UserSession.h"
+#include "../../Room/RoomManager.h"
 
-
-extern std::array<UserSession, MAX_USER> g_userSession;
+//User <=> Room
 
 int PacketManager::ProccessPacket(const int& useId, const int& roomId, const unsigned long& ioByte, int remainSize, char* buffer)
 {

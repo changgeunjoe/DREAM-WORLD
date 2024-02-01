@@ -1,8 +1,11 @@
 #pragma once
 #include "../../PCH/stdafx.h"
+#include "../IocpEvent/IocpEventBase.h"
 
-class RecvExpOverBuffer;
-class UserSession
+//UserSession -> recvEvent객체
+class ExpOver;
+class PacketHeader;
+class UserSession :public IocpEventBase
 {
 public:
 	UserSession();
@@ -10,25 +13,27 @@ public:
 	UserSession(const UserSession& other);
 	UserSession(UserSession&& other) noexcept;
 	~UserSession();
+
+	void RegistSocket(SOCKET&& socket);
+	void ContructPacket(const DWORD& ioSize);
+	void Execute(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key) override;
 private:
-	//id state
+	void DoSend(const PacketHeader* packetHeader);
+	void DoRecv(ExpOver* over);
+
+	void ProccessPacket();
+protected:
+	SOCKET m_socket;
+
+	//IocpEventBase
+	int m_remainDataLength = 0;
+	char m_buffer[MAX_BUF_SIZE];
+	WSABUF m_wsabuf;
+
+	//UserInfo
 	int m_id;
 	std::atomic<PLAYER_STATE> m_playerState;
-	//id.name
 	std::wstring m_loginId;
 	std::wstring m_playerName;
 
-	//플레이중인 룸ID
-	int m_roomId;
-
-	//소켓, recv Overlapped와 버퍼
-	RecvExpOverBuffer* m_recvExOver;
-	SOCKET m_socket;
-
-public:
-	void RegistSocket(SOCKET&& socket);
-	void ContructPacket(const DWORD& ioSize);
-private:
-	void DoSend(const char* data);
-	void DoRecv();
 };

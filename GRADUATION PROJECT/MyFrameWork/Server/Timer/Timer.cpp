@@ -3,7 +3,7 @@
 
 Timer::~Timer()
 {
-	
+
 	m_running = false;
 	m_TimerThread.join();
 	spdlog::info("Timer::~Timer() - thread join");
@@ -165,4 +165,9 @@ void Timer::StartTimer()
 	m_running = true;
 	m_TimerThread = std::thread([this]() {TimerThreadFunc(); });
 	spdlog::info("Timer::StartTimer() - thread Start");
+}
+
+void Timer::RegisterIocp(Iocp* iocpPtr)
+{
+	iocp = iocpPtr;
 }

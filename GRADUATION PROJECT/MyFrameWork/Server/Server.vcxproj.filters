@@ -58,6 +58,15 @@
     <Filter Include="Network\ExpOver">
       <UniqueIdentifier>{2c8d6f2a-b71a-49f8-8fe0-190b0e8e90fb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Network\IocpEvent">
+      <UniqueIdentifier>{616faf02-0af5-4bb0-8fd0-14d2210f909f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network\IocpEvent\SendEvent">
+      <UniqueIdentifier>{db41b7a6-3fc5-4a84-83e1-368d9c1d668a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network\IocpEvent\ListenEvent">
+      <UniqueIdentifier>{3a11b420-5649-47ed-835e-582868b460b1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PCH\stdafx.cpp">
@@ -81,7 +90,7 @@
     <ClCompile Include="Network\PacketManager\PacketManager.cpp">
       <Filter>Network</Filter>
     </ClCompile>
-    <ClCompile Include="Network\IOCP\IOCP.cpp">
+    <ClCompile Include="Network\IOCP\Iocp.cpp">
       <Filter>Network\IOCP</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
@@ -127,8 +136,14 @@
     <ClCompile Include="Network\ExpOver\ExpOver.cpp">
       <Filter>Network\ExpOver</Filter>
     </ClCompile>
-    <ClCompile Include="Network\ExpOver\ExpOverManager.cpp">
-      <Filter>Network\ExpOver</Filter>
+    <ClCompile Include="Network\IocpEvent\IocpEventManager.cpp">
+      <Filter>Network\IocpEvent</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\IocpEvent\IocpSendEvent.cpp">
+      <Filter>Network\IocpEvent\SendEvent</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\IocpEvent\IocpListenEvent.cpp">
+      <Filter>Network\IocpEvent\ListenEvent</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -153,7 +168,7 @@
     <ClInclude Include="Network\PacketManager\PacketManager.h">
       <Filter>Network</Filter>
     </ClInclude>
-    <ClInclude Include="Network\IOCP\IOCP.h">
+    <ClInclude Include="Network\IOCP\Iocp.h">
       <Filter>Network\IOCP</Filter>
     </ClInclude>
     <ClInclude Include="Network\protocol\protocol.h">
@@ -202,8 +217,20 @@
     <ClInclude Include="Network\ExpOver\ExpOver.h">
       <Filter>Network\ExpOver</Filter>
     </ClInclude>
-    <ClInclude Include="Network\ExpOver\ExpOverManager.h">
-      <Filter>Network\ExpOver</Filter>
+    <ClInclude Include="Network\IocpEvent\IocpEventBase.h">
+      <Filter>Network\IocpEvent</Filter>
     </ClInclude>
+    <ClInclude Include="Network\IocpEvent\IocpEventManager.h">
+      <Filter>Network\IocpEvent</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\IocpEvent\IocpSendEvent.h">
+      <Filter>Network\IocpEvent\SendEvent</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\IocpEvent\IocpListenEvent.h">
+      <Filter>Network\IocpEvent\ListenEvent</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

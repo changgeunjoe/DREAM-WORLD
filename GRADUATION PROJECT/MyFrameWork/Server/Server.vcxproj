@@ -170,8 +170,10 @@
     <ClCompile Include="MapData\NavMeshQuadTree\NavMeshQuadTree.cpp" />
     <ClCompile Include="MapData\TriangleMesh\TriangleMesh.cpp" />
     <ClCompile Include="Network\ExpOver\ExpOver.cpp" />
-    <ClCompile Include="Network\ExpOver\ExpOverManager.cpp" />
-    <ClCompile Include="Network\IOCP\IOCP.cpp" />
+    <ClCompile Include="Network\IocpEvent\IocpEventManager.cpp" />
+    <ClCompile Include="Network\IocpEvent\IocpListenEvent.cpp" />
+    <ClCompile Include="Network\IocpEvent\IocpSendEvent.cpp" />
+    <ClCompile Include="Network\IOCP\Iocp.cpp" />
     <ClCompile Include="Network\PacketManager\PacketManager.cpp" />
     <ClCompile Include="Network\UserSession\UserManager.cpp" />
     <ClCompile Include="Network\UserSession\UserSession.cpp" />
@@ -200,8 +202,11 @@
     <ClInclude Include="MapData\NavMeshQuadTree\NavMeshQuadTree.h" />
     <ClInclude Include="MapData\TriangleMesh\TriangleMesh.h" />
     <ClInclude Include="Network\ExpOver\ExpOver.h" />
-    <ClInclude Include="Network\ExpOver\ExpOverManager.h" />
-    <ClInclude Include="Network\IOCP\IOCP.h" />
+    <ClInclude Include="Network\IocpEvent\IocpEventBase.h" />
+    <ClInclude Include="Network\IocpEvent\IocpEventManager.h" />
+    <ClInclude Include="Network\IocpEvent\IocpListenEvent.h" />
+    <ClInclude Include="Network\IocpEvent\IocpSendEvent.h" />
+    <ClInclude Include="Network\IOCP\Iocp.h" />
     <ClInclude Include="Network\PacketManager\PacketManager.h" />
     <ClInclude Include="Network\protocol\protocol.h" />
     <ClInclude Include="Network\UserSession\UserManager.h" />
@@ -212,7 +217,19 @@
     <ClInclude Include="SingletonBase.h" />
     <ClInclude Include="Timer\Timer.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="packages\inteltbb.redist.win.2021.11.0.49514\build\native\inteltbb.redist.win.targets" Condition="Exists('packages\inteltbb.redist.win.2021.11.0.49514\build\native\inteltbb.redist.win.targets')" />
+    <Import Project="packages\inteltbb.devel.win.2021.11.0.49514\build\native\inteltbb.devel.win.targets" Condition="Exists('packages\inteltbb.devel.win.2021.11.0.49514\build\native\inteltbb.devel.win.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>이 프로젝트는 이 컴퓨터에 없는 NuGet 패키지를 참조합니다. 해당 패키지를 다운로드하려면 NuGet 패키지 복원을 사용하십시오. 자세한 내용은 http://go.microsoft.com/fwlink/?LinkID=322105를 참조하십시오. 누락된 파일은 {0}입니다.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\inteltbb.redist.win.2021.11.0.49514\build\native\inteltbb.redist.win.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\inteltbb.redist.win.2021.11.0.49514\build\native\inteltbb.redist.win.targets'))" />
+    <Error Condition="!Exists('packages\inteltbb.devel.win.2021.11.0.49514\build\native\inteltbb.devel.win.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\inteltbb.devel.win.2021.11.0.49514\build\native\inteltbb.devel.win.targets'))" />
+  </Target>
 </Project>

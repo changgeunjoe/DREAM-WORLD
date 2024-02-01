@@ -1,35 +1,30 @@
-//#pragma once
-//#include "../../Server/PCH/stdafx.h"
-//#include "Room.h"
-//
-//class RoomManager
-//{
-//public:
-//	RoomManager();
-//	~RoomManager();
-//private:
-//	std::array<Room, MAX_USER / 4> m_roomArr;
-//	std::mutex m_currentLastRoomIdLock;
-//	int m_currentLastRoomId = 0;
-//	Concurrency::concurrent_queue<int> m_restRoomId;
-//private:
-//	std::mutex m_runningRoomSetLock;
-//	std::set<int> m_runningRoomIdSet;
-//public:
-//	int GetNewRoomId();
-//	Room& GetRunningRoomRef(int id);
-//	void RoomDestroy(int roomId);
-//
-//	//Room Func
-//public:
-//	void BossFindPlayer(int roomId);
-//	void ChangeBossState(int roomId);
-//	void UpdateGameStateForPlayer(int roomId);
-//	void UpdateSmallMonster(int roomId);
-//	void BossAttackExecute(int roomId);
-//public://character Skill
-//	void HealPlayer(int roomId);
-//	void SetBarrier(int roomId); 
-//	void SkyArrowAttack(int roomId);
-//};
-//
+#pragma once
+#include "../../Server/PCH/stdafx.h"
+#include "../SingletonBase.h"
+#include "Room.h"
+
+class RoomManager : public SingletonBase<RoomManager>
+{
+	friend SingletonBase;
+private:
+	RoomManager();
+	~RoomManager();
+
+	tbb::concurrent_unordered_map<unsigned int, Room> m_rooms;
+	tbb::concurrent_queue<unsigned int> m_restRoomId;
+	std::atomic_uint m_currentMaxRoomId;
+
+
+	//Room Func
+public:
+	void BossFindPlayer(int roomId);
+	void ChangeBossState(int roomId);
+	void UpdateGameStateForPlayer(int roomId);
+	void UpdateSmallMonster(int roomId);
+	void BossAttackExecute(int roomId);
+public://character Skill
+	void HealPlayer(int roomId);
+	void SetBarrier(int roomId);
+	void SkyArrowAttack(int roomId);
+};
+

@@ -5,12 +5,6 @@
 #include "../Network/PacketManager/PacketManager.h"
 
 
-void Logic::AcceptPlayer(int userId, SOCKET& sock)
-{
-	//g_userSession[userId].RegistPlayer(sock, userId);
-
-}
-
 void Logic::CharacterAddDirection(int userId, const DIRECTION& applyDirection)
 {
 	//if (g_userSession[userId].GetPlayerState() != PLAYER_STATE::IN_GAME) return;

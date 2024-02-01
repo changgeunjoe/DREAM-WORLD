@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "Room.h"
 //#include "Room.h"
 //#include "../Timer/Timer.h"
 //#include "../Logic/Logic.h"
@@ -646,3 +647,11 @@
 //}
 //
 //
+
+Room::Room()
+{
+}
+
+Room::~Room()
+{
+}

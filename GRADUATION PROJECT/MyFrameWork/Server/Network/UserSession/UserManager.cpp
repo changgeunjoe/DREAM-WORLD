@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "UserManager.h"
+#include "../IOCP/Iocp.h"
 
 UserManager::UserManager()
 {
@@ -21,10 +22,15 @@ void UserManager::Initialize()
 	spdlog::info("UserManager::Initialize() - Initialize");
 }
 
-void UserManager::AcceptPlayer(HANDLE& iocpHandle, SOCKET&& sock)
+void UserManager::RegisterIocp(Iocp* iocpPtr)
+{
+	iocp = iocpPtr;
+}
+
+void UserManager::AcceptPlayer(SOCKET&& sock)
 {
 	while (true) {
-		int playerId = -1;
+		unsigned int playerId = 0;
 		bool ableReuseId = m_restId.try_pop(playerId);
 		bool isSuccess = true;
 
@@ -36,7 +42,9 @@ void UserManager::AcceptPlayer(HANDLE& iocpHandle, SOCKET&& sock)
 			auto inserResult = m_userSession.insert(std::make_pair(playerId, UserSession(playerId)));
 			//성공 여부
 			isSuccess = inserResult.second;
+#ifdef _DEBUG
 			spdlog::debug("UserManager::AcceptPlayer() - reuseId: {0:d}", playerId);
+#endif // _DEBUG
 		}
 #ifdef _DEBUG
 		if (ableReuseId) {
@@ -44,9 +52,9 @@ void UserManager::AcceptPlayer(HANDLE& iocpHandle, SOCKET&& sock)
 		}
 #endif // _DEBUG
 
-		//성공했다면 socket을 등록하고 return, 실패했다면 재시도
-		if (isSuccess) {			
-			CreateIoCompletionPort(reinterpret_cast<HANDLE>(sock), iocpHandle, playerId, 0);
+		//성공했다면 socket을 등록하고 return, 실패했다면 재시도(while-loop)
+		if (isSuccess) {
+			iocp->RegistHandle(reinterpret_cast<HANDLE>(sock), playerId);
 			m_userSession[playerId].RegistSocket(std::move(sock));
 			return;
 		}

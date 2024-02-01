@@ -1,119 +1,63 @@
 #pragma once
 #include "../../PCH/stdafx.h"
-class ExpOver
+
+//Event를 처리할 객체를 포인터로 가짐
+
+/*
+	가상 함수를 사용하게 되면, class의 주소가 vtable의 주소가 되기 때문에
+	IocpEvent를 멤버로 가져 execute하여 처리
+*/
+
+/*
+	IOCP_OP_CODE: 완료포트 통지 시, 할 행동
+	IocpEvent: 실제 행위는 IocpEvent::Execute()에서
+*/
+
+class IocpEventBase;
+class ExpOver : public WSAOVERLAPPED
 {
-protected:
-	WSAOVERLAPPED m_overlapped;
-	IOCP_OP_CODE m_opCode;
 public:
-	ExpOver(IOCP_OP_CODE opCode)
+	ExpOver() :m_opCode(IOCP_OP_CODE::OP_NONE), m_iocpEvent(nullptr)
 	{
+		ResetOverlapped();
+	}
+
+	ExpOver(const IOCP_OP_CODE& opCode) :m_opCode(opCode), m_iocpEvent(nullptr)
+	{
+		ResetOverlapped();
+	}
+
+	ExpOver(const IOCP_OP_CODE& opCode, IocpEventBase* iocpEvent) : m_opCode(opCode), m_iocpEvent(iocpEvent)
+	{
+		ResetOverlapped();
+	}
+	~ExpOver();
+public:
+	void SetData(const IOCP_OP_CODE& opCode, IocpEventBase* iocpEvent)
+	{
+		ResetOverlapped();
 		m_opCode = opCode;
-		ZeroMemory(&m_overlapped, sizeof(WSAOVERLAPPED));
+		m_iocpEvent = iocpEvent;
 	}
 
-	void ResetOverlapped()
+	void ResetEvent()
 	{
-		ZeroMemory(&m_overlapped, sizeof(WSAOVERLAPPED));
+		m_iocpEvent = nullptr;
 	}
 
-	void ResetOverlapped(IOCP_OP_CODE opCode)
-	{
-		m_opCode = opCode;
-		ZeroMemory(&m_overlapped, sizeof(WSAOVERLAPPED));
-	}
-
-	IOCP_OP_CODE GetOpCode()
+	const IOCP_OP_CODE& GetOpCode() const
 	{
 		return m_opCode;
 	}
 
+	void Execute(const DWORD& ioByte, const ULONG_PTR& key);
+
+	//오버랩 객체 초기화
+	void ResetOverlapped()
+	{
+		ZeroMemory(this, sizeof(WSAOVERLAPPED));
+	}
+private:
+	IOCP_OP_CODE m_opCode;
+	IocpEventBase* m_iocpEvent;
 };
-
-class ExpOverBuffer :public ExpOver
-{
-protected:
-	char m_buffer[MAX_BUF_SIZE] = { 0 };
-public:
-	ExpOverBuffer(IOCP_OP_CODE opCode) : ExpOver(opCode)
-	{
-		ZeroMemory(m_buffer, MAX_BUF_SIZE);
-	}
-
-	ExpOverBuffer(IOCP_OP_CODE opCode, char* data) : ExpOver(opCode)
-	{
-		ZeroMemory(m_buffer, MAX_BUF_SIZE);
-		strcpy_s(m_buffer, data);
-	}
-
-	ExpOverBuffer(IOCP_OP_CODE opCode, char* data, const int& dataSize) : ExpOver(opCode)
-	{
-		ZeroMemory(m_buffer, MAX_BUF_SIZE);
-		memcpy(m_buffer, data, dataSize);
-	}
-
-	char* GetBufferData()
-	{
-		return m_buffer;
-	}
-
-	virtual void SetData(const char* data)
-	{
-		strcpy_s(m_buffer, data);
-	}
-
-	void SetData(const char* data, const int& dataSize)
-	{
-		strncpy_s(m_buffer, data, dataSize);
-	}
-};
-
-//send용
-class ExpOverWsaBuffer : public ExpOverBuffer
-{
-protected:
-	WSABUF m_wsaBuf;
-public:
-	ExpOverWsaBuffer(IOCP_OP_CODE opCode) : ExpOverBuffer(opCode)
-	{
-		ZeroMemory(m_buffer, MAX_BUF_SIZE);
-		m_wsaBuf.len = MAX_BUF_SIZE;
-		m_wsaBuf.buf = m_buffer;
-	}
-
-	ExpOverWsaBuffer(IOCP_OP_CODE opCode, const char* data) : ExpOverBuffer(opCode)
-	{
-		ZeroMemory(m_buffer, MAX_BUF_SIZE);
-		//이 프로젝트는 short임
-		m_wsaBuf.len = (unsigned char)data[0];
-		m_wsaBuf.buf = m_buffer;
-		memcpy(m_buffer, data, m_wsaBuf.len);
-	}
-
-	virtual void SetData(const char* data) override
-	{
-		ZeroMemory(m_buffer, MAX_BUF_SIZE);
-		//이 프로젝트는 short임
-		m_wsaBuf.len = (unsigned char)data[0];
-		m_wsaBuf.buf = m_buffer;
-		memcpy(m_buffer, data, m_wsaBuf.len);
-	}
-
-public:
-	void DoSend(SOCKET& socket);
-};
-
-//Recv용
-class RecvExpOverBuffer : public ExpOverWsaBuffer
-{
-protected:
-	int m_remainData;
-public:
-	RecvExpOverBuffer() : ExpOverWsaBuffer(OP_RECV), m_remainData{ 0 } { }
-	RecvExpOverBuffer(char* data) : ExpOverWsaBuffer(OP_RECV), m_remainData{ 0 } { }
-public:
-	void DoRecv(SOCKET& socket);
-	void RecvPacket(const int& id, const int& roomId, const unsigned long& ioByte);
-	void Clear();
-};
-

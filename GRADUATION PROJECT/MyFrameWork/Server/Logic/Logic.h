@@ -7,8 +7,6 @@ using namespace chrono;
 
 namespace Logic
 {
-	void AcceptPlayer(int userId, SOCKET& sock);
-
 	//room	
 	void CharacterAddDirection(int userId, const DIRECTION& applyDirection);
 	void CharacterRemoveDirection(int userId, const DIRECTION& applyDirection);

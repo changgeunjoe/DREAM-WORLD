@@ -7,8 +7,9 @@ class SingletonBase
 protected:
 	SingletonBase() = default;
 	virtual ~SingletonBase() {}
-	SingletonBase(SingletonBase const&) = delete;
-	SingletonBase& operator=(SingletonBase const&) = delete;
+	//싱글톤이기 때문에, 복사가 일어나면 안 됨.
+	SingletonBase(const SingletonBase&) = delete;
+	SingletonBase& operator=(const SingletonBase&) = delete;
 public:
 	static T& GetInstance()
 	{

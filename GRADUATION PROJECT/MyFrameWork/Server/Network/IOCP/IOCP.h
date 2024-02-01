@@ -1,44 +1,34 @@
 #pragma once
 #include "../../PCH/stdafx.h"
 #include "../ExpOver/ExpOver.h"
-#define PORT 9000
-
+#include "../IocpEvent/IocpListenEvent.h"
 
 //static std::random_device rd;
 //static std::default_random_engine dre(rd());
 //static std::uniform_int_distribution<> aggroRandomPlayer(0, 3);//inclusive
 //static std::uniform_int_distribution<> bossRandAttack(0, (int)BOSS_ATTACK::ATTACK_COUNT - 1);
 
-class IOCP
+class Iocp
 {
-private:
-	HANDLE m_hIocp;
-	std::vector<std::thread> m_workerThread;
-
-private:
-	SOCKET m_listenSocket;
-	SOCKET m_clientSocket;
-	
-
-	ExpOver* m_acceptOver;
-	char m_acceptBuffer[MAX_BUF_SIZE];	
-private:	
-	concurrency::concurrent_queue<int> m_restClientId;
 public:
+	Iocp();
+	~Iocp();
 
-	IOCP();
-	~IOCP();
+	void StartWorkerThread();
 
-	void Start();
+	HANDLE GetIocpHandle()
+	{
+		return m_hIocp;
+	}
+	void RegistHandle(HANDLE registHandle, int key);
+
+private:
 	void Destroy();
 
-private:
-	void Initialize();
 	void WorkerThread();
-	//int GetUserId();
-
-public:
-	HANDLE& GetIocpHandle() {
-		return m_hIocp;
-	};
+private:
+	HANDLE m_hIocp;
+private:
+	std::vector<std::thread> m_workerThread;
+	IocpListenEvent m_listener;
 };
