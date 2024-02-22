@@ -12,8 +12,12 @@
 	IOCP_OP_CODE: 완료포트 통지 시, 할 행동
 	IocpEvent: 실제 행위는 IocpEvent::Execute()에서
 */
+namespace IOCP
+{
+	class EventBase;
+}
 
-class IocpEventBase;
+//overlapped구조체가 맨 앞에(다른건 상속하면 안될듯?) ex) enable_shared_from_this<>
 class ExpOver : public WSAOVERLAPPED
 {
 public:
@@ -27,13 +31,15 @@ public:
 		ResetOverlapped();
 	}
 
-	ExpOver(const IOCP_OP_CODE& opCode, IocpEventBase* iocpEvent) : m_opCode(opCode), m_iocpEvent(iocpEvent)
+	ExpOver(const IOCP_OP_CODE& opCode, std::shared_ptr<IOCP::EventBase>& iocpEvent) : m_opCode(opCode), m_iocpEvent(iocpEvent)
 	{
 		ResetOverlapped();
 	}
+
 	~ExpOver();
+
 public:
-	void SetData(const IOCP_OP_CODE& opCode, IocpEventBase* iocpEvent)
+	void SetData(const IOCP_OP_CODE& opCode, std::shared_ptr<IOCP::EventBase>& iocpEvent)
 	{
 		ResetOverlapped();
 		m_opCode = opCode;
@@ -59,5 +65,5 @@ public:
 	}
 private:
 	IOCP_OP_CODE m_opCode;
-	IocpEventBase* m_iocpEvent;
+	std::shared_ptr<IOCP::EventBase> m_iocpEvent;
 };

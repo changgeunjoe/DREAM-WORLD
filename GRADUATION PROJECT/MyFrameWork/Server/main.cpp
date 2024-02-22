@@ -5,6 +5,7 @@
 //#include "Room/RoomManager.h"
 #include "Timer/Timer.h"
 #include "Network/UserSession/UserManager.h"
+#include "DB/DB.h"
 //astart collision monster
 //MapData		g_bossMapData{ std::filesystem::current_path().string().append("\\\MapData\\\BossRoom.txt"),std::filesystem::current_path().string().append("\\\MapData\\\BossCollisionData.txt"),std::filesystem::current_path().string().append("\\\MapData\\\MonsterBoss.txt") };
 //MapData		g_stage1MapData{ "NONE",std::filesystem::current_path().string().append("\\\MapData\\\Stage1CollisionData.txt"),std::filesystem::current_path().string().append("\\\MapData\\\MonsterStage1.txt") };
@@ -17,19 +18,22 @@ int main()
 
 	WSADATA WSAData;
 	if (WSAStartup(MAKEWORD(2, 2), &WSAData) != 0) {
-		std::cout << "wsaStartUp Error" << std::endl;
+		spdlog::critical("wsaStartUp Error");
 		WSACleanup();
 		return -1;
 	}
 
-	Iocp iocp;
 	//각 클래스에 iocp 객체 등록
-	Timer::GetInstance().RegisterIocp(&iocp);
-	UserManager::GetInstance().RegisterIocp(&iocp);
+	std::shared_ptr<IOCP::Iocp> iocpRef = std::make_shared<IOCP::Iocp>();
+	TIMER::Timer::GetInstance().RegisterIocp(iocpRef->GetSharedPtr());
+	UserManager::GetInstance().RegisterIocp(iocpRef->GetSharedPtr());
+	DB::DBConnector::GetInstance().RegistIocp(iocpRef->GetSharedPtr());
 
-
+	//각 클래스 시작
 	UserManager::GetInstance().Initialize();
-	Timer::GetInstance().StartTimer();
+	TIMER::Timer::GetInstance().StartTimer();
+	DB::DBConnector::GetInstance().Connect();
 
-	iocp.StartWorkerThread();
+	iocpRef->Start();
+	iocpRef->WorkerThreadJoin();
 }

@@ -1,4 +1,4 @@
-constexpr int NAME_SIZE = 20;
+
 
 #pragma pack (push, 1)
 struct PacketHeader

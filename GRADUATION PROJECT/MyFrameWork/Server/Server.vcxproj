@@ -155,7 +155,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="DB\DBObject.cpp" />
+    <ClCompile Include="DB\DB.cpp" />
     <ClCompile Include="GameObject\Character\ChracterObject.cpp" />
     <ClCompile Include="GameObject\GameObject.cpp" />
     <ClCompile Include="GameObject\Monster\MonsterObject.cpp" />
@@ -171,8 +171,9 @@
     <ClCompile Include="MapData\TriangleMesh\TriangleMesh.cpp" />
     <ClCompile Include="Network\ExpOver\ExpOver.cpp" />
     <ClCompile Include="Network\IocpEvent\IocpEventManager.cpp" />
-    <ClCompile Include="Network\IocpEvent\IocpListenEvent.cpp" />
-    <ClCompile Include="Network\IocpEvent\IocpSendEvent.cpp" />
+    <ClCompile Include="Network\IocpEvent\IocpDBEvent.cpp" />
+    <ClCompile Include="Network\IocpEvent\ListenEvent.cpp" />
+    <ClCompile Include="Network\IocpEvent\SendEvent.cpp" />
     <ClCompile Include="Network\IOCP\Iocp.cpp" />
     <ClCompile Include="Network\PacketManager\PacketManager.cpp" />
     <ClCompile Include="Network\UserSession\UserManager.cpp" />
@@ -184,11 +185,13 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Room\Room.cpp" />
+    <ClCompile Include="Room\RoomEvent.cpp" />
     <ClCompile Include="Room\RoomManager.cpp" />
     <ClCompile Include="Timer\Timer.cpp" />
+    <ClCompile Include="Timer\TimerEventBase.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="DB\DBObject.h" />
+    <ClInclude Include="DB\DB.h" />
     <ClInclude Include="GameObject\Character\ChracterObject.h" />
     <ClInclude Include="GameObject\GameObject.h" />
     <ClInclude Include="GameObject\Monster\MonsterObject.h" />
@@ -204,8 +207,9 @@
     <ClInclude Include="Network\ExpOver\ExpOver.h" />
     <ClInclude Include="Network\IocpEvent\IocpEventBase.h" />
     <ClInclude Include="Network\IocpEvent\IocpEventManager.h" />
-    <ClInclude Include="Network\IocpEvent\IocpListenEvent.h" />
-    <ClInclude Include="Network\IocpEvent\IocpSendEvent.h" />
+    <ClInclude Include="Network\IocpEvent\IocpDBEvent.h" />
+    <ClInclude Include="Network\IocpEvent\ListenEvent.h" />
+    <ClInclude Include="Network\IocpEvent\SendEvent.h" />
     <ClInclude Include="Network\IOCP\Iocp.h" />
     <ClInclude Include="Network\PacketManager\PacketManager.h" />
     <ClInclude Include="Network\protocol\protocol.h" />
@@ -213,9 +217,11 @@
     <ClInclude Include="Network\UserSession\UserSession.h" />
     <ClInclude Include="PCH\stdafx.h" />
     <ClInclude Include="Room\Room.h" />
+    <ClInclude Include="Room\RoomEvent.h" />
     <ClInclude Include="Room\RoomManager.h" />
     <ClInclude Include="SingletonBase.h" />
     <ClInclude Include="Timer\Timer.h" />
+    <ClInclude Include="Timer\TimerEventBase.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -1,21 +1,23 @@
 #pragma once
+#include "../PCH/stdafx.h"
+#include "../Network/IocpEvent/IocpEventBase.h"
 #include "../GameObject/Character/ChracterObject.h"
 #include "../GameObject/Monster/MonsterObject.h"
 #include "../GameObject/Monster/SmallMonsterObject.h"
 #include "../GameObject/Projectile/ShootingObject.h"
 #include "../GameObject/Projectile/MeteoObject.h"
 
-#ifdef _DEBUG
-#include "../PCH/stdafx.h"
-#endif
-
 
 class ChracterObject;
-class Room
+class Room : public IOCP::EventBase
 {
 public:
 	Room();
 	~Room();
+
+	//IOCP에서 PQGS로 오는 경우 해결 - update, gamestate...(룸에 대한 이벤트)
+	virtual void Execute(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key) override;
+
 private:
 	ROOM_STATE m_roomState;
 	//플레이어 id-캐릭터
@@ -29,9 +31,6 @@ private:
 
 	//std::array<10, ShootingObject> m_arrow;
 	//std::array<10, ShootingObject> m_energyBall;
-
-
-
 };
 
 

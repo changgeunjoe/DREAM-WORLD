@@ -38,11 +38,27 @@ void StartLogger()
 	auto combined_logger = spdlog::logger("Server Log", { console_logger->sinks().front(), file_logger->sinks().front() });
 	combined_logger.info("Start Logger");
 	spdlog::set_default_logger(std::make_shared<spdlog::logger>(spdlog::logger("Server Log", { console_logger->sinks().front(), file_logger->sinks().front() })));
-	spdlog::set_level(spdlog::level::debug);	
+	spdlog::set_level(spdlog::level::debug);
 #ifdef _DEBUG
 	spdlog::flush_every(std::chrono::milliseconds(10));
 #else
 	spdlog::flush_on(spdlog::level::info);
 #endif // _DEBUG
 
+}
+
+std::string ConvertWideStringToString(const wchar_t* wstr)
+{
+	USES_CONVERSION;
+	return std::string(W2A(wstr));
+	//std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> convertWchar;
+	//return convertWchar.to_bytes(wstr);
+}
+
+std::wstring ConvertStringToWideString(const char* str)
+{
+	USES_CONVERSION;
+	return std::wstring(A2W(str));
+	//std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> convertChar;
+	//return convertChar.from_bytes(str);
 }

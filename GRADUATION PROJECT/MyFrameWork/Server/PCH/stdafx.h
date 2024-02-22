@@ -17,6 +17,9 @@
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
+#include <codecvt>
+#include <atlconv.h>
+#include <strsafe.h>
 
 #include <WS2tcpip.h>
 #include <MSWSock.h>
@@ -34,25 +37,32 @@
 #include <array>
 #include <set>
 #include <map>
-#include <thread>
 #include <utility>
 #include <stack>
+
+#include <span>
 #include <ranges>
+#include <functional>
 
-
+#include <thread>
+#include <atomic>
 #include <tbb/concurrent_hash_map.h>
 #include <tbb/concurrent_unordered_map.h>
 #include <tbb/concurrent_priority_queue.h>
 #include <tbb/concurrent_queue.h>
 
-#include <atomic>
+
+#include<sqlext.h>
 
 #include<filesystem>
 #include <iostream>
+
 #include <math.h>
 #include <random>
 #include <DirectXMath.h>
 #include <DirectXCollision.h>
+
+
 const float MONSTER_ABLE_ATTACK_COS_VALUE = std::cos(25.0f * 3.14f / 180.0f);//30도 - 0.96정도
 const float PLAYER_ABLE_ATTACK_COS_VALUE = std::cos(25.0f * 3.14f / 180.0f);//30도 - 0.96정도
 const float BOSS_ABLE_ATTACK_COS_VALUE = std::cos(15.0f * 3.14f / 180.0f);//30도 - 0.96정도
@@ -67,25 +77,33 @@ enum PLAYER_STATE : char
 enum IOCP_OP_CODE : char
 {
 	OP_NONE,
+	//통신
 	OP_ACCEPT,
 	OP_RECV,
 	OP_SEND,
+
+	//DB
+	//로그인, 플레이어 로그인 성공
+	OP_SUCCESS_GET_PLAYER_INFO,
+	//로그인, 플레이어 로그인 실패
+	OP_FAIL_GET_PLAYER_INFO,
+	//클라이언트의 DB작업이 실패 했을 때
+	OP_DB_ERROR,
+
+	//Room - update, player pos send
+	OP_ROOM_UPDATE,
+	OP_GAME_STATE_SEND,
+	//Room - Boss
 	OP_FIND_PLAYER,
-	OP_BOSS_STATE,
-	//OP_MOVE_BOSS,
-	OP_GAME_STATE_B_SEND,
-	OP_GAME_STATE_S_SEND,
 	OP_BOSS_ATTACK_SELECT,
 	OP_BOSS_ATTACK_EXECUTE,
-	OP_UPDATE_SMALL_MONSTER,
-	OP_PLAYER_HEAL,
-	OP_SET_BARRIER,
-	OP_PROJECTILE_ATTACK,
-	OP_SKY_ARROW_ATTACK,
-	OP_BOSS_CHANGE_DIRECTION,
+
+	//Room - player skill
+	OP_PLAYER_HEAL, // 지속 힐 - 틱마다
+	OP_SKY_ARROW_ATTACK, //n초 이후 그 위치 공격
+	
+	//전제 플레이어 RTT계산을 위한
 	OP_SYNC_TIME,
-	OP_METEO_ATTACK_PLAYER,
-	OP_DESTROY_METEO_DESTROY
 };
 
 enum DIRECTION : char
@@ -116,43 +134,37 @@ enum BOSS_ATTACK : char {
 	ATTACK_SPIN,
 	ATTACK_KICK,
 	ATTACK_FLOOR_BOOM,
-	ATTACK_COUNT,//0~마지막 숫자 갯수
 	ATTACK_FLOOR_BOOM_SECOND,
-	ATTACK_METEO
+	ATTACK_METEO,
+	ATTACK_COUNT //0~마지막 숫자 갯수
 };
 
-enum EVENT_TYPE : char {
+enum TIMER_EVENT_TYPE : char {
 	EV_NONE,
+	//게임 상태 관련
+	EV_ROOM_UPDATE,
+	EV_GAME_STATE_SEND,
+	//보스 관련
 	EV_FIND_PLAYER,
-	EV_BOSS_STATE,
-	EV_GAME_STATE_B_SEND,
-	EV_GAME_STATE_S_SEND,
 	EV_BOSS_ATTACK,
-	EV_SM_UPDATE,
+	//플레이어 관련
 	EV_HEAL,
-	EV_TANKER_SHIELD_START,
+	EV_TANKER_SHIELD_END,
 	EV_SKY_ARROW_ATTACK,
+	//전체 플레이어 RTT체크를 위한 타이머
 	EV_SYNC_TIME
 };
 
 enum ROOM_STATE : char {
-	ROOM_STAGE1,
+	ROOM_COMMON,
 	ROOM_BOSS
 };
 
 constexpr short PORT = 9000;
+constexpr short NAME_SIZE = 26;
 
-struct TIMER_EVENT
-{
-	std::chrono::system_clock::time_point wakeupTime;
-	int targetId;
-	EVENT_TYPE eventId = EV_NONE;
-	constexpr bool operator < (const TIMER_EVENT& L) const
-	{
-		return (wakeupTime > L.wakeupTime);
-	}
-};
-constexpr int MAX_BUF_SIZE = 1024;
+constexpr int MAX_SEND_BUF_SIZE = 256;
+constexpr int MAX_RECV_BUF_SIZE = 1024;
 using namespace DirectX;
 
 namespace Vector3
@@ -347,3 +359,7 @@ namespace Matrix4x4
 void PrintCurrentTime();
 bool DisplayWsaGetLastError(int Errcode);
 void StartLogger();
+//wchar->char
+std::string ConvertWideStringToString(const wchar_t* wstr);
+//char->wchar
+std::wstring ConvertStringToWideString(const char* str);

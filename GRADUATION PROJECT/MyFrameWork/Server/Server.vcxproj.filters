@@ -67,6 +67,15 @@
     <Filter Include="Network\IocpEvent\ListenEvent">
       <UniqueIdentifier>{3a11b420-5649-47ed-835e-582868b460b1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Network\IocpEvent\DBEvent">
+      <UniqueIdentifier>{aad6529a-738a-43e1-b01c-78b28442001d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Timer\TimerEvent">
+      <UniqueIdentifier>{a3175507-e8a9-4aaa-bf71-7d52b3ad0ca3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Room\RoomEvent">
+      <UniqueIdentifier>{39839b50-7efa-4ad0-9005-dfb67976c7a4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PCH\stdafx.cpp">
@@ -75,7 +84,7 @@
     <ClCompile Include="Logic\Logic.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="DB\DBObject.cpp">
+    <ClCompile Include="DB\DB.cpp">
       <Filter>DB</Filter>
     </ClCompile>
     <ClCompile Include="Room\Room.cpp">
@@ -139,11 +148,20 @@
     <ClCompile Include="Network\IocpEvent\IocpEventManager.cpp">
       <Filter>Network\IocpEvent</Filter>
     </ClCompile>
-    <ClCompile Include="Network\IocpEvent\IocpSendEvent.cpp">
+    <ClCompile Include="Network\IocpEvent\SendEvent.cpp">
       <Filter>Network\IocpEvent\SendEvent</Filter>
     </ClCompile>
-    <ClCompile Include="Network\IocpEvent\IocpListenEvent.cpp">
+    <ClCompile Include="Network\IocpEvent\ListenEvent.cpp">
       <Filter>Network\IocpEvent\ListenEvent</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\IocpEvent\IocpDBEvent.cpp">
+      <Filter>Network\IocpEvent\DBEvent</Filter>
+    </ClCompile>
+    <ClCompile Include="Timer\TimerEventBase.cpp">
+      <Filter>Timer\TimerEvent</Filter>
+    </ClCompile>
+    <ClCompile Include="Room\RoomEvent.cpp">
+      <Filter>Room\RoomEvent</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -153,7 +171,7 @@
     <ClInclude Include="Logic\Logic.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="DB\DBObject.h">
+    <ClInclude Include="DB\DB.h">
       <Filter>DB</Filter>
     </ClInclude>
     <ClInclude Include="Room\Room.h">
@@ -223,11 +241,20 @@
     <ClInclude Include="Network\IocpEvent\IocpEventManager.h">
       <Filter>Network\IocpEvent</Filter>
     </ClInclude>
-    <ClInclude Include="Network\IocpEvent\IocpSendEvent.h">
+    <ClInclude Include="Network\IocpEvent\SendEvent.h">
       <Filter>Network\IocpEvent\SendEvent</Filter>
     </ClInclude>
-    <ClInclude Include="Network\IocpEvent\IocpListenEvent.h">
+    <ClInclude Include="Network\IocpEvent\ListenEvent.h">
       <Filter>Network\IocpEvent\ListenEvent</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\IocpEvent\IocpDBEvent.h">
+      <Filter>Network\IocpEvent\DBEvent</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer\TimerEventBase.h">
+      <Filter>Timer\TimerEvent</Filter>
+    </ClInclude>
+    <ClInclude Include="Room\RoomEvent.h">
+      <Filter>Room\RoomEvent</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

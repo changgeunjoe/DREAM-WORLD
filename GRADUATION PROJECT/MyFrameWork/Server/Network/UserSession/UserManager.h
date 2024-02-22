@@ -2,7 +2,11 @@
 #include "../../SingletonBase.h"
 #include "UserSession.h"
 
-class Iocp;
+namespace IOCP
+{
+	class Iocp;
+}
+
 class UserManager : public SingletonBase<UserManager>
 {
 	friend SingletonBase;
@@ -12,13 +16,13 @@ private:
 
 public:
 	void Initialize();
-	void RegisterIocp(Iocp* iocpPtr);
-	void AcceptPlayer(SOCKET&& sock);
-	void RecvPacket(const unsigned int& userId, const DWORD& ioSize);
+	void RegisterIocp(std::shared_ptr<IOCP::Iocp>& iocpPtr);
+	void RegistPlayer(SOCKET sock);
 
 private:
-	tbb::concurrent_unordered_map<unsigned int, UserSession> m_userSession;
 	tbb::concurrent_queue<unsigned int> m_restId;
 	std::atomic_uint m_currentMaxId;
-	Iocp* iocp;
+
+	tbb::concurrent_hash_map<unsigned int, std::shared_ptr<UserSession>> m_lobbyUser;
+	std::shared_ptr<IOCP::Iocp> iocpRef;
 };

@@ -1,16 +1,26 @@
 #include "stdafx.h"
-#include "IocpListenEvent.h"
+#include "ListenEvent.h"
 #include "../UserSession/UserManager.h"
 #include "../IOCP/Iocp.h"
 #include "../IocpEvent/IocpEventManager.h"
 
-void IocpListenEvent::Execute(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key)
+IOCP::ListenEvent::ListenEvent(std::shared_ptr<IOCP::Iocp> iocp)
+{
+	spdlog::info("ListenEvent::ListenEvent() - set IocpRef Complete");
+	iocpRef = iocp;
+}
+
+void IOCP::ListenEvent::Execute(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key)
 {
 	switch (over->GetOpCode())
 	{
 	case OP_ACCEPT:
 	{
-		UserManager::GetInstance().AcceptPlayer(std::move(m_clientSocket));
+		//m_connInfo로 remote 주소 정보 확인 가능
+
+		spdlog::debug("IOCP::ListenEvent::Execute() - OP_ACCEPT, ");
+		UserManager::GetInstance().RegistPlayer(m_clientSocket);
+		//새로운 클라이언트를 받기 위해 다시 Accept호출
 		Accept();
 	}
 	break;
@@ -19,32 +29,33 @@ void IocpListenEvent::Execute(ExpOver* over, const DWORD& ioByte, const ULONG_PT
 	};
 }
 
-void IocpListenEvent::RegisterIocp(Iocp* iocpPtr)
+void IOCP::ListenEvent::RegisterIocp(std::shared_ptr<IOCP::Iocp>& iocp)
 {
-	iocp = iocpPtr;
+	iocpRef = iocp;
 }
 
-void IocpListenEvent::Accept()
+void IOCP::ListenEvent::Accept()
 {
-	auto expOver = IocpEventManager::GetInstance().CreateExpOver(OP_ACCEPT, this);
+	auto expOver = IocpEventManager::GetInstance().CreateExpOver(OP_ACCEPT, shared_from_this());
 	m_clientSocket = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, NULL, WSA_FLAG_OVERLAPPED);
 	int addrInfoSize = sizeof(SOCKADDR_IN);
 	/*
 		로컬과 원격지 주소의 크기는 주소가 내부 형식(Internel format)으로 기록되기 때문에
 		반드시 사용중인 전송 프로토콜 sockaddr 구조체보다 16바이트 이상 커야합니다.
-		예를들어, sockaddr_in(TCP/IP의 주소 구조)의 크기는 16바이트입니다. 따라서 ,
+		예를들어, sockaddr_in(TCP/IP의 주소 구조)의 크기는 16바이트입니다. 따라서,
 		로컬주소와 원격주소에 대해 최소 32Bytes의 버퍼크기를 지정해야 합니다.
 	*/
 	bool isSuccess = AcceptEx(m_listenSocket, m_clientSocket, &m_connInfo, 0, sizeof(m_connInfo.localInfo), sizeof(m_connInfo.remoteInfo), nullptr, expOver);
 	if (!isSuccess) {
 		int errorCode = WSAGetLastError();
 		if (ERROR_IO_PENDING != errorCode) {
+			spdlog::warn("IOCP::ListenEvent::Accept() - Accept Error Code: {}", errorCode);
 			//Error
 		}
 	}
 }
 
-void IocpListenEvent::StartListen(const unsigned short& port)
+void IOCP::ListenEvent::StartListen(const unsigned short& port)
 {
 	SOCKADDR_IN server_addr;
 	ZeroMemory(&server_addr, sizeof(SOCKADDR_IN));
@@ -58,6 +69,5 @@ void IocpListenEvent::StartListen(const unsigned short& port)
 	listen(m_listenSocket, SOMAXCONN);
 
 	////리슨 소켓 iocp객체에 등록
-	iocp->RegistHandle(reinterpret_cast<HANDLE>(m_listenSocket), 999999);
+	iocpRef->RegistHandle(reinterpret_cast<HANDLE>(m_listenSocket), 999999);
 }
-
