@@ -29,7 +29,7 @@ namespace TIMER {
 
 	*/
 
-	class EventBase
+	class EventBase : std::enable_shared_from_this<TIMER::EventBase>
 	{
 	public:
 		//ms있다가 시작할 작업
@@ -48,6 +48,6 @@ namespace TIMER {
 	protected:
 		std::chrono::system_clock::time_point m_wakeupTime;
 		TIMER_EVENT_TYPE m_eventId = EV_NONE;
-	};	
+	};
 }
 

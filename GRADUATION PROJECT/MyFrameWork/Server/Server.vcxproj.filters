@@ -19,29 +19,14 @@
     <Filter Include="DB">
       <UniqueIdentifier>{67488753-1084-4e91-a43b-a7d2dc66a6bf}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Room">
-      <UniqueIdentifier>{a13be899-e830-47cb-8b85-8dfe2f61fd3b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Timer">
       <UniqueIdentifier>{cf8ae021-9f8f-43cb-bc14-3e832e28ebfe}</UniqueIdentifier>
     </Filter>
     <Filter Include="MapData">
       <UniqueIdentifier>{cc4ba47b-4988-4ef1-8eb5-0fc85941872c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GameObject">
-      <UniqueIdentifier>{b68ea826-14ee-48e8-9784-1fefb05b8c18}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GameObject\Character">
-      <UniqueIdentifier>{0c5bab66-5984-4d4f-882f-81cbbc34b946}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Network\UserSession">
       <UniqueIdentifier>{117bfb1d-30a0-44fb-9963-935ceae9c30f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GameObject\Projectile">
-      <UniqueIdentifier>{94516b9f-875b-4433-b645-45e961910c70}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GameObject\Monster">
-      <UniqueIdentifier>{3ba49b98-7b73-4a76-80e7-ea99cc3d1eda}</UniqueIdentifier>
     </Filter>
     <Filter Include="MapData\MapCollision">
       <UniqueIdentifier>{bee417fd-7ad1-4336-a81a-e4e9ab2b56d0}</UniqueIdentifier>
@@ -73,8 +58,29 @@
     <Filter Include="Timer\TimerEvent">
       <UniqueIdentifier>{a3175507-e8a9-4aaa-bf71-7d52b3ad0ca3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Room\RoomEvent">
+    <Filter Include="InGame">
+      <UniqueIdentifier>{01b795a2-581c-4218-a79a-bc5b226f5d0b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\GameObject">
+      <UniqueIdentifier>{b68ea826-14ee-48e8-9784-1fefb05b8c18}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\GameObject\Character">
+      <UniqueIdentifier>{0c5bab66-5984-4d4f-882f-81cbbc34b946}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\GameObject\Projectile">
+      <UniqueIdentifier>{94516b9f-875b-4433-b645-45e961910c70}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\GameObject\Monster">
+      <UniqueIdentifier>{3ba49b98-7b73-4a76-80e7-ea99cc3d1eda}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\Room">
+      <UniqueIdentifier>{a13be899-e830-47cb-8b85-8dfe2f61fd3b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\Room\RoomEvent">
       <UniqueIdentifier>{39839b50-7efa-4ad0-9005-dfb67976c7a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\Match">
+      <UniqueIdentifier>{6ed44798-c081-4f3b-ba5f-2ded23df14a0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -88,10 +94,10 @@
       <Filter>DB</Filter>
     </ClCompile>
     <ClCompile Include="Room\Room.cpp">
-      <Filter>Room</Filter>
+      <Filter>InGame\Room</Filter>
     </ClCompile>
     <ClCompile Include="Room\RoomManager.cpp">
-      <Filter>Room</Filter>
+      <Filter>InGame\Room</Filter>
     </ClCompile>
     <ClCompile Include="Timer\Timer.cpp">
       <Filter>Timer</Filter>
@@ -107,22 +113,22 @@
       <Filter>Network\UserSession</Filter>
     </ClCompile>
     <ClCompile Include="GameObject\GameObject.cpp">
-      <Filter>GameObject</Filter>
+      <Filter>InGame\GameObject</Filter>
     </ClCompile>
     <ClCompile Include="GameObject\Projectile\ShootingObject.cpp">
-      <Filter>GameObject\Projectile</Filter>
+      <Filter>InGame\GameObject\Projectile</Filter>
     </ClCompile>
     <ClCompile Include="GameObject\Projectile\MeteoObject.cpp">
-      <Filter>GameObject\Projectile</Filter>
+      <Filter>InGame\GameObject\Projectile</Filter>
     </ClCompile>
     <ClCompile Include="GameObject\Character\ChracterObject.cpp">
-      <Filter>GameObject\Character</Filter>
+      <Filter>InGame\GameObject\Character</Filter>
     </ClCompile>
     <ClCompile Include="GameObject\Monster\MonsterObject.cpp">
-      <Filter>GameObject\Monster</Filter>
+      <Filter>InGame\GameObject\Monster</Filter>
     </ClCompile>
     <ClCompile Include="GameObject\Monster\SmallMonsterObject.cpp">
-      <Filter>GameObject\Monster</Filter>
+      <Filter>InGame\GameObject\Monster</Filter>
     </ClCompile>
     <ClCompile Include="MapData\MapData.cpp">
       <Filter>MapData</Filter>
@@ -161,7 +167,13 @@
       <Filter>Timer\TimerEvent</Filter>
     </ClCompile>
     <ClCompile Include="Room\RoomEvent.cpp">
-      <Filter>Room\RoomEvent</Filter>
+      <Filter>InGame\Room\RoomEvent</Filter>
+    </ClCompile>
+    <ClCompile Include="Match\MatchQueue.cpp">
+      <Filter>InGame\Match</Filter>
+    </ClCompile>
+    <ClCompile Include="Match\Matching.cpp">
+      <Filter>InGame\Match</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -175,10 +187,10 @@
       <Filter>DB</Filter>
     </ClInclude>
     <ClInclude Include="Room\Room.h">
-      <Filter>Room</Filter>
+      <Filter>InGame\Room</Filter>
     </ClInclude>
     <ClInclude Include="Room\RoomManager.h">
-      <Filter>Room</Filter>
+      <Filter>InGame\Room</Filter>
     </ClInclude>
     <ClInclude Include="Timer\Timer.h">
       <Filter>Timer</Filter>
@@ -196,22 +208,22 @@
       <Filter>Network\UserSession</Filter>
     </ClInclude>
     <ClInclude Include="GameObject\GameObject.h">
-      <Filter>GameObject</Filter>
+      <Filter>InGame\GameObject</Filter>
     </ClInclude>
     <ClInclude Include="GameObject\Projectile\ShootingObject.h">
-      <Filter>GameObject\Projectile</Filter>
+      <Filter>InGame\GameObject\Projectile</Filter>
     </ClInclude>
     <ClInclude Include="GameObject\Projectile\MeteoObject.h">
-      <Filter>GameObject\Projectile</Filter>
+      <Filter>InGame\GameObject\Projectile</Filter>
     </ClInclude>
     <ClInclude Include="GameObject\Character\ChracterObject.h">
-      <Filter>GameObject\Character</Filter>
+      <Filter>InGame\GameObject\Character</Filter>
     </ClInclude>
     <ClInclude Include="GameObject\Monster\MonsterObject.h">
-      <Filter>GameObject\Monster</Filter>
+      <Filter>InGame\GameObject\Monster</Filter>
     </ClInclude>
     <ClInclude Include="GameObject\Monster\SmallMonsterObject.h">
-      <Filter>GameObject\Monster</Filter>
+      <Filter>InGame\GameObject\Monster</Filter>
     </ClInclude>
     <ClInclude Include="MapData\MapData.h">
       <Filter>MapData</Filter>
@@ -254,7 +266,13 @@
       <Filter>Timer\TimerEvent</Filter>
     </ClInclude>
     <ClInclude Include="Room\RoomEvent.h">
-      <Filter>Room\RoomEvent</Filter>
+      <Filter>InGame\Room\RoomEvent</Filter>
+    </ClInclude>
+    <ClInclude Include="Match\MatchQueue.h">
+      <Filter>InGame\Match</Filter>
+    </ClInclude>
+    <ClInclude Include="Match\Matching.h">
+      <Filter>InGame\Match</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

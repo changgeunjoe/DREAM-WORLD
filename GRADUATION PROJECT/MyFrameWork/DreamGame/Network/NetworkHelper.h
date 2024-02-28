@@ -2,20 +2,21 @@
 #include "../stdafx.h"
 #include <thread>
 #include <WS2tcpip.h>
-#include "../../Server/IOCPNetwork/protocol/protocol.h"
+
 
 
 #pragma comment(lib, "WS2_32.lib")
 
-#define SERVER_IP "183.101.110.217"
+//#define SERVER_IP "183.101.110.217"
+#define SERVER_IP "127.0.0.1"
 #define SERVER_PORT 9000
-#define MAX_BUF_SIZE 1024
+
 
 class NetworkHelper {
 private:
 	SOCKET m_clientSocket;
 private:
-	char m_buffer[MAX_BUF_SIZE];
+	char m_buffer[MAX_RECV_BUF_SIZE];
 	int m_prevPacketSize = 0;
 private:
 	bool m_bIsRunnung = false;
@@ -61,7 +62,7 @@ public:
 	void SendTimeSyncPacket();
 
 private:
-	void ConstructPacket(int ioByte);
+	void ConstructPacket(const int& ioByte);
 private:
 	void Destroy();
 };

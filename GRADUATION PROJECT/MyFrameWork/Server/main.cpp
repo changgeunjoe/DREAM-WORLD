@@ -5,7 +5,9 @@
 //#include "Room/RoomManager.h"
 #include "Timer/Timer.h"
 #include "Network/UserSession/UserManager.h"
+#include "Network/IocpEvent/IocpEventManager.h"
 #include "DB/DB.h"
+#include "Match/Matching.h"
 //astart collision monster
 //MapData		g_bossMapData{ std::filesystem::current_path().string().append("\\\MapData\\\BossRoom.txt"),std::filesystem::current_path().string().append("\\\MapData\\\BossCollisionData.txt"),std::filesystem::current_path().string().append("\\\MapData\\\MonsterBoss.txt") };
 //MapData		g_stage1MapData{ "NONE",std::filesystem::current_path().string().append("\\\MapData\\\Stage1CollisionData.txt"),std::filesystem::current_path().string().append("\\\MapData\\\MonsterStage1.txt") };
@@ -28,11 +30,13 @@ int main()
 	TIMER::Timer::GetInstance().RegisterIocp(iocpRef->GetSharedPtr());
 	UserManager::GetInstance().RegisterIocp(iocpRef->GetSharedPtr());
 	DB::DBConnector::GetInstance().RegistIocp(iocpRef->GetSharedPtr());
+	IocpEventManager::GetInstance().Initailize();
 
 	//각 클래스 시작
 	UserManager::GetInstance().Initialize();
 	TIMER::Timer::GetInstance().StartTimer();
 	DB::DBConnector::GetInstance().Connect();
+	Matching::GetInstance().StartMatching();
 
 	iocpRef->Start();
 	iocpRef->WorkerThreadJoin();

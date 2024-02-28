@@ -6,9 +6,10 @@ ExpOver::~ExpOver()
 {
 }
 
-void ExpOver::Execute(const DWORD& ioByte, const ULONG_PTR& key)
+void ExpOver::Execute(const BOOL& isSuccess, const DWORD& ioByte, const ULONG_PTR& key)
 {
-	m_iocpEvent->Execute(this, ioByte, key);
+	if (isSuccess) m_iocpEvent->Execute(this, ioByte, key);
+	else m_iocpEvent->Fail(this, ioByte, key);
 }
 
 //void RecvExpOverBuffer::DoRecv(SOCKET& socket)

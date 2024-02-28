@@ -6,14 +6,15 @@
 class ExpOver;
 class PacketHeader;
 class Room;
+//recv, DB(weak_ptr), Room객체 예정
 class UserSession :public IOCP::EventBase
 {
 private:
 	struct RecvDataStorage
 	{
+		WSABUF m_wsabuf;
 		int m_remainDataLength = 0;
 		char m_buffer[MAX_RECV_BUF_SIZE];
-		WSABUF m_wsabuf;
 		RecvDataStorage()
 		{
 			m_remainDataLength = 0;
@@ -40,10 +41,16 @@ public:
 	~UserSession();
 
 	void Execute(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key) override;
+	virtual void Fail(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key) override;
 	void StartRecv();
 	void DoSend(const PacketHeader* packetHeader);
+
+	void LoginSucces(const wchar_t* nickName)
+	{
+		m_playerName = nickName;
+	}
 private:
-	void DoRecv(ExpOver* over);
+	void DoRecv(ExpOver*& over);
 
 	void ContructPacket(const DWORD& ioSize);
 	void ExecutePacket(const PacketHeader* packetHeader);
@@ -54,9 +61,7 @@ protected:
 	RecvDataStorage m_recvDataStorage;
 
 	//UserInfo
-	int m_id;
 	std::atomic<PLAYER_STATE> m_playerState;
-	std::wstring m_loginId;
 	std::wstring m_playerName;
 
 	std::weak_ptr<Room> m_roomWeakRef;//Room이 삭제 됐다면, 플레이어는 방에서 나오게

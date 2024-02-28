@@ -6,7 +6,7 @@ namespace IOCP
 {
 	class Iocp;
 }
-
+class UserSession;
 namespace DB
 {
 	enum DB_OP_CODE
@@ -18,8 +18,8 @@ namespace DB
 	{
 	public:
 		EventBase() = default;
-		EventBase(const DB_OP_CODE& opCode, const int& userId)
-			:m_opCode(opCode), m_userId(userId)
+		EventBase(const DB_OP_CODE& opCode)
+			:m_opCode(opCode)
 		{}
 
 		void Execute(HANDLE iocpHandle, SQLHDBC hdbc);
@@ -31,16 +31,15 @@ namespace DB
 
 	protected:
 		DB_OP_CODE	m_opCode;
-		int			m_userId;
 	};
 
 	class PlayerInfoEvent : public EventBase
 	{
 	public:
 		PlayerInfoEvent() = default;
-		PlayerInfoEvent(const DB_OP_CODE& opCode, const int& userId, const char* loginId, const char* pw);
+		PlayerInfoEvent(const DB_OP_CODE& opCode, std::shared_ptr<UserSession>& userRef, const char* loginId, const char* pw);
 
-		void SetData(const DB_OP_CODE& opCode, const int& userId, const char* loginId, const char* pw);
+		void SetData(const DB_OP_CODE& opCode, std::shared_ptr<UserSession>& userRef, const char* loginId, const char* pw);
 
 	protected:
 		virtual void Proccess(SQLRETURN exeResult, HANDLE iocpHandle, SQLHSTMT hstmt) override;
@@ -48,11 +47,12 @@ namespace DB
 		virtual void ExecuteFail() override;
 
 	private:
-		void NonExist();
+		void NonExist(HANDLE iocpHandle, std::shared_ptr<UserSession>& userRef);
 
 	protected:
 		std::wstring m_playerLoginId;
 		std::wstring m_password;
+		std::weak_ptr<UserSession> m_userRef;
 	};
 
 	class DBConnector : public SingletonBase<DBConnector>
@@ -81,7 +81,7 @@ namespace DB
 		//SQLHSTMT m_hstmt;
 
 		tbb::concurrent_queue<std::shared_ptr<DB::EventBase>> m_DBEventQueue;
-		std::thread m_DBthread;
+		std::jthread m_DBthread;
 		std::shared_ptr<IOCP::Iocp> iocpRef;
 	};
 

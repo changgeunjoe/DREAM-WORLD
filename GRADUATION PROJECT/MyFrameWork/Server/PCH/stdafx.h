@@ -2,7 +2,6 @@
 
 #define _WINSOCK_DEPRECATED_NO_WARNINGS 1
 #define MAX_USER 4000
-//#define ALONE_TEST 1
 #pragma comment(lib, "mswsock.lib")
 #pragma comment(lib, "WS2_32.lib")
 
@@ -43,6 +42,7 @@
 #include <span>
 #include <ranges>
 #include <functional>
+#include <optional>
 
 #include <thread>
 #include <atomic>
@@ -120,13 +120,12 @@ enum ROTATE_AXIS :char
 	X, Y, Z
 };
 
-enum ROLE :char {
+enum class ROLE :char {
 	NONE_SELECT = 0x00,
 	WARRIOR = 0x01,
-	PRIEST = 0x02,
+	MAGE = 0x02,
 	TANKER = 0x04,
 	ARCHER = 0x08,
-	RAND = 0x10
 };
 
 enum BOSS_ATTACK : char {
@@ -161,10 +160,10 @@ enum ROOM_STATE : char {
 };
 
 constexpr short PORT = 9000;
-constexpr short NAME_SIZE = 26;
 
 constexpr int MAX_SEND_BUF_SIZE = 256;
 constexpr int MAX_RECV_BUF_SIZE = 1024;
+
 using namespace DirectX;
 
 namespace Vector3
@@ -357,7 +356,7 @@ namespace Matrix4x4
 }
 
 void PrintCurrentTime();
-bool DisplayWsaGetLastError(int Errcode);
+void DisplayWsaGetLastError(const int& wsaErrcode);
 void StartLogger();
 //wchar->char
 std::string ConvertWideStringToString(const wchar_t* wstr);

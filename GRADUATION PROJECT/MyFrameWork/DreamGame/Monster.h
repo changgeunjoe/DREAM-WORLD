@@ -43,7 +43,7 @@ public:
 	NormalMonster();
 	virtual ~NormalMonster();
 	void SetAnimation();
-	void SetDesPos(XMFLOAT3& desPos) { m_desPos = desPos; }
+	void SetDesPos(const XMFLOAT3& desPos) { m_desPos = desPos; }
 	void SetAliveState(bool bAlive) { m_bIsAlive = bAlive; }
 	bool GetAliveState() { return m_bIsAlive; }
 

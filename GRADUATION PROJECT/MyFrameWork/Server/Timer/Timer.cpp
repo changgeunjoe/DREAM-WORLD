@@ -3,7 +3,7 @@
 #include "TimerEventBase.h"
 #include "../Network/IOCP/IOCP.h"
 
-bool TIMER::TimerQueueComp(EventBase* l, EventBase* r)
+bool TIMER::TimerQueueComp(std::shared_ptr<TIMER::EventBase>& l, std::shared_ptr<TIMER::EventBase>& r)
 {
 	return *l < *r;
 }
@@ -23,7 +23,7 @@ void TIMER::Timer::TimerThreadFunc()
 			std::this_thread::yield();
 			continue;
 		}
-		TIMER::EventBase* currentEvent = nullptr;
+		std::shared_ptr<TIMER::EventBase> currentEvent = nullptr;
 		bool isSuccess = m_timerQueue.try_pop(currentEvent);
 		if (!isSuccess) {//이벤트를 못 가져왔다면 양보
 			std::this_thread::yield();
@@ -41,7 +41,7 @@ void TIMER::Timer::TimerThreadFunc()
 
 void TIMER::Timer::StartTimer()
 {
-	m_TimerThread = std::thread([this]() {TimerThreadFunc(); });
+	m_TimerThread = std::jthread([this]() {TimerThreadFunc(); });
 	spdlog::info("Timer::StartTimer() - Timer Start");
 }
 

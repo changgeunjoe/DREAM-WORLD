@@ -122,6 +122,8 @@ enum ROLE :char {
 	RAND = 0x10
 };
 
+constexpr int MAX_RECV_BUF_SIZE = 1024;
+
 enum STAGE
 {
 	STAGE1 = 1,

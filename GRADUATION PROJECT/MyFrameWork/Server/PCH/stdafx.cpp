@@ -8,16 +8,15 @@ void PrintCurrentTime()
 	//std::cout << std::ctime(&currentTime);
 }
 
-bool DisplayWsaGetLastError(int Errcode)
+void DisplayWsaGetLastError(const int& wsaErrcode)
 {
-	if (Errcode == 997)return false;
-	LPVOID lpMsgBuf;
+	LPWSTR lpMsgBuf = nullptr;
 	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-		NULL, Errcode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-		(LPWSTR)&lpMsgBuf, 0, NULL);
-	std::wcout << "ErrorCode: " << Errcode << " - " << (WCHAR*)lpMsgBuf << std::endl;
+		NULL, wsaErrcode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		lpMsgBuf, 0, NULL);
+	if (nullptr == lpMsgBuf) return;
+	spdlog::critical("WSAErrorCode: {}, Error Message: {}", wsaErrcode, ConvertWideStringToString(lpMsgBuf));
 	LocalFree(lpMsgBuf);
-	return true;
 }
 
 void StartLogger()

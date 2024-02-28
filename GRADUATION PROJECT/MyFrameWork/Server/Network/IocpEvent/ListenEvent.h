@@ -31,6 +31,7 @@ namespace IOCP
 		ListenEvent(std::shared_ptr<IOCP::Iocp> iocp);
 
 		virtual void Execute(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key) override;
+		virtual void Fail(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key) override;
 
 		void RegisterIocp(std::shared_ptr< IOCP::Iocp>& iocp);
 		void Accept();

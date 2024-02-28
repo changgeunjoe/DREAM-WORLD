@@ -169,6 +169,8 @@
     <ClCompile Include="MapData\MapData.cpp" />
     <ClCompile Include="MapData\NavMeshQuadTree\NavMeshQuadTree.cpp" />
     <ClCompile Include="MapData\TriangleMesh\TriangleMesh.cpp" />
+    <ClCompile Include="Match\Matching.cpp" />
+    <ClCompile Include="Match\MatchQueue.cpp" />
     <ClCompile Include="Network\ExpOver\ExpOver.cpp" />
     <ClCompile Include="Network\IocpEvent\IocpEventManager.cpp" />
     <ClCompile Include="Network\IocpEvent\IocpDBEvent.cpp" />
@@ -204,6 +206,8 @@
     <ClInclude Include="MapData\MapData.h" />
     <ClInclude Include="MapData\NavMeshQuadTree\NavMeshQuadTree.h" />
     <ClInclude Include="MapData\TriangleMesh\TriangleMesh.h" />
+    <ClInclude Include="Match\Matching.h" />
+    <ClInclude Include="Match\MatchQueue.h" />
     <ClInclude Include="Network\ExpOver\ExpOver.h" />
     <ClInclude Include="Network\IocpEvent\IocpEventBase.h" />
     <ClInclude Include="Network\IocpEvent\IocpEventManager.h" />

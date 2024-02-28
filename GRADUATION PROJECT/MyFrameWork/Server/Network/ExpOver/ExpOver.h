@@ -56,7 +56,7 @@ public:
 		return m_opCode;
 	}
 
-	void Execute(const DWORD& ioByte, const ULONG_PTR& key);
+	void Execute(const BOOL& isSuccess, const DWORD& ioByte, const ULONG_PTR& key);
 
 	//¿À¹ö·¦ °´Ã¼ ÃÊ±âÈ­
 	void ResetOverlapped()

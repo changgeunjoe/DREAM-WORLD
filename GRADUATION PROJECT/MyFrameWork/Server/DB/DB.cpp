@@ -3,6 +3,7 @@
 #include "../Network/IocpEvent/IocpEventManager.h"
 #include "../Network/IocpEvent/IocpDBEvent.h"
 #include "../Network/IOCP/IOCP.h"
+#include "../Network/UserSession/UserSession.h"
 
 void DB::EventBase::Execute(HANDLE iocpHandle, SQLHDBC hdbc)
 {
@@ -36,7 +37,7 @@ void DB::EventBase::Execute(HANDLE iocpHandle, SQLHDBC hdbc)
 	}
 
 	//쿼리에 대한 결과 처리
-	Proccess(retCode, iocpHandle, hdbc);
+	Proccess(retCode, iocpHandle, sqlStatement);
 
 	//stmt 해제
 	SQLCancel(sqlStatement);///종료
@@ -45,8 +46,8 @@ void DB::EventBase::Execute(HANDLE iocpHandle, SQLHDBC hdbc)
 
 #pragma region DB_PLAYER_EVENT
 
-DB::PlayerInfoEvent::PlayerInfoEvent(const DB_OP_CODE& opCode, const int& userId, const char* loginId, const char* pw)
-	:EventBase(opCode, userId)
+DB::PlayerInfoEvent::PlayerInfoEvent(const DB_OP_CODE& opCode, std::shared_ptr<UserSession>& userRef, const char* loginId, const char* pw)
+	:EventBase(opCode), m_userRef(userRef)
 {
 	m_playerLoginId = ConvertStringToWideString(loginId);
 	m_password = ConvertStringToWideString(pw);
@@ -54,30 +55,45 @@ DB::PlayerInfoEvent::PlayerInfoEvent(const DB_OP_CODE& opCode, const int& userId
 
 void DB::PlayerInfoEvent::Proccess(SQLRETURN exeResult, HANDLE iocpHandle, SQLHSTMT hstmt)
 {
-	if (SQL_NO_DATA == exeResult) {
-		//플레이어 정보가 없음
-		NonExist();
-		return;
-	}
+	auto userRef = m_userRef.lock();
+	//유저가 로그인 하기전에 나감
+	if (nullptr == userRef) return;
 
 	//플레이어 정보가 존재
 	SQLRETURN retCode;
-
-	SQLWCHAR playerName[NAME_SIZE] = { 0 };
+	SQLWCHAR playerName[DB_NAME_SIZE] = { 0 };
 	SQLLEN dataLength = SQL_NULL_DATA;
 	//namelength
 	//SQL_NULL_DATA
 	//SQL_NO_TOTAL
 
 	//BufferLegth는 wchar_t: 2바이트 이기때문에 * 2 계산
-	retCode = SQLBindCol(hstmt, 1, SQL_C_WCHAR, playerName, (NAME_SIZE) * 2, &dataLength);
+	retCode = SQLBindCol(hstmt, 1, SQL_C_WCHAR, playerName, DB_NAME_SIZE * 2, &dataLength);
+#ifdef _DEBUG
+	if (SQL_SUCCESS != retCode) {
+		spdlog::warn("PlayerInfoEvent::Proccess() - SQLBindCol Raise Error");
+		ErrorPrint(SQL_HANDLE_STMT, hstmt);
+	}
+#endif // _DEBUG
+
 	retCode = SQLFetch(hstmt);
+	//플레이어 정보가 없음
+	if (SQL_NO_DATA == retCode) {
+		NonExist(iocpHandle, userRef);
+		//stmt종료는 함수 외부에서 수행
+		return;
+	}
 
-	//
+#ifdef _DEBUG
+	else if (SQL_SUCCESS != retCode) {
+		spdlog::warn("PlayerInfoEvent::Proccess() - SQLFetch Raise Error");
+		ErrorPrint(SQL_HANDLE_STMT, hstmt);
+	}
+#endif // _DEBUG
 
-	auto playerInfoEvent = std::make_shared<IOCP::DBGetPlayerInfoEvent>(playerName);
+	auto playerInfoEvent = std::make_shared<IOCP::DBGetPlayerInfoEvent>(playerName, userRef);
 	auto expOver = IocpEventManager::GetInstance().CreateExpOver(IOCP_OP_CODE::OP_SUCCESS_GET_PLAYER_INFO, playerInfoEvent);
-	PostQueuedCompletionStatus(iocpHandle, 0, m_userId, expOver);
+	PostQueuedCompletionStatus(iocpHandle, 0, 99999, expOver);
 
 	/*
 		SQL_SUCCESS_WITH_INFO
@@ -107,15 +123,18 @@ void DB::PlayerInfoEvent::ExecuteFail()
 
 }
 
-void DB::PlayerInfoEvent::NonExist()
+void DB::PlayerInfoEvent::NonExist(HANDLE iocpHandle, std::shared_ptr<UserSession>& userRef)
 {
 	//성공했으나, 해당하는 정보가 존재 하지 않음.
+	//auto playerInfoEvent = std::make_shared<IOCP::DBNotifyEvent>(userRef);
+	/*auto expOver = IocpEventManager::GetInstance().CreateExpOver(IOCP_OP_CODE::OP_FAIL_GET_PLAYER_INFO, playerInfoEvent);
+	PostQueuedCompletionStatus(iocpHandle, 0, 99999, expOver);*/
 }
 
-void DB::PlayerInfoEvent::SetData(const DB_OP_CODE& opCode, const int& userId, const char* loginId, const char* pw)
+void DB::PlayerInfoEvent::SetData(const DB_OP_CODE& opCode, std::shared_ptr<UserSession>& userRef, const char* loginId, const char* pw)
 {
 	m_opCode = opCode;
-	m_userId = userId;
+	m_userRef = userRef;
 	m_playerLoginId = ConvertStringToWideString(loginId);
 	m_password = ConvertStringToWideString(pw);
 }
@@ -180,13 +199,13 @@ void DB::DBConnector::Connect()
 					retCode = SQLConnect(m_hdbc, (SQLWCHAR*)L"Dream_World_DB", SQL_NTS, (SQLWCHAR*)NULL, SQL_NTS, NULL, SQL_NTS);
 					if (SQL_SUCCESS == retCode) {
 						spdlog::info("DB Connect Success");
-						m_DBthread = std::thread([this]() {DBConnectThread(); });
+						m_DBthread = std::jthread([this]() {DBConnectThread(); });
 					}
 					else {
 						if (SQL_SUCCESS_WITH_INFO == retCode) {
 							spdlog::info("DB Connect Success With Info");
 							ErrorPrint(SQL_HANDLE_DBC, m_hdbc);
-							m_DBthread = std::thread([this]() {DBConnectThread(); });
+							m_DBthread = std::jthread([this]() {DBConnectThread(); });
 						}
 						else {
 							spdlog::critical("DB::DBConnector::Connect() - dbc ConnectError");
@@ -254,7 +273,6 @@ void DB::ErrorPrint(const SQLSMALLINT& handleType, SQLHANDLE handle)
 
 			ZeroMemory(sqlState, SQL_SQLSTATE_SIZE + 1);
 			ZeroMemory(sqlMessage, sqlErrorLength + 1);
-			++recNumber;
 		}
 		break;
 
@@ -267,7 +285,6 @@ void DB::ErrorPrint(const SQLSMALLINT& handleType, SQLHANDLE handle)
 			}
 			ZeroMemory(sqlState, SQL_SQLSTATE_SIZE + 1);
 			ZeroMemory(sqlMessage, sqlErrorLength + 1);
-			++recNumber;
 		}
 		break;
 
@@ -297,7 +314,7 @@ void DB::ErrorPrint(const SQLSMALLINT& handleType, SQLHANDLE handle)
 		default:
 			break;
 		}
-
+		++recNumber;
 	}
 
 }

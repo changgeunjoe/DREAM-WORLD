@@ -39,7 +39,7 @@ public:
 	Logic();
 	~Logic();
 public:
-	void ProcessPacket(char* p);
+	void ProcessPacket(const class PacketHeader* packetHeader);
 	XMFLOAT3 GetPostion(ROLE r);
 	friend class CGameFramework;
 private:

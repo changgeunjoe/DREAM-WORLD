@@ -1201,10 +1201,10 @@ void GameobjectManager::CheckCollidePortal()
 
 Player* GameobjectManager::GetChracterInfo(ROLE r)
 {
-	if (r == ROLE::WARRIOR) return m_pWarriorObject;
-	if (r == ROLE::PRIEST) return m_pPriestObject;
-	if (r == ROLE::TANKER) return m_pTankerObject;
-	if (r == ROLE::ARCHER) return m_pArcherObject;
+	if (r & ROLE::WARRIOR) return m_pWarriorObject;
+	if (r & ROLE::PRIEST) return m_pPriestObject;
+	if (r & ROLE::TANKER) return m_pTankerObject;
+	if (r & ROLE::ARCHER) return m_pArcherObject;
 	return nullptr;
 }
 
@@ -2508,14 +2508,15 @@ void GameobjectManager::ResetLobbyUI()
 	m_pUIPriestCharacterObject->m_bUIActive = true;
 }
 
-void GameobjectManager::SetLightningEffect(XMFLOAT3& targetPos)
+void GameobjectManager::SetLightningEffect(const XMFLOAT3& targetPos)
 {
 	g_sound.NoLoopPlay("LightningSound", m_pLightningSpriteObject->CalculateDistanceSound() + 0.3);
 	m_LightningTargetPos = targetPos;
 	m_pLightEffectObject->SetActive(m_pLightEffectObject->m_bActive);
 	m_pLightEffectObject->AnimateEffect(m_pCamera, targetPos, m_fTimeElapsed, m_fTime * 5);
-	targetPos.y += 50.0f;
-	m_pLightningSpriteObject->SetPosition(targetPos);
+	XMFLOAT3 newPos = targetPos;
+	newPos.y += 50.0f;
+	m_pLightningSpriteObject->SetPosition(newPos);
 	m_pLightEffectObject->m_fEffectLifeTime = 3.0f;
 	m_pLightningSpriteObject->m_bActive = m_pLightEffectObject->m_bActive = true;
 }

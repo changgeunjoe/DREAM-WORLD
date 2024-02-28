@@ -19,7 +19,7 @@ IOCP::Iocp::~Iocp()
 
 void IOCP::Iocp::Start()
 {
-	int threadNum = std::thread::hardware_concurrency();
+	int threadNum = std::jthread::hardware_concurrency();
 	//thread »ý¼º
 	for (int i = 0; i < threadNum; ++i)
 		m_workerThread.emplace_back([this]() {WorkerThread(); });
@@ -47,20 +47,7 @@ void IOCP::Iocp::WorkerThread()
 		WSAOVERLAPPED* over = nullptr;
 		BOOL ret = GetQueuedCompletionStatus(m_hIocp, &ioByte, &key, &over, INFINITE);
 		ExpOver* exOver = reinterpret_cast<ExpOver*>(over);
-
-		if (FALSE == ret) {
-			//if (exOver->GetOpCode() == IOCP_OP_CODE::OP_ACCEPT) {
-				//spdlog::info("Accept Error");
-
-				//continue;
-			//}
-			//spdlog::warn("GQCS Error on client[{0:d}]", key);
-
-			//DisconnectClient(static_cast<int>(key));
-			//ExpOverManager::GetInstance().DeleteExpOver(ex_over);
-			continue;
-		}
-		exOver->Execute(ioByte, key);
+		exOver->Execute(ret, ioByte, key);
 	}
 }
 

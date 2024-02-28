@@ -13,6 +13,7 @@ namespace IOCP
 		EventBase() = default;
 	public:
 		virtual void Execute(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key) = 0;
+		virtual void Fail(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key) = 0;
 
 		std::shared_ptr<EventBase> GetSharedPtr()
 		{

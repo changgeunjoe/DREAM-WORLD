@@ -35,7 +35,7 @@ namespace IOCP
 	private:
 		HANDLE m_hIocp;
 	private:
-		std::vector<std::thread> m_workerThread;
+		std::vector<std::jthread> m_workerThread;
 		std::shared_ptr<IOCP::ListenEvent> m_listener;
 	};
 }

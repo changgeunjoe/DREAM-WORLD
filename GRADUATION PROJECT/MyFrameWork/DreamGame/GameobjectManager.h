@@ -313,7 +313,7 @@ public:
 	void SetCharactersLobbyPosition();
 	void SetPortalCheck(bool b) { m_bPortalCheck = b; }
 	void ResetLobbyUI();
-	void SetLightningEffect(XMFLOAT3& targetPos);
+	void SetLightningEffect(const XMFLOAT3& targetPos);
 	float GetTotalProgressTime() { return m_fTime; }
 	float GetTimeElapesed() { return m_fTimeElapsed; }
 	CCamera* GetCamera() { return m_pCamera; }

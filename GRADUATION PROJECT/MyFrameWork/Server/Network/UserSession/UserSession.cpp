@@ -4,33 +4,33 @@
 #include "../ExpOver/ExpOver.h"
 #include "../protocol/protocol.h"
 #include "../DB/DB.h"
+#include "../Match/Matching.h"
 
 UserSession::UserSession() : m_recvDataStorage(RecvDataStorage())
 {
-	m_id = -1;
 	spdlog::debug("UserSession::UserSession() - 0x{0:0>16x}", long long(this));
 }
 
-UserSession::UserSession(int id) : m_id(id), m_recvDataStorage(RecvDataStorage())
+UserSession::UserSession(int id) : m_recvDataStorage(RecvDataStorage())
 {
 	spdlog::debug("UserSession::UserSession({0:d}) - 0x{1:0>16x}", id, long long(this));
 	m_playerName = L"m_playerName Test";
 }
 
-UserSession::UserSession(int id, SOCKET sock) : m_id(id), m_socket(sock), m_recvDataStorage(RecvDataStorage())
+UserSession::UserSession(int id, SOCKET sock) : m_socket(sock), m_recvDataStorage(RecvDataStorage())
 {
 	spdlog::debug("UserSession::UserSession({0:d}) - 0x{1:0>16x}", id, long long(this));
 }
 
 UserSession::UserSession(const UserSession& other)
-	: m_id(other.m_id), m_loginId(other.m_loginId), m_playerName(other.m_playerName), m_recvDataStorage(RecvDataStorage())//, m_roomId(other.m_roomId)
+	: m_playerName(other.m_playerName), m_recvDataStorage(RecvDataStorage())//, m_roomId(other.m_roomId)
 {
 	spdlog::debug("UserSession::UserSession() - copyConstructor 0x{0:0>16x}", long long(this));
 	m_socket = NULL;
 }
 
 UserSession::UserSession(UserSession&& other) noexcept
-	: m_id(other.m_id), m_loginId(other.m_loginId), m_playerName(std::move(other.m_playerName)), m_recvDataStorage(RecvDataStorage())//, m_roomId(other.m_roomId)
+	: m_playerName(std::move(other.m_playerName)), m_recvDataStorage(RecvDataStorage())//, m_roomId(other.m_roomId)
 {
 	spdlog::debug("UserSession::UserSession() - moveConstructor 0x{0:0>16x}", long long(this));
 
@@ -41,9 +41,8 @@ UserSession::UserSession(UserSession&& other) noexcept
 
 UserSession::~UserSession()
 {
-	long long ptr = long long(this);
-	spdlog::debug("UserSession::~UserSession({0:d}) - 0x{1:0>16x}", m_id, ptr);
-	m_id = -1;
+	spdlog::debug("UserSession::~UserSession - Nick Name: {0}", ConvertWideStringToString(m_playerName.c_str()));
+	//m_id = -1;
 	if (NULL != m_socket)
 		closesocket(m_socket);
 	m_recvDataStorage.Reset();
@@ -55,12 +54,53 @@ void UserSession::Execute(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& k
 	switch (currentOpCode)
 	{
 	case OP_RECV:
-		ContructPacket(ioByte);
-		break;
+	{
+		if (0 == ioByte) {
+			int errCode = WSAGetLastError();
+			if (errCode != WSA_IO_PENDING) {
+				spdlog::critical("UserSession::Execute() - OP_RECV Error");
+				DisplayWsaGetLastError(errCode);
+				//User Disconnect
+				return;
+			}
+		}
+		else ContructPacket(ioByte);
+		DoRecv(over);
+	}
+	break;
 	default:
+		spdlog::critical("UserSession::Execute() - UnDefined OP_CODE - {}", currentOpCode);
+		return;
 		break;
 	}
-	DoRecv(over);
+}
+
+void UserSession::Fail(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key)
+{
+	//Iocp에서 ret == false
+	auto currentOpCode = over->GetOpCode();
+	switch (currentOpCode)
+	{
+	case OP_RECV:
+	{
+		if (0 == ioByte) {
+			int errCode = WSAGetLastError();
+			if (errCode != WSA_IO_PENDING) {
+				spdlog::critical("UserSession::Execute() - OP_RECV Error");
+				DisplayWsaGetLastError(errCode);
+				//User Disconnect
+				return;
+			}
+		}
+		else ContructPacket(ioByte);
+		DoRecv(over);
+	}
+	break;
+	default:
+		spdlog::critical("UserSession::Execute() - UnDefined OP_CODE - {}", currentOpCode);
+		return;
+		break;
+	}
 }
 
 void UserSession::StartRecv()
@@ -75,22 +115,26 @@ void UserSession::DoSend(const PacketHeader* packetHeader)
 	IocpEventManager::GetInstance().Send(m_socket, packetHeader);
 }
 
-void UserSession::DoRecv(ExpOver* over)
+void UserSession::DoRecv(ExpOver*& over)
 {
 	//wsaBuf length 길이 재 설정
 	m_recvDataStorage.m_wsabuf.len = MAX_RECV_BUF_SIZE - m_recvDataStorage.m_remainDataLength;
-	int recvRes = WSARecv(m_socket, &m_recvDataStorage.m_wsabuf + m_recvDataStorage.m_remainDataLength, 1, nullptr, 0, over, nullptr);
+	DWORD immediateRecvByte = 0;
+	DWORD recvFlag = 0;
+	int recvRes = WSARecv(m_socket, &m_recvDataStorage.m_wsabuf, 1, nullptr, &recvFlag, over, nullptr);
 	if (recvRes != 0) {
 		int errCode = WSAGetLastError();
 		if (WSA_IO_PENDING != errCode) {
-			spdlog::warn("UserSession::DoRecv() - Error Code: {}", errCode);
+			spdlog::critical("UserSession::DoRecv() - Error");
+			DisplayWsaGetLastError(errCode);
+			//Disconnect??
 		}
 	}
 }
 
 void UserSession::ContructPacket(const DWORD& ioSize)
 {
-	int currentID = m_id;
+	//int currentID = m_id;
 	int remainSize = ioSize + m_recvDataStorage.m_remainDataLength;
 	char* bufferPosition = m_recvDataStorage.m_buffer;
 	while (remainSize > sizeof(PacketHeader::size)) {
@@ -110,70 +154,66 @@ void UserSession::ContructPacket(const DWORD& ioSize)
 	//남은 패킷 데이터가 있다면, 맨 앞으로 당기기
 	if (remainSize > 0)
 		std::memcpy(m_recvDataStorage.m_buffer, bufferPosition, remainSize);
+	//wsaBuf의 buf 위치를 바꿈
+	m_recvDataStorage.m_wsabuf.buf = m_recvDataStorage.m_buffer + remainSize;
 }
 
 void UserSession::ExecutePacket(const PacketHeader* packetHeader)
 {
-	switch (packetHeader->type)
+	switch (static_cast<CLIENT_PACKET::TYPE>(packetHeader->type))
 	{
-	case CLIENT_PACKET::LOGIN:
+	case CLIENT_PACKET::TYPE::LOGIN:
 	{
 		const CLIENT_PACKET::LoginPacket* recvPacket = reinterpret_cast<const CLIENT_PACKET::LoginPacket*>(packetHeader);
-		std::shared_ptr<DB::EventBase> getPlayerInfoEvent = std::make_shared<DB::PlayerInfoEvent>(DB::DB_OP_CODE::DB_OP_GET_PLAYER_INFO, m_id, recvPacket->id, recvPacket->pw);
+		std::shared_ptr<DB::EventBase> getPlayerInfoEvent = std::make_shared<DB::PlayerInfoEvent>(DB::DB_OP_CODE::DB_OP_GET_PLAYER_INFO, std::static_pointer_cast<UserSession, IOCP::EventBase>(shared_from_this()), recvPacket->id, recvPacket->pw);
 		DB::DBConnector::GetInstance().InsertDBEvent(getPlayerInfoEvent);
 	}
 	break;
-	case CLIENT_PACKET::MATCH:
+	case CLIENT_PACKET::TYPE::MATCH:
 	{
-		//1인 테스트
-#ifdef ALONE_TEST
 		const CLIENT_PACKET::MatchPacket* recvPacket = reinterpret_cast<const CLIENT_PACKET::MatchPacket*>(packetHeader);
-		if (recvPacket->Role != ROLE::NONE_SELECT && recvPacket->Role != ROLE::RAND) {
-			std::map<ROLE, int> alonePlayerMap;
-			alonePlayerMap.insert(std::make_pair((ROLE)recvPacket->Role, userId));
-			int newRoomId = g_RoomManager.GetRoomId();//새로운 룸 오브젝트 가져오기
-			Room& roomRef = g_RoomManager.GetRunningRoomRef(newRoomId);
-			roomRef.InsertInGamePlayer(alonePlayerMap);
-			roomRef.GameStart();
-			g_iocpNetwork.m_session[userId].SetRole((ROLE)recvPacket->Role);
-			g_iocpNetwork.m_session[userId].SetRoomId(newRoomId);
-			roomRef.SendAllPlayerInfo();
-
-			SERVER_PACKET::NotifyPacket sendPacket;
-			sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
-			sendPacket.type = SERVER_PACKET::INTO_GAME;
-			g_iocpNetwork.m_session[userId].Send(&sendPacket);
+		ROLE currentRole = static_cast<ROLE>(recvPacket->Role);
+		if (static_cast<ROLE>(recvPacket->Role) == ROLE::NONE_SELECT) {
+			//Send disable to User
 		}
-#else
-		//매칭은 클래스 하나 새로 파서 하는게 맞을듯.
-		//std::cout << "match: " << userId << std::endl;
-		const CLIENT_PACKET::MatchPacket* recvPacket = reinterpret_cast<const CLIENT_PACKET::MatchPacket*>(packetHeader);
-		//InsertMatchQueue((ROLE)recvPacket->Role, userId);
-		//매치 큐 걸어놓고 끝
-#endif // ALONE_TEST
+		else Matching::GetInstance().InserMatch(std::static_pointer_cast<UserSession, IOCP::EventBase>(shared_from_this()), currentRole);
 	}
 	break;
 
 #pragma region CHARACTER_MOVE
-	case CLIENT_PACKET::MOVE_KEY_DOWN:
+	case CLIENT_PACKET::TYPE::MOVE_KEY_DOWN:
 	{
 		const CLIENT_PACKET::MovePacket* recvPacket = reinterpret_cast<const CLIENT_PACKET::MovePacket*>(packetHeader);
 		//Logic::CharacterAddDirection(userId, recvPacket->direction);
+		//
+		//Effectively returns expired() ? shared_ptr<T>() : shared_ptr<T>(*this), executed atomically.
+		//weak_ptr<>::lock() 내부적으로, shared_ptr의 refCnt != 0 && Rep가 유효할 때, ptr복사, 아니면 nullptr 반환
+		//RoomRef는 shared_ptr 원본은 _Rep를 수정하진 않아서 문제 없음.
+		auto roomRef = m_roomWeakRef.lock();
+		if (nullptr != roomRef) {
+			//Room객체가 아직 유효
+
+		}
+		else {
+			//유효하지 않음.
+
+		}
+
 	}
 	break;
-	case CLIENT_PACKET::MOVE_KEY_UP:
+	case CLIENT_PACKET::TYPE::MOVE_KEY_UP:
 	{
 		const CLIENT_PACKET::MovePacket* recvPacket = reinterpret_cast<const CLIENT_PACKET::MovePacket*>(packetHeader);
 		//Logic::CharacterRemoveDirection(userId, recvPacket->direction);
 	}
 	break;
-	case CLIENT_PACKET::STOP:
+	case CLIENT_PACKET::TYPE::STOP:
 	{
 		const CLIENT_PACKET::StopPacket* recvPacket = reinterpret_cast<const CLIENT_PACKET::StopPacket*>(packetHeader);
 		//Logic::CharacterStop(userId);
 	}
 	break;
-	case CLIENT_PACKET::ROTATE:
+	case CLIENT_PACKET::TYPE::ROTATE:
 	{
 		const CLIENT_PACKET::RotatePacket* recvPacket = reinterpret_cast<const CLIENT_PACKET::RotatePacket*>(packetHeader);
 		//Logic::CharacterRotate(userId, recvPacket->axis, recvPacket->angle);
@@ -182,7 +222,7 @@ void UserSession::ExecutePacket(const PacketHeader* packetHeader)
 #pragma endregion
 
 #pragma region CHARACTER_ATTACK
-	case CLIENT_PACKET::SKILL_EXECUTE_Q:
+	case CLIENT_PACKET::TYPE::SKILL_EXECUTE_Q:
 	{
 		//CLIENT_PACKET::SkillAttackPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::SkillAttackPacket*>(p);
 		//int roomId = g_iocpNetwork.m_session[userId].GetRoomId();
@@ -192,7 +232,7 @@ void UserSession::ExecutePacket(const PacketHeader* packetHeader)
 		//}
 	}
 	break;
-	case CLIENT_PACKET::SKILL_EXECUTE_E:
+	case CLIENT_PACKET::TYPE::SKILL_EXECUTE_E:
 	{
 		//CLIENT_PACKET::SkillAttackPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::SkillAttackPacket*>(p);
 		//int roomId = g_iocpNetwork.m_session[userId].GetRoomId();
@@ -202,7 +242,7 @@ void UserSession::ExecutePacket(const PacketHeader* packetHeader)
 		//}
 	}
 	break;
-	case CLIENT_PACKET::SKILL_INPUT_Q:
+	case CLIENT_PACKET::TYPE::SKILL_INPUT_Q:
 	{
 		//int roomId = g_iocpNetwork.m_session[userId].GetRoomId();
 		//if (roomId != -1) {
@@ -218,7 +258,7 @@ void UserSession::ExecutePacket(const PacketHeader* packetHeader)
 		//}
 	}
 	break;
-	case CLIENT_PACKET::SKILL_INPUT_E:
+	case CLIENT_PACKET::TYPE::SKILL_INPUT_E:
 	{
 		//int roomId = g_iocpNetwork.m_session[userId].GetRoomId();
 		//if (roomId != -1) {
@@ -234,7 +274,7 @@ void UserSession::ExecutePacket(const PacketHeader* packetHeader)
 		//}
 	}
 	break;
-	case CLIENT_PACKET::PLAYER_COMMON_ATTACK_EXECUTE:
+	case CLIENT_PACKET::TYPE::PLAYER_COMMON_ATTACK_EXECUTE:
 	{
 		//int roomId = g_iocpNetwork.m_session[userId].GetRoomId();
 		//if (roomId != -1) {
@@ -244,7 +284,7 @@ void UserSession::ExecutePacket(const PacketHeader* packetHeader)
 		//}
 	}
 	break;
-	case CLIENT_PACKET::PLAYER_COMMON_ATTACK://애니메이션
+	case CLIENT_PACKET::TYPE::PLAYER_COMMON_ATTACK://애니메이션
 	{
 		//int roomId = g_iocpNetwork.m_session[userId].GetRoomId();
 		//if (roomId != -1) {
@@ -257,7 +297,7 @@ void UserSession::ExecutePacket(const PacketHeader* packetHeader)
 		//}
 	}
 	break;
-	case CLIENT_PACKET::MOUSE_INPUT:
+	case CLIENT_PACKET::TYPE::MOUSE_INPUT:
 	{
 		const CLIENT_PACKET::MouseInputPacket* recvPacket = reinterpret_cast<const CLIENT_PACKET::MouseInputPacket*>(packetHeader);
 		//Logic::CharacterInput(userId, recvPacket->LClickedButton, recvPacket->RClickedButton);
@@ -266,7 +306,7 @@ void UserSession::ExecutePacket(const PacketHeader* packetHeader)
 #pragma endregion
 
 #pragma region CHEAT_KEY
-	case CLIENT_PACKET::STAGE_CHANGE_BOSS:
+	case CLIENT_PACKET::TYPE::STAGE_CHANGE_BOSS:
 	{
 		//int roomId = g_iocpNetwork.m_session[userId].GetRoomId();
 		//if (roomId != -1) {
@@ -276,7 +316,7 @@ void UserSession::ExecutePacket(const PacketHeader* packetHeader)
 	}
 	break;
 
-	case CLIENT_PACKET::TEST_GAME_END: // 임시로
+	case CLIENT_PACKET::TYPE::TEST_GAME_END: // 임시로
 	{
 
 		//if (g_iocpNetwork.m_session[userId].GetRoomId() != -1) {
@@ -298,7 +338,7 @@ void UserSession::ExecutePacket(const PacketHeader* packetHeader)
 #pragma endregion
 
 	//플레이어 게임 끝나고 룸 나갈때 OK -> 이때 룸 삭제 여부 확인
-	case CLIENT_PACKET::GAME_END_OK:
+	case CLIENT_PACKET::TYPE::GAME_END_OK:
 	{
 		//int roomId = g_iocpNetwork.m_session[userId].GetRoomId();
 		//if (roomId != -1) {
@@ -313,7 +353,7 @@ void UserSession::ExecutePacket(const PacketHeader* packetHeader)
 	}
 	break;
 	//NPC대화 관련
-	case CLIENT_PACKET::SKIP_NPC_COMMUNICATION:
+	case CLIENT_PACKET::TYPE::SKIP_NPC_COMMUNICATION:
 	{
 		//int roomId = g_iocpNetwork.m_session[userId].GetRoomId();
 		//if (roomId != -1) {
@@ -323,7 +363,7 @@ void UserSession::ExecutePacket(const PacketHeader* packetHeader)
 	}
 	break;
 	//클라이언트와 시간 동기화 RTT체크
-	case CLIENT_PACKET::TIME_SYNC_REQUEST:
+	case CLIENT_PACKET::TYPE::TIME_SYNC_REQUEST:
 	{
 		//SERVER_PACKET::TimeSyncPacket sendPacket;
 		//sendPacket.size = sizeof(SERVER_PACKET::TimeSyncPacket);
@@ -334,8 +374,9 @@ void UserSession::ExecutePacket(const PacketHeader* packetHeader)
 	break;
 
 	default:
-		spdlog::critical("Recv Unknown Packet");
+		spdlog::critical("Recv Unknown Packet, Size: {}, Type: {}", packetHeader->size, packetHeader->type);
+		//disconnect User
 		break;
-	}
+}
 }
 

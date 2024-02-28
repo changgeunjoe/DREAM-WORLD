@@ -2,61 +2,66 @@
 #include "RoomEvent.h"
 #include "../Network/ExpOver/ExpOver.h"
 #include "../Network/IocpEvent/IocpEventManager.h"
+#include "../Room/Room.h"
 
-TIMER::RoomEvent::RoomEvent(const TIMER_EVENT_TYPE& eventId, const std::chrono::milliseconds& afterTime, const int& roomId)
-	:EventBase(eventId, afterTime), m_roomId(roomId)
+TIMER::RoomEvent::RoomEvent(const TIMER_EVENT_TYPE& eventId, const std::chrono::milliseconds& afterTime, std::shared_ptr<Room>& roomRef)
+	:EventBase(eventId, afterTime), m_roomRef(roomRef)
 {
 }
 
-TIMER::RoomEvent::RoomEvent(const TIMER_EVENT_TYPE& eventId, const std::chrono::seconds& afterTime, const int& roomId)
-	:EventBase(eventId, afterTime), m_roomId(roomId)
+TIMER::RoomEvent::RoomEvent(const TIMER_EVENT_TYPE& eventId, const std::chrono::seconds& afterTime, std::shared_ptr<Room>& roomRef)
+	:EventBase(eventId, afterTime), m_roomRef(roomRef)
 {
 }
 
 void TIMER::RoomEvent::Execute(HANDLE iocpHandle)
 {
-	//IocpEventManager::GetInstance().CreateExpOver();
-	//IOCP_OP_CODE opCode = IOCP_OP_CODE::
+	auto roomRef = m_roomRef.lock();
+	if (nullptr == roomRef) return;
+	IOCP_OP_CODE currentOpCode = OP_NONE;
+	//이벤트에 따른 OP_CODE 설정
 	switch (m_eventId)
 	{
 	case EV_ROOM_UPDATE:
 	{
-
+		currentOpCode = IOCP_OP_CODE::OP_ROOM_UPDATE;
 	}
 	break;
 	case EV_GAME_STATE_SEND:
 	{
-
+		currentOpCode = IOCP_OP_CODE::OP_GAME_STATE_SEND;
 	}
 	break;
 
 	case EV_FIND_PLAYER:
 	{
-
+		currentOpCode = IOCP_OP_CODE::OP_FIND_PLAYER;
 	}
 	break;
 	case EV_BOSS_ATTACK:
 	{
-
+		currentOpCode = IOCP_OP_CODE::OP_BOSS_ATTACK_EXECUTE;
 	}
 	break;
 
 	case EV_HEAL:
 	{
-
+		currentOpCode = IOCP_OP_CODE::OP_PLAYER_HEAL;
 	}
 	break;
 	case EV_TANKER_SHIELD_END:
 	{
-
+		//currentOpCode = IOCP_OP_CODE::OP_tank;
 	}
 	break;
 	case EV_SKY_ARROW_ATTACK:
 	{
-
+		currentOpCode = IOCP_OP_CODE::OP_SKY_ARROW_ATTACK;
 	}
 	break;
 	default:
 		break;
 	}
+	auto expOver = IocpEventManager::GetInstance().CreateExpOver(currentOpCode, roomRef);
+	PostQueuedCompletionStatus(iocpHandle, 1, NULL, expOver);
 }

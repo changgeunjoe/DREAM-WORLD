@@ -1,57 +1,64 @@
 
 
+//DB에 저장되는 글자수는 19글자, cpp에서는 null문자 포함하여 20글자
+constexpr short NAME_SIZE = 20;
+
 #pragma pack (push, 1)
+//공통적으로 패킷 해더를 가짐
 struct PacketHeader
 {
-	short size;
-	char type;
+	unsigned short size;
+	unsigned char type;
 };
 
 namespace CLIENT_PACKET {
+	enum class TYPE : unsigned char {
 #pragma region Move
-	constexpr unsigned char MOVE_KEY_DOWN = 1;
-	constexpr unsigned char MOVE_KEY_UP = 2;
-	constexpr unsigned char STOP = 3;
-	constexpr unsigned char ROTATE = 4;
-#pragma endregion
-	constexpr unsigned char LOGIN = 5;
-	constexpr unsigned char MATCH = 6;
-	//constexpr unsigned char CREATE_ROOM = 7;
-	//constexpr unsigned char REQUEST_ROOM_LIST = 8; // 방 리스트 요청
-	//constexpr unsigned char PLAYER_APPLY_ROOM = 9; // 방 신청
-	//constexpr unsigned char CANCEL_APPLY_ROOM = 10; // 신청 취소
-
-#pragma region Skill
-	constexpr unsigned char SKILL_EXECUTE_Q = 7;
-	constexpr unsigned char SKILL_EXECUTE_E = 8;
-	constexpr unsigned char SKILL_INPUT_Q = 9;
-	constexpr unsigned char SKILL_INPUT_E = 10;
+		MOVE_KEY_DOWN = 0,
+		MOVE_KEY_UP,
+		STOP,
+		ROTATE,
 #pragma endregion
 
-	constexpr unsigned char MOUSE_INPUT = 11;
-	constexpr unsigned char MATCH_REQUEST = 12;
-	constexpr unsigned char SHOOTING_ARROW = 13;
-	constexpr unsigned char SHOOTING_BALL = 14;
-	constexpr unsigned char MELEE_ATTACK = 15;
-	constexpr unsigned char GAME_END_OK = 16;
-	constexpr unsigned char TEST_GAME_END = 17; //임시로 클라에서 전송하여 게임 끝낼 수 있게
+#pragma region LOBBY
+		LOGIN,
+		MATCH,
+#pragma endregion
 
-	constexpr unsigned char TRIGGER_BOX_ON = 19;
-	constexpr unsigned char TRIGGER_BOX_OUT = 20;
+#pragma region SKILL
+		SKILL_EXECUTE_Q,
+		SKILL_EXECUTE_E,
+		SKILL_INPUT_Q,
+		SKILL_INPUT_E,
+#pragma endregion
+		MATCH_REQUEST,
 
-	constexpr unsigned char SKIP_NPC_COMMUNICATION = 23;
-	constexpr unsigned char STAGE_CHANGE_BOSS = 24;
+#pragma region ATTACK
+		MOUSE_INPUT,
 
-	constexpr unsigned char PLAYER_COMMON_ATTACK_EXECUTE = 25;
+		SHOOTING_ARROW,
+		SHOOTING_BALL,
+		MELEE_ATTACK,
+		PLAYER_COMMON_ATTACK_EXECUTE,
+		ARCHER_SKILL_ARROW,
+		PLAYER_COMMON_ATTACK, //애니 실행
+#pragma endregion
 
-	constexpr unsigned char ARCHER_SKILL_ARROW = 26;
+#pragma region INGAME_PLAY
+		TRIGGER_BOX_ON,
+		TRIGGER_BOX_OUT,
+		SKIP_NPC_COMMUNICATION,
+		STAGE_CHANGE_BOSS,
+		PLAYER_POSITION_STATE,
+		GAME_END_OK,
+		TEST_GAME_END, //임시로 클라에서 전송하여 게임 끝낼 수 있게
+#pragma endregion
+		TIME_SYNC_REQUEST,
+	};
 
-	constexpr unsigned char TIME_SYNC_REQUEST = 27;
-
-	constexpr unsigned char PLAYER_COMMON_ATTACK = 29;//애니 실행
-	constexpr unsigned char PLAYER_POSITION_STATE = 30;
-
+	//TYPE으로 유추되는 패킷
 	using NotifyPacket = PacketHeader;
+
 	struct MovePacket : public PacketHeader
 	{//시간과 진행 방향, 이동 입력
 		DIRECTION direction;
@@ -81,31 +88,6 @@ namespace CLIENT_PACKET {
 	{
 		char Role;
 	};
-
-	/*struct CreateRoomPacket {
-		short size;
-		char type;
-		char Role;
-		wchar_t roomName[30];
-	};
-
-	struct RequestRoomListPacket {
-		short size;
-		char type;
-	};
-
-	struct PlayerApplyRoomPacket {
-		short size;
-		char type;
-		char role;
-		char roomId[40];
-	};
-
-	struct PlayerCancelRoomPacket {
-		short size;
-		char type;
-		char roomId[40];
-	};*/
 
 	struct MouseInputPacket : public PacketHeader
 	{
@@ -138,15 +120,92 @@ namespace CLIENT_PACKET {
 		std::chrono::utc_clock::time_point t;
 	};
 
+#pragma region DISCARD
+	/*struct CreateRoomPacket {
+		short size;
+		char type;
+		char Role;
+		wchar_t roomName[30];
+	};
+
+	struct RequestRoomListPacket {
+		short size;
+		char type;
+	};
+
+	struct PlayerApplyRoomPacket {
+		short size;
+		char type;
+		char role;
+		char roomId[40];
+	};
+
+	struct PlayerCancelRoomPacket {
+		short size;
+		char type;
+		char roomId[40];
+	};*/
+#pragma endregion
 }
 
 namespace SERVER_PACKET {
-	constexpr unsigned char MOVE_KEY_DOWN = 65;
-	constexpr unsigned char MOVE_KEY_UP = 66;
-	constexpr unsigned char STOP = 67;
-	constexpr unsigned char ROTATE = 68;
-	constexpr unsigned char LOGIN_OK = 69;
-	constexpr unsigned char ADD_PLAYER = 70;
+	enum class TYPE : unsigned char {
+#pragma region MOVE
+		MOVE_KEY_DOWN = 0,
+		MOVE_KEY_UP,
+		STOP,
+		ROTATE,
+#pragma endregion
+
+#pragma region LOBBY
+		LOGIN_SUCCESS,
+		LOGIN_FAIL,
+		DUPLICATED_LOGIN,//중복된 로그인이 들어왔다
+		PRE_EXIST_LOGIN, //이미 로그인된 아이디다
+#pragma endregion
+
+		MOUSE_INPUT,
+
+		ADD_PLAYER,
+		INTO_GAME,
+
+		BOSS_CHANGE_STATE_MOVE_DES,
+		BOSS_ATTACK_EXECUTE,
+		BOSS_MOVE_NODE,
+		STAGE_CHANGING_BOSS,
+		STAGE_START_BOSS,
+		SMALL_MONSTER_MOVE,
+		SMALL_MONSTER_ATTACK,
+		BOSS_ATTACK_PALYER,
+		BOSS_CHANGE_DIRECION,
+		METEO_PLAYER_ATTACK,
+		METEO_DESTROY,
+		METEO_CREATE,
+
+		GAME_STATE,
+		GAME_END,
+
+		COMMON_ATTACK_START,
+		PLAYER_ATTACK_RESULT,
+		PLAYER_ATTACK_RESULT_BOSS,
+
+		SHOOTING_ARROW,
+		SHOOTING_BALL,
+		EXECUTE_LIGHTNING,
+		HEAL_START,
+		HEAL_END,
+		SHIELD_START,
+		SHIELD_END,
+		NOTIFY_HEAL_HP,
+		NOTIFY_SHIELD_APPLY,
+
+		START_ANIMATION_Q,
+		START_ANIMATION_E,
+
+		TIME_SYNC_RESPONSE,
+	};
+
+#pragma region DISARD
 	//constexpr unsigned char CREATE_ROOM_SUCCESS = 71; // 룸 생성 시 성공 패킷
 	//constexpr unsigned char CREATE_ROOM_FAILURE = 72; // 룸 생성 시 실패 패킷
 	//constexpr unsigned char REQUEST_ROOM_LIST = 73; // 방 리스트 출력중
@@ -157,55 +216,8 @@ namespace SERVER_PACKET {
 	//constexpr unsigned char NOT_FOUND_ROOM = 78; // 신청한 방이 사라짐
 	//
 	//constexpr unsigned char PLAYER_APPLY_ROOM = 79; // 신청자 정보 방장(방)한테 전송
-	//constexpr unsigned char PLAYER_CANCEL_ROOM = 80; // 신청 취소 정보 방장(방)한테 전송	
-
-	constexpr unsigned char MOUSE_INPUT = 81;
-	constexpr unsigned char INTO_GAME = 82;
-	constexpr unsigned char BOSS_CHANGE_STATE_MOVE_DES = 83;
-	constexpr unsigned char SHOOTING_ARROW = 84;
-	constexpr unsigned char SHOOTING_BALL = 85;
-	constexpr unsigned char EXECUTE_LIGHTNING = 80;
-	constexpr unsigned char BOSS_ATTACK_EXECUTE = 87;
-	constexpr unsigned char GAME_STATE_B = 86;
-	constexpr unsigned char HIT_BOSS_MAGE = 88;
-	constexpr unsigned char GAME_END = 89;
-	constexpr unsigned char BOSS_MOVE_NODE = 90;
-	constexpr unsigned char DUPLICATED_LOGIN = 91;//중복된 로그인이 들어왔다
-	constexpr unsigned char PRE_EXIST_LOGIN = 92; //이미 로그인된 아이디다
-	constexpr unsigned char GAME_STATE_S = 93;
-	constexpr unsigned char STAGE_CHANGING_BOSS = 96;
-	constexpr unsigned char STAGE_START_BOSS = 97;
-	constexpr unsigned char SMALL_MONSTER_MOVE = 98;
-
-	constexpr unsigned char HEAL_START = 99;
-	constexpr unsigned char HEAL_END = 100;
-
-	constexpr unsigned char SHIELD_START = 101;
-	constexpr unsigned char SHIELD_END = 102;
-
-	constexpr unsigned char NOTIFY_HEAL_HP = 103;
-	constexpr unsigned char NOTIFY_SHIELD_APPLY = 104;
-
-	constexpr unsigned char MONSTER_DAMAGED_ARROW = 105;
-	constexpr unsigned char MONSTER_DAMAGED_ARROW_SKILL = 106;
-	constexpr unsigned char MONSTER_DAMAGED_BALL = 107;
-
-	constexpr unsigned char PLAYER_ATTACK_RESULT = 108;
-	constexpr unsigned char PLAYER_ATTACK_RESULT_BOSS = 109;
-
-	constexpr unsigned char SMALL_MONSTER_ATTACK = 110;
-
-	constexpr unsigned char TIME_SYNC_RESPONSE = 111;
-
-	constexpr unsigned char START_ANIMATION_Q = 114;
-	constexpr unsigned char START_ANIMATION_E = 115;
-	constexpr unsigned char COMMON_ATTACK_START = 116;
-
-	constexpr unsigned char BOSS_ATTACK_PALYER = 117;
-	constexpr unsigned char BOSS_CHANGE_DIRECION = 118;
-	constexpr unsigned char METEO_PLAYER_ATTACK = 119;
-	constexpr unsigned char METEO_DESTROY = 120;
-	constexpr unsigned char METEO_CREATE = 121;
+	//constexpr unsigned char PLAYER_CANCEL_ROOM = 80; // 신청 취소 정보 방장(방)한테 전송
+#pragma endregion
 
 	using NotifyPacket = PacketHeader;
 
@@ -233,8 +245,7 @@ namespace SERVER_PACKET {
 
 	struct LoginPacket : public PacketHeader
 	{
-		int  userID;
-
+		wchar_t nickName[NAME_SIZE];
 	};
 
 	struct AddPlayerPacket : public PacketHeader
