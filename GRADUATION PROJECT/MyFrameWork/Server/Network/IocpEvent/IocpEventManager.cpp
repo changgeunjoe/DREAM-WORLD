@@ -50,7 +50,7 @@ ExpOver* IocpEventManager::CreateExpOver(const IOCP_OP_CODE& opCode, std::shared
 void IocpEventManager::Send(SOCKET sock, const PacketHeader* packetHeader)
 {
 	std::shared_ptr<IOCP::SendEvent> iocpEventObject = CreateSendEvent();
-	auto expOver = CreateExpOver(OP_SEND, iocpEventObject);
+	auto expOver = CreateExpOver(IOCP_OP_CODE::OP_SEND, iocpEventObject);
 	iocpEventObject->Send(sock, expOver, packetHeader);
 }
 

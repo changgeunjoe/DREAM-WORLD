@@ -23,6 +23,7 @@ private:
 	tbb::concurrent_queue<unsigned int> m_restId;
 	std::atomic_uint m_currentMaxId;
 
-	tbb::concurrent_hash_map<unsigned int, std::shared_ptr<UserSession>> m_lobbyUser;
+	std::unordered_set<std::shared_ptr<UserSession>> m_lobbyUser;
+	std::mutex m_lobbyUserLock;
 	std::shared_ptr<IOCP::Iocp> iocpRef;
 };

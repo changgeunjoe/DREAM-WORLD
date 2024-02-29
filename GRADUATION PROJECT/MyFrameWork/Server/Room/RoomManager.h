@@ -1,30 +1,25 @@
 #pragma once
 #include "../../Server/PCH/stdafx.h"
 #include "../SingletonBase.h"
-#include "Room.h"
+
+class Room;
+class UserSession;
+namespace IOCP {
+	class Iocp;
+}
 
 class RoomManager : public SingletonBase<RoomManager>
 {
 	friend SingletonBase;
 private:
-	RoomManager();
-	~RoomManager();
+	RoomManager() = default;
+	~RoomManager() = default;
 
-	tbb::concurrent_unordered_map<unsigned int, Room> m_rooms;
-	tbb::concurrent_queue<unsigned int> m_restRoomId;
-	std::atomic_uint m_currentMaxRoomId;
-
-
-	//Room Func
 public:
-	void BossFindPlayer(int roomId);
-	void ChangeBossState(int roomId);
-	void UpdateGameStateForPlayer(int roomId);
-	void UpdateSmallMonster(int roomId);
-	void BossAttackExecute(int roomId);
-public://character Skill
-	void HealPlayer(int roomId);
-	void SetBarrier(int roomId);
-	void SkyArrowAttack(int roomId);
+	void EraseRoom(std::shared_ptr<Room>& roomRef);
+	std::shared_ptr<Room> MakeRunningRoom(std::vector<std::shared_ptr<UserSession>>& userRefVec);
+	std::shared_ptr<Room> MakeRunningRoomAloneMode(std::shared_ptr<UserSession>& userRef);
+private:
+	std::mutex m_runningRoomLock;
+	std::unordered_set<std::shared_ptr<Room>> m_runningRooms;
 };
-

@@ -21,7 +21,7 @@ void IOCP::DBNotifyEvent::Execute(ExpOver* over, const DWORD& ioByte, const ULON
 	switch (currentOpCode)
 	{
 		//DB - login Error, SQL_ERROR ...
-	case OP_FAIL_GET_PLAYER_INFO:
+	case IOCP_OP_CODE::OP_FAIL_GET_PLAYER_INFO:
 	{
 		SERVER_PACKET::NotifyPacket sendPacket;
 		sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
@@ -29,7 +29,7 @@ void IOCP::DBNotifyEvent::Execute(ExpOver* over, const DWORD& ioByte, const ULON
 		userRef->DoSend(&sendPacket);
 	}
 	break;
-	case OP_DB_ERROR:
+	case IOCP_OP_CODE::OP_DB_ERROR:
 	{
 		/*SERVER_PACKET::NotifyPacket sendPacket;
 		sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
@@ -38,7 +38,7 @@ void IOCP::DBNotifyEvent::Execute(ExpOver* over, const DWORD& ioByte, const ULON
 	}
 	break;
 	default:
-		spdlog::critical("DBNotifyEvent::Execute() - UnDefined OP_CODE - {}", currentOpCode);
+		spdlog::critical("DBNotifyEvent::Execute() - UnDefined OP_CODE - {}", static_cast<int>(currentOpCode));
 		break;
 	}
 }
@@ -46,7 +46,7 @@ void IOCP::DBNotifyEvent::Execute(ExpOver* over, const DWORD& ioByte, const ULON
 void IOCP::DBNotifyEvent::Fail(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key)
 {
 	const auto& currentOpCode = over->GetOpCode();
-	spdlog::critical("DBNotifyEvent::Fail() - OP_CODE: {}", currentOpCode);
+	spdlog::critical("DBNotifyEvent::Fail() - OP_CODE: {}", static_cast<int>(currentOpCode));
 }
 
 IOCP::DBGetPlayerInfoEvent::DBGetPlayerInfoEvent(const wchar_t* name, std::shared_ptr<UserSession>& userRef) : m_userRef(userRef)
@@ -78,7 +78,7 @@ void IOCP::DBGetPlayerInfoEvent::Execute(ExpOver* over, const DWORD& ioByte, con
 	const auto& currentOpCode = over->GetOpCode();
 	switch (currentOpCode)
 	{
-	case OP_SUCCESS_GET_PLAYER_INFO:
+	case IOCP_OP_CODE::OP_SUCCESS_GET_PLAYER_INFO:
 	{
 		SERVER_PACKET::LoginPacket sendPacket;
 		sendPacket.type = static_cast<unsigned char>(SERVER_PACKET::TYPE::LOGIN_SUCCESS);
@@ -100,7 +100,7 @@ void IOCP::DBGetPlayerInfoEvent::Execute(ExpOver* over, const DWORD& ioByte, con
 	}
 	break;
 	default:
-		spdlog::critical("DBGetPlayerInfoEvent::Execute() - UnDefined OP_CODE - {}", currentOpCode);
+		spdlog::critical("DBGetPlayerInfoEvent::Execute() - UnDefined OP_CODE - {}", static_cast<int>(currentOpCode));
 		break;
 	}
 	//expOver´Â ¹ÝÈ¯
@@ -111,5 +111,5 @@ void IOCP::DBGetPlayerInfoEvent::Execute(ExpOver* over, const DWORD& ioByte, con
 void IOCP::DBGetPlayerInfoEvent::Fail(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key)
 {
 	const auto& currentOpCode = over->GetOpCode();
-	spdlog::critical("DBGetPlayerInfoEvent::Fail() - OpCode: {}", currentOpCode);
+	spdlog::critical("DBGetPlayerInfoEvent::Fail() - OpCode: {}", static_cast<int>(currentOpCode));
 }

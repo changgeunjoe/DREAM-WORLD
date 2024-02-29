@@ -38,9 +38,9 @@ void UserManager::RegistPlayer(SOCKET sock)
 		//새로운 UserSession추가
 		auto newPlayerRef = std::make_shared<UserSession>(playerId, sock);
 		//lobby User 추가
-		auto inserResult = m_lobbyUser.insert(std::make_pair(playerId, newPlayerRef));
+		auto inserResult = m_lobbyUser.insert(newPlayerRef);
 		//성공했다면 socket을 등록하고 return, 실패했다면 재시도(while-loop)
-		if (inserResult) {
+		if (inserResult.second) {
 			//socket을 iocp에 등록
 			iocpRef->RegistHandle(reinterpret_cast<HANDLE>(sock), playerId);
 			newPlayerRef->StartRecv();

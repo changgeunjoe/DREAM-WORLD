@@ -5,6 +5,7 @@
 #include "../protocol/protocol.h"
 #include "../DB/DB.h"
 #include "../Match/Matching.h"
+#include "../Room/Room.h"
 
 UserSession::UserSession() : m_recvDataStorage(RecvDataStorage())
 {
@@ -53,7 +54,7 @@ void UserSession::Execute(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& k
 	auto currentOpCode = over->GetOpCode();
 	switch (currentOpCode)
 	{
-	case OP_RECV:
+	case IOCP_OP_CODE::OP_RECV:
 	{
 		if (0 == ioByte) {
 			int errCode = WSAGetLastError();
@@ -69,7 +70,7 @@ void UserSession::Execute(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& k
 	}
 	break;
 	default:
-		spdlog::critical("UserSession::Execute() - UnDefined OP_CODE - {}", currentOpCode);
+		spdlog::critical("UserSession::Execute() - UnDefined OP_CODE - {}", static_cast<int>(currentOpCode));
 		return;
 		break;
 	}
@@ -81,7 +82,7 @@ void UserSession::Fail(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key)
 	auto currentOpCode = over->GetOpCode();
 	switch (currentOpCode)
 	{
-	case OP_RECV:
+	case IOCP_OP_CODE::OP_RECV:
 	{
 		if (0 == ioByte) {
 			int errCode = WSAGetLastError();
@@ -97,7 +98,7 @@ void UserSession::Fail(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key)
 	}
 	break;
 	default:
-		spdlog::critical("UserSession::Execute() - UnDefined OP_CODE - {}", currentOpCode);
+		spdlog::critical("UserSession::Execute() - UnDefined OP_CODE - {}", static_cast<int>(currentOpCode));
 		return;
 		break;
 	}
@@ -106,13 +107,18 @@ void UserSession::Fail(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key)
 void UserSession::StartRecv()
 {
 	//expOVer 생성 후, 현재 객체를 연결
-	auto expOver = IocpEventManager::GetInstance().CreateExpOver(OP_RECV, shared_from_this());
+	auto expOver = IocpEventManager::GetInstance().CreateExpOver(IOCP_OP_CODE::OP_RECV, shared_from_this());
 	DoRecv(expOver);
 }
 
 void UserSession::DoSend(const PacketHeader* packetHeader)
 {
 	IocpEventManager::GetInstance().Send(m_socket, packetHeader);
+}
+
+void UserSession::SetRoomRef(std::shared_ptr<Room>& roomRef)
+{
+	m_roomWeakRef = roomRef;
 }
 
 void UserSession::DoRecv(ExpOver*& over)

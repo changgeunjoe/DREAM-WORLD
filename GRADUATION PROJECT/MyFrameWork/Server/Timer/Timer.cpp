@@ -49,3 +49,8 @@ void TIMER::Timer::RegisterIocp(std::shared_ptr<IOCP::Iocp>& iocp)
 {
 	iocpRef = iocp;
 }
+
+void TIMER::Timer::InsertTimerEvent(std::shared_ptr<TIMER::EventBase>& timer)
+{
+	m_timerQueue.push(timer);
+}

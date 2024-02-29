@@ -22,7 +22,7 @@ namespace TIMER
 
 		void StartTimer();
 		void RegisterIocp(std::shared_ptr<IOCP::Iocp>& iocp);
-		//void InsertTimerEvent(TIMER_EVENT ev);
+		void InsertTimerEvent(std::shared_ptr<TIMER::EventBase>& timer);
 	private:
 		std::jthread m_TimerThread;
 		//decltype에서 그냥 함수를 넘겨도 되지만, 명시적으로 함수의 주소를 가져올 수 있음(이건 좀 알아봐야 할듯)

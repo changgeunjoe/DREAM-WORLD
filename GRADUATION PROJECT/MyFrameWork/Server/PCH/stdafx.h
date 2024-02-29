@@ -31,13 +31,14 @@
 #include <mutex>
 
 #include <queue>
-#include <vector>
-#include <unordered_map>
-#include <array>
-#include <set>
-#include <map>
-#include <utility>
 #include <stack>
+#include <vector>
+#include <array>
+#include <map>
+#include <unordered_map>
+#include <set>
+#include <unordered_set>
+#include <utility>
 
 #include <span>
 #include <ranges>
@@ -50,7 +51,8 @@
 #include <tbb/concurrent_unordered_map.h>
 #include <tbb/concurrent_priority_queue.h>
 #include <tbb/concurrent_queue.h>
-
+#include <tbb/parallel_for.h>
+#include <tbb/parallel_for_each.h>
 
 #include<sqlext.h>
 
@@ -67,14 +69,14 @@ const float MONSTER_ABLE_ATTACK_COS_VALUE = std::cos(25.0f * 3.14f / 180.0f);//3
 const float PLAYER_ABLE_ATTACK_COS_VALUE = std::cos(25.0f * 3.14f / 180.0f);//30도 - 0.96정도
 const float BOSS_ABLE_ATTACK_COS_VALUE = std::cos(15.0f * 3.14f / 180.0f);//30도 - 0.96정도
 
-enum PLAYER_STATE : char
+enum class PLAYER_STATE : char
 {
-	FREE,
-	ALLOC,
+	LOBBY,
+	MATCH,
 	IN_GAME
 };
 
-enum IOCP_OP_CODE : char
+enum class IOCP_OP_CODE : char
 {
 	OP_NONE,
 	//통신
@@ -106,7 +108,7 @@ enum IOCP_OP_CODE : char
 	OP_SYNC_TIME,
 };
 
-enum DIRECTION : char
+enum class DIRECTION : char
 {
 	IDLE = 0x00,
 	FRONT = 0x01,
@@ -115,7 +117,7 @@ enum DIRECTION : char
 	BACK = 0x08
 };
 
-enum ROTATE_AXIS :char
+enum class ROTATE_AXIS :char
 {
 	X, Y, Z
 };
@@ -128,7 +130,7 @@ enum class ROLE :char {
 	ARCHER = 0x08,
 };
 
-enum BOSS_ATTACK : char {
+enum class BOSS_ATTACK : char {
 	ATTACK_PUNCH,
 	ATTACK_SPIN,
 	ATTACK_KICK,
@@ -138,7 +140,7 @@ enum BOSS_ATTACK : char {
 	ATTACK_COUNT //0~마지막 숫자 갯수
 };
 
-enum TIMER_EVENT_TYPE : char {
+enum class TIMER_EVENT_TYPE : char {
 	EV_NONE,
 	//게임 상태 관련
 	EV_ROOM_UPDATE,
@@ -154,9 +156,10 @@ enum TIMER_EVENT_TYPE : char {
 	EV_SYNC_TIME
 };
 
-enum ROOM_STATE : char {
+enum class ROOM_STATE : char {
 	ROOM_COMMON,
-	ROOM_BOSS
+	ROOM_BOSS,
+	ROOM_END
 };
 
 constexpr short PORT = 9000;

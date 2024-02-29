@@ -15,7 +15,7 @@ void IOCP::ListenEvent::Execute(ExpOver* over, const DWORD& ioByte, const ULONG_
 	const auto& currentOpCode = over->GetOpCode();
 	switch (currentOpCode)
 	{
-	case OP_ACCEPT:
+	case IOCP_OP_CODE::OP_ACCEPT:
 	{
 		//m_connInfo로 remote 주소 정보 확인 가능
 
@@ -26,7 +26,7 @@ void IOCP::ListenEvent::Execute(ExpOver* over, const DWORD& ioByte, const ULONG_
 	}
 	break;
 	default:
-		spdlog::critical("ListenEvent::Execute() - UnDefined OP_CODE - {}", currentOpCode);
+		spdlog::critical("ListenEvent::Execute() - UnDefined OP_CODE - {}", static_cast<int>(currentOpCode));
 		break;
 	};
 }
@@ -36,7 +36,7 @@ void IOCP::ListenEvent::Fail(ExpOver* over, const DWORD& ioByte, const ULONG_PTR
 	const auto& currentOpCode = over->GetOpCode();
 	switch (currentOpCode)
 	{
-	case OP_ACCEPT:
+	case IOCP_OP_CODE::OP_ACCEPT:
 	{
 		spdlog::debug("IOCP::ListenEvent::Fail() - OP_ACCEPT");
 		closesocket(m_clientSocket);
@@ -44,7 +44,7 @@ void IOCP::ListenEvent::Fail(ExpOver* over, const DWORD& ioByte, const ULONG_PTR
 	}
 	break;
 	default:
-		spdlog::critical("ListenEvent::Fail() - UnDefined OP_CODE - {}", currentOpCode);
+		spdlog::critical("ListenEvent::Fail() - UnDefined OP_CODE - {}", static_cast<int>(currentOpCode));
 		break;
 	};
 }
@@ -57,7 +57,7 @@ void IOCP::ListenEvent::RegisterIocp(std::shared_ptr<IOCP::Iocp>& iocp)
 void IOCP::ListenEvent::Accept()
 {
 	while (true) {
-		auto expOver = IocpEventManager::GetInstance().CreateExpOver(OP_ACCEPT, shared_from_this());
+		auto expOver = IocpEventManager::GetInstance().CreateExpOver(IOCP_OP_CODE::OP_ACCEPT, shared_from_this());
 		m_clientSocket = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, NULL, WSA_FLAG_OVERLAPPED);
 		int addrInfoSize = sizeof(SOCKADDR_IN);
 		/*

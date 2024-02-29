@@ -47,7 +47,7 @@ namespace TIMER {
 		virtual void Execute(HANDLE iocpHandle) = 0;
 	protected:
 		std::chrono::system_clock::time_point m_wakeupTime;
-		TIMER_EVENT_TYPE m_eventId = EV_NONE;
+		TIMER_EVENT_TYPE m_eventId = TIMER_EVENT_TYPE::EV_NONE;
 	};
 }
 

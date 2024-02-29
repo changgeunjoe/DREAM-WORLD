@@ -49,11 +49,25 @@ public:
 	{
 		m_playerName = nickName;
 	}
+
+	void SetRole(const ROLE& role)
+	{
+		m_role = role;
+	}
+
+	const ROLE GetRole() const
+	{
+		return m_role;
+	}
+
+	void SetRoomRef(std::shared_ptr<Room>& roomRef);
+
 private:
 	void DoRecv(ExpOver*& over);
 
 	void ContructPacket(const DWORD& ioSize);
 	void ExecutePacket(const PacketHeader* packetHeader);
+	void Disconnect();
 protected:
 	SOCKET m_socket;
 
@@ -65,5 +79,5 @@ protected:
 	std::wstring m_playerName;
 
 	std::weak_ptr<Room> m_roomWeakRef;//Room이 삭제 됐다면, 플레이어는 방에서 나오게
-
+	ROLE m_role;
 };

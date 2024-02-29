@@ -11,7 +11,7 @@ std::optional<std::shared_ptr<UserSession>> MatchQueue::GetMatchUser()
 	while (true)
 	{
 		std::weak_ptr<UserSession> matchUserWeakPtr;
-		bool isSuccess = match.try_pop(matchUserWeakPtr);
+		bool isSuccess = m_match.try_pop(matchUserWeakPtr);
 		//pop½ÇÆÐ
 		if (!isSuccess)
 			return std::nullopt;
@@ -56,19 +56,19 @@ std::optional<std::shared_ptr<UserSession>> MatchQueue::GetMatchUser()
 
 void MatchQueue::InsertMatchUser(std::shared_ptr<UserSession>& userRef)
 {
-	match.push(userRef);
+	m_match.push(userRef);
 }
 
 void MatchQueue::InsertCancelUser(std::shared_ptr<UserSession>& userRef)
 {
-	cancel.push(userRef);
+	m_cancel.push(userRef);
 }
 
 std::optional<std::shared_ptr<UserSession>>  MatchQueue::GetCancelUser()
 {
 	while (true) {
 		std::weak_ptr<UserSession> cancelUserWeakPtr;
-		bool existCacelUser = cancel.try_pop(cancelUserWeakPtr);
+		bool existCacelUser = m_cancel.try_pop(cancelUserWeakPtr);
 		if (!existCacelUser)
 			return std::nullopt;
 		auto userRef = cancelUserWeakPtr.lock();
