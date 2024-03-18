@@ -24,14 +24,13 @@ public:
 	virtual void SetSkillRangeObject(GameObject* obj) { m_pSkillRange = obj; }
 	virtual void Move(float fTimeElapsed)override;
 	virtual void MoveForward(int forwardDirection = 1, float ftimeElapsed = 0.01768f) override;
-	void InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos, XMFLOAT3& moveVec)override;
+	//void InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos, XMFLOAT3& moveVec)override;
 };
 
 class NormalMonster : public Character
 {
 private:
 	bool	m_bHaveTarget{ false };
-	bool	m_bIsAlive{ true };
 	int		m_iTargetID{ -1 };
 	XMFLOAT3 m_desPos = XMFLOAT3(0, 0, 0);
 
@@ -44,16 +43,9 @@ public:
 	virtual ~NormalMonster();
 	void SetAnimation();
 	void SetDesPos(const XMFLOAT3& desPos) { m_desPos = desPos; }
-	void SetAliveState(bool bAlive) { m_bIsAlive = bAlive; }
-	bool GetAliveState() { return m_bIsAlive; }
 
 public:
 	virtual void Move(float fTimeElapsed)override;
 	virtual void Animate(float fTimeElapsed) override;
-	void InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos, XMFLOAT3& moveVec)override;
-
-private:
-	virtual std::pair<bool, XMFLOAT3> CheckCollisionCharacter(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f);
-	virtual std::pair<bool, XMFLOAT3> CheckCollisionNormalMonster(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f) override;
-	virtual bool CheckCollision(XMFLOAT3& moveDirection, float ftimeElapsed = 0.01768f) override;
+	//void InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos, XMFLOAT3& moveVec)override;
 };

@@ -1,7 +1,7 @@
 #pragma once
 #include "IocpEventBase.h"
 
-class PacketHeader;
+struct PacketHeader;
 namespace IOCP
 {
 	class SendEvent : public IOCP::EventBase

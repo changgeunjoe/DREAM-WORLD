@@ -107,12 +107,12 @@ public:
 	bool m_bParticle{};
 
 };
-class PriestEffectObject :
+class MageEffectObject :
 	public EffectObject
 {
 public:
-	PriestEffectObject();
-	~PriestEffectObject();
+	MageEffectObject();
+	~MageEffectObject();
 public:
 	virtual void BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, vector<GameObject*>* mppEffectObject);
 	virtual void AnimateEffect(CCamera* pCamera, XMFLOAT3 xm3position, float ftimeelapsed, float fTime);

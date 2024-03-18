@@ -10,7 +10,7 @@ namespace IOCP
 	class SendEvent;
 	class RoomEvent;
 }
-class PacketHeader;
+struct PacketHeader;
 
 class IocpEventManager : public SingletonBase<IocpEventManager>
 {

@@ -1,18 +1,26 @@
 #include "stdafx.h"
 #include "Timer.h"
+#include "../ThreadManager/ThreadManager.h"
 #include "TimerEventBase.h"
 #include "../Network/IOCP/IOCP.h"
 
-bool TIMER::TimerQueueComp(std::shared_ptr<TIMER::EventBase>& l, std::shared_ptr<TIMER::EventBase>& r)
+bool TIMER::TimerQueueComp(const std::shared_ptr<TIMER::EventBase>& l, const std::shared_ptr<TIMER::EventBase>& r)
 {
 	return *l < *r;
 }
 
+TIMER::Timer::Timer() : iocpRef(nullptr),
+m_timerQueue(tbb::concurrent_priority_queue<std::shared_ptr<TIMER::EventBase>, decltype(&TIMER::TimerQueueComp)>(
+	[](const std::shared_ptr<TIMER::EventBase>& l, const std::shared_ptr<TIMER::EventBase>& r) {
+		return TIMER::TimerQueueComp(l, r);
+	}))
+{
+	spdlog::info("Timer::Timer() - Timer Constructor");
+}
+
 TIMER::Timer::~Timer()
 {
-	m_TimerThread.join();
-	spdlog::info("Timer::~Timer() - thread join");
-
+	spdlog::info("Timer::~Timer()");
 }
 
 void TIMER::Timer::TimerThreadFunc()
@@ -41,8 +49,9 @@ void TIMER::Timer::TimerThreadFunc()
 
 void TIMER::Timer::StartTimer()
 {
-	m_TimerThread = std::jthread([this]() {TimerThreadFunc(); });
+
 	spdlog::info("Timer::StartTimer() - Timer Start");
+	ThreadManager::GetInstance().CreateThread(std::thread([this]() {TimerThreadFunc(); }));
 }
 
 void TIMER::Timer::RegisterIocp(std::shared_ptr<IOCP::Iocp>& iocp)

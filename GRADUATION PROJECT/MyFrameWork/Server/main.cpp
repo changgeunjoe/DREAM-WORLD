@@ -1,8 +1,6 @@
 ﻿#include "stdafx.h"
+#include "../ThreadManager/ThreadManager.h"
 #include "Network/IOCP/Iocp.h"
-//#include "MapData/MapData.h"
-//#include "Network/UserSession/UserSession.h"
-//#include "Room/RoomManager.h"
 #include "Timer/Timer.h"
 #include "Network/UserSession/UserManager.h"
 #include "Network/IocpEvent/IocpEventManager.h"
@@ -39,5 +37,6 @@ int main()
 	Matching::GetInstance().StartMatching();
 
 	iocpRef->Start();
-	iocpRef->WorkerThreadJoin();
+
+	ThreadManager::GetInstance().Join();
 }

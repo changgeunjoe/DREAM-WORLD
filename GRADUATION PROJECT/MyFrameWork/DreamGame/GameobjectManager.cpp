@@ -65,10 +65,11 @@ GameobjectManager::~GameobjectManager()
 
 void GameobjectManager::Animate(float fTimeElapsed)
 {
-	if (!g_Logic.m_inputOperation.empty()) {
+	auto currentTIme = std::chrono::high_resolution_clock::now();
+	while (!g_Logic.m_inputOperation.empty()) {
 		auto currentDirectionOperation = g_Logic.m_inputOperation.front();
 
-		if (currentDirectionOperation.GetApplyTime() < std::chrono::high_resolution_clock::now()) {
+		if (currentDirectionOperation.GetApplyTime() < currentTIme) {
 			g_Logic.m_inputOperation.pop();
 			Player* myCharacter = GetChracterInfo(g_Logic.GetMyRole());
 
@@ -81,14 +82,14 @@ void GameobjectManager::Animate(float fTimeElapsed)
 				else
 				{
 					myCharacter->SetStopDirection();
-					myCharacter->SetStopDirection();
 					myCharacter->SetMoveState(false);
 				}
 			}
-			else {				
+			else {
 				myCharacter->RemoveDIrection(currentDirectionOperation.GetDirction());
 			}
 		}
+		else break;
 	}
 
 	m_fTime += fTimeElapsed;
@@ -171,7 +172,7 @@ void GameobjectManager::Animate(float fTimeElapsed)
 	//Effect
 	if (m_bPickingenemy) {
 		if (m_pSelectedObject != nullptr) {
-			if (g_Logic.GetMyRole() == ROLE::PRIEST) {
+			if (g_Logic.GetMyRole() == ROLE::MAGE) {
 
 				m_pLightEffectObject->AnimateEffect(m_pCamera, XMFLOAT3(m_pSelectedObject->GetPosition().x,
 					m_pSelectedObject->GetPosition().y + 10, m_pSelectedObject->GetPosition().z), fTimeElapsed, m_fTime * 5);
@@ -272,8 +273,8 @@ void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)//나중에 처리
 	m_pArcherObject->m_pHPBarUI->SetCurrentHP(m_pArcherObject->GetCurrentHP());
 	m_pWarriorObject->m_pHPBarUI->SetCurrentHP(m_pWarriorObject->GetCurrentHP());
 	m_pTankerObject->m_pHPBarUI->SetCurrentHP(m_pTankerObject->GetCurrentHP());
-	m_pPriestObject->m_pHPBarUI->SetCurrentHP(m_pPriestObject->GetCurrentHP());
-	//m_pPriestObject->m_pHPBarUI->SetShield(100);
+	m_pMageObject->m_pHPBarUI->SetCurrentHP(m_pMageObject->GetCurrentHP());
+	//m_pMageObject->m_pHPBarUI->SetShield(100);
 	if (g_Logic.GetMyRole() == ROLE::ARCHER) {
 		m_pArcherObject->m_pHPBarUI->SetinitScale(0.07, 0.005, 1);
 		m_pArcherObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.48, 1.005));
@@ -283,10 +284,10 @@ void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)//나중에 처리
 		m_pTankerObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.38, 1.005));
 		m_pTankerObject->m_pProfileUI->SetinitScale(0.03, 0.015, 1);
 		m_pTankerObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.4, 1.005));
-		m_pPriestObject->m_pHPBarUI->SetinitScale(0.07, 0.005, 1);
-		m_pPriestObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.26, 1.005));
-		m_pPriestObject->m_pProfileUI->SetinitScale(0.03, 0.015, 1);
-		m_pPriestObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.28, 1.005));
+		m_pMageObject->m_pHPBarUI->SetinitScale(0.07, 0.005, 1);
+		m_pMageObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.26, 1.005));
+		m_pMageObject->m_pProfileUI->SetinitScale(0.03, 0.015, 1);
+		m_pMageObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.28, 1.005));
 		m_pWarriorObject->m_pHPBarUI->SetinitScale(0.07, 0.005, 1);
 		m_pWarriorObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.14, 1.005));
 		m_pWarriorObject->m_pProfileUI->SetinitScale(0.03, 0.015, 1);
@@ -297,8 +298,8 @@ void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)//나중에 처리
 		m_pTankerObject->m_pSkillEUI->SetPosition(XMFLOAT3(500, 500, 1.005));
 		m_pWarriorObject->m_pSkillQUI->SetPosition(XMFLOAT3(500, 500, 1.005));
 		m_pWarriorObject->m_pSkillEUI->SetPosition(XMFLOAT3(500, 500, 1.005));
-		m_pPriestObject->m_pSkillQUI->SetPosition(XMFLOAT3(500, 500, 1.005));
-		m_pPriestObject->m_pSkillEUI->SetPosition(XMFLOAT3(500, 500, 1.005));
+		m_pMageObject->m_pSkillQUI->SetPosition(XMFLOAT3(500, 500, 1.005));
+		m_pMageObject->m_pSkillEUI->SetPosition(XMFLOAT3(500, 500, 1.005));
 	}
 	else if (g_Logic.GetMyRole() == ROLE::TANKER) {
 		m_pTankerObject->m_pHPBarUI->SetinitScale(0.07, 0.005, 1);
@@ -309,10 +310,10 @@ void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)//나중에 처리
 		m_pArcherObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.36, 1.005));
 		m_pArcherObject->m_pProfileUI->SetinitScale(0.03, 0.015, 1);
 		m_pArcherObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.38, 1.005));
-		m_pPriestObject->m_pHPBarUI->SetinitScale(0.07, 0.005, 1);
-		m_pPriestObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.24, 1.005));
-		m_pPriestObject->m_pProfileUI->SetinitScale(0.03, 0.015, 1);
-		m_pPriestObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.26, 1.005));
+		m_pMageObject->m_pHPBarUI->SetinitScale(0.07, 0.005, 1);
+		m_pMageObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.24, 1.005));
+		m_pMageObject->m_pProfileUI->SetinitScale(0.03, 0.015, 1);
+		m_pMageObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.26, 1.005));
 		m_pWarriorObject->m_pHPBarUI->SetinitScale(0.07, 0.005, 1);
 		m_pWarriorObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.12, 1.005));
 		m_pWarriorObject->m_pProfileUI->SetinitScale(0.03, 0.015, 1);
@@ -323,14 +324,14 @@ void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)//나중에 처리
 		m_pArcherObject->m_pSkillEUI->SetPosition(XMFLOAT3(500, 500, 1.005));
 		m_pWarriorObject->m_pSkillQUI->SetPosition(XMFLOAT3(500, 500, 1.005));
 		m_pWarriorObject->m_pSkillEUI->SetPosition(XMFLOAT3(500, 500, 1.005));
-		m_pPriestObject->m_pSkillQUI->SetPosition(XMFLOAT3(500, 500, 1.005));
-		m_pPriestObject->m_pSkillEUI->SetPosition(XMFLOAT3(500, 500, 1.005));
+		m_pMageObject->m_pSkillQUI->SetPosition(XMFLOAT3(500, 500, 1.005));
+		m_pMageObject->m_pSkillEUI->SetPosition(XMFLOAT3(500, 500, 1.005));
 	}
-	else if (g_Logic.GetMyRole() == ROLE::PRIEST) {
-		m_pPriestObject->m_pHPBarUI->SetinitScale(0.07, 0.005, 1);
-		m_pPriestObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.46, 1.005));
-		m_pPriestObject->m_pProfileUI->SetinitScale(0.03, 0.015, 1);
-		m_pPriestObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.48, 1.005));
+	else if (g_Logic.GetMyRole() == ROLE::MAGE) {
+		m_pMageObject->m_pHPBarUI->SetinitScale(0.07, 0.005, 1);
+		m_pMageObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.46, 1.005));
+		m_pMageObject->m_pProfileUI->SetinitScale(0.03, 0.015, 1);
+		m_pMageObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.48, 1.005));
 		m_pTankerObject->m_pHPBarUI->SetinitScale(0.07, 0.005, 1);
 		m_pTankerObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.36, 1.005));
 		m_pTankerObject->m_pProfileUI->SetinitScale(0.03, 0.015, 1);
@@ -343,8 +344,8 @@ void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)//나중에 처리
 		m_pWarriorObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.12, 1.005));
 		m_pWarriorObject->m_pProfileUI->SetinitScale(0.03, 0.015, 1);
 		m_pWarriorObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.14, 1.005));
-		m_pPriestObject->m_pSkillQUI->SetPosition(XMFLOAT3(0.975, 0.1, 1.005));
-		m_pPriestObject->m_pSkillEUI->SetPosition(XMFLOAT3(0.975, 0.0, 1.005));
+		m_pMageObject->m_pSkillQUI->SetPosition(XMFLOAT3(0.975, 0.1, 1.005));
+		m_pMageObject->m_pSkillEUI->SetPosition(XMFLOAT3(0.975, 0.0, 1.005));
 		m_pArcherObject->m_pSkillQUI->SetPosition(XMFLOAT3(500, 500, 1.005));
 		m_pArcherObject->m_pSkillEUI->SetPosition(XMFLOAT3(500, 500, 1.005));
 		m_pWarriorObject->m_pSkillQUI->SetPosition(XMFLOAT3(500, 500, 1.005));
@@ -361,18 +362,18 @@ void GameobjectManager::CharacterUIAnimate(float fTimeElapsed)//나중에 처리
 		m_pTankerObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.36, 1.005));
 		m_pTankerObject->m_pProfileUI->SetinitScale(0.03, 0.015, 1);
 		m_pTankerObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.38, 1.005));
-		m_pPriestObject->m_pHPBarUI->SetinitScale(0.07, 0.005, 1);
-		m_pPriestObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.24, 1.005));
-		m_pPriestObject->m_pProfileUI->SetinitScale(0.03, 0.015, 1);
-		m_pPriestObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.26, 1.005));
+		m_pMageObject->m_pHPBarUI->SetinitScale(0.07, 0.005, 1);
+		m_pMageObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.24, 1.005));
+		m_pMageObject->m_pProfileUI->SetinitScale(0.03, 0.015, 1);
+		m_pMageObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.26, 1.005));
 		m_pArcherObject->m_pHPBarUI->SetinitScale(0.07, 0.005, 1);
 		m_pArcherObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, 0.12, 1.005));
 		m_pArcherObject->m_pProfileUI->SetinitScale(0.03, 0.015, 1);
 		m_pArcherObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, 0.14, 1.005));
 		m_pWarriorObject->m_pSkillQUI->SetPosition(XMFLOAT3(0.975, 0.1, 1.005));
 		m_pWarriorObject->m_pSkillEUI->SetPosition(XMFLOAT3(0.975, 0.0, 1.005));
-		m_pPriestObject->m_pSkillQUI->SetPosition(XMFLOAT3(500, 500, 1.005));
-		m_pPriestObject->m_pSkillEUI->SetPosition(XMFLOAT3(500, 500, 1.005));
+		m_pMageObject->m_pSkillQUI->SetPosition(XMFLOAT3(500, 500, 1.005));
+		m_pMageObject->m_pSkillEUI->SetPosition(XMFLOAT3(500, 500, 1.005));
 		m_pArcherObject->m_pSkillQUI->SetPosition(XMFLOAT3(500, 500, 1.005));
 		m_pArcherObject->m_pSkillEUI->SetPosition(XMFLOAT3(500, 500, 1.005));
 		m_pTankerObject->m_pSkillQUI->SetPosition(XMFLOAT3(500, 500, 1.005));
@@ -519,7 +520,7 @@ void GameobjectManager::NormalMonsterConditionAnimate(float fTimeElapsed)
 
 void GameobjectManager::PlayerConditionAnimate(float fTimeElapsed)
 {
-	if (g_Logic.GetMyRole()) {
+	if (ROLE::NONE_SELECT != g_Logic.GetMyRole()) {
 		Character* myPlayCharacter = GetChracterInfo(g_Logic.GetMyRole());
 		if (myPlayCharacter == nullptr) return;
 		if (myPlayCharacter->m_fConditionTime < 1.2) {
@@ -587,7 +588,7 @@ void GameobjectManager::PlayerCurrentHpAnimate(float fTimeElapsed)
 	m_pArcherObject->m_pHPBarUI->SetCurrentHP(m_pArcherObject->GetCurrentHP());
 	m_pWarriorObject->m_pHPBarUI->SetCurrentHP(m_pWarriorObject->GetCurrentHP());
 	m_pTankerObject->m_pHPBarUI->SetCurrentHP(m_pTankerObject->GetCurrentHP());
-	m_pPriestObject->m_pHPBarUI->SetCurrentHP(m_pPriestObject->GetCurrentHP());
+	m_pMageObject->m_pHPBarUI->SetCurrentHP(m_pMageObject->GetCurrentHP());
 }
 
 void GameobjectManager::OnPreRender(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -656,7 +657,7 @@ void GameobjectManager::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	{
 		if (m_pHealRange->m_bActive)
 		{
-			XMFLOAT3 pos = m_pPriestObject->GetPosition();
+			XMFLOAT3 pos = m_pMageObject->GetPosition();
 			pos.y = 0.1f;
 			m_pHealRange->SetPosition(pos);
 			m_pHealRange->Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -1201,18 +1202,43 @@ void GameobjectManager::CheckCollidePortal()
 
 Player* GameobjectManager::GetChracterInfo(ROLE r)
 {
-	if (r & ROLE::WARRIOR) return m_pWarriorObject;
-	if (r & ROLE::PRIEST) return m_pPriestObject;
-	if (r & ROLE::TANKER) return m_pTankerObject;
-	if (r & ROLE::ARCHER) return m_pArcherObject;
+	static constexpr char WARROR_BIT = static_cast<char>(ROLE::WARRIOR);
+	static constexpr char MAGE_BIT = static_cast<char>(ROLE::MAGE);
+	static constexpr char TANKER_BIT = static_cast<char>(ROLE::TANKER);
+	static constexpr char ARCHER_BIT = static_cast<char>(ROLE::ARCHER);
+	static constexpr char NONE_BIT = static_cast<char>(ROLE::NONE_SELECT);
+
+	const char myRole = static_cast<char>(r);
+
+	if ((myRole & WARROR_BIT) != NONE_BIT) return m_pWarriorObject;
+	if ((myRole & MAGE_BIT) != NONE_BIT) return m_pMageObject;
+	if ((myRole & TANKER_BIT) != NONE_BIT) return m_pTankerObject;
+	if ((myRole & ARCHER_BIT) != NONE_BIT) return m_pArcherObject;
 	return nullptr;
+}
+
+std::vector<Character*> GameobjectManager::GetAllCharacterObject()
+{
+	std::vector<Character*> allCharacterObjects;
+	allCharacterObjects.reserve(15);
+	allCharacterObjects.push_back(m_pWarriorObject);
+	allCharacterObjects.push_back(m_pMageObject);
+	allCharacterObjects.push_back(m_pTankerObject);
+	allCharacterObjects.push_back(m_pArcherObject);
+	if (m_nStageType == STAGE1) {
+		for (int i = 0; i < 15; ++i)
+			allCharacterObjects.push_back(m_ppNormalMonsterObject[i]);
+	}
+	else if (m_nStageType == STAGE2)
+		allCharacterObjects.push_back(m_pMonsterObject);
+	return allCharacterObjects;
 }
 
 void GameobjectManager::SetCharactersStage1Postion()
 {
 	m_pArcherObject->SetStage1Position();
 	m_pTankerObject->SetStage1Position();
-	m_pPriestObject->SetStage1Position();
+	m_pMageObject->SetStage1Position();
 	m_pWarriorObject->SetStage1Position();
 }
 
@@ -1220,7 +1246,7 @@ void GameobjectManager::SetCharactersBossStagePostion()
 {
 	m_pArcherObject->SetBossStagePostion();
 	m_pTankerObject->SetBossStagePostion();
-	m_pPriestObject->SetBossStagePostion();
+	m_pMageObject->SetBossStagePostion();
 	m_pWarriorObject->SetBossStagePostion();
 }
 
@@ -1228,7 +1254,7 @@ void GameobjectManager::SetCharactersLobbyPosition()
 {
 	m_pMonsterObject->SetPosition(XMFLOAT3(0, 0, 0));
 
-	m_pPriestObject->SetPosition(XMFLOAT3(-1400.f, 0.f, -1520.f));
+	m_pMageObject->SetPosition(XMFLOAT3(-1400.f, 0.f, -1520.f));
 
 	m_pWarriorObject->SetPosition(XMFLOAT3(-1400.f, 0.f, -1460.f));
 	m_pWarriorObject->Rotate(0.0f, -90.0f, 0.0f);
@@ -1418,7 +1444,7 @@ void GameobjectManager::BuildProjectileObject(ID3D12Device* pd3dDevice, ID3D12Gr
 		m_pEnergyBallObjects[i] = m_ppIceLanceObjects[i];
 		m_ppProjectileObjects.emplace_back(m_ppIceLanceObjects[i]);
 	}
-	m_pPriestObject->SetProjectile(m_ppIceLanceObjects);
+	m_pMageObject->SetProjectile(m_ppIceLanceObjects);
 }
 
 
@@ -1524,20 +1550,20 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 		m_ppProjectileObjects.emplace_back(m_pTankerSkillEffects[i]);
 	}
 
-	m_pPriestObject = new Priest();
-	m_pPriestObject->InsertComponent<RenderComponent>();
-	m_pPriestObject->InsertComponent<CLoadedModelInfoCompnent>();
-	m_pPriestObject->SetPosition(XMFLOAT3(-1400.f, 0.f, -1520.f));
-	// m_pPriestObject->SetPosition(XMFLOAT3(0.0f, 0.0f, 0.0f));
-	m_pPriestObject->SetModel("Model/Priests.bin");
-	m_pPriestObject->SetAnimationSets(5);
-	m_pPriestObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pPriestObject->m_pSkinnedAnimationController->SetTrackAnimationSet(5);
-	m_pPriestObject->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_DIE]->m_nType = ANIMATION_TYPE_ONCE;
-	m_pPriestObject->SetScale(30.0f);
-	m_pPriestObject->Rotate(0, -90, 0);
-	m_pPriestObject->SetBoundingBox(m_pBoundingBox[3]);
-	m_ppGameObjects.emplace_back(m_pPriestObject);
+	m_pMageObject = new Mage();
+	m_pMageObject->InsertComponent<RenderComponent>();
+	m_pMageObject->InsertComponent<CLoadedModelInfoCompnent>();
+	m_pMageObject->SetPosition(XMFLOAT3(-1400.f, 0.f, -1520.f));
+	// m_pMageObject->SetPosition(XMFLOAT3(0.0f, 0.0f, 0.0f));
+	m_pMageObject->SetModel("Model/Mages.bin");
+	m_pMageObject->SetAnimationSets(5);
+	m_pMageObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pMageObject->m_pSkinnedAnimationController->SetTrackAnimationSet(5);
+	m_pMageObject->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_DIE]->m_nType = ANIMATION_TYPE_ONCE;
+	m_pMageObject->SetScale(30.0f);
+	m_pMageObject->Rotate(0, -90, 0);
+	m_pMageObject->SetBoundingBox(m_pBoundingBox[3]);
+	m_ppGameObjects.emplace_back(m_pMageObject);
 
 	m_pHealRange = new GameObject(SQUARE_ENTITY);
 	m_pHealRange->InsertComponent<RenderComponent>();
@@ -1548,7 +1574,7 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pHealRange->SetPosition(XMFLOAT3(0, 0.0f, 0));
 	m_pHealRange->SetScale(1.0f);
 	m_pHealRange->m_bActive = false;
-	m_pPriestObject->SetSkillRangeObject(m_pHealRange);
+	m_pMageObject->SetSkillRangeObject(m_pHealRange);
 	m_ppEffectObjects.emplace_back(m_pHealRange);
 
 	m_pBoundingBox[4] = new GameObject(SQUARE_ENTITY);
@@ -1621,9 +1647,9 @@ void GameobjectManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 
 #if LOCAL_TASK
 	// 플레이어가 캐릭터 선택하는 부분에 유사하게 넣을 예정
-	// m_pWarriorObject m_pArcherObject m_pTankerObject m_pPriestObject
-	// Archer Priest Tanker Warrior
-	//m_pPlayerObject = new Priest();
+	// m_pWarriorObject m_pArcherObject m_pTankerObject m_pMageObject
+	// Archer Mage Tanker Warrior
+	//m_pPlayerObject = new Mage();
 	//m_pTankerObject->SetCamera(m_pCamera);
 	//m_pPlayerObject = m_pTankerObject;
 	//g_Logic.SetMyRole(ROLE::TANKER);
@@ -1978,16 +2004,16 @@ void GameobjectManager::Build2DUI(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	m_pUITankerCharacterObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppUIObjects.emplace_back(m_pUITankerCharacterObject);
 
-	m_pUIPriestCharacterObject = new GameObject(UI_ENTITY);
-	m_pUIPriestCharacterObject->InsertComponent<RenderComponent>();
-	m_pUIPriestCharacterObject->InsertComponent<UIMeshComponent>();
-	m_pUIPriestCharacterObject->InsertComponent<UiShaderComponent>();
-	m_pUIPriestCharacterObject->InsertComponent<TextureComponent>();
-	m_pUIPriestCharacterObject->SetTexture(L"UI/PressButtonGreen.dds", RESOURCE_TEXTURE2D, 3);
-	m_pUIPriestCharacterObject->SetPosition(XMFLOAT3(0.6, 0.12, 1.01));
-	m_pUIPriestCharacterObject->SetScale(0.05, 0.02, 1);
-	m_pUIPriestCharacterObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppUIObjects.emplace_back(m_pUIPriestCharacterObject);
+	m_pUIMageCharacterObject = new GameObject(UI_ENTITY);
+	m_pUIMageCharacterObject->InsertComponent<RenderComponent>();
+	m_pUIMageCharacterObject->InsertComponent<UIMeshComponent>();
+	m_pUIMageCharacterObject->InsertComponent<UiShaderComponent>();
+	m_pUIMageCharacterObject->InsertComponent<TextureComponent>();
+	m_pUIMageCharacterObject->SetTexture(L"UI/PressButtonGreen.dds", RESOURCE_TEXTURE2D, 3);
+	m_pUIMageCharacterObject->SetPosition(XMFLOAT3(0.6, 0.12, 1.01));
+	m_pUIMageCharacterObject->SetScale(0.05, 0.02, 1);
+	m_pUIMageCharacterObject->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppUIObjects.emplace_back(m_pUIMageCharacterObject);
 
 	//SECTION2 
 	/*m_pUIEnterRoomObject = new GameObject(UI_ENTITY);
@@ -2258,53 +2284,53 @@ void GameobjectManager::BuildCharacterUI(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pTankerObject->m_pSkillEUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppCharacterUIObjects.emplace_back(m_pTankerObject->m_pSkillEUI);
 	////////////////////////////////////////////////////////////////
-	m_pPriestObject->m_pHPBarUI = new GameObject(UI_ENTITY);
-	m_pPriestObject->m_pHPBarUI->InsertComponent<RenderComponent>();
-	m_pPriestObject->m_pHPBarUI->InsertComponent<UIMeshComponent>();
-	m_pPriestObject->m_pHPBarUI->InsertComponent<UiShaderComponent>();
-	m_pPriestObject->m_pHPBarUI->InsertComponent<TextureComponent>();
-	m_pPriestObject->m_pHPBarUI->SetTexture(L"UI/HP.dds", RESOURCE_TEXTURE2D, 3);
-	m_pPriestObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, -0.06, 1.00));
-	m_pPriestObject->m_pHPBarUI->SetScale(0.07, 0.005, 1);
-	//m_pPriestObject->m_pHPBarUI->SetShield(100);
-	m_pPriestObject->m_pHPBarUI->SetColor(XMFLOAT4(0.02, 0.08, 0, 0));
-	m_pPriestObject->m_pHPBarUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppCharacterUIObjects.emplace_back(m_pPriestObject->m_pHPBarUI);
+	m_pMageObject->m_pHPBarUI = new GameObject(UI_ENTITY);
+	m_pMageObject->m_pHPBarUI->InsertComponent<RenderComponent>();
+	m_pMageObject->m_pHPBarUI->InsertComponent<UIMeshComponent>();
+	m_pMageObject->m_pHPBarUI->InsertComponent<UiShaderComponent>();
+	m_pMageObject->m_pHPBarUI->InsertComponent<TextureComponent>();
+	m_pMageObject->m_pHPBarUI->SetTexture(L"UI/HP.dds", RESOURCE_TEXTURE2D, 3);
+	m_pMageObject->m_pHPBarUI->SetPosition(XMFLOAT3(-0.67, -0.06, 1.00));
+	m_pMageObject->m_pHPBarUI->SetScale(0.07, 0.005, 1);
+	//m_pMageObject->m_pHPBarUI->SetShield(100);
+	m_pMageObject->m_pHPBarUI->SetColor(XMFLOAT4(0.02, 0.08, 0, 0));
+	m_pMageObject->m_pHPBarUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppCharacterUIObjects.emplace_back(m_pMageObject->m_pHPBarUI);
 
-	m_pPriestObject->m_pProfileUI = new GameObject(UI_ENTITY);
-	m_pPriestObject->m_pProfileUI->InsertComponent<RenderComponent>();
-	m_pPriestObject->m_pProfileUI->InsertComponent<UIMeshComponent>();
-	m_pPriestObject->m_pProfileUI->InsertComponent<UiShaderComponent>();
-	m_pPriestObject->m_pProfileUI->InsertComponent<TextureComponent>();
-	m_pPriestObject->m_pProfileUI->SetTexture(L"UI/PriestUI.dds", RESOURCE_TEXTURE2D, 3);
-	m_pPriestObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, -0.04, 1.00));
-	m_pPriestObject->m_pProfileUI->SetScale(0.03, 0.015, 1);
-	m_pPriestObject->m_pProfileUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppCharacterUIObjects.emplace_back(m_pPriestObject->m_pProfileUI);
+	m_pMageObject->m_pProfileUI = new GameObject(UI_ENTITY);
+	m_pMageObject->m_pProfileUI->InsertComponent<RenderComponent>();
+	m_pMageObject->m_pProfileUI->InsertComponent<UIMeshComponent>();
+	m_pMageObject->m_pProfileUI->InsertComponent<UiShaderComponent>();
+	m_pMageObject->m_pProfileUI->InsertComponent<TextureComponent>();
+	m_pMageObject->m_pProfileUI->SetTexture(L"UI/MageUI.dds", RESOURCE_TEXTURE2D, 3);
+	m_pMageObject->m_pProfileUI->SetPosition(XMFLOAT3(-0.94, -0.04, 1.00));
+	m_pMageObject->m_pProfileUI->SetScale(0.03, 0.015, 1);
+	m_pMageObject->m_pProfileUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppCharacterUIObjects.emplace_back(m_pMageObject->m_pProfileUI);
 
-	m_pPriestObject->m_pSkillQUI = new GameObject(UI_ENTITY);
-	m_pPriestObject->m_pSkillQUI->InsertComponent<RenderComponent>();
-	m_pPriestObject->m_pSkillQUI->InsertComponent<UIMeshComponent>();
-	m_pPriestObject->m_pSkillQUI->InsertComponent<UiShaderComponent>();
-	m_pPriestObject->m_pSkillQUI->InsertComponent<TextureComponent>();
-	m_pPriestObject->m_pSkillQUI->SetTexture(L"UI/HealSkill.dds", RESOURCE_TEXTURE2D, 3);
-	m_pPriestObject->m_pSkillQUI->SetPosition(XMFLOAT3(5, 5, 1.00));
-	m_pPriestObject->m_pSkillQUI->SetScale(0.02, 0.02, 1);
-	m_pPriestObject->m_pSkillQUI->SetColor(XMFLOAT4(0.06f, 0.05f, 0, 0));
-	m_pPriestObject->m_pSkillQUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppCharacterUIObjects.emplace_back(m_pPriestObject->m_pSkillQUI);
+	m_pMageObject->m_pSkillQUI = new GameObject(UI_ENTITY);
+	m_pMageObject->m_pSkillQUI->InsertComponent<RenderComponent>();
+	m_pMageObject->m_pSkillQUI->InsertComponent<UIMeshComponent>();
+	m_pMageObject->m_pSkillQUI->InsertComponent<UiShaderComponent>();
+	m_pMageObject->m_pSkillQUI->InsertComponent<TextureComponent>();
+	m_pMageObject->m_pSkillQUI->SetTexture(L"UI/HealSkill.dds", RESOURCE_TEXTURE2D, 3);
+	m_pMageObject->m_pSkillQUI->SetPosition(XMFLOAT3(5, 5, 1.00));
+	m_pMageObject->m_pSkillQUI->SetScale(0.02, 0.02, 1);
+	m_pMageObject->m_pSkillQUI->SetColor(XMFLOAT4(0.06f, 0.05f, 0, 0));
+	m_pMageObject->m_pSkillQUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppCharacterUIObjects.emplace_back(m_pMageObject->m_pSkillQUI);
 
-	m_pPriestObject->m_pSkillEUI = new GameObject(UI_ENTITY);
-	m_pPriestObject->m_pSkillEUI->InsertComponent<RenderComponent>();
-	m_pPriestObject->m_pSkillEUI->InsertComponent<UIMeshComponent>();
-	m_pPriestObject->m_pSkillEUI->InsertComponent<UiShaderComponent>();
-	m_pPriestObject->m_pSkillEUI->InsertComponent<TextureComponent>();
-	m_pPriestObject->m_pSkillEUI->SetTexture(L"UI/LightningSkill.dds", RESOURCE_TEXTURE2D, 3);
-	m_pPriestObject->m_pSkillEUI->SetPosition(XMFLOAT3(5, 5, 1.00));
-	m_pPriestObject->m_pSkillEUI->SetScale(0.02, 0.02, 1);
-	m_pPriestObject->m_pSkillEUI->SetColor(XMFLOAT4(0.06f, 0.05f, 0, 0));
-	m_pPriestObject->m_pSkillEUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppCharacterUIObjects.emplace_back(m_pPriestObject->m_pSkillEUI);
+	m_pMageObject->m_pSkillEUI = new GameObject(UI_ENTITY);
+	m_pMageObject->m_pSkillEUI->InsertComponent<RenderComponent>();
+	m_pMageObject->m_pSkillEUI->InsertComponent<UIMeshComponent>();
+	m_pMageObject->m_pSkillEUI->InsertComponent<UiShaderComponent>();
+	m_pMageObject->m_pSkillEUI->InsertComponent<TextureComponent>();
+	m_pMageObject->m_pSkillEUI->SetTexture(L"UI/LightningSkill.dds", RESOURCE_TEXTURE2D, 3);
+	m_pMageObject->m_pSkillEUI->SetPosition(XMFLOAT3(5, 5, 1.00));
+	m_pMageObject->m_pSkillEUI->SetScale(0.02, 0.02, 1);
+	m_pMageObject->m_pSkillEUI->SetColor(XMFLOAT4(0.06f, 0.05f, 0, 0));
+	m_pMageObject->m_pSkillEUI->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppCharacterUIObjects.emplace_back(m_pMageObject->m_pSkillEUI);
 	////////////////////////////////////////////////////////////////
 	m_pWarriorObject->m_pHPBarUI = new GameObject(UI_ENTITY);
 	m_pWarriorObject->m_pHPBarUI->InsertComponent<RenderComponent>();
@@ -2449,7 +2475,7 @@ void GameobjectManager::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_pPortalEffectObject = new PortalEffectObject;
 	m_pPortalEffectObject->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, &m_ppEffectObjects);
 
-	m_pPreistAttackEffectObject = new PriestEffectObject;
+	m_pPreistAttackEffectObject = new MageEffectObject;
 	m_pPreistAttackEffectObject->BuildEffect(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, &m_ppEffectObjects);
 
 	m_pTankerAttackEffectObject = new TankerEffectObject;
@@ -2505,7 +2531,7 @@ void GameobjectManager::ResetLobbyUI()
 	m_pUIWarriorCharacterObject->m_bUIActive = true;
 	m_pUIArcherCharacterObject->m_bUIActive = true;
 	m_pUITankerCharacterObject->m_bUIActive = true;
-	m_pUIPriestCharacterObject->m_bUIActive = true;
+	m_pUIMageCharacterObject->m_bUIActive = true;
 }
 
 void GameobjectManager::SetLightningEffect(const XMFLOAT3& targetPos)
@@ -2573,7 +2599,7 @@ void GameobjectManager::ProcessingUI(int n)
 		m_pUIWarriorCharacterObject->m_bUIActive = true;
 		m_pUIArcherCharacterObject->m_bUIActive = false;
 		m_pUITankerCharacterObject->m_bUIActive = false;
-		m_pUIPriestCharacterObject->m_bUIActive = false;
+		m_pUIMageCharacterObject->m_bUIActive = false;
 		// cout << "Choose Warrior Character" << endl;
 		break;
 	}
@@ -2585,7 +2611,7 @@ void GameobjectManager::ProcessingUI(int n)
 		m_pUIWarriorCharacterObject->m_bUIActive = false;
 		m_pUIArcherCharacterObject->m_bUIActive = true;
 		m_pUITankerCharacterObject->m_bUIActive = false;
-		m_pUIPriestCharacterObject->m_bUIActive = false;
+		m_pUIMageCharacterObject->m_bUIActive = false;
 		// cout << "Choose Archer Character" << endl;
 		break;
 	}
@@ -2597,7 +2623,7 @@ void GameobjectManager::ProcessingUI(int n)
 		m_pUIWarriorCharacterObject->m_bUIActive = false;
 		m_pUIArcherCharacterObject->m_bUIActive = false;
 		m_pUITankerCharacterObject->m_bUIActive = true;
-		m_pUIPriestCharacterObject->m_bUIActive = false;
+		m_pUIMageCharacterObject->m_bUIActive = false;
 		// cout << "Choose Tanker Character" << endl;
 		break;
 	}
@@ -2605,12 +2631,12 @@ void GameobjectManager::ProcessingUI(int n)
 	{
 		// 선택한 캐릭터 priest
 		g_sound.NoLoopPlay("ClickSound", 1.0f);
-		g_Logic.SetMyRole(ROLE::PRIEST);
+		g_Logic.SetMyRole(ROLE::MAGE);
 		m_pUIWarriorCharacterObject->m_bUIActive = false;
 		m_pUIArcherCharacterObject->m_bUIActive = false;
 		m_pUITankerCharacterObject->m_bUIActive = false;
-		m_pUIPriestCharacterObject->m_bUIActive = true;
-		// cout << "Choose Priest Character" << endl;
+		m_pUIMageCharacterObject->m_bUIActive = true;
+		// cout << "Choose Mage Character" << endl;
 		break;
 	}
 	case UI::UI_ENTERROOM:
@@ -2776,7 +2802,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			if (myPlayCharacter->GetESkillState() == false && myPlayCharacter->GetOnAttack() == false
 				&& !myPlayCharacter->GetLButtonClicked())
 			{
-				if (g_Logic.GetMyRole() == ROLE::PRIEST || g_Logic.GetMyRole() == ROLE::ARCHER)
+				if (g_Logic.GetMyRole() == ROLE::MAGE || g_Logic.GetMyRole() == ROLE::ARCHER)
 				{
 					if (!m_bPickingenemy)
 					{
@@ -2972,7 +2998,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			else if (m_nStageType == 2) {
 				//m_nStageType = 1;
 				m_pPlayerObject->SetPosition(XMFLOAT3(-1400, 0, -1500));
-		}
+			}
 #endif
 			if (m_nStageType == 1) {
 				//m_nStageType = 2;
@@ -2980,9 +3006,9 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 				g_NetworkHelper.SendChangeStage_BOSS();
 			}
 			break;
+		}
+		}
 	}
-	}
-}
 	default:
 		break;
 	}
@@ -3169,7 +3195,7 @@ void GameobjectManager::onProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPA
 		SomethingChanging = true;
 
 		/*	if (ROLE::PRIEST) {
-				g_sound.NoLoopPlay("PriestAttackSound", 1.0f);
+				g_sound.NoLoopPlay("MageAttackSound", 1.0f);
 			}
 			if (ROLE::ARCHER) {
 				g_sound.NoLoopPlay("AcherAttackSound", 1.0f);
@@ -3235,23 +3261,23 @@ void GameobjectManager::AddTextToUILayer(int& iIndex)
 	queue<wstring> queueStr;
 	if (iIndex == START_TEXT)
 	{
-		//queueStr.emplace(L"데드레커닝 살려줘");
-		queueStr.emplace(L"안녕하세요! 드림월드에 오신 것을 환영해요");
-		queueStr.emplace(L"먼저 플레이 방법에 대해서 알려드릴게요!");
-		queueStr.emplace(L"앞에 보이는 캐릭터들 중 원하는 캐릭터를");
-		queueStr.emplace(L"선택하신 후에 게임 시작을 누르시면");
-		queueStr.emplace(L"선택한 캐릭터를 플레이 하실 수 있어요!");
+		queueStr.emplace(L"111");
+		//queueStr.emplace(L"안녕하세요! 드림월드에 오신 것을 환영해요");
+		//queueStr.emplace(L"먼저 플레이 방법에 대해서 알려드릴게요!");
+		//queueStr.emplace(L"앞에 보이는 캐릭터들 중 원하는 캐릭터를");
+		//queueStr.emplace(L"선택하신 후에 게임 시작을 누르시면");
+		//queueStr.emplace(L"선택한 캐릭터를 플레이 하실 수 있어요!");
 	}
 	if (iIndex == NPC_TEXT)
 	{
-		queueStr.emplace(L"용사님들 우리의 꿈이 악몽에게 공격을 받았어요");
-		queueStr.emplace(L"앞에 있는 악몽들을 처치해주세요!");
+		//queueStr.emplace(L"용사님들 우리의 꿈이 악몽에게 공격을 받았어요");
 		//queueStr.emplace(L"앞에 있는 악몽들을 처치해주세요!");
+		queueStr.emplace(L"앞에 있는 악몽들을 처치해주세요!");
 	}
 	if (iIndex == BOSS_TEXT)
 	{
-		queueStr.emplace(L"너희가 꿈을 지킬 수 있을거 같으냐!!!      ");
-		queueStr.emplace(L"으하하하하하 이 꿈은 내가 가져가마         ");
+		//queueStr.emplace(L"너희가 꿈을 지킬 수 있을거 같으냐!!!      ");
+		//queueStr.emplace(L"으하하하하하 이 꿈은 내가 가져가마         ");
 		queueStr.emplace(L"너희들 모두 다 죽여주마!!!      ");
 	}
 	//if (iIndex == TEXT::WARRIOR_TEXT)
@@ -3317,9 +3343,9 @@ void GameobjectManager::SetPlayCharacter(Session* pSession) // 임시 함수
 		cliSession->m_currentPlayGameObject->SetScale(30.0f);
 	}
 	break;
-	case ROLE::PRIEST:
+	case ROLE::MAGE:
 	{
-		cliSession->SetGameObject(m_pPriestObject);
+		cliSession->SetGameObject(m_pMageObject);
 		cliSession->m_currentPlayGameObject->SetPosition(XMFLOAT3(-270, 0, 40));
 		cliSession->m_currentPlayGameObject->SetScale(30.0f);
 	}
@@ -3392,7 +3418,7 @@ void GameobjectManager::SetUIActive()
 	m_pUIWarriorCharacterObject->m_bUIActive = true;
 	m_pUIArcherCharacterObject->m_bUIActive = true;
 	m_pUITankerCharacterObject->m_bUIActive = true;
-	m_pUIPriestCharacterObject->m_bUIActive = true;
+	m_pUIMageCharacterObject->m_bUIActive = true;
 }
 
 void GameobjectManager::ChangeStage1ToStage2(float fTimeelpased)

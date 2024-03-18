@@ -31,7 +31,7 @@ public:
 protected:
 	void ChangeAnimation(pair< CharacterAnimation, CharacterAnimation> nextAnimation);
 	float GetAnimationProgressRate(CharacterAnimation nAnimation);
-	virtual void SetLookDirection() {};
+	virtual void SetLookDirection() = 0;
 
 public:
 	bool GetQSkillState() { return m_bQSkillClicked; }
@@ -44,16 +44,22 @@ public:
 public:
 	void AddDirection(DIRECTION d) {
 		m_currentDirection = (DIRECTION)(m_currentDirection | d);
+		SetLookDirection();
 	}
 	void RemoveDIrection(DIRECTION d) {
 		m_currentDirection = (DIRECTION)(m_currentDirection ^ d);
+		SetLookDirection();
 	}
 	void SetStopDirection() {
 		m_currentDirection = DIRECTION::IDLE;
 	}
 
 public:
-	void SetRotateAxis(XMFLOAT3& xmf3RotateAxis) { m_xmf3RotateAxis = xmf3RotateAxis; }
+	void SetRotateAxis(XMFLOAT3& xmf3RotateAxis)
+	{
+		m_xmf3RotateAxis = xmf3RotateAxis;
+		SetLookDirection();
+	}
 	void SetShieldActive(bool bActive) { m_bShieldActive = bActive; }
 	void SetShield(float fShield) { m_fShield = fShield; }
 };

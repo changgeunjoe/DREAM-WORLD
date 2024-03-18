@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Matching.h"
+#include "../ThreadManager/ThreadManager.h"
 #include "../Network/UserSession/UserSession.h"
 #include "../Room/RoomManager.h"
 #include "../Room/Room.h"
@@ -13,7 +14,9 @@ void Matching::InserMatch(std::shared_ptr<UserSession>& userRef, const ROLE& rol
 #ifdef ALONE_TEST
 	spdlog::debug("Matching::InserMatch() - Alone Test Mode");
 	userRef->SetRole(role);
-	RoomManager::GetInstance().MakeRunningRoomAloneMode(userRef);
+	auto roomRef = RoomManager::GetInstance().MakeRunningRoomAloneMode(userRef);
+	userRef->SetRoomRef(roomRef);
+	roomRef->Start();
 #else
 	switch (role)
 	{
@@ -152,9 +155,14 @@ void Matching::MatchFunc()
 				m_lastArcherUser.reset();
 			}
 
-			RoomManager::GetInstance().MakeRunningRoom(userRefVec);
+			auto roomRef = RoomManager::GetInstance().MakeRunningRoom(userRefVec);
+			
+			for (auto& userRef : userRefVec)
+				userRef->SetRoomRef(roomRef);
+			roomRef->Start();
+
 			userRefVec.clear();
-		}
+	}
 		continue;
 #endif // TEST_MODE_PEOPLE
 
@@ -166,7 +174,10 @@ void Matching::MatchFunc()
 			tankerUserRef->SetRole(ROLE::TANKER);
 			archerUserRef->SetRole(ROLE::ARCHER);
 
-			RoomManager::GetInstance().MakeRunningRoom(userRefVec);
+			auto roomRef = RoomManager::GetInstance().MakeRunningRoom(userRefVec);
+			for (auto& userRef : userRefVec)
+				userRef->SetRoomRef(roomRef);
+			roomRef->Start();
 			m_lastWarriorUser.reset();
 			m_lastMageUser.reset();
 			m_lastTankerUser.reset();
@@ -180,7 +191,7 @@ void Matching::MatchFunc()
 			m_lastArcherUser = archerUserRef;
 			userRefVec.clear();
 		}
-	}
+}
 }
 
 void Matching::StartMatching()
@@ -190,8 +201,9 @@ void Matching::StartMatching()
 	m_lastTankerUser.reset();
 	m_lastArcherUser.reset();
 #ifndef ALONE_TEST
-	m_matchThread = std::jthread([this]() {MatchFunc(); });
 	spdlog::info("Matching::StartMatching() - Matching Thread Start");
+	ThreadManager::GetInstance().CreateThread(std::thread([this]() {MatchFunc(); }));
+
 #else
 	spdlog::info("Matching::StartMatching() - AloneTestMode, Matching Thread do not run");
 #endif

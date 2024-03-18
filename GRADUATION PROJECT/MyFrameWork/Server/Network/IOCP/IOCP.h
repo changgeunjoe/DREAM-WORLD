@@ -28,14 +28,12 @@ namespace IOCP
 		{
 			return shared_from_this();
 		}
-		void WorkerThreadJoin();
 
 	private:
 		void WorkerThread();
 	private:
 		HANDLE m_hIocp;
 	private:
-		std::vector<std::jthread> m_workerThread;
 		std::shared_ptr<IOCP::ListenEvent> m_listener;
 	};
 }

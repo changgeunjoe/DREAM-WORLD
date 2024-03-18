@@ -157,7 +157,9 @@
   <ItemGroup>
     <ClCompile Include="DB\DB.cpp" />
     <ClCompile Include="GameObject\Character\ChracterObject.cpp" />
+    <ClCompile Include="GameObject\Character\SkillController.cpp" />
     <ClCompile Include="GameObject\GameObject.cpp" />
+    <ClCompile Include="GameObject\Monster\BossMonsterObject.cpp" />
     <ClCompile Include="GameObject\Monster\MonsterObject.cpp" />
     <ClCompile Include="GameObject\Monster\SmallMonsterObject.cpp" />
     <ClCompile Include="GameObject\Projectile\MeteoObject.cpp" />
@@ -179,7 +181,9 @@
     <ClCompile Include="Network\IOCP\Iocp.cpp" />
     <ClCompile Include="Network\PacketManager\PacketManager.cpp" />
     <ClCompile Include="Network\UserSession\UserManager.cpp" />
-    <ClCompile Include="Network\UserSession\UserSession.cpp" />
+    <ClCompile Include="Network\UserSession\UserSession.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="PCH\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -189,13 +193,16 @@
     <ClCompile Include="Room\Room.cpp" />
     <ClCompile Include="Room\RoomEvent.cpp" />
     <ClCompile Include="Room\RoomManager.cpp" />
+    <ClCompile Include="ThreadManager\ThreadManager.cpp" />
     <ClCompile Include="Timer\Timer.cpp" />
     <ClCompile Include="Timer\TimerEventBase.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DB\DB.h" />
     <ClInclude Include="GameObject\Character\ChracterObject.h" />
+    <ClInclude Include="GameObject\Character\SkillController.h" />
     <ClInclude Include="GameObject\GameObject.h" />
+    <ClInclude Include="GameObject\Monster\BossMonsterObject.h" />
     <ClInclude Include="GameObject\Monster\MonsterObject.h" />
     <ClInclude Include="GameObject\Monster\SmallMonsterObject.h" />
     <ClInclude Include="GameObject\Projectile\MeteoObject.h" />
@@ -224,6 +231,7 @@
     <ClInclude Include="Room\RoomEvent.h" />
     <ClInclude Include="Room\RoomManager.h" />
     <ClInclude Include="SingletonBase.h" />
+    <ClInclude Include="ThreadManager\ThreadManager.h" />
     <ClInclude Include="Timer\Timer.h" />
     <ClInclude Include="Timer\TimerEventBase.h" />
   </ItemGroup>

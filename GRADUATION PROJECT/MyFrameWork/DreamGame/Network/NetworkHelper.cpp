@@ -58,8 +58,9 @@ void NetworkHelper::RunThread()
 {
 	cout << "Start Recv" << endl;
 	while (true) {
-		int ioByte = recv(m_clientSocket, m_buffer, MAX_RECV_BUF_SIZE, 0);
+		int ioByte = recv(m_clientSocket, m_buffer + m_prevPacketSize, MAX_RECV_BUF_SIZE - m_prevPacketSize, 0);
 		if (ioByte == 0) {
+			std::cout << "Server Disconnected" << endl;
 			//Server Disconnect
 		}
 		else if (ioByte > 0) {
@@ -72,12 +73,9 @@ void NetworkHelper::RunThread()
 				std::cout << "errorCode: " << ErrorCode << endl;
 			}
 		}
-		/*if (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::utc_clock::now() - g_Logic.GetReQuestTime()).count() > 1) {
+		if (g_Logic.IsReadySendSync()) {
 			SendTimeSyncPacket();
 		}
-		if (m_positionSendTime + std::chrono::milliseconds(30) > std::chrono::utc_clock::now()) {
-			g_Logic.GetMyRole();
-		}*/
 	}
 }
 
@@ -113,32 +111,26 @@ void NetworkHelper::Destroy()
 
 void NetworkHelper::SendMovePacket(DIRECTION d)
 {
-	CLIENT_PACKET::MovePacket sendPacket;
+	CLIENT_PACKET::MovePacket sendPacket(static_cast<unsigned char>(CLIENT_PACKET::TYPE::MOVE_KEY_DOWN));
 	sendPacket.direction = d;
-	sendPacket.type = static_cast<unsigned char>(CLIENT_PACKET::TYPE::MOVE_KEY_DOWN);
-	sendPacket.size = sizeof(CLIENT_PACKET::MovePacket);
 
-	std::chrono::utc_clock::time_point t = std::chrono::utc_clock::now();
+	std::chrono::steady_clock::time_point t = std::chrono::steady_clock::now();
 	sendPacket.time = t + std::chrono::microseconds(g_Logic.GetDiffTime());
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
 void NetworkHelper::SendStopPacket(const DirectX::XMFLOAT3& position) // , const DirectX::XMFLOAT3& rotate
 {
-	CLIENT_PACKET::StopPacket sendPacket;
-	sendPacket.type = static_cast<unsigned char>(CLIENT_PACKET::TYPE::STOP);
-	sendPacket.size = sizeof(CLIENT_PACKET::StopPacket);
+	CLIENT_PACKET::StopPacket sendPacket(static_cast<unsigned char>(CLIENT_PACKET::TYPE::STOP));
 	sendPacket.position = position;
 
-	sendPacket.time = std::chrono::utc_clock::now() + std::chrono::microseconds(g_Logic.GetDiffTime());
+	sendPacket.time = std::chrono::steady_clock::now() + std::chrono::microseconds(g_Logic.GetDiffTime());
 	// sendPacket.rotate = rotate;
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 void NetworkHelper::SendRotatePacket(ROTATE_AXIS axis, float angle)
 {
-	CLIENT_PACKET::RotatePacket sendPacket;
-	sendPacket.type = static_cast<unsigned char>(CLIENT_PACKET::TYPE::ROTATE);
-	sendPacket.size = sizeof(CLIENT_PACKET::RotatePacket);
+	CLIENT_PACKET::RotatePacket sendPacket(static_cast<unsigned char>(CLIENT_PACKET::TYPE::ROTATE));
 	sendPacket.angle = angle;
 	sendPacket.axis = axis;
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
@@ -146,18 +138,14 @@ void NetworkHelper::SendRotatePacket(ROTATE_AXIS axis, float angle)
 
 void NetworkHelper::SendKeyUpPacket(DIRECTION d)
 {
-	CLIENT_PACKET::MovePacket sendPacket;
+	CLIENT_PACKET::MovePacket sendPacket(static_cast<unsigned char>(CLIENT_PACKET::TYPE::MOVE_KEY_UP));
 	sendPacket.direction = d;
-	sendPacket.type = static_cast<unsigned char>(CLIENT_PACKET::TYPE::MOVE_KEY_UP);
-	sendPacket.size = sizeof(CLIENT_PACKET::MovePacket);
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
 void NetworkHelper::SendLoginData(char* loginId, char* pw)
 {
-	CLIENT_PACKET::LoginPacket sendPacket;
-	sendPacket.type = static_cast<unsigned char>(CLIENT_PACKET::TYPE::LOGIN);
-	sendPacket.size = sizeof(sendPacket);
+	CLIENT_PACKET::LoginPacket sendPacket(static_cast<unsigned char>(CLIENT_PACKET::TYPE::LOGIN));
 	ZeroMemory(sendPacket.id, 0);
 	ZeroMemory(sendPacket.pw, 0);
 	memcpy(sendPacket.id, loginId, strlen(loginId) + 1);
@@ -167,79 +155,56 @@ void NetworkHelper::SendLoginData(char* loginId, char* pw)
 
 void NetworkHelper::SendMouseStatePacket(bool LClickedButton, bool RClickedButton)
 {
-	CLIENT_PACKET::MouseInputPacket sendPacket;
-	sendPacket.LClickedButton = LClickedButton;
-	sendPacket.RClickedButton = RClickedButton;
-	sendPacket.type = static_cast<unsigned char>(CLIENT_PACKET::TYPE::MOUSE_INPUT);
-	sendPacket.size = sizeof(CLIENT_PACKET::MouseInputPacket);
+	CLIENT_PACKET::MouseInputPacket sendPacket(static_cast<unsigned char>(LClickedButton, RClickedButton, CLIENT_PACKET::TYPE::MOUSE_INPUT));
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
 void NetworkHelper::Send_SkillInput_Q()
 {
-	CLIENT_PACKET::NotifyPacket sendPacket;
-	sendPacket.size = sizeof(CLIENT_PACKET::NotifyPacket);
-	sendPacket.type = static_cast<unsigned char>(CLIENT_PACKET::TYPE::SKILL_INPUT_Q);
+	CLIENT_PACKET::NotifyPacket sendPacket(static_cast<unsigned char>(CLIENT_PACKET::TYPE::SKILL_INPUT_Q));
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
 void NetworkHelper::Send_SkillInput_E()
 {
-	CLIENT_PACKET::NotifyPacket sendPacket;
-	sendPacket.size = sizeof(CLIENT_PACKET::NotifyPacket);
-	sendPacket.type = static_cast<unsigned char>(CLIENT_PACKET::TYPE::SKILL_INPUT_E);
+	CLIENT_PACKET::NotifyPacket sendPacket(static_cast<unsigned char>(CLIENT_PACKET::TYPE::SKILL_INPUT_E));
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
 void NetworkHelper::Send_SkillExecute_Q(XMFLOAT3& dirOrPosition)
 {
-	CLIENT_PACKET::SkillAttackPacket sendPacket;
-	sendPacket.size = sizeof(CLIENT_PACKET::SkillAttackPacket);
-	sendPacket.type = static_cast<unsigned char>(CLIENT_PACKET::TYPE::SKILL_EXECUTE_Q);
-
-	sendPacket.postionOrDirection = dirOrPosition;
+	CLIENT_PACKET::SkillAttackPacket sendPacket(dirOrPosition, static_cast<unsigned char>(CLIENT_PACKET::TYPE::SKILL_EXECUTE_Q));
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
 void NetworkHelper::Send_SkillExecute_E(const XMFLOAT3& dirOrPosition)
 {
-	CLIENT_PACKET::SkillAttackPacket sendPacket;
-	sendPacket.size = sizeof(CLIENT_PACKET::SkillAttackPacket);
-	sendPacket.type = static_cast<unsigned char>(CLIENT_PACKET::TYPE::SKILL_EXECUTE_E);
-
-	sendPacket.postionOrDirection = dirOrPosition;
+	CLIENT_PACKET::SkillAttackPacket sendPacket(dirOrPosition, static_cast<unsigned char>(CLIENT_PACKET::TYPE::SKILL_EXECUTE_E));
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
 void NetworkHelper::SendMatchRequestPacket()
 {
-	CLIENT_PACKET::MatchPacket sendPacket;
-	sendPacket.size = sizeof(CLIENT_PACKET::MatchPacket);
-	sendPacket.type = static_cast<unsigned char>(CLIENT_PACKET::TYPE::MATCH);
-	sendPacket.Role = (char)g_Logic.GetMyRole();
+	CLIENT_PACKET::MatchPacket sendPacket(g_Logic.GetMyRole(), static_cast<unsigned char>(CLIENT_PACKET::TYPE::MATCH));
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
 void NetworkHelper::SendArrowAttackPacket(const XMFLOAT3& pos, const XMFLOAT3& dir, float speed)
 {
-	CLIENT_PACKET::ShootingObject sendPacket;
-	sendPacket.size = sizeof(CLIENT_PACKET::ShootingObject);
-	sendPacket.type = static_cast<unsigned char>(CLIENT_PACKET::TYPE::SHOOTING_ARROW);
-	sendPacket.pos = pos;
-	sendPacket.dir = dir;
-	sendPacket.speed = speed;
-	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
+	//CLIENT_PACKET::ShootingObject sendPacket(static_cast<unsigned char>(CLIENT_PACKET::TYPE::SHOOTING_ARROW));
+	//sendPacket.pos = pos;
+	//sendPacket.dir = dir;
+	//sendPacket.speed = speed;
+	//send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
 void NetworkHelper::SendBallAttackPacket(const XMFLOAT3& pos, const XMFLOAT3& dir, float speed)
 {
-	CLIENT_PACKET::ShootingObject sendPacket;
-	sendPacket.size = sizeof(CLIENT_PACKET::ShootingObject);
-	sendPacket.type = static_cast<unsigned char>(CLIENT_PACKET::TYPE::SHOOTING_BALL);
-	sendPacket.pos = pos;
-	sendPacket.dir = dir;
-	sendPacket.speed = speed;
-	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
+	//CLIENT_PACKET::ShootingObject sendPacket(static_cast<unsigned char>(CLIENT_PACKET::TYPE::SHOOTING_BALL));
+	//sendPacket.pos = pos;
+	//sendPacket.dir = dir;
+	//sendPacket.speed = speed;
+	//send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
 void NetworkHelper::SendMeleeAttackPacket(const XMFLOAT3& dir)
@@ -253,81 +218,60 @@ void NetworkHelper::SendMeleeAttackPacket(const XMFLOAT3& dir)
 
 void NetworkHelper::SendTestGameEndPacket()
 {
-	CLIENT_PACKET::NotifyPacket sendPacket;
-	sendPacket.size = sizeof(CLIENT_PACKET::NotifyPacket);
-	sendPacket.type = static_cast<unsigned char>(CLIENT_PACKET::TYPE::TEST_GAME_END);
+	CLIENT_PACKET::NotifyPacket sendPacket(static_cast<unsigned char>(CLIENT_PACKET::TYPE::TEST_GAME_END));
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
 void NetworkHelper::SendTestGameEndOKPacket()
 {
-	CLIENT_PACKET::NotifyPacket sendPacket;
-	sendPacket.size = sizeof(CLIENT_PACKET::NotifyPacket);
-	sendPacket.type = static_cast<unsigned char>(CLIENT_PACKET::TYPE::GAME_END_OK);
+	CLIENT_PACKET::NotifyPacket sendPacket(static_cast<unsigned char>(CLIENT_PACKET::TYPE::GAME_END_OK));
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
 void NetworkHelper::SendOnPositionTriggerBox1()
 {
-	CLIENT_PACKET::NotifyPacket sendPacket;
-	sendPacket.size = sizeof(CLIENT_PACKET::NotifyPacket);
-	sendPacket.type = static_cast<unsigned char>(CLIENT_PACKET::TYPE::TRIGGER_BOX_ON);
-	//else sendPacket.type = CLIENT_PACKET::TRIGGER_BOX_OUT;
+	CLIENT_PACKET::NotifyPacket sendPacket(static_cast<unsigned char>(CLIENT_PACKET::TYPE::TRIGGER_BOX_ON));
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
 void NetworkHelper::SendSkipNPCCommunicate()
 {
-	CLIENT_PACKET::NotifyPacket sendPacket;
-	sendPacket.size = sizeof(CLIENT_PACKET::NotifyPacket);
-	sendPacket.type = static_cast<unsigned char>(CLIENT_PACKET::TYPE::SKIP_NPC_COMMUNICATION);
+	CLIENT_PACKET::NotifyPacket sendPacket(static_cast<unsigned char>(CLIENT_PACKET::TYPE::SKIP_NPC_COMMUNICATION));
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
 void NetworkHelper::SendChangeStage_BOSS()
 {
-	CLIENT_PACKET::NotifyPacket sendPacket;
-	sendPacket.size = sizeof(CLIENT_PACKET::NotifyPacket);
-	sendPacket.type = static_cast<unsigned char>(CLIENT_PACKET::TYPE::STAGE_CHANGE_BOSS);
+	CLIENT_PACKET::NotifyPacket sendPacket(static_cast<unsigned char>(CLIENT_PACKET::TYPE::STAGE_CHANGE_BOSS));
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
 void NetworkHelper::SendCommonAttackExecute(const XMFLOAT3& attackDirection, int power)
 {
-	CLIENT_PACKET::PlayerCommonAttackPacket sendPacket;
-	sendPacket.size = sizeof(CLIENT_PACKET::PlayerCommonAttackPacket);
-	sendPacket.type = static_cast<unsigned char>(CLIENT_PACKET::TYPE::PLAYER_COMMON_ATTACK_EXECUTE);
-
-	sendPacket.dir = attackDirection;
-	sendPacket.power = power;
+	CLIENT_PACKET::PlayerCommonAttackPacket sendPacket(attackDirection, power, static_cast<unsigned char>(CLIENT_PACKET::TYPE::PLAYER_COMMON_ATTACK_EXECUTE));
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 
 }
 
 void NetworkHelper::SendCommonAttackStart()
 {
-	CLIENT_PACKET::NotifyPacket sendPacket;
-	sendPacket.size = sizeof(CLIENT_PACKET::NotifyPacket);
-	sendPacket.type = static_cast<unsigned char>(CLIENT_PACKET::TYPE::PLAYER_COMMON_ATTACK);
+	CLIENT_PACKET::NotifyPacket sendPacket(static_cast<unsigned char>(CLIENT_PACKET::TYPE::PLAYER_COMMON_ATTACK));
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
 void NetworkHelper::SendPlayerPosition(XMFLOAT3& position)
 {
-	CLIENT_PACKET::PlayerPositionPacket sendPacket;
-	sendPacket.size = sizeof(CLIENT_PACKET::PlayerPositionPacket);
-	sendPacket.type = static_cast<unsigned char>(CLIENT_PACKET::TYPE::PLAYER_POSITION_STATE);
-	sendPacket.position = position;
-	sendPacket.t = std::chrono::utc_clock::now();
-	sendPacket.t += std::chrono::microseconds(g_Logic.GetDiffTime());
-	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
+	//CLIENT_PACKET::PlayerPositionPacket sendPacket(static_cast<unsigned char>(CLIENT_PACKET::TYPE::PLAYER_POSITION_STATE));
+	//sendPacket.position = position;
+	//sendPacket.t = std::chrono::steady_clock::now();
+	//sendPacket.t += std::chrono::microseconds(g_Logic.GetDiffTime());
+	//send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
 void NetworkHelper::SendTimeSyncPacket()
 {
-	CLIENT_PACKET::NotifyPacket sendPacket;
-	sendPacket.size = sizeof(CLIENT_PACKET::NotifyPacket);
-	sendPacket.type = static_cast<unsigned char>(CLIENT_PACKET::TYPE::TIME_SYNC_REQUEST);
+	g_Logic.SetReadySync(false);
+	CLIENT_PACKET::NotifyPacket sendPacket(static_cast<unsigned char>(CLIENT_PACKET::TYPE::TIME_SYNC_REQUEST));
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 	g_Logic.SetrequestTime();
 }

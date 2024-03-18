@@ -8,7 +8,10 @@ class Matching : public SingletonBase<Matching>
 	friend SingletonBase;
 private:
 	Matching() = default;
-	~Matching() = default;
+	~Matching()
+	{
+		spdlog::info("Matching::~Matching()");
+	}
 public:
 	void InserMatch(std::shared_ptr<UserSession>& userRef, const ROLE& role);
 	void CancelMatch(std::shared_ptr<UserSession>& userRef, const ROLE& role);
@@ -28,6 +31,5 @@ private:
 	std::weak_ptr<UserSession> m_lastTankerUser;
 	std::weak_ptr<UserSession> m_lastArcherUser;
 
-	std::jthread m_matchThread;
 };
 

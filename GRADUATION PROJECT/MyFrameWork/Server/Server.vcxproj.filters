@@ -22,23 +22,8 @@
     <Filter Include="Timer">
       <UniqueIdentifier>{cf8ae021-9f8f-43cb-bc14-3e832e28ebfe}</UniqueIdentifier>
     </Filter>
-    <Filter Include="MapData">
-      <UniqueIdentifier>{cc4ba47b-4988-4ef1-8eb5-0fc85941872c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Network\UserSession">
       <UniqueIdentifier>{117bfb1d-30a0-44fb-9963-935ceae9c30f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="MapData\MapCollision">
-      <UniqueIdentifier>{bee417fd-7ad1-4336-a81a-e4e9ab2b56d0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="MapData\NavMesh">
-      <UniqueIdentifier>{89e3ff2e-7f9b-4e36-a113-f526addca1d4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="MapData\NavMesh\QuadTree">
-      <UniqueIdentifier>{c9a2ce1f-f4c8-4e06-8c72-1bee0f76222c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="MapData\AstarNode">
-      <UniqueIdentifier>{50fb30c7-3a37-45cd-b451-ae31d6fd4160}</UniqueIdentifier>
     </Filter>
     <Filter Include="Network\ExpOver">
       <UniqueIdentifier>{2c8d6f2a-b71a-49f8-8fe0-190b0e8e90fb}</UniqueIdentifier>
@@ -82,6 +67,24 @@
     <Filter Include="InGame\Match">
       <UniqueIdentifier>{6ed44798-c081-4f3b-ba5f-2ded23df14a0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="InGame\MapData">
+      <UniqueIdentifier>{cc4ba47b-4988-4ef1-8eb5-0fc85941872c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\MapData\MapCollision">
+      <UniqueIdentifier>{bee417fd-7ad1-4336-a81a-e4e9ab2b56d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\MapData\NavMesh">
+      <UniqueIdentifier>{89e3ff2e-7f9b-4e36-a113-f526addca1d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\MapData\NavMesh\QuadTree">
+      <UniqueIdentifier>{c9a2ce1f-f4c8-4e06-8c72-1bee0f76222c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\MapData\AstarNode">
+      <UniqueIdentifier>{50fb30c7-3a37-45cd-b451-ae31d6fd4160}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThreadManager">
+      <UniqueIdentifier>{6b7867fe-0028-450a-9f76-5ae24b5c710f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PCH\stdafx.cpp">
@@ -109,9 +112,6 @@
       <Filter>Network\IOCP</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Network\UserSession\UserSession.cpp">
-      <Filter>Network\UserSession</Filter>
-    </ClCompile>
     <ClCompile Include="GameObject\GameObject.cpp">
       <Filter>InGame\GameObject</Filter>
     </ClCompile>
@@ -131,19 +131,19 @@
       <Filter>InGame\GameObject\Monster</Filter>
     </ClCompile>
     <ClCompile Include="MapData\MapData.cpp">
-      <Filter>MapData</Filter>
+      <Filter>InGame\MapData</Filter>
     </ClCompile>
     <ClCompile Include="MapData\MapCollision\MapCollision.cpp">
-      <Filter>MapData\MapCollision</Filter>
+      <Filter>InGame\MapData\MapCollision</Filter>
     </ClCompile>
     <ClCompile Include="MapData\NavMeshQuadTree\NavMeshQuadTree.cpp">
-      <Filter>MapData\NavMesh\QuadTree</Filter>
+      <Filter>InGame\MapData\NavMesh\QuadTree</Filter>
     </ClCompile>
     <ClCompile Include="MapData\TriangleMesh\TriangleMesh.cpp">
-      <Filter>MapData\NavMesh</Filter>
+      <Filter>InGame\MapData\NavMesh</Filter>
     </ClCompile>
     <ClCompile Include="MapData\AstarNode\AstarNode.cpp">
-      <Filter>MapData\AstarNode</Filter>
+      <Filter>InGame\MapData\AstarNode</Filter>
     </ClCompile>
     <ClCompile Include="Network\UserSession\UserManager.cpp">
       <Filter>Network\UserSession</Filter>
@@ -175,6 +175,18 @@
     <ClCompile Include="Match\Matching.cpp">
       <Filter>InGame\Match</Filter>
     </ClCompile>
+    <ClCompile Include="GameObject\Character\SkillController.cpp">
+      <Filter>InGame\GameObject\Character</Filter>
+    </ClCompile>
+    <ClCompile Include="ThreadManager\ThreadManager.cpp">
+      <Filter>ThreadManager</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject\Monster\BossMonsterObject.cpp">
+      <Filter>InGame\GameObject\Monster</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\UserSession\UserSession.cpp">
+      <Filter>Network\UserSession</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PCH\stdafx.h">
@@ -204,9 +216,6 @@
     <ClInclude Include="Network\protocol\protocol.h">
       <Filter>Network\protocol</Filter>
     </ClInclude>
-    <ClInclude Include="Network\UserSession\UserSession.h">
-      <Filter>Network\UserSession</Filter>
-    </ClInclude>
     <ClInclude Include="GameObject\GameObject.h">
       <Filter>InGame\GameObject</Filter>
     </ClInclude>
@@ -226,19 +235,19 @@
       <Filter>InGame\GameObject\Monster</Filter>
     </ClInclude>
     <ClInclude Include="MapData\MapData.h">
-      <Filter>MapData</Filter>
+      <Filter>InGame\MapData</Filter>
     </ClInclude>
     <ClInclude Include="MapData\MapCollision\MapCollision.h">
-      <Filter>MapData\MapCollision</Filter>
+      <Filter>InGame\MapData\MapCollision</Filter>
     </ClInclude>
     <ClInclude Include="MapData\NavMeshQuadTree\NavMeshQuadTree.h">
-      <Filter>MapData\NavMesh\QuadTree</Filter>
+      <Filter>InGame\MapData\NavMesh\QuadTree</Filter>
     </ClInclude>
     <ClInclude Include="MapData\TriangleMesh\TriangleMesh.h">
-      <Filter>MapData\NavMesh</Filter>
+      <Filter>InGame\MapData\NavMesh</Filter>
     </ClInclude>
     <ClInclude Include="MapData\AstarNode\AstarNode.h">
-      <Filter>MapData\AstarNode</Filter>
+      <Filter>InGame\MapData\AstarNode</Filter>
     </ClInclude>
     <ClInclude Include="Network\UserSession\UserManager.h">
       <Filter>Network\UserSession</Filter>
@@ -273,6 +282,18 @@
     </ClInclude>
     <ClInclude Include="Match\Matching.h">
       <Filter>InGame\Match</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject\Character\SkillController.h">
+      <Filter>InGame\GameObject\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadManager\ThreadManager.h">
+      <Filter>ThreadManager</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject\Monster\BossMonsterObject.h">
+      <Filter>InGame\GameObject\Monster</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\UserSession\UserSession.h">
+      <Filter>Network\UserSession</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

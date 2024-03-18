@@ -91,6 +91,8 @@ using namespace chrono;
 
 #include <mutex>
 
+#include <concurrent_queue.h>
+
 #pragma comment(lib, "ws2_32") // ws2_32.lib ¸µÅ©
 ///////////////////////////////////////////
 #pragma comment (lib, "fmod_vc.lib")
@@ -113,10 +115,10 @@ enum ROTATE_AXIS :char
 	X, Y, Z
 };
 
-enum ROLE :char {
+enum class ROLE :char {
 	NONE_SELECT = 0x00,
 	WARRIOR = 0x01,
-	PRIEST = 0x02,
+	MAGE = 0x02,
 	TANKER = 0x04,
 	ARCHER = 0x08,
 	RAND = 0x10

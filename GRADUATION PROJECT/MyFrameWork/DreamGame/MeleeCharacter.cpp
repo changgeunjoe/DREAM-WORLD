@@ -10,6 +10,7 @@
 #include "GameobjectManager.h"
 #include "Network/Logic/Logic.h"
 #include "Network/NetworkHelper.h"
+#include "CharacterEvent.h"
 
 extern bool GameEnd;
 extern Logic g_Logic;
@@ -34,6 +35,13 @@ MeleeCharacter::~MeleeCharacter()
 
 void MeleeCharacter::Move(float fTimeElapsed)
 {
+	UpdateInterpolateData();
+	if (m_interpolateData->GetInterpolateState() == CharacterEvent::INTERPOLATE_STATE::SET_POSITION) {
+		SetPosition(m_interpolateData->GetInterpolatePosition());
+		if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
+		g_sound.Play("WalkSound", CalculateDistanceSound());
+		return;
+	}
 	DIRECTION tempDir = m_currentDirection;
 	if (((tempDir & DIRECTION::LEFT) == DIRECTION::LEFT) &&
 		((tempDir & DIRECTION::RIGHT) == DIRECTION::RIGHT))
@@ -306,7 +314,7 @@ void Warrior::Animate(float fTimeElapsed)
 	if (m_pTrailComponent)
 		m_pTrailComponent->SetRenderingTrail(m_bOnAttack || m_bComboAttack);
 
-	SetLookDirection();
+	//SetLookDirection();
 	if (m_bMoveState)
 	{
 		Move(fTimeElapsed);
@@ -375,6 +383,7 @@ void Warrior::FirstSkillDown()
 
 void Warrior::SetStage1Position()
 {
+	SetLook(XMFLOAT3(0, 0, 1));
 	SetPosition(XMFLOAT3(-1290.0f, 0, -1470.0f));
 	m_xmf3RotateAxis = XMFLOAT3(0.0f, 0.0f, 0.0f);
 }
@@ -598,7 +607,7 @@ void Tanker::Animate(float fTimeElapsed)
 		m_pTrailComponent->SetRenderingTrail(m_bOnAttack);
 	}
 
-	SetLookDirection();
+	//SetLookDirection();
 	Move(fTimeElapsed);
 	GameObject::Animate(fTimeElapsed);
 
@@ -625,7 +634,7 @@ void Tanker::SetSkillBall(Projectile* pBall)
 		{
 		case 0: static_cast<EnergyBall*>(m_ppProjectiles[0])->SetTarget(ROLE::WARRIOR); break;
 		case 1: static_cast<EnergyBall*>(m_ppProjectiles[1])->SetTarget(ROLE::ARCHER); break;
-		case 2: static_cast<EnergyBall*>(m_ppProjectiles[2])->SetTarget(ROLE::PRIEST); break;
+		case 2: static_cast<EnergyBall*>(m_ppProjectiles[2])->SetTarget(ROLE::MAGE); break;
 		case 3: static_cast<EnergyBall*>(m_ppProjectiles[3])->SetTarget(ROLE::TANKER); break;
 		default: break;
 		}
@@ -653,6 +662,7 @@ void Tanker::EndEffect(int nSkillNum)
 
 void Tanker::SetStage1Position()
 {
+	SetLook(XMFLOAT3(0, 0, 1));
 	SetPosition(XMFLOAT3(-1260.3f, 0, -1510.7f));
 	m_xmf3RotateAxis = XMFLOAT3(0.0f, 0.0f, 0.0f);
 }

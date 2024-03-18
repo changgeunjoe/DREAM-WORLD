@@ -3,6 +3,7 @@
 #include "../ExpOver/ExpOver.h"
 #include "../IocpEvent/SendEvent.h"
 #include "../Room/RoomEvent.h"
+#include "../Network/protocol/protocol.h"
 
 IocpEventManager::IocpEventManager()
 {

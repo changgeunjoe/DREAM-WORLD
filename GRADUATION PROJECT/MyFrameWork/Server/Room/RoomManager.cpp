@@ -10,10 +10,16 @@ void RoomManager::EraseRoom(std::shared_ptr<Room>& roomRef)
 
 std::shared_ptr<Room> RoomManager::MakeRunningRoom(std::vector<std::shared_ptr<UserSession>>& userRefVec)
 {
-	return std::make_shared<Room>(userRefVec);
+	auto roomRef = std::make_shared<Room>(userRefVec);
+	std::lock_guard<std::mutex> runningLg(m_runningRoomLock);
+	m_runningRooms.insert(roomRef);
+	return roomRef;
 }
 
 std::shared_ptr<Room> RoomManager::MakeRunningRoomAloneMode(std::shared_ptr<UserSession>& userRef)
 {
-	return std::make_shared<Room>(userRef);
+	auto roomRef = std::make_shared<Room>(userRef);
+	std::lock_guard<std::mutex> runningLg(m_runningRoomLock);
+	m_runningRooms.insert(roomRef);
+	return roomRef;
 }

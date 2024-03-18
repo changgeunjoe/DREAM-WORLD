@@ -23,9 +23,7 @@ void IOCP::DBNotifyEvent::Execute(ExpOver* over, const DWORD& ioByte, const ULON
 		//DB - login Error, SQL_ERROR ...
 	case IOCP_OP_CODE::OP_FAIL_GET_PLAYER_INFO:
 	{
-		SERVER_PACKET::NotifyPacket sendPacket;
-		sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
-		sendPacket.type = static_cast<char>(SERVER_PACKET::TYPE::LOGIN_FAIL);
+		SERVER_PACKET::NotifyPacket sendPacket(static_cast<char>(SERVER_PACKET::TYPE::LOGIN_FAIL));
 		userRef->DoSend(&sendPacket);
 	}
 	break;
@@ -80,9 +78,7 @@ void IOCP::DBGetPlayerInfoEvent::Execute(ExpOver* over, const DWORD& ioByte, con
 	{
 	case IOCP_OP_CODE::OP_SUCCESS_GET_PLAYER_INFO:
 	{
-		SERVER_PACKET::LoginPacket sendPacket;
-		sendPacket.type = static_cast<unsigned char>(SERVER_PACKET::TYPE::LOGIN_SUCCESS);
-		sendPacket.size = sizeof(SERVER_PACKET::LoginPacket);
+		SERVER_PACKET::LoginPacket sendPacket(static_cast<unsigned char>(SERVER_PACKET::TYPE::LOGIN_SUCCESS));
 		m_buffer;
 		int nameLen = lstrlenW(m_buffer);
 		for (int removeSpace = nameLen - 1; removeSpace > -1; --removeSpace) {

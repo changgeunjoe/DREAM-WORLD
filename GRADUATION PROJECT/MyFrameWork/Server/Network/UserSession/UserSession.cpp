@@ -111,9 +111,14 @@ void UserSession::StartRecv()
 	DoRecv(expOver);
 }
 
-void UserSession::DoSend(const PacketHeader* packetHeader)
+void UserSession::DoSend(const PacketHeader* packetHeader) const
 {
 	IocpEventManager::GetInstance().Send(m_socket, packetHeader);
+}
+
+void UserSession::DoSend(const std::shared_ptr<PacketHeader> packetHeader) const
+{
+	IocpEventManager::GetInstance().Send(m_socket, packetHeader.get());
 }
 
 void UserSession::SetRoomRef(std::shared_ptr<Room>& roomRef)
@@ -178,8 +183,8 @@ void UserSession::ExecutePacket(const PacketHeader* packetHeader)
 	case CLIENT_PACKET::TYPE::MATCH:
 	{
 		const CLIENT_PACKET::MatchPacket* recvPacket = reinterpret_cast<const CLIENT_PACKET::MatchPacket*>(packetHeader);
-		ROLE currentRole = static_cast<ROLE>(recvPacket->Role);
-		if (static_cast<ROLE>(recvPacket->Role) == ROLE::NONE_SELECT) {
+		ROLE currentRole = static_cast<ROLE>(recvPacket->role);
+		if (static_cast<ROLE>(recvPacket->role) == ROLE::NONE_SELECT) {
 			//Send disable to User
 		}
 		else Matching::GetInstance().InserMatch(std::static_pointer_cast<UserSession, IOCP::EventBase>(shared_from_this()), currentRole);
@@ -198,11 +203,11 @@ void UserSession::ExecutePacket(const PacketHeader* packetHeader)
 		auto roomRef = m_roomWeakRef.lock();
 		if (nullptr != roomRef) {
 			//Room객체가 아직 유효
-
+			roomRef->RecvCharacterMove(m_role, recvPacket->direction, true);
 		}
 		else {
 			//유효하지 않음.
-
+			//m_playerState = PLAYER_STATE::LOBBY;
 		}
 
 	}
@@ -210,6 +215,15 @@ void UserSession::ExecutePacket(const PacketHeader* packetHeader)
 	case CLIENT_PACKET::TYPE::MOVE_KEY_UP:
 	{
 		const CLIENT_PACKET::MovePacket* recvPacket = reinterpret_cast<const CLIENT_PACKET::MovePacket*>(packetHeader);
+		auto roomRef = m_roomWeakRef.lock();
+		if (nullptr != roomRef) {
+			//Room객체가 아직 유효
+			roomRef->RecvCharacterMove(m_role, recvPacket->direction, false);
+		}
+		else {
+			//유효하지 않음.
+			//m_playerState = PLAYER_STATE::LOBBY;
+		}
 		//Logic::CharacterRemoveDirection(userId, recvPacket->direction);
 	}
 	break;
@@ -217,12 +231,30 @@ void UserSession::ExecutePacket(const PacketHeader* packetHeader)
 	{
 		const CLIENT_PACKET::StopPacket* recvPacket = reinterpret_cast<const CLIENT_PACKET::StopPacket*>(packetHeader);
 		//Logic::CharacterStop(userId);
+		auto roomRef = m_roomWeakRef.lock();
+		if (nullptr != roomRef) {
+			//Room객체가 아직 유효
+			roomRef->RecvCharacterStop(m_role);
+		}
+		else {
+			//유효하지 않음.
+			//m_playerState = PLAYER_STATE::LOBBY;
+		}
 	}
 	break;
 	case CLIENT_PACKET::TYPE::ROTATE:
 	{
 		const CLIENT_PACKET::RotatePacket* recvPacket = reinterpret_cast<const CLIENT_PACKET::RotatePacket*>(packetHeader);
 		//Logic::CharacterRotate(userId, recvPacket->axis, recvPacket->angle);
+		auto roomRef = m_roomWeakRef.lock();
+		if (nullptr != roomRef) {
+			//Room객체가 아직 유효
+			roomRef->RecvCharacterRotate(m_role, recvPacket->axis, recvPacket->angle);
+		}
+		else {
+			//유효하지 않음.
+			//m_playerState = PLAYER_STATE::LOBBY;
+		}
 	}
 	break;
 #pragma endregion
@@ -371,11 +403,8 @@ void UserSession::ExecutePacket(const PacketHeader* packetHeader)
 	//클라이언트와 시간 동기화 RTT체크
 	case CLIENT_PACKET::TYPE::TIME_SYNC_REQUEST:
 	{
-		//SERVER_PACKET::TimeSyncPacket sendPacket;
-		//sendPacket.size = sizeof(SERVER_PACKET::TimeSyncPacket);
-		//sendPacket.type = SERVER_PACKET::TIME_SYNC_RESPONSE;
-		//sendPacket.t = std::chrono::utc_clock::now();
-		//g_iocpNetwork.m_session[userId].Send(&sendPacket);
+		SERVER_PACKET::TimeSyncPacket sendPacket;
+		DoSend(&sendPacket);
 	}
 	break;
 
@@ -384,5 +413,9 @@ void UserSession::ExecutePacket(const PacketHeader* packetHeader)
 		//disconnect User
 		break;
 }
+}
+
+void UserSession::Disconnect()
+{
 }
 

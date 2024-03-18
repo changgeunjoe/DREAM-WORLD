@@ -81,7 +81,6 @@ namespace DB
 		//SQLHSTMT m_hstmt;
 
 		tbb::concurrent_queue<std::shared_ptr<DB::EventBase>> m_DBEventQueue;
-		std::jthread m_DBthread;
 		std::shared_ptr<IOCP::Iocp> iocpRef;
 	};
 

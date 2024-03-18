@@ -4,8 +4,8 @@
 
 //UserSession -> recvEvent°´Ã¼
 class ExpOver;
-class PacketHeader;
 class Room;
+struct PacketHeader;
 //recv, DB(weak_ptr), Room°´Ã¼ ¿¹Á¤
 class UserSession :public IOCP::EventBase
 {
@@ -43,7 +43,8 @@ public:
 	void Execute(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key) override;
 	virtual void Fail(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key) override;
 	void StartRecv();
-	void DoSend(const PacketHeader* packetHeader);
+	void DoSend(const PacketHeader* packetHeader) const;
+	void DoSend(const std::shared_ptr<PacketHeader> packetHeader) const;
 
 	void LoginSucces(const wchar_t* nickName)
 	{

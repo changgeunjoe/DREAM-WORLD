@@ -1,14 +1,14 @@
 #pragma once
 #include "../PCH/stdafx.h"
 #include "../Network/IocpEvent/IocpEventBase.h"
-//#include "../GameObject/Monster/MonsterObject.h"
-//#include "../GameObject/Monster/SmallMonsterObject.h"
-//#include "../GameObject/Projectile/ShootingObject.h"
-//#include "../GameObject/Projectile/MeteoObject.h"
 
-
-class ChracterObject;
+struct PacketHeader;
 class UserSession;
+class GameObject;
+class LiveObject;
+class CharacterObject;
+class BossMonsterObject;
+class SmallMonsterObject;
 namespace IOCP {
 	class Iocp;
 }
@@ -25,18 +25,66 @@ public:
 	virtual void Execute(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key) override;
 	virtual void Fail(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key) override;
 
-private:
-	void Update(const std::chrono::milliseconds& updateTick = std::chrono::milliseconds(17));
-	void GameStateSend(const std::chrono::milliseconds& updateTick = std::chrono::milliseconds(50));
+	void Start();
 
+	std::vector<std::shared_ptr<SmallMonsterObject>>& GetSmallMonsters();
+
+	std::vector<std::shared_ptr<GameObject>> GetCharacters() const;
+	std::vector<std::shared_ptr<LiveObject>> GetLiveObjects() const;
+
+	//void CharacterAttack(const ROLE& role);
+	void RecvCharacterMove(const ROLE& role, const DIRECTION& direction, const bool& apply);
+	void RecvCharacterStop(const ROLE& role);
+	void RecvCharacterRotate(const ROLE& role, const ROTATE_AXIS& axis, const float& angle);
+	void RecvMouseInput(const ROLE& role, const bool& left, const bool& right);
+
+private:
+	void InsertEvent(const TIMER_EVENT_TYPE& eventType, const std::chrono::milliseconds& updateTick = std::chrono::milliseconds(50));
+	void Update();
+	void UpdateGameState();
+	void GameStateSend();
+
+	std::vector<std::shared_ptr<UserSession>> GetAllUserSessions();
+
+	void BroadCastPacket(const PacketHeader* packetData);
+	void BroadCastPacket(std::shared_ptr<PacketHeader>& packetData);
+	void MultiCastCastPacket(const PacketHeader* packetData, const ROLE& exclusiveRoles);
+	void MultiCastCastPacket(const PacketHeader* packetData, const std::vector<ROLE>& exclusiveRoles);
+
+	void MultiCastCastPacket(std::shared_ptr<PacketHeader>& packetData, const ROLE& exclusiveRoles);
+	void MultiCastCastPacket(std::shared_ptr<PacketHeader>& packetData, const std::vector<ROLE>& exclusiveRoles);
+
+	void SetGameStatePlayer_Stage();
+	void SetGameStatePlayer_Boss();
+	void SetGameStateMonsters();
+	void SetGameStateBoss();
+	void InitializeAllGameObject();
 private:
 	ROOM_STATE m_roomState = ROOM_STATE::ROOM_COMMON;
-	//플레이어 id-캐릭터
-	tbb::concurrent_hash_map<std::shared_ptr<UserSession>, ROLE> m_user;
-	//역할-캐릭터-객체
-	std::unordered_map<ROLE, std::shared_ptr<ChracterObject>> m_characters;
+	int m_updateCnt;
 
-	//std::array<15, SmallMonsterObject> m_smallMonsterArr;
+	//플레이어 id-캐릭터
+	//concurrent_hash_map - insert/erase는 thread safe하지만
+	//순회는 안전하지 않음.
+	//std::unordered_map으로 변경
+	std::unordered_set<std::shared_ptr<UserSession>> m_userSessions;
+	//std::mutex m_userLock;
+	//패킷을 보내는건 2개 이상의 쓰레드에서 하는 경우가 많은데, read만 하는데도 mutex는 안좋은 방법이라고 판단-> read lock으로 변경, 유저가 들어올 때, 나갈때는 write-lock을 할 의도
+	std::shared_mutex m_userSessionsLock;
+	//역할-캐릭터-객체
+	std::unordered_map<ROLE, std::shared_ptr<CharacterObject>> m_characters;
+	//Update를 위한 모든 게임 오브젝트를 담는 vector
+
+	std::vector<std::shared_ptr<SmallMonsterObject>> m_smallMonsters;
+	//std::shared_ptr<BossMonsterObject> m_bossMonster;
+
+	std::vector<std::shared_ptr<GameObject>> m_allGameObjects;
+
+	std::atomic_bool m_gameStateUpdateComplete;
+	//0 stage // 1 boss
+	ROOM_STATE m_applyRoomStateForGameState;
+	std::vector<std::shared_ptr<PacketHeader>> m_gameStateData;
+
 	//MonsterObject m_boss;
 
 	//std::array<10, ShootingObject> m_arrow;

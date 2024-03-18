@@ -1,64 +1,82 @@
 #pragma once
 #include "../PCH/stdafx.h"
 
-class GameObject
+class Room;
+class GameObject : public std::enable_shared_from_this<GameObject>
 {
+public:
+	GameObject() = delete;
+	GameObject(const float& moveSpeed, const float& boundingSize, std::shared_ptr<Room>& roomRef);
+	~GameObject() = default;
+	virtual void Update() = 0;
+
+	void Rotate(const ROTATE_AXIS& axis, const float& angle);
+
+	bool IsCollide(const BoundingSphere& otherCollision);
+	bool IsCollide(const BoundingOrientedBox& otherCollision);
+
+	void SetPosition(const DirectX::XMFLOAT3& newPosition);
+	const DirectX::XMFLOAT3 GetPosition() const;
+
+	const DirectX::XMFLOAT3 GetLookVector() const;
+	const DirectX::XMFLOAT3 GetRightVector() const;
+
+	const BoundingSphere& GetCollision() const;
+	const XMFLOAT3 GetFromVector(const XMFLOAT3& from) const;
+	const XMFLOAT3 GetToVector(const XMFLOAT3& to) const;
+	const float GetDistance(const XMFLOAT3& other) const;
+	const float GetDistance(std::shared_ptr<GameObject>& other) const;
 protected:
+	void UpdateCollision();
+private:
+	void SetLook(const XMFLOAT3& lookVector);
+protected:
+	//11 12 13 r
+	//21 22 23 u
+	//31 32 33 f
+	//41 42 43 pos
+	DirectX::XMFLOAT4X4 m_worldMatrix;
+
+	float  m_boundingSize;
+	BoundingSphere m_collisionSphere;
+
+	//Room의 멤버 변수여서 먼저 소멸자 호출되니, 문제 없을거로 생각 됨.
+	std::shared_ptr<Room> m_roomRef;
+public:
+	bool debug = false;
+};
+
+class LiveObject : public GameObject
+{
+public:
+	LiveObject() = delete;
+	LiveObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, std::shared_ptr<Room>& roomRef);
+	~LiveObject() = default;
+
+	void Attacked(const float& damage);
+
+	const float GetHp() const;
+	const float GetMaxHp() const;
+	const bool IsAlive() const
+	{
+		return m_isAlive;
+	}
+
+	const std::chrono::high_resolution_clock::time_point GetLastUpdateTime() const;
+protected:
+	std::optional<std::pair<bool, XMFLOAT3>> CollideLiveObject(const XMFLOAT3& nextPosition, const float& elapsedTime, const bool& isSlidingPosition);
+
+	virtual const XMFLOAT3 GetCommonNextPosition(const float& elapsedTime) = 0;
+	float GetElapsedLastUpdateTime();
+	void UpdateLastUpdateTime();
+
+protected:
+	std::chrono::high_resolution_clock::time_point m_lastUpdateTime;
+
+	float m_moveSpeed;
+	XMFLOAT3 m_moveVector;
+
+	std::atomic_bool m_isAlive;
 	std::atomic<float>	m_hp;
 	float	m_maxHp;
-	float	m_attackDamage;
-	float m_speed = 50.0f;
-	int m_roomId = -1;
-protected:
-	DirectX::XMFLOAT3 m_position;
-	DirectX::XMFLOAT3 m_rotateAngle = { 0,0,0 };
-	DirectX::XMFLOAT3 m_directionVector = DirectX::XMFLOAT3{ 0,0,1 };
-	DirectX::XMFLOAT3 m_rightVector = DirectX::XMFLOAT3{ 1,0,0 };
-
-	DirectX::XMFLOAT4X4 m_worldMatrix = Matrix4x4::Identity();
-	std::chrono::high_resolution_clock::time_point m_lastMoveTime;
-
-	float                           m_fBoundingSize{ 8.0f };
-	BoundingSphere					m_SPBB = BoundingSphere(XMFLOAT3(0.0f, 0.0f, 0.0f), m_fBoundingSize);
-public:
-	GameObject();
-	GameObject(float boundingSize);
-	virtual ~GameObject();
-public:
-	const BoundingSphere& GetSpbb() const { return m_SPBB; }
-	float GetHp() { return m_hp; }
-	float GetMaxHp() { return m_maxHp; }
-	XMFLOAT3 GetPos()const { return m_position; }
-	XMFLOAT3 GetRot() const { return m_rotateAngle; }
-	XMFLOAT3 GetDirectionVector() const { return m_directionVector; }
-
-	void HealHp(float heal) { if (m_hp < m_maxHp) m_hp += heal; }
-	float GetAttackDamage() { return m_attackDamage; }
-public:
-	void AutoMove();
-	virtual bool Move(float elapsedTime) = 0;
-	virtual void AttackedHp(float damage) { m_hp -= damage; }
-public:
-public:
-	virtual void Rotate(ROTATE_AXIS axis, float angle) = 0;
-protected:
-	void CalcRightVector()
-	{
-		m_rightVector = Vector3::CrossProduct(DirectX::XMFLOAT3(0, 1, 0), m_directionVector);
-	}
-protected:
-	virtual void SetPosition(DirectX::XMFLOAT3& pos)
-	{
-		m_position = pos;
-		m_SPBB.Center = pos;
-		m_SPBB.Center.y = m_fBoundingSize;
-	}
-public:
-	void SetInitPosition(DirectX::XMFLOAT3& pos)
-	{
-		m_position = pos;
-		m_SPBB.Center = pos;
-		m_SPBB.Center.y = m_fBoundingSize;
-	}
-	void SetRoomId(int roomId) { m_roomId = roomId; }
 };

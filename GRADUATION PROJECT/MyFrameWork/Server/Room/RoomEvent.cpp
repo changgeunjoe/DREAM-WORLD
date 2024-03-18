@@ -27,7 +27,7 @@ void TIMER::RoomEvent::Execute(HANDLE iocpHandle)
 		currentOpCode = IOCP_OP_CODE::OP_ROOM_UPDATE;
 	}
 	break;
-	case TIMER_EVENT_TYPE::EV_GAME_STATE_SEND:
+	case TIMER_EVENT_TYPE::EV_SEND_GAME_STATE:
 	{
 		currentOpCode = IOCP_OP_CODE::OP_GAME_STATE_SEND;
 	}

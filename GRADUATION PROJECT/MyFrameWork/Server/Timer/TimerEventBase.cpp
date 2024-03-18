@@ -15,5 +15,5 @@ TIMER::EventBase::EventBase(const TIMER_EVENT_TYPE& eventId, const std::chrono::
 
 bool TIMER::EventBase::IsReady() const
 {
-	return m_wakeupTime >= std::chrono::system_clock::now();
+	return m_wakeupTime <= std::chrono::system_clock::now();
 }

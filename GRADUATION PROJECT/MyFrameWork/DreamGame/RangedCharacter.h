@@ -50,15 +50,15 @@ public:
 	void SetBossStagePostion();
 };
 
-class Priest : public RangedCharacter
+class Mage : public RangedCharacter
 {
 private:
 	GameObject* m_pHealRange{ nullptr };
 	float		m_fHealTime{ 0.0f };
 
 public:
-	Priest();
-	virtual ~Priest();
+	Mage();
+	virtual ~Mage();
 	virtual void Reset();
 	virtual void Attack();
 	virtual void Attack(const XMFLOAT3& xmf3Direction);

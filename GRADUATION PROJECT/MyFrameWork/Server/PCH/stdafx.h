@@ -29,6 +29,7 @@
 #include <chrono>
 
 #include <mutex>
+#include <shared_mutex>
 
 #include <queue>
 #include <stack>
@@ -58,6 +59,7 @@
 
 #include<filesystem>
 #include <iostream>
+#include <sstream>
 
 #include <math.h>
 #include <random>
@@ -103,7 +105,7 @@ enum class IOCP_OP_CODE : char
 	//Room - player skill
 	OP_PLAYER_HEAL, // 지속 힐 - 틱마다
 	OP_SKY_ARROW_ATTACK, //n초 이후 그 위치 공격
-	
+
 	//전제 플레이어 RTT계산을 위한
 	OP_SYNC_TIME,
 };
@@ -144,7 +146,7 @@ enum class TIMER_EVENT_TYPE : char {
 	EV_NONE,
 	//게임 상태 관련
 	EV_ROOM_UPDATE,
-	EV_GAME_STATE_SEND,
+	EV_SEND_GAME_STATE,
 	//보스 관련
 	EV_FIND_PLAYER,
 	EV_BOSS_ATTACK,
@@ -164,7 +166,7 @@ enum class ROOM_STATE : char {
 
 constexpr short PORT = 9000;
 
-constexpr int MAX_SEND_BUF_SIZE = 256;
+constexpr int MAX_SEND_BUF_SIZE = 514;
 constexpr int MAX_RECV_BUF_SIZE = 1024;
 
 using namespace DirectX;

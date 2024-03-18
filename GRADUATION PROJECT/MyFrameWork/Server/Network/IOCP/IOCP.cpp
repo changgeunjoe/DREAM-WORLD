@@ -3,6 +3,7 @@
 #include "../UserSession/UserManager.h"
 #include "../ExpOver/ExpOver.h"
 #include "../IocpEvent/ListenEvent.h"
+#include "../ThreadManager/ThreadManager.h"
 
 
 IOCP::Iocp::Iocp() : m_listener(nullptr)
@@ -19,23 +20,19 @@ IOCP::Iocp::~Iocp()
 
 void IOCP::Iocp::Start()
 {
-	int threadNum = std::jthread::hardware_concurrency();
+	int threadNum = std::thread::hardware_concurrency();
 	//thread »ý¼º
-	for (int i = 0; i < threadNum; ++i)
-		m_workerThread.emplace_back([this]() {WorkerThread(); });
+	ThreadManager& thMgr = ThreadManager::GetInstance();
 	spdlog::info("Iocp::Start() - Start Worker Threads");
+	for (int i = 0; i < threadNum; ++i)
+		thMgr.CreateThread(std::thread([this]() {WorkerThread(); }));
+	//m_workerThread.emplace_back([this]() {WorkerThread(); });
 
 	m_listener = std::make_shared<IOCP::ListenEvent>(shared_from_this());
 	m_listener->StartListen(PORT);
 
 	spdlog::info("IOCP::Iocp::Start() - Accept Start");
 	m_listener->Accept();
-}
-
-void IOCP::Iocp::WorkerThreadJoin()
-{
-	for (auto& th : m_workerThread)
-		th.join();
 }
 
 void IOCP::Iocp::WorkerThread()

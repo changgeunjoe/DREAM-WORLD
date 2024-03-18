@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "DB.h"
+#include "../ThreadManager/ThreadManager.h"
 #include "../Network/IocpEvent/IocpEventManager.h"
 #include "../Network/IocpEvent/IocpDBEvent.h"
 #include "../Network/IOCP/IOCP.h"
@@ -147,6 +148,7 @@ DB::DBConnector::DBConnector()
 
 DB::DBConnector::~DBConnector()
 {
+	spdlog::info("DBConnector::~DBConnector()");
 }
 
 void DB::DBConnector::DBConnectThread()
@@ -199,13 +201,15 @@ void DB::DBConnector::Connect()
 					retCode = SQLConnect(m_hdbc, (SQLWCHAR*)L"Dream_World_DB", SQL_NTS, (SQLWCHAR*)NULL, SQL_NTS, NULL, SQL_NTS);
 					if (SQL_SUCCESS == retCode) {
 						spdlog::info("DB Connect Success");
-						m_DBthread = std::jthread([this]() {DBConnectThread(); });
+						spdlog::info("DB Thread Start");
+						ThreadManager::GetInstance().CreateThread(std::thread([this]() {DBConnectThread(); }));
 					}
 					else {
 						if (SQL_SUCCESS_WITH_INFO == retCode) {
 							spdlog::info("DB Connect Success With Info");
 							ErrorPrint(SQL_HANDLE_DBC, m_hdbc);
-							m_DBthread = std::jthread([this]() {DBConnectThread(); });
+							spdlog::info("DB Thread Start");
+							ThreadManager::GetInstance().CreateThread(std::thread([this]() {DBConnectThread(); }));
 						}
 						else {
 							spdlog::critical("DB::DBConnector::Connect() - dbc ConnectError");

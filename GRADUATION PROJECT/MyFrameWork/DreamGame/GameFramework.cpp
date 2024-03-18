@@ -587,10 +587,10 @@ void CGameFramework::BuildObjects()
 		float(m_nWndClientHeight), 60.0f);
 
 
-//	m_pUICamera->SetPosition(Vector3::Add(XMFLOAT3(0.0f, 0.0f, 0.0f), m_pCamera->GetOffset()));
+	//	m_pUICamera->SetPosition(Vector3::Add(XMFLOAT3(0.0f, 0.0f, 0.0f), m_pCamera->GetOffset()));
 
 	m_pUICamera->CreateShaderVariables(m_pd3dDevice, m_pd3dCommandList);
-	
+
 	//씬 객체를 생성하고 씬에 포함될 게임 객체들을 생성한다.
 	m_pScene = new CScene();
 	m_pScene->m_pUILayer = m_pUILayer;
@@ -655,7 +655,7 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 		::GetCursorPos(&tempPoint);
 
 		if (tempPoint.x >= windowRect.left && tempPoint.x <= windowRect.right &&
-			tempPoint.y >= windowRect.top + GetSystemMetrics(SM_CYCAPTION) && tempPoint.y <= windowRect.bottom) 
+			tempPoint.y >= windowRect.top + GetSystemMetrics(SM_CYCAPTION) && tempPoint.y <= windowRect.bottom)
 		{
 			if (m_bMouseCaptured == false)
 			{
@@ -698,10 +698,10 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 				// 마우스 캡처를 해제합니다.
 				::ReleaseCapture();
 			}
-		
-			
+
+
 		}
-		
+
 		break;
 	default:
 		break;
@@ -779,7 +779,7 @@ LRESULT CGameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WP
 
 void CGameFramework::ProcessInput()
 {
-	if (!m_bMouseCaptured) 
+	if (!m_bMouseCaptured)
 		return;
 
 	static UCHAR pKeysBuffer[256];
@@ -808,32 +808,31 @@ void CGameFramework::ProcessInput()
 			SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
 		}
 
-		if ((dwDirection != DIRECTION::IDLE) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
-		{
-			if (cxDelta || cyDelta)
+		if (!m_bLobbyScene)
+			if ((dwDirection != DIRECTION::IDLE) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
 			{
-				Player* possessObj = m_pScene->GetObjectManager()->GetChracterInfo(g_Logic.GetMyRole());
-				if (!possessObj) return;
-				XMFLOAT3 RotateAngle = possessObj->GetRotateAxis();
-				RotateAngle.x += cyDelta;
-				RotateAngle.y += cxDelta;
-
-				if (RotateAngle.x > 10.0f) RotateAngle.x = +10.0f;
-				if (RotateAngle.x < -20.0f) RotateAngle.x = -20.0f;
-				if (RotateAngle.y > 360.0f) RotateAngle.y -= 360.0f;
-				if (RotateAngle.y < 0.0f) RotateAngle.y += 360.0f;
-
-				g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::Y, cxDelta);
-				possessObj->SetRotateAxis(RotateAngle);
-				if (!m_bLobbyScene)
+				if (cxDelta || cyDelta)
 				{
+					Player* possessObj = m_pScene->GetObjectManager()->GetChracterInfo(g_Logic.GetMyRole());
+					if (!possessObj) return;
+					XMFLOAT3 RotateAngle = possessObj->GetRotateAxis();
+					RotateAngle.x += cyDelta;
+					RotateAngle.y += cxDelta;
+
+					if (RotateAngle.x > 10.0f) RotateAngle.x = +10.0f;
+					if (RotateAngle.x < -20.0f) RotateAngle.x = -20.0f;
+					if (RotateAngle.y > 360.0f) RotateAngle.y -= 360.0f;
+					if (RotateAngle.y < 0.0f) RotateAngle.y += 360.0f;
+
+					g_NetworkHelper.SendRotatePacket(ROTATE_AXIS::Y, cxDelta);
+					possessObj->SetRotateAxis(RotateAngle);
 					m_pCamera->Rotate(cyDelta, cxDelta, 0.0f);
+
+					if (dwDirection != DIRECTION::IDLE) {
+						m_pCamera->Move(dwDirection, 1.21f, true);
+					}
 				}
 			}
-			if (dwDirection != DIRECTION::IDLE) {
-				m_pCamera->Move(dwDirection, 1.21f, true);
-			}
-		}
 	}
 	//m_pCamera->Update(m_GameTimer.GetTimeElapsed());
 
@@ -843,7 +842,7 @@ void CGameFramework::AnimateObjects()
 {
 	float fTimeElapsed = m_GameTimer.GetTimeElapsed();
 	if (m_pScene) m_pScene->AnimateObjects(m_GameTimer.GetTimeElapsed());
-	
+
 }
 
 void CGameFramework::WaitForGpuComplete()
@@ -918,19 +917,19 @@ void CGameFramework::FrameAdvance()
 	//렌더 타겟 뷰(서술자)와 깊이-스텐실 뷰(서술자)를 출력-병합 단계(OM)에 연결한다. //렌더링 코드는 여기에 추가될 것이다.
 	//m_pScene->OnPreRender(m_pd3dDevice, m_pd3dCommandList, m_pCamera);
 	//Render2DFont();
-	
 
-		if (m_pScene) m_pScene->Render(m_pd3dDevice, m_pd3dCommandList, m_pCamera);
-		if (m_pScene) m_pScene->TalkUIRender(m_pd3dDevice, m_pd3dCommandList, m_pUICamera);
 
-	 if (m_bLobbyScene)
-	 {
-		 if (m_pLobbyScene) m_pLobbyScene->UIRender(m_pd3dDevice, m_pd3dCommandList, m_pUICamera);
-	 }
-	 if (!m_bLobbyScene)
-	 {
-		 if (m_pScene) m_pScene->UIRender(m_pd3dDevice, m_pd3dCommandList, m_pUICamera, m_GameTimer.GetTimeElapsed());
-	 }
+	if (m_pScene) m_pScene->Render(m_pd3dDevice, m_pd3dCommandList, m_pCamera);
+	if (m_pScene) m_pScene->TalkUIRender(m_pd3dDevice, m_pd3dCommandList, m_pUICamera);
+
+	if (m_bLobbyScene)
+	{
+		if (m_pLobbyScene) m_pLobbyScene->UIRender(m_pd3dDevice, m_pd3dCommandList, m_pUICamera);
+	}
+	if (!m_bLobbyScene)
+	{
+		if (m_pScene) m_pScene->UIRender(m_pd3dDevice, m_pd3dCommandList, m_pUICamera, m_GameTimer.GetTimeElapsed());
+	}
 
 
 #ifndef _WITH_DIRECT2D
@@ -978,7 +977,7 @@ void CGameFramework::FrameAdvance()
 	WaitForGpuComplete();
 	m_pUILayer->Render(m_nSwapChainBufferIndex);
 	//명령 리스트를 명령 큐에 추가하여 실행한다. 
-	
+
 	//GPU가 모든 명령 리스트를 실행할 때 까지 기다린다.
 	/*DXGI_PRESENT_PARAMETERS dxgiPresentParameters;
 	dxgiPresentParameters.DirtyRectsCount = 0;

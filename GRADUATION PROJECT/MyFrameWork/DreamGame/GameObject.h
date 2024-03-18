@@ -361,10 +361,6 @@ public:
 	bool                            m_bUIActive{ true };
 
 	int								m_iObjType = 0;
-protected:
-	float m_interpolationDistance = 0.0f;
-	XMFLOAT3 m_interpolationVector = XMFLOAT3{ 0,0,0 };
-	float m_interpolationRotateAngleY = 0.0f;
 public:
 	XMFLOAT3 m_xmf3RamdomDirection{};
 public:

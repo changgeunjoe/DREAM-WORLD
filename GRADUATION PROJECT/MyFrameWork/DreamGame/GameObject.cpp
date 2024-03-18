@@ -141,8 +141,6 @@ void GameObject::SetLook(const XMFLOAT3& xmfLook)
 	xmftRight = Vector3::CrossProduct(xmftUp, xmftLook, false);
 	xmftUp = Vector3::CrossProduct(xmftLook, xmftRight, false);
 
-	XMFLOAT4X4	copyXmf4x4ToParent = m_xmf4x4ToParent;
-
 	m_xmf4x4ToParent._11 = xmftRight.x;	m_xmf4x4ToParent._12 = xmftRight.y;	m_xmf4x4ToParent._13 = xmftRight.z;
 	m_xmf4x4ToParent._21 = xmftUp.x;	m_xmf4x4ToParent._22 = xmftUp.y;	m_xmf4x4ToParent._23 = xmftUp.z;
 	m_xmf4x4ToParent._31 = xmftLook.x;	m_xmf4x4ToParent._32 = xmftLook.y;	m_xmf4x4ToParent._33 = xmftLook.z;
