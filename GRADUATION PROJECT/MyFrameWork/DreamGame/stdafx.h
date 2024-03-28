@@ -31,6 +31,7 @@
 #include<iostream>
 #include <chrono>
 #include <filesystem>
+#include <unordered_set>
 
 #include <d3d12.h>
 #include <dxgi1_4.h>
@@ -60,9 +61,9 @@ const float MONSTER_ABLE_ATTACK_COS_VALUE = std::cos(20.0f * 3.14f / 180.0f);
 
 using namespace std;
 using namespace chrono;
-//#ifndef LOCAL_TASK
-//#define LOCAL_TASK 1
-//#endif // !LOCAL_TASK
+
+///#define LOCAL_TASK 1
+
 
 ///////////////////////////////////////
 /*** 여기서부터 이 책의 모든 예제에서 공통으로 포함하여 사용하는 코드이다. ***/
@@ -139,10 +140,10 @@ using Microsoft::WRL::ComPtr;
 
 //#define _WITH_SWAPCHAIN_FULLSCREEN_STATE
 #define PIXELCOUNT				257
-#define FRAME_BUFFER_WIDTH		GetSystemMetrics(SM_CXSCREEN)		///2.0f
-#define FRAME_BUFFER_HEIGHT		GetSystemMetrics(SM_CYSCREEN)  ///2.0f
-//#define FRAME_BUFFER_WIDTH		1280
-//#define FRAME_BUFFER_HEIGHT		720
+//#define FRAME_BUFFER_WIDTH		GetSystemMetrics(SM_CXSCREEN)		///2.0f
+//#define FRAME_BUFFER_HEIGHT		GetSystemMetrics(SM_CYSCREEN)  ///2.0f
+#define FRAME_BUFFER_WIDTH		1280
+#define FRAME_BUFFER_HEIGHT		720
 
 
 #define _PLANE_WIDTH			300
@@ -778,70 +779,70 @@ public:
 	XMFLOAT3 const GetVertex2() { return m_vertex2; }
 	XMFLOAT3 const GetVertex3() { return m_vertex3; }
 };
-class AstarNode {
-private:
-	int m_nodeIdx = -1;
-	float m_cost = 0.0f;
-	float m_dis = 0.0f;
-	float m_res = 0.0f;
-	int m_parentNodeIdx = -1;
-
-public:
-	AstarNode() {}
-	AstarNode(int nodeIdx, float cost, float dis, float res, int parentNodeIdx) : m_nodeIdx(nodeIdx), m_cost(cost), m_dis(dis), m_res(res), m_parentNodeIdx(parentNodeIdx) {}
-	AstarNode(AstarNode& other)
-	{
-		m_nodeIdx = other.m_nodeIdx;
-		m_cost = other.m_cost;
-		m_dis = other.m_dis;
-		m_res = other.m_res;
-		m_parentNodeIdx = other.m_parentNodeIdx;
-	}
-	AstarNode(AstarNode&& other)
-	{
-		m_nodeIdx = other.m_nodeIdx;
-		m_cost = other.m_cost;
-		m_dis = other.m_dis;
-		m_res = other.m_res;
-		m_parentNodeIdx = other.m_parentNodeIdx;
-	}
-	~AstarNode() {}
-public:
-	void RefreshNodeData(int nodeIdx, float cost, float dis, float res, int parentNodeIdx)
-	{
-		m_nodeIdx = nodeIdx;
-		m_cost = cost;
-		m_dis = dis;
-		m_res = res;
-		m_parentNodeIdx = parentNodeIdx;
-	}
-	float GetResValue() { return m_res; }
-	int GetIdx() { return m_nodeIdx; }
-	int GetParentIdx() { return m_parentNodeIdx; }
-	float GetDistance() { return m_dis; }
-
-public:
-	constexpr bool operator< (const AstarNode& other)const {
-		return m_dis < other.m_dis;
-	}
-	AstarNode& operator= (const AstarNode& other) {
-		m_nodeIdx = other.m_nodeIdx;
-		m_cost = other.m_cost;
-		m_dis = other.m_dis;
-		m_res = other.m_res;
-		m_parentNodeIdx = other.m_parentNodeIdx;
-		return *this;
-	}
-
-	AstarNode& operator= (const AstarNode&& other) noexcept {
-		m_nodeIdx = other.m_nodeIdx;
-		m_cost = other.m_cost;
-		m_dis = other.m_dis;
-		m_res = other.m_res;
-		m_parentNodeIdx = other.m_parentNodeIdx;
-		return *this;
-	}
-};
+//class AstarNode {
+//private:
+//	int m_nodeIdx = -1;
+//	float m_cost = 0.0f;
+//	float m_dis = 0.0f;
+//	float m_res = 0.0f;
+//	int m_parentNodeIdx = -1;
+//
+//public:
+//	AstarNode() {}
+//	AstarNode(int nodeIdx, float cost, float dis, float res, int parentNodeIdx) : m_nodeIdx(nodeIdx), m_cost(cost), m_dis(dis), m_res(res), m_parentNodeIdx(parentNodeIdx) {}
+//	AstarNode(AstarNode& other)
+//	{
+//		m_nodeIdx = other.m_nodeIdx;
+//		m_cost = other.m_cost;
+//		m_dis = other.m_dis;
+//		m_res = other.m_res;
+//		m_parentNodeIdx = other.m_parentNodeIdx;
+//	}
+//	AstarNode(AstarNode&& other)
+//	{
+//		m_nodeIdx = other.m_nodeIdx;
+//		m_cost = other.m_cost;
+//		m_dis = other.m_dis;
+//		m_res = other.m_res;
+//		m_parentNodeIdx = other.m_parentNodeIdx;
+//	}
+//	~AstarNode() {}
+//public:
+//	void RefreshNodeData(int nodeIdx, float cost, float dis, float res, int parentNodeIdx)
+//	{
+//		m_nodeIdx = nodeIdx;
+//		m_cost = cost;
+//		m_dis = dis;
+//		m_res = res;
+//		m_parentNodeIdx = parentNodeIdx;
+//	}
+//	float GetResValue() { return m_res; }
+//	int GetIdx() { return m_nodeIdx; }
+//	int GetParentIdx() { return m_parentNodeIdx; }
+//	float GetDistance() { return m_dis; }
+//
+//public:
+//	constexpr bool operator< (const AstarNode& other)const {
+//		return m_dis < other.m_dis;
+//	}
+//	AstarNode& operator= (const AstarNode& other) {
+//		m_nodeIdx = other.m_nodeIdx;
+//		m_cost = other.m_cost;
+//		m_dis = other.m_dis;
+//		m_res = other.m_res;
+//		m_parentNodeIdx = other.m_parentNodeIdx;
+//		return *this;
+//	}
+//
+//	AstarNode& operator= (const AstarNode&& other) noexcept {
+//		m_nodeIdx = other.m_nodeIdx;
+//		m_cost = other.m_cost;
+//		m_dis = other.m_dis;
+//		m_res = other.m_res;
+//		m_parentNodeIdx = other.m_parentNodeIdx;
+//		return *this;
+//	}
+//};
 
 
 class PlayerCharacterOperation

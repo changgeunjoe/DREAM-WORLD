@@ -83,7 +83,8 @@ void RangedCharacter::SetLookDirection()
 Archer::Archer() : RangedCharacter(ROLE::ARCHER)
 {
 	m_fMaxHp = 400.0f;
-	m_fTempHp = m_fMaxHp;
+	m_fTempHp = 100.0f;
+	m_fHp = 100.0f;
 	m_fSpeed = 50.0f;
 	m_fDamage = 80.0f;
 	m_CameraLook = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -558,7 +559,8 @@ void Archer::SetBossStagePostion()
 Mage::Mage() : RangedCharacter(ROLE::MAGE)
 {
 	m_fMaxHp = 500.0f;
-	m_fTempHp = m_fMaxHp;
+	m_fTempHp = 100.0f;
+	m_fHp = 100.0f;
 	m_fSpeed = 50.0f;
 	m_fDamage = 80.0f;
 

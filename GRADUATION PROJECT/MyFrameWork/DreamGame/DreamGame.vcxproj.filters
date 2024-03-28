@@ -288,12 +288,6 @@
     <ClInclude Include="DebuffObject.h">
       <Filter>03.GameObject\Effect</Filter>
     </ClInclude>
-    <ClInclude Include="Network\MapData\MapCollide.h">
-      <Filter>10.Network\MapData</Filter>
-    </ClInclude>
-    <ClInclude Include="Network\MapData\MapData.h">
-      <Filter>10.Network\MapData</Filter>
-    </ClInclude>
     <ClInclude Include="EffectShaderComponent.h">
       <Filter>04.Component\ShaderComponent\EffectShaderComponent</Filter>
     </ClInclude>
@@ -317,6 +311,21 @@
     </ClInclude>
     <ClInclude Include="CharacterEvent.h">
       <Filter>07.Character</Filter>
+    </ClInclude>
+    <ClInclude Include="MapData\MapData.h">
+      <Filter>10.Network\MapData</Filter>
+    </ClInclude>
+    <ClInclude Include="MapData\AstarNode\AstarNode.h">
+      <Filter>10.Network\MapData</Filter>
+    </ClInclude>
+    <ClInclude Include="MapData\MapCollision\MapCollision.h">
+      <Filter>10.Network\MapData</Filter>
+    </ClInclude>
+    <ClInclude Include="MapData\NavMeshQuadTree\NavMeshQuadTree.h">
+      <Filter>10.Network\MapData</Filter>
+    </ClInclude>
+    <ClInclude Include="MapData\TriangleMesh\TriangleNavMesh.h">
+      <Filter>10.Network\MapData</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -449,12 +458,6 @@
     <ClCompile Include="DebuffObject.cpp">
       <Filter>03.GameObject\Effect</Filter>
     </ClCompile>
-    <ClCompile Include="Network\MapData\MapCollide.cpp">
-      <Filter>10.Network\MapData</Filter>
-    </ClCompile>
-    <ClCompile Include="Network\MapData\MapData.cpp">
-      <Filter>10.Network\MapData</Filter>
-    </ClCompile>
     <ClCompile Include="EffectShaderComponent.cpp">
       <Filter>04.Component\ShaderComponent\EffectShaderComponent</Filter>
     </ClCompile>
@@ -478,6 +481,21 @@
     </ClCompile>
     <ClCompile Include="CharacterEvent.cpp">
       <Filter>07.Character</Filter>
+    </ClCompile>
+    <ClCompile Include="MapData\MapData.cpp">
+      <Filter>10.Network\MapData</Filter>
+    </ClCompile>
+    <ClCompile Include="MapData\AstarNode\AstarNode.cpp">
+      <Filter>10.Network\MapData</Filter>
+    </ClCompile>
+    <ClCompile Include="MapData\MapCollision\MapCollision.cpp">
+      <Filter>10.Network\MapData</Filter>
+    </ClCompile>
+    <ClCompile Include="MapData\NavMeshQuadTree\NavMeshQuadTree.cpp">
+      <Filter>10.Network\MapData</Filter>
+    </ClCompile>
+    <ClCompile Include="MapData\TriangleMesh\TriangleNavMesh.cpp">
+      <Filter>10.Network\MapData</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

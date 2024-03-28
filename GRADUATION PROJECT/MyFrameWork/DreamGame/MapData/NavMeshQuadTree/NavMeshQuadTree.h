@@ -1,5 +1,5 @@
 #pragma once
-#include "../PCH/stdafx.h"
+#include "../../stdafx.h"
 
 // 쿼드 트리 노드 구조체
 namespace NavMesh

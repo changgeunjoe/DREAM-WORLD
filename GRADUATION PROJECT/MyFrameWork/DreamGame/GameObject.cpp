@@ -6,14 +6,14 @@
 #include "InstanceRenderComponent.h"
 #include "TrailShaderComponent.h"
 #include "TerrainShaderComponent.h"
-#include "Network/MapData/MapData.h"
+#include "MapData/MapData.h"
 #include "GameFramework.h"
 #include "GameobjectManager.h"
 #include "Character.h"
 #include "Player.h"
 #include "Network/Logic/Logic.h"
 
-extern MapData g_bossMapData;
+extern NavMapData g_bossMapData;
 extern MapData g_stage1MapData;
 extern CGameFramework gGameFramework;
 extern Logic g_Logic;

@@ -6,9 +6,8 @@
 #include "Network/IocpEvent/IocpEventManager.h"
 #include "DB/DB.h"
 #include "Match/Matching.h"
+#include "Room/RoomManager.h"
 //astart collision monster
-//MapData		g_bossMapData{ std::filesystem::current_path().string().append("\\\MapData\\\BossRoom.txt"),std::filesystem::current_path().string().append("\\\MapData\\\BossCollisionData.txt"),std::filesystem::current_path().string().append("\\\MapData\\\MonsterBoss.txt") };
-//MapData		g_stage1MapData{ "NONE",std::filesystem::current_path().string().append("\\\MapData\\\Stage1CollisionData.txt"),std::filesystem::current_path().string().append("\\\MapData\\\MonsterStage1.txt") };
 
 int main()
 {
@@ -29,6 +28,7 @@ int main()
 	UserManager::GetInstance().RegisterIocp(iocpRef->GetSharedPtr());
 	DB::DBConnector::GetInstance().RegistIocp(iocpRef->GetSharedPtr());
 	IocpEventManager::GetInstance().Initailize();
+	RoomManager::GetInstance().Initialize();
 
 	//각 클래스 시작
 	UserManager::GetInstance().Initialize();

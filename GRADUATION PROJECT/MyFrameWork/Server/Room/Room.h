@@ -1,4 +1,5 @@
 #pragma once
+#pragma once
 #include "../PCH/stdafx.h"
 #include "../Network/IocpEvent/IocpEventBase.h"
 
@@ -12,13 +13,15 @@ class SmallMonsterObject;
 namespace IOCP {
 	class Iocp;
 }
-
+class MapData;
+class MonsterMapData;
+class NavMapData;
 class Room : public IOCP::EventBase
 {
 public:
-	Room() = default;
-	Room(std::vector<std::shared_ptr<UserSession>>& userRefVec);
-	Room(std::shared_ptr<UserSession>& userRef);
+	Room() = delete;
+	Room(std::vector<std::shared_ptr<UserSession>>& userRefVec, std::shared_ptr<MonsterMapData>& mapDataRef, std::shared_ptr<NavMapData>& navMapDataRef);
+	Room(std::shared_ptr<UserSession>& userRef, std::shared_ptr<MonsterMapData>& mapDataRef, std::shared_ptr<NavMapData>& navMapDataRef);
 	~Room();
 
 	//IOCP에서 PQGS로 오는 경우 해결 - update, gamestate...(룸에 대한 이벤트)
@@ -31,6 +34,8 @@ public:
 
 	std::vector<std::shared_ptr<GameObject>> GetCharacters() const;
 	std::vector<std::shared_ptr<LiveObject>> GetLiveObjects() const;
+
+	std::shared_ptr<MapData> GetMapData() const;
 
 	//void CharacterAttack(const ROLE& role);
 	void RecvCharacterMove(const ROLE& role, const DIRECTION& direction, const bool& apply);
@@ -89,6 +94,8 @@ private:
 
 	//std::array<10, ShootingObject> m_arrow;
 	//std::array<10, ShootingObject> m_energyBall;
+	std::shared_ptr<MonsterMapData> m_stageMapData;
+	std::shared_ptr<NavMapData> m_bossMapData;
 };
 
 

@@ -139,7 +139,7 @@
     <ClCompile Include="MapData\NavMeshQuadTree\NavMeshQuadTree.cpp">
       <Filter>InGame\MapData\NavMesh\QuadTree</Filter>
     </ClCompile>
-    <ClCompile Include="MapData\TriangleMesh\TriangleMesh.cpp">
+    <ClCompile Include="MapData\TriangleMesh\TriangleNavMesh.cpp">
       <Filter>InGame\MapData\NavMesh</Filter>
     </ClCompile>
     <ClCompile Include="MapData\AstarNode\AstarNode.cpp">
@@ -243,7 +243,7 @@
     <ClInclude Include="MapData\NavMeshQuadTree\NavMeshQuadTree.h">
       <Filter>InGame\MapData\NavMesh\QuadTree</Filter>
     </ClInclude>
-    <ClInclude Include="MapData\TriangleMesh\TriangleMesh.h">
+    <ClInclude Include="MapData\TriangleMesh\TriangleNavMesh.h">
       <Filter>InGame\MapData\NavMesh</Filter>
     </ClInclude>
     <ClInclude Include="MapData\AstarNode\AstarNode.h">

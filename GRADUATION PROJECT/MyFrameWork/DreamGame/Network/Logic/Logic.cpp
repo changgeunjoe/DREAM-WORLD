@@ -186,7 +186,15 @@ void Logic::ProcessPacket(const PacketHeader* packetHeader)
 	{
 		//로딩창이면 좋을듯?
 		const SERVER_PACKET::IntoGamePacket* recvPacket = reinterpret_cast<const SERVER_PACKET::IntoGamePacket*>(packetHeader);
-		GameObject* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo(recvPacket->role);
+		auto normalMonsterObj = gGameFramework.GetScene()->GetObjectManager()->GetNormalMonsterArr();
+		GameObject* possessObj = gGameFramework.GetScene()->m_pObjectManager->GetChracterInfo(recvPacket->role);
+		for (int i = 0; i < 15; ++i) {
+			normalMonsterObj[recvPacket->monsterData[i].id]->SetLook(recvPacket->monsterData[i].lookVector);
+			normalMonsterObj[recvPacket->monsterData[i].id]->SetPosition(recvPacket->monsterData[i].position);
+			normalMonsterObj[recvPacket->monsterData[i].id]->SetMaxHP(recvPacket->monsterData[i].maxHp);
+			normalMonsterObj[recvPacket->monsterData[i].id]->SetCurrentHP(100.0f);
+			normalMonsterObj[recvPacket->monsterData[i].id]->SetTempHp(100.0f);
+		}
 		gGameFramework.GetScene()->GetObjectManager()->SetPlayerCamera(possessObj);
 		gGameFramework.m_bLobbyScene = false;
 		gGameFramework.GetScene()->GetObjectManager()->m_bSceneSwap = true;
@@ -248,14 +256,12 @@ void Logic::ProcessPacket(const PacketHeader* packetHeader)
 		}
 		//small monster
 		NormalMonster** smallMonsterArr = gGameFramework.GetScene()->GetObjectManager()->GetNormalMonsterArr();
-		for (int i = 0; i < 15; i++) {			
+		for (int i = 0; i < 15; i++) {
 			int monsterIdx = recvPacket->smallMonster[i].idx;
 			smallMonsterArr[monsterIdx]->SetAliveState(recvPacket->smallMonster[monsterIdx].isAlive);
-			smallMonsterArr[monsterIdx]->SetInterpolateData(recvPacket->userState[monsterIdx].time, recvPacket->userState[monsterIdx].position);;
+			smallMonsterArr[monsterIdx]->SetInterpolateData(recvPacket->userState[monsterIdx].time, recvPacket->userState[monsterIdx].position);
 			float maxHp = smallMonsterArr[monsterIdx]->GetMaxHP();
 			smallMonsterArr[monsterIdx]->SetCurrentHP(recvPacket->smallMonster[monsterIdx].hp / maxHp * 100.0f);
-			if (recvPacket->smallMonster[monsterIdx].hp == 150)
-				smallMonsterArr[monsterIdx]->SetTempHp(recvPacket->smallMonster[monsterIdx].hp / maxHp * 100.0f);
 
 		}
 	}

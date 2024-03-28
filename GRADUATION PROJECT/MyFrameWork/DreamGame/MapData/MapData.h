@@ -1,9 +1,16 @@
 #pragma once
-#include"../PCH/stdafx.h"
+#include"../stdafx.h"
 #include "NavMeshQuadTree/NavMeshQuadTree.h"
 using namespace DirectX;
 
-
+//struct MonsterInitData {
+//	XMFLOAT3 position;
+//	XMFLOAT3 eulerRotate;
+//	MonsterInitData(XMFLOAT3 pos, XMFLOAT3 rot)
+//	{
+//		position = pos;  eulerRotate = rot;
+//	}
+//};
 
 class MapCollision;
 class MapData
@@ -16,27 +23,6 @@ public:
 protected:
 	//collision
 	std::vector<std::shared_ptr<MapCollision>> m_collisionDatas;
-};
-
-struct MonsterInitData {
-	XMFLOAT3 position;
-	XMFLOAT3 eulerRotate;
-	MonsterInitData(const XMFLOAT3& pos, const XMFLOAT3& rot)
-	{
-		position = pos;  eulerRotate = rot;
-	}
-};
-
-class MonsterMapData : public MapData
-{
-
-public:
-	MonsterMapData(const std::string& mapCollisionFile, const std::string& initMonsterFile);
-	MonsterMapData() = delete;
-
-	const std::vector<MonsterInitData>& GetMonsterInitData() const;
-protected:
-	std::vector<MonsterInitData> m_monsterInitData;
 };
 
 namespace NavMesh {

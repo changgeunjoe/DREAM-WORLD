@@ -148,7 +148,7 @@ MapData::MapData(const std::string& mapCollisionFile)
 			}
 		}
 	}
-	spdlog::info("{} - CollisionData Initialize Success", mapCollisionFile);
+	cout << mapCollisionFile << " - CollisionData Initialize Success\n";
 }
 
 const std::vector<std::shared_ptr<MapCollision>>& MapData::GetCollisionData() const
@@ -216,6 +216,7 @@ NavMapData::NavMapData(const std::string& mapCollisionFile, const std::string& n
 			for (auto& tMesh : m_triangleMesh) {
 				m_navMeshQuadTree.InsertTriangleNavMesh(tMesh);
 			}
+
 		}
 		else if (readObject == relationStr) {
 			navFile >> readObject;
@@ -239,7 +240,7 @@ NavMapData::NavMapData(const std::string& mapCollisionFile, const std::string& n
 	auto bossStartMesh = m_navMeshQuadTree.GetOnPositionNavMesh(bossPos);
 
 	m_bossStartMesh = bossStartMesh;
-	spdlog::info("{} - NavMeshData Initialize Success", navMeshFIle);
+	cout << navMeshFIle << " - NavMeshData Initialize Success\n";
 }
 
 NavMapData::~NavMapData()
@@ -252,64 +253,4 @@ NavMapData::~NavMapData()
 const std::shared_ptr<NavMesh::TriangleNavMesh> NavMapData::GetBossStartPosition() const
 {
 	return m_bossStartMesh;
-}
-
-MonsterMapData::MonsterMapData(const std::string& mapCollisionFile, const std::string& initMonsterFile)
-	:MapData(mapCollisionFile)
-{
-	std::ifstream objectFile(initMonsterFile);
-
-	std::vector<XMFLOAT3> modelPosition;
-	std::vector<XMFLOAT3> modelEulerRotate;
-	std::string readData;
-	std::vector<std::string> name;
-
-	float qnumber[4] = {};
-	while (!objectFile.eof())
-	{
-		objectFile >> readData;
-		if (readData == "<position>:")
-		{
-			float number[3] = {};
-			for (int i = 0; i < 3; ++i)
-			{
-				objectFile >> readData;
-				number[i] = stof(readData);
-			}
-			modelPosition.emplace_back(number[0], number[1], number[2]);
-		}
-		else if (readData == "<quaternion>:")
-		{
-			for (int i = 0; i < 4; ++i)
-			{
-				objectFile >> readData;
-			}
-		}
-		else if (readData == "<rotation>:")
-		{
-			float number[3] = {};
-			for (int i = 0; i < 3; ++i)
-			{
-				objectFile >> readData;
-				number[i] = stof(readData);
-			}
-			modelEulerRotate.emplace_back(number[0], number[1], number[2]);
-		}
-		else if (readData == "<scale>:")
-		{
-			for (int i = 0; i < 3; ++i)
-			{
-				objectFile >> readData;
-			}
-		}
-		else name.emplace_back(readData);
-	}
-	m_monsterInitData.reserve(15);
-	for (int i = 0; i < 15; i++)
-		m_monsterInitData.emplace_back(modelPosition[i], modelEulerRotate[i]);
-}
-
-const std::vector<MonsterInitData>& MonsterMapData::GetMonsterInitData() const
-{
-	return m_monsterInitData;
 }

@@ -128,7 +128,8 @@ void MeleeCharacter::SetLookDirection()
 Warrior::Warrior() : MeleeCharacter(ROLE::WARRIOR)
 {
 	m_fMaxHp = 600.0f;
-	m_fTempHp = m_fMaxHp;
+	m_fTempHp = 100.0f;
+	m_fHp = 100.0f;
 	m_fSpeed = 50.0f;
 	m_fDamage = 100.0f;
 
@@ -396,7 +397,8 @@ void Warrior::SetBossStagePostion()
 Tanker::Tanker() : MeleeCharacter(ROLE::TANKER)
 {
 	m_fMaxHp = 780.0f;
-	m_fTempHp = m_fMaxHp;
+	m_fTempHp = 100.0f;
+	m_fHp = 100.0f;
 	m_fSpeed = 50.0f;
 	m_fDamage = 50.0f;
 

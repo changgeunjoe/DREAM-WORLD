@@ -5,7 +5,7 @@
 class MonsterObject : public LiveObject {
 public:
 	MonsterObject() = delete;
-	MonsterObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, std::shared_ptr<Room>& roomRef);
+	MonsterObject(const float& maxHp, const float& attackDamage, const float& moveSpeed, const float& boundingSize, std::shared_ptr<Room>& roomRef);
 	~MonsterObject() = default;
 
 protected:
@@ -20,6 +20,7 @@ protected:
 	virtual const bool isAbleAttackRange() = 0;
 	virtual void Attack(std::shared_ptr<LiveObject>& attackedCharacter) = 0;
 private:
+	float m_attackDamage = 10.0f;
 	std::chrono::high_resolution_clock::time_point m_lastAttackTime;
 	std::chrono::high_resolution_clock::time_point m_lastFindAggroTime;
 

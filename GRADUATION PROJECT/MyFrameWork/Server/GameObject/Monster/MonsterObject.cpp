@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "MonsterObject.h"
 
-MonsterObject::MonsterObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, std::shared_ptr<Room>& roomRef)
-	: LiveObject(maxHp, moveSpeed, boundingSize, roomRef)
+MonsterObject::MonsterObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, const float& attackDamage, std::shared_ptr<Room>& roomRef)
+	: LiveObject(maxHp, moveSpeed, boundingSize, roomRef), m_attackDamage(attackDamage)
 {
 }
 

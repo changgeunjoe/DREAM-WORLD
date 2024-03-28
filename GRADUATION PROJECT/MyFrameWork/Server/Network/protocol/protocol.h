@@ -268,9 +268,18 @@ namespace SERVER_PACKET {
 		}
 	};
 
+	struct InitMonsterData
+	{
+		int id;
+		XMFLOAT3 position;
+		XMFLOAT3 lookVector;
+		float maxHp;
+	};
+
 	struct IntoGamePacket : public PacketHeader
 	{
 		ROLE role;
+		InitMonsterData monsterData[15];
 		IntoGamePacket(const char& type = static_cast<char>(TYPE::INTO_GAME))
 			:PacketHeader(type, sizeof(IntoGamePacket))
 		{}
@@ -297,8 +306,8 @@ namespace SERVER_PACKET {
 		ROTATE_AXIS axis;
 		float angle;
 		RotatePacket(const char& type = static_cast<char>(TYPE::ROTATE)) : PacketHeader(type, sizeof(RotatePacket)) {}
-		RotatePacket(const ROLE& role, const ROTATE_AXIS& axis, const char& type = static_cast<char>(TYPE::ROTATE))
-			: PacketHeader(type, sizeof(RotatePacket)), role(role)
+		RotatePacket(const ROLE& role, const ROTATE_AXIS& axis, const float& angle, const char& type = static_cast<char>(TYPE::ROTATE))
+			: PacketHeader(type, sizeof(RotatePacket)), role(role), angle(angle)
 		{}
 	};
 

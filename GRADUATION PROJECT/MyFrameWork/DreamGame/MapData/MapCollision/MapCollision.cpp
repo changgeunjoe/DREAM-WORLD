@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "MapCollision.h"
-#include "../GameObject/GameObject.h"
+#include "../../Character.h"
 
 MapCollision::MapCollision(const XMFLOAT3& center, const XMFLOAT3& extent, const XMFLOAT4& quaternion, const float& dotRes1, const XMFLOAT3& normalVec1, const float& dotRes2, const XMFLOAT3& normalVec2)
 	: m_collision(BoundingOrientedBox(center, extent, quaternion))
@@ -19,7 +19,7 @@ bool MapCollision::CollideMap(const BoundingSphere& boundingSphere) const
 	return m_collision.Intersects(boundingSphere);
 }
 
-const std::pair<float, XMFLOAT3> MapCollision::GetSlidingVector(std::shared_ptr<GameObject>& gameObject, const XMFLOAT3& moveVector)
+const std::pair<float, XMFLOAT3> MapCollision::GetSlidingVector(Character* gameObject, const XMFLOAT3& moveVector)
 {
 	XMFLOAT3 toGameObjectVector = gameObject->GetFromVector(m_collision.Center);
 	toGameObjectVector.y = 0.0f;

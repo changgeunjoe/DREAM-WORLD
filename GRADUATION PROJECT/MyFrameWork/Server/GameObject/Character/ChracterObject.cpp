@@ -1,12 +1,14 @@
 #include "stdafx.h"
 #include "ChracterObject.h"
 #include "../Room/Room.h"
+#include "../MapData/MapData.h"
+#include "../MapData/MapCollision/MapCollision.h"
 //#include "ChracterSessionObject.h"
 
-CharacterObject::CharacterObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, std::shared_ptr<Room>& roomRef, const std::vector<std::chrono::seconds>& durationTime, const std::vector<std::chrono::seconds>& coolTime)
+CharacterObject::CharacterObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, const float& attackDamage, std::shared_ptr<Room>& roomRef, const std::vector<std::chrono::seconds>& durationTime, const std::vector<std::chrono::seconds>& coolTime)
 	:LiveObject(maxHp, moveSpeed, boundingSize, roomRef), m_currentDirection(static_cast<char>(DIRECTION::IDLE)),
 	m_leftMouseInput(false), m_rightMouseInput(false),
-	m_Shield(0.0f), m_damageRedutionRate(0.0f), m_activeShield(false)
+	m_Shield(0.0f), m_damageRedutionRate(0.0f), m_activeShield(false), m_commonAttackDamage(attackDamage)
 {
 	m_skillCtrl = std::make_unique<SkillController>(durationTime, coolTime);
 }
@@ -114,11 +116,26 @@ std::optional<const XMFLOAT3>  CharacterObject::UpdateNextPosition(const float& 
 std::optional<std::pair<bool, XMFLOAT3>> CharacterObject::CollideWall(const XMFLOAT3& nextPosition, const float& elapsedTime, const bool& isSlidingPosition)
 {
 	//characters와 같은 방법으로 수행
-	return std::pair<bool, XMFLOAT3>(false, nextPosition);
+	BoundingSphere boudingSphere{ nextPosition, m_boundingSize };
+	boudingSphere.Center.y = 0;
+	auto mapData = m_roomRef->GetMapData();
+	auto& mapCollision = mapData->GetCollisionData();
+	std::shared_ptr<MapCollision> collideMap{ nullptr };
+	for (auto& collision : mapCollision) {
+		if (collision->CollideMap(boudingSphere)) {
+			if (nullptr != collideMap) return std::nullopt;
+			collideMap = collision;
+		}
+	}
+	if (nullptr == collideMap) return std::pair<bool, XMFLOAT3>(false, nextPosition);
+	auto slidingVectorResult = collideMap->GetSlidingVector(shared_from_this(), m_moveVector);//power, vector
+	XMFLOAT3 applySlidingPosition = GetPosition();
+	applySlidingPosition = Vector3::Add(applySlidingPosition, slidingVectorResult.second, m_moveSpeed * elapsedTime * slidingVectorResult.first);
+	return std::pair<bool, XMFLOAT3>(true, applySlidingPosition);
 }
 
-MeleeCharacterObject::MeleeCharacterObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, std::shared_ptr<Room>& roomRef, const std::vector<std::chrono::seconds>& durationTime, const std::vector<std::chrono::seconds>& coolTime)
-	:CharacterObject(maxHp, moveSpeed, boundingSize, roomRef, durationTime, coolTime)
+MeleeCharacterObject::MeleeCharacterObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, const float& attackDamage, std::shared_ptr<Room>& roomRef, const std::vector<std::chrono::seconds>& durationTime, const std::vector<std::chrono::seconds>& coolTime)
+	:CharacterObject(maxHp, moveSpeed, boundingSize, attackDamage, roomRef, durationTime, coolTime)
 {
 }
 
@@ -186,8 +203,8 @@ void MeleeCharacterObject::UpdateDirectionRotate()
 	m_moveVector = GetMoveVector();
 }
 
-RangedCharacterObject::RangedCharacterObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, std::shared_ptr<Room>& roomRef, const std::vector<std::chrono::seconds>& durationTime, const std::vector<std::chrono::seconds>& coolTime)
-	:CharacterObject(maxHp, moveSpeed, boundingSize, roomRef, durationTime, coolTime)
+RangedCharacterObject::RangedCharacterObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, const float& attackDamage, std::shared_ptr<Room>& roomRef, const std::vector<std::chrono::seconds>& durationTime, const std::vector<std::chrono::seconds>& coolTime)
+	:CharacterObject(maxHp, moveSpeed, boundingSize, attackDamage, roomRef, durationTime, coolTime)
 {
 }
 
@@ -282,8 +299,9 @@ XMFLOAT3 RangedCharacterObject::GetMoveDiagonalVector(const char& type) const
 }
 
 WarriorObject::WarriorObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, std::shared_ptr<Room>& roomRef, const std::vector<std::chrono::seconds>& durationTime, const std::vector<std::chrono::seconds>& coolTime)
-	:MeleeCharacterObject(maxHp, moveSpeed, boundingSize, roomRef, durationTime, coolTime)
+	:MeleeCharacterObject(maxHp, moveSpeed, boundingSize, 100.0f, roomRef, durationTime, coolTime)
 {
+	m_commonAttackDamage = 100.0f;
 }
 
 void WarriorObject::SetStagePosition(const ROOM_STATE& roomState)
@@ -306,7 +324,7 @@ void WarriorObject::RecvAttackCommand(const XMFLOAT3& attackDir, const int& powe
 }
 
 TankerObject::TankerObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, std::shared_ptr<Room>& roomRef, const std::vector<std::chrono::seconds>& durationTime, const std::vector<std::chrono::seconds>& coolTime)
-	:MeleeCharacterObject(maxHp, moveSpeed, boundingSize, roomRef, durationTime, coolTime)
+	:MeleeCharacterObject(maxHp, moveSpeed, boundingSize, 50.0f, roomRef, durationTime, coolTime)
 {
 }
 
@@ -330,7 +348,7 @@ void TankerObject::RecvAttackCommand(const XMFLOAT3& attackDir, const int& power
 }
 
 MageObject::MageObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, std::shared_ptr<Room>& roomRef, const std::vector<std::chrono::seconds>& durationTime, const std::vector<std::chrono::seconds>& coolTime)
-	:RangedCharacterObject(maxHp, moveSpeed, boundingSize, roomRef, durationTime, coolTime)
+	:RangedCharacterObject(maxHp, moveSpeed, boundingSize, 80.0f, roomRef, durationTime, coolTime)
 {
 }
 
@@ -354,7 +372,7 @@ void MageObject::RecvAttackCommand(const XMFLOAT3& attackDir, const int& power)
 }
 
 ArcherObject::ArcherObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, std::shared_ptr<Room>& roomRef, const std::vector<std::chrono::seconds>& durationTime, const std::vector<std::chrono::seconds>& coolTime)
-	:RangedCharacterObject(maxHp, moveSpeed, boundingSize, roomRef, durationTime, coolTime)
+	:RangedCharacterObject(maxHp, moveSpeed, boundingSize, 80.0f, roomRef, durationTime, coolTime)
 {
 }
 

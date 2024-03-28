@@ -4,7 +4,7 @@
 //#include "SmallMonsterSessionObject.h"
 
 SmallMonsterObject::SmallMonsterObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, std::shared_ptr<Room>& roomRef, const int& idx)
-	:MonsterObject(maxHp, moveSpeed, boundingSize, roomRef), m_idx(idx)
+	:MonsterObject(maxHp, moveSpeed, boundingSize, 20.0f, roomRef), m_idx(idx)
 {
 }
 

@@ -12,7 +12,8 @@
 #include "TrailComponent.h"
 #include"TerrainShaderComponent.h"
 #include"EffectShaderComponent.h"
-#include "./Network/MapData/MapData.h"
+#include "MapData/MapData.h"
+#include "MapData/MapCollision/MapCollision.h"
 #include"EffectObject.h"
 #include"DebuffObject.h"
 #include"UILayer.h"
@@ -27,10 +28,9 @@
 extern NetworkHelper g_NetworkHelper;
 extern Logic g_Logic;
 extern bool GameEnd;
-extern MapData g_bossMapData;
+extern NavMapData g_bossMapData;
 extern MapData g_stage1MapData;
 extern CGameFramework gGameFramework;
-extern MapData g_stage1MapData;
 extern GameSound g_sound;
 
 
@@ -476,7 +476,7 @@ void GameobjectManager::NormalMonsterConditionAnimate(float fTimeElapsed)
 	}
 
 	for (int i = 0; i < 15; i++) {
-		if (m_ppNormalMonsterObject[i]->GetCurrentHP() != m_ppNormalMonsterObject[i]->GetTempHP() && m_ppNormalMonsterObject[i]->GetTempHP() > 0) {
+		if (abs(m_ppNormalMonsterObject[i]->GetCurrentHP() - m_ppNormalMonsterObject[i]->GetTempHP()) > FLT_EPSILON && m_ppNormalMonsterObject[i]->GetTempHP() > 0.0f) {
 			//m_ppNormalMonsterObject[i]->SetColor(XMFLOAT4(1,0,0,0.00012));
 			g_sound.NoLoopPlay("MonsterAttackedSound", m_ppNormalMonsterObject[i]->CalculateDistanceSound());
 			AddDamageFontToUiLayer(XMFLOAT3(m_ppNormalMonsterObject[i]->GetPosition().x,
@@ -489,7 +489,7 @@ void GameobjectManager::NormalMonsterConditionAnimate(float fTimeElapsed)
 			m_ppNormalMonsterObject[i]->m_fConditionTime += fTimeElapsed;
 		}
 		else {
-			if (m_ppNormalMonsterObject[i]->GetTempHP() <= 0) {
+			if (m_ppNormalMonsterObject[i]->GetTempHP() <= 0.0f) {
 				if (m_ppNormalMonsterObject[i]->m_bActive) {
 					m_ppNormalMonsterObject[i]->DieMonster(fTimeElapsed / 10);
 				}
@@ -1093,7 +1093,7 @@ void GameobjectManager::ReadNormalMonsterFile(ID3D12Device* pd3dDevice, ID3D12Gr
 	}
 	NormalMonster** tempObject = new NormalMonster * [objCount];
 	m_ppNormalMonsterBoundingBox.reserve(sizeof(size_t) * objCount);
-	vector<MonsterInitData>& monsterDatas = g_stage1MapData.GetMonsterData();
+	//vector<MonsterInitData>& monsterDatas = g_stage1MapData.GetMonsterData();
 	float fScale = 1.0f;
 	if (type == 1)
 		fScale = 10.0f;
@@ -1105,8 +1105,8 @@ void GameobjectManager::ReadNormalMonsterFile(ID3D12Device* pd3dDevice, ID3D12Gr
 		tempObject[i]->InsertComponent<RenderComponent>();
 		tempObject[i]->InsertComponent<CLoadedModelInfoCompnent>();
 		tempObject[i]->SetModel(modelName);
-		//tempObject[i]->SetPosition(XMFLOAT3(tempPos[i].x * fScale, tempPos[i].y, tempPos[i].z * fScale));		
-		tempObject[i]->SetPosition(monsterDatas[i].position);
+		//tempObject[i]->SetPosition(XMFLOAT3(tempPos[i].x * fScale, tempPos[i].y, tempPos[i].z * fScale));
+		//tempObject[i]->SetPosition(XMFLOAT3(0, 0, 0));
 		tempObject[i]->SetAnimationSets(6);
 		tempObject[i]->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		tempObject[i]->m_pSkinnedAnimationController->SetTrackAnimationSet(6);
@@ -1114,13 +1114,13 @@ void GameobjectManager::ReadNormalMonsterFile(ID3D12Device* pd3dDevice, ID3D12Gr
 		tempObject[i]->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[CharacterAnimation::CA_FIRSTSKILL]->m_nType = ANIMATION_TYPE_ONCE;
 		XMFLOAT3 Axis = XMFLOAT3(1, 0, 0);
 		//tempObject[i]->Rotate(&Axis, tempRotate[i].x);
-		tempObject[i]->Rotate(&Axis, monsterDatas[i].eulerRotate.x);
+		///tempObject[i]->Rotate(&Axis, monsterDatas[i].eulerRotate.x);
 		Axis = tempObject[i]->GetUp();
 		//tempObject[i]->Rotate(&Axis, tempRotate[i].y);
-		tempObject[i]->Rotate(&Axis, monsterDatas[i].eulerRotate.y);
+		//tempObject[i]->Rotate(&Axis, monsterDatas[i].eulerRotate.y);
 		Axis = tempObject[i]->GetRight();
 		//tempObject[i]->Rotate(&Axis, tempRotate[i].z);
-		tempObject[i]->Rotate(&Axis, monsterDatas[i].eulerRotate.z);
+		//tempObject[i]->Rotate(&Axis, monsterDatas[i].eulerRotate.z);
 		tempObject[i]->SetScale(tempScale[i].x, tempScale[i].y, tempScale[i].z);
 		XMFLOAT3 t = tempObject[i]->GetPosition();
 		tempObject[i]->m_nStageType = stagetype;
@@ -1853,9 +1853,9 @@ void GameobjectManager::BuildStage1(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	ReadNormalMonsterFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/NormalMonsterS1.txt", Death, 1, STAGE1);
 
 
-	vector<MapCollide>& collides = g_stage1MapData.GetCollideData();
+	const vector<std::shared_ptr<MapCollision>>& collides = g_stage1MapData.GetCollisionData();
 	for (auto& col : collides) {
-		auto& boundingBox = col.GetObb();
+		auto& boundingBox = col->GetCollision();
 		XMFLOAT4 q = boundingBox.Orientation;
 
 		GameObject* BoundingBox = new GameObject(SQUARE_ENTITY);

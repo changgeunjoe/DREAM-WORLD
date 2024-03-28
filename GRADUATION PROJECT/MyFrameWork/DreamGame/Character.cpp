@@ -11,13 +11,14 @@
 #include "GameobjectManager.h"
 #include "Network/Logic/Logic.h"
 #include "Network/NetworkHelper.h"
-#include "Network/MapData/MapData.h"
+#include "MapData/MapData.h"
+#include "MapData/MapCollision/MapCollision.h"
 #include "CharacterEvent.h"
 
 extern Logic g_Logic;
 extern NetworkHelper g_NetworkHelper;
 extern bool GameEnd;
-extern MapData g_bossMapData;
+extern NavMapData g_bossMapData;
 extern MapData g_stage1MapData;
 extern CGameFramework gGameFramework;
 extern GameSound g_sound;
@@ -102,7 +103,7 @@ void Character::MoveForward(int forwardDirection, float ftimeElapsed)
 		nextPosition = currentPosition;
 	}
 	else {
-		auto characterCollideResult = CheckCollisionCharacterObject(nextPosition, forwardVector, mapCollide.value().first, ftimeElapsed);
+		auto characterCollideResult = CheckCollisionCharacterObject(mapCollide.value().second, forwardVector, mapCollide.value().first, ftimeElapsed);
 		if (characterCollideResult.has_value()) {
 			nextPosition = characterCollideResult.value().second;
 		}
@@ -253,12 +254,40 @@ bool Character::CheckAnimationEnd(int nAnimation)
 
 std::optional<std::pair<bool, XMFLOAT3>> Character::CheckCollisionMap_Boss(const XMFLOAT3& nextPosition, const XMFLOAT3& moveVector, float ftimeElapsed)
 {
-	return std::pair<bool, XMFLOAT3>(false, nextPosition);
+	const auto& mapCollisions = g_bossMapData.GetCollisionData();
+	BoundingSphere boudingSphere{ nextPosition, m_fBoundingSize };
+	boudingSphere.Center.y = 0;
+	std::shared_ptr<MapCollision> collideMap{ nullptr };
+	for (auto& collision : mapCollisions) {
+		if (collision->CollideMap(boudingSphere)) {
+			if (nullptr != collideMap) return std::nullopt;
+			collideMap = collision;
+		}
+	}
+	if (nullptr == collideMap) return std::pair<bool, XMFLOAT3>(false, nextPosition);
+	auto slidingVectorResult = collideMap->GetSlidingVector(this, moveVector);//power, vector
+	XMFLOAT3 applySlidingPosition = GetPosition();
+	applySlidingPosition = Vector3::Add(applySlidingPosition, slidingVectorResult.second, m_fSpeed * ftimeElapsed * slidingVectorResult.first);
+	return std::pair<bool, XMFLOAT3>(true, applySlidingPosition);
 }
 
 std::optional<std::pair<bool, XMFLOAT3>> Character::CheckCollisionMap_Stage(const XMFLOAT3& nextPosition, const XMFLOAT3& moveVector, float ftimeElapsed)
 {
-	return std::pair<bool, XMFLOAT3>(false, nextPosition);
+	const auto& mapCollisions = g_stage1MapData.GetCollisionData();
+	BoundingSphere boudingSphere{ nextPosition, m_fBoundingSize };
+	boudingSphere.Center.y = 0;
+	std::shared_ptr<MapCollision> collideMap{ nullptr };
+	for (auto& collision : mapCollisions) {
+		if (collision->CollideMap(boudingSphere)) {
+			if (nullptr != collideMap) return std::nullopt;
+			collideMap = collision;
+		}
+	}
+	if (nullptr == collideMap) return std::pair<bool, XMFLOAT3>(false, nextPosition);
+	auto slidingVectorResult = collideMap->GetSlidingVector(this, moveVector);//power, vector
+	XMFLOAT3 applySlidingPosition = GetPosition();
+	applySlidingPosition = Vector3::Add(applySlidingPosition, slidingVectorResult.second, m_fSpeed * ftimeElapsed * slidingVectorResult.first);
+	return std::pair<bool, XMFLOAT3>(true, applySlidingPosition);
 }
 
 const float Character::GetDistance(const XMFLOAT3& otherPosition) const

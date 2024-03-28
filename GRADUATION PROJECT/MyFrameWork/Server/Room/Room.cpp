@@ -11,10 +11,12 @@
 #include "../GameObject/Monster/SmallMonsterObject.h"
 #include "../GameObject/Monster/BossMonsterObject.h"
 #include "../Network/protocol/protocol.h"
+#include "../MapData/MapData.h"
 
 
-Room::Room(std::vector<std::shared_ptr<UserSession>>& userRefVec)
+Room::Room(std::vector<std::shared_ptr<UserSession>>& userRefVec, std::shared_ptr<MonsterMapData>& mapDataRef, std::shared_ptr<NavMapData>& navMapDataRef)
 	: m_updateCnt(0), m_roomState(ROOM_STATE::ROOM_COMMON), m_gameStateUpdateComplete(false)
+	, m_stageMapData(mapDataRef), m_bossMapData(navMapDataRef)
 {
 	m_gameStateData.reserve(2);
 	std::lock_guard<std::shared_mutex> userLockGuard(m_userSessionsLock);
@@ -22,8 +24,9 @@ Room::Room(std::vector<std::shared_ptr<UserSession>>& userRefVec)
 		m_userSessions.insert(userRef);
 }
 
-Room::Room(std::shared_ptr<UserSession>& userRef)
+Room::Room(std::shared_ptr<UserSession>& userRef, std::shared_ptr<MonsterMapData>& mapDataRef, std::shared_ptr<NavMapData>& navMapDataRef)
 	: m_updateCnt(0), m_roomState(ROOM_STATE::ROOM_COMMON), m_gameStateUpdateComplete(false)
+	, m_stageMapData(mapDataRef), m_bossMapData(navMapDataRef)
 {
 	m_gameStateData.reserve(2);
 	spdlog::warn("Room::Room() - make Room for Alone Test");
@@ -100,11 +103,19 @@ void Room::Start()
 {
 	InitializeAllGameObject();
 	SERVER_PACKET::IntoGamePacket sendPacket;
+	for (int i = 0; i < 15; ++i) {
+		sendPacket.monsterData[i].id = i;
+		sendPacket.monsterData[i].position = m_smallMonsters[i]->GetPosition();
+		sendPacket.monsterData[i].lookVector = m_smallMonsters[i]->GetLookVector();
+		sendPacket.monsterData[i].maxHp = m_smallMonsters[i]->GetMaxHp();
+	}
+
 	auto userSessions = GetAllUserSessions();
 	for (auto& user : userSessions) {
 		sendPacket.role = user->GetRole();
 		user->DoSend(&sendPacket);
 	}
+
 	using namespace std::chrono;
 	m_gameStateUpdateComplete = true;
 	InsertEvent(TIMER_EVENT_TYPE::EV_ROOM_UPDATE, 20ms);
@@ -142,6 +153,14 @@ std::vector<std::shared_ptr<LiveObject>> Room::GetLiveObjects() const
 	return liveObjects;
 }
 
+std::shared_ptr<MapData> Room::GetMapData() const
+{
+	if (ROOM_STATE::ROOM_COMMON == m_roomState) {
+		return m_stageMapData;
+	}
+	return m_bossMapData;
+}
+
 void Room::RecvCharacterMove(const ROLE& role, const DIRECTION& direction, const bool& apply)
 {
 	if (ROLE::NONE_SELECT == role)return;
@@ -169,6 +188,10 @@ void Room::RecvCharacterRotate(const ROLE& role, const ROTATE_AXIS& axis, const 
 {
 	if (ROLE::NONE_SELECT == role)return;
 	m_characters[role]->RecvRotate(axis, angle);
+
+	PacketHeader* sendPacket = nullptr;
+	sendPacket = &SERVER_PACKET::RotatePacket(role, axis, angle);
+	MultiCastCastPacket(sendPacket, role);
 }
 
 void Room::RecvMouseInput(const ROLE& role, const bool& left, const bool& right)
@@ -220,6 +243,7 @@ void Room::UpdateGameState()
 void Room::GameStateSend()
 {
 	//현재 보낼 게임상태에 적용된 룸 상태와 현재 룸 상태가 다르다면 보내지 않음.
+
 	if (m_roomState != m_applyRoomStateForGameState) return;
 	if (ROOM_STATE::ROOM_COMMON == m_applyRoomStateForGameState)
 		BroadCastPacket(m_gameStateData[0]);
@@ -354,13 +378,20 @@ void Room::InitializeAllGameObject()
 	std::vector<std::chrono::seconds> duTime;
 	std::vector<std::chrono::seconds> coolTime;
 	//Character Initialize
-	m_characters.emplace(ROLE::WARRIOR, std::make_shared<WarriorObject>(1, 50.0f, 8.0f, std::static_pointer_cast<Room>(shared_from_this()), duTime, coolTime));
-	m_characters.emplace(ROLE::TANKER, std::make_shared<TankerObject>(1, 50.0f, 8.0f, std::static_pointer_cast<Room>(shared_from_this()), duTime, coolTime));
-	m_characters.emplace(ROLE::ARCHER, std::make_shared<ArcherObject>(1, 50.0f, 8.0f, std::static_pointer_cast<Room>(shared_from_this()), duTime, coolTime));
-	m_characters.emplace(ROLE::MAGE, std::make_shared<MageObject>(1, 50.0f, 8.0f, std::static_pointer_cast<Room>(shared_from_this()), duTime, coolTime));
+	m_characters.emplace(ROLE::WARRIOR, std::make_shared<WarriorObject>(600.0f, 50.0f, 8.0f, std::static_pointer_cast<Room>(shared_from_this()), duTime, coolTime));
+	m_characters.emplace(ROLE::TANKER, std::make_shared<TankerObject>(780.0f, 50.0f, 8.0f, std::static_pointer_cast<Room>(shared_from_this()), duTime, coolTime));
+	m_characters.emplace(ROLE::ARCHER, std::make_shared<ArcherObject>(400.0f, 50.0f, 8.0f, std::static_pointer_cast<Room>(shared_from_this()), duTime, coolTime));
+	m_characters.emplace(ROLE::MAGE, std::make_shared<MageObject>(500.0f, 50.0f, 8.0f, std::static_pointer_cast<Room>(shared_from_this()), duTime, coolTime));
 	m_characters[ROLE::ARCHER]->debug = true;
-	for (int i = 0; i < 15; ++i) {
-		m_smallMonsters.push_back(std::make_shared<SmallMonsterObject>(1, 50.0f, 8.0f, std::static_pointer_cast<Room>(shared_from_this()), i));
+
+	auto monsterInitData = m_stageMapData->GetMonsterInitData();
+	for (int i = 0; i < monsterInitData.size(); ++i) {
+		auto monster = std::make_shared<SmallMonsterObject>(150.0f, 50.0f, 8.0f, std::static_pointer_cast<Room>(shared_from_this()), i);
+		monster->SetPosition(monsterInitData[i].position);
+		monster->Rotate(ROTATE_AXIS::Y, monsterInitData[i].eulerRotate.y);
+		monster->Rotate(ROTATE_AXIS::X, monsterInitData[i].eulerRotate.x);
+		monster->Rotate(ROTATE_AXIS::Z, monsterInitData[i].eulerRotate.z);
+		m_smallMonsters.push_back(monster);
 	}
 
 	//m_bossMonster = std::make_shared<BossMonsterObject>(1, 50.0f, 8.0f, std::static_pointer_cast<Room>(shared_from_this()));

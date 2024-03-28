@@ -44,7 +44,7 @@ protected:
 	constexpr static char IDLE_BIT = static_cast<char>(DIRECTION::IDLE);
 public:
 	CharacterObject() = delete;
-	CharacterObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, std::shared_ptr<Room>& roomRef, const std::vector<std::chrono::seconds>& durationTime, const std::vector<std::chrono::seconds>& coolTime);
+	CharacterObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, const float& attackDamage, std::shared_ptr<Room>& roomRef, const std::vector<std::chrono::seconds>& durationTime, const std::vector<std::chrono::seconds>& coolTime);
 	~CharacterObject() = default;
 
 	virtual void Update() override;
@@ -60,6 +60,11 @@ public:
 
 	void SetShield(const bool& active);
 	const float GetShield() const;
+
+	const float GetAttackDamage() const
+	{
+		return m_commonAttackDamage;
+	}
 
 	virtual void SetStagePosition(const ROOM_STATE& roomState) = 0;
 
@@ -90,6 +95,8 @@ protected:
 	float				m_Shield = 0.0f;
 	float				m_damageRedutionRate = 0.0f;
 
+	float m_commonAttackDamage = 10.0f;
+
 	//Skill Contoller
 	std::unique_ptr<SkillController> m_skillCtrl;
 };
@@ -97,7 +104,7 @@ protected:
 class MeleeCharacterObject : public CharacterObject
 {
 public:
-	MeleeCharacterObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, std::shared_ptr<Room>& roomRef, const std::vector<std::chrono::seconds>& durationTime, const std::vector<std::chrono::seconds>& coolTime);
+	MeleeCharacterObject(const float& maxHp, const float& moveSpeed, const float& attackDamage, const float& boundingSize, std::shared_ptr<Room>& roomRef, const std::vector<std::chrono::seconds>& durationTime, const std::vector<std::chrono::seconds>& coolTime);
 protected:
 	virtual const XMFLOAT3 GetCommonNextPosition(const float& elapsedTime) override;
 	virtual const XMFLOAT3 GetMoveVector() const override;
@@ -112,7 +119,7 @@ protected:
 class RangedCharacterObject : public CharacterObject
 {
 public:
-	RangedCharacterObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, std::shared_ptr<Room>& roomRef, const std::vector<std::chrono::seconds>& durationTime, const std::vector<std::chrono::seconds>& coolTime);
+	RangedCharacterObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, const float& attackDamage, std::shared_ptr<Room>& roomRef, const std::vector<std::chrono::seconds>& durationTime, const std::vector<std::chrono::seconds>& coolTime);
 
 	virtual void Update() override;
 protected:

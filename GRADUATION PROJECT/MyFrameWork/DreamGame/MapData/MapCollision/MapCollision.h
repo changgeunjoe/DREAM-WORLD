@@ -1,8 +1,8 @@
 #pragma once
-#include "../../PCH/stdafx.h"
+#include "../../stdafx.h"
 
 using namespace DirectX;
-class GameObject;
+class Character;
 class MapCollision : public std::enable_shared_from_this<MapCollision>
 {
 public:
@@ -17,7 +17,7 @@ public:
 	void AddRelationCollision(std::shared_ptr<MapCollision>& other);
 
 	bool CollideMap(const BoundingSphere& boundingSphere) const;
-	const std::pair<float, XMFLOAT3> GetSlidingVector(std::shared_ptr<GameObject>& gameObject, const XMFLOAT3& moveVector);
+	const std::pair<float, XMFLOAT3> GetSlidingVector(Character* gameObject, const XMFLOAT3& moveVector);
 
 private:
 	BoundingOrientedBox m_collision;

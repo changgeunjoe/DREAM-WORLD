@@ -22,11 +22,10 @@ void IOCP::Iocp::Start()
 {
 	int threadNum = std::thread::hardware_concurrency();
 	//thread »ý¼º
-	ThreadManager& thMgr = ThreadManager::GetInstance();
+	ThreadManager& thMgrRef = ThreadManager::GetInstance();
 	spdlog::info("Iocp::Start() - Start Worker Threads");
 	for (int i = 0; i < threadNum; ++i)
-		thMgr.CreateThread(std::thread([this]() {WorkerThread(); }));
-	//m_workerThread.emplace_back([this]() {WorkerThread(); });
+		thMgrRef.CreateThread(std::thread([this]() {WorkerThread(); }));
 
 	m_listener = std::make_shared<IOCP::ListenEvent>(shared_from_this());
 	m_listener->StartListen(PORT);

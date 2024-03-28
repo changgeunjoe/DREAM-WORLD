@@ -2,8 +2,9 @@
 #include "TrailComponent.h"
 #include "MeshComponent.h"
 #include "GameObject.h"
-#include "./Network/MapData/MapData.h"
-extern MapData g_bossMapData;
+#include "MapData/MapData.h"
+#include "MapData/TriangleMesh/TriangleNavMesh.h"
+extern NavMapData g_bossMapData;
 
 TrailComponent::TrailComponent()
 {
@@ -154,12 +155,14 @@ void TrailComponent::RenderAstar(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	vector<XMFLOAT3> xmf3Pos;
 	int i = 0;
 	for (auto iter = vecNodeQueue.begin(); iter != vecNodeQueue.end(); iter++) {
+		auto triangleNavMesh = g_bossMapData.GetTriangleMesh(*iter);
+		const auto& vertexData = triangleNavMesh->GetVertexData();
+		xmf3Pos.push_back(Vector3::Add(vertexData[0], XMFLOAT3(0, (float)i * 0.3f + 0.3f, 0)));
+		xmf3Pos.push_back(Vector3::Add(vertexData[1], XMFLOAT3(0, (float)i * 0.3f + 0.3f, 0)));
+		xmf3Pos.push_back(Vector3::Add(vertexData[2], XMFLOAT3(0, (float)i * 0.3f + 0.3f, 0)));
 		/*g_bossMapData.GetTriangleMesh(*iter).GetVertex1();
 		g_bossMapData.GetTriangleMesh(*iter).GetVertex2();
 		g_bossMapData.GetTriangleMesh(*iter).GetVertex3();*/
-		xmf3Pos.push_back(Vector3::Add(g_bossMapData.GetTriangleMesh(*iter).GetVertex1(), XMFLOAT3(0, (float)i * 0.3f + 0.3f, 0)));
-		xmf3Pos.push_back(Vector3::Add(g_bossMapData.GetTriangleMesh(*iter).GetVertex2(), XMFLOAT3(0, (float)i * 0.3f + 0.3f, 0)));
-		xmf3Pos.push_back(Vector3::Add(g_bossMapData.GetTriangleMesh(*iter).GetVertex3(), XMFLOAT3(0, (float)i * 0.3f + 0.3f, 0)));
 		i++;
 	}
 	size_t iVertexCount = xmf3Pos.size();//사각형 당 정점 6개
