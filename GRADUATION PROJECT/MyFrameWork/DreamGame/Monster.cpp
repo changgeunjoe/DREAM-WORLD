@@ -6,6 +6,7 @@
 #include "sound/GameSound.h"
 #include "GameobjectManager.h"
 #include "Network/Logic/Logic.h"
+#include "CharacterEvent.h"
 
 extern bool GameEnd;
 extern Logic g_Logic;
@@ -202,92 +203,72 @@ void NormalMonster::Animate(float fTimeElapsed)
 void NormalMonster::Move(float fTimeElapsed)
 {
 	static XMFLOAT3 up = XMFLOAT3(0, 1, 0);
+
+	static constexpr float ONLY_ROTATE_ANGLE = 20.0f;
+	static constexpr float ONLY_MOVE_ANGLE = 3.0f;
+	static constexpr float TICK_ANGLE = 45.0f;
+	static constexpr float STOP_DISTANCE = 20.0f;
+
+	UpdateInterpolateData();
+	if (m_interpolateData->GetInterpolateState() == CharacterEvent::INTERPOLATE_STATE::SET_POSITION) {
+		SetPosition(m_interpolateData->GetInterpolatePosition());
+		return;
+	}
+	if (!GetAliveState()) return;
+	if (!m_bMoveState) return;
 #ifdef LOCAL_TASK	
 	GameObject* player = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(g_Logic.GetMyRole());
 	if (player != nullptr)
 		m_desPos = player->GetPosition();
-#endif		
+#endif
+	auto destinationPosition = GetDesPosition();
+
 	XMFLOAT3 myLook = GetLook();
-	XMFLOAT3 MyPos = GetPosition();
-	XMFLOAT3 desVector = Vector3::Subtract(m_desPos, MyPos);
-	float desDis = Vector3::Length(desVector);
-	desVector = Vector3::Normalize(desVector);
-	float frontDotRes = Vector3::DotProduct(desVector, myLook);
+	XMFLOAT3 toDesVector = GetToVector(destinationPosition);
+	float destinationLength = Vector3::Length(toDesVector);
+	toDesVector = Vector3::Normalize(toDesVector);
+	float frontDotRes = Vector3::DotProduct(toDesVector, myLook);
 	XMFLOAT3 rightVector = GetRight();
 
-	//if (CheckCollision(GetLook(), fTimeElapsed)) {
-	//	MyPos = GetPosition();
-	//	desVector = Vector3::Subtract(m_desPos, MyPos);
-	//	desVector = Vector3::Normalize(desVector);
-	//	if (frontDotRes <= MONSTER_ABLE_ATTACK_COS_VALUE) {//방향 바꿔야됨 - 방향이 맞지 않음
-	//		float rightDotRes = Vector3::DotProduct(desVector, rightVector);
-	//		if (rightDotRes >= 0) {
-	//			Rotate(&up, 90.0f * fTimeElapsed);
-	//			m_xmf3rotateAngle.y += 90.0f * fTimeElapsed;
-	//		}
-	//		else {
-	//			Rotate(&up, -90.0f * fTimeElapsed);
-	//			m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
-	//		}
-	//	}
-	//	MyPos = Vector3::Add(MyPos, m_interpolationVector, 6.0f * m_interpolationDistance * fTimeElapsed);
-	//	SetPosition(MyPos);
-	//	return;
-	//}
-	//std::cout << "desVector: " << desVector.x << ", " << desVector.y << ", " << desVector.z << endl;
+	auto betweenAngle = GetAggroBetweenAngle(destinationPosition);
 
-	if (desDis <= 30.0f) {//근접 했을때
-		if (frontDotRes <= MONSTER_ABLE_ATTACK_COS_VALUE) {//방향 바꿔야됨 - 방향이 맞지 않음
-			float rightDotRes = Vector3::DotProduct(desVector, rightVector);
-			if (rightDotRes >= 0) {
-				Rotate(&up, 90.0f * fTimeElapsed);
-				m_xmf3rotateAngle.y += 90.0f * fTimeElapsed;
-			}
-			else {
-				Rotate(&up, -90.0f * fTimeElapsed);
-				m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
-			}
-		}
-		//MyPos = Vector3::Add(MyPos, m_interpolationVector, 6.0f * m_interpolationDistance * fTimeElapsed);
-		SetPosition(MyPos);
+	if (betweenAngle.second > ONLY_ROTATE_ANGLE) {
+		Rotate(&up, betweenAngle.first * TICK_ANGLE * fTimeElapsed);
 		return;
 	}
-	else if (desDis <= 80.0f) {
-		m_bMoveState = true;
-		if (frontDotRes <= MONSTER_ABLE_ATTACK_COS_VALUE) {//방향 바꿔야됨
-			float rightDotRes = Vector3::DotProduct(desVector, rightVector);
-			if (rightDotRes >= 0) {
-				Rotate(&up, 90.0f * fTimeElapsed);
-				m_xmf3rotateAngle.y += 90.0f * fTimeElapsed;
-			}
-			else {
-				Rotate(&up, -90.0f * fTimeElapsed);
-				m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
-			}
-		}
-		MyPos = Vector3::Add(MyPos, Vector3::ScalarProduct(GetLook(), m_fSpeed * fTimeElapsed, false));//틱마다 움직임
-		//MyPos = Vector3::Add(MyPos, m_interpolationVector, 6.0f * m_interpolationDistance * fTimeElapsed);
-		SetPosition(MyPos);
+	else if (betweenAngle.second > ONLY_MOVE_ANGLE) {
+		float rotateAngle = betweenAngle.first * TICK_ANGLE * fTimeElapsed;
+		if (betweenAngle.second - rotateAngle < FLT_EPSILON)
+			rotateAngle = betweenAngle.second;
+		Rotate(&up, rotateAngle);
+	}
+	if (destinationLength - STOP_DISTANCE < FLT_EPSILON) {
 		return;
 	}
-	else if (desDis <= 120.0f) {
-		if (frontDotRes <= MONSTER_ABLE_ATTACK_COS_VALUE) {//방향 바꿔야됨 - 방향이 맞지 않음
-			float rightDotRes = Vector3::DotProduct(desVector, rightVector);
-			if (rightDotRes >= 0) {
-				Rotate(&up, 90.0f * fTimeElapsed);
-				m_xmf3rotateAngle.y += 90.0f * fTimeElapsed;
-			}
-			else {
-				Rotate(&up, -90.0f * fTimeElapsed);
-				m_xmf3rotateAngle.y -= 90.0f * fTimeElapsed;
-			}
-		}
-		//MyPos = Vector3::Add(MyPos, m_interpolationVector, 6.0f * m_interpolationDistance * fTimeElapsed);
-		SetPosition(MyPos);
-		return;
+	XMFLOAT3 currentPosition = GetPosition();
+
+	XMFLOAT3 nextPosition = GetPosition();
+	nextPosition = Vector3::Add(nextPosition, myLook, fTimeElapsed * m_fSpeed);
+
+	std::optional<std::pair<bool, XMFLOAT3>>mapCollide;
+	mapCollide = CheckCollisionMap_Stage(nextPosition, myLook, fTimeElapsed);
+
+	if (!mapCollide.has_value()) {
+		nextPosition = currentPosition;
 	}
-	//MyPos = Vector3::Add(MyPos, m_interpolationVector, 6.0f * m_interpolationDistance * fTimeElapsed);
-	SetPosition(MyPos);
+	else {
+		auto characterCollideResult = CheckCollisionCharacterObject(mapCollide.value().second, myLook, mapCollide.value().first, fTimeElapsed);
+		if (characterCollideResult.has_value()) {
+			nextPosition = characterCollideResult.value().second;
+		}
+	}
+
+	if (m_interpolateData->GetInterpolateState() == CharacterEvent::INTERPOLATE_STATE::INTERPOALTE) {
+		auto interpolateData = m_interpolateData->GetInterpolateData();
+		nextPosition = Vector3::Add(nextPosition, interpolateData.second, 10.0f * interpolateData.first * fTimeElapsed);
+	}
+	GameObject::SetPosition(nextPosition);
+
 }
 
 void NormalMonster::SetAnimation()

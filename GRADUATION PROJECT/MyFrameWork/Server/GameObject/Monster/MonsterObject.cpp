@@ -1,35 +1,24 @@
 #include "stdafx.h"
 #include "MonsterObject.h"
+#include "../EventController/CoolDownEventBase.h"
+#include "../EventController/DurationEvent.h"
 
 MonsterObject::MonsterObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, const float& attackDamage, std::shared_ptr<Room>& roomRef)
-	: LiveObject(maxHp, moveSpeed, boundingSize, roomRef), m_attackDamage(attackDamage)
+	: LiveObject(maxHp, moveSpeed, boundingSize, roomRef)
 {
-}
-
-const XMFLOAT3 MonsterObject::GetDestinationPosition() const
-{
-	//return m_destinationPosition;
-	return XMFLOAT3();
+	m_behaviorTimeEventCtrl = std::make_unique<EventController>();
 }
 
 const bool MonsterObject::isReadyFindPlayer()
 {
-	using namespace std;
-	using namespace chrono;
-	auto nowTime = high_resolution_clock::now();
-	auto durationTime = duration_cast<seconds>(nowTime - m_lastFindAggroTime - m_coolTimeFindPlayer).count();
-	if (durationTime < 0) return false;
-	m_lastFindAggroTime = nowTime;
-	return true;
+	auto findPlayerEvent = m_behaviorTimeEventCtrl->GetEventData(FIND_PLAYER);
+	const bool isReady = findPlayerEvent->IsAbleExecute();
+	return isReady;
 }
 
 const bool MonsterObject::isReadyAttack()
 {
-	using namespace std;
-	using namespace chrono;
-	auto nowTime = high_resolution_clock::now();
-	auto durationTime = duration_cast<seconds>(nowTime - m_lastAttackTime - m_coolTimeAttack).count();
-	if (durationTime < 0) return false;
-	m_lastAttackTime = nowTime;
-	return true;
+	auto attackEvent = m_behaviorTimeEventCtrl->GetEventData(ATTACK_PLAYER);
+	const bool isReady = attackEvent->IsAbleExecute();
+	return isReady;
 }

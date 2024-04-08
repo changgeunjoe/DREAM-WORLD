@@ -111,11 +111,8 @@ void NetworkHelper::Destroy()
 
 void NetworkHelper::SendMovePacket(DIRECTION d)
 {
-	CLIENT_PACKET::MovePacket sendPacket(static_cast<unsigned char>(CLIENT_PACKET::TYPE::MOVE_KEY_DOWN));
-	sendPacket.direction = d;
-
 	std::chrono::steady_clock::time_point t = std::chrono::steady_clock::now();
-	sendPacket.time = t + std::chrono::microseconds(g_Logic.GetDiffTime());
+	CLIENT_PACKET::MovePacket sendPacket(d, t + std::chrono::microseconds(g_Logic.GetDiffTime()), static_cast<unsigned char>(CLIENT_PACKET::TYPE::MOVE_KEY_DOWN));
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
@@ -138,7 +135,8 @@ void NetworkHelper::SendRotatePacket(ROTATE_AXIS axis, float angle)
 
 void NetworkHelper::SendKeyUpPacket(DIRECTION d)
 {
-	CLIENT_PACKET::MovePacket sendPacket(static_cast<unsigned char>(CLIENT_PACKET::TYPE::MOVE_KEY_UP));
+	std::chrono::steady_clock::time_point t = std::chrono::steady_clock::now();
+	CLIENT_PACKET::MovePacket sendPacket(d, t + std::chrono::microseconds(g_Logic.GetDiffTime()), static_cast<unsigned char>(CLIENT_PACKET::TYPE::MOVE_KEY_DOWN));
 	sendPacket.direction = d;
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
@@ -171,15 +169,27 @@ void NetworkHelper::Send_SkillInput_E()
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
-void NetworkHelper::Send_SkillExecute_Q(XMFLOAT3& dirOrPosition)
+void NetworkHelper::Send_SkillExecute_Q()
 {
-	CLIENT_PACKET::SkillAttackPacket sendPacket(dirOrPosition, static_cast<unsigned char>(CLIENT_PACKET::TYPE::SKILL_EXECUTE_Q));
+	CLIENT_PACKET::CommonSkillPacket sendPacket(static_cast<unsigned char>(CLIENT_PACKET::TYPE::SKILL_EXECUTE_Q));
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
-void NetworkHelper::Send_SkillExecute_E(const XMFLOAT3& dirOrPosition)
+void NetworkHelper::Send_SkillExecute_Q(XMFLOAT3& floatData)
 {
-	CLIENT_PACKET::SkillAttackPacket sendPacket(dirOrPosition, static_cast<unsigned char>(CLIENT_PACKET::TYPE::SKILL_EXECUTE_E));
+	CLIENT_PACKET::FloatDataSkillPacket sendPacket(static_cast<unsigned char>(CLIENT_PACKET::TYPE::SKILL_FLOAT3_EXECUTE_Q), floatData);
+	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
+}
+
+void NetworkHelper::Send_SkillExecute_E()
+{
+	CLIENT_PACKET::CommonSkillPacket sendPacket(static_cast<unsigned char>(CLIENT_PACKET::TYPE::SKILL_EXECUTE_E));
+	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
+}
+
+void NetworkHelper::Send_SkillExecute_E(const XMFLOAT3& floatData)
+{
+	CLIENT_PACKET::FloatDataSkillPacket sendPacket(static_cast<unsigned char>(CLIENT_PACKET::TYPE::SKILL_EXECUTE_E), floatData);
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
@@ -187,33 +197,6 @@ void NetworkHelper::SendMatchRequestPacket()
 {
 	CLIENT_PACKET::MatchPacket sendPacket(g_Logic.GetMyRole(), static_cast<unsigned char>(CLIENT_PACKET::TYPE::MATCH));
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
-}
-
-void NetworkHelper::SendArrowAttackPacket(const XMFLOAT3& pos, const XMFLOAT3& dir, float speed)
-{
-	//CLIENT_PACKET::ShootingObject sendPacket(static_cast<unsigned char>(CLIENT_PACKET::TYPE::SHOOTING_ARROW));
-	//sendPacket.pos = pos;
-	//sendPacket.dir = dir;
-	//sendPacket.speed = speed;
-	//send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
-}
-
-void NetworkHelper::SendBallAttackPacket(const XMFLOAT3& pos, const XMFLOAT3& dir, float speed)
-{
-	//CLIENT_PACKET::ShootingObject sendPacket(static_cast<unsigned char>(CLIENT_PACKET::TYPE::SHOOTING_BALL));
-	//sendPacket.pos = pos;
-	//sendPacket.dir = dir;
-	//sendPacket.speed = speed;
-	//send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
-}
-
-void NetworkHelper::SendMeleeAttackPacket(const XMFLOAT3& dir)
-{
-	//CLIENT_PACKET::MeleeAttackPacket sendPacket;
-	//sendPacket.size = sizeof(CLIENT_PACKET::MeleeAttackPacket);
-	//sendPacket.type = CLIENT_PACKET::MELEE_ATTACK;
-	//sendPacket.dir = dir;
-	//send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
 void NetworkHelper::SendTestGameEndPacket()
@@ -246,9 +229,15 @@ void NetworkHelper::SendChangeStage_BOSS()
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 
-void NetworkHelper::SendCommonAttackExecute(const XMFLOAT3& attackDirection, int power)
+void NetworkHelper::SendCommonAttackExecute(const XMFLOAT3& attackDirection)
 {
-	CLIENT_PACKET::PlayerCommonAttackPacket sendPacket(attackDirection, power, static_cast<unsigned char>(CLIENT_PACKET::TYPE::PLAYER_COMMON_ATTACK_EXECUTE));
+	CLIENT_PACKET::PlayerCommonAttackPacket sendPacket(attackDirection);
+	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
+}
+
+void NetworkHelper::SendPowerAttackExecute(const XMFLOAT3& attackDirection, int power)
+{
+	CLIENT_PACKET::PlayerPowerAttackPacket sendPacket(attackDirection, power);
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 
 }

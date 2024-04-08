@@ -173,7 +173,7 @@ void Warrior::Attack()
 		case CA_ADDITIONALANIM: attackPower = 2; break;
 		}
 		if (m_pCamera) {
-			g_NetworkHelper.SendCommonAttackExecute(GetLook(), attackPower);//2번째 인자가 몇번째 타수 공격인지
+			g_NetworkHelper.SendPowerAttackExecute(GetLook(), attackPower);//2번째 인자가 몇번째 타수 공격인지
 		}
 	}
 }
@@ -422,7 +422,7 @@ void Tanker::Attack()
 {
 	if (m_pCamera) {
 		g_sound.NoLoopPlay("TankerAttackSound", CalculateDistanceSound() * 0.7);
-		g_NetworkHelper.SendCommonAttackExecute(GetLook(), 0);
+		g_NetworkHelper.SendCommonAttackExecute(GetLook());
 	}
 }
 
@@ -439,7 +439,7 @@ void Tanker::FirstSkillDown()
 		auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[0]);
 		if (m_skillCoolTime[0] > duration) return;
 		g_NetworkHelper.Send_SkillInput_Q();
-		g_NetworkHelper.Send_SkillExecute_Q(XMFLOAT3(0.0, 0.0, 0.0));
+		g_NetworkHelper.Send_SkillExecute_Q();
 		m_skillInputTime[0] = std::chrono::high_resolution_clock::now();
 	}
 	m_currentDirection = DIRECTION::IDLE;

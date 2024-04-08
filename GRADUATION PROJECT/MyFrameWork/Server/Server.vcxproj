@@ -156,8 +156,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="DB\DB.cpp" />
+    <ClCompile Include="GameObject\Character\Archer\ArcherObject.cpp" />
     <ClCompile Include="GameObject\Character\ChracterObject.cpp" />
-    <ClCompile Include="GameObject\Character\SkillController.cpp" />
+    <ClCompile Include="GameObject\Character\Mage\MageObject.cpp" />
+    <ClCompile Include="GameObject\Character\PlayerSkill.cpp" />
+    <ClCompile Include="GameObject\Character\Tanker\TankerObject.cpp" />
+    <ClCompile Include="GameObject\Character\Warrior\WarriorObject.cpp" />
+    <ClCompile Include="GameObject\EventController\CoolDownEventBase.cpp" />
+    <ClCompile Include="GameObject\EventController\DurationEvent.cpp" />
+    <ClCompile Include="GameObject\EventController\EventController.cpp" />
     <ClCompile Include="GameObject\GameObject.cpp" />
     <ClCompile Include="GameObject\Monster\BossMonsterObject.cpp" />
     <ClCompile Include="GameObject\Monster\MonsterObject.cpp" />
@@ -192,6 +199,7 @@
     </ClCompile>
     <ClCompile Include="Room\Room.cpp" />
     <ClCompile Include="Room\RoomEvent.cpp" />
+    <ClCompile Include="Room\TimerRoomEvent.cpp" />
     <ClCompile Include="Room\RoomManager.cpp" />
     <ClCompile Include="ThreadManager\ThreadManager.cpp" />
     <ClCompile Include="Timer\Timer.cpp" />
@@ -199,8 +207,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DB\DB.h" />
+    <ClInclude Include="GameObject\Character\Archer\ArcherObject.h" />
     <ClInclude Include="GameObject\Character\ChracterObject.h" />
-    <ClInclude Include="GameObject\Character\SkillController.h" />
+    <ClInclude Include="GameObject\Character\Mage\MageObject.h" />
+    <ClInclude Include="GameObject\Character\PlayerSkill.h" />
+    <ClInclude Include="GameObject\Character\Tanker\TankerObject.h" />
+    <ClInclude Include="GameObject\Character\Warrior\WarriorObject.h" />
+    <ClInclude Include="GameObject\EventController\CoolDownEventBase.h" />
+    <ClInclude Include="GameObject\EventController\DurationEvent.h" />
+    <ClInclude Include="GameObject\EventController\EventController.h" />
     <ClInclude Include="GameObject\GameObject.h" />
     <ClInclude Include="GameObject\Monster\BossMonsterObject.h" />
     <ClInclude Include="GameObject\Monster\MonsterObject.h" />
@@ -229,6 +244,7 @@
     <ClInclude Include="PCH\stdafx.h" />
     <ClInclude Include="Room\Room.h" />
     <ClInclude Include="Room\RoomEvent.h" />
+    <ClInclude Include="Room\TimerRoomEvent.h" />
     <ClInclude Include="Room\RoomManager.h" />
     <ClInclude Include="SingletonBase.h" />
     <ClInclude Include="ThreadManager\ThreadManager.h" />

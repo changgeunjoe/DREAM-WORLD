@@ -3,14 +3,16 @@
 #include "../Room/Room.h"
 #include "../MapData/MapData.h"
 #include "../MapData/MapCollision/MapCollision.h"
-//#include "ChracterSessionObject.h"
+#include "../EventController/CoolDownEventBase.h"
+#include "../EventController/DurationEvent.h"
+#include "../Room/RoomEvent.h"
 
-CharacterObject::CharacterObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, const float& attackDamage, std::shared_ptr<Room>& roomRef, const std::vector<std::chrono::seconds>& durationTime, const std::vector<std::chrono::seconds>& coolTime)
+CharacterObject::CharacterObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, const float& attackDamage, std::shared_ptr<Room>& roomRef, const ROLE& role)
 	:LiveObject(maxHp, moveSpeed, boundingSize, roomRef), m_currentDirection(static_cast<char>(DIRECTION::IDLE)),
 	m_leftMouseInput(false), m_rightMouseInput(false),
-	m_Shield(0.0f), m_damageRedutionRate(0.0f), m_activeShield(false), m_commonAttackDamage(attackDamage)
+	m_Shield(0.0f), m_activeShield(false), m_commonAttackDamage(attackDamage), m_role(role)
 {
-	m_skillCtrl = std::make_unique<SkillController>(durationTime, coolTime);
+	m_skillCtrl = std::make_unique<EventController>();
 }
 
 void CharacterObject::Update()
@@ -58,12 +60,11 @@ void CharacterObject::RecvRotate(const ROTATE_AXIS& axis, const float& angle)
 
 void CharacterObject::SetShield(const bool& active)
 {
-	constexpr static float MAX_SHIELD = 150.0f;
+	constexpr static float MAX_SHIELD = 200.0f;
 	if (active) {
-		m_activeShield = true;
 		m_Shield = MAX_SHIELD;
-		m_damageRedutionRate = 15.0f;
-		return;;
+		m_activeShield = true;
+		return;
 	}
 	m_activeShield = false;
 }
@@ -73,8 +74,36 @@ const float CharacterObject::GetShield() const
 	return m_Shield;
 }
 
+void CharacterObject::Attacked(const float& damage)
+{
+	float applyDamage = damage;
+	if (m_activeShield) {
+		applyDamage *= REDUCE_DAMAGE_APPLY_RATIO;
+		if (m_Shield - applyDamage < FLT_EPSILON) {
+			applyDamage -= m_Shield;
+			m_Shield = 0.0f;
+		}
+		else {
+			applyDamage = 0.0f;
+			m_Shield -= applyDamage;
+		}
+	}
+	m_hp -= applyDamage;
+	auto damagedEvent = std::make_shared<PlayerDamagedEvent>(m_role, m_hp, m_Shield);
+	m_roomRef->InsertAftrerUpdateEvent(damagedEvent);
+
+	if (m_hp < FLT_EPSILON) {
+		auto dieEvent = std::make_shared<PlayerDieEvent>(m_role);
+		m_roomRef->InsertAftrerUpdateEvent(dieEvent);
+		m_hp = 0.0;
+		m_isAlive = false;
+	}
+}
+
 void CharacterObject::RecvMouseInput(const bool& LmouseInput, const bool& RmouseInput)
 {
+	m_leftMouseInput = LmouseInput;
+	m_rightMouseInput = RmouseInput;
 }
 
 void CharacterObject::UpdateDirection()
@@ -102,7 +131,7 @@ std::optional<const XMFLOAT3>  CharacterObject::UpdateNextPosition(const float& 
 	XMFLOAT3 commonNextPosition = GetCommonNextPosition(elapsedTime);
 
 	//collide함수는 slidingvector가 적용된 위치라면 true를 리턴
-	auto collideWallResult = CollideWall(commonNextPosition, elapsedTime, true);
+	auto collideWallResult = CollideWall(commonNextPosition, elapsedTime, false);
 	if (collideWallResult.has_value()) {
 		auto collideLiveObjectResult = CollideLiveObject(collideWallResult.value().second, elapsedTime, collideWallResult.value().first);
 		if (collideLiveObjectResult.has_value()) {
@@ -134,8 +163,8 @@ std::optional<std::pair<bool, XMFLOAT3>> CharacterObject::CollideWall(const XMFL
 	return std::pair<bool, XMFLOAT3>(true, applySlidingPosition);
 }
 
-MeleeCharacterObject::MeleeCharacterObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, const float& attackDamage, std::shared_ptr<Room>& roomRef, const std::vector<std::chrono::seconds>& durationTime, const std::vector<std::chrono::seconds>& coolTime)
-	:CharacterObject(maxHp, moveSpeed, boundingSize, attackDamage, roomRef, durationTime, coolTime)
+MeleeCharacterObject::MeleeCharacterObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, const float& attackDamage, std::shared_ptr<Room>& roomRef, const ROLE& role)
+	:CharacterObject(maxHp, moveSpeed, boundingSize, attackDamage, roomRef, role)
 {
 }
 
@@ -203,8 +232,8 @@ void MeleeCharacterObject::UpdateDirectionRotate()
 	m_moveVector = GetMoveVector();
 }
 
-RangedCharacterObject::RangedCharacterObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, const float& attackDamage, std::shared_ptr<Room>& roomRef, const std::vector<std::chrono::seconds>& durationTime, const std::vector<std::chrono::seconds>& coolTime)
-	:CharacterObject(maxHp, moveSpeed, boundingSize, attackDamage, roomRef, durationTime, coolTime)
+RangedCharacterObject::RangedCharacterObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, const float& attackDamage, std::shared_ptr<Room>& roomRef, const ROLE& role)
+	:CharacterObject(maxHp, moveSpeed, boundingSize, attackDamage, roomRef, role)
 {
 }
 
@@ -296,101 +325,4 @@ XMFLOAT3 RangedCharacterObject::GetMoveDiagonalVector(const char& type) const
 	if (type & LEFT_BIT)
 		rightVector = Vector3::ScalarProduct(rightVector, -1.0, true);
 	return Vector3::Normalize(Vector3::Add(fowardVector, rightVector));
-}
-
-WarriorObject::WarriorObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, std::shared_ptr<Room>& roomRef, const std::vector<std::chrono::seconds>& durationTime, const std::vector<std::chrono::seconds>& coolTime)
-	:MeleeCharacterObject(maxHp, moveSpeed, boundingSize, 100.0f, roomRef, durationTime, coolTime)
-{
-	m_commonAttackDamage = 100.0f;
-}
-
-void WarriorObject::SetStagePosition(const ROOM_STATE& roomState)
-{
-	if (ROOM_STATE::ROOM_COMMON == roomState)
-		SetPosition(XMFLOAT3(-1290.0f, 0, -1470.0f));
-	else SetPosition(XMFLOAT3(0, 0, -211.0f));
-}
-
-void WarriorObject::RecvSkill_1(const XMFLOAT3& vec3)
-{
-}
-
-void WarriorObject::RecvSkill_2(const XMFLOAT3& vec3)
-{
-}
-
-void WarriorObject::RecvAttackCommand(const XMFLOAT3& attackDir, const int& power)
-{
-}
-
-TankerObject::TankerObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, std::shared_ptr<Room>& roomRef, const std::vector<std::chrono::seconds>& durationTime, const std::vector<std::chrono::seconds>& coolTime)
-	:MeleeCharacterObject(maxHp, moveSpeed, boundingSize, 50.0f, roomRef, durationTime, coolTime)
-{
-}
-
-void TankerObject::SetStagePosition(const ROOM_STATE& roomState)
-{
-	if (ROOM_STATE::ROOM_COMMON == roomState)
-		SetPosition(XMFLOAT3(-1260.3f, 0, -1510.7f));
-	else SetPosition(XMFLOAT3(82, 0, -223.0f));
-}
-
-void TankerObject::RecvSkill_1(const XMFLOAT3& vec3)
-{
-}
-
-void TankerObject::RecvSkill_2(const XMFLOAT3& vec3)
-{
-}
-
-void TankerObject::RecvAttackCommand(const XMFLOAT3& attackDir, const int& power)
-{
-}
-
-MageObject::MageObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, std::shared_ptr<Room>& roomRef, const std::vector<std::chrono::seconds>& durationTime, const std::vector<std::chrono::seconds>& coolTime)
-	:RangedCharacterObject(maxHp, moveSpeed, boundingSize, 80.0f, roomRef, durationTime, coolTime)
-{
-}
-
-void MageObject::SetStagePosition(const ROOM_STATE& roomState)
-{
-	if (ROOM_STATE::ROOM_COMMON == roomState)
-		SetPosition(XMFLOAT3(-1370.45f, 0, -1450.89f));
-	else SetPosition(XMFLOAT3(20, 0, -285));
-}
-
-void MageObject::RecvSkill_1(const XMFLOAT3& vec3)
-{
-}
-
-void MageObject::RecvSkill_2(const XMFLOAT3& vec3)
-{
-}
-
-void MageObject::RecvAttackCommand(const XMFLOAT3& attackDir, const int& power)
-{
-}
-
-ArcherObject::ArcherObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, std::shared_ptr<Room>& roomRef, const std::vector<std::chrono::seconds>& durationTime, const std::vector<std::chrono::seconds>& coolTime)
-	:RangedCharacterObject(maxHp, moveSpeed, boundingSize, 80.0f, roomRef, durationTime, coolTime)
-{
-}
-
-void ArcherObject::SetStagePosition(const ROOM_STATE& roomState)
-{
-	if (ROOM_STATE::ROOM_COMMON == roomState)
-		SetPosition(XMFLOAT3(-1340.84f, 0, -1520.93f));
-	else SetPosition(XMFLOAT3(123, 0, -293));
-}
-
-void ArcherObject::RecvSkill_1(const XMFLOAT3& vec3)
-{
-}
-
-void ArcherObject::RecvSkill_2(const XMFLOAT3& vec3)
-{
-}
-
-void ArcherObject::RecvAttackCommand(const XMFLOAT3& attackDir, const int& power)
-{
 }

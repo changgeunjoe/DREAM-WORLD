@@ -117,7 +117,7 @@ void GameObject::SetLook(const XMFLOAT3& lookVector)
 }
 
 LiveObject::LiveObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, std::shared_ptr<Room>& roomRef)
-	:m_maxHp(maxHp), m_hp(maxHp), m_moveSpeed(moveSpeed), GameObject(moveSpeed, boundingSize, roomRef), m_moveVector(0, 0, 1)
+	:m_maxHp(maxHp), m_hp(maxHp), m_moveSpeed(moveSpeed), GameObject(moveSpeed, boundingSize, roomRef), m_moveVector(0, 0, 1), m_isAlive(true)
 {
 }
 
@@ -126,6 +126,7 @@ void LiveObject::Attacked(const float& damage)
 	m_hp -= damage;
 	if (m_hp <= 0) {
 		m_hp = 0;
+		m_isAlive = false;
 	}
 }
 

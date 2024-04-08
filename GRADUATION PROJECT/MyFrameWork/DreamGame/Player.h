@@ -7,12 +7,12 @@ public:
 	Player(ROLE r);
 	~Player();
 protected:
-	XMFLOAT3	m_xmf3RotateAxis;	// XMFLOAT3(0, 0, 1)로부터 회전한 각도	
-	bool		m_bQSkillClicked = false;
-	bool		m_bESkillClicked = false;
-	bool		m_bShieldActive = false;
-	float		m_fShield = false;
-	bool		m_bCanAttack = true;
+	XMFLOAT3		m_xmf3RotateAxis;	// XMFLOAT3(0, 0, 1)로부터 회전한 각도	
+	bool			m_bQSkillClicked = false;
+	bool			m_bESkillClicked = false;
+	bool			m_bShieldActive = false;
+	atomic<float>	m_fShield = false;
+	bool			m_bCanAttack = true;
 
 protected:
 	std::array<std::chrono::seconds, 2> m_skillDuration;

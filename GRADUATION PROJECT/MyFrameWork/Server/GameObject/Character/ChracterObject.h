@@ -2,12 +2,22 @@
 #pragma once
 #include "../../PCH/stdafx.h"
 #include "../GameObject.h"
-#include "SkillController.h"
+#include "../EventController/EventController.h"
 
 //User 플레이 캐릭터
 class CharacterObject : public LiveObject
 {
+public:
+	enum SKILL_TYPE
+	{
+		SKILL_TYPE_Q,
+		SKILL_TYPE_E
+	};
+protected:
+	static constexpr std::string_view SKILL_Q = "SKILL_Q";
+	static constexpr std::string_view SKILL_E = "SKILL_E";
 private:
+	static constexpr float REDUCE_DAMAGE_APPLY_RATIO = 85.0f / 100.0f;
 	struct UodateAngle {
 		std::atomic<float> applyAngle;
 		float currentAngle;
@@ -44,7 +54,7 @@ protected:
 	constexpr static char IDLE_BIT = static_cast<char>(DIRECTION::IDLE);
 public:
 	CharacterObject() = delete;
-	CharacterObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, const float& attackDamage, std::shared_ptr<Room>& roomRef, const std::vector<std::chrono::seconds>& durationTime, const std::vector<std::chrono::seconds>& coolTime);
+	CharacterObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, const float& attackDamage, std::shared_ptr<Room>& roomRef, const ROLE& role);
 	~CharacterObject() = default;
 
 	virtual void Update() override;
@@ -54,20 +64,24 @@ public:
 	void RecvRotate(const ROTATE_AXIS& axis, const float& angle);
 	void RecvMouseInput(const bool& LmouseInput, const bool& RmouseInput);
 
-	virtual void RecvSkill_1(const XMFLOAT3& vec3) = 0;
-	virtual void RecvSkill_2(const XMFLOAT3& vec3) = 0;
-	virtual void RecvAttackCommand(const XMFLOAT3& attackDir, const int& power) = 0;
+	virtual void RecvSkill(const SKILL_TYPE&) = 0;
+	virtual void RecvSkill(const SKILL_TYPE&, const XMFLOAT3& vector3) = 0;
+	virtual void RecvAttackCommon(const XMFLOAT3& attackDir, const int& power = 0) = 0;
 
 	void SetShield(const bool& active);
 	const float GetShield() const;
 
+	virtual void Attacked(const float& damage) override;
 	const float GetAttackDamage() const
 	{
 		return m_commonAttackDamage;
 	}
 
 	virtual void SetStagePosition(const ROOM_STATE& roomState) = 0;
-
+	const ROLE& GetRole() const
+	{
+		return m_role;
+	}
 protected:
 	void UpdateDirection();
 	virtual void UpdateRotate();
@@ -93,18 +107,18 @@ protected:
 	//쉴드 적용 정보
 	std::atomic_bool	m_activeShield;
 	float				m_Shield = 0.0f;
-	float				m_damageRedutionRate = 0.0f;
 
 	float m_commonAttackDamage = 10.0f;
 
+	ROLE m_role;
 	//Skill Contoller
-	std::unique_ptr<SkillController> m_skillCtrl;
+	std::unique_ptr<EventController> m_skillCtrl;
 };
 
 class MeleeCharacterObject : public CharacterObject
 {
 public:
-	MeleeCharacterObject(const float& maxHp, const float& moveSpeed, const float& attackDamage, const float& boundingSize, std::shared_ptr<Room>& roomRef, const std::vector<std::chrono::seconds>& durationTime, const std::vector<std::chrono::seconds>& coolTime);
+	MeleeCharacterObject(const float& maxHp, const float& moveSpeed, const float& attackDamage, const float& boundingSize, std::shared_ptr<Room>& roomRef, const ROLE& role);
 protected:
 	virtual const XMFLOAT3 GetCommonNextPosition(const float& elapsedTime) override;
 	virtual const XMFLOAT3 GetMoveVector() const override;
@@ -119,7 +133,7 @@ protected:
 class RangedCharacterObject : public CharacterObject
 {
 public:
-	RangedCharacterObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, const float& attackDamage, std::shared_ptr<Room>& roomRef, const std::vector<std::chrono::seconds>& durationTime, const std::vector<std::chrono::seconds>& coolTime);
+	RangedCharacterObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, const float& attackDamage, std::shared_ptr<Room>& roomRef, const ROLE& role);
 
 	virtual void Update() override;
 protected:
@@ -130,93 +144,4 @@ private:
 	XMFLOAT3 GetMoveFowardVector(const char& type) const;//1 - f // -1 - b
 	XMFLOAT3 GetMoveRightVector(const char& type) const; //1 - r // -1 - l
 	XMFLOAT3 GetMoveDiagonalVector(const char& type) const;
-};
-
-class WarriorObject : public MeleeCharacterObject
-{
-public:
-	WarriorObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, std::shared_ptr<Room>& roomRef, const std::vector<std::chrono::seconds>& durationTime, const std::vector<std::chrono::seconds>& coolTime);
-	/*	:CharacterObject(ROLE::WARRIOR)
-	{
-		m_skillCoolTime = { std::chrono::seconds(7), std::chrono::seconds(0) };
-		m_skillDuration = { std::chrono::seconds(0), std::chrono::seconds(0) };
-		m_prevSkillInputTime = { std::chrono::high_resolution_clock::now() - m_skillCoolTime[0],
-			std::chrono::high_resolution_clock::now() - m_skillCoolTime[1] };
-		m_CommonAttackCoolTime = std::chrono::seconds(1);
-		m_prevCommonAttackTime = std::chrono::high_resolution_clock::now() - m_CommonAttackCoolTime;
-		SetStage_1Position();
-	}*/
-	~WarriorObject() = default;
-public:
-	virtual void SetStagePosition(const ROOM_STATE& roomState)override;
-
-	virtual void RecvSkill_1(const XMFLOAT3& vec3) override;
-	virtual void RecvSkill_2(const XMFLOAT3& vec3) override;
-	virtual void RecvAttackCommand(const XMFLOAT3& attackDir, const int& power) override;
-};
-
-class TankerObject : public MeleeCharacterObject
-{
-public:
-	TankerObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, std::shared_ptr<Room>& roomRef, const std::vector<std::chrono::seconds>& durationTime, const std::vector<std::chrono::seconds>& coolTime);
-	/*{
-		m_skillCoolTime = { std::chrono::seconds(15), std::chrono::seconds(10) };
-		m_skillDuration = { std::chrono::seconds(7), std::chrono::seconds(0) };
-		m_prevSkillInputTime = { std::chrono::high_resolution_clock::now() - m_skillCoolTime[0],
-			std::chrono::high_resolution_clock::now() - m_skillCoolTime[1] };
-		m_CommonAttackCoolTime = std::chrono::seconds(1);
-		m_prevCommonAttackTime = std::chrono::high_resolution_clock::now() - m_CommonAttackCoolTime;
-		SetStage_1Position();
-	}*/
-	~TankerObject() = default;
-public:
-	virtual void SetStagePosition(const ROOM_STATE& roomState)override;
-
-	virtual void RecvSkill_1(const XMFLOAT3& vec3) override;
-	virtual void RecvSkill_2(const XMFLOAT3& vec3) override;
-	virtual void RecvAttackCommand(const XMFLOAT3& attackDir, const int& power) override;
-};
-
-class MageObject : public RangedCharacterObject
-{
-public:
-	MageObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, std::shared_ptr<Room>& roomRef, const std::vector<std::chrono::seconds>& durationTime, const std::vector<std::chrono::seconds>& coolTime);
-	/*{
-		m_skillCoolTime = { std::chrono::seconds(15), std::chrono::seconds(10) };
-		m_skillDuration = { std::chrono::seconds(10), std::chrono::seconds(0) };
-		m_prevSkillInputTime = { std::chrono::high_resolution_clock::now() - m_skillCoolTime[0],
-			std::chrono::high_resolution_clock::now() - m_skillCoolTime[1] };
-		m_CommonAttackCoolTime = std::chrono::seconds(1);
-		m_prevCommonAttackTime = std::chrono::high_resolution_clock::now() - m_CommonAttackCoolTime;
-		SetStage_1Position();
-	}*/
-	~MageObject() = default;
-public:
-	virtual void SetStagePosition(const ROOM_STATE& roomState)override;
-
-	virtual void RecvSkill_1(const XMFLOAT3& vec3) override;
-	virtual void RecvSkill_2(const XMFLOAT3& vec3) override;
-	virtual void RecvAttackCommand(const XMFLOAT3& attackDir, const int& power) override;
-};
-
-class ArcherObject : public RangedCharacterObject
-{
-public:
-	ArcherObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, std::shared_ptr<Room>& roomRef, const std::vector<std::chrono::seconds>& durationTime, const std::vector<std::chrono::seconds>& coolTime);
-	/*{
-		m_skillCoolTime = { std::chrono::seconds(10), std::chrono::seconds(15) };
-		m_skillDuration = { std::chrono::seconds(0), std::chrono::seconds(0) };
-		m_prevSkillInputTime = { std::chrono::high_resolution_clock::now() - m_skillCoolTime[0],
-			std::chrono::high_resolution_clock::now() - m_skillCoolTime[1] };
-		m_CommonAttackCoolTime = std::chrono::seconds(1);
-		m_prevCommonAttackTime = std::chrono::high_resolution_clock::now() - m_CommonAttackCoolTime;
-		SetStage_1Position();
-	}*/
-	~ArcherObject() = default;
-public:
-	virtual void SetStagePosition(const ROOM_STATE& roomState)override;
-
-	virtual void RecvSkill_1(const XMFLOAT3& vec3) override;
-	virtual void RecvSkill_2(const XMFLOAT3& vec3) override;
-	virtual void RecvAttackCommand(const XMFLOAT3& attackDir, const int& power) override;
 };

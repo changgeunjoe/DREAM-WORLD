@@ -1,8 +1,15 @@
 #pragma once
 #include "../../PCH/stdafx.h"
 #include "../GameObject.h"
+#include "../EventController/EventController.h"
 
-class MonsterObject : public LiveObject {
+class CharacterObject;
+class MonsterObject : public LiveObject
+{
+protected:
+	static constexpr std::string_view FIND_PLAYER = "FIND_PLAYER";
+	static constexpr std::string_view ATTACK_PLAYER = "ATTACK_PLAYER";
+
 public:
 	MonsterObject() = delete;
 	MonsterObject(const float& maxHp, const float& attackDamage, const float& moveSpeed, const float& boundingSize, std::shared_ptr<Room>& roomRef);
@@ -11,21 +18,15 @@ public:
 protected:
 	//void StartMove();
 	//void StopMove();
-
-	void SetDestination(const XMFLOAT3& destinationPosition);
-	const XMFLOAT3 GetDestinationPosition() const;
 	const bool isReadyFindPlayer();
-	virtual std::optional<std::shared_ptr<GameObject>> GetAggroCharacter() = 0;
+
+	virtual std::shared_ptr<CharacterObject> FindAggroCharacter() = 0;
+
 	const bool isReadyAttack();
-	virtual const bool isAbleAttackRange() = 0;
-	virtual void Attack(std::shared_ptr<LiveObject>& attackedCharacter) = 0;
-private:
-	float m_attackDamage = 10.0f;
-	std::chrono::high_resolution_clock::time_point m_lastAttackTime;
-	std::chrono::high_resolution_clock::time_point m_lastFindAggroTime;
+	//virtual const bool isAbleAttackRange() = 0;
+	virtual void Attack() = 0;
 
-	std::chrono::seconds m_coolTimeFindPlayer;
-	std::chrono::seconds m_coolTimeAttack;
-
+protected:
+	std::unique_ptr<EventController> m_behaviorTimeEventCtrl;
 	std::atomic_bool m_isMove;
 };

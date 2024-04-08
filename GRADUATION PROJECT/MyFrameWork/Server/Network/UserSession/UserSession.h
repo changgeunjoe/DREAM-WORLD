@@ -5,6 +5,7 @@
 //UserSession -> recvEvent객체
 class ExpOver;
 class Room;
+class CharacterObject;
 struct PacketHeader;
 //recv, DB(weak_ptr), Room객체 예정
 class UserSession :public IOCP::EventBase
@@ -61,7 +62,7 @@ public:
 		return m_role;
 	}
 
-	void SetRoomRef(std::shared_ptr<Room>& roomRef);
+	void SetIngameRef(std::shared_ptr<Room>& roomRef, std::shared_ptr<CharacterObject>& characterRef);
 
 private:
 	void DoRecv(ExpOver*& over);
@@ -80,5 +81,6 @@ protected:
 	std::wstring m_playerName;
 
 	std::weak_ptr<Room> m_roomWeakRef;//Room이 삭제 됐다면, 플레이어는 방에서 나오게
+	std::weak_ptr<CharacterObject> m_possessCharacter;//Room에서 플레이하고 있는 캐릭터
 	ROLE m_role;
 };

@@ -34,6 +34,8 @@ protected:
 	virtual std::optional<std::pair<bool, XMFLOAT3>> CheckCollisionCharacterObject(const XMFLOAT3& nextPosition, const XMFLOAT3& moveVector, const bool& isApplySlidingVector, float ftimeElapsed = 0.01768f);
 	std::optional < std::pair<bool, XMFLOAT3>> CheckCollisionBoss(const XMFLOAT3& nextPosition, const XMFLOAT3& moveVector, float ftimeElapsed = 0.01768f);
 
+	const std::pair<float, float> GetAggroBetweenAngle(const XMFLOAT3& position);
+
 	void UpdateInterpolateData();
 	bool CheckAnimationEnd(int nAnimation);
 public:

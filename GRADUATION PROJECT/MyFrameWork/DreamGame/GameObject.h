@@ -331,7 +331,7 @@ protected:
 	atomic_bool                     m_bMoveState = false;
 
 protected:
-	float                           m_fHp{ 100 };//캐릭터 현재 체력
+	atomic<float>                   m_fHp{ 100 };//캐릭터 현재 체력
 	float                           m_fMaxHp{ 100 };//캐릭터 최대 체력
 	float                           m_fTempHp{ 100 };//캐릭터 최대 체력 - recv는 fHp에서 하고, tempHp는 클라에 이펙트 적용할 때 쓰는듯
 	float							m_fShield{ 0};

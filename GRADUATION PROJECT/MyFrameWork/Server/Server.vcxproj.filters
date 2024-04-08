@@ -85,6 +85,9 @@
     <Filter Include="ThreadManager">
       <UniqueIdentifier>{6b7867fe-0028-450a-9f76-5ae24b5c710f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="InGame\EventController">
+      <UniqueIdentifier>{e628f111-77cb-42ba-ab33-4a374f5f9688}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PCH\stdafx.cpp">
@@ -166,7 +169,7 @@
     <ClCompile Include="Timer\TimerEventBase.cpp">
       <Filter>Timer\TimerEvent</Filter>
     </ClCompile>
-    <ClCompile Include="Room\RoomEvent.cpp">
+    <ClCompile Include="Room\TimerRoomEvent.cpp">
       <Filter>InGame\Room\RoomEvent</Filter>
     </ClCompile>
     <ClCompile Include="Match\MatchQueue.cpp">
@@ -174,9 +177,6 @@
     </ClCompile>
     <ClCompile Include="Match\Matching.cpp">
       <Filter>InGame\Match</Filter>
-    </ClCompile>
-    <ClCompile Include="GameObject\Character\SkillController.cpp">
-      <Filter>InGame\GameObject\Character</Filter>
     </ClCompile>
     <ClCompile Include="ThreadManager\ThreadManager.cpp">
       <Filter>ThreadManager</Filter>
@@ -186,6 +186,33 @@
     </ClCompile>
     <ClCompile Include="Network\UserSession\UserSession.cpp">
       <Filter>Network\UserSession</Filter>
+    </ClCompile>
+    <ClCompile Include="Room\RoomEvent.cpp">
+      <Filter>InGame\Room\RoomEvent</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject\EventController\CoolDownEventBase.cpp">
+      <Filter>InGame\EventController</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject\EventController\DurationEvent.cpp">
+      <Filter>InGame\EventController</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject\EventController\EventController.cpp">
+      <Filter>InGame\EventController</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject\Character\PlayerSkill.cpp">
+      <Filter>InGame\EventController</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject\Character\Archer\ArcherObject.cpp">
+      <Filter>InGame\GameObject\Character</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject\Character\Mage\MageObject.cpp">
+      <Filter>InGame\GameObject\Character</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject\Character\Tanker\TankerObject.cpp">
+      <Filter>InGame\GameObject\Character</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject\Character\Warrior\WarriorObject.cpp">
+      <Filter>InGame\GameObject\Character</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -274,7 +301,7 @@
     <ClInclude Include="Timer\TimerEventBase.h">
       <Filter>Timer\TimerEvent</Filter>
     </ClInclude>
-    <ClInclude Include="Room\RoomEvent.h">
+    <ClInclude Include="Room\TimerRoomEvent.h">
       <Filter>InGame\Room\RoomEvent</Filter>
     </ClInclude>
     <ClInclude Include="Match\MatchQueue.h">
@@ -282,9 +309,6 @@
     </ClInclude>
     <ClInclude Include="Match\Matching.h">
       <Filter>InGame\Match</Filter>
-    </ClInclude>
-    <ClInclude Include="GameObject\Character\SkillController.h">
-      <Filter>InGame\GameObject\Character</Filter>
     </ClInclude>
     <ClInclude Include="ThreadManager\ThreadManager.h">
       <Filter>ThreadManager</Filter>
@@ -294,6 +318,33 @@
     </ClInclude>
     <ClInclude Include="Network\UserSession\UserSession.h">
       <Filter>Network\UserSession</Filter>
+    </ClInclude>
+    <ClInclude Include="Room\RoomEvent.h">
+      <Filter>InGame\Room\RoomEvent</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject\EventController\CoolDownEventBase.h">
+      <Filter>InGame\EventController</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject\EventController\DurationEvent.h">
+      <Filter>InGame\EventController</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject\EventController\EventController.h">
+      <Filter>InGame\EventController</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject\Character\PlayerSkill.h">
+      <Filter>InGame\EventController</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject\Character\Archer\ArcherObject.h">
+      <Filter>InGame\GameObject\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject\Character\Mage\MageObject.h">
+      <Filter>InGame\GameObject\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject\Character\Tanker\TankerObject.h">
+      <Filter>InGame\GameObject\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject\Character\Warrior\WarriorObject.h">
+      <Filter>InGame\GameObject\Character</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

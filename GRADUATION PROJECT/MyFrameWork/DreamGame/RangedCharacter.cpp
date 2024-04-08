@@ -117,7 +117,7 @@ void Archer::Attack()
 		//줌인에 대한 정보 필요할듯함
 
 		int power = 0;//줌인 정보
-		g_NetworkHelper.SendCommonAttackExecute(GetLook(), power);//두번째 인자 - 줌인 정도
+		//g_NetworkHelper.SendCommonAttackExecute(GetLook(), power);//두번째 인자 - 줌인 정도
 	}
 }
 
@@ -462,7 +462,7 @@ void Archer::ShootArrow()//스킬
 				break;
 			}
 			if (g_Logic.GetMyRole() == ROLE::ARCHER)
-				g_NetworkHelper.SendCommonAttackExecute(m_ppProjectiles[m_nProjectiles]->m_xmf3direction, arrowPower);
+				g_NetworkHelper.SendPowerAttackExecute(m_ppProjectiles[m_nProjectiles]->m_xmf3direction, arrowPower);
 			m_nProjectiles++;
 		}
 		m_bZoomInState = false;
@@ -703,7 +703,7 @@ void Mage::Attack()
 	if (xmf3LanceDirection.y < 0.0f) xmf3LanceDirection.y = 0.0f;
 
 	if (g_Logic.GetMyRole() == ROLE::MAGE)
-		g_NetworkHelper.SendCommonAttackExecute(xmf3LanceDirection, 0);
+		g_NetworkHelper.SendCommonAttackExecute(xmf3LanceDirection);
 
 	m_ppProjectiles[m_nProjectiles]->m_xmf3direction = xmf3LanceDirection;
 	m_ppProjectiles[m_nProjectiles]->m_xmf3startPosition = xmf3LanceStartPosition;
@@ -753,7 +753,7 @@ void Mage::FirstSkillDown()
 		auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[0]);
 		if (m_skillCoolTime[0] > duration) return;
 		g_NetworkHelper.Send_SkillInput_Q();
-		g_NetworkHelper.Send_SkillExecute_Q(XMFLOAT3(0.0, 0.0, 0.0));
+		g_NetworkHelper.Send_SkillExecute_Q();
 		m_skillInputTime[0] = std::chrono::high_resolution_clock::now();
 	}
 	m_bQSkillClicked = true;

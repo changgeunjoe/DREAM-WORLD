@@ -10,6 +10,8 @@ class LiveObject;
 class CharacterObject;
 class BossMonsterObject;
 class SmallMonsterObject;
+class RoomSendEvent;
+class PrevUpdateEvent;
 namespace IOCP {
 	class Iocp;
 }
@@ -36,20 +38,14 @@ public:
 	std::vector<std::shared_ptr<LiveObject>> GetLiveObjects() const;
 
 	std::shared_ptr<MapData> GetMapData() const;
+	void RecvSkill_QInput(const ROLE& role, const XMFLOAT3& vector3);
+	void RecvSkill_EInput(const ROLE& role, const XMFLOAT3& vector3);
 
-	//void CharacterAttack(const ROLE& role);
-	void RecvCharacterMove(const ROLE& role, const DIRECTION& direction, const bool& apply);
-	void RecvCharacterStop(const ROLE& role);
-	void RecvCharacterRotate(const ROLE& role, const ROTATE_AXIS& axis, const float& angle);
-	void RecvMouseInput(const ROLE& role, const bool& left, const bool& right);
+	void RecvSkill_QExecute(const ROLE& role);
+	void RecvSkill_EExecute(const ROLE& role);
 
-private:
-	void InsertEvent(const TIMER_EVENT_TYPE& eventType, const std::chrono::milliseconds& updateTick = std::chrono::milliseconds(50));
-	void Update();
-	void UpdateGameState();
-	void GameStateSend();
-
-	std::vector<std::shared_ptr<UserSession>> GetAllUserSessions();
+	void InsertAftrerUpdateEvent(std::shared_ptr<RoomSendEvent> roomEvent);
+	void InsertPrevUpdateEvent(std::shared_ptr<PrevUpdateEvent> prevUpdate);
 
 	void BroadCastPacket(const PacketHeader* packetData);
 	void BroadCastPacket(std::shared_ptr<PacketHeader>& packetData);
@@ -59,11 +55,28 @@ private:
 	void MultiCastCastPacket(std::shared_ptr<PacketHeader>& packetData, const ROLE& exclusiveRoles);
 	void MultiCastCastPacket(std::shared_ptr<PacketHeader>& packetData, const std::vector<ROLE>& exclusiveRoles);
 
+	std::shared_ptr<CharacterObject> GetCharacterObject(const ROLE& role);
+
+	void InitializeAllGameObject();
+
+private:
+
+	void ProcessAfterUpdateEvent();
+	void ProcessPrevUpdateEvent();
+	void InsertTimerEvent(const TIMER_EVENT_TYPE& eventType, const std::chrono::milliseconds& updateTick = std::chrono::milliseconds(50));
+	void Update();
+	void UpdateGameState();
+	void GameStateSend();
+
+	std::vector<std::shared_ptr<UserSession>> GetAllUserSessions();
+
+
 	void SetGameStatePlayer_Stage();
 	void SetGameStatePlayer_Boss();
 	void SetGameStateMonsters();
 	void SetGameStateBoss();
-	void InitializeAllGameObject();
+
+	void ProccessSmallMonsterEvent();
 private:
 	ROOM_STATE m_roomState = ROOM_STATE::ROOM_COMMON;
 	int m_updateCnt;
@@ -81,6 +94,7 @@ private:
 	//Update를 위한 모든 게임 오브젝트를 담는 vector
 
 	std::vector<std::shared_ptr<SmallMonsterObject>> m_smallMonsters;
+
 	//std::shared_ptr<BossMonsterObject> m_bossMonster;
 
 	std::vector<std::shared_ptr<GameObject>> m_allGameObjects;
@@ -96,6 +110,11 @@ private:
 	//std::array<10, ShootingObject> m_energyBall;
 	std::shared_ptr<MonsterMapData> m_stageMapData;
 	std::shared_ptr<NavMapData> m_bossMapData;
+
+	tbb::concurrent_queue<std::shared_ptr<RoomSendEvent>> m_afterUpdateSendEvent;
+	std::atomic_int m_afterUpdateEventCnt = 0;
+	tbb::concurrent_queue<std::shared_ptr<PrevUpdateEvent>> m_prevUpdateEvent;
+	std::atomic_int m_prevUpdateEventCnt = 0;
 };
 
 

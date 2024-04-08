@@ -15,7 +15,8 @@ void Matching::InserMatch(std::shared_ptr<UserSession>& userRef, const ROLE& rol
 	spdlog::debug("Matching::InserMatch() - Alone Test Mode");
 	userRef->SetRole(role);
 	auto roomRef = RoomManager::GetInstance().MakeRunningRoomAloneMode(userRef);
-	userRef->SetRoomRef(roomRef);
+	roomRef->InitializeAllGameObject();
+	userRef->SetIngameRef(roomRef, roomRef->GetCharacterObject(role));
 	roomRef->Start();
 #else
 	switch (role)
@@ -156,13 +157,14 @@ void Matching::MatchFunc()
 			}
 
 			auto roomRef = RoomManager::GetInstance().MakeRunningRoom(userRefVec);
-			
-			for (auto& userRef : userRefVec)
-				userRef->SetRoomRef(roomRef);
+			roomRef->InitializeAllGameObject();
+			for (auto& userRef : userRefVec) {
+				userRef->SetIngameRef(roomRef, roomRef->GetCharacterObject(userRef->GetRole()));
+			}
 			roomRef->Start();
 
 			userRefVec.clear();
-	}
+		}
 		continue;
 #endif // TEST_MODE_PEOPLE
 
@@ -176,7 +178,7 @@ void Matching::MatchFunc()
 
 			auto roomRef = RoomManager::GetInstance().MakeRunningRoom(userRefVec);
 			for (auto& userRef : userRefVec)
-				userRef->SetRoomRef(roomRef);
+				userRef->SetIngameRef(roomRef, roomRef->GetCharacterObject(userRef->GetRole()));
 			roomRef->Start();
 			m_lastWarriorUser.reset();
 			m_lastMageUser.reset();
@@ -191,7 +193,7 @@ void Matching::MatchFunc()
 			m_lastArcherUser = archerUserRef;
 			userRefVec.clear();
 		}
-}
+	}
 }
 
 void Matching::StartMatching()

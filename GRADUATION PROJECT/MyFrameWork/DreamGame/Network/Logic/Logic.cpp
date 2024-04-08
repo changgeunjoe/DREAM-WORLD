@@ -189,11 +189,16 @@ void Logic::ProcessPacket(const PacketHeader* packetHeader)
 		auto normalMonsterObj = gGameFramework.GetScene()->GetObjectManager()->GetNormalMonsterArr();
 		GameObject* possessObj = gGameFramework.GetScene()->m_pObjectManager->GetChracterInfo(recvPacket->role);
 		for (int i = 0; i < 15; ++i) {
+			if (i > 0) {
+				normalMonsterObj[i]->SetAliveState(false);
+				continue;
+			}
 			normalMonsterObj[recvPacket->monsterData[i].id]->SetLook(recvPacket->monsterData[i].lookVector);
 			normalMonsterObj[recvPacket->monsterData[i].id]->SetPosition(recvPacket->monsterData[i].position);
 			normalMonsterObj[recvPacket->monsterData[i].id]->SetMaxHP(recvPacket->monsterData[i].maxHp);
 			normalMonsterObj[recvPacket->monsterData[i].id]->SetCurrentHP(100.0f);
 			normalMonsterObj[recvPacket->monsterData[i].id]->SetTempHp(100.0f);
+			//break;
 		}
 		gGameFramework.GetScene()->GetObjectManager()->SetPlayerCamera(possessObj);
 		gGameFramework.m_bLobbyScene = false;
@@ -248,7 +253,7 @@ void Logic::ProcessPacket(const PacketHeader* packetHeader)
 		//Player Session		
 		for (int i = 0; i < 4; i++) {
 			if (recvPacket->userState[i].role != ROLE::NONE_SELECT) {
-				Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->userState[i].role);
+				Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo(recvPacket->userState[i].role);
 				float maxHp = possessObj->GetMaxHP();
 				possessObj->SetCurrentHP(recvPacket->userState[i].hp / maxHp * 100.0f);
 				possessObj->SetInterpolateData(recvPacket->userState[i].time, recvPacket->userState[i].position);;
@@ -259,57 +264,48 @@ void Logic::ProcessPacket(const PacketHeader* packetHeader)
 		for (int i = 0; i < 15; i++) {
 			int monsterIdx = recvPacket->smallMonster[i].idx;
 			smallMonsterArr[monsterIdx]->SetAliveState(recvPacket->smallMonster[monsterIdx].isAlive);
-			smallMonsterArr[monsterIdx]->SetInterpolateData(recvPacket->userState[monsterIdx].time, recvPacket->userState[monsterIdx].position);
 			float maxHp = smallMonsterArr[monsterIdx]->GetMaxHP();
 			smallMonsterArr[monsterIdx]->SetCurrentHP(recvPacket->smallMonster[monsterIdx].hp / maxHp * 100.0f);
-
+			smallMonsterArr[monsterIdx]->SetInterpolateData(recvPacket->smallMonster[monsterIdx].time, recvPacket->smallMonster[monsterIdx].position);
+			break;
 		}
 	}
 	break;
-	//case SERVER_PACKET::TYPE::SMALL_MONSTER_MOVE:
-	//{
-	//	const SERVER_PACKET::SmallMonsterMovePacket* recvPacket = reinterpret_cast<const SERVER_PACKET::SmallMonsterMovePacket*>(packetHeader);
-	//	NormalMonster** smallMonsterArr = gGameFramework.GetScene()->GetObjectManager()->GetNormalMonsterArr();
-	//	for (int i = 0; i < 15; i++) {
-	//		smallMonsterArr[i]->SetDesPos(recvPacket->desPositions[i]);
-	//		if (smallMonsterArr[i]->GetCurrentHP() < 0.0f) {
-	//		}
-	//	}
-	//}
-	//break;
-	//case SERVER_PACKET::TYPE::GAME_STATE_B:
-	//{
-	//	//std::cout << "ProcessPacket()::const SERVER_PACKET::GAME_STATE" << std::endl;
-	//	const SERVER_PACKET::GameState_BOSS* recvPacket = reinterpret_cast<const SERVER_PACKET::GameState_BOSS*>(packetHeader);
-	//	Monster* bossMonster = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster();
-	//	float fMaxHp = bossMonster->GetMaxHP();
 
-	//	bossMonster->m_UIScale = static_cast<float>(recvPacket->bossState.hp) / fMaxHp * 100.0f;//maxHp 2500입니다
-	//	bossMonster->SetCurrentHP(static_cast<float>(recvPacket->bossState.hp) / fMaxHp * 100.0f);//maxHp 2500입니다
-	//	if (recvPacket->bossState.hp == 6500)
-	//		bossMonster->SetTempHp(recvPacket->bossState.hp / fMaxHp * 100.0f);
+	case SERVER_PACKET::TYPE::SMALL_MONSTER_ATTACK:
+	{
+		const SERVER_PACKET::SmallMonsterAttackPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::SmallMonsterAttackPacket*>(packetHeader);
+		NormalMonster** smallMonsterArr = gGameFramework.GetScene()->GetObjectManager()->GetNormalMonsterArr();
+		smallMonsterArr[recvPacket->id]->SetOnAttack(true);
+		Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo(recvPacket->role);
+		float maxHp = possessObj->GetMaxHP();
+		possessObj->SetCurrentHP(recvPacket->hp / maxHp * 100.0f);
 
-	//	//bossMonster->m_desDirecionVec = recvPacket->bossState.moveVec;
-	//	//bossMonster->m_serverDesDirecionVec = recvPacket->bossState.desVec;
-
-	//	if (bossMonster->GetCurrentHP() < FLT_EPSILON)
-	//	{
-	//		GameEnd = true;
-	//		break;
-	//	}
-	//	bossMonster->InterpolateMove(recvPacket->time, recvPacket->bossState.pos, recvPacket->bossState.moveVec);
-	//	//Player Session
-	//	for (int i = 0; i < 4; i++) {//그냥 4개 여서 도는 for문 주의			
-	//		if (recvPacket->userState[i].role != ROLE::NONE_SELECT) {
-	//			Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->userState[i].role);
-	//			float maxHp = possessObj->GetMaxHP();
-	//			possessObj->SetCurrentHP(recvPacket->userState[i].hp / maxHp * 100.0f);
-	//			//if (recvPacket->userState[i].role == myRole) continue;
-	//			possessObj->InterpolateMove(recvPacket->time, recvPacket->userState[i].pos, recvPacket->userState[i].moveVec);
-	//		}
-	//	}
-	//}
-	//break;
+		possessObj->SetShield(recvPacket->shield);
+		possessObj->m_pHPBarUI->SetShield(recvPacket->shield);
+	}
+	break;
+	case SERVER_PACKET::TYPE::SMALL_MONSTER_MOVE:
+	{
+		const SERVER_PACKET::SmallMonsterPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::SmallMonsterPacket*>(packetHeader);
+		NormalMonster** smallMonsterArr = gGameFramework.GetScene()->GetObjectManager()->GetNormalMonsterArr();
+		smallMonsterArr[recvPacket->id]->SetMoveState(true);
+	}
+	break;
+	case SERVER_PACKET::TYPE::SMALL_MONSTER_STOP:
+	{
+		const SERVER_PACKET::SmallMonsterPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::SmallMonsterPacket*>(packetHeader);
+		NormalMonster** smallMonsterArr = gGameFramework.GetScene()->GetObjectManager()->GetNormalMonsterArr();
+		smallMonsterArr[recvPacket->id]->SetMoveState(false);
+	}
+	break;
+	case SERVER_PACKET::TYPE::SMALL_MONSTER_SET_DESTINATION:
+	{
+		const SERVER_PACKET::SmallMonsterDestinationPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::SmallMonsterDestinationPacket*>(packetHeader);
+		NormalMonster** smallMonsterArr = gGameFramework.GetScene()->GetObjectManager()->GetNormalMonsterArr();
+		smallMonsterArr[recvPacket->id]->SetDesPos(recvPacket->destinationPosition);
+	}
+	break;
 	//case SERVER_PACKET::TYPE::BOSS_ATTACK:
 	//{
 	//	auto durationTime = chrono::duration_cast<milliseconds>(chrono::high_resolution_clock::now() - attckPacketRecvTime);
@@ -596,17 +592,6 @@ void Logic::ProcessPacket(const PacketHeader* packetHeader)
 		}
 	}
 	break;
-	case SERVER_PACKET::TYPE::SMALL_MONSTER_ATTACK:
-	{
-		const SERVER_PACKET::SmallMonsterAttackPlayerPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::SmallMonsterAttackPlayerPacket*>(packetHeader);
-		if (recvPacket->attackedRole == myRole) {
-			//피격 상태이상 공격
-		}
-
-		NormalMonster** smallMonsterArr = gGameFramework.GetScene()->GetObjectManager()->GetNormalMonsterArr();
-		smallMonsterArr[recvPacket->attackMonsterIdx]->SetOnAttack(true); //모든 플레이어에 대해서 이 몬스터 공격 애니메이션 재성
-	}
-	break;
 	case SERVER_PACKET::TYPE::COMMON_ATTACK_START:
 	{
 		//const SERVER_PACKET::CommonAttackPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::CommonAttackPacket*>(packetHeader);
@@ -616,14 +601,14 @@ void Logic::ProcessPacket(const PacketHeader* packetHeader)
 	break;
 	case SERVER_PACKET::TYPE::START_ANIMATION_Q:
 	{
-		const SERVER_PACKET::CommonAttackPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::CommonAttackPacket*>(packetHeader);
+		const SERVER_PACKET::NotifyPlayerAnimationPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::NotifyPlayerAnimationPacket*>(packetHeader);
 		Player* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo((ROLE)recvPacket->role);
 		possessObj->FirstSkillDown();
 	}
 	break;
 	case SERVER_PACKET::TYPE::START_ANIMATION_E:
 	{
-		const SERVER_PACKET::CommonAttackPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::CommonAttackPacket*>(packetHeader);
+		const SERVER_PACKET::NotifyPlayerAnimationPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::NotifyPlayerAnimationPacket*>(packetHeader);
 		Player* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo((ROLE)recvPacket->role);
 		possessObj->SecondSkillDown();
 	}

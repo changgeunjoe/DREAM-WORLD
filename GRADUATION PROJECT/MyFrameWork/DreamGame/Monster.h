@@ -32,8 +32,8 @@ class NormalMonster : public Character
 private:
 	bool	m_bHaveTarget{ false };
 	int		m_iTargetID{ -1 };
+	std::mutex m_destinationPositionLock;
 	XMFLOAT3 m_desPos = XMFLOAT3(0, 0, 0);
-
 public:
 	int		m_nID = -1;
 	XMFLOAT3 m_xmf3rotateAngle = XMFLOAT3{ 0,0,0 };
@@ -42,8 +42,16 @@ public:
 	NormalMonster();
 	virtual ~NormalMonster();
 	void SetAnimation();
-	void SetDesPos(const XMFLOAT3& desPos) { m_desPos = desPos; }
-
+	void SetDesPos(const XMFLOAT3& desPos)
+	{
+		std::lock_guard<std::mutex> lg(m_destinationPositionLock);
+		m_desPos = desPos;
+	}
+	const XMFLOAT3 GetDesPosition()
+	{
+		std::lock_guard<std::mutex> lg(m_destinationPositionLock);
+		return m_desPos;
+	}
 public:
 	virtual void Move(float fTimeElapsed)override;
 	virtual void Animate(float fTimeElapsed) override;

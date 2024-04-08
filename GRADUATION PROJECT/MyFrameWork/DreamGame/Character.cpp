@@ -144,7 +144,7 @@ void Character::MoveStrafe(int rightDirection, float ftimeElapsed)
 		nextPosition = currentPosition;
 	}
 	else {
-		auto characterCollideResult = CheckCollisionCharacterObject(nextPosition, rightVector, mapCollide.value().first, ftimeElapsed);
+		auto characterCollideResult = CheckCollisionCharacterObject(mapCollide.value().second, rightVector, mapCollide.value().first, ftimeElapsed);
 		if (characterCollideResult.has_value()) {
 			nextPosition = characterCollideResult.value().second;
 		}
@@ -189,7 +189,7 @@ void Character::MoveDiagonal(int fowardDirection, int rightDirection, float ftim
 		nextPosition = currentPosition;
 	}
 	else {
-		auto characterCollideResult = CheckCollisionCharacterObject(nextPosition, dialogVector, mapCollide.value().first, ftimeElapsed);
+		auto characterCollideResult = CheckCollisionCharacterObject(mapCollide.value().second, dialogVector, mapCollide.value().first, ftimeElapsed);
 		if (characterCollideResult.has_value()) {
 			nextPosition = characterCollideResult.value().second;
 		}
@@ -240,6 +240,25 @@ std::optional<std::pair<bool, XMFLOAT3>> Character::CheckCollisionBoss(const XMF
 {
 	Monster* boss = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster();
 	return std::optional<std::pair<bool, XMFLOAT3>>();
+}
+
+const std::pair<float, float> Character::GetAggroBetweenAngle(const XMFLOAT3& position)
+{
+	XMFLOAT3 aggroPosition = position;
+	XMFLOAT3 toAggroVector = GetToVector(aggroPosition);
+	toAggroVector = Vector3::Normalize(toAggroVector);
+	XMFLOAT3 lookVector = GetLook();
+	float lookDotResult = Vector3::DotProduct(lookVector, toAggroVector);//사이 각에 대한 cos()
+
+	//좌측인지 우측인지 판단도 해야 됨.
+	//객체 우측벡터와 객체까지의 벡터를 내적한 값은 cos()인데
+	//cos()은 -90~90는 양수, 이외는 음수
+	//내적 결과가 양수라면 객체 기준 우측에 상대 객체가 존재한다는 것을 판단
+	XMFLOAT3 rightVector = GetRight();
+	float rightDotResult = Vector3::DotProduct(rightVector, toAggroVector);//사이 각에 대한 cos()
+	if (rightDotResult > 0)
+		return std::make_pair<float, float>(1.0f, XMConvertToDegrees(std::acosf(lookDotResult)));
+	return std::make_pair<float, float>(-1.0f, XMConvertToDegrees(std::acosf(lookDotResult)));
 }
 
 void Character::UpdateInterpolateData()

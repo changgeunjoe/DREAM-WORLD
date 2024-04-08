@@ -1,18 +1,23 @@
 #include "stdafx.h"
 #include "Room.h"
 #include "../Timer/Timer.h"
-#include "RoomEvent.h"
+#include "TimerRoomEvent.h"
 #include "../Network/ExpOver/ExpOver.h"
 #include "../Network/UserSession/UserSession.h"
 
 #include "../GameObject/GameObject.h"
 #include "../GameObject/Character/ChracterObject.h"
+#include "../GameObject/Character/Warrior/WarriorObject.h"
+#include "../GameObject/Character/Tanker/TankerObject.h"
+#include "../GameObject/Character/Mage/MageObject.h"
+#include "../GameObject/Character/Archer/ArcherObject.h"
+
 #include "../GameObject/Monster/MonsterObject.h"
 #include "../GameObject/Monster/SmallMonsterObject.h"
 #include "../GameObject/Monster/BossMonsterObject.h"
 #include "../Network/protocol/protocol.h"
 #include "../MapData/MapData.h"
-
+#include "RoomEvent.h"
 
 Room::Room(std::vector<std::shared_ptr<UserSession>>& userRefVec, std::shared_ptr<MonsterMapData>& mapDataRef, std::shared_ptr<NavMapData>& navMapDataRef)
 	: m_updateCnt(0), m_roomState(ROOM_STATE::ROOM_COMMON), m_gameStateUpdateComplete(false)
@@ -50,8 +55,16 @@ void ::Room::Execute(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key)
 	{
 		//spdlog::debug("Room::Execute() - OP_ROOM_UPDATE");
 		Update();
-		InsertEvent(TIMER_EVENT_TYPE::EV_ROOM_UPDATE, 17ms);
+		//InsertTimerEvent(TIMER_EVENT_TYPE::EV_SEND_NPC_MOVE, 1ms);
+		//타이머에 우선 넣고 이후 Update()에서 나온 Send이벤트 처리
+		InsertTimerEvent(TIMER_EVENT_TYPE::EV_ROOM_UPDATE, 17ms);
+		ProcessAfterUpdateEvent();
 		//GameStateSend를 UPdate 3번할 때 send하게 수정해야함.
+	}
+	break;
+	case IOCP_OP_CODE::OP_SEND_NPC_MOVE:
+	{
+
 	}
 	break;
 	case IOCP_OP_CODE::OP_GAME_STATE_SEND:
@@ -101,9 +114,12 @@ void Room::Fail(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key)
 
 void Room::Start()
 {
-	InitializeAllGameObject();
 	SERVER_PACKET::IntoGamePacket sendPacket;
 	for (int i = 0; i < 15; ++i) {
+		if (i > 0) {
+			m_smallMonsters[i]->debug = true;
+			continue;
+		}
 		sendPacket.monsterData[i].id = i;
 		sendPacket.monsterData[i].position = m_smallMonsters[i]->GetPosition();
 		sendPacket.monsterData[i].lookVector = m_smallMonsters[i]->GetLookVector();
@@ -118,7 +134,7 @@ void Room::Start()
 
 	using namespace std::chrono;
 	m_gameStateUpdateComplete = true;
-	InsertEvent(TIMER_EVENT_TYPE::EV_ROOM_UPDATE, 20ms);
+	InsertTimerEvent(TIMER_EVENT_TYPE::EV_ROOM_UPDATE, 20ms);
 	//InsertEvent(TIMER_EVENT_TYPE::EV_GAME_STATE_SEND, 50ms);
 }
 
@@ -161,46 +177,41 @@ std::shared_ptr<MapData> Room::GetMapData() const
 	return m_bossMapData;
 }
 
-void Room::RecvCharacterMove(const ROLE& role, const DIRECTION& direction, const bool& apply)
+void Room::InsertAftrerUpdateEvent(std::shared_ptr<RoomSendEvent> roomEvent)
 {
-	if (ROLE::NONE_SELECT == role)return;
-	m_characters[role]->RecvDirection(direction, apply);
-
-	PacketHeader* sendPacket = nullptr;
-	if (apply) sendPacket = &SERVER_PACKET::MovePacket(role, direction, std::chrono::high_resolution_clock::now(), static_cast<char>(SERVER_PACKET::TYPE::MOVE_KEY_DOWN));
-	else sendPacket = &SERVER_PACKET::MovePacket(role, direction, std::chrono::high_resolution_clock::now(), static_cast<char>(SERVER_PACKET::TYPE::MOVE_KEY_UP));
-
-	MultiCastCastPacket(sendPacket, role);
+	m_afterUpdateSendEvent.push(roomEvent);
+	++m_afterUpdateEventCnt;
 }
 
-void Room::RecvCharacterStop(const ROLE& role)
+void Room::InsertPrevUpdateEvent(std::shared_ptr<PrevUpdateEvent> prevUpdate)
 {
-	if (ROLE::NONE_SELECT == role)return;
-	m_characters[role]->StopMove();
-
-	PacketHeader* sendPacket = nullptr;
-	sendPacket = &SERVER_PACKET::StopPacket(role, std::chrono::high_resolution_clock::now(), static_cast<char>(SERVER_PACKET::TYPE::STOP));
-
-	MultiCastCastPacket(sendPacket, role);
+	m_prevUpdateEvent.push(prevUpdate);
+	++m_prevUpdateEventCnt;
 }
 
-void Room::RecvCharacterRotate(const ROLE& role, const ROTATE_AXIS& axis, const float& angle)
+void Room::ProcessAfterUpdateEvent()
 {
-	if (ROLE::NONE_SELECT == role)return;
-	m_characters[role]->RecvRotate(axis, angle);
-
-	PacketHeader* sendPacket = nullptr;
-	sendPacket = &SERVER_PACKET::RotatePacket(role, axis, angle);
-	MultiCastCastPacket(sendPacket, role);
+	int prccessRoomEventCnt = m_afterUpdateEventCnt;
+	m_afterUpdateEventCnt -= prccessRoomEventCnt;
+	for (int i = 0; i < prccessRoomEventCnt; ++i) {
+		std::shared_ptr<RoomSendEvent> currentEvent = nullptr;
+		bool isSuccess = m_afterUpdateSendEvent.try_pop(currentEvent);
+		if (isSuccess) {
+			auto sendPacket = currentEvent->GetPacketHeader();
+			BroadCastPacket(sendPacket);
+		}
+		else {
+			m_afterUpdateEventCnt += prccessRoomEventCnt;
+			return;
+		}
+	}
 }
 
-void Room::RecvMouseInput(const ROLE& role, const bool& left, const bool& right)
+void Room::ProcessPrevUpdateEvent()
 {
-	if (ROLE::NONE_SELECT == role)return;
-
 }
 
-void Room::InsertEvent(const TIMER_EVENT_TYPE& eventType, const std::chrono::milliseconds& updateTick)
+void Room::InsertTimerEvent(const TIMER_EVENT_TYPE& eventType, const std::chrono::milliseconds& updateTick)
 {
 	auto timerEvent = std::make_shared<TIMER::RoomEvent>(eventType, updateTick, std::static_pointer_cast<Room>(shared_from_this()));
 	TIMER::Timer::GetInstance().InsertTimerEvent(std::static_pointer_cast<TIMER::EventBase>(timerEvent));
@@ -208,12 +219,13 @@ void Room::InsertEvent(const TIMER_EVENT_TYPE& eventType, const std::chrono::mil
 
 void Room::Update()
 {
-	constexpr static int GAME_STATE_SEND_CNT = 3;
+	static constexpr int GAME_STATE_SEND_CNT = 3;
 
 	//Update GameObject
 	for (auto& gameObject : m_allGameObjects) {
 		gameObject->Update();
 	}
+
 	++m_updateCnt;
 	if (!m_gameStateUpdateComplete) return;
 	if (GAME_STATE_SEND_CNT <= m_updateCnt) {
@@ -237,7 +249,7 @@ void Room::UpdateGameState()
 	}
 	//패킷 데이터 저장
 	//PQGS로 send()
-	InsertEvent(TIMER_EVENT_TYPE::EV_SEND_GAME_STATE, std::chrono::milliseconds(1));
+	InsertTimerEvent(TIMER_EVENT_TYPE::EV_SEND_GAME_STATE, std::chrono::milliseconds(1));
 }
 
 void Room::GameStateSend()
@@ -322,6 +334,11 @@ void Room::MultiCastCastPacket(std::shared_ptr<PacketHeader>& packetData, const 
 	}
 }
 
+std::shared_ptr<CharacterObject> Room::GetCharacterObject(const ROLE& role)
+{
+	return std::shared_ptr<CharacterObject>();
+}
+
 void Room::SetGameStatePlayer_Stage()
 {
 	auto gameStateData = std::static_pointer_cast<SERVER_PACKET::GameState_Base>(m_gameStateData[0]);
@@ -353,16 +370,13 @@ void Room::SetGameStatePlayer_Boss()
 void Room::SetGameStateMonsters()
 {
 	auto gameStateData = std::static_pointer_cast<SERVER_PACKET::GameState_STAGE>(m_gameStateData[0]);
-	int monsterIdx = 0;
 	for (auto& monster : m_smallMonsters) {
-		if (!gameStateData->smallMonster[monsterIdx].isAlive) continue;
-		gameStateData->smallMonster[monsterIdx].idx = monster->GetIdx();
-		gameStateData->smallMonster[monsterIdx].hp = monster->GetHp();
-		gameStateData->smallMonster[monsterIdx].position = monster->GetPosition();
-		gameStateData->smallMonster[monsterIdx].time = monster->GetLastUpdateTime();
-		++monsterIdx;
+		gameStateData->smallMonster[monster->GetIdx()].isAlive = monster->IsAlive();
+		gameStateData->smallMonster[monster->GetIdx()].idx = monster->GetIdx();
+		gameStateData->smallMonster[monster->GetIdx()].hp = monster->GetHp();
+		gameStateData->smallMonster[monster->GetIdx()].position = monster->GetPosition();
+		gameStateData->smallMonster[monster->GetIdx()].time = monster->GetLastUpdateTime();
 	}
-	gameStateData->aliveMonsterCnt = monsterIdx;
 }
 
 void Room::SetGameStateBoss()
@@ -378,10 +392,10 @@ void Room::InitializeAllGameObject()
 	std::vector<std::chrono::seconds> duTime;
 	std::vector<std::chrono::seconds> coolTime;
 	//Character Initialize
-	m_characters.emplace(ROLE::WARRIOR, std::make_shared<WarriorObject>(600.0f, 50.0f, 8.0f, std::static_pointer_cast<Room>(shared_from_this()), duTime, coolTime));
-	m_characters.emplace(ROLE::TANKER, std::make_shared<TankerObject>(780.0f, 50.0f, 8.0f, std::static_pointer_cast<Room>(shared_from_this()), duTime, coolTime));
-	m_characters.emplace(ROLE::ARCHER, std::make_shared<ArcherObject>(400.0f, 50.0f, 8.0f, std::static_pointer_cast<Room>(shared_from_this()), duTime, coolTime));
-	m_characters.emplace(ROLE::MAGE, std::make_shared<MageObject>(500.0f, 50.0f, 8.0f, std::static_pointer_cast<Room>(shared_from_this()), duTime, coolTime));
+	m_characters.emplace(ROLE::WARRIOR, std::make_shared<WarriorObject>(600.0f, 50.0f, 8.0f, std::static_pointer_cast<Room>(shared_from_this())));
+	m_characters.emplace(ROLE::TANKER, std::make_shared<TankerObject>(780.0f, 50.0f, 8.0f, std::static_pointer_cast<Room>(shared_from_this())));
+	m_characters.emplace(ROLE::ARCHER, std::make_shared<ArcherObject>(400.0f, 50.0f, 8.0f, std::static_pointer_cast<Room>(shared_from_this())));
+	m_characters.emplace(ROLE::MAGE, std::make_shared<MageObject>(500.0f, 50.0f, 8.0f, std::static_pointer_cast<Room>(shared_from_this())));
 	m_characters[ROLE::ARCHER]->debug = true;
 
 	auto monsterInitData = m_stageMapData->GetMonsterInitData();
@@ -405,4 +419,8 @@ void Room::InitializeAllGameObject()
 		m_allGameObjects.push_back(monster);
 	//m_allGameObjects.push_back(m_bossMonster);
 	//InsertProjectileObject
+}
+
+void Room::ProccessSmallMonsterEvent()
+{
 }

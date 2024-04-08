@@ -53,7 +53,7 @@ public:
 	LiveObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, std::shared_ptr<Room>& roomRef);
 	~LiveObject() = default;
 
-	void Attacked(const float& damage);
+	virtual void Attacked(const float& damage);
 
 	const float GetHp() const;
 	const float GetMaxHp() const;

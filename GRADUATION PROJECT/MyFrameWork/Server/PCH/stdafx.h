@@ -98,6 +98,7 @@ enum class IOCP_OP_CODE : char
 	//Room - update, player pos send
 	OP_ROOM_UPDATE,
 	OP_GAME_STATE_SEND,
+	OP_SEND_NPC_MOVE,
 	//Room - Boss
 	OP_FIND_PLAYER,
 	OP_BOSS_ATTACK_SELECT,
@@ -148,8 +149,9 @@ enum class TIMER_EVENT_TYPE : char {
 	//게임 상태 관련
 	EV_ROOM_UPDATE,
 	EV_SEND_GAME_STATE,
+	EV_SEND_NPC_MOVE,
 	//보스 관련
-	EV_FIND_PLAYER,
+	EV_BOSS_FIND_PLAYER,
 	EV_BOSS_ATTACK,
 	//플레이어 관련
 	EV_HEAL,

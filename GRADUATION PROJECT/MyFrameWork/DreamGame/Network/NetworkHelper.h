@@ -41,13 +41,12 @@ public:
 
 	void Send_SkillInput_Q();
 	void Send_SkillInput_E();
-	void Send_SkillExecute_Q(XMFLOAT3& dirOrPosition);//스킬 공격 서버에 활성화
-	void Send_SkillExecute_E(const XMFLOAT3& dirOrPosition);//스킬 공격 서버에 활성화
+	void Send_SkillExecute_Q();//스킬 공격 서버에 활성화
+	void Send_SkillExecute_Q(XMFLOAT3& floatData);//스킬 공격 서버에 활성화
+	void Send_SkillExecute_E();//스킬 공격 서버에 활성화
+	void Send_SkillExecute_E(const XMFLOAT3& floatData);//스킬 공격 서버에 활성화
 
 	void SendMatchRequestPacket();
-	void SendArrowAttackPacket(const XMFLOAT3& pos, const XMFLOAT3& dir, float speed);//안씀
-	void SendBallAttackPacket(const XMFLOAT3& pos, const XMFLOAT3& dir, float speed);//안씀
-	void SendMeleeAttackPacket(const XMFLOAT3& dir);//안씀
 	void SendTestGameEndPacket();
 	void SendTestGameEndOKPacket();
 public:
@@ -55,7 +54,8 @@ public:
 	void SendOnPositionTriggerBox1();//트리거 박스 내부에 도착해서 상태 변화할때
 	void SendSkipNPCCommunicate();
 	void SendChangeStage_BOSS();
-	void SendCommonAttackExecute(const XMFLOAT3& attackDirection, int power);//기본 공격 실제 공격 시행
+	void SendCommonAttackExecute(const XMFLOAT3& attackDirection);//기본 공격 실제 공격 시행
+	void SendPowerAttackExecute(const XMFLOAT3& attackDirection, int power);//파워 공격 실제 공격 시행
 	void SendCommonAttackStart();//기본 공격 애니메이션
 	void SendPlayerPosition(XMFLOAT3& position);
 public:
