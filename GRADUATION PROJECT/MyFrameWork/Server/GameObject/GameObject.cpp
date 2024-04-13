@@ -2,10 +2,12 @@
 #include "GameObject.h"
 #include "../Room/Room.h"
 
-GameObject::GameObject(const float& moveSpeed, const float& boundingSize, std::shared_ptr<Room>& roomRef)
-	:m_boundingSize(boundingSize), m_roomRef(roomRef),
+GameObject::GameObject(const float& boundingSize, std::shared_ptr<Room>& roomRef)
+	:m_collisionSphere(XMFLOAT3(0, 0, 0), boundingSize),
+	m_roomRef(roomRef),
 	m_worldMatrix(Matrix4x4::Identity())
 {
+
 }
 
 void GameObject::Rotate(const ROTATE_AXIS& axis, const float& angle)
@@ -100,10 +102,21 @@ const float GameObject::GetDistance(std::shared_ptr<GameObject>& other) const
 	return Vector3::Length(distanceVector);
 }
 
+const float GameObject::GetBetweenAngleRadian(const XMFLOAT3& position)
+{
+	XMFLOAT3 destinationPosition = position;
+	XMFLOAT3 tDesVector = GetToVector(destinationPosition);
+	tDesVector = Vector3::Normalize(tDesVector);
+	XMFLOAT3 lookVector = GetLookVector();
+	float lookDotResult = Vector3::DotProduct(lookVector, tDesVector);
+	return lookDotResult;
+}
+
+
 void GameObject::UpdateCollision()
 {
 	m_collisionSphere.Center = GetPosition();
-	m_collisionSphere.Center.y = 0;
+	m_collisionSphere.Center.y = m_collisionSphere.Radius;
 }
 
 void GameObject::SetLook(const XMFLOAT3& lookVector)
@@ -112,12 +125,12 @@ void GameObject::SetLook(const XMFLOAT3& lookVector)
 	XMFLOAT3 newLookVector = lookVector;
 	XMFLOAT3 newRightVector = Vector3::CrossProduct(upVector, newLookVector, false);
 	m_worldMatrix._11 = newRightVector.x; m_worldMatrix._12 = newRightVector.y; m_worldMatrix._13 = newRightVector.z;
-	m_worldMatrix._21 = newLookVector.x; m_worldMatrix._22 = newLookVector.y; m_worldMatrix._23 = newLookVector.z;
-	m_worldMatrix._31 = upVector.x; m_worldMatrix._32 = upVector.y; m_worldMatrix._33 = upVector.z;
+	m_worldMatrix._21 = upVector.x; m_worldMatrix._22 = upVector.y; m_worldMatrix._23 = upVector.z;
+	m_worldMatrix._31 = newLookVector.x; m_worldMatrix._32 = newLookVector.y; m_worldMatrix._33 = newLookVector.z;
 }
 
 LiveObject::LiveObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, std::shared_ptr<Room>& roomRef)
-	:m_maxHp(maxHp), m_hp(maxHp), m_moveSpeed(moveSpeed), GameObject(moveSpeed, boundingSize, roomRef), m_moveVector(0, 0, 1), m_isAlive(true)
+	:m_maxHp(maxHp), m_hp(maxHp), MoveObject(moveSpeed, boundingSize, roomRef), m_isAlive(true), m_moveVector(0, 0, 1)
 {
 }
 
@@ -143,12 +156,12 @@ const float LiveObject::GetMaxHp() const
 std::optional<std::pair<bool, XMFLOAT3>> LiveObject::CollideLiveObject(const XMFLOAT3& nextPosition, const float& elapsedTime, const bool& isSlidingPosition)
 {
 	std::shared_ptr<LiveObject> collideCharacter;
-	BoundingSphere collideSphere{ nextPosition, m_boundingSize };
+	BoundingSphere collideSphere{ nextPosition,  m_collisionSphere.Radius };
 	std::vector<std::shared_ptr<LiveObject>>& liveObjects = m_roomRef->GetLiveObjects();
 	for (auto& liveObject : liveObjects) {
 		//자기 자신이라면 넘어감
 		if (liveObject == shared_from_this()) continue;
-		if (liveObject->GetCollision().Radius + m_boundingSize - liveObject->GetDistance(nextPosition) < FLT_EPSILON) continue;
+		if (liveObject->GetCollision().Radius + m_collisionSphere.Radius - liveObject->GetDistance(nextPosition) < FLT_EPSILON) continue;
 		if (true == isSlidingPosition || nullptr != collideCharacter) {
 			//이미 충돌해서 또 충돌한거면 이동x
 			//또는 상위에서 이미 슬라이딩 벡터 구해서 충돌이 하나라도 있으면 이동x
@@ -175,13 +188,18 @@ std::optional<std::pair<bool, XMFLOAT3>> LiveObject::CollideLiveObject(const XMF
 	return std::make_pair(true, applySlidingVectorPosition);
 }
 
-const std::chrono::high_resolution_clock::time_point LiveObject::GetLastUpdateTime() const
+MoveObject::MoveObject(const float& moveSpeed, const float& boundingSize, std::shared_ptr<Room>& roomRef)
+	:GameObject(boundingSize, roomRef), m_moveSpeed(moveSpeed)
+	, m_lastUpdateTime(std::chrono::high_resolution_clock::now())
+{
+}
+
+const std::chrono::high_resolution_clock::time_point MoveObject::GetLastUpdateTime() const
 {
 	return m_lastUpdateTime;
 }
 
-
-float LiveObject::GetElapsedLastUpdateTime()
+float MoveObject::GetElapsedLastUpdateTime()
 {
 	using namespace std::chrono;
 	auto nowTime = high_resolution_clock::now();
@@ -190,7 +208,7 @@ float LiveObject::GetElapsedLastUpdateTime()
 	return (float)durationTime / 1000'000.0f;
 }
 
-void LiveObject::UpdateLastUpdateTime()
+void MoveObject::UpdateLastUpdateTime()
 {
 	m_lastUpdateTime = std::chrono::high_resolution_clock::now();
 }

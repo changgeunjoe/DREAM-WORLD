@@ -12,7 +12,7 @@ public:
 
 	const MS& GetDurationTIme() const
 	{
-		m_durationTime;
+		return m_durationTime;
 	}
 private:
 	MS m_durationTime;

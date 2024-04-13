@@ -382,6 +382,21 @@ void Warrior::FirstSkillDown()
 	m_bQSkillClicked = true;
 }
 
+void Warrior::RecvFirstSkill(const high_resolution_clock::time_point& serverTime)
+{
+	if (g_Logic.GetMyRole() == ROLE::WARRIOR)
+	{
+		m_skillInputTime[0] = serverTime - std::chrono::microseconds(g_Logic.GetDiffTime());
+	}
+	m_currentDirection = DIRECTION::IDLE;
+	m_bMoveState = false;
+	m_bQSkillClicked = true;
+}
+
+void Warrior::RecvSecondSkill(const high_resolution_clock::time_point& serverTime)
+{
+}
+
 void Warrior::SetStage1Position()
 {
 	SetLook(XMFLOAT3(0, 0, 1));
@@ -660,6 +675,33 @@ void Tanker::EndEffect(int nSkillNum)
 		for (int i = 0; i < 4; ++i)
 			shieldEffects[i]->SetActive(false);
 	}
+}
+
+void Tanker::RecvFirstSkill(const high_resolution_clock::time_point& serverTime)
+{
+	if (g_Logic.GetMyRole() == ROLE::TANKER)
+	{
+		m_skillInputTime[0] = serverTime - std::chrono::microseconds(g_Logic.GetDiffTime());
+		g_NetworkHelper.Send_SkillExecute_Q();
+	}
+	m_currentDirection = DIRECTION::IDLE;
+	m_bMoveState = false;
+	m_bQSkillClicked = true;
+#ifdef LOCAL_TASK
+	StartEffect(0);
+#endif
+}
+
+void Tanker::RecvSecondSkill(const high_resolution_clock::time_point& serverTime)
+{
+	if (g_Logic.GetMyRole() == ROLE::TANKER)
+	{
+		m_skillInputTime[1] = serverTime - std::chrono::microseconds(g_Logic.GetDiffTime());
+	}
+	g_sound.NoLoopPlay("TankerSwingSound", CalculateDistanceSound());
+	m_currentDirection = DIRECTION::IDLE;
+	m_bMoveState = false;
+	m_bESkillClicked = true;
 }
 
 void Tanker::SetStage1Position()

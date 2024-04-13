@@ -27,7 +27,6 @@ protected:
 	//객체가 우측이라면 1 아니라면 -1, 사이 각도(라디안)
 
 	const std::pair<float, float> GetAggroBetweenAngle();
-	const float GetBetweenAngleRadian(const XMFLOAT3& position);
 
 	void UpdateDestinationPosition();
 	void SetMove();

@@ -492,10 +492,10 @@ void GameobjectManager::NormalMonsterConditionAnimate(float fTimeElapsed)
 			if (m_ppNormalMonsterObject[i]->GetTempHP() <= 0.0f) {
 				if (m_ppNormalMonsterObject[i]->m_bActive) {
 					m_ppNormalMonsterObject[i]->DieMonster(fTimeElapsed / 10);
-				}
-				if (m_ppNormalMonsterObject[i]->m_xmf4Color.w > 0.95) {
 					m_ppNormalMonsterObject[i]->m_bActive = false;
 				}
+				//if (m_ppNormalMonsterObject[i]->m_xmf4Color.w > 0.95) {
+				//}
 
 			}
 			else {
@@ -2793,7 +2793,7 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 			if (myPlayCharacter->GetQSkillState() == false && myPlayCharacter->GetOnAttack() == false
 				&& !myPlayCharacter->GetLButtonClicked())
 			{
-				myPlayCharacter->FirstSkillDown();
+				myPlayCharacter->InputFirstSkill();
 			}
 		}
 		break;
@@ -2812,13 +2812,13 @@ bool GameobjectManager::onProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, 
 							if (g_Logic.GetMyRole() == ROLE::ARCHER)
 								static_cast<Archer*>(myPlayCharacter)->m_xmf3TargetPos = m_pSelectedObject->GetPosition();
 							m_LightningTargetPos = m_pSelectedObject->GetPosition();
-							myPlayCharacter->SecondSkillDown();
+							myPlayCharacter->InputSecondSkill();
 						}
 					}
 				}
 				else
 				{
-					myPlayCharacter->SecondSkillDown();
+					myPlayCharacter->InputSecondSkill();
 				}
 
 			}

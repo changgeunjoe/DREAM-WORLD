@@ -49,8 +49,9 @@ namespace MageSkill
 		virtual void Execute() override;
 	};
 
-	class CommonAttack : DirectionSkill//연속형 공격없이 그대로 공격하면 됨.
+	class CommonAttack : public DirectionSkill//연속형 공격없이 그대로 공격하면 됨.
 	{
+	public:
 		CommonAttack(std::shared_ptr<MageObject> mageRef, const XMFLOAT3& direction) : DirectionSkill(mageRef, direction) {}
 		virtual void Execute() override;
 	};
@@ -68,7 +69,7 @@ public:
 	virtual void RecvSkill(const SKILL_TYPE&, const XMFLOAT3& vector3) override;
 	virtual void RecvAttackCommon(const XMFLOAT3& attackDir, const int& power = 0) override;
 
-	void ExecuteThunderSkill1(const XMFLOAT3& position);
-	void ExecuteHeal();
+	void ExecuteThunderSkill(const XMFLOAT3& position);
+	void ExecuteHeal(const CommonDurationSkill_MILSEC::DURATION_TIME_RATIO& durationTime);
 	void ExecuteCommonAttack(const XMFLOAT3& attackDir);
 };

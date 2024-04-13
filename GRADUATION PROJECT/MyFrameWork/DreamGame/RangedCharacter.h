@@ -40,6 +40,9 @@ public:
 	virtual void ShootArrow(const XMFLOAT3& xmf3Direction);
 	virtual void SetLButtonClicked(bool bLButtonClicked);
 
+	virtual void InputSecondSkill();
+	virtual void RecvFirstSkill(const high_resolution_clock::time_point& serverTime) override;
+	virtual void RecvSecondSkill(const high_resolution_clock::time_point& serverTime) override;
 public:
 	void SetAdditionArrowForQSkill(Arrow** ppArrow);
 	void SetAdditionArrowForESkill(Arrow** ppArrow);
@@ -71,6 +74,9 @@ public:
 	virtual void StartEffect(int nSkillNum);
 	virtual void EndEffect(int nSkillNum);
 
+	virtual void InputSecondSkill();
+	virtual void RecvFirstSkill(const high_resolution_clock::time_point& serverTime) override;
+	virtual void RecvSecondSkill(const high_resolution_clock::time_point& serverTime) override;
 public:
 	void UpdateEffect();
 	void SetStage1Position();

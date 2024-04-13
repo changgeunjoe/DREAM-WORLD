@@ -105,8 +105,12 @@ enum class IOCP_OP_CODE : char
 	OP_BOSS_ATTACK_EXECUTE,
 
 	//Room - player skill
+	OP_PLAYER_APPLY_SIELD,
+	OP_PLAYER_REMOVE_SIELD,
+	OP_PLAYER_HEAL_START, // 지속 힐 - 틱마다
 	OP_PLAYER_HEAL, // 지속 힐 - 틱마다
-	OP_SKY_ARROW_ATTACK, //n초 이후 그 위치 공격
+	OP_PLAYER_HEAL_END,
+	OP_RAIN_ARROW_ATTACK, //n초 이후 그 위치 공격
 
 	//전제 플레이어 RTT계산을 위한
 	OP_SYNC_TIME,
@@ -154,9 +158,12 @@ enum class TIMER_EVENT_TYPE : char {
 	EV_BOSS_FIND_PLAYER,
 	EV_BOSS_ATTACK,
 	//플레이어 관련
+	EV_HEAL_START,
 	EV_HEAL,
-	EV_TANKER_SHIELD_END,
-	EV_SKY_ARROW_ATTACK,
+	EV_HEAL_END,
+	EV_APPLY_SHIELD,
+	EV_REMOVE_SHIELD,
+	EV_RAIN_ARROW_ATTACK,
 	//전체 플레이어 RTT체크를 위한 타이머
 	EV_SYNC_TIME
 };

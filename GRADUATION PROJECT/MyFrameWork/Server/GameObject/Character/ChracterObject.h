@@ -64,12 +64,19 @@ public:
 	void RecvRotate(const ROTATE_AXIS& axis, const float& angle);
 	void RecvMouseInput(const bool& LmouseInput, const bool& RmouseInput);
 
+	virtual void RecvSkillInput(const SKILL_TYPE&);
 	virtual void RecvSkill(const SKILL_TYPE&) = 0;
 	virtual void RecvSkill(const SKILL_TYPE&, const XMFLOAT3& vector3) = 0;
 	virtual void RecvAttackCommon(const XMFLOAT3& attackDir, const int& power = 0) = 0;
 
 	void SetShield(const bool& active);
 	const float GetShield() const;
+
+	void Heal(const float& heal)
+	{
+		if (!m_isAlive) return;
+		m_hp += heal;
+	}
 
 	virtual void Attacked(const float& damage) override;
 	const float GetAttackDamage() const

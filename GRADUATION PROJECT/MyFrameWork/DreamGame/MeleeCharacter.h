@@ -32,6 +32,8 @@ public:
 	virtual void FirstSkillDown();
 	virtual bool CanMove() { return !m_bQSkillClicked; }
 
+	virtual void RecvFirstSkill(const high_resolution_clock::time_point& serverTime) override;
+	virtual void RecvSecondSkill(const high_resolution_clock::time_point& serverTime) override;
 public:
 	void SetStage1Position();
 	void SetBossStagePostion();
@@ -56,6 +58,8 @@ public:
 	virtual void EndEffect(int nSkillNum);
 	virtual bool CanMove() { return !m_bQSkillClicked && !m_bESkillClicked; }
 
+	virtual void RecvFirstSkill(const high_resolution_clock::time_point& serverTime) override;
+	virtual void RecvSecondSkill(const high_resolution_clock::time_point& serverTime) override;
 public:
 	void SetStage1Position();
 	void SetBossStagePostion();

@@ -48,20 +48,34 @@ void TIMER::RoomEvent::Execute(HANDLE iocpHandle)
 		currentOpCode = IOCP_OP_CODE::OP_BOSS_ATTACK_EXECUTE;
 	}
 	break;
-
+	case TIMER_EVENT_TYPE::EV_HEAL_START:
+	{
+		currentOpCode = IOCP_OP_CODE::OP_PLAYER_HEAL_START;
+	}
+	break;
 	case TIMER_EVENT_TYPE::EV_HEAL:
 	{
 		currentOpCode = IOCP_OP_CODE::OP_PLAYER_HEAL;
 	}
 	break;
-	case TIMER_EVENT_TYPE::EV_TANKER_SHIELD_END:
+	case TIMER_EVENT_TYPE::EV_HEAL_END:
 	{
-		//currentOpCode = IOCP_OP_CODE::OP_tank;
+		currentOpCode = IOCP_OP_CODE::OP_PLAYER_HEAL_END;
 	}
 	break;
-	case TIMER_EVENT_TYPE::EV_SKY_ARROW_ATTACK:
+	case TIMER_EVENT_TYPE::EV_APPLY_SHIELD:
 	{
-		currentOpCode = IOCP_OP_CODE::OP_SKY_ARROW_ATTACK;
+		currentOpCode = IOCP_OP_CODE::OP_PLAYER_APPLY_SIELD;
+	}
+	break;
+	case TIMER_EVENT_TYPE::EV_REMOVE_SHIELD:
+	{
+		currentOpCode = IOCP_OP_CODE::OP_PLAYER_REMOVE_SIELD;
+	}
+	break;
+	case TIMER_EVENT_TYPE::EV_RAIN_ARROW_ATTACK:
+	{
+		currentOpCode = IOCP_OP_CODE::OP_RAIN_ARROW_ATTACK;
 	}
 	break;
 	default:

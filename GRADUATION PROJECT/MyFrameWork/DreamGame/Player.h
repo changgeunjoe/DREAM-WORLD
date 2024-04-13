@@ -28,6 +28,11 @@ public:
 	virtual bool CanMove() { return true; }
 	void VisualizeSkillCoolTime();
 
+	virtual void InputFirstSkill();
+	virtual void InputSecondSkill();
+	virtual void RecvFirstSkill(const high_resolution_clock::time_point& serverTime) = 0;
+	virtual void RecvSecondSkill(const high_resolution_clock::time_point& serverTime) = 0;
+
 protected:
 	void ChangeAnimation(pair< CharacterAnimation, CharacterAnimation> nextAnimation);
 	float GetAnimationProgressRate(CharacterAnimation nAnimation);

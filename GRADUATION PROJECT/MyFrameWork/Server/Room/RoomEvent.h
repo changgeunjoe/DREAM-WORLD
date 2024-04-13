@@ -107,6 +107,33 @@ protected:
 	XMFLOAT3 m_destinationPosition;
 };
 
+class ShootingArrowEvent : public RoomSendEvent
+{
+public:
+	ShootingArrowEvent(const XMFLOAT3& direction) : direction(direction) {}
+	virtual std::shared_ptr<PacketHeader> GetPacketHeader() override;
+private:
+	XMFLOAT3 direction;
+};
+
+class ShootingIceLaneEvent : public RoomSendEvent
+{
+public:
+	ShootingIceLaneEvent(const XMFLOAT3& direction) : direction(direction) {}
+	virtual std::shared_ptr<PacketHeader> GetPacketHeader() override;
+private:
+	XMFLOAT3 direction;
+};
+
+class ThunderEvent : public RoomSendEvent
+{
+public:
+	ThunderEvent(const XMFLOAT3& position) : position(position) {}
+	virtual std::shared_ptr<PacketHeader> GetPacketHeader() override;
+private:
+	XMFLOAT3 position;
+};
+
 /*
 	Update에서 위치 업데이트 이전에 처리할 데이터
 	플레이어의 공격 패킷을 받았을 때, 저장할 클래스

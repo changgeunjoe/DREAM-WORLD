@@ -6,9 +6,10 @@
 #include "../EventController/CoolDownEventBase.h"
 #include "../EventController/DurationEvent.h"
 #include "../Room/RoomEvent.h"
+#include "../Network/protocol/protocol.h"
 
 CharacterObject::CharacterObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, const float& attackDamage, std::shared_ptr<Room>& roomRef, const ROLE& role)
-	:LiveObject(maxHp, moveSpeed, boundingSize, roomRef), m_currentDirection(static_cast<char>(DIRECTION::IDLE)),
+	: LiveObject(maxHp, moveSpeed, boundingSize, roomRef), m_currentDirection(static_cast<char>(DIRECTION::IDLE)),
 	m_leftMouseInput(false), m_rightMouseInput(false),
 	m_Shield(0.0f), m_activeShield(false), m_commonAttackDamage(attackDamage), m_role(role)
 {
@@ -17,7 +18,6 @@ CharacterObject::CharacterObject(const float& maxHp, const float& moveSpeed, con
 
 void CharacterObject::Update()
 {
-	if (!debug) return;
 	//회전 각 업데이트
 	UpdateRotate();
 	//Move
@@ -38,6 +38,7 @@ void CharacterObject::RecvDirection(const DIRECTION& dir, const bool& apply)
 {
 	if (apply) m_applyDIrection |= static_cast<char>(dir);
 	else m_applyDIrection ^= static_cast<char>(dir);
+	//spdlog::warn("RecvDirection - applyDir: {}", (int)m_applyDIrection);
 }
 
 void CharacterObject::RecvRotate(const ROTATE_AXIS& axis, const float& angle)
@@ -106,6 +107,26 @@ void CharacterObject::RecvMouseInput(const bool& LmouseInput, const bool& Rmouse
 	m_rightMouseInput = RmouseInput;
 }
 
+void CharacterObject::RecvSkillInput(const SKILL_TYPE& type)
+{
+	if (SKILL_TYPE::SKILL_TYPE_Q == type) {
+		auto skillData = m_skillCtrl->GetEventData(SKILL_Q);
+		const bool isAbleSkill = skillData->IsAbleExecute();
+		if (isAbleSkill) {
+			SERVER_PACKET::NotifyPlayerAnimationPacket sendPacket(static_cast<char>(SERVER_PACKET::TYPE::START_ANIMATION_Q), GetRole(), skillData->GetLastExeTime());
+			m_roomRef->BroadCastPacket(&sendPacket);
+		}
+	}
+	else if (SKILL_TYPE::SKILL_TYPE_E == type) {
+		auto skillData = m_skillCtrl->GetEventData(SKILL_E);
+		const bool isAbleSkill = skillData->IsAbleExecute();
+		if (isAbleSkill) {
+			SERVER_PACKET::NotifyPlayerAnimationPacket sendPacket(static_cast<char>(SERVER_PACKET::TYPE::START_ANIMATION_E), GetRole(), skillData->GetLastExeTime());
+			m_roomRef->BroadCastPacket(&sendPacket);
+		}
+	}
+}
+
 void CharacterObject::UpdateDirection()
 {
 	m_currentDirection = m_applyDIrection;
@@ -145,7 +166,7 @@ std::optional<const XMFLOAT3>  CharacterObject::UpdateNextPosition(const float& 
 std::optional<std::pair<bool, XMFLOAT3>> CharacterObject::CollideWall(const XMFLOAT3& nextPosition, const float& elapsedTime, const bool& isSlidingPosition)
 {
 	//characters와 같은 방법으로 수행
-	BoundingSphere boudingSphere{ nextPosition, m_boundingSize };
+	BoundingSphere boudingSphere{ nextPosition,  m_collisionSphere.Radius };
 	boudingSphere.Center.y = 0;
 	auto mapData = m_roomRef->GetMapData();
 	auto& mapCollision = mapData->GetCollisionData();
@@ -252,7 +273,10 @@ const XMFLOAT3 RangedCharacterObject::GetCommonNextPosition(const float& elapsed
 		return GetPosition();
 	XMFLOAT3 currentPosition = GetPosition();
 	m_moveVector = GetMoveVector();
-	return Vector3::Add(currentPosition, m_moveVector, m_moveSpeed * elapsedTime);
+	XMFLOAT3 returnPosition = Vector3::Add(currentPosition, m_moveVector, m_moveSpeed * elapsedTime);
+	//spdlog::critical("position: returnPosition - x: {}, y: {}, z: {}, moveVector - x: {}, y: {}, z: {}", returnPosition.x, returnPosition.y, returnPosition.z
+	//		, m_moveVector.x, m_moveVector.y, m_moveVector.z);
+	return returnPosition;
 }
 
 const XMFLOAT3 RangedCharacterObject::GetMoveVector() const

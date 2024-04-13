@@ -8,10 +8,12 @@ class UserSession;
 class GameObject;
 class LiveObject;
 class CharacterObject;
+class MonsterObject;
 class BossMonsterObject;
 class SmallMonsterObject;
 class RoomSendEvent;
 class PrevUpdateEvent;
+class ProjectileObject;
 namespace IOCP {
 	class Iocp;
 }
@@ -34,8 +36,11 @@ public:
 
 	std::vector<std::shared_ptr<SmallMonsterObject>>& GetSmallMonsters();
 
-	std::vector<std::shared_ptr<GameObject>> GetCharacters() const;
+	std::vector<std::shared_ptr<LiveObject>> GetCharacters() const;
 	std::vector<std::shared_ptr<LiveObject>> GetLiveObjects() const;
+
+	void InsertProjectileObject(std::shared_ptr<ProjectileObject> projectileObject);
+	void UpdateProjectileObject();
 
 	std::shared_ptr<MapData> GetMapData() const;
 	void RecvSkill_QInput(const ROLE& role, const XMFLOAT3& vector3);
@@ -56,6 +61,7 @@ public:
 	void MultiCastCastPacket(std::shared_ptr<PacketHeader>& packetData, const std::vector<ROLE>& exclusiveRoles);
 
 	std::shared_ptr<CharacterObject> GetCharacterObject(const ROLE& role);
+	std::vector <std::shared_ptr<MonsterObject>> GetEnermyData();
 
 	void InitializeAllGameObject();
 
@@ -77,6 +83,12 @@ private:
 	void SetGameStateBoss();
 
 	void ProccessSmallMonsterEvent();
+
+	//PlayerSkill
+	void PlayerHeal();
+	void PlayerApplyShield();
+	void PlayerRemoveShield();
+	void RainArrowAttack();
 private:
 	ROOM_STATE m_roomState = ROOM_STATE::ROOM_COMMON;
 	int m_updateCnt;
@@ -99,6 +111,9 @@ private:
 
 	std::vector<std::shared_ptr<GameObject>> m_allGameObjects;
 
+	//투사체는 사라질 수 있으니 list로 처리
+	std::list<std::shared_ptr<ProjectileObject>> m_projectileObjects;
+
 	std::atomic_bool m_gameStateUpdateComplete;
 	//0 stage // 1 boss
 	ROOM_STATE m_applyRoomStateForGameState;
@@ -108,6 +123,8 @@ private:
 
 	//std::array<10, ShootingObject> m_arrow;
 	//std::array<10, ShootingObject> m_energyBall;
+	std::atomic_bool m_isContinueHeal;
+
 	std::shared_ptr<MonsterMapData> m_stageMapData;
 	std::shared_ptr<NavMapData> m_bossMapData;
 

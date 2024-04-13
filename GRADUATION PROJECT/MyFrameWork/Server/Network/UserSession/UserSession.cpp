@@ -204,14 +204,10 @@ void UserSession::ExecutePacket(const PacketHeader* packetHeader)
 		//weak_ptr<>::lock() 내부적으로, shared_ptr의 refCnt != 0 && Rep가 유효할 때, ptr복사, 아니면 nullptr 반환
 		//RoomRef는 shared_ptr 원본은 _Rep를 수정하진 않아서 문제 없음.
 		auto possessObject = m_possessCharacter.lock();
-		if (nullptr != possessObject) {
+		auto roomRef = m_roomWeakRef.lock();
+		if (nullptr != possessObject && nullptr != roomRef) {
 			possessObject->RecvDirection(recvPacket->direction, true);
 
-			auto roomRef = m_roomWeakRef.lock();
-			if (nullptr == roomRef) {
-				//유효하지 않음.
-			//m_playerState = PLAYER_STATE::LOBBY;
-			}
 			PacketHeader* sendPacket = nullptr;
 			sendPacket = &SERVER_PACKET::MovePacket(possessObject->GetRole(), recvPacket->direction, std::chrono::high_resolution_clock::now(), static_cast<char>(SERVER_PACKET::TYPE::MOVE_KEY_DOWN));
 			roomRef->MultiCastCastPacket(sendPacket, possessObject->GetRole());
@@ -227,14 +223,10 @@ void UserSession::ExecutePacket(const PacketHeader* packetHeader)
 	{
 		const CLIENT_PACKET::MovePacket* recvPacket = reinterpret_cast<const CLIENT_PACKET::MovePacket*>(packetHeader);
 		auto possessObject = m_possessCharacter.lock();
-		if (nullptr != possessObject) {
+			auto roomRef = m_roomWeakRef.lock();
+		if (nullptr != possessObject || nullptr != roomRef) {
 			possessObject->RecvDirection(recvPacket->direction, false);
 
-			auto roomRef = m_roomWeakRef.lock();
-			if (nullptr == roomRef) {
-				//유효하지 않음.
-			//m_playerState = PLAYER_STATE::LOBBY;
-			}
 			PacketHeader* sendPacket = nullptr;
 			sendPacket = &SERVER_PACKET::MovePacket(possessObject->GetRole(), recvPacket->direction, std::chrono::high_resolution_clock::now(), static_cast<char>(SERVER_PACKET::TYPE::MOVE_KEY_UP));
 			roomRef->MultiCastCastPacket(sendPacket, possessObject->GetRole());
@@ -299,6 +291,12 @@ void UserSession::ExecutePacket(const PacketHeader* packetHeader)
 #pragma region CHARACTER_ATTACK
 	case CLIENT_PACKET::TYPE::SKILL_EXECUTE_Q://실제 공격을 행할 때 날아오는 패킷
 	{
+		auto possessCharacter = m_possessCharacter.lock();
+		if (nullptr == possessCharacter) {
+			//Invalid InGameState
+			return;
+		}
+		possessCharacter->RecvSkill(CharacterObject::SKILL_TYPE::SKILL_TYPE_Q);
 		//CLIENT_PACKET::SkillAttackPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::SkillAttackPacket*>(p);
 		//int roomId = g_iocpNetwork.m_session[userId].GetRoomId();
 		//if (roomId != -1) {
@@ -307,8 +305,25 @@ void UserSession::ExecutePacket(const PacketHeader* packetHeader)
 		//}
 	}
 	break;
+	case CLIENT_PACKET::TYPE::SKILL_FLOAT3_EXECUTE_Q:
+	{
+		auto possessCharacter = m_possessCharacter.lock();
+		if (nullptr == possessCharacter) {
+			//Invalid InGameState
+			return;
+		}
+		const CLIENT_PACKET::FloatDataSkillPacket* recvPacket = reinterpret_cast<const CLIENT_PACKET::FloatDataSkillPacket*>(packetHeader);
+		possessCharacter->RecvSkill(CharacterObject::SKILL_TYPE::SKILL_TYPE_Q, recvPacket->floatData);
+	}
+	break;
 	case CLIENT_PACKET::TYPE::SKILL_EXECUTE_E:
 	{
+		auto possessCharacter = m_possessCharacter.lock();
+		if (nullptr == possessCharacter) {
+			//Invalid InGameState
+			return;
+		}
+		possessCharacter->RecvSkill(CharacterObject::SKILL_TYPE::SKILL_TYPE_E);
 		//CLIENT_PACKET::SkillAttackPacket* recvPacket = reinterpret_cast<CLIENT_PACKET::SkillAttackPacket*>(p);
 		//int roomId = g_iocpNetwork.m_session[userId].GetRoomId();
 		//if (roomId != -1) {
@@ -317,34 +332,35 @@ void UserSession::ExecutePacket(const PacketHeader* packetHeader)
 		//}
 	}
 	break;
-	case CLIENT_PACKET::TYPE::SKILL_INPUT_Q://StartAnimation
+	case CLIENT_PACKET::TYPE::SKILL_FLOAT3_EXECUTE_E:
 	{
 		auto possessCharacter = m_possessCharacter.lock();
-		auto roomRef = m_roomWeakRef.lock();
-		if (nullptr == possessCharacter || nullptr == roomRef) {
+		if (nullptr == possessCharacter) {
 			//Invalid InGameState
 			return;
 		}
-		SERVER_PACKET::NotifyPlayerAnimationPacket sendPacket(static_cast<char>(SERVER_PACKET::TYPE::START_ANIMATION_Q), possessCharacter->GetRole());
-		roomRef->MultiCastCastPacket(&sendPacket, possessCharacter->GetRole());
-		//	if (g_iocpNetwork.m_session[userId].GetRole() == WARRIOR || g_iocpNetwork.m_session[userId].GetRole() == TANKER) {
-		//		roomRef.StopMovePlayCharacter(g_iocpNetwork.m_session[userId].GetRole());
-		//	}
+		const CLIENT_PACKET::FloatDataSkillPacket* recvPacket = reinterpret_cast<const CLIENT_PACKET::FloatDataSkillPacket*>(packetHeader);
+		possessCharacter->RecvSkill(CharacterObject::SKILL_TYPE::SKILL_TYPE_E, recvPacket->floatData);
+	}
+	break;
+	case CLIENT_PACKET::TYPE::SKILL_INPUT_Q://StartAnimation
+	{
+		auto possessCharacter = m_possessCharacter.lock();
+		if (nullptr == possessCharacter) {
+			//Invalid InGameState
+			return;
+		}
+		possessCharacter->RecvSkillInput(CharacterObject::SKILL_TYPE::SKILL_TYPE_Q);
 	}
 	break;
 	case CLIENT_PACKET::TYPE::SKILL_INPUT_E:
 	{
 		auto possessCharacter = m_possessCharacter.lock();
-		auto roomRef = m_roomWeakRef.lock();
-		if (nullptr == possessCharacter || nullptr == roomRef) {
+		if (nullptr == possessCharacter) {
 			//Invalid InGameState
 			return;
 		}
-		SERVER_PACKET::NotifyPlayerAnimationPacket sendPacket(static_cast<char>(SERVER_PACKET::TYPE::START_ANIMATION_E), possessCharacter->GetRole());
-		roomRef->MultiCastCastPacket(&sendPacket, possessCharacter->GetRole());
-		//	if (g_iocpNetwork.m_session[userId].GetRole() == WARRIOR || g_iocpNetwork.m_session[userId].GetRole() == TANKER) {
-		//		roomRef.StopMovePlayCharacter(g_iocpNetwork.m_session[userId].GetRole());
-		//	}
+		possessCharacter->RecvSkillInput(CharacterObject::SKILL_TYPE::SKILL_TYPE_E);
 	}
 	break;
 	//클라로 공격 시작 애니메이션 패킷은 mouseInput에서 해결 하는 것으로 보임

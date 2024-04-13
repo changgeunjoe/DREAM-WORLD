@@ -136,7 +136,7 @@ void NetworkHelper::SendRotatePacket(ROTATE_AXIS axis, float angle)
 void NetworkHelper::SendKeyUpPacket(DIRECTION d)
 {
 	std::chrono::steady_clock::time_point t = std::chrono::steady_clock::now();
-	CLIENT_PACKET::MovePacket sendPacket(d, t + std::chrono::microseconds(g_Logic.GetDiffTime()), static_cast<unsigned char>(CLIENT_PACKET::TYPE::MOVE_KEY_DOWN));
+	CLIENT_PACKET::MovePacket sendPacket(d, t + std::chrono::microseconds(g_Logic.GetDiffTime()), static_cast<unsigned char>(CLIENT_PACKET::TYPE::MOVE_KEY_UP));
 	sendPacket.direction = d;
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
@@ -189,7 +189,7 @@ void NetworkHelper::Send_SkillExecute_E()
 
 void NetworkHelper::Send_SkillExecute_E(const XMFLOAT3& floatData)
 {
-	CLIENT_PACKET::FloatDataSkillPacket sendPacket(static_cast<unsigned char>(CLIENT_PACKET::TYPE::SKILL_EXECUTE_E), floatData);
+	CLIENT_PACKET::FloatDataSkillPacket sendPacket(static_cast<unsigned char>(CLIENT_PACKET::TYPE::SKILL_FLOAT3_EXECUTE_E), floatData);
 	send(m_clientSocket, reinterpret_cast<char*>(&sendPacket), sendPacket.size, 0);
 }
 

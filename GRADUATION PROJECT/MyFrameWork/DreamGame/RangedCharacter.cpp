@@ -68,7 +68,7 @@ void RangedCharacter::Move(float fTimeElapsed)
 	default: break;
 	}
 
-	
+
 }
 
 void RangedCharacter::SetLookDirection()
@@ -367,6 +367,32 @@ void Archer::SetLButtonClicked(bool bLButtonClicked)
 	}
 }
 
+void Archer::InputSecondSkill()
+{
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[1]);
+	if (m_skillCoolTime[1] > duration) {
+		gGameFramework.GetScene()->GetObjectManager()->m_bPickingenemy = false;
+		return;
+	}
+	g_NetworkHelper.Send_SkillInput_E();
+}
+
+void Archer::RecvFirstSkill(const high_resolution_clock::time_point& serverTime)
+{
+	if (g_Logic.GetMyRole() == ROLE::ARCHER)
+		m_skillInputTime[0] = serverTime - std::chrono::microseconds(g_Logic.GetDiffTime());
+	m_bQSkillClicked = true;
+}
+
+void Archer::RecvSecondSkill(const high_resolution_clock::time_point& serverTime)
+{
+	if (g_Logic.GetMyRole() == ROLE::ARCHER) {
+		m_skillInputTime[1] = serverTime - std::chrono::microseconds(g_Logic.GetDiffTime());
+	}
+	m_bESkillClicked = true;
+}
+
 void Archer::ShootArrow()//스킬
 {
 	m_nProjectiles = (m_nProjectiles < MAX_ARROW) ? m_nProjectiles : m_nProjectiles % MAX_ARROW;
@@ -377,12 +403,12 @@ void Archer::ShootArrow()//스킬
 	}
 	if (m_bQSkillClicked == true)
 	{
+		XMFLOAT3 objectLook = GetObjectLook();
 		if (g_Logic.GetMyRole() == ROLE::ARCHER)
-			g_NetworkHelper.Send_SkillExecute_Q(Vector3::Normalize(GetObjectLook()));
+			g_NetworkHelper.Send_SkillExecute_Q(Vector3::Normalize(objectLook));
 		g_sound.NoLoopPlay("ArcherQSkillSound", CalculateDistanceSound());
 		for (int i = 0; i < 3; ++i)//서버에 옮겨야됨
 		{
-			XMFLOAT3 objectLook = GetObjectLook();
 			XMFLOAT3 objectRight = GetRight();
 			XMFLOAT3 objPosition = GetPosition();
 			objPosition.y = 6.0f + (i % 2) * 4.0f;
@@ -797,6 +823,40 @@ void Mage::EndEffect(int nSkillNum)
 		HealingEffects[i]->SetActive(false);
 	}
 	m_bQSkillClicked = false;
+}
+
+void Mage::InputSecondSkill()
+{
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[1]);
+	if (m_skillCoolTime[1] > duration) {
+		gGameFramework.GetScene()->GetObjectManager()->m_bPickingenemy = false;
+		return;
+	}
+	g_NetworkHelper.Send_SkillInput_E();
+}
+
+void Mage::RecvFirstSkill(const high_resolution_clock::time_point& serverTime)
+{
+	if (g_Logic.GetMyRole() == ROLE::MAGE)
+	{
+		m_skillInputTime[0] = serverTime - std::chrono::microseconds(g_Logic.GetDiffTime());
+		g_NetworkHelper.Send_SkillExecute_Q();
+	}
+	m_bQSkillClicked = true;
+#ifdef LOCAL_TASK
+	StartEffect(0);
+#endif
+
+}
+
+void Mage::RecvSecondSkill(const high_resolution_clock::time_point& serverTime)
+{
+	if (g_Logic.GetMyRole() == ROLE::MAGE)
+	{
+		m_skillInputTime[1] = serverTime - std::chrono::microseconds(g_Logic.GetDiffTime());
+	}
+	m_bESkillClicked = true;
 }
 
 void Mage::UpdateEffect()

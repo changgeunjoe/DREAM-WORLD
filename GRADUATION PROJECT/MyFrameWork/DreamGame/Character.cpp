@@ -113,6 +113,10 @@ void Character::MoveForward(int forwardDirection, float ftimeElapsed)
 		auto interpolateData = m_interpolateData->GetInterpolateData();
 		nextPosition = Vector3::Add(nextPosition, interpolateData.second, 10.0f * interpolateData.first * ftimeElapsed);
 	}
+	/*cout << "currentPosition - x: " << nextPosition.x << ", y: " << nextPosition.y
+		<< ". z: " << nextPosition.z << endl;
+	cout << "moveVector - x: " << forwardVector.x << ", y: " << forwardVector.y << ", z:"
+		<< forwardVector.z << endl;*/
 	GameObject::SetPosition(nextPosition);
 	if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
 	g_sound.Play("WalkSound", CalculateDistanceSound());
@@ -154,6 +158,10 @@ void Character::MoveStrafe(int rightDirection, float ftimeElapsed)
 		auto interpolateData = m_interpolateData->GetInterpolateData();
 		nextPosition = Vector3::Add(nextPosition, interpolateData.second, 10.0f * interpolateData.first * ftimeElapsed);
 	}
+	/*cout << "currentPosition - x: " << nextPosition.x << ", y: " << nextPosition.y
+		<< ". z: " << nextPosition.z << endl;
+	cout << "moveVector - x: " << rightVector.x << ", y: " << rightVector.y << ", z:"
+		<< rightVector.z << endl;*/
 	GameObject::SetPosition(nextPosition);
 	if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
 	g_sound.Play("WalkSound", CalculateDistanceSound());
@@ -199,6 +207,10 @@ void Character::MoveDiagonal(int fowardDirection, int rightDirection, float ftim
 		auto interpolateData = m_interpolateData->GetInterpolateData();
 		nextPosition = Vector3::Add(nextPosition, interpolateData.second, 10.0f * interpolateData.first * ftimeElapsed);
 	}
+	/*cout << "currentPosition - x: " << nextPosition.x << ", y: " << nextPosition.y
+		<< ". z: " << nextPosition.z << endl;
+	cout << "moveVector - x: " << dialogVector.x << ", y: " << dialogVector.y << ", z:"
+		<< dialogVector.z << endl;*/
 	GameObject::SetPosition(nextPosition);
 	if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
 	g_sound.Play("WalkSound", CalculateDistanceSound());

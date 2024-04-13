@@ -20,7 +20,6 @@ SmallMonsterObject::SmallMonsterObject(const float& maxHp, const float& moveSpee
 
 void SmallMonsterObject::Update()
 {
-	if (debug) return;
 	if (!m_isAlive) {
 		UpdateLastUpdateTime();
 		return;
@@ -49,7 +48,7 @@ void SmallMonsterObject::Attacked(const float& damage)
 	if (!m_isAlive) return;
 	m_hp -= damage;
 	auto damagedEvent = std::make_shared<SmallMonsterDamagedEvent>(m_idx, m_hp);
-	m_roomRef->InsertAftrerUpdateEvent(damagedEvent );
+	m_roomRef->InsertAftrerUpdateEvent(damagedEvent);
 	if (m_hp <= 0) {
 		m_hp = 0;
 		auto dieEvent = std::make_shared<SmallMonsterDieEvent>(m_idx);
@@ -180,16 +179,6 @@ const std::pair<float, float> SmallMonsterObject::GetAggroBetweenAngle()
 
 }
 
-const float SmallMonsterObject::GetBetweenAngleRadian(const XMFLOAT3& position)
-{
-	XMFLOAT3 destinationPosition = position;
-	XMFLOAT3 tDesVector = GetToVector(destinationPosition);
-	tDesVector = Vector3::Normalize(tDesVector);
-	XMFLOAT3 lookVector = GetLookVector();
-	float lookDotResult = Vector3::DotProduct(lookVector, tDesVector);
-	return lookDotResult;
-}
-
 std::optional<const XMFLOAT3> SmallMonsterObject::UpdateNextPosition(const float& elapsedTime)
 {
 	XMFLOAT3 commonNextPosition = GetCommonNextPosition(elapsedTime);
@@ -208,7 +197,7 @@ std::optional<const XMFLOAT3> SmallMonsterObject::UpdateNextPosition(const float
 
 std::optional<std::pair<bool, XMFLOAT3>> SmallMonsterObject::CollideWall(const XMFLOAT3& nextPosition, const float& elapsedTime, const bool& isSlidingPosition)
 {
-	BoundingSphere boudingSphere{ nextPosition, m_boundingSize };
+	BoundingSphere boudingSphere{ nextPosition,  m_collisionSphere.Radius };
 	boudingSphere.Center.y = 0;
 	auto mapData = m_roomRef->GetMapData();
 	auto& mapCollision = mapData->GetCollisionData();

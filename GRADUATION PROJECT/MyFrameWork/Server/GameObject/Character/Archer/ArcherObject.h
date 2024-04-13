@@ -36,16 +36,17 @@ namespace ArcherSKill
 		virtual void Execute() override;
 	};
 
-	class SkyArrow : public PositionSkill
+	class RainArrow : public PositionSkill
 	{
 	public:
-		SkyArrow(std::shared_ptr<ArcherObject> archerRef, const XMFLOAT3& position)
+		RainArrow(std::shared_ptr<ArcherObject> archerRef, const XMFLOAT3& position)
 			:PositionSkill(archerRef, position) {}
 		virtual void Execute() override;
 	};
 
 	class CommonAttack : public DirectionSkill//아쳐는 줌인으로 강화된 공격을 할 수 있음.
 	{
+	public:
 		CommonAttack(std::shared_ptr<ArcherObject> archerRef, const XMFLOAT3& direction, const int& power) : DirectionSkill(archerRef, direction), power(power) {}
 		virtual void Execute() override;
 	protected:
@@ -65,8 +66,12 @@ public:
 	virtual void RecvSkill(const SKILL_TYPE&) override;
 	virtual void RecvSkill(const SKILL_TYPE&, const XMFLOAT3& vector3) override;
 	virtual void RecvAttackCommon(const XMFLOAT3& attackDir, const int& power) override;
-private:
+
 	void ExecuteTripleArrow(const XMFLOAT3& direction);
 	void ExecuteRainArrow(const XMFLOAT3& position);
 	void ExecuteCommonAttack(const XMFLOAT3& direction, const int& power);
+
+	void AttackRainArrow();
+private:
+	XMFLOAT3 m_attackRainArrowPosition;
 };

@@ -118,7 +118,7 @@
     <ClCompile Include="GameObject\GameObject.cpp">
       <Filter>InGame\GameObject</Filter>
     </ClCompile>
-    <ClCompile Include="GameObject\Projectile\ShootingObject.cpp">
+    <ClCompile Include="GameObject\Projectile\ProjectileObject.cpp">
       <Filter>InGame\GameObject\Projectile</Filter>
     </ClCompile>
     <ClCompile Include="GameObject\Projectile\MeteoObject.cpp">
@@ -246,7 +246,7 @@
     <ClInclude Include="GameObject\GameObject.h">
       <Filter>InGame\GameObject</Filter>
     </ClInclude>
-    <ClInclude Include="GameObject\Projectile\ShootingObject.h">
+    <ClInclude Include="GameObject\Projectile\ProjectileObject.h">
       <Filter>InGame\GameObject\Projectile</Filter>
     </ClInclude>
     <ClInclude Include="GameObject\Projectile\MeteoObject.h">

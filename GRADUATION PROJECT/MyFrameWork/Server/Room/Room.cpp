@@ -15,12 +15,15 @@
 #include "../GameObject/Monster/MonsterObject.h"
 #include "../GameObject/Monster/SmallMonsterObject.h"
 #include "../GameObject/Monster/BossMonsterObject.h"
+
+#include "../GameObject/Projectile/ProjectileObject.h"
+
 #include "../Network/protocol/protocol.h"
 #include "../MapData/MapData.h"
 #include "RoomEvent.h"
 
 Room::Room(std::vector<std::shared_ptr<UserSession>>& userRefVec, std::shared_ptr<MonsterMapData>& mapDataRef, std::shared_ptr<NavMapData>& navMapDataRef)
-	: m_updateCnt(0), m_roomState(ROOM_STATE::ROOM_COMMON), m_gameStateUpdateComplete(false)
+	: m_updateCnt(0), m_roomState(ROOM_STATE::ROOM_COMMON), m_gameStateUpdateComplete(false), m_isContinueHeal(false)
 	, m_stageMapData(mapDataRef), m_bossMapData(navMapDataRef)
 {
 	m_gameStateData.reserve(2);
@@ -54,6 +57,7 @@ void ::Room::Execute(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key)
 	case IOCP_OP_CODE::OP_ROOM_UPDATE:
 	{
 		//spdlog::debug("Room::Execute() - OP_ROOM_UPDATE");
+		ProcessPrevUpdateEvent();
 		Update();
 		//InsertTimerEvent(TIMER_EVENT_TYPE::EV_SEND_NPC_MOVE, 1ms);
 		//타이머에 우선 넣고 이후 Update()에서 나온 Send이벤트 처리
@@ -75,6 +79,43 @@ void ::Room::Execute(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key)
 	}
 	break;
 
+	//Room - player skill
+	case IOCP_OP_CODE::OP_PLAYER_HEAL_START:
+	{
+		m_isContinueHeal = true;
+		auto healStartPacket = std::make_shared<SERVER_PACKET::NotifyPacket>(static_cast<char>(SERVER_PACKET::TYPE::HEAL_START));
+		BroadCastPacket(healStartPacket);
+		PlayerHeal();
+	}
+	break;
+	case IOCP_OP_CODE::OP_PLAYER_HEAL:
+	{
+		PlayerHeal();
+	}
+	break;
+	case IOCP_OP_CODE::OP_PLAYER_HEAL_END:
+	{
+		auto healEndPacket = std::make_shared<SERVER_PACKET::NotifyPacket>(static_cast<char>(SERVER_PACKET::TYPE::HEAL_END));
+		BroadCastPacket(healEndPacket);
+		m_isContinueHeal = false;
+	}
+	break;
+	case IOCP_OP_CODE::OP_PLAYER_APPLY_SIELD:
+	{
+		PlayerApplyShield();
+	}
+	break;
+	case IOCP_OP_CODE::OP_PLAYER_REMOVE_SIELD:
+	{
+		PlayerRemoveShield();
+	}
+	break;
+	case IOCP_OP_CODE::OP_RAIN_ARROW_ATTACK:
+	{
+		RainArrowAttack();
+	}
+	break;
+
 	//Room - Boss
 	case IOCP_OP_CODE::OP_FIND_PLAYER:
 	{
@@ -87,18 +128,6 @@ void ::Room::Execute(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key)
 	}
 	break;
 	case IOCP_OP_CODE::OP_BOSS_ATTACK_EXECUTE:
-	{
-
-	}
-	break;
-
-	//Room - player skill
-	case IOCP_OP_CODE::OP_PLAYER_HEAL:
-	{
-
-	}
-	break;
-	case IOCP_OP_CODE::OP_SKY_ARROW_ATTACK:
 	{
 
 	}
@@ -116,10 +145,6 @@ void Room::Start()
 {
 	SERVER_PACKET::IntoGamePacket sendPacket;
 	for (int i = 0; i < 15; ++i) {
-		if (i > 0) {
-			m_smallMonsters[i]->debug = true;
-			continue;
-		}
 		sendPacket.monsterData[i].id = i;
 		sendPacket.monsterData[i].position = m_smallMonsters[i]->GetPosition();
 		sendPacket.monsterData[i].lookVector = m_smallMonsters[i]->GetLookVector();
@@ -143,12 +168,12 @@ std::vector<std::shared_ptr<SmallMonsterObject>>& Room::GetSmallMonsters()
 	return m_smallMonsters;
 }
 
-std::vector<std::shared_ptr<GameObject>> Room::GetCharacters() const
+std::vector<std::shared_ptr<LiveObject>> Room::GetCharacters() const
 {
-	std::vector<std::shared_ptr<GameObject>> characters;
+	std::vector<std::shared_ptr<LiveObject>> characters;
 	characters.reserve(4);
 	for (auto& character : m_characters)
-		characters.push_back(character.second->shared_from_this());
+		characters.push_back(character.second);
 	return characters;
 }
 
@@ -167,6 +192,25 @@ std::vector<std::shared_ptr<LiveObject>> Room::GetLiveObjects() const
 		//boss Insert
 	}
 	return liveObjects;
+}
+
+void Room::InsertProjectileObject(std::shared_ptr<ProjectileObject> projectileObject)
+{
+	//prevUpdateEvent는 Update()내부에서 싱글하게 돌아감.
+	m_projectileObjects.push_back(projectileObject);
+}
+
+void Room::UpdateProjectileObject()
+{
+	for (auto projectileIter = m_projectileObjects.begin(); projectileIter != m_projectileObjects.end();) {
+		(*projectileIter)->Update();
+		const bool isDestroyTime = (*projectileIter)->IsDestroy();
+		if (isDestroyTime) {
+			projectileIter = m_projectileObjects.erase(projectileIter);
+			continue;
+		}
+		++projectileIter;
+	}
 }
 
 std::shared_ptr<MapData> Room::GetMapData() const
@@ -209,6 +253,19 @@ void Room::ProcessAfterUpdateEvent()
 
 void Room::ProcessPrevUpdateEvent()
 {
+	int prccessPrevEventCnt = m_prevUpdateEventCnt;
+	m_prevUpdateEventCnt -= prccessPrevEventCnt;
+	for (int i = 0; i < prccessPrevEventCnt; ++i) {
+		std::shared_ptr<PrevUpdateEvent> currentEvent = nullptr;
+		bool isSuccess = m_prevUpdateEvent.try_pop(currentEvent);
+		if (isSuccess) {
+			currentEvent->ProcessEvent();
+		}
+		else {
+			m_prevUpdateEventCnt += prccessPrevEventCnt;
+			return;
+		}
+	}
 }
 
 void Room::InsertTimerEvent(const TIMER_EVENT_TYPE& eventType, const std::chrono::milliseconds& updateTick)
@@ -225,6 +282,7 @@ void Room::Update()
 	for (auto& gameObject : m_allGameObjects) {
 		gameObject->Update();
 	}
+	UpdateProjectileObject();
 
 	++m_updateCnt;
 	if (!m_gameStateUpdateComplete) return;
@@ -336,7 +394,26 @@ void Room::MultiCastCastPacket(std::shared_ptr<PacketHeader>& packetData, const 
 
 std::shared_ptr<CharacterObject> Room::GetCharacterObject(const ROLE& role)
 {
-	return std::shared_ptr<CharacterObject>();
+	if (!m_characters.count(role)) {
+		spdlog::warn("std::shared_ptr<CharacterObject> Room::GetCharacterObject(const ROLE& role) - Invalid ROLE");
+		return nullptr;
+	}
+	return m_characters[role];
+}
+
+std::vector<std::shared_ptr<MonsterObject>> Room::GetEnermyData()
+{
+	if (ROOM_STATE::ROOM_COMMON == m_roomState) {
+		std::vector<std::shared_ptr<MonsterObject>> monsterObjects;
+		monsterObjects.reserve(15);
+		for (auto& monster : m_smallMonsters)
+			monsterObjects.push_back(monster);
+		return monsterObjects;
+	}
+	else {
+		std::vector<std::shared_ptr<MonsterObject>> bossObject;
+		//...
+	}
 }
 
 void Room::SetGameStatePlayer_Stage()
@@ -386,6 +463,9 @@ void Room::SetGameStateBoss()
 
 void Room::InitializeAllGameObject()
 {
+	static constexpr float SMALL_MONSTER_HP = 250.0f;
+	static constexpr float BOSS_HP = 2500.0f;
+
 	m_gameStateData.push_back(std::make_shared<SERVER_PACKET::GameState_STAGE>());
 	m_gameStateData.push_back(std::make_shared<SERVER_PACKET::GameState_BOSS>());
 
@@ -396,11 +476,10 @@ void Room::InitializeAllGameObject()
 	m_characters.emplace(ROLE::TANKER, std::make_shared<TankerObject>(780.0f, 50.0f, 8.0f, std::static_pointer_cast<Room>(shared_from_this())));
 	m_characters.emplace(ROLE::ARCHER, std::make_shared<ArcherObject>(400.0f, 50.0f, 8.0f, std::static_pointer_cast<Room>(shared_from_this())));
 	m_characters.emplace(ROLE::MAGE, std::make_shared<MageObject>(500.0f, 50.0f, 8.0f, std::static_pointer_cast<Room>(shared_from_this())));
-	m_characters[ROLE::ARCHER]->debug = true;
 
 	auto monsterInitData = m_stageMapData->GetMonsterInitData();
 	for (int i = 0; i < monsterInitData.size(); ++i) {
-		auto monster = std::make_shared<SmallMonsterObject>(150.0f, 50.0f, 8.0f, std::static_pointer_cast<Room>(shared_from_this()), i);
+		auto monster = std::make_shared<SmallMonsterObject>(SMALL_MONSTER_HP, 50.0f, 8.0f, std::static_pointer_cast<Room>(shared_from_this()), i);
 		monster->SetPosition(monsterInitData[i].position);
 		monster->Rotate(ROTATE_AXIS::Y, monsterInitData[i].eulerRotate.y);
 		monster->Rotate(ROTATE_AXIS::X, monsterInitData[i].eulerRotate.x);
@@ -423,4 +502,43 @@ void Room::InitializeAllGameObject()
 
 void Room::ProccessSmallMonsterEvent()
 {
+}
+
+void Room::PlayerHeal()
+{
+	static constexpr float HEAL_HP = 75.0f;
+	if (!m_isContinueHeal)return;
+	auto healPacket = std::make_shared<SERVER_PACKET::NotifyHealPacket>(static_cast<char>(SERVER_PACKET::TYPE::NOTIFY_HEAL_HP));
+	int i = 0;
+	for (auto& character : m_characters) {
+		character.second->Heal(HEAL_HP);
+		healPacket->applyHealPlayerInfo[i].role = character.first;
+		healPacket->applyHealPlayerInfo[i].hp = character.second->GetHp();
+		++i;
+	}
+	BroadCastPacket(std::static_pointer_cast<PacketHeader>(healPacket));
+	InsertTimerEvent(TIMER_EVENT_TYPE::EV_HEAL, std::chrono::milliseconds(1000));
+}
+
+void Room::PlayerApplyShield()
+{
+	for (auto& character : m_characters)
+		character.second->SetShield(true);
+	auto shieldPacket = std::make_shared<SERVER_PACKET::NotifyPacket>(static_cast<char>(SERVER_PACKET::TYPE::SHIELD_START));
+	BroadCastPacket(shieldPacket);
+
+}
+
+void Room::PlayerRemoveShield()
+{
+	for (auto& character : m_characters)
+		character.second->SetShield(false);
+	auto shieldPacket = std::make_shared<SERVER_PACKET::NotifyPacket>(static_cast<char>(SERVER_PACKET::TYPE::SHIELD_END));
+	BroadCastPacket(shieldPacket);
+}
+
+void Room::RainArrowAttack()
+{
+	//UpdateAfterEvent는 어차피 concurrent라 문제 없음
+	std::static_pointer_cast<ArcherObject>(m_characters[ROLE::ARCHER])->AttackRainArrow();
 }

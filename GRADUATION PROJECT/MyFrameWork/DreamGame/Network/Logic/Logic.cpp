@@ -187,12 +187,7 @@ void Logic::ProcessPacket(const PacketHeader* packetHeader)
 		//로딩창이면 좋을듯?
 		const SERVER_PACKET::IntoGamePacket* recvPacket = reinterpret_cast<const SERVER_PACKET::IntoGamePacket*>(packetHeader);
 		auto normalMonsterObj = gGameFramework.GetScene()->GetObjectManager()->GetNormalMonsterArr();
-		GameObject* possessObj = gGameFramework.GetScene()->m_pObjectManager->GetChracterInfo(recvPacket->role);
 		for (int i = 0; i < 15; ++i) {
-			if (i > 0) {
-				normalMonsterObj[i]->SetAliveState(false);
-				continue;
-			}
 			normalMonsterObj[recvPacket->monsterData[i].id]->SetLook(recvPacket->monsterData[i].lookVector);
 			normalMonsterObj[recvPacket->monsterData[i].id]->SetPosition(recvPacket->monsterData[i].position);
 			normalMonsterObj[recvPacket->monsterData[i].id]->SetMaxHP(recvPacket->monsterData[i].maxHp);
@@ -200,6 +195,7 @@ void Logic::ProcessPacket(const PacketHeader* packetHeader)
 			normalMonsterObj[recvPacket->monsterData[i].id]->SetTempHp(100.0f);
 			//break;
 		}
+		GameObject* possessObj = gGameFramework.GetScene()->m_pObjectManager->GetChracterInfo(recvPacket->role);
 		gGameFramework.GetScene()->GetObjectManager()->SetPlayerCamera(possessObj);
 		gGameFramework.m_bLobbyScene = false;
 		gGameFramework.GetScene()->GetObjectManager()->m_bSceneSwap = true;
@@ -224,27 +220,66 @@ void Logic::ProcessPacket(const PacketHeader* packetHeader)
 		//}
 	}
 	break;
+	case SERVER_PACKET::TYPE::PLAYER_DIE:
+	{
+		const SERVER_PACKET::PlayerDiePacket* recvPacket = reinterpret_cast<const SERVER_PACKET::PlayerDiePacket*>(packetHeader);
+		Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo(recvPacket->role);
+		possessObj->SetAliveState(false);
+	}
+	break;
+	case SERVER_PACKET::TYPE::PLAYER_DAMAGED:
+	{
+		const SERVER_PACKET::PlayerDamagedPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::PlayerDamagedPacket*>(packetHeader);
+		recvPacket->restHp;
+		recvPacket->restShield;
+		recvPacket->role;
+		Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo(recvPacket->role);
+		float maxHp = possessObj->GetMaxHP();
+		possessObj->SetCurrentHP(recvPacket->restHp / maxHp * 100.0f);
+		possessObj->m_pHPBarUI->SetCurrentHP(recvPacket->restHp / maxHp * 100.0f);
+		possessObj->SetShield(recvPacket->restShield);
+		possessObj->m_pHPBarUI->SetShield(recvPacket->restShield);
+	}
+	break;
+	case SERVER_PACKET::TYPE::SMALL_MONSTER_DIE:
+	{
+		const SERVER_PACKET::SmallMonsterPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::SmallMonsterPacket*>(packetHeader);
+		NormalMonster** smallMonsterArr = gGameFramework.GetScene()->GetObjectManager()->GetNormalMonsterArr();
+		smallMonsterArr[recvPacket->id]->SetAliveState(false);
+	}
+	break;
+	case SERVER_PACKET::TYPE::SMALL_MONSTER_DAMAGED:
+	{
+		const SERVER_PACKET::SmallMonsterDamagedPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::SmallMonsterDamagedPacket*>(packetHeader);
+		recvPacket->id;
+		recvPacket->restHp;
+		NormalMonster** smallMonsterArr = gGameFramework.GetScene()->GetObjectManager()->GetNormalMonsterArr();
+
+		float maxHp = smallMonsterArr[recvPacket->id]->GetMaxHP();
+		smallMonsterArr[recvPacket->id]->SetCurrentHP(recvPacket->restHp / maxHp * 100.0f);
+		//smallMonsterArr[recvPacket->id]->m_pHPBarUI->SetCurrentHP(recvPacket->restHp / maxHp * 100.0f);
+	}
+	break;
 	case SERVER_PACKET::TYPE::SHOOTING_ARROW://화살
 	{
 		const SERVER_PACKET::ShootingObject* recvPacket = reinterpret_cast<const SERVER_PACKET::ShootingObject*>(packetHeader);
 
 		Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo(ROLE::ARCHER);
-		static_cast<Archer*>(possessObj)->ShootArrow(recvPacket->dir);
+		static_cast<Archer*>(possessObj)->ShootArrow(recvPacket->direction);
 	}
 	break;
-	case SERVER_PACKET::TYPE::SHOOTING_BALL://공
+	case SERVER_PACKET::TYPE::SHOOTING_ICE_LANCE://아이스 렌스
 	{
 		const SERVER_PACKET::ShootingObject* recvPacket = reinterpret_cast<const SERVER_PACKET::ShootingObject*>(packetHeader);
 
 		Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo(ROLE::MAGE);
-		static_cast<Mage*>(possessObj)->Attack(recvPacket->dir);
+		static_cast<Mage*>(possessObj)->Attack(recvPacket->direction);
 	}
 	break;
 	case SERVER_PACKET::TYPE::EXECUTE_LIGHTNING:
 	{
 		const SERVER_PACKET::ShootingObject* recvPacket = reinterpret_cast<const SERVER_PACKET::ShootingObject*>(packetHeader);
-		Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo(ROLE::MAGE);
-		gGameFramework.m_pScene->m_pObjectManager->SetLightningEffect(recvPacket->dir);
+		gGameFramework.m_pScene->m_pObjectManager->SetLightningEffect(recvPacket->direction);
 	}
 	break;
 	case SERVER_PACKET::TYPE::GAME_STATE_STAGE:
@@ -256,16 +291,23 @@ void Logic::ProcessPacket(const PacketHeader* packetHeader)
 				Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo(recvPacket->userState[i].role);
 				float maxHp = possessObj->GetMaxHP();
 				possessObj->SetCurrentHP(recvPacket->userState[i].hp / maxHp * 100.0f);
-				possessObj->SetInterpolateData(recvPacket->userState[i].time, recvPacket->userState[i].position);;
+				possessObj->m_pHPBarUI->SetCurrentHP(recvPacket->userState[i].hp / maxHp * 100.0f);
+				//Sheild데이터도 넣어줘야 됨.
+
+				possessObj->SetInterpolateData(recvPacket->userState[i].time, recvPacket->userState[i].position);
 			}
 		}
 		//small monster
 		NormalMonster** smallMonsterArr = gGameFramework.GetScene()->GetObjectManager()->GetNormalMonsterArr();
 		for (int i = 0; i < 15; i++) {
 			int monsterIdx = recvPacket->smallMonster[i].idx;
+			if (!smallMonsterArr[monsterIdx]->GetAliveState()) continue;
+
 			smallMonsterArr[monsterIdx]->SetAliveState(recvPacket->smallMonster[monsterIdx].isAlive);
 			float maxHp = smallMonsterArr[monsterIdx]->GetMaxHP();
 			smallMonsterArr[monsterIdx]->SetCurrentHP(recvPacket->smallMonster[monsterIdx].hp / maxHp * 100.0f);
+			//smallMonsterArr[monsterIdx]->m_pHPBarUI->SetCurrentHP(recvPacket->smallMonster[monsterIdx].hp / maxHp * 100.0f);
+
 			smallMonsterArr[monsterIdx]->SetInterpolateData(recvPacket->smallMonster[monsterIdx].time, recvPacket->smallMonster[monsterIdx].position);
 			break;
 		}
@@ -277,12 +319,6 @@ void Logic::ProcessPacket(const PacketHeader* packetHeader)
 		const SERVER_PACKET::SmallMonsterAttackPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::SmallMonsterAttackPacket*>(packetHeader);
 		NormalMonster** smallMonsterArr = gGameFramework.GetScene()->GetObjectManager()->GetNormalMonsterArr();
 		smallMonsterArr[recvPacket->id]->SetOnAttack(true);
-		Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo(recvPacket->role);
-		float maxHp = possessObj->GetMaxHP();
-		possessObj->SetCurrentHP(recvPacket->hp / maxHp * 100.0f);
-
-		possessObj->SetShield(recvPacket->shield);
-		possessObj->m_pHPBarUI->SetShield(recvPacket->shield);
 	}
 	break;
 	case SERVER_PACKET::TYPE::SMALL_MONSTER_MOVE:
@@ -549,7 +585,7 @@ void Logic::ProcessPacket(const PacketHeader* packetHeader)
 	{
 		const SERVER_PACKET::NotifyHealPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::NotifyHealPacket*>(packetHeader);
 		for (int i = 0; i < 4; i++) {
-			Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo((ROLE)recvPacket->applyHealPlayerInfo[i].role);
+			Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(recvPacket->applyHealPlayerInfo[i].role);
 			if (possessObj)
 			{
 				float maxHp = possessObj->GetMaxHP();
@@ -558,21 +594,21 @@ void Logic::ProcessPacket(const PacketHeader* packetHeader)
 		}
 	}
 	break;
-	case SERVER_PACKET::TYPE::NOTIFY_SHIELD_APPLY:
-	{
-		const SERVER_PACKET::NotifyShieldPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::NotifyShieldPacket*>(packetHeader);
-		for (int i = 0; i < 4; i++) {
-			if (recvPacket->applyShieldPlayerInfo[i].shield < FLT_EPSILON) continue;
-			Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo((ROLE)recvPacket->applyShieldPlayerInfo[i].role);
-			if (possessObj)
-			{
-				possessObj->SetShield(recvPacket->applyShieldPlayerInfo[i].shield);	//최대 실드 200
-				possessObj->m_pHPBarUI->SetShield(recvPacket->applyShieldPlayerInfo[i].shield);
-				possessObj->m_pHPBarUI->SetCurrentHP(possessObj->GetCurrentHP());
-			}
-		}
-	}
-	break;
+	//case SERVER_PACKET::TYPE::NOTIFY_SHIELD_APPLY:
+	//{
+	//	const SERVER_PACKET::NotifyShieldPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::NotifyShieldPacket*>(packetHeader);
+	//	for (int i = 0; i < 4; i++) {
+	//		if (recvPacket->applyShieldPlayerInfo[i].shield < FLT_EPSILON) continue;
+	//		Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo((ROLE)recvPacket->applyShieldPlayerInfo[i].role);
+	//		if (possessObj)
+	//		{
+	//			possessObj->SetShield(recvPacket->applyShieldPlayerInfo[i].shield);	//최대 실드 200
+	//			possessObj->m_pHPBarUI->SetShield(recvPacket->applyShieldPlayerInfo[i].shield);
+	//			possessObj->m_pHPBarUI->SetCurrentHP(possessObj->GetCurrentHP());
+	//		}
+	//	}
+	//}
+	//break;
 	case SERVER_PACKET::TYPE::PLAYER_ATTACK_RESULT:
 	{
 		const SERVER_PACKET::PlayerAttackMonsterDamagePacket* recvPacket = reinterpret_cast<const SERVER_PACKET::PlayerAttackMonsterDamagePacket*>(packetHeader);
@@ -603,14 +639,14 @@ void Logic::ProcessPacket(const PacketHeader* packetHeader)
 	{
 		const SERVER_PACKET::NotifyPlayerAnimationPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::NotifyPlayerAnimationPacket*>(packetHeader);
 		Player* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo((ROLE)recvPacket->role);
-		possessObj->FirstSkillDown();
+		possessObj->RecvFirstSkill(recvPacket->time);
 	}
 	break;
 	case SERVER_PACKET::TYPE::START_ANIMATION_E:
 	{
 		const SERVER_PACKET::NotifyPlayerAnimationPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::NotifyPlayerAnimationPacket*>(packetHeader);
 		Player* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo((ROLE)recvPacket->role);
-		possessObj->SecondSkillDown();
+		possessObj->RecvSecondSkill(recvPacket->time);
 	}
 	break;
 	//projectile packet

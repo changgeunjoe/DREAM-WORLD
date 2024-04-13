@@ -43,7 +43,7 @@ namespace TankerSkill
 		virtual void Execute() override;
 	};
 
-	class CommonAttack : DirectionSkill//연속형 공격없이 그대로 공격하면 됨.
+	class CommonAttack : public DirectionSkill//연속형 공격없이 그대로 공격하면 됨.
 	{
 	public:
 		CommonAttack(std::shared_ptr<TankerObject> tankerRef, const XMFLOAT3& direction) : DirectionSkill(tankerRef, direction) {}
@@ -64,6 +64,6 @@ public:
 	virtual void RecvAttackCommon(const XMFLOAT3& attackDir, const int& power) override;
 
 	void ExecuteHammerSkill(const XMFLOAT3& direction);
-	void ExecuteShield();
+	void ExecuteShield(const CommonDurationSkill_MILSEC::DURATION_TIME_RATIO& durationTime);
 	void ExecuteCommonAttack(const XMFLOAT3& attackDir);
 };

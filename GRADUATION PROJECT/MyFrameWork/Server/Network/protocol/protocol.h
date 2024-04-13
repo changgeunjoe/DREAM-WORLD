@@ -10,7 +10,7 @@ struct PacketHeader
 	unsigned short size;
 	unsigned char type;
 	PacketHeader(const unsigned char& type) : type(type), size(sizeof(PacketHeader)) {}
-	PacketHeader(const unsigned char& type, const unsigned short& sisz) : type(type), size(size) {}
+	PacketHeader(const unsigned char& type, const unsigned short& size) : type(type), size(size) {}
 };
 using PacketTime = std::chrono::high_resolution_clock::time_point;
 
@@ -211,6 +211,8 @@ namespace SERVER_PACKET {
 #pragma region SMALL_MONSTER
 		//SMALL_MONSTER_MOVE_SET_LOOK,
 		//SMALL_MONSTER_STOP_SET_LOOK,
+		SMALL_MONSTER_DIE,
+		SMALL_MONSTER_DAMAGED,
 		SMALL_MONSTER_STOP,
 		SMALL_MONSTER_MOVE,
 		SMALL_MONSTER_ATTACK,
@@ -218,6 +220,28 @@ namespace SERVER_PACKET {
 		//SMALL_MONSTER_MOVE,
 		//SMALL_MONSTER_ATTACK,
 #pragma endregion
+
+#pragma region PLAYER
+		PLAYER_DAMAGED,
+		PLAYER_DIE,
+		START_ANIMATION_Q,
+		START_ANIMATION_E,
+
+		SHOOTING_ARROW,
+		SHOOTING_ICE_LANCE,
+		EXECUTE_LIGHTNING,
+		HEAL_START,
+		NOTIFY_HEAL_HP,
+		HEAL_END,
+
+		SHIELD_START,
+		//NOTIFY_SHIELD_APPLY,
+		SHIELD_END,
+#pragma endregion
+
+		GAME_STATE_STAGE,
+		GAME_STATE_BOSS,
+
 
 		BOSS_CHANGE_STATE_MOVE_DES,
 		BOSS_ATTACK_EXECUTE,
@@ -230,28 +254,13 @@ namespace SERVER_PACKET {
 		METEO_DESTROY,
 		METEO_CREATE,
 
-		GAME_STATE_STAGE,
-		GAME_STATE_BOSS,
-		GAME_END,
 
 		COMMON_ATTACK_START,
 		PLAYER_ATTACK_RESULT,
 		PLAYER_ATTACK_RESULT_BOSS,
 
-		SHOOTING_ARROW,
-		SHOOTING_BALL,
-		EXECUTE_LIGHTNING,
-		HEAL_START,
-		HEAL_END,
-		SHIELD_START,
-		SHIELD_END,
-		NOTIFY_HEAL_HP,
-		NOTIFY_SHIELD_APPLY,
-
-		START_ANIMATION_Q,
-		START_ANIMATION_E,
-
-		TIME_SYNC_RESPONSE,
+		GAME_END,
+		TIME_SYNC_RESPONSE
 	};
 
 #pragma region DISCARD
@@ -297,8 +306,7 @@ namespace SERVER_PACKET {
 		{}
 		IntoGamePacket(const ROLE& role, const char& type = static_cast<char>(TYPE::INTO_GAME))
 			:PacketHeader(type, sizeof(IntoGamePacket)), role(role)
-		{
-		}
+		{}
 	};
 
 	struct MovePacket : public PacketHeader
@@ -352,13 +360,18 @@ namespace SERVER_PACKET {
 
 	using SmallMonsterPacket = SmallMonsterBase;
 
+	struct SmallMonsterDamagedPacket : public SmallMonsterPacket
+	{
+		float restHp;
+		SmallMonsterDamagedPacket(const int& id, const float& hp, const char& type = static_cast<char>(TYPE::SMALL_MONSTER_DAMAGED))
+			: SmallMonsterPacket(id, type, sizeof(SmallMonsterDamagedPacket)), restHp(hp)
+		{}
+	};
+
 	struct SmallMonsterAttackPacket : public SmallMonsterPacket
 	{
-		ROLE role;
-		float hp;
-		float shield;
-		SmallMonsterAttackPacket(const int& id, const ROLE& role, const float& hp, const float& shield, const char& type = static_cast<char>(TYPE::SMALL_MONSTER_ATTACK))
-			: SmallMonsterPacket(id, type, sizeof(SmallMonsterAttackPacket)), role(role), hp(hp), shield(shield)
+		SmallMonsterAttackPacket(const int& id, const char& type = static_cast<char>(TYPE::SMALL_MONSTER_ATTACK))
+			: SmallMonsterPacket(id, type, sizeof(SmallMonsterAttackPacket))
 		{}
 	};
 	struct SmallMonsterDestinationPacket : public SmallMonsterPacket
@@ -366,6 +379,26 @@ namespace SERVER_PACKET {
 		XMFLOAT3 destinationPosition;
 		SmallMonsterDestinationPacket(const int& id, const XMFLOAT3& destinationPosition, const char& type = static_cast<char>(TYPE::SMALL_MONSTER_SET_DESTINATION))
 			: SmallMonsterPacket(id, type, sizeof(SmallMonsterDestinationPacket)), destinationPosition(destinationPosition)
+		{}
+	};
+
+	struct PlayerDamagedPacket : public PacketHeader
+	{
+		float restHp;
+		float restShield;
+		ROLE role;
+		PlayerDamagedPacket(const ROLE& role, const float& restHp, const float& restShield)
+			: PacketHeader(static_cast<char>(TYPE::PLAYER_DAMAGED), sizeof(PlayerDamagedPacket)),
+			restHp(restHp), restShield(restShield), role(role)
+		{}
+	};
+
+	struct PlayerDiePacket : public PacketHeader
+	{
+		ROLE role;
+		PlayerDiePacket(const ROLE& role)
+			: PacketHeader(static_cast<char>(TYPE::PLAYER_DIE), sizeof(PlayerDiePacket)),
+			role(role)
 		{}
 	};
 
@@ -379,8 +412,8 @@ namespace SERVER_PACKET {
 	};
 
 	struct PlayerState : public LiveObjectState {
-		ROLE role;
 		float resetShield;
+		ROLE role;
 	};
 
 	struct SmallMonsterState : public LiveObjectState {
@@ -424,8 +457,9 @@ namespace SERVER_PACKET {
 	struct NotifyPlayerAnimationPacket : public PacketHeader
 	{//전체 플레이어들에게 알려서 애니메이션 재생
 		ROLE role;
-		NotifyPlayerAnimationPacket(const char& type, const ROLE& role)
-			:PacketHeader(type, sizeof(NotifyPlayerAnimationPacket)), role(role) {}
+		std::chrono::high_resolution_clock::time_point time;
+		NotifyPlayerAnimationPacket(const char& type, const ROLE& role, const std::chrono::high_resolution_clock::time_point& time)
+			:PacketHeader(type, sizeof(NotifyPlayerAnimationPacket)), role(role), time(time) {}
 	};
 
 
@@ -433,18 +467,18 @@ namespace SERVER_PACKET {
 
 	struct ShootingObject : public PacketHeader
 	{
-		XMFLOAT3 dir;
-		ShootingObject(const char& type) : PacketHeader(type, sizeof(ShootingObject)) {}
+		XMFLOAT3 direction;
+		ShootingObject(const char& type, const XMFLOAT3& direction) : PacketHeader(type, sizeof(ShootingObject)), direction(direction) {}
 	};
 
 	struct ApplyHealForPlayer {
-		char role;
+		ROLE role;
 		float hp;
 	};
 
-	struct ApplyShieldForPlayer {
-		char role;
-		float shield;
+	struct NotifyHealPacket : public PacketHeader
+	{
+		ApplyHealForPlayer applyHealPlayerInfo[4];
 	};
 
 	struct BossAttackPacket : public PacketHeader
@@ -478,16 +512,6 @@ namespace SERVER_PACKET {
 	{//Player State-> pos rot...추가하여 보정?		
 		XMFLOAT3 bossPosition;
 		PlayerState userState[4];
-	};
-
-	struct NotifyHealPacket : public PacketHeader
-	{
-		ApplyHealForPlayer applyHealPlayerInfo[4];
-	};
-
-	struct NotifyShieldPacket : public PacketHeader
-	{
-		ApplyShieldForPlayer applyShieldPlayerInfo[4];
 	};
 
 	struct ProjectileDamagePacket : public PacketHeader
