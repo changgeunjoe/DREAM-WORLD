@@ -127,6 +127,19 @@ void CharacterObject::RecvSkillInput(const SKILL_TYPE& type)
 	}
 }
 
+void CharacterObject::ForceStopMove()
+{
+	m_currentDirection = IDLE_BIT;
+}
+
+void CharacterObject::ResetSkillCoolTime()
+{
+	auto skillQ = m_skillCtrl->GetEventData(SKILL_Q);
+	if (nullptr != skillQ) skillQ->ResetCoolTime();
+	auto skillE = m_skillCtrl->GetEventData(SKILL_E);
+	if (nullptr != skillE) skillE->ResetCoolTime();
+}
+
 void CharacterObject::UpdateDirection()
 {
 	m_currentDirection = m_applyDIrection;
@@ -142,7 +155,6 @@ void CharacterObject::UpdateRotate()
 	GameObject::Rotate(ROTATE_AXIS::Y, std::get<Get_Y>(newAngleData));
 	GameObject::Rotate(ROTATE_AXIS::X, std::get<Get_X>(newAngleData));
 	GameObject::Rotate(ROTATE_AXIS::Z, std::get<Get_Z>(newAngleData));
-
 }
 
 std::optional<const XMFLOAT3>  CharacterObject::UpdateNextPosition(const float& elapsedTime)

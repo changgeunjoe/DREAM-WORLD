@@ -56,6 +56,11 @@ public:
 		return m_triangleMesh[idx];
 	}
 
+	//머리가 시작, 꼬리가 끝
+	std::list<XMFLOAT3> GetAstarNode(const XMFLOAT3& startPosition, const XMFLOAT3& destinationPosition);
+private:
+	std::list<XMFLOAT3> OptimizeAStar(const XMFLOAT3& startPosition, const XMFLOAT3& destinationPosition, std::list<std::shared_ptr<NavMesh::TriangleNavMesh>>& confirmedAstarNode);
+	void CreatePortal(std::list<std::shared_ptr<NavMesh::TriangleNavMesh>>& confirmedAstarNode, std::vector<XMFLOAT3>& leftPortal, std::vector<XMFLOAT3>& rightPortal);
 protected:
 	//Nav Data
 	//read Data

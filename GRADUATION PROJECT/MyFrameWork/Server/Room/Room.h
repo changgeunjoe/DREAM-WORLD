@@ -36,18 +36,13 @@ public:
 
 	std::vector<std::shared_ptr<SmallMonsterObject>>& GetSmallMonsters();
 
-	std::vector<std::shared_ptr<LiveObject>> GetCharacters() const;
+	std::vector<std::shared_ptr<CharacterObject>> GetCharacters() const;
 	std::vector<std::shared_ptr<LiveObject>> GetLiveObjects() const;
 
 	void InsertProjectileObject(std::shared_ptr<ProjectileObject> projectileObject);
 	void UpdateProjectileObject();
 
 	std::shared_ptr<MapData> GetMapData() const;
-	void RecvSkill_QInput(const ROLE& role, const XMFLOAT3& vector3);
-	void RecvSkill_EInput(const ROLE& role, const XMFLOAT3& vector3);
-
-	void RecvSkill_QExecute(const ROLE& role);
-	void RecvSkill_EExecute(const ROLE& role);
 
 	void InsertAftrerUpdateEvent(std::shared_ptr<RoomSendEvent> roomEvent);
 	void InsertPrevUpdateEvent(std::shared_ptr<PrevUpdateEvent> prevUpdate);
@@ -65,6 +60,7 @@ public:
 
 	void InitializeAllGameObject();
 
+	void SetBossStage();
 private:
 
 	void ProcessAfterUpdateEvent();
@@ -81,8 +77,6 @@ private:
 	void SetGameStatePlayer_Boss();
 	void SetGameStateMonsters();
 	void SetGameStateBoss();
-
-	void ProccessSmallMonsterEvent();
 
 	//PlayerSkill
 	void PlayerHeal();
@@ -108,8 +102,6 @@ private:
 	std::vector<std::shared_ptr<SmallMonsterObject>> m_smallMonsters;
 
 	//std::shared_ptr<BossMonsterObject> m_bossMonster;
-
-	std::vector<std::shared_ptr<GameObject>> m_allGameObjects;
 
 	//투사체는 사라질 수 있으니 list로 처리
 	std::list<std::shared_ptr<ProjectileObject>> m_projectileObjects;

@@ -27,10 +27,10 @@ int main()
 	TIMER::Timer::GetInstance().RegisterIocp(iocpRef->GetSharedPtr());
 	UserManager::GetInstance().RegisterIocp(iocpRef->GetSharedPtr());
 	DB::DBConnector::GetInstance().RegistIocp(iocpRef->GetSharedPtr());
-	IocpEventManager::GetInstance().Initailize();
-	RoomManager::GetInstance().Initialize();
 
 	//각 클래스 시작
+	IocpEventManager::GetInstance().Initailize();
+	RoomManager::GetInstance().Initialize();
 	UserManager::GetInstance().Initialize();
 	TIMER::Timer::GetInstance().StartTimer();
 	DB::DBConnector::GetInstance().Connect();

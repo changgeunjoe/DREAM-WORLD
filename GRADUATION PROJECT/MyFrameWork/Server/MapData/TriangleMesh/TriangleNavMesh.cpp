@@ -61,11 +61,28 @@ const float NavMesh::TriangleNavMesh::GetDistance(const float& x, const float& y
 	return Vector3::Length(Vector3::Subtract(XMFLOAT3(m_center), XMFLOAT3(x, y, z)));
 }
 
+std::optional<float> NavMesh::TriangleNavMesh::GetRelationMeshDistance(std::shared_ptr<TriangleNavMesh> relationMesh) const
+{
+	auto relationMeshIter = m_relationTriangleMesh.find(relationMesh);
+	if (m_relationTriangleMesh.end() != relationMeshIter) {
+		return relationMeshIter->second;
+	}
+	return std::nullopt;
+}
+
 void NavMesh::TriangleNavMesh::InsertRelationTriangleMesh(std::shared_ptr<TriangleNavMesh>& otherMesh)
 {
 	if (1 != m_relationTriangleMesh.count(otherMesh)) {
 		m_relationTriangleMesh.emplace(otherMesh, GetDistance(*otherMesh));
 	}
+}
+
+std::vector<int> NavMesh::TriangleNavMesh::GetRelationVertexIdx(std::shared_ptr<TriangleNavMesh> other) const
+{
+	std::vector<int> sharedVertexIdx;
+	sharedVertexIdx.reserve(2);
+	std::ranges::set_intersection(m_vertexIdxSet, other->m_vertexIdxSet, std::back_inserter(sharedVertexIdx));
+	return sharedVertexIdx;
 }
 
 const std::vector<std::shared_ptr<NavMesh::TriangleNavMesh>> NavMesh::TriangleNavMesh::GetRelationTriangleMeshes() const

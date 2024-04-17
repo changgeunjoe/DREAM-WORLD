@@ -168,9 +168,9 @@ std::vector<std::shared_ptr<SmallMonsterObject>>& Room::GetSmallMonsters()
 	return m_smallMonsters;
 }
 
-std::vector<std::shared_ptr<LiveObject>> Room::GetCharacters() const
+std::vector<std::shared_ptr<CharacterObject>> Room::GetCharacters() const
 {
-	std::vector<std::shared_ptr<LiveObject>> characters;
+	std::vector<std::shared_ptr<CharacterObject>> characters;
 	characters.reserve(4);
 	for (auto& character : m_characters)
 		characters.push_back(character.second);
@@ -279,9 +279,14 @@ void Room::Update()
 	static constexpr int GAME_STATE_SEND_CNT = 3;
 
 	//Update GameObject
-	for (auto& gameObject : m_allGameObjects) {
-		gameObject->Update();
-	}
+	for (auto& character : m_characters)
+		character.second->Update();
+	if (ROOM_STATE::ROOM_COMMON == m_roomState)
+		for (auto& smallMonster : m_smallMonsters) {
+			smallMonster->Update();
+		}
+	//else if(ROOM_STATE::ROOM_BOSS == m_roomState)
+		
 	UpdateProjectileObject();
 
 	++m_updateCnt;
@@ -487,21 +492,22 @@ void Room::InitializeAllGameObject()
 		m_smallMonsters.push_back(monster);
 	}
 
-	//m_bossMonster = std::make_shared<BossMonsterObject>(1, 50.0f, 8.0f, std::static_pointer_cast<Room>(shared_from_this()));
+	//m_bossMonster = std::make_shared<BossMonsterObject>(1, 50.0f, 30.0f, std::static_pointer_cast<Room>(shared_from_this()));
 
 	//ProjectileObject Initialize
 	for (auto& character : m_characters) {
 		character.second->SetStagePosition(m_roomState);
-		m_allGameObjects.push_back(character.second);
 	}
-	for (auto& monster : m_smallMonsters)
-		m_allGameObjects.push_back(monster);
-	//m_allGameObjects.push_back(m_bossMonster);
-	//InsertProjectileObject
 }
 
-void Room::ProccessSmallMonsterEvent()
+void Room::SetBossStage()
 {
+	if (ROOM_STATE::ROOM_COMMON != m_roomState) return;
+	for (auto& character : m_characters) {
+		character.second->ForceStopMove();
+		character.second->SetStagePosition(ROOM_STATE::ROOM_BOSS);
+		character.second->ResetSkillCoolTime();
+	}
 }
 
 void Room::PlayerHeal()

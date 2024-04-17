@@ -13,6 +13,7 @@ public:
 
 	const bool IsAbleExecute();
 	const TIME& GetLastExeTime() const;
+	void ResetCoolTime();
 private:
 	MS m_coolTime;
 	TIME m_lastExecTime;

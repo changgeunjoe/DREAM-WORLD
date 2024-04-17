@@ -12,7 +12,7 @@ protected:
 
 public:
 	MonsterObject() = delete;
-	MonsterObject(const float& maxHp, const float& attackDamage, const float& moveSpeed, const float& boundingSize, std::shared_ptr<Room>& roomRef);
+	MonsterObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, std::shared_ptr<Room>& roomRef);
 	~MonsterObject() = default;
 
 protected:

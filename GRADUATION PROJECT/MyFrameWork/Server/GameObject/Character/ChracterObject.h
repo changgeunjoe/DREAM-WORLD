@@ -89,6 +89,9 @@ public:
 	{
 		return m_role;
 	}
+
+	void ForceStopMove();
+	void ResetSkillCoolTime();
 protected:
 	void UpdateDirection();
 	virtual void UpdateRotate();

@@ -18,3 +18,8 @@ const CoolDownEventBase::TIME& CoolDownEventBase::GetLastExeTime() const
 	return m_lastExecTime;
 	// TODO: 여기에 return 문을 삽입합니다.
 }
+
+void CoolDownEventBase::ResetCoolTime()
+{
+	m_lastExecTime -= m_coolTime;
+}

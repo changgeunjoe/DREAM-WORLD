@@ -1,67 +1,42 @@
 #pragma once
-class AstarNode
+#include "../PCH/stdafx.h"
+
+namespace NavMesh
 {
-private:
-	int m_nodeIdx = -1;
-	float m_cost = 0.0f;
-	float m_dis = 0.0f;
-	float m_res = 0.0f;
-	int m_parentNodeIdx = -1;
-
-public:
-	AstarNode() {}
-	AstarNode(int nodeIdx, float cost, float dis, float res, int parentNodeIdx) : m_nodeIdx(nodeIdx), m_cost(cost), m_dis(dis), m_res(res), m_parentNodeIdx(parentNodeIdx) {}
-	AstarNode(AstarNode& other)
+	class TriangleNavMesh;
+	class AstarNode
 	{
-		m_nodeIdx = other.m_nodeIdx;
-		m_cost = other.m_cost;
-		m_dis = other.m_dis;
-		m_res = other.m_res;
-		m_parentNodeIdx = other.m_parentNodeIdx;
-	}
-	AstarNode(AstarNode&& other)
-	{
-		m_nodeIdx = other.m_nodeIdx;
-		m_cost = other.m_cost;
-		m_dis = other.m_dis;
-		m_res = other.m_res;
-		m_parentNodeIdx = other.m_parentNodeIdx;
-	}
-	~AstarNode() {}
-public:
-	void RefreshNodeData(int nodeIdx, float cost, float dis, float res, int parentNodeIdx)
-	{
-		m_nodeIdx = nodeIdx;
-		m_cost = cost;
-		m_dis = dis;
-		m_res = res;
-		m_parentNodeIdx = parentNodeIdx;
-	}
-	float GetResValue() { return m_res; }
-	int GetIdx() { return m_nodeIdx; }
-	int GetParentIdx() { return m_parentNodeIdx; }
-	float GetDistance() { return m_dis; }
+	public:
+		//std::shared_ptr<TriangleNavMesh> ownerMesh
+		AstarNode(std::shared_ptr<TriangleNavMesh> parentMesh, const float& parentDistance, const float& destinationDistance);
 
-public:
-	constexpr bool operator< (const AstarNode& other)const {
-		return m_dis < other.m_dis;
-	}
-	AstarNode& operator= (const AstarNode& other) {
-		m_nodeIdx = other.m_nodeIdx;
-		m_cost = other.m_cost;
-		m_dis = other.m_dis;
-		m_res = other.m_res;
-		m_parentNodeIdx = other.m_parentNodeIdx;
-		return *this;
-	}
+		void RefreshData(std::shared_ptr<TriangleNavMesh> parentMesh, const float& parentDistance);
 
-	AstarNode& operator= (const AstarNode&& other) noexcept {
-		m_nodeIdx = other.m_nodeIdx;
-		m_cost = other.m_cost;
-		m_dis = other.m_dis;
-		m_res = other.m_res;
-		m_parentNodeIdx = other.m_parentNodeIdx;
-		return *this;
-	}
-};
+		std::shared_ptr<TriangleNavMesh> GetParentMesh() const
+		{
+			return m_parentMesh;
+		}
 
+		const float& GetParentDistance() const
+		{
+			return m_parentDistance;
+		}
+
+		constexpr bool operator<(const AstarNode& other) const
+		{
+			return (m_parentDistance + m_destinationDistane) < (other.m_parentDistance + other.m_destinationDistane);
+		}
+		const bool IsStart(std::shared_ptr<TriangleNavMesh> ownerMesh) const
+		{
+			return ownerMesh == m_parentMesh;
+		}
+	private:
+		////현재 에이스타의 주인 메쉬
+		//std::shared_ptr<TriangleNavMesh> m_ownerMesh;
+		//현재 노드로 올 수 있게 이어진 메쉬
+		std::shared_ptr<TriangleNavMesh> m_parentMesh;
+
+		float m_parentDistance;//부모 메시로부터 거리 값
+		float m_destinationDistane;//목적지로 가는 거리 값
+	};
+}

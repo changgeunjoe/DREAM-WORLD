@@ -14,6 +14,7 @@ namespace NavMesh {
 		const float GetDistance(const XMFLOAT3& position) const;
 		const float GetDistance(const TriangleNavMesh& other) const;
 		const float GetDistance(const float& x, const  float& y, const float& z) const;
+		std::optional<float> GetRelationMeshDistance(std::shared_ptr<TriangleNavMesh> relationMesh) const;
 
 		const XMFLOAT3 GetCenter() const { return m_center; }
 		const float GetDoubleAreaSize() const { return m_duobleAreaSize; }
@@ -24,6 +25,7 @@ namespace NavMesh {
 			return m_vertexs;
 		}
 
+		std::vector<int> GetRelationVertexIdx(std::shared_ptr<TriangleNavMesh> other) const;
 		const std::vector<std::shared_ptr<TriangleNavMesh>> GetRelationTriangleMeshes() const;
 
 		void ResetRelationData()

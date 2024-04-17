@@ -10,7 +10,7 @@
 //#include "SmallMonsterSessionObject.h"
 
 SmallMonsterObject::SmallMonsterObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, std::shared_ptr<Room>& roomRef, const int& idx)
-	:MonsterObject(maxHp, moveSpeed, boundingSize, 20.0f, roomRef), m_idx(idx)
+	:MonsterObject(maxHp, moveSpeed, boundingSize, roomRef), m_idx(idx)
 {
 	m_behaviorTimeEventCtrl->InsertCoolDownEventData(FIND_PLAYER, EventController::MS(600));
 	m_behaviorTimeEventCtrl->InsertCoolDownEventData(ATTACK_PLAYER, EventController::MS(2500));
@@ -72,7 +72,7 @@ std::shared_ptr<CharacterObject> SmallMonsterObject::FindAggroCharacter()
 {
 	static constexpr float AGGRO_RANGE = 170.0f;
 	auto characters = m_roomRef->GetCharacters();
-	std::shared_ptr<GameObject> minDisGameObject(nullptr);
+	std::shared_ptr<CharacterObject> minDisGameObject(nullptr);
 	float minDistance = 0.0f;
 	for (auto character : characters) {
 		const float distance = character->GetDistance(shared_from_this());
@@ -88,7 +88,7 @@ std::shared_ptr<CharacterObject> SmallMonsterObject::FindAggroCharacter()
 		}
 	}
 	if (AGGRO_RANGE > minDistance)
-		return std::static_pointer_cast<CharacterObject>(minDisGameObject);
+		return minDisGameObject;
 	return nullptr;
 }
 
