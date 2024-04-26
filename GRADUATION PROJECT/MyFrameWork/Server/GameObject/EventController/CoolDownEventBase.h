@@ -12,6 +12,7 @@ public:
 	CoolDownEventBase(const MS& coolTime) : m_coolTime(coolTime), m_lastExecTime(std::chrono::high_resolution_clock::now() - coolTime) {}
 
 	const bool IsAbleExecute();
+	void ForceExecute();
 	const TIME& GetLastExeTime() const;
 	void ResetCoolTime();
 private:

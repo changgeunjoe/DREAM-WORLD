@@ -18,13 +18,12 @@ public:
 protected:
 	//void StartMove();
 	//void StopMove();
-	const bool isReadyFindPlayer();
+	const bool IsReadyFindPlayer();
 
 	virtual std::shared_ptr<CharacterObject> FindAggroCharacter() = 0;
-
-	const bool isReadyAttack();
-	//virtual const bool isAbleAttackRange() = 0;
-	virtual void Attack() = 0;
+	//방향, 각도
+	const std::pair<float, float> GetBetweenAngleEuler(const XMFLOAT3& otherPosition) const;
+	const bool IsReadyAttack();
 
 protected:
 	std::unique_ptr<EventController> m_behaviorTimeEventCtrl;

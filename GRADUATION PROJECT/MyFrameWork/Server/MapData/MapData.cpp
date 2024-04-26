@@ -305,10 +305,10 @@ std::list<XMFLOAT3> NavMapData::GetAstarNode(const XMFLOAT3& startPosition, cons
 		if (minIter->first == destinationMesh) {//만약에 지금 삽입한 객체가 목적지라면 루프문 종료
 			break;
 		}
-		//closeList에 삽입했으니 openList에서는 삭제
-		openList.erase(minIter);
 		//현재 메시는 방금 closeList에 들어온 최소값인 메시
 		currentFindMesh = minIter->first;
+		//closeList에 삽입했으니 openList에서는 삭제
+		openList.erase(minIter);
 	}
 	//front: 시작 메시 , end: 도착 메시
 	std::list<std::shared_ptr<NavMesh::TriangleNavMesh>> confirmedMesh;

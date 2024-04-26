@@ -134,6 +134,80 @@ private:
 	XMFLOAT3 position;
 };
 
+class BossMoveDestinationEvent : public RoomSendEvent
+{
+public:
+	BossMoveDestinationEvent(const XMFLOAT3& destinationPosition) :destinationPosition(destinationPosition) {}
+	virtual std::shared_ptr<PacketHeader> GetPacketHeader() override;
+private:
+	XMFLOAT3 destinationPosition;
+};
+
+class BossSameNodeEvent : public RoomSendEvent
+{
+public:
+	BossSameNodeEvent(const XMFLOAT3& destinationPosition) : destinationPosition(destinationPosition) {}
+	virtual std::shared_ptr<PacketHeader> GetPacketHeader() override;
+private:
+	XMFLOAT3 destinationPosition;
+};
+
+//class BossRotateEvent : public RoomSendEvent
+//{
+//	//y축 회전
+//public:
+//	BossRotateEvent(const float& angle) : angle(angle) {}
+//	virtual std::shared_ptr<PacketHeader> GetPacketHeader() override;
+//private:
+//	float angle;
+//};
+//
+//class BossStopEvent : public RoomSendEvent
+//{
+//public:
+//	virtual std::shared_ptr<PacketHeader> GetPacketHeader() override;
+//};
+
+class BossMeteorEvent : public RoomSendEvent
+{
+public:
+	virtual std::shared_ptr<PacketHeader> GetPacketHeader() override;
+};
+
+class BossFireEvent : public RoomSendEvent
+{
+public:
+	virtual std::shared_ptr<PacketHeader> GetPacketHeader() override;
+};
+
+class BossSpinEvent : public RoomSendEvent
+{
+public:
+	virtual std::shared_ptr<PacketHeader> GetPacketHeader() override;
+};
+
+class BossDirectionAttackEvent : public RoomSendEvent
+{
+public:
+	BossDirectionAttackEvent(const XMFLOAT3& directionVector) : directionVector(directionVector) {}
+protected:
+	XMFLOAT3 directionVector;
+};
+
+class BossKickEvent : public BossDirectionAttackEvent
+{
+public:
+	BossKickEvent(const XMFLOAT3& directionVector) :BossDirectionAttackEvent(directionVector) {}
+	virtual std::shared_ptr<PacketHeader> GetPacketHeader() override;
+};
+
+class BossPunchEvent : public BossDirectionAttackEvent
+{
+public:
+	BossPunchEvent(const XMFLOAT3& directionVector) :BossDirectionAttackEvent(directionVector) {}
+	virtual std::shared_ptr<PacketHeader> GetPacketHeader() override;
+};
+
 /*
 	Update에서 위치 업데이트 이전에 처리할 데이터
 	플레이어의 공격 패킷을 받았을 때, 저장할 클래스
@@ -152,4 +226,33 @@ public:
 	virtual void ProcessEvent() override;
 protected:
 	std::shared_ptr<PlayerSkillBase> playerSkillRef;
+};
+
+class BossRoadSetEvent : public PrevUpdateEvent
+{
+public:
+	BossRoadSetEvent(std::shared_ptr<Room> roomRef, std::shared_ptr<std::list<XMFLOAT3>> road) : m_roomRef(roomRef), m_road(road) {}
+	virtual void ProcessEvent() override;
+protected:
+	std::shared_ptr<std::list<XMFLOAT3>> m_road;
+	std::shared_ptr<Room> m_roomRef;
+};
+
+class BossAggroSetEvent : public BossRoadSetEvent
+{
+public:
+	BossAggroSetEvent(std::shared_ptr<Room> roomRef, std::shared_ptr<std::list<XMFLOAT3>> road, std::shared_ptr<CharacterObject> aggroCharacter)
+		: BossRoadSetEvent(roomRef, road), m_aggroCharacter(aggroCharacter) {}
+	virtual void ProcessEvent() override;
+protected:
+	std::shared_ptr<CharacterObject> m_aggroCharacter;
+};
+
+class ChangeBossStageEvent : public PrevUpdateEvent
+{
+public:
+	ChangeBossStageEvent(std::shared_ptr<Room> roomRef) : m_roomRef(roomRef) {}
+	virtual void ProcessEvent() override;
+private:
+	std::shared_ptr<Room> m_roomRef;
 };

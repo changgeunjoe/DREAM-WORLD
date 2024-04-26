@@ -166,6 +166,7 @@
     <ClCompile Include="GameObject\EventController\DurationEvent.cpp" />
     <ClCompile Include="GameObject\EventController\EventController.cpp" />
     <ClCompile Include="GameObject\GameObject.cpp" />
+    <ClCompile Include="GameObject\Monster\BossEvent.cpp" />
     <ClCompile Include="GameObject\Monster\BossMonsterObject.cpp" />
     <ClCompile Include="GameObject\Monster\MonsterObject.cpp" />
     <ClCompile Include="GameObject\Monster\SmallMonsterObject.cpp" />
@@ -217,6 +218,7 @@
     <ClInclude Include="GameObject\EventController\DurationEvent.h" />
     <ClInclude Include="GameObject\EventController\EventController.h" />
     <ClInclude Include="GameObject\GameObject.h" />
+    <ClInclude Include="GameObject\Monster\BossEvent.h" />
     <ClInclude Include="GameObject\Monster\BossMonsterObject.h" />
     <ClInclude Include="GameObject\Monster\MonsterObject.h" />
     <ClInclude Include="GameObject\Monster\SmallMonsterObject.h" />

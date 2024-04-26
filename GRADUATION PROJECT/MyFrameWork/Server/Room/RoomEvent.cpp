@@ -68,3 +68,64 @@ std::shared_ptr<PacketHeader> ThunderEvent::GetPacketHeader()
 {
 	return std::make_shared<SERVER_PACKET::ShootingObject>(static_cast<char>(SERVER_PACKET::TYPE::EXECUTE_LIGHTNING), position);
 }
+
+std::shared_ptr<PacketHeader> BossMoveDestinationEvent::GetPacketHeader()
+{
+	return std::make_shared<SERVER_PACKET::BossMoveDestnationPacket>(destinationPosition);
+}
+
+std::shared_ptr<PacketHeader> BossSameNodeEvent::GetPacketHeader()
+{
+	return std::make_shared<SERVER_PACKET::BossOnSameNodePacket>(destinationPosition);
+}
+
+//std::shared_ptr<PacketHeader> BossStopEvent::GetPacketHeader()
+//{
+//	return std::make_shared<SERVER_PACKET::BossStopPacket>();
+//}
+//
+//std::shared_ptr<PacketHeader> BossRotateEvent::GetPacketHeader()
+//{
+//	return std::make_shared<SERVER_PACKET::BossRotatePacket>(angle);
+//}
+
+std::shared_ptr<PacketHeader> BossMeteorEvent::GetPacketHeader()
+{
+	return nullptr;
+	// return std::make_shared<SERVER_PACKET::BossAttackMeteorPacket>(BOSS_ATTACK::ATTACK_METEO);
+}
+
+std::shared_ptr<PacketHeader> BossFireEvent::GetPacketHeader()
+{
+	return std::make_shared<SERVER_PACKET::BossAttackPacket>(BOSS_ATTACK::ATTACK_FIRE);
+}
+
+std::shared_ptr<PacketHeader> BossSpinEvent::GetPacketHeader()
+{
+	return std::make_shared<SERVER_PACKET::BossAttackPacket>(BOSS_ATTACK::ATTACK_SPIN);
+}
+
+std::shared_ptr<PacketHeader> BossKickEvent::GetPacketHeader()
+{
+	return std::make_shared<SERVER_PACKET::BossDirectionAttackPacket>(BOSS_ATTACK::ATTACK_KICK, directionVector);
+}
+
+std::shared_ptr<PacketHeader> BossPunchEvent::GetPacketHeader()
+{
+	return std::make_shared<SERVER_PACKET::BossDirectionAttackPacket>(BOSS_ATTACK::ATTACK_PUNCH, directionVector);
+}
+
+void BossRoadSetEvent::ProcessEvent()
+{
+	m_roomRef->SetBossRoad(m_road);
+}
+
+void BossAggroSetEvent::ProcessEvent()
+{
+	m_roomRef->SetBossAggro(m_road, m_aggroCharacter);
+}
+
+void ChangeBossStageEvent::ProcessEvent()
+{
+	m_roomRef->SetBossStage();
+}

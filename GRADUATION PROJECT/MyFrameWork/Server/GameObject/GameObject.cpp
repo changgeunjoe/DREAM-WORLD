@@ -96,7 +96,7 @@ const float GameObject::GetDistance(const XMFLOAT3& other) const
 	return Vector3::Length(distioanceVector);
 }
 
-const float GameObject::GetDistance(std::shared_ptr<GameObject>& other) const
+const float GameObject::GetDistance(const std::shared_ptr<const GameObject>& other) const
 {
 	XMFLOAT3 distanceVector = GetFromVector(other->GetPosition());
 	return Vector3::Length(distanceVector);

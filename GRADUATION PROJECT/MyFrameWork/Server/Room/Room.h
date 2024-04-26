@@ -17,6 +17,12 @@ class ProjectileObject;
 namespace IOCP {
 	class Iocp;
 }
+
+namespace TIMER
+{
+	class EventBase;
+}
+
 class MapData;
 class MonsterMapData;
 class NavMapData;
@@ -39,12 +45,16 @@ public:
 	std::vector<std::shared_ptr<CharacterObject>> GetCharacters() const;
 	std::vector<std::shared_ptr<LiveObject>> GetLiveObjects() const;
 
+	std::vector<ROLE> GetConnectedUserRoles();
+	std::vector<ROLE> GetLiveRoles();
+
 	void InsertProjectileObject(std::shared_ptr<ProjectileObject> projectileObject);
 	void UpdateProjectileObject();
 
 	std::shared_ptr<MapData> GetMapData() const;
+	std::shared_ptr<NavMapData> GetBossMapData() const;
 
-	void InsertAftrerUpdateEvent(std::shared_ptr<RoomSendEvent> roomEvent);
+	void InsertAftrerUpdateSendEvent(std::shared_ptr<RoomSendEvent> roomEvent);
 	void InsertPrevUpdateEvent(std::shared_ptr<PrevUpdateEvent> prevUpdate);
 
 	void BroadCastPacket(const PacketHeader* packetData);
@@ -61,9 +71,15 @@ public:
 	void InitializeAllGameObject();
 
 	void SetBossStage();
+	void InserTimerEvent(std::shared_ptr<TIMER::EventBase> timerEvent);
+
+	void SetBossRoad(std::shared_ptr<std::list<XMFLOAT3>> road);
+	void SetBossAggro(std::shared_ptr<std::list<XMFLOAT3>> road, std::shared_ptr<CharacterObject> characteRef);
+
+	void ForceGameEnd();//이 방 게임 강제로 종료
 private:
 
-	void ProcessAfterUpdateEvent();
+	void ProcessAfterUpdateSendEvent();
 	void ProcessPrevUpdateEvent();
 	void InsertTimerEvent(const TIMER_EVENT_TYPE& eventType, const std::chrono::milliseconds& updateTick = std::chrono::milliseconds(50));
 	void Update();
@@ -83,6 +99,9 @@ private:
 	void PlayerApplyShield();
 	void PlayerRemoveShield();
 	void RainArrowAttack();
+
+	void SetRoomEndState();
+
 private:
 	ROOM_STATE m_roomState = ROOM_STATE::ROOM_COMMON;
 	int m_updateCnt;
@@ -101,7 +120,8 @@ private:
 
 	std::vector<std::shared_ptr<SmallMonsterObject>> m_smallMonsters;
 
-	//std::shared_ptr<BossMonsterObject> m_bossMonster;
+	std::shared_ptr<BossMonsterObject> m_bossMonster;
+	std::chrono::high_resolution_clock::time_point m_bossStartTime;
 
 	//투사체는 사라질 수 있으니 list로 처리
 	std::list<std::shared_ptr<ProjectileObject>> m_projectileObjects;

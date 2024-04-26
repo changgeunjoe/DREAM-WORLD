@@ -37,17 +37,6 @@ void TIMER::RoomEvent::Execute(HANDLE iocpHandle)
 		currentOpCode = IOCP_OP_CODE::OP_GAME_STATE_SEND;
 	}
 	break;
-
-	case TIMER_EVENT_TYPE::EV_BOSS_FIND_PLAYER:
-	{
-		currentOpCode = IOCP_OP_CODE::OP_FIND_PLAYER;
-	}
-	break;
-	case TIMER_EVENT_TYPE::EV_BOSS_ATTACK:
-	{
-		currentOpCode = IOCP_OP_CODE::OP_BOSS_ATTACK_EXECUTE;
-	}
-	break;
 	case TIMER_EVENT_TYPE::EV_HEAL_START:
 	{
 		currentOpCode = IOCP_OP_CODE::OP_PLAYER_HEAL_START;

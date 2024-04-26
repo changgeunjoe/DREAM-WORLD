@@ -97,46 +97,6 @@ void TankerObject::ExecuteCommonAttack(const XMFLOAT3& attackDir)
 	}
 }
 
-/*
-
-void TankerObject::RecvSkill_1(const XMFLOAT3& vec3)
-{
-	//쉴드
-	auto skillCoolData = m_skillCtrl->GetEventData(SKILL_Q);
-	const bool isAble = skillCoolData->IsAbleExecute();
-	if (isAble) {
-		//notiPacket보내서 탱커 쉴드 애니메이션 수행.
-		//근데 지속 시간 어떻게 넘기지?
-		//Timer에 2.4초 뒤에 쉴드 적용하고 브로드 캐스트해야 됨.
-	}
-	auto currentTime = std::chrono::high_resolution_clock::now();
-	auto durationTime = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_prevSkillInputTime[0]);
-	if (m_skillCoolTime[0] > durationTime)	return;
-	m_prevSkillInputTime[0] = currentTime;
-	TIMER_EVENT gameStateEvent{ std::chrono::system_clock::now() + std::chrono::milliseconds(2400), m_roomId ,EV_TANKER_SHIELD_START };	//애니메이션 진행 시간 1.4초 + 공 날아가는 시간 1초
-	g_Timer.InsertTimerQueue(gameStateEvent);
-	SERVER_PACKET::NotifyPacket sendPacket;
-	sendPacket.size = sizeof(SERVER_PACKET::NotifyPacket);
-	sendPacket.type = SERVER_PACKET::SHIELD_START;
-	g_logic.BroadCastInRoom(m_roomId, &sendPacket);
-}
-
-void TankerObject::RecvSkill_2(const XMFLOAT3& vec3)
-{
-	auto skillCoolData = m_skillCtrl->GetEventData(SKILL_E);
-	const bool isAble = skillCoolData->IsAbleExecute();
-	if (isAble) {
-		//executeHammerAttack인데. 뭐 알아서 바꾸자.
-	}
-	auto currentTime = std::chrono::high_resolution_clock::now();
-	auto durationTime = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_prevSkillInputTime[1]);
-	if (m_skillCoolTime[1] > durationTime)	return;
-	m_prevSkillInputTime[1] = currentTime;
-	Room& roomRef = g_RoomManager.GetRunningRoomRef(m_roomId);
-	roomRef.ExecuteHammerAttack(posOrDir, m_position);
-}
-*/
-
 void TankerSkill::ThunderHammerSkill::Execute()
 {
 	tankerRef->ExecuteHammerSkill(direction);

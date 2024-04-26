@@ -13,6 +13,11 @@ const bool CoolDownEventBase::IsAbleExecute()
 	return false;
 }
 
+void CoolDownEventBase::ForceExecute()
+{
+	m_lastExecTime = std::chrono::high_resolution_clock::now();
+}
+
 const CoolDownEventBase::TIME& CoolDownEventBase::GetLastExeTime() const
 {
 	return m_lastExecTime;

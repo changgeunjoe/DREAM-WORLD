@@ -24,9 +24,9 @@ protected:
 	virtual std::shared_ptr<CharacterObject> FindAggroCharacter() override;
 
 	virtual const XMFLOAT3 GetCommonNextPosition(const float& elapsedTime) override;
-	//객체가 우측이라면 1 아니라면 -1, 사이 각도(라디안)
 
-	const std::pair<float, float> GetAggroBetweenAngle();
+	//객체가 우측이라면 1 아니라면 -1, 사이 각도(라디안)
+	const std::pair<float, float> GetAggroBetweenAngleEuler() const;
 
 	void UpdateDestinationPosition();
 	void SetMove();
@@ -37,13 +37,11 @@ protected:
 	std::optional<const XMFLOAT3>  UpdateNextPosition(const float& elapsedTime);
 	std::optional<std::pair<bool, XMFLOAT3>> CollideWall(const XMFLOAT3& nextPosition, const float& elapsedTime, const bool& isSlidingPosition);
 	const bool IsAbleAttack();
-	virtual void Attack() override;
+	void Attack();
 protected:
 	int m_idx;
 
 	float m_attackDamage = 30.0f;
-
-	//MILLISECS m_lastSendDestinationSendTime;
 	XMFLOAT3 m_destinationPosition;
 	std::weak_ptr<CharacterObject> m_aggroCharacter;
 };

@@ -7,6 +7,7 @@
 #include "../Match/Matching.h"
 #include "../Room/Room.h"
 #include "../GameObject/Character/ChracterObject.h"
+#include "../Room/RoomEvent.h"
 
 UserSession::UserSession() : m_recvDataStorage(RecvDataStorage())
 {
@@ -223,7 +224,7 @@ void UserSession::ExecutePacket(const PacketHeader* packetHeader)
 	{
 		const CLIENT_PACKET::MovePacket* recvPacket = reinterpret_cast<const CLIENT_PACKET::MovePacket*>(packetHeader);
 		auto possessObject = m_possessCharacter.lock();
-			auto roomRef = m_roomWeakRef.lock();
+		auto roomRef = m_roomWeakRef.lock();
 		if (nullptr != possessObject || nullptr != roomRef) {
 			possessObject->RecvDirection(recvPacket->direction, false);
 
@@ -422,17 +423,24 @@ void UserSession::ExecutePacket(const PacketHeader* packetHeader)
 #pragma region CHEAT_KEY
 	case CLIENT_PACKET::TYPE::STAGE_CHANGE_BOSS:
 	{
-		//int roomId = g_iocpNetwork.m_session[userId].GetRoomId();
-		//if (roomId != -1) {
-		//	Room& roomRef = g_RoomManager.GetRunningRoomRef(roomId);
-		//	roomRef.ChangeStageBoss();
-		//}
+		auto roomRef = m_roomWeakRef.lock();
+		if (nullptr == roomRef) {
+			//PlayerState = lobby;
+			return;
+		}
+		auto changeBossStageEvent = std::make_shared<ChangeBossStageEvent>(roomRef);
+		roomRef->InsertPrevUpdateEvent(std::static_pointer_cast<PrevUpdateEvent>(changeBossStageEvent));
 	}
 	break;
 
 	case CLIENT_PACKET::TYPE::TEST_GAME_END: // юс╫ц╥н
 	{
-
+		auto roomRef = m_roomWeakRef.lock();
+		if (nullptr == roomRef) {
+			//PlayerState = lobby;
+			return;
+		}
+		roomRef->ForceGameEnd();
 		//if (g_iocpNetwork.m_session[userId].GetRoomId() != -1) {
 		//	int roomId = g_iocpNetwork.m_session[userId].GetRoomId();
 		//	if (roomId != -1) {

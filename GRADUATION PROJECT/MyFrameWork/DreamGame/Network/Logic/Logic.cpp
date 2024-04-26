@@ -53,7 +53,6 @@ void Logic::ProcessPacket(const PacketHeader* packetHeader)
 		{
 		case SERVER_PACKET::TYPE::INTO_GAME:
 		case SERVER_PACKET::TYPE::LOGIN_SUCCESS:
-		case SERVER_PACKET::TYPE::ADD_PLAYER:
 		case SERVER_PACKET::TYPE::PRE_EXIST_LOGIN:
 		case SERVER_PACKET::TYPE::TIME_SYNC_RESPONSE:
 			break;
@@ -140,25 +139,7 @@ void Logic::ProcessPacket(const PacketHeader* packetHeader)
 #endif
 	}
 	break;
-	case SERVER_PACKET::TYPE::ADD_PLAYER:
-	{
-		XMFLOAT3 rightVec = XMFLOAT3(1, 0, 0);
-		XMFLOAT3 dirVec = XMFLOAT3(0, 0, 1);
 
-		//const SERVER_PACKET::AddPlayerPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::AddPlayerPacket*>(packetHeader);
-		//GameObject* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->role);
-		//possessObj->SetPosition(recvPacket->position);
-		//possessObj->Rotate(&upVec, recvPacket->rotate.y);
-		////이름 세팅 함수 필요
-		//if (recvPacket->userId == myId) {
-		//	myRole = (ROLE)recvPacket->role;
-		//GameObject* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->role);
-		//	gGameFramework.GetScene()->GetObjectManager()->SetPlayerCamera(possessObj);
-		//	//camera Set func필요
-		//	//m_inGamePlayerSession[0].SetName(recvPacket->name);
-		//}
-	}
-	break;
 	case SERVER_PACKET::TYPE::MOUSE_INPUT:
 	{
 		const SERVER_PACKET::MouseInputPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::MouseInputPacket*>(packetHeader);
@@ -203,23 +184,7 @@ void Logic::ProcessPacket(const PacketHeader* packetHeader)
 		gGameFramework.GetLobbyScene()->GetObjectManager()->ResetLobbyUI();
 	}
 	break;
-	case SERVER_PACKET::TYPE::BOSS_CHANGE_STATE_MOVE_DES:
-	{
-		//const SERVER_PACKET::TYPE::BossChangeStateMovePacket* recvPacket = reinterpret_cast<const SERVER_PACKET::BossChangeStateMovePacket*>(packetHeader);
-		//auto durationTime = chrono::duration_cast<milliseconds>(chrono::high_resolution_clock::now() - attckPacketRecvTime);		
-		//recvPacket->desPos; //여기 목적지 까지 보스 몬스터 이동 시키면 됩니다
-		//recvPacket->bossPos;
-		//recvPacket->t;
-		//Monster* bossMonster = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster();
-		//bossMonster->m_xmf3Destination = recvPacket->desPos;
-		//if (!bossMonster->GetMoveState())
-		//{
-		//	bossMonster->SetMoveState(true);
-		//	bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_MOVE;
-		//	bossMonster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_MOVE, 2);
-		//}
-	}
-	break;
+
 	case SERVER_PACKET::TYPE::PLAYER_DIE:
 	{
 		const SERVER_PACKET::PlayerDiePacket* recvPacket = reinterpret_cast<const SERVER_PACKET::PlayerDiePacket*>(packetHeader);
@@ -342,100 +307,7 @@ void Logic::ProcessPacket(const PacketHeader* packetHeader)
 		smallMonsterArr[recvPacket->id]->SetDesPos(recvPacket->destinationPosition);
 	}
 	break;
-	//case SERVER_PACKET::TYPE::BOSS_ATTACK:
-	//{
-	//	auto durationTime = chrono::duration_cast<milliseconds>(chrono::high_resolution_clock::now() - attckPacketRecvTime);
-	//	attckPacketRecvTime = chrono::high_resolution_clock::now();
-	//	//std::cout << "Attack Packet recv ElapsedTime: " << durationTime << endl;
-	//	const SERVER_PACKET::BossAttackPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::BossAttackPacket*>(packetHeader);
-	//	Monster* bossMonster = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster();
 
-	//	if (!GameEnd)
-	//	{
-	//		switch (recvPacket->bossAttackType)
-	//		{
-	//		case BOSS_ATTACK::ATTACK_PUNCH:
-	//		{
-	//			if (bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation != BOSS_ANIMATION::BA_RIGHT_PUNCH)
-	//			{
-	//				bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_RIGHT_PUNCH;
-	//				bossMonster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_RIGHT_PUNCH, 2);
-	//			}
-	//		}
-	//		break;
-	//		case BOSS_ATTACK::ATTACK_SPIN:
-	//		{
-	//			if (bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation != BOSS_ANIMATION::BA_SPIN_ATTACK)
-	//			{
-	//				bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_SPIN_ATTACK;
-	//				bossMonster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_SPIN_ATTACK, 2);
-	//			}
-	//		}
-	//		break;
-	//		case BOSS_ATTACK::ATTACK_KICK:
-	//		{
-	//			if (bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation != BOSS_ANIMATION::BA_KICK_ATTACK)
-	//			{
-	//				bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_KICK_ATTACK;
-	//				bossMonster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_KICK_ATTACK, 2);
-	//			}
-	//		}
-	//		break;
-	//		//case BOSS_ATTACK::SKILL_DASH:
-	//		//{
-	//		//	if (bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation != BOSS_ANIMATION::BA_DASH_SKILL)
-	//		//	{
-	//		//		bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_DASH_SKILL;
-	//		//		bossMonster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_DASH_SKILL, 2);
-	//		//		XMFLOAT3 xmf3BossPos = bossMonster->GetPosition();
-	//		//		XMFLOAT3 xmf3BossLook = bossMonster->GetLook();
-	//		//		XMFLOAT3 xmf3SkillPos = Vector3::Add(xmf3BossPos, xmf3BossLook, 160.0f);	// 보스가 스킬 써서 이동하는 거리의 1/2만큼 이동
-	//		//		static_cast<Monster*>(bossMonster)->m_pSkillRange->m_bActive = true;
-	//		//		static_cast<Monster*>(bossMonster)->m_pSkillRange->SetPosition(xmf3SkillPos);
-	//		//	}
-	//		//}
-	//		//	break;
-	//		//case BOSS_ATTACK::SKILL_PUNCH:
-	//		//{
-	//		//	if (bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation != BOSS_ANIMATION::BA_PUNCHING_SKILL)
-	//		//	{
-	//		//		bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_PUNCHING_SKILL;
-	//		//		bossMonster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_PUNCHING_SKILL, 2);
-	//		//	}
-	//		//}
-	//		//break;
-	//		//case BOSS_ATTACK::SKILL_CASTING:
-	//		//{
-	//		//	if (bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation != BOSS_ANIMATION::BA_CAST_SPELL)
-	//		//	{
-	//		//		bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_CAST_SPELL;
-	//		//		bossMonster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_CAST_SPELL, 2);
-	//		//	}
-	//		//}
-	//		//break;
-	//		case BOSS_ATTACK::ATTACK_FLOOR_BOOM:
-	//		{
-	//			if (bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation != BOSS_ANIMATION::BA_CAST_SPELL)
-	//			{
-	//				bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_CAST_SPELL;
-	//				bossMonster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_CAST_SPELL, 2);
-
-	//				bossMonster->m_pSkillRange->m_bActive = true;
-	//				bossMonster->m_pSkillRange->m_bBossSkillActive = true;
-	//				bossMonster->m_pSkillRange->m_fBossSkillTime = gGameFramework.GetScene()->GetObjectManager()->GetTotalProgressTime();
-	//				XMFLOAT3 BossPosition = bossMonster->GetPosition();
-	//				BossPosition.y = 0.2f;
-	//				bossMonster->m_pSkillRange->SetPosition(BossPosition);
-	//			}
-	//		}
-	//		break;
-	//		}
-	//		bossMonster->SetMoveState(false);
-	//		g_sound.Pause("BossMoveSound");
-	//		//cout << "ProcessPacket::const SERVER_PACKET::BOSS_ATTACK - recvPacket: " << (int)recvPacket->bossAttackType << endl;
-	//	}
-	//}
-	//break;
 	case SERVER_PACKET::TYPE::GAME_END:
 	{
 		//게임 종료 패킷 수신
@@ -445,55 +317,7 @@ void Logic::ProcessPacket(const PacketHeader* packetHeader)
 		GameEnd = true;
 	}
 	break;
-	case SERVER_PACKET::TYPE::BOSS_MOVE_NODE:
-	{
-		// 현재 시점에서 경로 Clear
-		Monster* bossMonster = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster();
 
-
-		const SERVER_PACKET::BossMoveNodePacket* recvPacket = reinterpret_cast<const SERVER_PACKET::BossMoveNodePacket*>(packetHeader);
-		if (gGameFramework.m_pScene == nullptr) return;
-
-		//Role로 변경했음 이거 참고 		
-		bossMonster->m_roleDesPlayer = recvPacket->targetRole;
-		//std::cout << "recv aggro Id: " << recvPacket->desPlayerId << std::endl;
-		if (recvPacket->nodeCnt > 0) {
-			//cout << "보스 이동 인덱스 : ";
-			vector<int> triangleIdxVec;
-			std::list<int> recvNodeQueue;
-			for (int i = 0; i < recvPacket->nodeCnt; i++) {
-				//보스가 이동할 노드 데이터
-				// 받아온 노드들 벡터에 새로 넣기
-				//cout << recvPacket->node[i] << ", ";
-				//recvNodeQueue.push_back(recvPacket->node[i]);
-				triangleIdxVec.push_back(recvPacket->node[i]);
-			}
-			bossMonster->m_astarIdx = recvPacket->node[0];
-			//cout << endl;
-			//gGameFramework.m_pScene->m_pObjectManager->m_VecNodeQueue.push_back(recvPacket->node[i]);
-			//AStart Node Mesh
-			gGameFramework.m_pScene->m_pObjectManager->m_nodeLock.lock();
-			gGameFramework.m_pScene->m_pObjectManager->m_VecNodeQueue.swap(triangleIdxVec);
-			gGameFramework.m_pScene->m_pObjectManager->m_nodeLock.unlock();
-
-			//boss Move Node Data
-			//bossMonster->m_lockBossRoute.lock();
-			//bossMonster->m_BossRoute = recvNodeQueue;
-			//bossMonster->m_lockBossRoute.unlock();
-		}
-
-		if (!bossMonster->GetMoveState())
-		{
-			//cout << "const SERVER_PACKET::BOSS_MOVE_NODE - SetMoveState True" << endl;
-			bossMonster->SetMoveState(true);
-			bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_MOVE;
-			bossMonster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_MOVE, 2);
-		}
-		bossMonster->SetMoveState(true);
-		g_sound.Play("BossMoveSound", gGameFramework.GetScene()->GetObjectManager()->GetBossMonster()->CalculateDistanceSound());
-		// cout << endl;
-	}
-	break;
 	case SERVER_PACKET::TYPE::PRE_EXIST_LOGIN://이미 존재하는 플레이어가 있기 때문에, 지금 들어온 플레이어(내 클라이언트는) 접속 해제 패킷을 수신
 	{
 		//알림 메세지 띄우고, 다시 접속은 해야하네...;;
@@ -507,37 +331,8 @@ void Logic::ProcessPacket(const PacketHeader* packetHeader)
 	//	EndDialog(g_wnd, IDCANCEL);
 
 	//}
-	//break;	
-	case SERVER_PACKET::TYPE::STAGE_CHANGING_BOSS:
-	{
-		//키 인풋 막아주기
-		//로딩 창 띄워주기
-		gGameFramework.GetScene()->GetObjectManager()->SetPortalCheck(true);
-	}
-	break;
-	case SERVER_PACKET::TYPE::STAGE_START_BOSS:
-	{
-		//로딩 창 지우기
-		//키 인풋 할 수 있게 변경
-		const SERVER_PACKET::GameState_BOSS_INIT* recvPacket = reinterpret_cast<const SERVER_PACKET::GameState_BOSS_INIT*>(packetHeader);
-		for (int i = 0; i < 4; i++) {//그냥 4개 여서 도는 for문 주의			
-			if (recvPacket->userState[i].role != ROLE::NONE_SELECT) {
-				GameObject* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->userState[i].role);
-				//possessObj->SetPosition(recvPacket->userState[i].pos);
-				float maxHp = possessObj->GetMaxHP();
-				possessObj->SetCurrentHP(recvPacket->userState[i].hp / maxHp * 100.0f);
+	//break;
 
-				if (possessObj->m_pSkinnedAnimationController->m_CurrentAnimations.first != CharacterAnimation::CA_IDLE)
-				{
-					possessObj->m_pSkinnedAnimationController->m_CurrentAnimations.first = CharacterAnimation::CA_IDLE;
-					possessObj->m_pSkinnedAnimationController->m_CurrentAnimations.second = CharacterAnimation::CA_IDLE;
-					possessObj->m_pSkinnedAnimationController->SetTrackEnable(possessObj->m_pSkinnedAnimationController->m_CurrentAnimations);
-					possessObj->m_pSkinnedAnimationController->ResetTrack();
-				}
-			}
-		}
-	}
-	break;
 	case SERVER_PACKET::TYPE::HEAL_START:
 	{
 		//힐장판 이펙트 시작
@@ -594,47 +389,7 @@ void Logic::ProcessPacket(const PacketHeader* packetHeader)
 		}
 	}
 	break;
-	//case SERVER_PACKET::TYPE::NOTIFY_SHIELD_APPLY:
-	//{
-	//	const SERVER_PACKET::NotifyShieldPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::NotifyShieldPacket*>(packetHeader);
-	//	for (int i = 0; i < 4; i++) {
-	//		if (recvPacket->applyShieldPlayerInfo[i].shield < FLT_EPSILON) continue;
-	//		Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo((ROLE)recvPacket->applyShieldPlayerInfo[i].role);
-	//		if (possessObj)
-	//		{
-	//			possessObj->SetShield(recvPacket->applyShieldPlayerInfo[i].shield);	//최대 실드 200
-	//			possessObj->m_pHPBarUI->SetShield(recvPacket->applyShieldPlayerInfo[i].shield);
-	//			possessObj->m_pHPBarUI->SetCurrentHP(possessObj->GetCurrentHP());
-	//		}
-	//	}
-	//}
-	//break;
-	case SERVER_PACKET::TYPE::PLAYER_ATTACK_RESULT:
-	{
-		const SERVER_PACKET::PlayerAttackMonsterDamagePacket* recvPacket = reinterpret_cast<const SERVER_PACKET::PlayerAttackMonsterDamagePacket*>(packetHeader);
-		NormalMonster** smallMonsterArr = gGameFramework.GetScene()->GetObjectManager()->GetNormalMonsterArr();
-		if (recvPacket->role == ROLE::TANKER)
-		{
-			Player* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::TANKER);
-			if (possessObj->GetESkillState() == false) return;
-			for (int i = 0; i < recvPacket->attackedMonsterCnt; ++i)
-			{
-				int index = recvPacket->monsterIdx[i];
-				if (smallMonsterArr[index] == nullptr) continue;
-				gGameFramework.GetScene()->GetObjectManager()->GetTankerAttackEffect()->m_xmf3TargetPosition = smallMonsterArr[index]->GetPosition();
-				gGameFramework.GetScene()->GetObjectManager()->GetTankerAttackEffect()->SetActive(true);
-				gGameFramework.GetScene()->GetObjectManager()->GetTankerAttackEffect()->m_fEffectLifeTime = 3.0f;
-			}
-		}
-	}
-	break;
-	case SERVER_PACKET::TYPE::COMMON_ATTACK_START:
-	{
-		//const SERVER_PACKET::CommonAttackPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::CommonAttackPacket*>(packetHeader);
-		//Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo((ROLE)recvPacket->role);
-		//possessObj->SetLButtonClicked(true);
-	}
-	break;
+
 	case SERVER_PACKET::TYPE::START_ANIMATION_Q:
 	{
 		const SERVER_PACKET::NotifyPlayerAnimationPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::NotifyPlayerAnimationPacket*>(packetHeader);
@@ -649,111 +404,7 @@ void Logic::ProcessPacket(const PacketHeader* packetHeader)
 		possessObj->RecvSecondSkill(recvPacket->time);
 	}
 	break;
-	//projectile packet
-	/*case SERVER_PACKET::TYPE::MONSTER_DAMAGED_ARROW:
-	{
-		const SERVER_PACKET::ProjectileDamagePacket* recvPacket = reinterpret_cast<const SERVER_PACKET::ProjectileDamagePacket*>(packetHeader);
-		if (myRole == ROLE::ARCHER) {
-			Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::ARCHER);
-			possessObj->m_ppProjectiles[recvPacket->projectileId]->m_bActive = false;
-		}
-	}
-	break;*/
-	/*case SERVER_PACKET::TYPE::MONSTER_DAMAGED_ARROW_SKILL:
-	{
-		const SERVER_PACKET::ProjectileDamagePacket* recvPacket = reinterpret_cast<const SERVER_PACKET::ProjectileDamagePacket*>(packetHeader);
-		if (myRole == ROLE::ARCHER) {
-			Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::ARCHER);
-			static_cast<Archer*>(possessObj)->m_ppArrowForQSkill[recvPacket->projectileId]->m_bActive = false;
-		}
-	}
-	break;*/
-	/*case SERVER_PACKET::TYPE::MONSTER_DAMAGED_BALL:
-	{
-		const SERVER_PACKET::ProjectileDamagePacket* recvPacket = reinterpret_cast<const SERVER_PACKET::ProjectileDamagePacket*>(packetHeader);
-		if (myRole == ROLE::PRIEST) {
-			Character* possessObj = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::PRIEST);
-			possessObj->m_ppProjectiles[recvPacket->projectileId]->m_bActive = false;
-		}
-	}
-	break;*/
-	case SERVER_PACKET::TYPE::PLAYER_ATTACK_RESULT_BOSS:
-	{
-		const SERVER_PACKET::PlayerAttackBossDamagePacket* recvPacket = reinterpret_cast<const SERVER_PACKET::PlayerAttackBossDamagePacket*>(packetHeader);
-		recvPacket->damage;//현재 클라이언트 보스 위치에다가 띄울 데미지 폰트의 데미지
-		if (recvPacket->role == ROLE::TANKER) {
-			gGameFramework.GetScene()->GetObjectManager()->GetTankerAttackEffect()->m_xmf3TargetPosition = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster()->GetPosition();
-			gGameFramework.GetScene()->GetObjectManager()->GetTankerAttackEffect()->SetActive(true);
-			gGameFramework.GetScene()->GetObjectManager()->GetTankerAttackEffect()->m_fEffectLifeTime = 3.0f;
-		};//직업
-	}
-	break;
-	case SERVER_PACKET::TYPE::BOSS_ATTACK_PALYER:
-	{
-		const SERVER_PACKET::BossAttackPlayerPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::BossAttackPlayerPacket*>(packetHeader);
-		g_sound.Play("BossMonsterAttack", gGameFramework.GetScene()->GetObjectManager()->GetBossMonster()->CalculateDistanceSound());
-		recvPacket->currentHp;//보스한테 피격당하여 버린 나의 HP이건 필요 있나 싶음... => 나중에 notift로 변경할듯?
-	}
-	break;
-	case  SERVER_PACKET::TYPE::BOSS_CHANGE_DIRECION:
-	{
-		const SERVER_PACKET::BossDirectionPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::BossDirectionPacket*>(packetHeader);
-		Monster* bossMonster = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster();
-		bossMonster->m_desDirecionVec = recvPacket->directionVec;
-	}
-	break;
-	case SERVER_PACKET::TYPE::METEO_PLAYER_ATTACK:
-	{
-		const SERVER_PACKET::BossAttackPlayerPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::BossAttackPlayerPacket*>(packetHeader);
-		GameObject* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo(GetMyRole());
-		if (possessObj != nullptr) {
-			float maxHp = possessObj->GetMaxHP();
-			possessObj->SetCurrentHP(recvPacket->currentHp / maxHp * 100.0f);
-		}
-	}
-	break;
-	case SERVER_PACKET::TYPE::METEO_DESTROY:
-	{
-		const SERVER_PACKET::DestroyedMeteoPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::DestroyedMeteoPacket*>(packetHeader);
-		vector<RockSpike*> ppRockSpike = gGameFramework.GetScene()->GetObjectManager()->GetRockSpikeArr();
-		for (int i = 0; i < 10; i++) {
-			string sound = "RockSpkieSound";
-			sound = sound + to_string(i);
-			g_sound.Play(sound, ppRockSpike[i]->CalculateDistanceSound() * 0.65);
-		}
-		if (ppRockSpike[recvPacket->idx] != nullptr)
-			ppRockSpike[recvPacket->idx]->m_bActive = false;
-		//이 메테오 비지블 off
-	}
-	break;
-	//case SERVER_PACKET::TYPE::METEO_CREATE:
-	//{
-	//	const SERVER_PACKET::MeteoStartPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::MeteoStartPacket*>(packetHeader);
-	//	Monster* bossMonster = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster();
-	//	vector<RockSpike*> ppRockSpike = gGameFramework.GetScene()->GetObjectManager()->GetRockSpikeArr();
-	//	bossMonster->SetMoveState(false);
-	//	g_sound.Pause("BossMoveSound");
-	//	g_sound.Play("BossSKillSound", 0.9f);
-	//	//보스 이동 멈추고 애니메이션 실행해주세요.
-	//	if (bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation != BOSS_ANIMATION::BA_CAST_SPELL)
-	//	{
-	//		bossMonster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_CAST_SPELL;
-	//		bossMonster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_CAST_SPELL, 2);
-	//	}
-	//	for (int i = 0; i < 10; i++) {
-	//		if (ppRockSpike[i] == nullptr) continue;
-	//		if (ppRockSpike[i]->m_bActive == true) continue;
-	//		//XMFLOAT3 rockPosition = recvPacket->meteoInfo[i].pos;
-	//		ppRockSpike[i]->m_bActive = true;
-	//		ppRockSpike[i]->SetPosition(rockPosition);
-	//		ppRockSpike[i]->SetSpeed(recvPacket->meteoInfo[i].speed);
-	//		rockPosition.y = 0.2;
 
-	//		if (ppRockSpike[i]->m_pAttackedArea != nullptr)
-	//			ppRockSpike[i]->m_pAttackedArea->SetPosition(rockPosition);
-	//	}
-	//}
-	//break;
 	case SERVER_PACKET::TYPE::TIME_SYNC_RESPONSE:
 	{
 		m_responseTime = std::chrono::high_resolution_clock::now();
@@ -767,9 +418,138 @@ void Logic::ProcessPacket(const PacketHeader* packetHeader)
 		SetReadySync(true);
 	}
 	break;
+
+	case SERVER_PACKET::TYPE::START_STAGE_BOSS:
+	{
+		//로딩 창 지우기
+		//키 인풋 할 수 있게 변경
+		const SERVER_PACKET::BossStageInitPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::BossStageInitPacket*>(packetHeader);
+		gGameFramework.GetScene()->GetObjectManager()->SetPortalCheck(true);
+		for (int i = 0; i < 4; i++) {//그냥 4개 여서 도는 for문 주의
+			if (recvPacket->userState[i].role != ROLE::NONE_SELECT) {
+				GameObject* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo((ROLE)recvPacket->userState[i].role);
+				possessObj->SetPosition(recvPacket->userState[i].position);
+				float maxHp = possessObj->GetMaxHP();
+				possessObj->SetCurrentHP(recvPacket->userState[i].hp / maxHp * 100.0f);
+
+				if (possessObj->m_pSkinnedAnimationController->m_CurrentAnimations.first != CharacterAnimation::CA_IDLE)
+				{
+					possessObj->m_pSkinnedAnimationController->m_CurrentAnimations.first = CharacterAnimation::CA_IDLE;
+					possessObj->m_pSkinnedAnimationController->m_CurrentAnimations.second = CharacterAnimation::CA_IDLE;
+					possessObj->m_pSkinnedAnimationController->SetTrackEnable(possessObj->m_pSkinnedAnimationController->m_CurrentAnimations);
+					possessObj->m_pSkinnedAnimationController->ResetTrack();
+				}
+			}
+		}
+		Monster* bossMonster = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster();
+		bossMonster->SetPosition(recvPacket->bossPosition);
+		bossMonster->SetLook(recvPacket->bossLookVector);
+		bossMonster->SetMaxHP(recvPacket->bossHp);
+		bossMonster->SetCurrentHP(100.0f);
+		bossMonster->SetTempHp(100.0f);
+
+	}
+	break;
+
+	case SERVER_PACKET::TYPE::GAME_STATE_BOSS:
+	{
+		const SERVER_PACKET::GameState_BOSS* recvPacket = reinterpret_cast<const SERVER_PACKET::GameState_BOSS*>(packetHeader);
+		for (int i = 0; i < 4; i++) {
+			if (recvPacket->userState[i].role != ROLE::NONE_SELECT) {
+				Character* possessObj = gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo(recvPacket->userState[i].role);
+				float maxHp = possessObj->GetMaxHP();
+				possessObj->SetCurrentHP(recvPacket->userState[i].hp / maxHp * 100.0f);
+				possessObj->m_pHPBarUI->SetCurrentHP(recvPacket->userState[i].hp / maxHp * 100.0f);
+				//Sheild데이터도 넣어줘야 됨.
+
+				possessObj->SetInterpolateData(recvPacket->userState[i].time, recvPacket->userState[i].position);
+			}
+		}
+		Monster* bossMonster = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster();
+		bossMonster->SetInterpolateData(recvPacket->bossState.time, recvPacket->bossState.position);
+		float maxHp = bossMonster->GetMaxHP();
+		bossMonster->SetCurrentHP(recvPacket->bossState.hp / maxHp * 100.0f);
+		//recvPacket->bossState.hp
+
+	}
+	break;
+
+	case SERVER_PACKET::TYPE::BOSS_MOVE_DESTINATION:
+	{
+		const SERVER_PACKET::BossMoveDestnationPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::BossMoveDestnationPacket*>(packetHeader);
+		Monster* bossMonster = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster();
+		bossMonster->InsertEvent(std::make_shared<BossSetDestinationPositionEvent>(recvPacket->destination));
+	}
+	break;
+
+	//case SERVER_PACKET::TYPE::BOSS_STOP:
+	//{
+	//	//const SERVER_PACKET::BossStopPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::BossStopPacket*>(packetHeader);
+	//	Monster* bossMonster = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster();
+	//	bossMonster->SetMoveState(false);
+	//	g_sound.Pause("BossMoveSound");
+	//}
+	//break;
+
+	case SERVER_PACKET::TYPE::BOSS_ON_SAME_NODE:
+	{
+		const SERVER_PACKET::BossOnSameNodePacket* recvPacket = reinterpret_cast<const SERVER_PACKET::BossOnSameNodePacket*>(packetHeader);
+		Monster* bossMonster = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster();
+		bossMonster->InsertEvent(std::make_shared<BossSetAggroPositionEvent>(recvPacket->destination));
+	}
+	break;
+
+	/*case SERVER_PACKET::TYPE::BOSS_ROTATE:
+	{
+		const SERVER_PACKET::BossRotatePacket* recvPacket = reinterpret_cast<const SERVER_PACKET::BossRotatePacket*>(packetHeader);
+		Monster* bossMonster = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster();
+		recvPacket->angle;
+	}
+	break;*/
+
+	case SERVER_PACKET::TYPE::BOSS_ATTACK:
+	{
+		const SERVER_PACKET::BossAttackPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::BossAttackPacket*>(packetHeader);
+		Monster* bossMonster = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster();
+		if (BOSS_ATTACK::ATTACK_FIRE == recvPacket->attackType) {
+			bossMonster->InsertEvent(std::make_shared<BossFireAttackEvent>());
+		}
+		else if (BOSS_ATTACK::ATTACK_SPIN == recvPacket->attackType) {
+			bossMonster->InsertEvent(std::make_shared<BossSpinAttackEvent>());
+		}
+		bossMonster->SetMoveState(false);
+		g_sound.Pause("BossMoveSound");
+	}
+	break;
+
+	case SERVER_PACKET::TYPE::BOSS_DIRECTION_ATTACK:
+	{
+		const SERVER_PACKET::BossDirectionAttackPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::BossDirectionAttackPacket*>(packetHeader);
+		recvPacket->attackType;
+		;
+		Monster* bossMonster = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster();
+		if (BOSS_ATTACK::ATTACK_KICK == recvPacket->attackType) {
+			bossMonster->InsertEvent(std::make_shared<BossKickAttackEvent>(recvPacket->attackVector));
+		}
+		else if (BOSS_ATTACK::ATTACK_PUNCH == recvPacket->attackType) {
+			bossMonster->InsertEvent(std::make_shared<BossPunchAttackEvent>(recvPacket->attackVector));
+		}
+		bossMonster->SetMoveState(false);
+		g_sound.Pause("BossMoveSound");
+	}
+	break;
+
+	case SERVER_PACKET::TYPE::BOSS_ATTACK_METEOR:
+	{
+		//bossMonster->InsertEvent(std::make_shared<BossSpinAttackEvent>());
+		//const SERVER_PACKET::BossStageInitPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::BossStageInitPacket*>(packetHeader);
+		//Monster* bossMonster = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster();
+	}
+	break;
+
 	default:
 	{
-		std::cout << "Unknown Packet Recv" << std::endl;
+		std::cout << "Unknown Packet Recv: " << (int)packetHeader->type << std::endl;
 	}
 	break;
 	}

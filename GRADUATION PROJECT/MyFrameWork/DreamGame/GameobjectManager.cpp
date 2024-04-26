@@ -552,7 +552,7 @@ void GameobjectManager::BossConditionAnimate(float fTimeElapsed)
 		SetTempHP();
 	}
 
-	if (m_pMonsterObject->GetCurrentHP() != m_pMonsterObject->GetTempHP() && m_pMonsterObject->GetTempHP() > 0) {
+	if (abs(m_pMonsterObject->GetCurrentHP() - m_pMonsterObject->GetTempHP()) > FLT_EPSILON && m_pMonsterObject->GetTempHP() > 0.0f) {
 		//m_pMonsterObject->SetColor(XMFLOAT4(1,0,0,0.00012));
 		g_sound.NoLoopPlay("MonsterAttackedSound", m_pMonsterObject->CalculateDistanceSound());
 		AddDamageFontToUiLayer(XMFLOAT3(m_pMonsterObject->GetPosition().x,
@@ -1193,7 +1193,7 @@ void GameobjectManager::CheckCollidePortal()
 	if (m_SPBBPortal.Intersects(myCharacter->m_SPBB) && m_bPortalCheck == false)
 	{
 
-		m_bPortalCheck = true;
+		//m_bPortalCheck = true;
 
 		//m_nStageType = 2;
 		g_NetworkHelper.SendChangeStage_BOSS();

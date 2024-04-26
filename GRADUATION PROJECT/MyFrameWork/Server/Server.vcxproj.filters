@@ -88,6 +88,9 @@
     <Filter Include="InGame\EventController">
       <UniqueIdentifier>{e628f111-77cb-42ba-ab33-4a374f5f9688}</UniqueIdentifier>
     </Filter>
+    <Filter Include="InGame\GameObject\Monster\BossEvent">
+      <UniqueIdentifier>{2efaaa55-3541-4fb9-b797-b201ab9964e1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PCH\stdafx.cpp">
@@ -213,6 +216,9 @@
     </ClCompile>
     <ClCompile Include="GameObject\Character\Warrior\WarriorObject.cpp">
       <Filter>InGame\GameObject\Character</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject\Monster\BossEvent.cpp">
+      <Filter>InGame\GameObject\Monster\BossEvent</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -345,6 +351,9 @@
     </ClInclude>
     <ClInclude Include="GameObject\Character\Warrior\WarriorObject.h">
       <Filter>InGame\GameObject\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject\Monster\BossEvent.h">
+      <Filter>InGame\GameObject\Monster\BossEvent</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

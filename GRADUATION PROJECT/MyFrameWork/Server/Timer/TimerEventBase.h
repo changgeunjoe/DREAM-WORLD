@@ -24,9 +24,6 @@ namespace TIMER {
 		EV_SKY_ARROW_ATTACK: n초후에 화살 위치에 몬스터 피격
 			targetId: 룸번호
 
-		//전체 플레이어 RTT체크를 위한 타이머
-		EV_SYNC_TIME: 서버 - 클라이언트 지연 시간 측정을 위한 - (1s~5s) 마다 업데이트
-
 	*/
 
 	class EventBase : std::enable_shared_from_this<TIMER::EventBase>

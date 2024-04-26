@@ -48,18 +48,18 @@ void SmallMonsterObject::Attacked(const float& damage)
 	if (!m_isAlive) return;
 	m_hp -= damage;
 	auto damagedEvent = std::make_shared<SmallMonsterDamagedEvent>(m_idx, m_hp);
-	m_roomRef->InsertAftrerUpdateEvent(damagedEvent);
+	m_roomRef->InsertAftrerUpdateSendEvent(damagedEvent);
 	if (m_hp <= 0) {
 		m_hp = 0;
 		auto dieEvent = std::make_shared<SmallMonsterDieEvent>(m_idx);
-		m_roomRef->InsertAftrerUpdateEvent(dieEvent);
+		m_roomRef->InsertAftrerUpdateSendEvent(dieEvent);
 		m_isAlive = false;
 	}
 }
 
 std::shared_ptr<CharacterObject> SmallMonsterObject::GetAggroCharacter()
 {
-	if (isReadyFindPlayer()) {
+	if (IsReadyFindPlayer()) {
 		auto aggroCharacter = FindAggroCharacter();
 		m_aggroCharacter = aggroCharacter;
 		if (nullptr != aggroCharacter)
@@ -101,7 +101,7 @@ void SmallMonsterObject::UpdateDestinationPosition()
 		if (nullptr == aggroCharacter) return;
 		m_destinationPosition = aggroCharacter->GetPosition();
 		auto eventData = std::make_shared<SmallMonsterDestinationEvent>(m_idx, m_destinationPosition);
-		m_roomRef->InsertAftrerUpdateEvent(std::static_pointer_cast<RoomSendEvent>(eventData));
+		m_roomRef->InsertAftrerUpdateSendEvent(std::static_pointer_cast<RoomSendEvent>(eventData));
 	}
 }
 
@@ -110,7 +110,7 @@ void SmallMonsterObject::SetMove()
 	if (m_isMove) return;
 	m_isMove = true;
 	auto eventData = std::make_shared<SmallMonsterMoveEvent>(SmallMonsterMoveEvent::EventType::SMALL_MONSTER_MOVE, m_idx);
-	m_roomRef->InsertAftrerUpdateEvent(eventData);
+	m_roomRef->InsertAftrerUpdateSendEvent(eventData);
 }
 
 void SmallMonsterObject::SetStop()
@@ -118,7 +118,7 @@ void SmallMonsterObject::SetStop()
 	if (!m_isMove) return;
 	m_isMove = false;
 	auto eventData = std::make_shared<SmallMonsterMoveEvent>(SmallMonsterMoveEvent::EventType::SMALL_MONSTER_STOP, m_idx);
-	m_roomRef->InsertAftrerUpdateEvent(eventData);
+	m_roomRef->InsertAftrerUpdateSendEvent(eventData);
 }
 
 void SmallMonsterObject::Move()
@@ -129,7 +129,7 @@ void SmallMonsterObject::Move()
 	static constexpr float STOP_DISTANCE = 20.0f;
 
 	float elapsedTime = GetElapsedLastUpdateTime();
-	auto betweenAngle = GetAggroBetweenAngle();
+	auto betweenAngle = GetAggroBetweenAngleEuler();
 	if (betweenAngle.second > ONLY_ROTATE_ANGLE) {
 		Rotate(ROTATE_AXIS::Y, betweenAngle.first * TICK_ANGLE * elapsedTime);
 		return;
@@ -159,24 +159,9 @@ const XMFLOAT3 SmallMonsterObject::GetCommonNextPosition(const float& elapsedTim
 	return Vector3::Add(position, lookVector, elapsedTime * m_moveSpeed);
 }
 
-const std::pair<float, float> SmallMonsterObject::GetAggroBetweenAngle()
+const std::pair<float, float> SmallMonsterObject::GetAggroBetweenAngleEuler() const
 {
-	XMFLOAT3 aggroPosition = m_destinationPosition;
-	XMFLOAT3 toAggroVector = GetToVector(aggroPosition);
-	toAggroVector = Vector3::Normalize(toAggroVector);
-	XMFLOAT3 lookVector = GetLookVector();
-	float lookDotResult = Vector3::DotProduct(lookVector, toAggroVector);//사이 각에 대한 cos()
-
-	//좌측인지 우측인지 판단도 해야 됨.
-	//객체 우측벡터와 객체까지의 벡터를 내적한 값은 cos()인데
-	//cos()은 -90~90는 양수, 이외는 음수
-	//내적 결과가 양수라면 객체 기준 우측에 상대 객체가 존재한다는 것을 판단
-	XMFLOAT3 rightVector = GetRightVector();
-	float rightDotResult = Vector3::DotProduct(rightVector, toAggroVector);//사이 각에 대한 cos()
-	if (rightDotResult > 0)
-		return std::make_pair<float, float>(1.0f, XMConvertToDegrees(std::acosf(lookDotResult)));
-	return std::make_pair<float, float>(-1.0f, XMConvertToDegrees(std::acosf(lookDotResult)));
-
+	return MonsterObject::GetBetweenAngleEuler(m_destinationPosition);
 }
 
 std::optional<const XMFLOAT3> SmallMonsterObject::UpdateNextPosition(const float& elapsedTime)
@@ -228,7 +213,7 @@ const bool SmallMonsterObject::IsAbleAttack()
 	if (ABLE_ATTACK_RANGE > distance) {
 		const float betweenRadian = GetBetweenAngleRadian(aggroCharacter->GetPosition());
 		if (ABLE_ATTACK_RADIAN - betweenRadian < FLT_EPSILON)
-			return isReadyAttack();
+			return IsReadyAttack();
 	}
 	return false;
 }
@@ -237,6 +222,6 @@ void SmallMonsterObject::Attack()
 {
 	auto aggroCharacter = m_aggroCharacter.lock();
 	auto eventData = std::make_shared<SmallMonsterAttakEvent>(m_idx);
-	m_roomRef->InsertAftrerUpdateEvent(eventData);
+	m_roomRef->InsertAftrerUpdateSendEvent(eventData);
 	aggroCharacter->Attacked(MONSTER_DAMAGE);
 }

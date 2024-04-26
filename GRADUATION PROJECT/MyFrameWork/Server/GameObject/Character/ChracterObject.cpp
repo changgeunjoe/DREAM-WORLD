@@ -59,6 +59,11 @@ void CharacterObject::RecvRotate(const ROTATE_AXIS& axis, const float& angle)
 	}
 }
 
+void CharacterObject::SetFullHp()
+{
+	m_hp = m_maxHp;
+}
+
 void CharacterObject::SetShield(const bool& active)
 {
 	constexpr static float MAX_SHIELD = 200.0f;
@@ -91,11 +96,11 @@ void CharacterObject::Attacked(const float& damage)
 	}
 	m_hp -= applyDamage;
 	auto damagedEvent = std::make_shared<PlayerDamagedEvent>(m_role, m_hp, m_Shield);
-	m_roomRef->InsertAftrerUpdateEvent(damagedEvent);
+	m_roomRef->InsertAftrerUpdateSendEvent(damagedEvent);
 
 	if (m_hp < FLT_EPSILON) {
 		auto dieEvent = std::make_shared<PlayerDieEvent>(m_role);
-		m_roomRef->InsertAftrerUpdateEvent(dieEvent);
+		m_roomRef->InsertAftrerUpdateSendEvent(dieEvent);
 		m_hp = 0.0;
 		m_isAlive = false;
 	}

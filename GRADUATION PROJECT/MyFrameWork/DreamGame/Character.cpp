@@ -26,10 +26,15 @@ extern GameSound g_sound;
 //#define CHARCTER_MOVE_LOG 1
 //#define MONSTER_MOVE_LOG 1
 
-Character::Character() : GameObject(UNDEF_ENTITY), m_interpolateData(std::make_shared<CharacterEvent::InterpolateData>())
+Character::Character() : GameObject(UNDEF_ENTITY), m_interpolateData(std::make_shared<CharacterEvent::InterpolateData>()), m_bIsAlive(true)
 {
 	m_fHp = 100.0f;
 	m_fSpeed = 50.0f;
+}
+
+Character::Character(const float& moveSpeed) : GameObject(UNDEF_ENTITY), m_interpolateData(std::make_shared<CharacterEvent::InterpolateData>()), m_bIsAlive(true)
+{
+	m_fSpeed = moveSpeed;
 }
 
 Character::Character(ROLE r) :GameObject(UNDEF_ENTITY), m_role(r), m_interpolateData(std::make_shared<CharacterEvent::InterpolateData>())

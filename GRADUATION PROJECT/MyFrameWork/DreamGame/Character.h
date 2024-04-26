@@ -14,6 +14,7 @@ public:
 	GameObject* m_pHPBarObject{ NULL };
 public:
 	Character();
+	Character(const float& moveSpeed);
 	Character(ROLE r);
 	virtual ~Character();
 	virtual GameObject* GetHpBar() { return m_pHPBarObject; };

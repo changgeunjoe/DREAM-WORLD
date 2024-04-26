@@ -69,6 +69,7 @@ public:
 	virtual void RecvSkill(const SKILL_TYPE&, const XMFLOAT3& vector3) = 0;
 	virtual void RecvAttackCommon(const XMFLOAT3& attackDir, const int& power = 0) = 0;
 
+	void SetFullHp();
 	void SetShield(const bool& active);
 	const float GetShield() const;
 

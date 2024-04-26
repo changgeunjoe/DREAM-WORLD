@@ -68,6 +68,9 @@ void WarriorObject::ExecuteCommonAttack(const XMFLOAT3& direction, const int& po
 	float applyDamage = DEFAULT_DAMAGE;
 	switch (power)
 	{
+	case 0:
+		applyDamage = DEFAULT_DAMAGE;
+		break;
 	case 1:
 		applyDamage = POWER_DAMAGE;
 		break;
@@ -75,7 +78,10 @@ void WarriorObject::ExecuteCommonAttack(const XMFLOAT3& direction, const int& po
 		applyDamage = LAST_POWER_DAMAGE;
 		break;
 	default:
-		break;
+	{
+		spdlog::warn("WarriorObject::ExecuteCommonAttack() - Unknown Power: {}", power);
+	}
+	break;
 	}
 	auto enermyData = m_roomRef->GetEnermyData();
 	for (auto& monster : enermyData) {
@@ -87,27 +93,6 @@ void WarriorObject::ExecuteCommonAttack(const XMFLOAT3& direction, const int& po
 		}
 	}
 }
-
-/*
-void WarriorObject::RecvSkill_1(const XMFLOAT3& vec3)
-{
-	//auto skillCoolData = m_skillCtrl->GetEventData(SKILL_Q);
-	//bool isAble = skillCoolData->IsAbleExecute();
-	//long Sword
-	Room& roomRef = g_RoomManager.GetRunningRoomRef(m_roomId);
-	auto currentTime = std::chrono::high_resolution_clock::now();
-	auto durationTime = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_prevSkillInputTime[0]);
-	if (m_skillCoolTime[0] > durationTime)	return;
-	m_prevSkillInputTime[0] = currentTime;
-	roomRef.ExecuteLongSwordAttack(posOrDir, m_position);
-}
-
-void WarriorObject::RecvSkill_2(const XMFLOAT3& vec3)
-{
-	//passive스킬인데, 이 함수는 쓸모 없는데, 스킬을 나중에 정해서 생긴 문제.
-	//설계단계에서 생각하지 못했음.
-}
-*/
 
 void WarriorSkill::LongSwordSkill::Execute()
 {

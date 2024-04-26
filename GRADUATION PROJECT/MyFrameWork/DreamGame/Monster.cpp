@@ -13,10 +13,10 @@ extern Logic g_Logic;
 extern GameSound g_sound;
 extern CGameFramework gGameFramework;
 
-Monster::Monster() : Character()
+Monster::Monster() : Character(60.0f), m_prevEventQueueSize(0), m_bossState(BOSS_STATE::IDLE)
 {
 	m_fHp = 100.0f;
-	m_fMaxHp = 6500.0f;
+	m_fMaxHp = 2500.0f;
 }
 
 Monster::~Monster()
@@ -25,6 +25,8 @@ Monster::~Monster()
 
 void Monster::Animate(float fTimeElapsed)
 {
+	ProcessPrevEvent();
+	UpdateInterpolateData();
 	if (m_fHp < FLT_EPSILON)
 	{
 		if (m_pSkinnedAnimationController->m_CurrentAnimation != BOSS_ANIMATION::BA_DIE)
@@ -40,6 +42,35 @@ void Monster::Animate(float fTimeElapsed)
 
 void Monster::Move(float fTimeElapsed)
 {
+	if (m_interpolateData->GetInterpolateState() == CharacterEvent::INTERPOLATE_STATE::SET_POSITION) {
+		SetPosition(m_interpolateData->GetInterpolatePosition());
+		return;
+	}
+	switch (m_bossState)
+	{
+	case BOSS_STATE::IDLE:
+		break;
+	case BOSS_STATE::MOVE:
+	{
+		MoveForward(1, fTimeElapsed);
+		auto position = GetPosition();
+		cout << "Boss Position: " <<  position.x << ", " << position.y << ", " << position.z << endl;
+	}
+	break;
+	case BOSS_STATE::MOVE_AGGRO:
+	{
+		MoveAggro(fTimeElapsed);
+	}
+	break;
+	case BOSS_STATE::ATTACK:
+	{
+		cout << "Boss Attack" << endl;
+		//Non Action
+	}
+	break;
+	default:
+		break;
+	}
 	//Player* desChar = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(m_roleDesPlayer);
 	//XMFLOAT3 destinationPlayerPos = XMFLOAT3(0, 0, 0);
 	//if (desChar != nullptr) {
@@ -129,8 +160,68 @@ void Monster::MoveForward(int forwardDirection, float ftimeElapsed)
 	xmf3Look = Vector3::ScalarProduct(xmf3Look, (float)forwardDirection);
 	XMFLOAT3 xmf3Position = GetPosition();
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, ftimeElapsed * m_fSpeed);
+
+	if (m_interpolateData->GetInterpolateState() == CharacterEvent::INTERPOLATE_STATE::INTERPOALTE) {
+		auto interpolateData = m_interpolateData->GetInterpolateData();
+		xmf3Position = Vector3::Add(xmf3Position, interpolateData.second, 10.0f * interpolateData.first * ftimeElapsed);
+	}
 	//xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, 10.0f * m_interpolationDistance * ftimeElapsed);
 	SetPosition(xmf3Position);
+}
+
+void Monster::InsertEvent(std::shared_ptr<BossEventBase> bossEvent)
+{
+	m_prevEventQueue.push(bossEvent);
+	m_prevEventQueueSize += 1;
+}
+
+void Monster::ProcessPrevEvent()
+{
+	int currentSize = m_prevEventQueueSize;
+	m_prevEventQueueSize -= currentSize;
+	while (currentSize)
+	{
+		std::shared_ptr<BossEventBase> currentEvent = nullptr;
+		bool isSuccess = m_prevEventQueue.try_pop(currentEvent);
+		if (!isSuccess) {
+			m_prevEventQueueSize += currentSize;
+		}
+		currentEvent->Execute(this);
+		--currentSize;
+	}
+}
+
+void Monster::MoveAggro(float ftimeElapsed)
+{
+	static constexpr float STOP_DISTANCE = 40.0;
+	static constexpr float IDLE_ROTATE_ANGLE = 60.0f;
+	static XMFLOAT3 UP = XMFLOAT3(0, 1, 0);
+
+	auto betweenEulerAngle = GetAggroBetweenAngle(m_aggroPosition);
+
+	float applyAngle = 0.0f;
+	float applyRotateAngle = 0.0f;
+	if (betweenEulerAngle.second < IDLE_ROTATE_ANGLE * ftimeElapsed) {// 사이 각이 , 변경하려는 각도보다 작다 => 전진할때 흔들흔들함 => 사이각 만큼 회전
+		applyRotateAngle = betweenEulerAngle.second;
+	}
+	else {
+		applyRotateAngle = IDLE_ROTATE_ANGLE * ftimeElapsed;
+	}
+	if (applyRotateAngle > FLT_EPSILON)
+		Rotate(&UP, betweenEulerAngle.first * applyRotateAngle);
+
+	float enermyDistance = GetDistance(m_aggroPosition);
+	if (enermyDistance < STOP_DISTANCE) {
+		//Only Rotate
+		return;
+	}
+
+	MoveForward(1, ftimeElapsed);
+}
+
+void Monster::ChangeBossState(const BOSS_STATE& bossState)
+{
+	m_bossState = bossState;
 }
 
 //void Monster::InterpolateMove(chrono::utc_clock::time_point& recvTime, XMFLOAT3& recvPos, XMFLOAT3& moveVec)
@@ -331,3 +422,66 @@ void NormalMonster::SetAnimation()
 //		m_interpolationVector = interpolateVec;
 //	}
 //}
+
+void BossSetDestinationPositionEvent::Execute(Monster* monster)
+{
+	monster->m_destinationPosition = destinationPosition;
+	XMFLOAT3 bossPosition = monster->GetPosition();
+	XMFLOAT3 newLookVector = Vector3::Normalize(Vector3::Subtract(destinationPosition, bossPosition));
+	monster->SetLook(newLookVector);
+	monster->ChangeBossState(BOSS_STATE::MOVE);
+	cout << "Change Boss State: Move" << endl;
+}
+
+void BossSetAggroPositionEvent::Execute(Monster* monster)
+{
+	monster->m_aggroPosition = aggroPosition;
+	monster->ChangeBossState(BOSS_STATE::MOVE_AGGRO);
+	cout << "Change Boss State: Move_Aggro" << endl;
+}
+
+void BossFireAttackEvent::Execute(Monster* monster)
+{
+	BossAttackEventBase::Execute(monster);
+	monster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_CAST_SPELL;
+	monster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_CAST_SPELL, 2);
+
+	monster->m_pSkillRange->m_bActive = true;
+	monster->m_pSkillRange->m_bBossSkillActive = true;
+	monster->m_pSkillRange->m_fBossSkillTime = gGameFramework.GetScene()->GetObjectManager()->GetTotalProgressTime();
+	XMFLOAT3 BossPosition = monster->GetPosition();
+	BossPosition.y = 0.2f;
+	monster->m_pSkillRange->SetPosition(BossPosition);
+}
+
+void BossSpinAttackEvent::Execute(Monster* monster)
+{
+	BossAttackEventBase::Execute(monster);
+	monster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_SPIN_ATTACK;
+	monster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_SPIN_ATTACK, 2);
+}
+
+void BossMeteorAttackEvent::Execute(Monster* monster)
+{
+	BossAttackEventBase::Execute(monster);
+}
+
+void BossKickAttackEvent::Execute(Monster* monster)
+{
+	BossAttackEventBase::Execute(monster);
+	monster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_KICK_ATTACK;
+	monster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_KICK_ATTACK, 2);
+}
+
+void BossPunchAttackEvent::Execute(Monster* monster)
+{
+	BossAttackEventBase::Execute(monster);
+	monster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_RIGHT_PUNCH;
+	monster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_RIGHT_PUNCH, 2);
+}
+
+void BossAttackEventBase::Execute(Monster* monster)
+{
+	monster->ChangeBossState(BOSS_STATE::ATTACK);
+	cout << "Change Boss State: Attack" << endl;
+}

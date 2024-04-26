@@ -25,7 +25,7 @@ public:
 	const XMFLOAT3 GetFromVector(const XMFLOAT3& from) const;
 	const XMFLOAT3 GetToVector(const XMFLOAT3& to) const;
 	const float GetDistance(const XMFLOAT3& other) const;
-	const float GetDistance(std::shared_ptr<GameObject>& other) const;
+	const float GetDistance(const std::shared_ptr<const GameObject>& other) const;
 
 	const float GetBetweenAngleRadian(const XMFLOAT3& position);
 protected:

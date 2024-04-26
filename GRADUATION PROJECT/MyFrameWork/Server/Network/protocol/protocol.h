@@ -203,11 +203,6 @@ namespace SERVER_PACKET {
 		PRE_EXIST_LOGIN, //이미 로그인된 아이디다
 #pragma endregion
 
-		MOUSE_INPUT,
-
-		ADD_PLAYER,
-		INTO_GAME,
-
 #pragma region SMALL_MONSTER
 		//SMALL_MONSTER_MOVE_SET_LOOK,
 		//SMALL_MONSTER_STOP_SET_LOOK,
@@ -222,6 +217,7 @@ namespace SERVER_PACKET {
 #pragma endregion
 
 #pragma region PLAYER
+		MOUSE_INPUT,
 		PLAYER_DAMAGED,
 		PLAYER_DIE,
 		START_ANIMATION_Q,
@@ -239,27 +235,24 @@ namespace SERVER_PACKET {
 		SHIELD_END,
 #pragma endregion
 
+#pragma region GAME_STATE
+		INTO_GAME,
 		GAME_STATE_STAGE,
 		GAME_STATE_BOSS,
-
-
-		BOSS_CHANGE_STATE_MOVE_DES,
-		BOSS_ATTACK_EXECUTE,
-		BOSS_MOVE_NODE,
-		STAGE_CHANGING_BOSS,
-		STAGE_START_BOSS,
-		BOSS_ATTACK_PALYER,
-		BOSS_CHANGE_DIRECION,
-		METEO_PLAYER_ATTACK,
-		METEO_DESTROY,
-		METEO_CREATE,
-
-
-		COMMON_ATTACK_START,
-		PLAYER_ATTACK_RESULT,
-		PLAYER_ATTACK_RESULT_BOSS,
-
+		START_STAGE_BOSS,
 		GAME_END,
+#pragma endregion
+
+#pragma region BOSS
+		BOSS_MOVE_DESTINATION,
+		BOSS_STOP,
+		BOSS_ON_SAME_NODE,
+		BOSS_ROTATE,
+		BOSS_ATTACK,
+		BOSS_DIRECTION_ATTACK,
+		BOSS_ATTACK_METEOR,
+#pragma endregion
+
 		TIME_SYNC_RESPONSE
 	};
 
@@ -445,15 +438,6 @@ namespace SERVER_PACKET {
 		GameState_STAGE() : GameState_Base(static_cast<char>(SERVER_PACKET::TYPE::GAME_STATE_STAGE), sizeof(GameState_STAGE)) {}
 	};
 
-	struct BossChangeStateMovePacket : public PacketHeader
-	{//이걸 수정해야할듯?
-
-		DirectX::XMFLOAT3 desPos;
-		DirectX::XMFLOAT3 bossPos;
-		PacketTime time;
-		BossChangeStateMovePacket(const char& type) : PacketHeader(type, sizeof(BossChangeStateMovePacket)) {}
-	};
-
 	struct NotifyPlayerAnimationPacket : public PacketHeader
 	{//전체 플레이어들에게 알려서 애니메이션 재생
 		ROLE role;
@@ -461,9 +445,6 @@ namespace SERVER_PACKET {
 		NotifyPlayerAnimationPacket(const char& type, const ROLE& role, const std::chrono::high_resolution_clock::time_point& time)
 			:PacketHeader(type, sizeof(NotifyPlayerAnimationPacket)), role(role), time(time) {}
 	};
-
-
-
 
 	struct ShootingObject : public PacketHeader
 	{
@@ -481,84 +462,56 @@ namespace SERVER_PACKET {
 		ApplyHealForPlayer applyHealPlayerInfo[4];
 	};
 
-	struct BossAttackPacket : public PacketHeader
+	struct BossStageInitPacket : public PacketHeader
 	{
-		BOSS_ATTACK bossAttackType;
-		BossAttackPacket(const char& type) : PacketHeader(type, sizeof(BossAttackPacket)) {}
+		XMFLOAT3 bossPosition;//보스 시작할때 위치
+		XMFLOAT3 bossLookVector;
+		float bossHp;
+		PlayerState userState[4];//유저 데이터
+		BossStageInitPacket() : PacketHeader(static_cast<char>(TYPE::START_STAGE_BOSS), sizeof(BossStageInitPacket)) {}
 	};
 
-	struct BossHitObject : public PacketHeader
+	struct BossMoveDestnationPacket : public PacketHeader
 	{
-		XMFLOAT3 pos;
-		BossHitObject(const char& type) : PacketHeader(type, sizeof(BossHitObject)) {}
+		XMFLOAT3 destination;
+		BossMoveDestnationPacket(const XMFLOAT3& destination) : PacketHeader(static_cast<char>(TYPE::BOSS_MOVE_DESTINATION), sizeof(BossMoveDestnationPacket)), destination(destination) {}
 	};
 
-	struct BossMoveNodePacket : public PacketHeader
+	struct BossStopPacket : public PacketHeader
 	{
-		DirectX::XMFLOAT3 bossPos;
-		//DirectX::XMFLOAT3 desPos;
-		ROLE targetRole;
-		int nodeCnt;
-		int node[40];
-		BossMoveNodePacket(const char& type) : PacketHeader(type, sizeof(BossMoveNodePacket)) {}
+		BossStopPacket() : PacketHeader(static_cast<char>(TYPE::BOSS_STOP), sizeof(BossStopPacket)) {}
 	};
 
-	/*struct SmallMonsterMovePacket : public PacketHeader
+	struct BossOnSameNodePacket : public PacketHeader
 	{
-		XMFLOAT3 desPositions[15];
-	};*/
-
-	struct GameState_BOSS_INIT : public PacketHeader
-	{//Player State-> pos rot...추가하여 보정?		
-		XMFLOAT3 bossPosition;
-		PlayerState userState[4];
+		XMFLOAT3 destination;
+		BossOnSameNodePacket(const XMFLOAT3& destination) : PacketHeader(static_cast<char>(TYPE::BOSS_ON_SAME_NODE), sizeof(BossOnSameNodePacket)), destination(destination) {}
 	};
 
-	struct ProjectileDamagePacket : public PacketHeader
-	{//브로드 캐스트	
-		char projectileId;//인덱스 번호
-		XMFLOAT3 position;//맞은 위치
-		float damage;// 데미지		
-	};
-
-	struct PlayerAttackMonsterDamagePacket : public PacketHeader
-	{//본인만 데미지 볼 수 있게	
-		ROLE role;
-		char attackedMonsterCnt;//뎀지 입은 몬스터 갯수
-		char monsterIdx[15];//해당 몬스터의 인덱스값이 있는 배열
-		float damage;// 플레이어가 입힌 데미지
-
-	};
-
-	struct PlayerAttackBossDamagePacket : public PacketHeader {
-		ROLE role;
-		float damage;// 플레이어가 입힌 데미지
-	};
-
-	struct SmallMonsterAttackPlayerPacket : public PacketHeader
+	struct BossRotatePacket : public PacketHeader
 	{
-		ROLE attackedRole;//자기 자신의 role인지 판단하고 피격 화면 출력
-		char attackMonsterIdx;//애니메이션 재생할 몬스터 인덱스
+		float angle;
+		BossRotatePacket(const float& angle) : PacketHeader(static_cast<char>(TYPE::BOSS_ROTATE), sizeof(BossRotatePacket)), angle(angle) {}
 	};
 
-	struct BossAttackPlayerPacket : public PacketHeader
-	{
-		float currentHp;
-	};
-
-	struct BossDirectionPacket : public PacketHeader
-	{
-		XMFLOAT3 directionVec;
-	};
-
-	struct DestroyedMeteoPacket : public PacketHeader
-	{
-		char idx;
-	};
-
-	struct MeteoStartPacket : public PacketHeader
+	struct BossAttackMeteorPacket : public PacketHeader
 	{
 		MeteoInfo meteoInfo[10];
+
+	};
+
+	struct BossAttackPacket : public PacketHeader
+	{
+		BOSS_ATTACK attackType;
+		BossAttackPacket(const BOSS_ATTACK& attackType) : PacketHeader(static_cast<char>(TYPE::BOSS_ATTACK), sizeof(BossAttackPacket)), attackType(attackType) {}
+		BossAttackPacket(const char& type, const short& size, const BOSS_ATTACK& attackType) : PacketHeader(type, size), attackType(attackType) {}
+	};
+
+	struct BossDirectionAttackPacket : public BossAttackPacket
+	{
+		XMFLOAT3 attackVector;
+		BossDirectionAttackPacket(const BOSS_ATTACK& attackType, const XMFLOAT3& attackVector)
+			: BossAttackPacket(static_cast<char>(TYPE::BOSS_DIRECTION_ATTACK), sizeof(BossDirectionAttackPacket), attackType), attackVector(attackVector) {}
 	};
 
 	struct TimeSyncPacket : public PacketHeader
