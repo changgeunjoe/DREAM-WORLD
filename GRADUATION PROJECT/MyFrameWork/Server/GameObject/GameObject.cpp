@@ -102,7 +102,7 @@ const float GameObject::GetDistance(const std::shared_ptr<const GameObject>& oth
 	return Vector3::Length(distanceVector);
 }
 
-const float GameObject::GetBetweenAngleRadian(const XMFLOAT3& position)
+const float GameObject::GetBetweenAngleCosValue(const XMFLOAT3& position) const
 {
 	XMFLOAT3 destinationPosition = position;
 	XMFLOAT3 tDesVector = GetToVector(destinationPosition);
@@ -161,6 +161,7 @@ std::optional<std::pair<bool, XMFLOAT3>> LiveObject::CollideLiveObject(const XMF
 	for (auto& liveObject : liveObjects) {
 		//자기 자신이라면 넘어감
 		if (liveObject == shared_from_this()) continue;
+		if (!liveObject->IsAlive())continue;
 		if (liveObject->GetCollision().Radius + m_collisionSphere.Radius - liveObject->GetDistance(nextPosition) < FLT_EPSILON) continue;
 		if (true == isSlidingPosition || nullptr != collideCharacter) {
 			//이미 충돌해서 또 충돌한거면 이동x
@@ -186,6 +187,38 @@ std::optional<std::pair<bool, XMFLOAT3>> LiveObject::CollideLiveObject(const XMF
 	applySlidingVectorPosition = Vector3::Add(applySlidingVectorPosition, slidingVector, m_moveSpeed * elapsedTime);
 	//spdlog::debug("Collide Living Object");
 	return std::make_pair(true, applySlidingVectorPosition);
+}
+
+BoundingOrientedBox LiveObject::GetMeleeAttackJudgeBox(const XMFLOAT3& startPosition, const XMFLOAT3& forwardVector, const float& offsetLegth, const float& width, const float& attackLegth, const float& height)
+{
+	static XMFLOAT3 UP = XMFLOAT3(0, 1, 0);
+	static XMFLOAT3 DEFAULT_FORWARD_VECTOR = XMFLOAT3(0, 0, 1);
+
+	static const XMVECTOR QUATERNION_ROTATE_AXIS = XMLoadFloat3(&UP);
+
+	XMFLOAT3 objectForwardVector = forwardVector;
+	objectForwardVector = Vector3::Normalize(objectForwardVector);
+	float dotProductResult = Vector3::DotProduct(objectForwardVector, DEFAULT_FORWARD_VECTOR);
+	//좌우 판단을 위한 외적
+	XMFLOAT3 crossProductResult = Vector3::CrossProduct(DEFAULT_FORWARD_VECTOR, objectForwardVector);
+
+	float betweenRadian = acosf(dotProductResult);
+	float dotProductUpVectorResult = Vector3::DotProduct(crossProductResult, UP);
+	if (dotProductUpVectorResult < 0)
+		betweenRadian = -1 * betweenRadian;
+
+	//start로 부터 forward방향으로 offset만큼 앞에
+	XMFLOAT3 boundingPosition = startPosition;
+	boundingPosition = Vector3::Add(boundingPosition, objectForwardVector, offsetLegth);
+	boundingPosition.y = height / 2.0f;
+
+	XMVECTOR boundingQuaternion = XMQuaternionRotationAxis(QUATERNION_ROTATE_AXIS, betweenRadian);
+	XMFLOAT4 boundingQuaternionFloat4;
+	XMStoreFloat4(&boundingQuaternionFloat4, boundingQuaternion);
+
+	return BoundingOrientedBox(boundingPosition, XMFLOAT3(width / 2.0f, height / 2.0f, attackLegth / 2.0f), boundingQuaternionFloat4);
+
+	//return BoundingOrientedBox();
 }
 
 MoveObject::MoveObject(const float& moveSpeed, const float& boundingSize, std::shared_ptr<Room>& roomRef)

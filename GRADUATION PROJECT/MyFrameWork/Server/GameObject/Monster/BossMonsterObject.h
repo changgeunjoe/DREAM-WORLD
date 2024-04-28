@@ -146,7 +146,6 @@ namespace BossState
 
 		static constexpr float DAMAGE = 75.0f;
 		static constexpr float RANGE = 60.0f;
-		static constexpr float VALID_RADIAN = 20.0f * 3.14f / 180.0f;
 	public:
 		AttackKick(std::shared_ptr<BossMonsterObject> bossObject) : AttackState(bossObject, END_TIME), m_isAttacked(false) {}
 	protected:
@@ -167,7 +166,6 @@ namespace BossState
 
 		static constexpr float DAMAGE = 55.0f;
 		static constexpr float RANGE = 50.0f;
-		static constexpr float VALID_RADIAN = 15.0f * 3.14f / 180.0f;
 	public:
 		AttackPunch(std::shared_ptr<BossMonsterObject> bossObject) : AttackState(bossObject, END_TIME), m_isAttacked(false) {}
 	protected:
@@ -207,7 +205,7 @@ private:
 	static constexpr std::string_view ATTACK_PUNCH = "ATTACK_PUNCH";
 
 
-	static constexpr EventController::MS RESEARCH_ROAD_COOL_TIME = EventController::MS(200);
+	static constexpr EventController::MS RESEARCH_ROAD_COOL_TIME = EventController::MS(500);
 	static constexpr EventController::MS SEND_AGGRO_POSITION_TIME = EventController::MS(200);
 	static constexpr EventController::MS FIND_PLAYER_COOM_TIME = std::chrono::duration_cast<EventController::MS>(EventController::SEC(5));
 	static constexpr EventController::MS BETWEEN_ATTACK_COOM_TIME = EventController::MS(500);
@@ -240,8 +238,8 @@ public:
 
 	void AttackSpin(const float& damage, const float& attackRange);
 	void AttackFire(const float& damage, const float& innerRange, const float& outerRange, const int& mode);
-	void AttackKick(const float& damage, const float& attackRange, const float& validRadian);
-	void AttackPunch(const float& damage, const float& attackRange, const float& validRadian);
+	void AttackKick(const float& damage, const float& attackRange);
+	void AttackPunch(const float& damage, const float& attackRange);
 	void AttackMeteor();
 
 	void Move();
@@ -268,6 +266,10 @@ private:
 
 	std::shared_ptr<BossState::StateBase> m_currentState;
 	std::shared_ptr<std::list<XMFLOAT3>> m_road;
+	//XMFLOAT3 m_prevDestinationPosition;
+	XMFLOAT3 m_currentDestinationPosition;
+	bool m_roadUpdate;
+	bool m_isAbleRoadUpdate;
 	std::shared_ptr<CharacterObject> m_aggroCharacter;
 
 	std::unordered_map<BossState::STATE, std::shared_ptr<BossState::StateBase>> m_bossStates;

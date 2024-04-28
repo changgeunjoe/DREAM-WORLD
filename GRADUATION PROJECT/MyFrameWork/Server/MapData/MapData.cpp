@@ -277,7 +277,7 @@ std::list<XMFLOAT3> NavMapData::GetAstarNode(const XMFLOAT3& startPosition, cons
 			float destinationDistacne = destinationMesh->GetDistance(relationMesh->GetCenter()); //목적지까지의 거리
 			std::optional<float> parentDistance = currentFindMesh->GetRelationMeshDistance(relationMesh);//부모 목적지로 부터 거리
 			if (!parentDistance.has_value()) {//현재 메시가 부모 메시와 연결이 아님   (이런일이 일어나진 않긴함)
-				spdlog::critical("NavMapData::GetAstarNode() - non related Mesh");
+				spdlog::critical("NavMapData::GetAstarNode() - not related Mesh");
 				continue;
 			}
 			auto relationMeshIter = openList.find(relationMesh);
@@ -285,11 +285,14 @@ std::list<XMFLOAT3> NavMapData::GetAstarNode(const XMFLOAT3& startPosition, cons
 				//존재한다면 Astar노드의 값을 비교하여 더 값이 싼 걸로 교체
 				//현재 openList에 존재하는 이 노드의 에이스타
 				NavMesh::AstarNode& existedAstarNode = relationMeshIter->second;
-				if (existedAstarNode.GetParentDistance() > parentDistance.value()) {//이미 존재하는 에이스타 노드에 대해서 부모로부터 거리가 더 짧다면 교채해야 됨.
+				//이미 존재하는 에이스타 노드에 대해서
+				// 대해서 부모로부터 거리가 더 짧다면 교채해야 됨.(부모가 다를 때 일어날 수 있음 -> currentFindMesh가 부모 메시
+				//어차피 노드로부터 목적지 까지 거리는 같으니까(같은 노드에 대해서 계산)
+				if (existedAstarNode.GetParentDistance() > parentDistance.value()) {
 					existedAstarNode.RefreshData(currentFindMesh, parentDistance.value());
 				}
 			}
-			else {//openList에 존재하지 않음.
+			else {//openList에 존재하지 않음. => 그냥 삽입
 				openList.try_emplace(relationMesh, currentFindMesh, parentDistance.value(), destinationDistacne);
 			}
 		}
@@ -312,6 +315,8 @@ std::list<XMFLOAT3> NavMapData::GetAstarNode(const XMFLOAT3& startPosition, cons
 	}
 	//front: 시작 메시 , end: 도착 메시
 	std::list<std::shared_ptr<NavMesh::TriangleNavMesh>> confirmedMesh;
+	//std::list<XMFLOAT3> testCenterList;
+	//testCenterList.emplace_front(destinationPosition);
 	confirmedMesh.emplace_front(destinationMesh);
 	auto currentMesh = destinationMesh;
 	while (true) {
@@ -319,6 +324,7 @@ std::list<XMFLOAT3> NavMapData::GetAstarNode(const XMFLOAT3& startPosition, cons
 		if (closeList.end() != currentAstarIter) {
 			//부모 메시를 삽입
 			auto parentMesh = currentAstarIter->second.GetParentMesh();
+			//testCenterList.emplace_front(parentMesh->GetCenter());
 			confirmedMesh.emplace_front(parentMesh);
 			if (parentMesh == startMesh) break;//시작 메시와 부모 메시가 같다면 종료
 			currentMesh = parentMesh;
@@ -327,6 +333,97 @@ std::list<XMFLOAT3> NavMapData::GetAstarNode(const XMFLOAT3& startPosition, cons
 			spdlog::critical("NavMapData::GetAstarNode() - can not confirnedMesh");
 		}
 	}
+	//return testCenterList;
+	return OptimizeAStar(startPosition, destinationPosition, confirmedMesh);
+}
+
+std::list<XMFLOAT3> NavMapData::GetAstarNode_TestForClient(const XMFLOAT3& startPosition, const XMFLOAT3& destinationPosition, std::shared_ptr<std::list<int>> indexList)
+{
+	std::unordered_map<std::shared_ptr<NavMesh::TriangleNavMesh>, NavMesh::AstarNode> openList;
+	std::unordered_map<std::shared_ptr<NavMesh::TriangleNavMesh>, NavMesh::AstarNode> closeList;
+	std::shared_ptr<NavMesh::TriangleNavMesh> startMesh = m_navMeshQuadTree.GetOnPositionNavMesh(startPosition);
+	std::shared_ptr<NavMesh::TriangleNavMesh> destinationMesh = m_navMeshQuadTree.GetOnPositionNavMesh(destinationPosition);
+
+	if (startMesh == destinationMesh) {
+		return std::list<XMFLOAT3>{};
+	}
+
+	closeList.try_emplace(startMesh, startMesh, 0, 0);
+
+	auto currentFindMesh = startMesh;
+	while (true) {
+		auto relationMeshes = currentFindMesh->GetRelationTriangleMeshes();//현재 메시와 연결된 메시 데이터
+		for (auto& relationMesh : relationMeshes) {
+			if (closeList.count(relationMesh)) continue;//이미 closeList에 있다면 넘기기 -> 이미 확정된 메시
+			float destinationDistacne = destinationMesh->GetDistance(relationMesh->GetCenter()); //목적지까지의 거리
+			std::optional<float> parentDistance = currentFindMesh->GetRelationMeshDistance(relationMesh);//부모 목적지로 부터 거리
+			if (!parentDistance.has_value()) {//현재 메시가 부모 메시와 연결이 아님   (이런일이 일어나진 않긴함)
+				spdlog::critical("NavMapData::GetAstarNode() - not related Mesh");
+				continue;
+			}
+			auto relationMeshIter = openList.find(relationMesh);
+			if (openList.end() != relationMeshIter) {//openList에 이 메시 정보가 존재
+				//존재한다면 Astar노드의 값을 비교하여 더 값이 싼 걸로 교체
+				//현재 openList에 존재하는 이 노드의 에이스타
+				NavMesh::AstarNode& existedAstarNode = relationMeshIter->second;
+				//이미 존재하는 에이스타 노드에 대해서
+				// 대해서 부모로부터 거리가 더 짧다면 교채해야 됨.(부모가 다를 때 일어날 수 있음 -> currentFindMesh가 부모 메시
+				//어차피 노드로부터 목적지 까지 거리는 같으니까(같은 노드에 대해서 계산)
+				if (existedAstarNode.GetParentDistance() > parentDistance.value()) {
+					existedAstarNode.RefreshData(currentFindMesh, parentDistance.value());
+				}
+			}
+			else {//openList에 존재하지 않음. => 그냥 삽입
+				openList.try_emplace(relationMesh, currentFindMesh, parentDistance.value(), destinationDistacne);
+			}
+		}
+
+		auto minIter = openList.begin();//에이스타중 제일 값이 낮은걸 탐색
+		for (auto iter = openList.begin(); iter != openList.end(); ++iter) {
+			if (iter->second < minIter->second) {
+				minIter = iter;
+			}
+		}
+		//최소 값을 closeList에 삽입
+		closeList.emplace(minIter->first, minIter->second);
+		if (minIter->first == destinationMesh) {//만약에 지금 삽입한 객체가 목적지라면 루프문 종료
+			break;
+		}
+		//현재 메시는 방금 closeList에 들어온 최소값인 메시
+		currentFindMesh = minIter->first;
+		//closeList에 삽입했으니 openList에서는 삭제
+		openList.erase(minIter);
+	}
+	//front: 시작 메시 , end: 도착 메시
+	std::list<std::shared_ptr<NavMesh::TriangleNavMesh>> confirmedMesh;
+	//std::list<XMFLOAT3> testCenterList;
+	//testCenterList.emplace_front(destinationPosition);
+
+	auto currentMesh = destinationMesh;
+	confirmedMesh.emplace_front(currentMesh);
+	indexList->emplace_front(currentMesh->GetId());
+	//spdlog::info("Find Path NavMesh Idx: {}", currentMesh->GetId());
+	while (true) {
+		auto currentAstarIter = closeList.find(currentMesh);
+		if (closeList.end() != currentAstarIter) {
+			//부모 메시를 삽입
+			auto parentMesh = currentAstarIter->second.GetParentMesh();
+			//testCenterList.emplace_front(parentMesh->GetCenter());
+			confirmedMesh.emplace_front(parentMesh);
+			indexList->emplace_front(parentMesh->GetId());
+			//spdlog::info("Find Path NavMesh Idx: {}", parentMesh->GetId());
+			if (parentMesh == startMesh) {
+				/*indexList->emplace_front(startMesh->GetId());
+				spdlog::info("Find Path Last NavMesh Idx: {}", startMesh->GetId());*/
+				break;//시작 메시와 부모 메시가 같다면 종료
+			}
+			currentMesh = parentMesh;
+		}
+		else {
+			spdlog::critical("NavMapData::GetAstarNode() - can not confirnedMesh");
+		}
+	}
+	//return testCenterList;
 	return OptimizeAStar(startPosition, destinationPosition, confirmedMesh);
 }
 
@@ -343,7 +440,7 @@ std::list<XMFLOAT3> NavMapData::OptimizeAStar(const XMFLOAT3& startPosition, con
 	XMFLOAT3 restartPosition = startPosition;
 
 	std::list<XMFLOAT3> optimizedPositions;
-	optimizedPositions.emplace_back(startPosition);
+	//optimizedPositions.emplace_back(startPosition);
 
 	while (true) {
 		//조사할 수 있는 인덱스를 넘기면 종료
@@ -359,20 +456,20 @@ std::list<XMFLOAT3> NavMapData::OptimizeAStar(const XMFLOAT3& startPosition, con
 		//왼쪽 포탈 정보
 		XMFLOAT3 startToCurrentLeft = Vector3::Subtract(currentLeftPortal, restartPosition);
 		XMFLOAT3 startToNextLeft = Vector3::Subtract(nextLeftPortal, restartPosition);
-		XMFLOAT3 leftCrossProduct = Vector3::CrossProduct(startToNextLeft, startToCurrentLeft, true);
-		//양수라면 현재 왼쪽 포탈이 다음 왼쪽포탈보다 더 외곽에 위치함
+		XMFLOAT3 leftCrossProduct = Vector3::CrossProduct(startToCurrentLeft, startToNextLeft, true);
+		//현재 -> 다음이 외적이 0,1,0이라면 유효
 		//양수면 더 외곽
 		float resultLeftPortalDot = Vector3::DotProduct(UP, leftCrossProduct);
-		bool leftValid = resultLeftPortalDot < 0.0f;
+		bool leftValid = resultLeftPortalDot > 0.0f;
 
 		//우측 포탈 정보
 		XMFLOAT3 startToCurrentRight = Vector3::Subtract(currentRightPortal, restartPosition);
 		XMFLOAT3 startToNextRight = Vector3::Subtract(nextRightPortal, restartPosition);
 		//우측 포탈은 외적순서를 바꿔서 양수라면 더 외곽임을 알 수 있게.
-		XMFLOAT3 rightCrossProduct = Vector3::CrossProduct(startToCurrentRight, startToNextRight, true);
-		//양수라면 다음 우측 정점이 더 외곽
+		XMFLOAT3 rightCrossProduct = Vector3::CrossProduct(startToNextRight, startToCurrentRight, true);
+		//다음 -> 현재 외적이 0,1,0이라면 유효
 		float resultRightPortalDot = Vector3::DotProduct(UP, rightCrossProduct);
-		bool rightValid = resultRightPortalDot < 0.0f;
+		bool rightValid = resultRightPortalDot > 0.0f;
 
 		//다음 우측 정점이 좌측보다 왼쪽이라면 UP벡터와 dotProduct했을 때 양수
 		XMFLOAT3 leftCornerCross = Vector3::CrossProduct(startToNextRight, startToCurrentLeft, true);
@@ -394,6 +491,7 @@ std::list<XMFLOAT3> NavMapData::OptimizeAStar(const XMFLOAT3& startPosition, con
 
 			restartPosition = midVertex;
 			optimizedPositions.emplace_back(restartPosition);
+			//spdlog::info("Find Path position non Valid Portal - x: {}, y: {}, z: {}", restartPosition.x, restartPosition.y, restartPosition.z);
 
 			//위에 중점으로 현재 삼각형으로 가는 위치가 확정 됐으니, 둘 다 다음 삼각형으로 전진해야 됨
 			leftPortalIdx = restartIdx + 1;
@@ -404,8 +502,10 @@ std::list<XMFLOAT3> NavMapData::OptimizeAStar(const XMFLOAT3& startPosition, con
 		if (leftValid) {
 			if (isRightCorner) {//좌측만 봤을 때는 문제 없지만, 좌측점이 우측으로 넘어온 경우 -> 우회전
 				//여기서 한번 체크 포인트? 느낌으로 찍어야 됨.
-				restartPosition = currentRightPortal;//우회전이니 현재 우측 정점을 지나게
+				//restartPosition = currentRightPortal;//우회전이니 현재 우측 정점을 지나게
+				restartPosition = GetInternalDivisionPosition(currentRightPortal, currentLeftPortal, 1.0f, 11.0f);
 				optimizedPositions.emplace_back(restartPosition);
+				//spdlog::info("Find Path position right corner - x: {}, y: {}, z: {}", restartPosition.x, restartPosition.y, restartPosition.z);
 
 				++rightPortalIdx;//현재 rightIdx를 기준으로 다시 시작할거기 때문에, 전진
 				leftPortalIdx = rightPortalIdx;//같은 삼각형 기준으로 시작하게 세팅
@@ -426,8 +526,10 @@ std::list<XMFLOAT3> NavMapData::OptimizeAStar(const XMFLOAT3& startPosition, con
 		if (rightValid) {
 			if (isLeftCorner) {
 				//위에 우측 코너와 같은 방식으로 동작하게.
-				restartPosition = currentLeftPortal;
+				//restartPosition = currentLeftPortal;
+				restartPosition = GetInternalDivisionPosition(currentRightPortal, currentLeftPortal, 11.0f, 1.0f);
 				optimizedPositions.emplace_back(restartPosition);
+				//spdlog::info("Find Path position left corner - x: {}, y: {}, z: {}", restartPosition.x, restartPosition.y, restartPosition.z);
 
 				++leftPortalIdx;
 				rightPortalIdx = leftPortalIdx;
@@ -439,6 +541,7 @@ std::list<XMFLOAT3> NavMapData::OptimizeAStar(const XMFLOAT3& startPosition, con
 	}
 
 	optimizedPositions.emplace_back(destinationPosition);
+	//spdlog::info("Find Path position destination - x: {}, y: {}, z: {}", destinationPosition.x, destinationPosition.y, destinationPosition.z);
 	return optimizedPositions;
 }
 
@@ -487,6 +590,18 @@ void NavMapData::CreatePortal(std::list<std::shared_ptr<NavMesh::TriangleNavMesh
 		currentMesh = nextMesh;
 	}
 
+}
+
+XMFLOAT3 NavMapData::GetInternalDivisionPosition(const XMFLOAT3& vertex1, const XMFLOAT3& vertex2, const float& ratio1, const float& ratio2)
+{
+	float totalLength = ratio1 + ratio2;
+	if (totalLength < FLT_EPSILON) return vertex1;
+	XMFLOAT3 newVertex1 = vertex1;
+	newVertex1 = Vector3::ScalarProduct(newVertex1, ratio2, false);
+	XMFLOAT3 newVertex2 = vertex2;
+	newVertex2 = Vector3::ScalarProduct(newVertex2, ratio1, false);
+	XMFLOAT3 returnValue = Vector3::ScalarProduct(Vector3::Add(newVertex1, newVertex2), 1 / totalLength, false);
+	return returnValue;
 }
 
 MonsterMapData::MonsterMapData(const std::string& mapCollisionFile, const std::string& initMonsterFile)

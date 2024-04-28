@@ -62,8 +62,8 @@ void Character::Reset()
 	m_bLButtonClicked = false;
 	m_bRButtonClicked = false;
 
-	for (int i = 0; i < m_ppProjectiles.size(); ++i)
-		if (m_ppProjectiles[i]) m_ppProjectiles[i]->m_bActive = false;
+	//for (int i = 0; i < m_ppProjectiles.size(); ++i)
+	//	if (m_ppProjectiles[i]) m_ppProjectiles[i]->m_bActive = false;
 
 	if (m_pSkinnedAnimationController->m_CurrentAnimation != CharacterAnimation::CA_IDLE)
 	{

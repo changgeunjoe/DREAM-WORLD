@@ -58,12 +58,12 @@ public:
 	void InsertPrevUpdateEvent(std::shared_ptr<PrevUpdateEvent> prevUpdate);
 
 	void BroadCastPacket(const PacketHeader* packetData);
-	void BroadCastPacket(std::shared_ptr<PacketHeader>& packetData);
+	void BroadCastPacket(std::shared_ptr<PacketHeader> packetData);
 	void MultiCastCastPacket(const PacketHeader* packetData, const ROLE& exclusiveRoles);
 	void MultiCastCastPacket(const PacketHeader* packetData, const std::vector<ROLE>& exclusiveRoles);
 
-	void MultiCastCastPacket(std::shared_ptr<PacketHeader>& packetData, const ROLE& exclusiveRoles);
-	void MultiCastCastPacket(std::shared_ptr<PacketHeader>& packetData, const std::vector<ROLE>& exclusiveRoles);
+	void MultiCastCastPacket(std::shared_ptr<PacketHeader> packetData, const ROLE& exclusiveRoles);
+	void MultiCastCastPacket(std::shared_ptr<PacketHeader> packetData, const std::vector<ROLE>& exclusiveRoles);
 
 	std::shared_ptr<CharacterObject> GetCharacterObject(const ROLE& role);
 	std::vector <std::shared_ptr<MonsterObject>> GetEnermyData();

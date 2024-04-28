@@ -14,7 +14,7 @@ public:
 
     void			AddTrail( const XMFLOAT3& xmf3Top, const XMFLOAT3& xmf3Bottom);
     void			RenderTrail(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
-    void			RenderAstar(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, vector<int>& vecNodeQueue);
+    void			RenderAstar(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, vector<int>& vecNodeQueue, std::mutex& nodeLock);
     void			SetRenderingTrail(bool isOn);
     bool            GetRenderState() { return m_bRender; }
 public:

@@ -54,7 +54,7 @@ void Monster::Move(float fTimeElapsed)
 	{
 		MoveForward(1, fTimeElapsed);
 		auto position = GetPosition();
-		cout << "Boss Position: " <<  position.x << ", " << position.y << ", " << position.z << endl;
+		//cout << "Boss Position: " <<  position.x << ", " << position.y << ", " << position.z << endl;
 	}
 	break;
 	case BOSS_STATE::MOVE_AGGRO:
@@ -64,7 +64,7 @@ void Monster::Move(float fTimeElapsed)
 	break;
 	case BOSS_STATE::ATTACK:
 	{
-		cout << "Boss Attack" << endl;
+		//cout << "Boss Attack" << endl;
 		//Non Action
 	}
 	break;
@@ -212,10 +212,17 @@ void Monster::MoveAggro(float ftimeElapsed)
 
 	float enermyDistance = GetDistance(m_aggroPosition);
 	if (enermyDistance < STOP_DISTANCE) {
+		if (BOSS_ANIMATION::BA_IDLE != m_pSkinnedAnimationController->m_CurrentAnimation) {
+			m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_IDLE;
+			m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_IDLE, 2);
+		}
 		//Only Rotate
 		return;
 	}
-
+	if (BOSS_ANIMATION::BA_MOVE != m_pSkinnedAnimationController->m_CurrentAnimation) {
+		m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_MOVE;
+		m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_MOVE, 2);
+	}
 	MoveForward(1, ftimeElapsed);
 }
 
@@ -430,6 +437,10 @@ void BossSetDestinationPositionEvent::Execute(Monster* monster)
 	XMFLOAT3 newLookVector = Vector3::Normalize(Vector3::Subtract(destinationPosition, bossPosition));
 	monster->SetLook(newLookVector);
 	monster->ChangeBossState(BOSS_STATE::MOVE);
+	if (BOSS_ANIMATION::BA_MOVE != monster->m_pSkinnedAnimationController->m_CurrentAnimation) {
+		monster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_MOVE;
+		monster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_MOVE, 2);
+	}
 	cout << "Change Boss State: Move" << endl;
 }
 
@@ -469,6 +480,7 @@ void BossMeteorAttackEvent::Execute(Monster* monster)
 void BossKickAttackEvent::Execute(Monster* monster)
 {
 	BossAttackEventBase::Execute(monster);
+	BossDirectionAttackEvent::Execute(monster);
 	monster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_KICK_ATTACK;
 	monster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_KICK_ATTACK, 2);
 }
@@ -476,6 +488,7 @@ void BossKickAttackEvent::Execute(Monster* monster)
 void BossPunchAttackEvent::Execute(Monster* monster)
 {
 	BossAttackEventBase::Execute(monster);
+	BossDirectionAttackEvent::Execute(monster);
 	monster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_RIGHT_PUNCH;
 	monster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_RIGHT_PUNCH, 2);
 }
@@ -484,4 +497,9 @@ void BossAttackEventBase::Execute(Monster* monster)
 {
 	monster->ChangeBossState(BOSS_STATE::ATTACK);
 	cout << "Change Boss State: Attack" << endl;
+}
+
+void BossDirectionAttackEvent::Execute(Monster* monster)
+{
+	monster->SetLook(direction);
 }

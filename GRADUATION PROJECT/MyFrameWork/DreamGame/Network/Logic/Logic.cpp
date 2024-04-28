@@ -547,6 +547,21 @@ void Logic::ProcessPacket(const PacketHeader* packetHeader)
 	}
 	break;
 
+	case SERVER_PACKET::TYPE::NAV_MESH_RENDER:
+	{
+		cout << "Recv Nav Mesh Render" << endl;
+		const SERVER_PACKET::TestNavMeshRenderPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::TestNavMeshRenderPacket*>(packetHeader);
+		std::vector<int> nodeIdx;
+		nodeIdx.reserve(recvPacket->nodeSize);
+		for (int i = 0; i < recvPacket->nodeSize; ++i) {
+			nodeIdx.emplace_back(recvPacket->idx[i]);
+		}
+		gGameFramework.m_pScene->m_pObjectManager->m_nodeLock.lock();
+		gGameFramework.m_pScene->m_pObjectManager->m_VecNodeQueue.swap(nodeIdx);
+		gGameFramework.m_pScene->m_pObjectManager->m_nodeLock.unlock();
+	}
+	break;
+
 	default:
 	{
 		std::cout << "Unknown Packet Recv: " << (int)packetHeader->type << std::endl;

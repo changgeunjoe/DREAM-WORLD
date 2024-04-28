@@ -8,7 +8,7 @@
 
 
 BossMonsterObject::BossMonsterObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, std::shared_ptr<Room>& roomRef)
-	:MonsterObject(maxHp, moveSpeed, boundingSize, roomRef), m_currentState(nullptr)
+	:MonsterObject(maxHp, moveSpeed, boundingSize, roomRef), m_currentState(nullptr), m_roadUpdate(false), m_currentDestinationPosition(XMFLOAT3(0, 0, 0)), m_isAbleRoadUpdate(true)
 {
 	//200ms마다 길 찾기 재수행
 	m_behaviorTimeEventCtrl->InsertCoolDownEventData(RESEARCH_ROAD, RESEARCH_ROAD_COOL_TIME);
@@ -50,20 +50,30 @@ void BossMonsterObject::Initialize()
 
 void BossMonsterObject::CheckUpdateRoad()
 {
+	if (!m_isAbleRoadUpdate)return;
+	static constexpr float COMPETITION_DISTANCE = FLT_EPSILON;
 	auto findPlayerEvent = m_behaviorTimeEventCtrl->GetEventData(FIND_PLAYER);
 	const bool isAbleFindPlayer = findPlayerEvent->IsAbleExecute();
 	if (isAbleFindPlayer) {
 		auto researchRoadEvent = m_behaviorTimeEventCtrl->GetEventData(RESEARCH_ROAD);
 		researchRoadEvent->ForceExecute();
 		auto characterRef = FindAggroCharacter();
-		auto aggroEvent = std::make_shared<TIMER::BossAggroEvent>(m_roomRef, characterRef->GetPosition(), GetPosition(), characterRef);
+		if (characterRef == m_aggroCharacter) {
+			//
+		}
+		XMFLOAT3 startPosition = GetPosition();
+
+		//spdlog::info("Find Path Start Position - x: {}, y: {}, z: {}", startPosition.x, startPosition.y, startPosition.z);
+		auto aggroEvent = std::make_shared<TIMER::BossAggroEvent>(m_roomRef, characterRef->GetPosition(), startPosition, characterRef);
 		m_roomRef->InserTimerEvent(aggroEvent);
 		return;
 	}
 	auto researchRoadEvent = m_behaviorTimeEventCtrl->GetEventData(RESEARCH_ROAD);
 	const bool isAbleResearchRoad = researchRoadEvent->IsAbleExecute();
 	if (isAbleResearchRoad) {
-		auto researchEvent = std::make_shared<TIMER::BossCalculateRoadEvent>(m_roomRef, m_aggroCharacter->GetPosition(), GetPosition());
+		XMFLOAT3 startPosition = GetPosition();
+		//spdlog::info("Find Path Start Position - x: {}, y: {}, z: {}", startPosition.x, startPosition.y, startPosition.z);
+		auto researchEvent = std::make_shared<TIMER::BossCalculateRoadEvent>(m_roomRef, m_aggroCharacter->GetPosition(), startPosition);
 		m_roomRef->InserTimerEvent(researchEvent);
 	}
 
@@ -81,7 +91,12 @@ void BossMonsterObject::UpdateAggro(std::shared_ptr<CharacterObject> aggroCharac
 void BossMonsterObject::UpdateRoad(std::shared_ptr<std::list<XMFLOAT3>> nodeList)
 {
 	m_road = nodeList;
-	//m_roomRef->InsertAftrerUpdateSendEvent(std::static_pointer_cast<RoomSendEvent>(std::make_shared<SendBossRoadSetEvent>(m_road)));
+	auto iter = m_road->begin();
+	for (int i = 0; i < 5 && iter != m_road->end(); ++i) {
+		//spdlog::info("Find Path Result Position{} - x: {}, y: {}, z: {}", i, iter->x, iter->y, iter->z);
+		++iter;
+	}
+	m_roadUpdate = true;
 }
 
 void BossMonsterObject::SendBossState(const BossState::STATE& state)
@@ -96,7 +111,7 @@ void BossMonsterObject::SendBossState(const BossState::STATE& state)
 
 	case BossState::STATE::MOVE_AGGRO:
 	{
-		spdlog::info("changeBossState: MOVE_AGGRO");
+		spdlog::debug("changeBossState: MOVE_AGGRO");
 		UpdateLastUpdateTime();
 		auto sendAggroPositionEvent = m_behaviorTimeEventCtrl->GetEventData(SEND_AGGRO_POSITION);
 		//어그로를 바로 따라가야 하기 때문에, 강제로
@@ -107,39 +122,37 @@ void BossMonsterObject::SendBossState(const BossState::STATE& state)
 	break;
 	case BossState::STATE::MOVE:
 	{
-		spdlog::info("changeBossState: MOVE");
+		spdlog::debug("changeBossState: MOVE");
 		UpdateLastUpdateTime();
-		XMFLOAT3 destination = m_road->front();//아니라면 현재 가야할 위치를
-		m_roomRef->InsertAftrerUpdateSendEvent(std::static_pointer_cast<RoomSendEvent>(std::make_shared<BossMoveDestinationEvent>(destination)));
 	}
 	break;
 	case BossState::STATE::METEOR:
 	{
-		spdlog::info("changeBossState: METEOR");
+		spdlog::debug("changeBossState: METEOR");
 		m_roomRef->InsertAftrerUpdateSendEvent(std::static_pointer_cast<RoomSendEvent>(std::make_shared<BossMeteorEvent>()));
 	}
 	break;
 	case BossState::STATE::FIRE:
 	{
-		spdlog::info("changeBossState: FIRE");
+		spdlog::debug("changeBossState: FIRE");
 		m_roomRef->InsertAftrerUpdateSendEvent(std::static_pointer_cast<RoomSendEvent>(std::make_shared<BossFireEvent>()));
 	}
 	break;
 	case BossState::STATE::SPIN:
 	{
-		spdlog::info("changeBossState: SPIN");
+		spdlog::debug("changeBossState: SPIN");
 		m_roomRef->InsertAftrerUpdateSendEvent(std::static_pointer_cast<RoomSendEvent>(std::make_shared<BossSpinEvent>()));
 	}
 	break;
 	case BossState::STATE::KICK:
 	{
-		spdlog::info("changeBossState: KICK");
+		spdlog::debug("changeBossState: KICK");
 		m_roomRef->InsertAftrerUpdateSendEvent(std::static_pointer_cast<RoomSendEvent>(std::make_shared<BossKickEvent>(GetLookVector())));
 	}
 	break;
 	case BossState::STATE::PUNCH:
 	{
-		spdlog::info("changeBossState: PUNCH");
+		spdlog::debug("changeBossState: PUNCH");
 		m_roomRef->InsertAftrerUpdateSendEvent(std::static_pointer_cast<RoomSendEvent>(std::make_shared<BossPunchEvent>(GetLookVector())));
 	}
 	break;
@@ -181,29 +194,43 @@ void BossMonsterObject::AttackFire(const float& damage, const float& inner, cons
 	}
 }
 
-void BossMonsterObject::AttackKick(const float& damage, const float& attackRange, const float& validRadian)
+void BossMonsterObject::AttackKick(const float& damage, const float& attackRange)
 {
+	//static const float VALID_COS_VALUE = cos(XMConvertToRadians(KICK_VALID_EULER));
+	static constexpr float KICK_VALID_EULER = 26.0f;
+	//static constexpr float KICK_ATTACK_LENGTH = 50.0f;
+
+
+	auto attackBoudingBox = GetMeleeAttackJudgeBox(GetPosition(), GetLookVector(), attackRange / 2.0f, 18.0f, attackRange, m_collisionSphere.Radius * 2.0f);
+
 	auto characters = m_roomRef->GetCharacters();
 	for (auto& character : characters) {
-		float  distance = character->GetDistance(shared_from_this());
-		if (distance < attackRange) continue;
-		float betweenRadian = GetBetweenAngleRadian(character->GetPosition());
-		if (betweenRadian > validRadian) {
+		if (attackBoudingBox.Intersects(character->GetCollision()))
 			character->Attacked(damage);
-		}
+
+		//float  distance = character->GetDistance(shared_from_this());
+		//if (distance > attackRange) continue;
+		//float betweenCosValue = GetBetweenAngleCosValue(character->GetPosition());
+		//if (betweenCosValue > VALID_COS_VALUE) {
+		//}
 	}
 }
 
-void BossMonsterObject::AttackPunch(const float& damage, const float& attackRange, const float& validRadian)
+void BossMonsterObject::AttackPunch(const float& damage, const float& attackRange)
 {
+	//static constexpr float PUNCH_VALID_EULER = 20.0f;
+	//static const float VALID_COS_VALUE = cos(XMConvertToRadians(PUNCH_VALID_EULER));
+	auto attackBoudingBox = GetMeleeAttackJudgeBox(GetPosition(), GetLookVector(), attackRange / 2.0f, 14.0f, attackRange, m_collisionSphere.Radius * 2.0f);
+
 	auto characters = m_roomRef->GetCharacters();
 	for (auto& character : characters) {
-		float  distance = character->GetDistance(shared_from_this());
-		if (distance < attackRange) continue;
-		float betweenRadian = GetBetweenAngleRadian(character->GetPosition());
-		if (betweenRadian > validRadian) {
+		if (attackBoudingBox.Intersects(character->GetCollision()))
 			character->Attacked(damage);
-		}
+		//float  distance = character->GetDistance(shared_from_this());
+		//if (distance > attackRange) continue;
+		//float betweenCosValue = GetBetweenAngleCosValue(character->GetPosition());
+		//if (betweenCosValue > VALID_COS_VALUE) {
+		//}
 	}
 }
 
@@ -259,7 +286,10 @@ const XMFLOAT3 BossMonsterObject::GetCommonNextPosition(const float& elapsedTime
 {
 	XMFLOAT3 lookVector = GetLookVector();
 	XMFLOAT3 position = GetPosition();
-	return Vector3::Add(position, lookVector, elapsedTime * m_moveSpeed);
+	float toDestnationDistance = Vector3::Length(Vector3::Subtract(position, m_currentDestinationPosition));
+	if (toDestnationDistance > elapsedTime * m_moveSpeed)
+		toDestnationDistance = elapsedTime * m_moveSpeed;
+	return Vector3::Add(position, lookVector, toDestnationDistance);
 }
 
 std::shared_ptr<CharacterObject> BossMonsterObject::FindAggroCharacter()
@@ -284,33 +314,90 @@ std::shared_ptr<CharacterObject> BossMonsterObject::FindAggroCharacter()
 
 void BossMonsterObject::MoveUpdate()
 {
-	static constexpr float CHANGE_NODE_DISTANCE = 3.0f;
+	float elapsedTime = GetElapsedLastUpdateTime();
+	const float CHANGE_NODE_DISTANCE = 60.0f * elapsedTime;
+	const float CHECK_ABLE_FIND_PATH_DISTANCE = 3.0f;
 
 	//더 이상 이동할 노드가 없음 => 같은 노드에 있음.
-	XMFLOAT3 currentDestinationPosition = m_road->front();
 	XMFLOAT3 currentPosition = GetPosition();
-	XMFLOAT3 toDestinationVector = Vector3::Subtract(currentDestinationPosition, currentPosition);
 
-	//현재 정해진 목적지까지 거리
-	float distance = Vector3::Length(toDestinationVector);
-	if (distance < CHANGE_NODE_DISTANCE) {//road가 새로 계산됐다면, front는 보스의 위치와 같을 것이기때문에, 알아서 send 됨
-		m_road->pop_front();
-		if (m_road->empty()) {//같은 노드에 있음
-			m_currentState->ExitState();
-			ChangeBossState(BossState::STATE::MOVE_AGGRO);
-			return;
+	XMFLOAT3 currentDestinationPosition;// = m_road->front();
+	XMFLOAT3 toDestinationVector;// = Vector3::Subtract(currentDestinationPosition, currentPosition);
+	if (m_roadUpdate) {
+		while (true) {
+			currentDestinationPosition = m_road->front();
+			m_currentDestinationPosition = currentDestinationPosition;
+			toDestinationVector = Vector3::Subtract(currentDestinationPosition, currentPosition);
+			float toDestinationDistance = Vector3::Length(toDestinationVector);
+			if (toDestinationDistance > FLT_EPSILON) break;
+			m_road->pop_front();
+			if (m_road->empty()) {
+				m_currentState->ExitState();
+				ChangeBossState(BossState::STATE::MOVE_AGGRO);
+				return;
+			}
 		}
-	}
-	currentDestinationPosition = m_road->front();
-	auto changeDestinationEvent = std::make_shared<BossMoveDestinationEvent>(currentDestinationPosition);
-	m_roomRef->InsertAftrerUpdateSendEvent(std::static_pointer_cast<RoomSendEvent>(changeDestinationEvent));
-	toDestinationVector = Vector3::Subtract(currentDestinationPosition, currentPosition);
-	toDestinationVector = Vector3::Normalize(toDestinationVector);
-	SetLook(toDestinationVector);
 
-	float elapsedTime = GetElapsedLastUpdateTime();
+		spdlog::debug("Update Boss DestinationPosition - x: {}, y: {}, z: {}", currentDestinationPosition.x, currentDestinationPosition.y, currentDestinationPosition.z);
+
+		//currentPosition = GetPosition();
+		//toDestinationVector = Vector3::Subtract(currentDestinationPosition, currentPosition);
+		toDestinationVector = Vector3::Normalize(toDestinationVector);
+
+		XMFLOAT3 prevLook = GetLookVector();
+		SetLook(toDestinationVector);
+		spdlog::debug("ChangeLook prevLook - x: {}, y: {}, z: {}", prevLook.x, prevLook.y, prevLook.z);
+		spdlog::debug("ChangeLook newLook - x: {}, y: {}, z: {}", toDestinationVector.x, toDestinationVector.y, toDestinationVector.z);
+
+		auto changeDestinationEvent = std::make_shared<BossMoveDestinationEvent>(currentDestinationPosition);
+		m_roomRef->InsertAftrerUpdateSendEvent(std::static_pointer_cast<RoomSendEvent>(changeDestinationEvent));
+		m_roadUpdate = false;
+		return;
+	}
+
+	bool isNextNodePositionUpdate = false;
+	while (true)
+	{
+		//현재 정해진 목적지까지 거리
+		//m_prevDestinationPosition = currentDestinationPosition;
+		currentDestinationPosition = m_road->front();
+		m_currentDestinationPosition = currentDestinationPosition;
+		toDestinationVector = Vector3::Subtract(currentDestinationPosition, currentPosition);
+		float destinationDistance = Vector3::Length(toDestinationVector);
+		if (destinationDistance < CHECK_ABLE_FIND_PATH_DISTANCE)
+			m_isAbleRoadUpdate = false;
+		else m_isAbleRoadUpdate = true;
+
+		if (destinationDistance < CHANGE_NODE_DISTANCE) {//road가 새로 계산됐다면, front는 보스의 위치와 같을 것이기때문에, 알아서 send 됨
+			spdlog::debug("Change Boss DestinationPosition - distnace: {}", destinationDistance);
+			m_road->pop_front();
+			isNextNodePositionUpdate = true;
+			if (m_road->empty()) {//같은 노드에 있음
+				m_currentState->ExitState();
+				ChangeBossState(BossState::STATE::MOVE_AGGRO);
+				return;
+			}
+		}
+		else break;
+	}
+	if (isNextNodePositionUpdate) {
+		currentDestinationPosition = m_road->front();
+		m_currentDestinationPosition = currentDestinationPosition;
+		spdlog::debug("Change Boss DestinationPosition - x: {}, y: {}, z: {}", currentDestinationPosition.x, currentDestinationPosition.y, currentDestinationPosition.z);
+		auto changeDestinationEvent = std::make_shared<BossMoveDestinationEvent>(currentDestinationPosition);
+		m_roomRef->InsertAftrerUpdateSendEvent(std::static_pointer_cast<RoomSendEvent>(changeDestinationEvent));
+		toDestinationVector = Vector3::Subtract(currentDestinationPosition, currentPosition);
+		toDestinationVector = Vector3::Normalize(toDestinationVector);
+		XMFLOAT3 prevLook = GetLookVector();
+		SetLook(toDestinationVector);
+		spdlog::debug("ChangeLook prevLook - x: {}, y: {}, z: {}", prevLook.x, prevLook.y, prevLook.z);
+		spdlog::debug("ChangeLook newLook - x: {}, y: {}, z: {}", toDestinationVector.x, toDestinationVector.y, toDestinationVector.z);
+	}
+
+
 	XMFLOAT3 nextPosition = GetCommonNextPosition(elapsedTime);
 	SetPosition(nextPosition);
+	//spdlog::debug("Current Boss Position - x: {}, y: {}, z: {}", nextPosition.x, nextPosition.y, nextPosition.z);
 }
 
 void BossMonsterObject::MoveAggroUpdate()
@@ -338,6 +425,7 @@ void BossMonsterObject::MoveAggroUpdate()
 	}
 	XMFLOAT3 nextPosition = GetCommonNextPosition(elapsedTime);
 	SetPosition(nextPosition);
+	//spdlog::debug("Current Boss Position - x: {}, y: {}, z: {}", nextPosition.x, nextPosition.y, nextPosition.z);
 }
 
 const bool BossMonsterObject::AbleSpinAttack()
@@ -395,15 +483,16 @@ const bool BossMonsterObject::AbleMeteorAttack()
 const bool BossMonsterObject::AbleKickAttack()
 {
 	static constexpr float KICK_RANGE = 60.0f;
-	static constexpr float VALID_RADIAN = 20.0f * 3.14f / 180.0f;
+	static constexpr float KICK_VALID_EULER = 20.0f;
+	static const float VALID_COS_VALUE = cos(XMConvertToRadians(KICK_VALID_EULER));
 	auto characters = m_roomRef->GetCharacters();
 	//범위 체크
 	int validCnt = 0;
 	for (auto& character : characters) {
 		float distance = character->GetDistance(shared_from_this());
 		if (distance < KICK_RANGE) {
-			float betweenRadian = GetBetweenAngleRadian(character->GetPosition());
-			if (betweenRadian > VALID_RADIAN)
+			float betweenCosValue = GetBetweenAngleCosValue(character->GetPosition());
+			if (betweenCosValue > VALID_COS_VALUE)
 				++validCnt;
 		}
 	}
@@ -416,15 +505,16 @@ const bool BossMonsterObject::AbleKickAttack()
 const bool BossMonsterObject::AblePunchAttack()
 {
 	static constexpr float PUNCH_RANGE = 50.0f;
-	static constexpr float VALID_RADIAN = 15.0f * 3.14f / 180.0f;
+	static constexpr float KICK_VALID_EULER = 15.0f;
+	static const float VALID_COS_VALUE = cos(XMConvertToRadians(KICK_VALID_EULER));
 	auto characters = m_roomRef->GetCharacters();
 	//범위 체크
 	int validCnt = 0;
 	for (auto& character : characters) {
 		float distance = character->GetDistance(shared_from_this());
 		if (distance < PUNCH_RANGE) {
-			float betweenRadian = GetBetweenAngleRadian(character->GetPosition());
-			if (betweenRadian > VALID_RADIAN)
+			float betweenCosValue = GetBetweenAngleCosValue(character->GetPosition());
+			if (betweenCosValue > VALID_COS_VALUE)
 				++validCnt;
 		}
 	}
@@ -601,7 +691,7 @@ void BossState::AttackKick::UpdateState()
 			ExitState();
 	}
 	else if (m_attackExecuteTime < nowTime) {
-		bossObject->AttackKick(DAMAGE, RANGE, VALID_RADIAN);
+		bossObject->AttackKick(DAMAGE, RANGE);
 		m_isAttacked = true;
 	}
 }
@@ -622,7 +712,7 @@ void BossState::AttackPunch::UpdateState()
 			ExitState();
 	}
 	else if (m_attackExecuteTime < nowTime) {
-		bossObject->AttackPunch(DAMAGE, RANGE, VALID_RADIAN);
+		bossObject->AttackPunch(DAMAGE, RANGE);
 		m_isAttacked = true;
 	}
 }

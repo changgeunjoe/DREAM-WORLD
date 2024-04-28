@@ -135,6 +135,7 @@ void GameObject::SetLook(const XMFLOAT3& xmfLook)
 		std::cout << "문제 있음" << std::endl;
 	}
 	XMFLOAT3 xmftLook = Vector3::Normalize(xmfLook);
+	if (Vector3::Length(xmftLook) < FLT_MIN) return;
 	XMFLOAT3 xmftUp = GetUp();
 	XMFLOAT3 xmftRight = GetRight();
 

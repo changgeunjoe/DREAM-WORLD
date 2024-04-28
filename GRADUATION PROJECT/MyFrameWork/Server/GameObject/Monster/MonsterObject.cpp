@@ -18,19 +18,16 @@ const bool MonsterObject::IsReadyFindPlayer()
 
 const std::pair<float, float> MonsterObject::GetBetweenAngleEuler(const XMFLOAT3& otherPosition) const
 {
+	static XMFLOAT3 UP = XMFLOAT3(0, 1, 0);
 	XMFLOAT3 aggroPosition = otherPosition;
 	XMFLOAT3 toAggroVector = GetToVector(aggroPosition);
 	toAggroVector = Vector3::Normalize(toAggroVector);
 	XMFLOAT3 lookVector = GetLookVector();
 	float lookDotResult = Vector3::DotProduct(lookVector, toAggroVector);//사이 각에 대한 cos()
-
 	//좌측인지 우측인지 판단도 해야 됨.
-	//객체 우측벡터와 객체까지의 벡터를 내적한 값은 cos()인데
-	//cos()은 -90~90는 양수, 이외는 음수
-	//내적 결과가 양수라면 객체 기준 우측에 상대 객체가 존재한다는 것을 판단
-	XMFLOAT3 rightVector = GetRightVector();
-	float rightDotResult = Vector3::DotProduct(rightVector, toAggroVector);//사이 각에 대한 cos()
-	if (rightDotResult > 0)
+	XMFLOAT3 crossProductResult = Vector3::Normalize(Vector3::CrossProduct(lookVector, toAggroVector));//어그로 객체가 우측에 있다면 UP 내적 했을 때 양수
+	float dotProductFromUp = Vector3::DotProduct(UP, crossProductResult); // 양수라면 어그로는 우측에 존재 함.
+	if (dotProductFromUp > 0)
 		return std::make_pair<float, float>(1.0f, XMConvertToDegrees(std::acosf(lookDotResult)));
 	return std::make_pair<float, float>(-1.0f, XMConvertToDegrees(std::acosf(lookDotResult)));
 }

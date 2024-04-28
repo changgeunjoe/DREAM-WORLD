@@ -800,9 +800,7 @@ void GameobjectManager::AstarRender(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	}
 
 	if (m_pAstarComponent) {
-		m_nodeLock.lock();
-		m_pAstarComponent->RenderAstar(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_VecNodeQueue);
-		m_nodeLock.unlock();
+		m_pAstarComponent->RenderAstar(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_VecNodeQueue, m_nodeLock);
 	}
 }
 

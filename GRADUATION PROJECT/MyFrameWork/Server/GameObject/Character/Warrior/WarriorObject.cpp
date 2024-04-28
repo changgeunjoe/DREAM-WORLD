@@ -42,28 +42,38 @@ void WarriorObject::RecvAttackCommon(const XMFLOAT3& attackDir, const int& power
 
 void WarriorObject::ExecuteSwordSkill(const XMFLOAT3& direction)
 {
-	static constexpr float SWORD_SKILL_LENGTH = 30.0f;
-	static constexpr float SWORD_SKILL_VALID_RADIAN = 15.0f * 3.14f / 180.0f;
+	static constexpr float FIRST_CHECK_DISTANCE = 70.0;
+	static constexpr float SWORD_SKILL_LENGTH = 45.0f;
 	static constexpr float DAMAGE = 110.0f;
+
+	//static constexpr float SWORD_SKILL_VALID_EULER = 15.0f;
+	//static const float SWORD_VALID_COS_VALUE = cos(XMConvertToRadians(SWORD_SKILL_VALID_EULER));
+	auto attackBoudingBox = GetMeleeAttackJudgeBox(GetPosition(), m_moveVector, SWORD_SKILL_LENGTH / 2.0f, 6.0f, SWORD_SKILL_LENGTH, m_collisionSphere.Radius * 2.0f);
+
+
 	auto enermyData = m_roomRef->GetEnermyData();
 	for (auto& monster : enermyData) {
 		auto length = GetDistance(monster->GetPosition());
-		if (length > SWORD_SKILL_LENGTH) continue;
-		float betweenRadian = GetBetweenAngleRadian(monster->GetPosition());
-		if (betweenRadian > SWORD_SKILL_VALID_RADIAN) {
+		if (length > FIRST_CHECK_DISTANCE) continue;
+		bool isAttacked = attackBoudingBox.Intersects(monster->GetCollision());
+		if (isAttacked)
 			monster->Attacked(DAMAGE);
-		}
+		//float betweenCosValue = GetBetweenAngleCosValue(monster->GetPosition());
+		//if (betweenCosValue > SWORD_VALID_COS_VALUE) {
+		//}
 	}
 }
 
 void WarriorObject::ExecuteCommonAttack(const XMFLOAT3& direction, const int& power)
 {
-	static constexpr float ATTACK_LENGTH = 30.0f;
-	static constexpr float ATTACK_VALID_RADIAN = 18.0f * 3.14f / 180.0f;
 	static constexpr float DEFAULT_DAMAGE = 50.0f;
-
 	static constexpr float POWER_DAMAGE = 70.0f;
 	static constexpr float LAST_POWER_DAMAGE = 110.0f;
+
+	static constexpr float FIRST_CHECK_DISTANCE = 85.0;
+	static constexpr float ATTACK_LENGTH = 60.0f;
+	//static constexpr float ATTACK_VALID_EULER = 18.0f;
+	//static const float ATTACK_VALID_COS_VALUE = cos(XMConvertToRadians(ATTACK_VALID_EULER));
 
 	float applyDamage = DEFAULT_DAMAGE;
 	switch (power)
@@ -84,13 +94,16 @@ void WarriorObject::ExecuteCommonAttack(const XMFLOAT3& direction, const int& po
 	break;
 	}
 	auto enermyData = m_roomRef->GetEnermyData();
+	auto attackBoudingBox = GetMeleeAttackJudgeBox(GetPosition(), m_moveVector, ATTACK_LENGTH / 2.0f, 7.0f, ATTACK_LENGTH, m_collisionSphere.Radius * 2.0f);
 	for (auto& monster : enermyData) {
 		auto length = GetDistance(monster->GetPosition());
-		if (length > ATTACK_LENGTH) continue;
-		float betweenRadian = GetBetweenAngleRadian(monster->GetPosition());
-		if (betweenRadian > ATTACK_VALID_RADIAN) {
+		if (length > FIRST_CHECK_DISTANCE) continue;
+		bool isAttatked = attackBoudingBox.Intersects(monster->GetCollision());
+		if (isAttatked)
 			monster->Attacked(applyDamage);
-		}
+		//float betweenCosValue = GetBetweenAngleCosValue(monster->GetPosition());
+		//if (betweenCosValue > ATTACK_VALID_COS_VALUE) {
+		//}
 	}
 }
 

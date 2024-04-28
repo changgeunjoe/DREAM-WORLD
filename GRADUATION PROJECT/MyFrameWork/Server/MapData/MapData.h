@@ -58,9 +58,13 @@ public:
 
 	//머리가 시작, 꼬리가 끝
 	std::list<XMFLOAT3> GetAstarNode(const XMFLOAT3& startPosition, const XMFLOAT3& destinationPosition);
+	//길찾기 확인이 잘 안돼서 클라이언트에서 네비 메시 렌더링을 위한 객체
+	std::list<XMFLOAT3> GetAstarNode_TestForClient(const XMFLOAT3& startPosition, const XMFLOAT3& destinationPosition, std::shared_ptr<std::list<int>> indexList);
 private:
 	std::list<XMFLOAT3> OptimizeAStar(const XMFLOAT3& startPosition, const XMFLOAT3& destinationPosition, std::list<std::shared_ptr<NavMesh::TriangleNavMesh>>& confirmedAstarNode);
 	void CreatePortal(std::list<std::shared_ptr<NavMesh::TriangleNavMesh>>& confirmedAstarNode, std::vector<XMFLOAT3>& leftPortal, std::vector<XMFLOAT3>& rightPortal);
+
+	XMFLOAT3 GetInternalDivisionPosition(const XMFLOAT3& vertex1, const XMFLOAT3& vertex2, const float& ratio1, const float& ratio2);
 protected:
 	//Nav Data
 	//read Data

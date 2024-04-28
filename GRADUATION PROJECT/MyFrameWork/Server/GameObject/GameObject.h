@@ -27,7 +27,7 @@ public:
 	const float GetDistance(const XMFLOAT3& other) const;
 	const float GetDistance(const std::shared_ptr<const GameObject>& other) const;
 
-	const float GetBetweenAngleRadian(const XMFLOAT3& position);
+	const float GetBetweenAngleCosValue(const XMFLOAT3& position) const;
 protected:
 	virtual void UpdateCollision();
 	void SetLook(const XMFLOAT3& lookVector);
@@ -78,6 +78,7 @@ protected:
 
 	virtual const XMFLOAT3 GetCommonNextPosition(const float& elapsedTime) = 0;
 
+	static BoundingOrientedBox GetMeleeAttackJudgeBox(const XMFLOAT3& startPosition, const XMFLOAT3& forwardVector, const float& offsetLegth, const float& width, const float& attackLegth, const float& height);
 
 protected:
 	std::atomic_bool m_isAlive;

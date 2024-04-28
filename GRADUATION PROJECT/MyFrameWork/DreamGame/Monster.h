@@ -43,6 +43,7 @@ class BossDirectionAttackEvent : public BossAttackEventBase
 {
 public:
 	BossDirectionAttackEvent(const XMFLOAT3& direction) : direction(direction) {}
+	virtual void Execute(Monster* monster) override;
 protected:
 	XMFLOAT3 direction;
 };

@@ -212,7 +212,7 @@ const XMFLOAT3 MeleeCharacterObject::GetCommonNextPosition(const float& elapsedT
 	return Vector3::Add(currentPosition, m_moveVector, m_moveSpeed * elapsedTime);
 }
 
-const XMFLOAT3 MeleeCharacterObject::GetMoveVector() const
+std::optional<const XMFLOAT3> MeleeCharacterObject::GetMoveVector() const
 {
 	//좌, 우 // 앞, 뒤를 동시에 눌렀을 때, 적용안되게.
 	char moveDirection = m_currentDirection;
@@ -229,7 +229,7 @@ const XMFLOAT3 MeleeCharacterObject::GetMoveVector() const
 	}
 
 	if ((moveDirection | IDLE_BIT) == IDLE_BIT)
-		return XMFLOAT3{};
+		return std::nullopt;
 
 	float rotateAngle = 0.0f;
 	switch (moveDirection)
@@ -244,13 +244,13 @@ const XMFLOAT3 MeleeCharacterObject::GetMoveVector() const
 	case RIGHT_BIT:						rotateAngle = 270.0f;	break;
 	case FRONT_BIT | RIGHT_BIT:			rotateAngle = 315.0f;	break;
 	default:
-		return XMFLOAT3{};
+		return std::nullopt;
 	}
 
 	XMFLOAT3 lookVector = GetLookVector();
 	XMFLOAT3 moveVector{ 0,0,0 };
-	moveVector.x = lookVector.x * cos(rotateAngle) - lookVector.z * sin(rotateAngle);
-	moveVector.z = lookVector.x * sin(rotateAngle) + lookVector.z * cos(rotateAngle);
+	moveVector.x = lookVector.x * cos(XMConvertToRadians(rotateAngle)) - lookVector.z * sin(XMConvertToRadians(rotateAngle));
+	moveVector.z = lookVector.x * sin(XMConvertToRadians(rotateAngle)) + lookVector.z * cos(XMConvertToRadians(rotateAngle));
 	return Vector3::Normalize(moveVector);
 }
 
@@ -267,7 +267,9 @@ void MeleeCharacterObject::UpdateDirectionRotate()
 	//정지 상태로 변화 시 할 필요가 없읍.
 	if ((m_currentDirection | IDLE_BIT) == IDLE_BIT)
 		return;
-	m_moveVector = GetMoveVector();
+	auto currentMoveVector = GetMoveVector();
+	if (currentMoveVector.has_value())
+		m_moveVector = currentMoveVector.value();
 }
 
 RangedCharacterObject::RangedCharacterObject(const float& maxHp, const float& moveSpeed, const float& boundingSize, const float& attackDamage, std::shared_ptr<Room>& roomRef, const ROLE& role)
@@ -289,14 +291,17 @@ const XMFLOAT3 RangedCharacterObject::GetCommonNextPosition(const float& elapsed
 	if ((m_currentDirection | IDLE_BIT) == IDLE_BIT)
 		return GetPosition();
 	XMFLOAT3 currentPosition = GetPosition();
-	m_moveVector = GetMoveVector();
+	auto currentMoveVector = GetMoveVector();
+	if (currentMoveVector.has_value())
+		m_moveVector = currentMoveVector.value();
+
 	XMFLOAT3 returnPosition = Vector3::Add(currentPosition, m_moveVector, m_moveSpeed * elapsedTime);
 	//spdlog::critical("position: returnPosition - x: {}, y: {}, z: {}, moveVector - x: {}, y: {}, z: {}", returnPosition.x, returnPosition.y, returnPosition.z
 	//		, m_moveVector.x, m_moveVector.y, m_moveVector.z);
 	return returnPosition;
 }
 
-const XMFLOAT3 RangedCharacterObject::GetMoveVector() const
+std::optional<const XMFLOAT3> RangedCharacterObject::GetMoveVector() const
 {
 	//좌, 우 // 앞, 뒤를 동시에 눌렀을 때, 적용안되게.
 	char moveDirection = m_currentDirection;
@@ -313,7 +318,7 @@ const XMFLOAT3 RangedCharacterObject::GetMoveVector() const
 	}
 
 	if ((moveDirection | IDLE_BIT) == IDLE_BIT)
-		return XMFLOAT3{};
+		return std::nullopt;
 
 	XMFLOAT3 moveVector;
 	switch (moveDirection)

@@ -205,14 +205,15 @@ const bool SmallMonsterObject::IsAbleAttack()
 {
 	//공격 가능 거리, 공격 가능 범위(부채꼴)
 	static constexpr float ABLE_ATTACK_RANGE = 20.0f;
-	static constexpr float ABLE_ATTACK_RADIAN = 0.97437006478;//cos(13degree)
+	static const float ABLE_ATTACK_EULER = 13.0f;//cos(13degree)
+	static const float ABLE_ATTACK_COS_VALUE = cos(XMConvertToRadians(ABLE_ATTACK_EULER));//cos(13degree)
 	auto aggroCharacter = m_aggroCharacter.lock();
 	if (nullptr == aggroCharacter)
 		return false;
 	float distance = aggroCharacter->GetDistance(shared_from_this());
 	if (ABLE_ATTACK_RANGE > distance) {
-		const float betweenRadian = GetBetweenAngleRadian(aggroCharacter->GetPosition());
-		if (ABLE_ATTACK_RADIAN - betweenRadian < FLT_EPSILON)
+		const float betweenCosValue = GetBetweenAngleCosValue(aggroCharacter->GetPosition());
+		if (betweenCosValue > ABLE_ATTACK_COS_VALUE)
 			return IsReadyAttack();
 	}
 	return false;

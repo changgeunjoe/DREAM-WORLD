@@ -5,6 +5,7 @@
 #include "../Room/Room.h"
 #include "../MapData/MapData.h"
 #include "../Room/RoomEvent.h"
+#include "../Network/protocol/protocol.h"
 
 void IOCP::BossCalculateRoadEvent::Execute(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key)
 {
@@ -14,7 +15,16 @@ void IOCP::BossCalculateRoadEvent::Execute(ExpOver* over, const DWORD& ioByte, c
 		if (nullptr == roomRef) return;
 
 		std::shared_ptr<NavMapData> navMapData = roomRef->GetBossMapData();
+#ifdef _DEBUG // NAV_MESH_RENDER_FOR_CLIENT
+		auto idxList = std::make_shared<std::list<int>>();
+		auto roadRef = std::make_shared<std::list<XMFLOAT3>>(std::move(navMapData->GetAstarNode_TestForClient(m_startPosition, m_destination, idxList)));
+
+		auto sendMeshPacket = std::make_shared<SERVER_PACKET::TestNavMeshRenderPacket>(idxList);
+		roomRef->BroadCastPacket(std::static_pointer_cast<PacketHeader>(sendMeshPacket));
+#elif
 		auto roadRef = std::make_shared<std::list<XMFLOAT3>>(std::move(navMapData->GetAstarNode(m_startPosition, m_destination)));
+#endif // _DEBUG
+
 		auto bossRoadEvent = std::make_shared<BossRoadSetEvent>(roomRef, roadRef);
 		roomRef->InsertPrevUpdateEvent(std::static_pointer_cast<PrevUpdateEvent>(bossRoadEvent));
 	}

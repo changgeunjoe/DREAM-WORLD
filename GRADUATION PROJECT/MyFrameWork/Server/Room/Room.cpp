@@ -49,7 +49,7 @@ Room::~Room()
 
 void Room::Execute(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key)
 {
-	if (m_roomState == ROOM_STATE::ROOM_END) return;
+	if (ROOM_STATE::ROOM_END == m_roomState) return;
 	using namespace std::chrono;
 	const auto& opCode = over->GetOpCode();
 	switch (opCode)
@@ -408,7 +408,7 @@ void Room::BroadCastPacket(const PacketHeader* packetData)
 	}
 }
 
-void Room::BroadCastPacket(std::shared_ptr<PacketHeader>& packetData)
+void Room::BroadCastPacket(std::shared_ptr<PacketHeader> packetData)
 {
 	auto userSessions = GetAllUserSessions();
 	for (auto& userSession : userSessions) {
@@ -438,7 +438,7 @@ void Room::MultiCastCastPacket(const PacketHeader* packetData, const std::vector
 	}
 }
 
-void Room::MultiCastCastPacket(std::shared_ptr<PacketHeader>& packetData, const ROLE& exclusiveRoles)
+void Room::MultiCastCastPacket(std::shared_ptr<PacketHeader> packetData, const ROLE& exclusiveRoles)
 {
 	auto userSessions = GetAllUserSessions();
 	for (auto& userSession : userSessions) {
@@ -449,7 +449,7 @@ void Room::MultiCastCastPacket(std::shared_ptr<PacketHeader>& packetData, const 
 	}
 }
 
-void Room::MultiCastCastPacket(std::shared_ptr<PacketHeader>& packetData, const std::vector<ROLE>& exclusiveRoles)
+void Room::MultiCastCastPacket(std::shared_ptr<PacketHeader> packetData, const std::vector<ROLE>& exclusiveRoles)
 {
 	auto userSessions = GetAllUserSessions();
 	for (auto& userSession : userSessions) {
@@ -567,7 +567,7 @@ void Room::InitializeAllGameObject()
 
 void Room::SetBossStage()
 {
-	static constexpr std::chrono::seconds BOSS_START_AFTER_TIME = std::chrono::seconds(15);
+	static constexpr std::chrono::seconds BOSS_START_AFTER_TIME = std::chrono::seconds(11);
 	if (ROOM_STATE::ROOM_COMMON != m_roomState) return;
 	m_roomState = ROOM_STATE::ROOM_BOSS;
 	m_bossStartTime = std::chrono::high_resolution_clock::now() + BOSS_START_AFTER_TIME;

@@ -87,8 +87,10 @@ std::shared_ptr<NavMesh::TriangleNavMesh> NavMesh::Node::LeafNode::GetOnPosition
 			return navMesh;
 		}
 		//가장 적은 차이를 내는 메시 저장
-		if (minAreaDiff > onNavMeshResult.second)
+		if (minAreaDiff > onNavMeshResult.second) {
 			minAreaMesh = navMesh;
+			minAreaDiff = onNavMeshResult.second;
+		}
 
 		//실패했다면, 연결된 메시를 저장
 		auto currentRelationMesh = navMesh->GetRelationTriangleMeshes();
@@ -102,8 +104,10 @@ std::shared_ptr<NavMesh::TriangleNavMesh> NavMesh::Node::LeafNode::GetOnPosition
 		if (onNavMeshResult.first) {//성공했으면 바로 반환
 			return navMesh;
 		}
-		if (minAreaDiff > onNavMeshResult.second)
+		if (minAreaDiff > onNavMeshResult.second) {
 			minAreaMesh = navMesh;
+			minAreaDiff = onNavMeshResult.second;
+		}
 	}
 
 	return minAreaMesh;

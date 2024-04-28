@@ -28,15 +28,22 @@ std::pair<bool, float> NavMesh::TriangleNavMesh::IsOnTriangleMesh(const DirectX:
 	//각 벡터들을 외적 => (정점1로 가는 벡터 X 정점 2로 가는벡터) ... 겹치지 않게.
 	//이 외적한 값의 크기를 다 더하면, 삼각형 크기와 같다면, pos는 삼각형 위에 있음.
 
-	doubleAreaSize = Vector3::Length(Vector3::CrossProduct(toVertex0, toVertex1, false));
-	doubleAreaSize += Vector3::Length(Vector3::CrossProduct(toVertex1, toVertex2, false));
-	doubleAreaSize += Vector3::Length(Vector3::CrossProduct(toVertex0, toVertex0, false));
+	float areaSize1 = Vector3::Length(Vector3::CrossProduct(toVertex0, toVertex1, false));
+	float areaSize2 = Vector3::Length(Vector3::CrossProduct(toVertex1, toVertex2, false));
+	float areaSize3 = Vector3::Length(Vector3::CrossProduct(toVertex2, toVertex0, false));
+
+	doubleAreaSize = areaSize1 + areaSize2 + areaSize3;
 
 	float areaDIff = doubleAreaSize - m_duobleAreaSize;
+	float absAreaDiff = abs(areaDIff);
+
+	if (absAreaDiff < COMPARE_AREA_VALUE) 
+		return {true, absAreaDiff };
+	
 	//결과 값이 비교할 넓이 값보다 작다면 삼각형 위에 있다.
 	//doubleAreaSize는 삼각형의 크기보다 작기 힘듦. 작다면, 삼각형 내부위에 있고 오차 범위 때문에 그럴 수도?
 	//	=> 삼각형 외부점에 대해서 외적하면, 삼각형 보다 더 큰 도형에 대해서 넓이가 나와버림.
-	return { areaDIff < COMPARE_AREA_VALUE, areaDIff };
+	return { false, absAreaDiff };
 }
 
 //const bool TriangleNavMesh::IsShareLine(const TriangleNavMesh& other) const
@@ -81,7 +88,16 @@ std::vector<int> NavMesh::TriangleNavMesh::GetRelationVertexIdx(std::shared_ptr<
 {
 	std::vector<int> sharedVertexIdx;
 	sharedVertexIdx.reserve(2);
-	std::ranges::set_intersection(m_vertexIdxSet, other->m_vertexIdxSet, std::back_inserter(sharedVertexIdx));
+	for (const auto& vertexId : m_vertexIdxSet) {
+		for (const auto& otherVertexId : other->m_vertexIdxSet) {
+			if (vertexId == otherVertexId) {
+				sharedVertexIdx.push_back(vertexId);
+				break;
+			}
+		}
+	}
+	//std::ranges::set_intersection(m_vertexIdxSet, other->m_vertexIdxSet, std::back_inserter(sharedVertexIdx));
+
 	return sharedVertexIdx;
 }
 

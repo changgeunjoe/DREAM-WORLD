@@ -253,7 +253,8 @@ namespace SERVER_PACKET {
 		BOSS_ATTACK_METEOR,
 #pragma endregion
 
-		TIME_SYNC_RESPONSE
+		TIME_SYNC_RESPONSE,
+		NAV_MESH_RENDER
 	};
 
 #pragma region DISCARD
@@ -520,6 +521,23 @@ namespace SERVER_PACKET {
 		TimeSyncPacket()
 			: PacketHeader(static_cast<char>(TYPE::TIME_SYNC_RESPONSE), sizeof(TimeSyncPacket)), time(std::chrono::high_resolution_clock::now())
 		{}
+	};
+
+	struct TestNavMeshRenderPacket : public PacketHeader
+	{
+		int nodeSize;
+		int idx[40];
+		TestNavMeshRenderPacket(std::shared_ptr<std::list<int>> nodeIdx) : PacketHeader(static_cast<char>(TYPE::NAV_MESH_RENDER), sizeof(TestNavMeshRenderPacket))
+		{
+			nodeSize = nodeIdx->size();
+			if (nodeSize > 40) nodeSize = 40;
+			int cnt = 0;
+			for (auto& meshIdx : *nodeIdx) {
+				if (cnt == nodeSize) break;
+				idx[cnt] = meshIdx;
+				cnt++;
+			}
+		}
 	};
 }
 #pragma pack (pop)

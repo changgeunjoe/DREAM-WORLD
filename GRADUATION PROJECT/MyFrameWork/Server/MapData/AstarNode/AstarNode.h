@@ -24,7 +24,8 @@ namespace NavMesh
 
 		constexpr bool operator<(const AstarNode& other) const
 		{
-			return (m_parentDistance + m_destinationDistane) < (other.m_parentDistance + other.m_destinationDistane);
+			return m_destinationDistance < other.m_destinationDistance;
+				//(m_parentDistance + m_destinationDistane) < (other.m_parentDistance + other.m_destinationDistane);
 		}
 		const bool IsStart(std::shared_ptr<TriangleNavMesh> ownerMesh) const
 		{
@@ -37,6 +38,6 @@ namespace NavMesh
 		std::shared_ptr<TriangleNavMesh> m_parentMesh;
 
 		float m_parentDistance;//부모 메시로부터 거리 값
-		float m_destinationDistane;//목적지로 가는 거리 값
+		float m_destinationDistance;//목적지로 가는 거리 값
 	};
 }

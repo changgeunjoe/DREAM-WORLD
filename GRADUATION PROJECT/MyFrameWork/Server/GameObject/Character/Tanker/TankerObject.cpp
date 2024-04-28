@@ -54,17 +54,23 @@ void TankerObject::RecvAttackCommon(const XMFLOAT3& attackDir, const int& power)
 
 void TankerObject::ExecuteHammerSkill(const XMFLOAT3& direction)
 {
+	static constexpr float FIRST_CHECK_DISTANCE = 70.0f;
 	static constexpr float HAMMER_SKILL_LENGTH = 55.0f;
-	static constexpr float HAMMER_SKILL_VALID_RADIAN = 17.0f * 3.14f / 180.0f;
+	static constexpr float HAMMER_SKILL_VALID_EULER = 17.0f;
+	static const float HAMMER_VALID_COS_VALUE = cos(XMConvertToRadians(HAMMER_SKILL_VALID_EULER));
 	static constexpr float DAMAGE = 100.0f;
+
+	auto attackBoudingBox = GetMeleeAttackJudgeBox(GetPosition(), m_moveVector, HAMMER_SKILL_LENGTH/2.0f, 7.0f, HAMMER_SKILL_LENGTH, m_collisionSphere.Radius * 2.0f);
+
 	auto enermyData = m_roomRef->GetEnermyData();
 	for (auto& monster : enermyData) {
 		auto length = GetDistance(monster->GetPosition());
-		if (length > HAMMER_SKILL_LENGTH) continue;
-		float betweenRadian = GetBetweenAngleRadian(monster->GetPosition());
-		if (betweenRadian > HAMMER_SKILL_VALID_RADIAN) {
+		if (length > FIRST_CHECK_DISTANCE) continue;
+		if (attackBoudingBox.Intersects(monster->GetCollision()))
 			monster->Attacked(DAMAGE);
-		}
+		//float betweenCosValue = GetBetweenAngleCosValue(monster->GetPosition());
+		//if (betweenCosValue > HAMMER_VALID_COS_VALUE) {
+		//}
 	}
 }
 
@@ -83,17 +89,24 @@ void TankerObject::ExecuteShield(const CommonDurationSkill_MILSEC::DURATION_TIME
 
 void TankerObject::ExecuteCommonAttack(const XMFLOAT3& attackDir)
 {
-	static constexpr float DEFAULT_SKILL_LENGTH = 25.0f;
-	static constexpr float DEFAULT_ATTAK_VALID_RADIAN = 15.0f * 3.14f / 180.0f;
+	static constexpr float FIRST_CHECK_DISTANCE = 55.0f;
+	static constexpr float DEFAULT_SKILL_LENGTH = 35.0f;
 	static constexpr float DAMAGE = 60.0f;
+	static constexpr float DEFAULT_ATTAK_VALID_EULER = 15.0f;
+	static const float DEFAULT_ATTAK_VALID_COS_VALUE = cos(XMConvertToRadians(DEFAULT_ATTAK_VALID_EULER));
+
+	auto attackBoudingBox = GetMeleeAttackJudgeBox(GetPosition(), m_moveVector, DEFAULT_SKILL_LENGTH / 2.0f, 7.0f, DEFAULT_SKILL_LENGTH, m_collisionSphere.Radius * 2.0f);
+
 	auto enermyData = m_roomRef->GetEnermyData();
 	for (auto& monster : enermyData) {
 		auto length = GetDistance(monster->GetPosition());
-		if (length > DEFAULT_SKILL_LENGTH) continue;
-		float betweenRadian = GetBetweenAngleRadian(monster->GetPosition());
-		if (betweenRadian > DEFAULT_ATTAK_VALID_RADIAN) {
+		if (length > FIRST_CHECK_DISTANCE) continue;
+		if (attackBoudingBox.Intersects(monster->GetCollision()))
 			monster->Attacked(DAMAGE);
-		}
+
+		//float betweenCosValue = GetBetweenAngleCosValue(monster->GetPosition());
+		//if (betweenCosValue > DEFAULT_ATTAK_VALID_COS_VALUE) {
+		//}
 	}
 }
 

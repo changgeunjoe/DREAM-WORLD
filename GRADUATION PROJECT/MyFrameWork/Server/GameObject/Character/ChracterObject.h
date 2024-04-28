@@ -97,13 +97,14 @@ protected:
 	void UpdateDirection();
 	virtual void UpdateRotate();
 	std::optional<const XMFLOAT3> UpdateNextPosition(const float& elapsedTime);
-	virtual const XMFLOAT3 GetMoveVector() const = 0;
+	virtual std::optional<const XMFLOAT3> GetMoveVector() const = 0;
 	//Collision By Wall, Boss, Monster
 	//움직일 수 없다면 nullopt
 	//움직일 수 있다면, 현재 위치 또는, 슬라이딩 벡터 적용한 위치
 	//근데, 어쨌든 움직일 수있다 없다면
 	//움직이면 슬라이딩 벡터 적용하든, nextPosition리턴하면 되지 않나?
 	std::optional<std::pair<bool, XMFLOAT3>> CollideWall(const XMFLOAT3& nextPosition, const float& elapsedTime, const bool& isSlidingPosition);
+	
 protected:
 	bool m_leftMouseInput;
 	bool m_rightMouseInput;
@@ -132,7 +133,7 @@ public:
 	MeleeCharacterObject(const float& maxHp, const float& moveSpeed, const float& attackDamage, const float& boundingSize, std::shared_ptr<Room>& roomRef, const ROLE& role);
 protected:
 	virtual const XMFLOAT3 GetCommonNextPosition(const float& elapsedTime) override;
-	virtual const XMFLOAT3 GetMoveVector() const override;
+	virtual std::optional<const XMFLOAT3> GetMoveVector() const override;
 
 	void UpdateDirectionRotate();
 	virtual void UpdateRotate() override;
@@ -149,7 +150,7 @@ public:
 	virtual void Update() override;
 protected:
 	virtual const XMFLOAT3 GetCommonNextPosition(const float& elapsedTime) override;
-	virtual const XMFLOAT3 GetMoveVector() const override;
+	virtual std::optional<const XMFLOAT3> GetMoveVector() const override;
 
 private:
 	XMFLOAT3 GetMoveFowardVector(const char& type) const;//1 - f // -1 - b
