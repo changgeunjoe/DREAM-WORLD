@@ -66,8 +66,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	//g_bossMapData.GetReadMapData();
 	//g_bossMapData.GetReadCollisionData();
 #ifndef LOCAL_TASK
-	while (!g_NetworkHelper.TryConnect());
-	g_NetworkHelper.Start();
+	g_NetworkHelper.TryConnect();
 #endif // LOCAL_TASK
 
 	LPCTSTR lpszClass = _T("Dream World");

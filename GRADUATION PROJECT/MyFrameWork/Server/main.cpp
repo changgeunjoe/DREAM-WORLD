@@ -7,7 +7,6 @@
 #include "DB/DB.h"
 #include "Match/Matching.h"
 #include "Room/RoomManager.h"
-//astart collision monster
 
 int main()
 {
@@ -37,6 +36,6 @@ int main()
 	Matching::GetInstance().StartMatching();
 
 	iocpRef->Start();
-
+	
 	ThreadManager::GetInstance().Join();
 }

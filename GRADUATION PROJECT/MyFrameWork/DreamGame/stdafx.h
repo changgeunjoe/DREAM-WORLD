@@ -33,6 +33,10 @@
 #include <filesystem>
 #include <unordered_set>
 
+#include <codecvt>
+#include <atlconv.h>
+#include <strsafe.h>
+
 #include <d3d12.h>
 #include <dxgi1_4.h>
 #include <D3Dcompiler.h>
@@ -372,14 +376,6 @@ enum TEXT
 	PRIEST_TEXT = 6
 };
 
-
-enum class BOSS_ATTACK : char {
-	ATTACK_METEO,
-	ATTACK_SPIN,
-	ATTACK_FIRE,
-	ATTACK_KICK,
-	ATTACK_PUNCH
-};
 
 enum BOSS_ANIMATION : char {
 	BA_IDLE,

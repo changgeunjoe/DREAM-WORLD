@@ -97,35 +97,41 @@ std::shared_ptr<PacketHeader> BossMeteorEvent::GetPacketHeader()
 
 std::shared_ptr<PacketHeader> BossFireEvent::GetPacketHeader()
 {
-	return std::make_shared<SERVER_PACKET::BossAttackPacket>(BOSS_ATTACK::ATTACK_FIRE);
+	return std::make_shared<SERVER_PACKET::BossAttackPacket>(SERVER_PACKET::BOSS_ATTACK::ATTACK_FIRE);
 }
 
 std::shared_ptr<PacketHeader> BossSpinEvent::GetPacketHeader()
 {
-	return std::make_shared<SERVER_PACKET::BossAttackPacket>(BOSS_ATTACK::ATTACK_SPIN);
+	return std::make_shared<SERVER_PACKET::BossAttackPacket>(SERVER_PACKET::BOSS_ATTACK::ATTACK_SPIN);
 }
 
 std::shared_ptr<PacketHeader> BossKickEvent::GetPacketHeader()
 {
-	return std::make_shared<SERVER_PACKET::BossDirectionAttackPacket>(BOSS_ATTACK::ATTACK_KICK, directionVector);
+	return std::make_shared<SERVER_PACKET::BossDirectionAttackPacket>(SERVER_PACKET::BOSS_ATTACK::ATTACK_KICK, directionVector);
 }
 
 std::shared_ptr<PacketHeader> BossPunchEvent::GetPacketHeader()
 {
-	return std::make_shared<SERVER_PACKET::BossDirectionAttackPacket>(BOSS_ATTACK::ATTACK_PUNCH, directionVector);
+	return std::make_shared<SERVER_PACKET::BossDirectionAttackPacket>(SERVER_PACKET::BOSS_ATTACK::ATTACK_PUNCH, directionVector);
 }
 
 void BossRoadSetEvent::ProcessEvent()
 {
-	m_roomRef->SetBossRoad(m_road);
+	auto roomRef = m_roomWeakRef.lock();
+	if (nullptr == roomRef) return;
+	roomRef->SetBossRoad(m_road);
 }
 
 void BossAggroSetEvent::ProcessEvent()
 {
-	m_roomRef->SetBossAggro(m_road, m_aggroCharacter);
+	auto roomRef = m_roomWeakRef.lock();
+	if (nullptr == roomRef) return;
+	roomRef->SetBossAggro(m_road, m_aggroCharacter);
 }
 
 void ChangeBossStageEvent::ProcessEvent()
 {
-	m_roomRef->SetBossStage();
+	auto roomRef = m_roomWeakRef.lock();
+	if (nullptr == roomRef) return;
+	roomRef->SetBossStage();
 }

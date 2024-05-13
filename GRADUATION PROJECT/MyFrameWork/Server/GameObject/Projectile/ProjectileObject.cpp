@@ -50,7 +50,10 @@ PlayerProjectileObject::PlayerProjectileObject(const float& moveSpeed, std::shar
 
 bool PlayerProjectileObject::EnermyObjectsAttackCheck()
 {
-	auto enermyVector = m_roomRef->GetEnermyData();
+	auto roomRef = m_roomWeakRef.lock();
+	if (nullptr == roomRef) return false;
+
+	auto enermyVector = roomRef->GetEnermyData();
 	for (auto& enermy : enermyVector) {
 		//const bool isCollide = enermy->GetDistance(shared_from_this()) < 12.0f;
 		const bool isCollide = enermy->IsCollide(m_collisionSphere);
@@ -69,7 +72,10 @@ MonsterProjectileObject::MonsterProjectileObject(const float& moveSpeed, const f
 
 bool MonsterProjectileObject::EnermyObjectsAttackCheck()
 {
-	auto playerVector = m_roomRef->GetCharacters();
+	auto roomRef = m_roomWeakRef.lock();
+	if (nullptr == roomRef) return false;
+
+	auto playerVector = roomRef->GetCharacters();
 	for (auto& player : playerVector) {
 		Attack(player);
 		return true;
@@ -82,7 +88,7 @@ CommonArrowObject::CommonArrowObject(const float& moveSpeed, std::shared_ptr<Roo
 {
 }
 
-TripleArrowObject::TripleArrowObject(std::shared_ptr<Room>& roomRef, const XMFLOAT3& startPosition, const XMFLOAT3& directionVector)
+TripleArrowObject::TripleArrowObject(std::shared_ptr<Room> roomRef, const XMFLOAT3& startPosition, const XMFLOAT3& directionVector)
 	:PlayerProjectileObject(TRIPLE_ARROW_SPEED, roomRef, startPosition, directionVector, TRIPLE_ARROW_DAMAGE, TRIPE_ARROW_LIFE_TIME)
 {
 }

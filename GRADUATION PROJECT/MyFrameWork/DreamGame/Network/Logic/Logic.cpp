@@ -53,15 +53,40 @@ void Logic::ProcessPacket(const PacketHeader* packetHeader)
 		{
 		case SERVER_PACKET::TYPE::INTO_GAME:
 		case SERVER_PACKET::TYPE::LOGIN_SUCCESS:
-		case SERVER_PACKET::TYPE::PRE_EXIST_LOGIN:
 		case SERVER_PACKET::TYPE::TIME_SYNC_RESPONSE:
 			break;
 		default:
 			return;
 		}
 	}
+
 	switch (static_cast<SERVER_PACKET::TYPE>(packetHeader->type))
 	{
+	case SERVER_PACKET::TYPE::LOGIN_SUCCESS:
+	{
+		const SERVER_PACKET::LoginPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::LoginPacket*>(packetHeader);
+		m_nickName = recvPacket->nickName;
+		//wstring wst_name = recvPacket->nickName;
+		//m_inGamePlayerSession[0].m_id = myId = recvPacket->userID;
+		//m_inGamePlayerSession[0].SetName(wst_name);
+		//gGameFramework.m_pScene->m_pObjectManager->SetPlayCharacter(&m_inGamePlayerSession[0]);
+		EndDialog(loginWnd, IDCANCEL);
+		ShowWindow(g_wnd, g_cmd);
+		UpdateWindow(g_wnd);
+#ifdef _DEBUG
+		PrintCurrentTime();
+		//std::wcout << "Logic::ProcessPacket() - const SERVER_PACKET::LOGIN_OK - " << "user Name: " << wst_name << std::endl;
+		//std::wcout << "Logic::ProcessPacket() - const SERVER_PACKET::LOGIN_OK - " << "user ID: " << recvPacket->userID << std::endl;
+#endif
+	}
+	break;
+
+	case SERVER_PACKET::TYPE::RECONN_FAIL:
+	{
+		exit(0);
+	}
+	break;
+
 	case SERVER_PACKET::TYPE::MOVE_KEY_DOWN:
 	{
 		const SERVER_PACKET::MovePacket* recvPacket = reinterpret_cast<const SERVER_PACKET::MovePacket*>(packetHeader);
@@ -120,23 +145,6 @@ void Logic::ProcessPacket(const PacketHeader* packetHeader)
 
 		possessObj->SetStopDirection();
 		possessObj->SetMoveState(false);
-	}
-	break;
-	case SERVER_PACKET::TYPE::LOGIN_SUCCESS:
-	{
-		const SERVER_PACKET::LoginPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::LoginPacket*>(packetHeader);
-		wstring wst_name = recvPacket->nickName;
-		//m_inGamePlayerSession[0].m_id = myId = recvPacket->userID;
-		//m_inGamePlayerSession[0].SetName(wst_name);
-		//gGameFramework.m_pScene->m_pObjectManager->SetPlayCharacter(&m_inGamePlayerSession[0]);
-		EndDialog(loginWnd, IDCANCEL);
-		ShowWindow(g_wnd, g_cmd);
-		UpdateWindow(g_wnd);
-#ifdef _DEBUG
-		PrintCurrentTime();
-		//std::wcout << "Logic::ProcessPacket() - const SERVER_PACKET::LOGIN_OK - " << "user Name: " << wst_name << std::endl;
-		//std::wcout << "Logic::ProcessPacket() - const SERVER_PACKET::LOGIN_OK - " << "user ID: " << recvPacket->userID << std::endl;
-#endif
 	}
 	break;
 
@@ -313,19 +321,19 @@ void Logic::ProcessPacket(const PacketHeader* packetHeader)
 		//게임 종료 패킷 수신
 		//지금은 바로 게임 종료 확인하는 패킷 서버로 전송하게 구현함
 		Monster* bossMonster = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster();
-		bossMonster->SetCurrentHP(0.0f);
+		//bossMonster->SetCurrentHP(0.0f);
 		GameEnd = true;
 	}
 	break;
 
-	case SERVER_PACKET::TYPE::PRE_EXIST_LOGIN://이미 존재하는 플레이어가 있기 때문에, 지금 들어온 플레이어(내 클라이언트는) 접속 해제 패킷을 수신
-	{
-		//알림 메세지 띄우고, 다시 접속은 해야하네...;;
-		EndDialog(loginWnd, IDCANCEL);
-		//ShowWindow(g_wnd, g_cmd);//이 윈도우가 아닌 로그인 중복 확인창 띄워야 됨
-		//UpdateWindow(g_wnd);
-	}
-	break;
+	//case SERVER_PACKET::TYPE::PRE_EXIST_LOGIN://이미 존재하는 플레이어가 있기 때문에, 지금 들어온 플레이어(내 클라이언트는) 접속 해제 패킷을 수신
+	//{
+	//	//알림 메세지 띄우고, 다시 접속은 해야하네...;;
+	//	EndDialog(loginWnd, IDCANCEL);
+	//	//ShowWindow(g_wnd, g_cmd);//이 윈도우가 아닌 로그인 중복 확인창 띄워야 됨
+	//	//UpdateWindow(g_wnd);
+	//}
+	//break;
 	//case SERVER_PACKET::DUPLICATED_LOGIN://접속해 있었지만(내 클라이언트) 중복로그인을 함 - 기능 삭제
 	//{
 	//	EndDialog(g_wnd, IDCANCEL);
@@ -511,10 +519,10 @@ void Logic::ProcessPacket(const PacketHeader* packetHeader)
 	{
 		const SERVER_PACKET::BossAttackPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::BossAttackPacket*>(packetHeader);
 		Monster* bossMonster = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster();
-		if (BOSS_ATTACK::ATTACK_FIRE == recvPacket->attackType) {
+		if (SERVER_PACKET::BOSS_ATTACK::ATTACK_FIRE == recvPacket->attackType) {
 			bossMonster->InsertEvent(std::make_shared<BossFireAttackEvent>());
 		}
-		else if (BOSS_ATTACK::ATTACK_SPIN == recvPacket->attackType) {
+		else if (SERVER_PACKET::BOSS_ATTACK::ATTACK_SPIN == recvPacket->attackType) {
 			bossMonster->InsertEvent(std::make_shared<BossSpinAttackEvent>());
 		}
 		bossMonster->SetMoveState(false);
@@ -528,10 +536,10 @@ void Logic::ProcessPacket(const PacketHeader* packetHeader)
 		recvPacket->attackType;
 		;
 		Monster* bossMonster = gGameFramework.GetScene()->GetObjectManager()->GetBossMonster();
-		if (BOSS_ATTACK::ATTACK_KICK == recvPacket->attackType) {
+		if (SERVER_PACKET::BOSS_ATTACK::ATTACK_KICK == recvPacket->attackType) {
 			bossMonster->InsertEvent(std::make_shared<BossKickAttackEvent>(recvPacket->attackVector));
 		}
-		else if (BOSS_ATTACK::ATTACK_PUNCH == recvPacket->attackType) {
+		else if (SERVER_PACKET::BOSS_ATTACK::ATTACK_PUNCH == recvPacket->attackType) {
 			bossMonster->InsertEvent(std::make_shared<BossPunchAttackEvent>(recvPacket->attackVector));
 		}
 		bossMonster->SetMoveState(false);
@@ -573,6 +581,12 @@ void Logic::ProcessPacket(const PacketHeader* packetHeader)
 XMFLOAT3 Logic::GetPostion(ROLE r)
 {
 	return gGameFramework.m_pScene->m_pObjectManager->GetChracterInfo(r)->GetPosition();
+	// TODO: 여기에 return 문을 삽입합니다.
+}
+
+const std::wstring& Logic::GetNickName() const
+{
+	return m_nickName;
 	// TODO: 여기에 return 문을 삽입합니다.
 }
 

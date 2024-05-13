@@ -3,8 +3,6 @@
 #include <thread>
 #include <WS2tcpip.h>
 
-
-
 #pragma comment(lib, "WS2_32.lib")
 
 //#define SERVER_IP "183.101.110.217"
@@ -13,22 +11,17 @@
 
 
 class NetworkHelper {
-private:
-	SOCKET m_clientSocket;
-private:
-	char m_buffer[MAX_RECV_BUF_SIZE];
-	int m_prevPacketSize = 0;
-private:
-	bool m_bIsRunnung = false;
-	std::thread m_runThread;
-private:
-	std::chrono::utc_clock::time_point m_positionSendTime = std::chrono::utc_clock::now();
+	enum class CONNECT_STATE : char
+	{
+		CONNECT,
+		DISCONNECT
+	};
 public:
 	NetworkHelper();
 	~NetworkHelper();
 
 public:
-	bool TryConnect();
+	void TryConnect();
 	void Start();
 	void RunThread();
 public:
@@ -58,6 +51,8 @@ public:
 	void SendPowerAttackExecute(const XMFLOAT3& attackDirection, int power);//파워 공격 실제 공격 시행
 	void SendCommonAttackStart();//기본 공격 애니메이션
 	void SendPlayerPosition(XMFLOAT3& position);
+	void SendReconnctPacket();
+
 public:
 	void SendTimeSyncPacket();
 
@@ -65,4 +60,14 @@ private:
 	void ConstructPacket(const int& ioByte);
 private:
 	void Destroy();
+
+private:
+	SOCKET m_clientSocket;
+	atomic<CONNECT_STATE> m_connectState;
+
+	char m_buffer[MAX_RECV_BUF_SIZE];
+	int m_prevPacketSize = 0;
+
+	bool m_isRunning;
+	std::thread m_runThread;
 };

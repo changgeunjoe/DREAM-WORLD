@@ -95,12 +95,16 @@ void CharacterObject::Attacked(const float& damage)
 		}
 	}
 	m_hp -= applyDamage;
+
+	auto roomRef = m_roomWeakRef.lock();
+	if (nullptr == roomRef) return;
+
 	auto damagedEvent = std::make_shared<PlayerDamagedEvent>(m_role, m_hp, m_Shield);
-	m_roomRef->InsertAftrerUpdateSendEvent(damagedEvent);
+	roomRef->InsertAftrerUpdateSendEvent(damagedEvent);
 
 	if (m_hp < FLT_EPSILON) {
 		auto dieEvent = std::make_shared<PlayerDieEvent>(m_role);
-		m_roomRef->InsertAftrerUpdateSendEvent(dieEvent);
+		roomRef->InsertAftrerUpdateSendEvent(dieEvent);
 		m_hp = 0.0;
 		m_isAlive = false;
 	}
@@ -118,16 +122,18 @@ void CharacterObject::RecvSkillInput(const SKILL_TYPE& type)
 		auto skillData = m_skillCtrl->GetEventData(SKILL_Q);
 		const bool isAbleSkill = skillData->IsAbleExecute();
 		if (isAbleSkill) {
-			SERVER_PACKET::NotifyPlayerAnimationPacket sendPacket(static_cast<char>(SERVER_PACKET::TYPE::START_ANIMATION_Q), GetRole(), skillData->GetLastExeTime());
-			m_roomRef->BroadCastPacket(&sendPacket);
+			auto roomRef = m_roomWeakRef.lock();
+			if (nullptr != roomRef)
+				roomRef->BroadCastPacket(std::make_shared<SERVER_PACKET::NotifyPlayerAnimationPacket>(static_cast<char>(SERVER_PACKET::TYPE::START_ANIMATION_Q), GetRole(), skillData->GetLastExeTime()));
 		}
 	}
 	else if (SKILL_TYPE::SKILL_TYPE_E == type) {
 		auto skillData = m_skillCtrl->GetEventData(SKILL_E);
 		const bool isAbleSkill = skillData->IsAbleExecute();
 		if (isAbleSkill) {
-			SERVER_PACKET::NotifyPlayerAnimationPacket sendPacket(static_cast<char>(SERVER_PACKET::TYPE::START_ANIMATION_E), GetRole(), skillData->GetLastExeTime());
-			m_roomRef->BroadCastPacket(&sendPacket);
+			auto roomRef = m_roomWeakRef.lock();
+			if (nullptr != roomRef)
+				roomRef->BroadCastPacket(std::make_shared<SERVER_PACKET::NotifyPlayerAnimationPacket>(static_cast<char>(SERVER_PACKET::TYPE::START_ANIMATION_E), GetRole(), skillData->GetLastExeTime()));
 		}
 	}
 }
@@ -171,7 +177,7 @@ std::optional<const XMFLOAT3>  CharacterObject::UpdateNextPosition(const float& 
 	//collide함수는 slidingvector가 적용된 위치라면 true를 리턴
 	auto collideWallResult = CollideWall(commonNextPosition, elapsedTime, false);
 	if (collideWallResult.has_value()) {
-		auto collideLiveObjectResult = CollideLiveObject(collideWallResult.value().second, elapsedTime, collideWallResult.value().first);
+		auto collideLiveObjectResult = CollideLiveObject(collideWallResult.value().second, m_moveVector, elapsedTime, collideWallResult.value().first);
 		if (collideLiveObjectResult.has_value()) {
 			return collideLiveObjectResult.value().second;
 		}
@@ -183,9 +189,13 @@ std::optional<const XMFLOAT3>  CharacterObject::UpdateNextPosition(const float& 
 std::optional<std::pair<bool, XMFLOAT3>> CharacterObject::CollideWall(const XMFLOAT3& nextPosition, const float& elapsedTime, const bool& isSlidingPosition)
 {
 	//characters와 같은 방법으로 수행
+	auto roomRef = m_roomWeakRef.lock();
+	if (nullptr == roomRef) return std::nullopt;
+
 	BoundingSphere boudingSphere{ nextPosition,  m_collisionSphere.Radius };
 	boudingSphere.Center.y = 0;
-	auto mapData = m_roomRef->GetMapData();
+
+	auto mapData = roomRef->GetMapData();
 	auto& mapCollision = mapData->GetCollisionData();
 	std::shared_ptr<MapCollision> collideMap{ nullptr };
 	for (auto& collision : mapCollision) {

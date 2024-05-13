@@ -32,7 +32,9 @@ void TankerObject::RecvSkill(const SKILL_TYPE& type)
 	if (SKILL_TYPE::SKILL_TYPE_Q == type) {
 		auto durationEvent = std::static_pointer_cast<DurationEvent>(m_skillCtrl->GetEventData(SKILL_Q));
 		auto shieldSkill = std::make_shared<TankerSkill::ShieldSkill>(std::static_pointer_cast<TankerObject>(shared_from_this()), durationEvent->GetDurationTIme());
-		m_roomRef->InsertPrevUpdateEvent(std::make_shared<PlayerSkillEvent>(std::static_pointer_cast<PlayerSkillBase>(shieldSkill)));
+		auto roomRef = m_roomWeakRef.lock();
+		if (nullptr != roomRef)
+			roomRef->InsertPrevUpdateEvent(std::make_shared<PlayerSkillEvent>(std::static_pointer_cast<PlayerSkillBase>(shieldSkill)));
 	}
 	else spdlog::critical("TankerObject::RecvSkill(const SKILL_TYPE& ) - Non Use SKILL_E");
 }
@@ -41,15 +43,20 @@ void TankerObject::RecvSkill(const SKILL_TYPE& type, const XMFLOAT3& vector3)
 {
 	if (SKILL_TYPE::SKILL_TYPE_E == type) {
 		auto hammerSkill = std::make_shared<TankerSkill::ThunderHammerSkill>(std::static_pointer_cast<TankerObject>(shared_from_this()), vector3);
-		m_roomRef->InsertPrevUpdateEvent(std::make_shared<PlayerSkillEvent>(std::static_pointer_cast<PlayerSkillBase>(hammerSkill)));
+		auto roomRef = m_roomWeakRef.lock();
+		if (nullptr != roomRef)
+			roomRef->InsertPrevUpdateEvent(std::make_shared<PlayerSkillEvent>(std::static_pointer_cast<PlayerSkillBase>(hammerSkill)));
 	}
 	else spdlog::critical("TankerObject::RecvSkill(const SKILL_TYPE& ) - Non Use SKILL_Q");
 }
 
 void TankerObject::RecvAttackCommon(const XMFLOAT3& attackDir, const int& power)
 {
-	auto tankerCommonAttackSkill = std::make_shared<TankerSkill::CommonAttack>(std::static_pointer_cast<TankerObject>(shared_from_this()), attackDir);
-	m_roomRef->InsertPrevUpdateEvent(std::make_shared<PlayerSkillEvent>(std::static_pointer_cast<PlayerSkillBase>(tankerCommonAttackSkill)));
+	auto roomRef = m_roomWeakRef.lock();
+	if (nullptr != roomRef) {
+		auto tankerCommonAttackSkill = std::make_shared<TankerSkill::CommonAttack>(std::static_pointer_cast<TankerObject>(shared_from_this()), attackDir);
+		roomRef->InsertPrevUpdateEvent(std::make_shared<PlayerSkillEvent>(std::static_pointer_cast<PlayerSkillBase>(tankerCommonAttackSkill)));
+	}
 }
 
 void TankerObject::ExecuteHammerSkill(const XMFLOAT3& direction)
@@ -60,9 +67,12 @@ void TankerObject::ExecuteHammerSkill(const XMFLOAT3& direction)
 	static const float HAMMER_VALID_COS_VALUE = cos(XMConvertToRadians(HAMMER_SKILL_VALID_EULER));
 	static constexpr float DAMAGE = 100.0f;
 
-	auto attackBoudingBox = GetMeleeAttackJudgeBox(GetPosition(), m_moveVector, HAMMER_SKILL_LENGTH/2.0f, 7.0f, HAMMER_SKILL_LENGTH, m_collisionSphere.Radius * 2.0f);
+	auto roomRef = m_roomWeakRef.lock();
+	if (nullptr == roomRef) return;
 
-	auto enermyData = m_roomRef->GetEnermyData();
+	auto attackBoudingBox = GetMeleeAttackJudgeBox(GetPosition(), m_moveVector, HAMMER_SKILL_LENGTH / 2.0f, 7.0f, HAMMER_SKILL_LENGTH, m_collisionSphere.Radius * 2.0f);
+
+	auto enermyData = roomRef->GetEnermyData();
 	for (auto& monster : enermyData) {
 		auto length = GetDistance(monster->GetPosition());
 		if (length > FIRST_CHECK_DISTANCE) continue;
@@ -78,9 +88,12 @@ void TankerObject::ExecuteShield(const CommonDurationSkill_MILSEC::DURATION_TIME
 {
 	using namespace std::chrono;
 
+	auto roomRef = m_roomWeakRef.lock();
+	if (nullptr == roomRef) return;
+
 	static constexpr milliseconds SHIELD_APPLY_TIME = milliseconds(2400);
-	auto applyEvent = std::make_shared<TIMER::RoomEvent>(TIMER_EVENT_TYPE::EV_APPLY_SHIELD, SHIELD_APPLY_TIME, m_roomRef);
-	auto removeEventEvent = std::make_shared<TIMER::RoomEvent>(TIMER_EVENT_TYPE::EV_APPLY_SHIELD, durationTime + SHIELD_APPLY_TIME, m_roomRef);
+	auto applyEvent = std::make_shared<TIMER::RoomEvent>(TIMER_EVENT_TYPE::EV_APPLY_SHIELD, SHIELD_APPLY_TIME, roomRef);
+	auto removeEventEvent = std::make_shared<TIMER::RoomEvent>(TIMER_EVENT_TYPE::EV_APPLY_SHIELD, durationTime + SHIELD_APPLY_TIME, roomRef);
 
 	TIMER::Timer& timerRef = TIMER::Timer::GetInstance();
 	timerRef.InsertTimerEvent(std::static_pointer_cast<TIMER::EventBase>(applyEvent));
@@ -95,9 +108,12 @@ void TankerObject::ExecuteCommonAttack(const XMFLOAT3& attackDir)
 	static constexpr float DEFAULT_ATTAK_VALID_EULER = 15.0f;
 	static const float DEFAULT_ATTAK_VALID_COS_VALUE = cos(XMConvertToRadians(DEFAULT_ATTAK_VALID_EULER));
 
+	auto roomRef = m_roomWeakRef.lock();
+	if (nullptr == roomRef) return;
+
 	auto attackBoudingBox = GetMeleeAttackJudgeBox(GetPosition(), m_moveVector, DEFAULT_SKILL_LENGTH / 2.0f, 7.0f, DEFAULT_SKILL_LENGTH, m_collisionSphere.Radius * 2.0f);
 
-	auto enermyData = m_roomRef->GetEnermyData();
+	auto enermyData = roomRef->GetEnermyData();
 	for (auto& monster : enermyData) {
 		auto length = GetDistance(monster->GetPosition());
 		if (length > FIRST_CHECK_DISTANCE) continue;

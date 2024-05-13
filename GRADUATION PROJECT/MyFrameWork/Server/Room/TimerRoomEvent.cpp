@@ -4,19 +4,20 @@
 #include "../Network/IocpEvent/IocpEventManager.h"
 #include "../Room/Room.h"
 
-TIMER::RoomEvent::RoomEvent(const TIMER_EVENT_TYPE& eventId, const std::chrono::milliseconds& afterTime, std::shared_ptr<Room>& roomRef)
-	:EventBase(eventId, afterTime), m_roomRef(roomRef)
+TIMER::RoomEvent::RoomEvent(const TIMER_EVENT_TYPE& eventId, const std::chrono::milliseconds& afterTime, std::shared_ptr<Room> roomRef)
+	:EventBase(eventId, afterTime), m_roomWeakRef(roomRef)
 {
 }
 
-TIMER::RoomEvent::RoomEvent(const TIMER_EVENT_TYPE& eventId, const std::chrono::seconds& afterTime, std::shared_ptr<Room>& roomRef)
-	:EventBase(eventId, afterTime), m_roomRef(roomRef)
+TIMER::RoomEvent::RoomEvent(const TIMER_EVENT_TYPE& eventId, const std::chrono::seconds& afterTime, std::shared_ptr<Room> roomRef)
+	:EventBase(eventId, afterTime), m_roomWeakRef(roomRef)
 {
 }
 
 void TIMER::RoomEvent::Execute(HANDLE iocpHandle)
 {
-	auto roomRef = m_roomRef.lock();
+	auto roomRef = m_roomWeakRef.lock();
+	//room이 유효하지 않다면 수행하지 않음
 	if (nullptr == roomRef) return;
 	IOCP_OP_CODE currentOpCode = IOCP_OP_CODE::OP_NONE;
 	//이벤트에 따른 OP_CODE 설정

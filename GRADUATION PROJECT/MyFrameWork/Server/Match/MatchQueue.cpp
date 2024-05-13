@@ -8,6 +8,12 @@ MatchQueue::MatchQueue()
 
 std::optional<std::shared_ptr<UserSession>> MatchQueue::GetMatchUser()
 {
+	/*
+	match cancel은 로직 바꿔야 할듯
+		cancel큐 순서 꼬이면 매우 곤란해짐 -> 현재 뽑은 대상의 role과 현재 원하는 role을 비교
+		취소 패킷 날아오면 non_select되게하고, 다른거 매칭하면 그 role이 세팅되니까 다르면 다음 사람 보기로.
+	*/
+
 	while (true)
 	{
 		std::weak_ptr<UserSession> matchUserWeakPtr;

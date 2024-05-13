@@ -7,7 +7,7 @@ class GameObject : public std::enable_shared_from_this<GameObject>
 public:
 	GameObject() = delete;
 	GameObject(const float& boundingSize, std::shared_ptr<Room>& roomRef);
-	~GameObject() = default;
+	virtual ~GameObject() = default;
 	virtual void Update() = 0;
 
 	void Rotate(const ROTATE_AXIS& axis, const float& angle);
@@ -40,8 +40,9 @@ protected:
 
 	BoundingSphere m_collisionSphere;
 
-	//Room의 멤버 변수여서 먼저 소멸자 호출되니, 문제 없을거로 생각 됨.
-	std::shared_ptr<Room> m_roomRef;
+	//Room의 멤버 변수여서 먼저 소멸자 호출되니, 문제 없을거로 생각 됨. => 잘못된 생각을 했네.
+	//얘 때문에 소멸자가 안불려서 메모리 해제가 안되는 상황이 발생하게 되네
+	std::weak_ptr<Room> m_roomWeakRef;
 };
 
 class MoveObject : public GameObject
@@ -74,7 +75,7 @@ public:
 	}
 
 protected:
-	std::optional<std::pair<bool, XMFLOAT3>> CollideLiveObject(const XMFLOAT3& nextPosition, const float& elapsedTime, const bool& isSlidingPosition);
+	std::optional<std::pair<bool, XMFLOAT3>> CollideLiveObject(const XMFLOAT3& nextPosition, const XMFLOAT3& moveVector, const float& elapsedTime, const bool& isSlidingPosition);
 
 	virtual const XMFLOAT3 GetCommonNextPosition(const float& elapsedTime) = 0;
 

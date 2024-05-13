@@ -29,7 +29,7 @@ namespace BossState
 	class StateBase
 	{
 	public:
-		StateBase(std::shared_ptr<BossMonsterObject> bossObject) : bossObject(bossObject), isEntered(false) {}
+		StateBase(std::shared_ptr<BossMonsterObject> bossObject) : m_bossWeakRef(bossObject), isEntered(false) {}
 
 		void Execute();
 		virtual void EnterState()
@@ -44,7 +44,8 @@ namespace BossState
 		}
 
 	protected:
-		std::shared_ptr<BossMonsterObject> bossObject;//BossObject만 내부 멤버 변수로 참조를 갖기 때문에, 순환 참조 발생 안할거로 예상 됨.
+		//BossObject만 내부 멤버 변수로 참조를 갖기 때문에, 순환 참조 발생 안할거로 예상 됨. => 순환 참조 변경 해야 됨.
+		std::weak_ptr<BossMonsterObject> m_bossWeakRef;
 		bool isEntered;
 	};
 

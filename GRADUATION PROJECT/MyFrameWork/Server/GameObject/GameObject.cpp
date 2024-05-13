@@ -4,7 +4,7 @@
 
 GameObject::GameObject(const float& boundingSize, std::shared_ptr<Room>& roomRef)
 	:m_collisionSphere(XMFLOAT3(0, 0, 0), boundingSize),
-	m_roomRef(roomRef),
+	m_roomWeakRef(roomRef),
 	m_worldMatrix(Matrix4x4::Identity())
 {
 
@@ -153,31 +153,41 @@ const float LiveObject::GetMaxHp() const
 	return m_maxHp;
 }
 
-std::optional<std::pair<bool, XMFLOAT3>> LiveObject::CollideLiveObject(const XMFLOAT3& nextPosition, const float& elapsedTime, const bool& isSlidingPosition)
+std::optional<std::pair<bool, XMFLOAT3>> LiveObject::CollideLiveObject(const XMFLOAT3& nextPosition, const XMFLOAT3& moveVector, const float& elapsedTime, const bool& isSlidingPosition)
 {
-	std::shared_ptr<LiveObject> collideCharacter;
+	auto roomRef = m_roomWeakRef.lock();
+	if (nullptr == roomRef) return std::nullopt;
+
+	std::shared_ptr<LiveObject> collideLiveObject;
 	BoundingSphere collideSphere{ nextPosition,  m_collisionSphere.Radius };
-	std::vector<std::shared_ptr<LiveObject>>& liveObjects = m_roomRef->GetLiveObjects();
+	std::vector<std::shared_ptr<LiveObject>>& liveObjects = roomRef->GetLiveObjects();
 	for (auto& liveObject : liveObjects) {
 		//자기 자신이라면 넘어감
 		if (liveObject == shared_from_this()) continue;
 		if (!liveObject->IsAlive())continue;
-		if (liveObject->GetCollision().Radius + m_collisionSphere.Radius - liveObject->GetDistance(nextPosition) < FLT_EPSILON) continue;
-		if (true == isSlidingPosition || nullptr != collideCharacter) {
+		float distance = liveObject->GetDistance(nextPosition);
+		if (liveObject->GetCollision().Radius + m_collisionSphere.Radius < distance) continue;
+		if (true == isSlidingPosition || nullptr != collideLiveObject) {
 			//이미 충돌해서 또 충돌한거면 이동x
 			//또는 상위에서 이미 슬라이딩 벡터 구해서 충돌이 하나라도 있으면 이동x
 			return std::nullopt;
 		}
-		collideCharacter = liveObject;
+		collideLiveObject = liveObject;
 
 		//if (liveObject->IsCollide(collideSphere)) {
 		//}
 	}
-	if (nullptr == collideCharacter) return std::make_pair(false, nextPosition);
+	if (nullptr == collideLiveObject) return std::make_pair(false, nextPosition);
 
 	//calculate Sliding vector
-	XMFLOAT3 toThisVector = collideCharacter->GetToVector(GetPosition());
+	XMFLOAT3 toThisVector = collideLiveObject->GetToVector(GetPosition());
 	XMFLOAT3 normalVector = Vector3::Normalize(toThisVector);
+
+	XMFLOAT3 currentMoveVector = moveVector;
+	float dotMoveVector = Vector3::DotProduct(currentMoveVector, normalVector);
+	if(dotMoveVector > 0)
+		return std::make_pair(false, nextPosition);
+
 	XMFLOAT3 slidingVector = XMFLOAT3(-normalVector.z, 0.0f, normalVector.x);
 
 	float slidingDotLookResult = Vector3::DotProduct(slidingVector, m_moveVector);//현재 룩 방향에 맞는 슬라이딩 벡터 확인하기 위한 내적

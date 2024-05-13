@@ -22,13 +22,14 @@ void IOCP::ListenEvent::Execute(ExpOver* over, const DWORD& ioByte, const ULONG_
 		spdlog::debug("IOCP::ListenEvent::Execute() - OP_ACCEPT, key: {}", key);
 		UserManager::GetInstance().RegistPlayer(m_clientSocket);
 		//새로운 클라이언트를 받기 위해 다시 Accept호출
-		Accept();
 	}
 	break;
 	default:
 		spdlog::critical("ListenEvent::Execute() - UnDefined OP_CODE - {}", static_cast<int>(currentOpCode));
 		break;
 	};
+	Accept();
+	IocpEventManager::GetInstance().DeleteExpOver(over);
 }
 
 void IOCP::ListenEvent::Fail(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key)
@@ -40,13 +41,14 @@ void IOCP::ListenEvent::Fail(ExpOver* over, const DWORD& ioByte, const ULONG_PTR
 	{
 		spdlog::debug("IOCP::ListenEvent::Fail() - OP_ACCEPT");
 		closesocket(m_clientSocket);
-		Accept();
 	}
 	break;
 	default:
 		spdlog::critical("ListenEvent::Fail() - UnDefined OP_CODE - {}", static_cast<int>(currentOpCode));
 		break;
 	};
+	Accept();
+	IocpEventManager::GetInstance().DeleteExpOver(over);
 }
 
 void IOCP::ListenEvent::RegisterIocp(std::shared_ptr<IOCP::Iocp>& iocp)

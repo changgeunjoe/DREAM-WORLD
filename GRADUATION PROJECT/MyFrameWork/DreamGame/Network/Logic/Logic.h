@@ -29,6 +29,7 @@ private:
 	float m_RTT = 0.0f;//milliseconds
 private:
 	int myId = -1;
+	std::wstring m_nickName;
 	ROLE myRole = ROLE::NONE_SELECT;
 public:
 	CKeyInput* m_KeyInput;
@@ -55,6 +56,9 @@ public:
 		return C2S_DiffTime
 			;
 	}
+
+	const std::wstring& GetNickName() const;
+
 	HWND loginWnd;
 private:
 	bool m_isReadySyncPacket = true;

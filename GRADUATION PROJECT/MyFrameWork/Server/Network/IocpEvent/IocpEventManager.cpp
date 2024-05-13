@@ -18,9 +18,9 @@ IocpEventManager::~IocpEventManager()
 void IocpEventManager::Initailize()
 {
 	spdlog::info("IocpEventManager::Initialize");
-	for (int i = 0; i < 200; ++i) {
+	for (int i = 0; i < 1200; ++i) {
 		m_expOverQueue.push(new ExpOver());
-		m_sendEventQueue.push(std::make_shared<IOCP::SendEvent>());
+		//m_sendEventQueue.push(std::make_shared<IOCP::SendEvent>());
 		//m_eventQueue.push(new IocpEventBase());
 		/*m_bufferEventQueue.push(new IocpBufferEvent());
 		*/

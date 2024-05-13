@@ -20,6 +20,8 @@ public:
 private:
 	void MatchFunc();
 
+	std::shared_ptr<UserSession> GetCurrentMatchUserSession(MatchQueue& matchQueue, std::shared_ptr<UserSession> lastUserSession);
+
 private:
 	MatchQueue m_warriorQueue;
 	MatchQueue m_archerQueue;

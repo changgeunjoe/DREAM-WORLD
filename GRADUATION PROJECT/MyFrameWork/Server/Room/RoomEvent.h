@@ -231,11 +231,11 @@ protected:
 class BossRoadSetEvent : public PrevUpdateEvent
 {
 public:
-	BossRoadSetEvent(std::shared_ptr<Room> roomRef, std::shared_ptr<std::list<XMFLOAT3>> road) : m_roomRef(roomRef), m_road(road) {}
+	BossRoadSetEvent(std::shared_ptr<Room> roomRef, std::shared_ptr<std::list<XMFLOAT3>> road) : m_roomWeakRef(roomRef), m_road(road) {}
 	virtual void ProcessEvent() override;
 protected:
 	std::shared_ptr<std::list<XMFLOAT3>> m_road;
-	std::shared_ptr<Room> m_roomRef;
+	std::weak_ptr<Room> m_roomWeakRef;
 };
 
 class BossAggroSetEvent : public BossRoadSetEvent
@@ -251,8 +251,8 @@ protected:
 class ChangeBossStageEvent : public PrevUpdateEvent
 {
 public:
-	ChangeBossStageEvent(std::shared_ptr<Room> roomRef) : m_roomRef(roomRef) {}
+	ChangeBossStageEvent(std::shared_ptr<Room> roomRef) : m_roomWeakRef(roomRef) {}
 	virtual void ProcessEvent() override;
 private:
-	std::shared_ptr<Room> m_roomRef;
+	std::weak_ptr<Room> m_roomWeakRef;
 };

@@ -4,6 +4,7 @@
 #include "../ExpOver/ExpOver.h"
 #include "../UserSession/UserSession.h"
 #include "../protocol/protocol.h"
+#include "../UserSession/UserManager.h"
 
 IOCP::DBNotifyEvent::DBNotifyEvent(std::shared_ptr<UserSession>& userRef) : m_userRef(userRef)
 {
@@ -23,8 +24,7 @@ void IOCP::DBNotifyEvent::Execute(ExpOver* over, const DWORD& ioByte, const ULON
 		//DB - login Error, SQL_ERROR ...
 	case IOCP_OP_CODE::OP_FAIL_GET_PLAYER_INFO:
 	{
-		SERVER_PACKET::NotifyPacket sendPacket(static_cast<char>(SERVER_PACKET::TYPE::LOGIN_FAIL));
-		userRef->DoSend(&sendPacket);
+		userRef->DoSend(std::make_shared< SERVER_PACKET::NotifyPacket>(static_cast<char>(SERVER_PACKET::TYPE::LOGIN_FAIL)));
 	}
 	break;
 	case IOCP_OP_CODE::OP_DB_ERROR:
@@ -39,12 +39,14 @@ void IOCP::DBNotifyEvent::Execute(ExpOver* over, const DWORD& ioByte, const ULON
 		spdlog::critical("DBNotifyEvent::Execute() - UnDefined OP_CODE - {}", static_cast<int>(currentOpCode));
 		break;
 	}
+	IocpEventManager::GetInstance().DeleteExpOver(over);
 }
 
 void IOCP::DBNotifyEvent::Fail(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key)
 {
 	const auto& currentOpCode = over->GetOpCode();
 	spdlog::critical("DBNotifyEvent::Fail() - OP_CODE: {}", static_cast<int>(currentOpCode));
+	IocpEventManager::GetInstance().DeleteExpOver(over);
 }
 
 IOCP::DBGetPlayerInfoEvent::DBGetPlayerInfoEvent(const wchar_t* name, std::shared_ptr<UserSession>& userRef) : m_userRef(userRef)
@@ -78,18 +80,19 @@ void IOCP::DBGetPlayerInfoEvent::Execute(ExpOver* over, const DWORD& ioByte, con
 	{
 	case IOCP_OP_CODE::OP_SUCCESS_GET_PLAYER_INFO:
 	{
-		SERVER_PACKET::LoginPacket sendPacket(static_cast<unsigned char>(SERVER_PACKET::TYPE::LOGIN_SUCCESS));
-		m_buffer;
+		std::shared_ptr< SERVER_PACKET::LoginPacket> sendPacket = std::make_shared< SERVER_PACKET::LoginPacket>(static_cast<unsigned char>(SERVER_PACKET::TYPE::LOGIN_SUCCESS));
 		int nameLen = lstrlenW(m_buffer);
 		for (int removeSpace = nameLen - 1; removeSpace > -1; --removeSpace) {
 			if (m_buffer[removeSpace] != L' ' && m_buffer[removeSpace] != 0) break;
 			m_buffer[removeSpace] = 0;
 		}
-		StringCchCopyW(sendPacket.nickName, NAME_SIZE, m_buffer);
+		//disconnectUser에 있다면 제거
+		UserManager::GetInstance().EraseDiconnectUser(m_buffer);
+		StringCchCopyW(sendPacket->nickName, NAME_SIZE, m_buffer);
 		//유저 섹션이 닉네임 저장
-		userRef->LoginSucces(sendPacket.nickName);
+		userRef->LoginSuccess(m_buffer);
 		//유저에게 로그인 성공 정보 송신
-		userRef->DoSend(&sendPacket);
+		userRef->DoSend(sendPacket);
 		//userRef->
 		//userSession에 이름 저장
 		//클라이언트에 이름 전송
@@ -108,4 +111,5 @@ void IOCP::DBGetPlayerInfoEvent::Fail(ExpOver* over, const DWORD& ioByte, const 
 {
 	const auto& currentOpCode = over->GetOpCode();
 	spdlog::critical("DBGetPlayerInfoEvent::Fail() - OpCode: {}", static_cast<int>(currentOpCode));
+	IocpEventManager::GetInstance().DeleteExpOver(over);
 }

@@ -4,6 +4,8 @@
 #include "TimerRoomEvent.h"
 #include "../Network/ExpOver/ExpOver.h"
 #include "../Network/UserSession/UserSession.h"
+#include "../Network/IocpEvent/IocpEventManager.h"
+#include "RoomManager.h"
 
 #include "../GameObject/GameObject.h"
 #include "../GameObject/Character/ChracterObject.h"
@@ -24,9 +26,8 @@
 
 Room::Room(std::vector<std::shared_ptr<UserSession>>& userRefVec, std::shared_ptr<MonsterMapData>& mapDataRef, std::shared_ptr<NavMapData>& navMapDataRef)
 	: m_updateCnt(0), m_roomState(ROOM_STATE::ROOM_COMMON), m_gameStateUpdateComplete(false), m_isContinueHeal(false)
-	, m_stageMapData(mapDataRef), m_bossMapData(navMapDataRef)
+	, m_stageMapData(mapDataRef), m_bossMapData(navMapDataRef), prevUpdateTime(std::chrono::high_resolution_clock::now())
 {
-	m_gameStateData.reserve(2);
 	std::lock_guard<std::shared_mutex> userLockGuard(m_userSessionsLock);
 	for (auto& userRef : userRefVec)
 		m_userSessions.insert(userRef);
@@ -36,7 +37,6 @@ Room::Room(std::shared_ptr<UserSession>& userRef, std::shared_ptr<MonsterMapData
 	: m_updateCnt(0), m_roomState(ROOM_STATE::ROOM_COMMON), m_gameStateUpdateComplete(false)
 	, m_stageMapData(mapDataRef), m_bossMapData(navMapDataRef)
 {
-	m_gameStateData.reserve(2);
 	spdlog::warn("Room::Room() - make Room for Alone Test");
 
 	std::lock_guard<std::shared_mutex> userLockGuard(m_userSessionsLock);
@@ -49,7 +49,12 @@ Room::~Room()
 
 void Room::Execute(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key)
 {
-	if (ROOM_STATE::ROOM_END == m_roomState) return;
+	static constexpr int MAX_ROOM_TICK = 50;
+	static std::atomic_bool isPrint = false;
+	if (ROOM_STATE::ROOM_END == m_roomState) {
+		IocpEventManager::GetInstance().DeleteExpOver(over);
+		return;
+	}
 	using namespace std::chrono;
 	const auto& opCode = over->GetOpCode();
 	switch (opCode)
@@ -60,12 +65,23 @@ void Room::Execute(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key)
 		if (ROOM_STATE::ROOM_END == m_roomState) return;
 
 		ProcessPrevUpdateEvent();
-
+		auto currentTime = std::chrono::high_resolution_clock::now();
 		Update();
+
+		auto diffPrevUpdateTime = std::chrono::duration_cast<milliseconds>(currentTime - prevUpdateTime).count();
+		if (diffPrevUpdateTime > MAX_ROOM_TICK) {
+			if (!isPrint) {
+				int roomCnt = RoomManager::GetInstance().globalRoomCnt;
+				spdlog::warn("Room Update Tick: {}ms, Room Cnt: {}", diffPrevUpdateTime, roomCnt);
+				isPrint = true;
+			}
+			//spdlog::warn("Room Update Tick: {}ms", diffPrevUpdateTime);
+		}
+		prevUpdateTime = currentTime;
 
 		//InsertTimerEvent(TIMER_EVENT_TYPE::EV_SEND_NPC_MOVE, 1ms);
 		//타이머에 우선 넣고 이후 Update()에서 나온 Send이벤트 처리
-		InsertTimerEvent(TIMER_EVENT_TYPE::EV_ROOM_UPDATE, 17ms);
+		InsertTimerEvent(TIMER_EVENT_TYPE::EV_ROOM_UPDATE, 30ms);
 		ProcessAfterUpdateSendEvent();
 		//GameStateSend를 UPdate 3번할 때 send하게 수정해야함.
 	}
@@ -125,26 +141,29 @@ void Room::Execute(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key)
 	}
 	break;
 	}
+	IocpEventManager::GetInstance().DeleteExpOver(over);
 }
 
 void Room::Fail(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key)
 {
+	IocpEventManager::GetInstance().DeleteExpOver(over);
 }
 
 void Room::Start()
 {
-	SERVER_PACKET::IntoGamePacket sendPacket;
-	for (int i = 0; i < 15; ++i) {
-		sendPacket.monsterData[i].id = i;
-		sendPacket.monsterData[i].position = m_smallMonsters[i]->GetPosition();
-		sendPacket.monsterData[i].lookVector = m_smallMonsters[i]->GetLookVector();
-		sendPacket.monsterData[i].maxHp = m_smallMonsters[i]->GetMaxHp();
-	}
-
 	auto userSessions = GetAllUserSessions();
 	for (auto& user : userSessions) {
-		sendPacket.role = user->GetRole();
-		user->DoSend(&sendPacket);
+		std::shared_ptr< SERVER_PACKET::IntoGamePacket> sendPacket = std::make_shared< SERVER_PACKET::IntoGamePacket>();
+		sendPacket;
+		for (int i = 0; i < 15; ++i) {
+			sendPacket->monsterData[i].id = i;
+			sendPacket->monsterData[i].position = m_smallMonsters[i]->GetPosition();
+			sendPacket->monsterData[i].lookVector = m_smallMonsters[i]->GetLookVector();
+			sendPacket->monsterData[i].maxHp = m_smallMonsters[i]->GetMaxHp();
+		}
+
+		sendPacket->role = user->GetIngameRole();
+		user->DoSend(sendPacket);
 	}
 
 	using namespace std::chrono;
@@ -190,7 +209,7 @@ std::vector<ROLE> Room::GetConnectedUserRoles()
 	std::vector<ROLE> roles;
 	roles.reserve(userSessions.size());
 	for (const auto& userSession : userSessions) {
-		roles.push_back(userSession->GetRole());
+		roles.push_back(userSession->GetIngameRole());
 	}
 	return roles;
 }
@@ -310,7 +329,25 @@ void Room::SetBossAggro(std::shared_ptr<std::list<XMFLOAT3>> road, std::shared_p
 
 void Room::ForceGameEnd()
 {
-	SetRoomEndState();
+	if (ROOM_STATE::ROOM_END != m_roomState)
+		SetRoomEndState();
+}
+
+void Room::DisconnectUser(std::shared_ptr<UserSession> disconnectedUserRef)
+{
+	std::lock_guard<std::shared_mutex> sharedLockGuard{ m_userSessionsLock };
+	m_userSessions.erase(disconnectedUserRef);
+	if (m_userSessions.size() == 0) {
+		RoomManager::GetInstance().EraseRoom(std::static_pointer_cast<Room>(shared_from_this()));
+	}
+}
+
+bool Room::ReconnectUser(std::shared_ptr<UserSession> reconnectUserRef)
+{
+	if (ROOM_STATE::ROOM_END == m_roomState) return false;
+	std::lock_guard<std::shared_mutex> sharedLockGuard{ m_userSessionsLock };
+	m_userSessions.insert(reconnectUserRef);
+	return true;
 }
 
 void Room::Update()
@@ -363,16 +400,6 @@ void Room::Update()
 void Room::UpdateGameState()
 {
 	m_gameStateUpdateComplete = false;
-	if (m_roomState == ROOM_STATE::ROOM_COMMON) {
-		SetGameStatePlayer_Stage();
-		SetGameStateMonsters();
-		m_applyRoomStateForGameState = ROOM_STATE::ROOM_COMMON;
-	}
-	else if (m_roomState == ROOM_STATE::ROOM_BOSS) {
-		SetGameStatePlayer_Boss();
-		SetGameStateBoss();
-		m_applyRoomStateForGameState = ROOM_STATE::ROOM_BOSS;
-	}
 	//패킷 데이터 저장
 	//PQGS로 send()
 	InsertTimerEvent(TIMER_EVENT_TYPE::EV_SEND_GAME_STATE, std::chrono::milliseconds(1));
@@ -382,11 +409,12 @@ void Room::GameStateSend()
 {
 	//현재 보낼 게임상태에 적용된 룸 상태와 현재 룸 상태가 다르다면 보내지 않음.
 
-	if (m_roomState != m_applyRoomStateForGameState) return;
-	if (ROOM_STATE::ROOM_COMMON == m_applyRoomStateForGameState)
-		BroadCastPacket(m_gameStateData[0]);
-	else
-		BroadCastPacket(m_gameStateData[1]);
+	//if (m_roomState != m_applyRoomStateForGameState) return;
+	if (ROOM_STATE::ROOM_COMMON == m_roomState) {
+		SendGameStateStage();
+		return;
+	}
+	SendGameStateBoss();
 }
 
 std::vector<std::shared_ptr<UserSession>> Room::GetAllUserSessions()
@@ -400,12 +428,44 @@ std::vector<std::shared_ptr<UserSession>> Room::GetAllUserSessions()
 	return userSessions;
 }
 
-void Room::BroadCastPacket(const PacketHeader* packetData)
+void Room::SendGameStateStage()
 {
-	auto userSessions = GetAllUserSessions();
-	for (auto& userSession : userSessions) {
-		userSession->DoSend(packetData);
+	auto gameStatePacket = std::make_shared<SERVER_PACKET::GameState_STAGE>();
+	int characterIdx = 0;
+	for (auto& character : m_characters) {
+		gameStatePacket->userState[characterIdx].role = character.first;
+		gameStatePacket->userState[characterIdx].hp = character.second->GetHp();
+		gameStatePacket->userState[characterIdx].position = character.second->GetPosition();
+		gameStatePacket->userState[characterIdx].resetShield = character.second->GetShield();
+		gameStatePacket->userState[characterIdx].time = character.second->GetLastUpdateTime();
+		++characterIdx;
 	}
+	for (auto& monster : m_smallMonsters) {
+		gameStatePacket->smallMonster[monster->GetIdx()].isAlive = monster->IsAlive();
+		gameStatePacket->smallMonster[monster->GetIdx()].idx = monster->GetIdx();
+		gameStatePacket->smallMonster[monster->GetIdx()].hp = monster->GetHp();
+		gameStatePacket->smallMonster[monster->GetIdx()].position = monster->GetPosition();
+		gameStatePacket->smallMonster[monster->GetIdx()].time = monster->GetLastUpdateTime();
+	}
+	BroadCastPacket(gameStatePacket);
+}
+
+void Room::SendGameStateBoss()
+{
+	auto gameStatePacket = std::make_shared<SERVER_PACKET::GameState_BOSS>();
+	int characterIdx = 0;
+	for (auto& character : m_characters) {
+		gameStatePacket->userState[characterIdx].role = character.first;
+		gameStatePacket->userState[characterIdx].hp = character.second->GetHp();
+		gameStatePacket->userState[characterIdx].position = character.second->GetPosition();
+		gameStatePacket->userState[characterIdx].resetShield = character.second->GetShield();
+		gameStatePacket->userState[characterIdx].time = character.second->GetLastUpdateTime();
+		++characterIdx;
+	}
+	gameStatePacket->bossState.hp = m_bossMonster->GetHp();
+	gameStatePacket->bossState.position = m_bossMonster->GetPosition();
+	gameStatePacket->bossState.time = m_bossMonster->GetLastUpdateTime();
+	BroadCastPacket(gameStatePacket);
 }
 
 void Room::BroadCastPacket(std::shared_ptr<PacketHeader> packetData)
@@ -416,33 +476,11 @@ void Room::BroadCastPacket(std::shared_ptr<PacketHeader> packetData)
 	}
 }
 
-void Room::MultiCastCastPacket(const PacketHeader* packetData, const ROLE& exclusiveRoles)
-{
-	auto userSessions = GetAllUserSessions();
-	for (auto& userSession : userSessions) {
-		if (userSession->GetRole() != exclusiveRoles)
-		{
-			userSession->DoSend(packetData);
-		}
-	}
-}
-
-void Room::MultiCastCastPacket(const PacketHeader* packetData, const std::vector<ROLE>& exclusiveRoles)
-{
-	auto userSessions = GetAllUserSessions();
-	for (auto& userSession : userSessions) {
-		if (exclusiveRoles.end() != std::find(exclusiveRoles.begin(), exclusiveRoles.end(), userSession->GetRole()))
-		{
-			userSession->DoSend(packetData);
-		}
-	}
-}
-
 void Room::MultiCastCastPacket(std::shared_ptr<PacketHeader> packetData, const ROLE& exclusiveRoles)
 {
 	auto userSessions = GetAllUserSessions();
 	for (auto& userSession : userSessions) {
-		if (userSession->GetRole() != exclusiveRoles)
+		if (userSession->GetIngameRole() != exclusiveRoles)
 		{
 			userSession->DoSend(packetData);
 		}
@@ -453,7 +491,7 @@ void Room::MultiCastCastPacket(std::shared_ptr<PacketHeader> packetData, const s
 {
 	auto userSessions = GetAllUserSessions();
 	for (auto& userSession : userSessions) {
-		if (exclusiveRoles.end() != std::find(exclusiveRoles.begin(), exclusiveRoles.end(), userSession->GetRole()))
+		if (exclusiveRoles.end() != std::find(exclusiveRoles.begin(), exclusiveRoles.end(), userSession->GetIngameRole()))
 		{
 			userSession->DoSend(packetData);
 		}
@@ -483,61 +521,10 @@ std::vector<std::shared_ptr<MonsterObject>> Room::GetEnermyData()
 	}
 }
 
-void Room::SetGameStatePlayer_Stage()
-{
-	auto gameStateData = std::static_pointer_cast<SERVER_PACKET::GameState_Base>(m_gameStateData[0]);
-	int characterIdx = 0;
-	for (auto& character : m_characters) {
-		gameStateData->userState[characterIdx].role = character.first;
-		gameStateData->userState[characterIdx].hp = character.second->GetHp();
-		gameStateData->userState[characterIdx].position = character.second->GetPosition();
-		gameStateData->userState[characterIdx].resetShield = character.second->GetShield();
-		gameStateData->userState[characterIdx].time = character.second->GetLastUpdateTime();
-		++characterIdx;
-	}
-}
-
-void Room::SetGameStatePlayer_Boss()
-{
-	auto gameStateData = std::static_pointer_cast<SERVER_PACKET::GameState_Base>(m_gameStateData[1]);
-	int characterIdx = 0;
-	for (auto& character : m_characters) {
-		gameStateData->userState[characterIdx].role = character.first;
-		gameStateData->userState[characterIdx].hp = character.second->GetHp();
-		gameStateData->userState[characterIdx].position = character.second->GetPosition();
-		gameStateData->userState[characterIdx].resetShield = character.second->GetShield();
-		gameStateData->userState[characterIdx].time = character.second->GetLastUpdateTime();
-		++characterIdx;
-	}
-}
-
-void Room::SetGameStateMonsters()
-{
-	auto gameStateData = std::static_pointer_cast<SERVER_PACKET::GameState_STAGE>(m_gameStateData[0]);
-	for (auto& monster : m_smallMonsters) {
-		gameStateData->smallMonster[monster->GetIdx()].isAlive = monster->IsAlive();
-		gameStateData->smallMonster[monster->GetIdx()].idx = monster->GetIdx();
-		gameStateData->smallMonster[monster->GetIdx()].hp = monster->GetHp();
-		gameStateData->smallMonster[monster->GetIdx()].position = monster->GetPosition();
-		gameStateData->smallMonster[monster->GetIdx()].time = monster->GetLastUpdateTime();
-	}
-}
-
-void Room::SetGameStateBoss()
-{
-	auto gameStateData = std::static_pointer_cast<SERVER_PACKET::GameState_BOSS>(m_gameStateData[1]);
-	gameStateData->bossState.hp = m_bossMonster->GetHp();
-	gameStateData->bossState.position = m_bossMonster->GetPosition();
-	gameStateData->bossState.time = m_bossMonster->GetLastUpdateTime();
-}
-
 void Room::InitializeAllGameObject()
 {
 	static constexpr float SMALL_MONSTER_HP = 250.0f;
 	static constexpr float BOSS_HP = 2500.0f;
-
-	m_gameStateData.push_back(std::make_shared<SERVER_PACKET::GameState_STAGE>());
-	m_gameStateData.push_back(std::make_shared<SERVER_PACKET::GameState_BOSS>());
 
 	std::vector<std::chrono::seconds> duTime;
 	std::vector<std::chrono::seconds> coolTime;

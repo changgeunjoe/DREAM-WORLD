@@ -51,6 +51,11 @@ public:
 		m_iocpEvent = nullptr;
 	}
 
+	void SetIocpEvent(std::shared_ptr<IOCP::EventBase> iocpEvent)
+	{
+		m_iocpEvent = iocpEvent;
+	}
+
 	const IOCP_OP_CODE& GetOpCode() const
 	{
 		return m_opCode;

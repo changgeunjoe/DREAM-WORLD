@@ -57,10 +57,7 @@ public:
 	void InsertAftrerUpdateSendEvent(std::shared_ptr<RoomSendEvent> roomEvent);
 	void InsertPrevUpdateEvent(std::shared_ptr<PrevUpdateEvent> prevUpdate);
 
-	void BroadCastPacket(const PacketHeader* packetData);
 	void BroadCastPacket(std::shared_ptr<PacketHeader> packetData);
-	void MultiCastCastPacket(const PacketHeader* packetData, const ROLE& exclusiveRoles);
-	void MultiCastCastPacket(const PacketHeader* packetData, const std::vector<ROLE>& exclusiveRoles);
 
 	void MultiCastCastPacket(std::shared_ptr<PacketHeader> packetData, const ROLE& exclusiveRoles);
 	void MultiCastCastPacket(std::shared_ptr<PacketHeader> packetData, const std::vector<ROLE>& exclusiveRoles);
@@ -77,6 +74,9 @@ public:
 	void SetBossAggro(std::shared_ptr<std::list<XMFLOAT3>> road, std::shared_ptr<CharacterObject> characteRef);
 
 	void ForceGameEnd();//이 방 게임 강제로 종료
+
+	void DisconnectUser(std::shared_ptr<UserSession> disconnectedUserRef);
+	bool ReconnectUser(std::shared_ptr<UserSession> reconnectUserRef);
 private:
 
 	void ProcessAfterUpdateSendEvent();
@@ -88,11 +88,8 @@ private:
 
 	std::vector<std::shared_ptr<UserSession>> GetAllUserSessions();
 
-
-	void SetGameStatePlayer_Stage();
-	void SetGameStatePlayer_Boss();
-	void SetGameStateMonsters();
-	void SetGameStateBoss();
+	void SendGameStateStage();
+	void SendGameStateBoss();
 
 	//PlayerSkill
 	void PlayerHeal();
@@ -128,8 +125,7 @@ private:
 
 	std::atomic_bool m_gameStateUpdateComplete;
 	//0 stage // 1 boss
-	ROOM_STATE m_applyRoomStateForGameState;
-	std::vector<std::shared_ptr<PacketHeader>> m_gameStateData;
+	//ROOM_STATE m_applyRoomStateForGameState;
 
 	//MonsterObject m_boss;
 
@@ -144,6 +140,9 @@ private:
 	std::atomic_int m_afterUpdateEventCnt = 0;
 	tbb::concurrent_queue<std::shared_ptr<PrevUpdateEvent>> m_prevUpdateEvent;
 	std::atomic_int m_prevUpdateEventCnt = 0;
+
+
+	std::chrono::high_resolution_clock::time_point prevUpdateTime;
 };
 
 

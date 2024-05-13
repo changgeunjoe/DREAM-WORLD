@@ -5,7 +5,7 @@
 #include "../Room/RoomManager.h"
 #include "../Room/Room.h"
 
-#define ALONE_TEST
+//#define ALONE_TEST
 //테스트할 때, 한 게임당 들어올 인원 수
 //#define TEST_MODE_PEOPLE 3
 
@@ -13,7 +13,7 @@ void Matching::InserMatch(std::shared_ptr<UserSession>& userRef, const ROLE& rol
 {
 #ifdef ALONE_TEST
 	spdlog::debug("Matching::InserMatch() - Alone Test Mode");
-	userRef->SetRole(role);
+	userRef->SetIngameRole(role);
 	auto roomRef = RoomManager::GetInstance().MakeRunningRoomAloneMode(userRef);
 	roomRef->InitializeAllGameObject();
 	userRef->SetIngameRef(roomRef, roomRef->GetCharacterObject(role));
@@ -73,68 +73,37 @@ void Matching::MatchFunc()
 	while (true) {
 		BYTE matchState = 0;
 		int currentMatchedUserCnt = 0;
+
 		auto warriorUserRef = m_lastWarriorUser.lock();
+		warriorUserRef = GetCurrentMatchUserSession(m_warriorQueue, warriorUserRef);
 		if (nullptr != warriorUserRef) {
 			matchState |= static_cast<BYTE>(ROLE::WARRIOR);
 			userRefVec.emplace_back(warriorUserRef);
 			++currentMatchedUserCnt;
 		}
-		else {
-			auto warriorResult = m_warriorQueue.GetMatchUser();
-			if (warriorResult.has_value()) {
-				warriorUserRef = warriorResult.value();
-				matchState |= static_cast<BYTE>(ROLE::WARRIOR);
-				userRefVec.emplace_back(warriorUserRef);
-				++currentMatchedUserCnt;
-			}
-		}
 
 		auto mageUserRef = m_lastMageUser.lock();
+		mageUserRef = GetCurrentMatchUserSession(m_mageQueue, mageUserRef);
 		if (nullptr != mageUserRef) {
 			matchState |= static_cast<BYTE>(ROLE::MAGE);
 			userRefVec.emplace_back(mageUserRef);
 			++currentMatchedUserCnt;
 		}
-		else {
-			auto mageResult = m_mageQueue.GetMatchUser();
-			if (mageResult.has_value()) {
-				mageUserRef = mageResult.value();
-				matchState |= static_cast<BYTE>(ROLE::MAGE);
-				userRefVec.emplace_back(mageUserRef);
-				++currentMatchedUserCnt;
-			}
-		}
 
-		auto tankerUserRef = m_lastWarriorUser.lock();
+		auto tankerUserRef = m_lastTankerUser.lock();
+		tankerUserRef = GetCurrentMatchUserSession(m_tankerQueue, tankerUserRef);
 		if (nullptr != tankerUserRef) {
 			matchState |= static_cast<BYTE>(ROLE::TANKER);
 			userRefVec.emplace_back(tankerUserRef);
 			++currentMatchedUserCnt;
 		}
-		else {
-			auto tankerResult = m_tankerQueue.GetMatchUser();
-			if (tankerResult.has_value()) {
-				tankerUserRef = tankerResult.value();
-				matchState |= static_cast<BYTE>(ROLE::TANKER);
-				userRefVec.emplace_back(tankerUserRef);
-				++currentMatchedUserCnt;
-			}
-		}
 
-		auto archerUserRef = m_lastWarriorUser.lock();
+		auto archerUserRef = m_lastArcherUser.lock();
+		archerUserRef = GetCurrentMatchUserSession(m_archerQueue, archerUserRef);
 		if (nullptr != archerUserRef) {
 			matchState |= static_cast<BYTE>(ROLE::ARCHER);
 			userRefVec.emplace_back(archerUserRef);
 			++currentMatchedUserCnt;
-		}
-		else {
-			auto archerResult = m_archerQueue.GetMatchUser();
-			if (archerResult.has_value()) {
-				archerUserRef = archerResult.value();
-				matchState |= static_cast<BYTE>(ROLE::ARCHER);
-				userRefVec.emplace_back(archerUserRef);
-				++currentMatchedUserCnt;
-			}
 		}
 
 #ifdef TEST_MODE_PEOPLE
@@ -168,17 +137,17 @@ void Matching::MatchFunc()
 		continue;
 #endif // TEST_MODE_PEOPLE
 
-
-		if ((matchSuccessCondition & matchState) == matchState) {
+		if ((matchSuccessCondition & matchState) == matchSuccessCondition) {
 			//match Success
-			warriorUserRef->SetRole(ROLE::WARRIOR);
-			mageUserRef->SetRole(ROLE::MAGE);
-			tankerUserRef->SetRole(ROLE::TANKER);
-			archerUserRef->SetRole(ROLE::ARCHER);
+			warriorUserRef->SetIngameRole(ROLE::WARRIOR);
+			mageUserRef->SetIngameRole(ROLE::MAGE);
+			tankerUserRef->SetIngameRole(ROLE::TANKER);
+			archerUserRef->SetIngameRole(ROLE::ARCHER);
 
 			auto roomRef = RoomManager::GetInstance().MakeRunningRoom(userRefVec);
+			roomRef->InitializeAllGameObject();
 			for (auto& userRef : userRefVec)
-				userRef->SetIngameRef(roomRef, roomRef->GetCharacterObject(userRef->GetRole()));
+				userRef->SetIngameRef(roomRef, roomRef->GetCharacterObject(userRef->GetIngameRole()));
 			roomRef->Start();
 			m_lastWarriorUser.reset();
 			m_lastMageUser.reset();
@@ -192,8 +161,34 @@ void Matching::MatchFunc()
 			m_lastTankerUser = tankerUserRef;
 			m_lastArcherUser = archerUserRef;
 			userRefVec.clear();
+			std::this_thread::yield();
 		}
 	}
+}
+
+std::shared_ptr<UserSession> Matching::GetCurrentMatchUserSession(MatchQueue& matchQueue, std::shared_ptr<UserSession> lastUserSession)
+{
+	std::shared_ptr<UserSession> returnUserSession = nullptr;
+	returnUserSession = lastUserSession;
+	while (true) {
+		if (nullptr != returnUserSession) {
+			//UserSession이 있지만 disconnect 됐다면, 
+			if (UserSession::CONNECT_STATE::DISCONNECTED == returnUserSession->GetConnectState()) {
+				returnUserSession = nullptr;
+				continue;
+			}
+			return returnUserSession;
+		}
+		else {
+			auto frontUserSession = matchQueue.GetMatchUser();
+			if (frontUserSession.has_value()) {
+				returnUserSession = frontUserSession.value();
+				continue;
+			}
+			else return nullptr;
+		}
+	}
+	return nullptr;
 }
 
 void Matching::StartMatching()

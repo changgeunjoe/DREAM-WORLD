@@ -36,7 +36,9 @@ void MageObject::RecvSkill(const SKILL_TYPE& type)
 	if (SKILL_TYPE::SKILL_TYPE_Q == type) {
 		auto durationEventData = std::static_pointer_cast<DurationEvent>(m_skillCtrl->GetEventData(SKILL_Q));
 		auto headlEvent = std::make_shared<MageSkill::HealSkill>(std::static_pointer_cast<MageObject>(shared_from_this()), durationEventData->GetDurationTIme());
-		m_roomRef->InsertPrevUpdateEvent(std::make_shared<PlayerSkillEvent>(std::static_pointer_cast<PlayerSkillBase>(headlEvent)));
+		auto roomRef = m_roomWeakRef.lock();
+		if (nullptr != roomRef)
+			roomRef->InsertPrevUpdateEvent(std::make_shared<PlayerSkillEvent>(std::static_pointer_cast<PlayerSkillBase>(headlEvent)));
 	}
 	else spdlog::critical("MageObject::RecvSkill(const SKILL_TYPE& ) - Non Use SKILL_E");
 }
@@ -45,25 +47,32 @@ void MageObject::RecvSkill(const SKILL_TYPE& type, const XMFLOAT3& vector3)
 {
 	if (SKILL_TYPE::SKILL_TYPE_E == type) {
 		auto thunderSkillEvent = std::make_shared<MageSkill::ThunderSkill>(std::static_pointer_cast<MageObject>(shared_from_this()), vector3);
-		m_roomRef->InsertPrevUpdateEvent(std::make_shared<PlayerSkillEvent>(std::static_pointer_cast<PlayerSkillBase>(thunderSkillEvent)));
+		auto roomRef = m_roomWeakRef.lock();
+		if (nullptr != roomRef)
+			roomRef->InsertPrevUpdateEvent(std::make_shared<PlayerSkillEvent>(std::static_pointer_cast<PlayerSkillBase>(thunderSkillEvent)));
 	}
 	else spdlog::critical("MageObject::RecvSkill(const SKILL_TYPE&, const XMFLOAT3&) - Non Use SKILL_Q");
 }
 
 void MageObject::RecvAttackCommon(const XMFLOAT3& attackDir, const int& power)
 {
-	auto commonAttackEvent = std::make_shared<MageSkill::CommonAttack>(std::static_pointer_cast<MageObject>(shared_from_this()), attackDir);
-	m_roomRef->InsertPrevUpdateEvent(std::make_shared<PlayerSkillEvent>(std::static_pointer_cast<PlayerSkillBase>(commonAttackEvent)));
+	auto roomRef = m_roomWeakRef.lock();
+	if (nullptr != roomRef) {
+		auto commonAttackEvent = std::make_shared<MageSkill::CommonAttack>(std::static_pointer_cast<MageObject>(shared_from_this()), attackDir);
+		roomRef->InsertPrevUpdateEvent(std::make_shared<PlayerSkillEvent>(std::static_pointer_cast<PlayerSkillBase>(commonAttackEvent)));
+	}
 }
 
 void MageObject::ExecuteThunderSkill(const XMFLOAT3& position)
 {
+	auto roomRef = m_roomWeakRef.lock();
+	if (nullptr == roomRef) return;
 	auto thunderEvent = std::make_shared<ThunderEvent>(position);
-	m_roomRef->InsertAftrerUpdateSendEvent(std::static_pointer_cast<RoomSendEvent>(thunderEvent));
+	roomRef->InsertAftrerUpdateSendEvent(std::static_pointer_cast<RoomSendEvent>(thunderEvent));
 
 	static constexpr float THUNDER_RANGE = 35.0f;
 	static constexpr float THUNDER_DAMAGE = 150.0f;
-	auto enermyData = m_roomRef->GetEnermyData();
+	auto enermyData = roomRef->GetEnermyData();
 	for (auto& monster : enermyData) {
 		float monsterDistance = monster->GetDistance(position);
 		if (THUNDER_RANGE > monsterDistance) {
@@ -75,9 +84,13 @@ void MageObject::ExecuteThunderSkill(const XMFLOAT3& position)
 void MageObject::ExecuteHeal(const CommonDurationSkill_MILSEC::DURATION_TIME_RATIO& durationTime)
 {
 	using namespace std::chrono;
+
+	auto roomRef = m_roomWeakRef.lock();
+	if (nullptr == roomRef) return;
+
 	TIMER::Timer& timerRef = TIMER::Timer::GetInstance();
-	auto startEvent = std::make_shared<TIMER::RoomEvent>(TIMER_EVENT_TYPE::EV_HEAL_START, 1ms, m_roomRef);
-	auto endEvent = std::make_shared<TIMER::RoomEvent>(TIMER_EVENT_TYPE::EV_HEAL_END, durationTime, m_roomRef);
+	auto startEvent = std::make_shared<TIMER::RoomEvent>(TIMER_EVENT_TYPE::EV_HEAL_START, 1ms, roomRef);
+	auto endEvent = std::make_shared<TIMER::RoomEvent>(TIMER_EVENT_TYPE::EV_HEAL_END, durationTime, roomRef);
 
 	timerRef.InsertTimerEvent(std::static_pointer_cast<TIMER::EventBase>(startEvent));
 	timerRef.InsertTimerEvent(std::static_pointer_cast<TIMER::EventBase>(endEvent));
@@ -85,13 +98,15 @@ void MageObject::ExecuteHeal(const CommonDurationSkill_MILSEC::DURATION_TIME_RAT
 
 void MageObject::ExecuteCommonAttack(const XMFLOAT3& attackDir)
 {
+	auto roomRef = m_roomWeakRef.lock();
+	if (nullptr == roomRef) return;
 	auto currentPosition = GetPosition();
 	currentPosition.y += 8.0f;
-	auto iceLance = std::make_shared<IceLanceBall>(m_roomRef, currentPosition, attackDir);
-	m_roomRef->InsertProjectileObject(iceLance);
+	auto iceLance = std::make_shared<IceLanceBall>(roomRef, currentPosition, attackDir);
+	roomRef->InsertProjectileObject(iceLance);
 
 	auto shootingIceLanceEvent = std::make_shared<ShootingIceLaneEvent>(attackDir);
-	m_roomRef->InsertAftrerUpdateSendEvent(std::static_pointer_cast<RoomSendEvent>(shootingIceLanceEvent));
+	roomRef->InsertAftrerUpdateSendEvent(std::static_pointer_cast<RoomSendEvent>(shootingIceLanceEvent));
 }
 
 void MageSkill::ThunderSkill::Execute()

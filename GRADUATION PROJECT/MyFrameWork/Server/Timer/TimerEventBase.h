@@ -26,6 +26,8 @@ namespace TIMER {
 
 	*/
 
+	using MS = std::chrono::milliseconds;
+
 	class EventBase : std::enable_shared_from_this<TIMER::EventBase>
 	{
 	public:
@@ -41,9 +43,10 @@ namespace TIMER {
 		}
 
 		bool IsReady() const;
+		const MS GetRestTimeForReady() const;
 		virtual void Execute(HANDLE iocpHandle) = 0;
 	protected:
-		std::chrono::system_clock::time_point m_wakeupTime;
+		std::chrono::high_resolution_clock::time_point m_wakeupTime;
 		TIMER_EVENT_TYPE m_eventId = TIMER_EVENT_TYPE::EV_NONE;
 	};
 }

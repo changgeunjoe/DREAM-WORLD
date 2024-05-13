@@ -25,6 +25,7 @@ void IOCP::SendEvent::Execute(ExpOver* over, const DWORD& ioByte, const ULONG_PT
 void IOCP::SendEvent::Fail(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key)
 {
 	spdlog::info("IOCP::SendEvent::Fail()");
+	IocpEventManager::GetInstance().DeleteExpOver(over);
 }
 
 void IOCP::SendEvent::Send(SOCKET sock, ExpOver* over, const PacketHeader* packetHeader)

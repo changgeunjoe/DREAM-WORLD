@@ -39,18 +39,24 @@ void ArcherObject::RecvSkill(const SKILL_TYPE& type, const XMFLOAT3& vector3)
 {
 	if (SKILL_TYPE::SKILL_TYPE_Q == type) {
 		auto tripleArrow = std::make_shared<ArcherSKill::TripleArrow>(std::static_pointer_cast<ArcherObject>(shared_from_this()), vector3);
-		m_roomRef->InsertPrevUpdateEvent(std::make_shared<PlayerSkillEvent>(std::static_pointer_cast<PlayerSkillBase>(tripleArrow)));
+		auto roomRef = m_roomWeakRef.lock();
+		if (nullptr != roomRef)
+			roomRef->InsertPrevUpdateEvent(std::make_shared<PlayerSkillEvent>(std::static_pointer_cast<PlayerSkillBase>(tripleArrow)));
 	}
 	else if (SKILL_TYPE::SKILL_TYPE_E == type) {
 		auto rainArrow = std::make_shared<ArcherSKill::RainArrow>(std::static_pointer_cast<ArcherObject>(shared_from_this()), vector3);
-		m_roomRef->InsertPrevUpdateEvent(std::make_shared<PlayerSkillEvent>(std::static_pointer_cast<PlayerSkillBase>(rainArrow)));
+		auto roomRef = m_roomWeakRef.lock();
+		if (nullptr != roomRef)
+			roomRef->InsertPrevUpdateEvent(std::make_shared<PlayerSkillEvent>(std::static_pointer_cast<PlayerSkillBase>(rainArrow)));
 	}
 }
 
 void ArcherObject::RecvAttackCommon(const XMFLOAT3& attackDir, const int& power)
 {
 	auto commonAttack = std::make_shared<ArcherSKill::CommonAttack>(std::static_pointer_cast<ArcherObject>(shared_from_this()), attackDir, power);
-	m_roomRef->InsertPrevUpdateEvent(std::make_shared<PlayerSkillEvent>(std::static_pointer_cast<PlayerSkillBase>(commonAttack)));
+	auto roomRef = m_roomWeakRef.lock();
+	if (nullptr != roomRef)
+		roomRef->InsertPrevUpdateEvent(std::make_shared<PlayerSkillEvent>(std::static_pointer_cast<PlayerSkillBase>(commonAttack)));
 }
 
 void ArcherObject::ExecuteTripleArrow(const XMFLOAT3& direction)
@@ -59,25 +65,34 @@ void ArcherObject::ExecuteTripleArrow(const XMFLOAT3& direction)
 	// . . <= 이런 형태
 	auto currentPosition = GetPosition();
 	auto rightVector = GetRightVector();
+
+	auto roomRef = m_roomWeakRef.lock();
+	if (nullptr == roomRef) return;
+
 	for (int i = 0; i < 3; ++i) {
 		XMFLOAT3 startPosition = currentPosition;
 		startPosition.y = 6.0f + float(i % 2) * 4.0f;
 		startPosition = Vector3::Add(startPosition, rightVector, float(1 - i) * 4.0f);
 		startPosition = Vector3::Add(startPosition, direction);
-		auto tripleArrowObject = std::make_shared<TripleArrowObject>(m_roomRef, startPosition, direction);
-		m_roomRef->InsertProjectileObject(tripleArrowObject);
+		auto tripleArrowObject = std::make_shared<TripleArrowObject>(roomRef, startPosition, direction);
+		roomRef->InsertProjectileObject(tripleArrowObject);
+
 	}
 	auto shootingArrowEvent = std::make_shared<ShootingArrowEvent>(direction);
-	m_roomRef->InsertAftrerUpdateSendEvent(std::static_pointer_cast<RoomSendEvent>(shootingArrowEvent));
+	roomRef->InsertAftrerUpdateSendEvent(std::static_pointer_cast<RoomSendEvent>(shootingArrowEvent));
 }
 
 void ArcherObject::ExecuteRainArrow(const XMFLOAT3& position)
 {
 	using namespace std::chrono;
 	static constexpr seconds SKY_ARROW_ATTACK_TIME = seconds(1);
+
+	auto roomRef = m_roomWeakRef.lock();
+	if (nullptr == roomRef) return;
+
 	m_attackRainArrowPosition = position;
 	TIMER::Timer& timerRef = TIMER::Timer::GetInstance();
-	auto skyArrowEvent = std::make_shared<TIMER::RoomEvent>(TIMER_EVENT_TYPE::EV_RAIN_ARROW_ATTACK, SKY_ARROW_ATTACK_TIME, m_roomRef);
+	auto skyArrowEvent = std::make_shared<TIMER::RoomEvent>(TIMER_EVENT_TYPE::EV_RAIN_ARROW_ATTACK, SKY_ARROW_ATTACK_TIME, roomRef);
 	timerRef.InsertTimerEvent(std::static_pointer_cast<TIMER::EventBase>(skyArrowEvent));
 }
 
@@ -110,10 +125,12 @@ void ArcherObject::ExecuteCommonAttack(const XMFLOAT3& direction, const int& pow
 	default:
 		break;
 	}
-	auto arrowObject = std::make_shared<CommonArrowObject>(Speed, m_roomRef, currentPosition, direction, attackDamage);
-	m_roomRef->InsertProjectileObject(arrowObject);
+	auto roomRef = m_roomWeakRef.lock();
+	if (nullptr == roomRef) return;
+	auto arrowObject = std::make_shared<CommonArrowObject>(Speed, roomRef, currentPosition, direction, attackDamage);
+	roomRef->InsertProjectileObject(arrowObject);
 	auto shootingArrowEvent = std::make_shared<ShootingArrowEvent>(direction);
-	m_roomRef->InsertAftrerUpdateSendEvent(std::static_pointer_cast<RoomSendEvent>(shootingArrowEvent));
+	roomRef->InsertAftrerUpdateSendEvent(std::static_pointer_cast<RoomSendEvent>(shootingArrowEvent));
 }
 
 void ArcherObject::AttackRainArrow()
@@ -121,7 +138,11 @@ void ArcherObject::AttackRainArrow()
 	m_attackRainArrowPosition;
 	static constexpr float RAIN_ARROW_RANGE = 40.0f;
 	static constexpr float RAIN_ARROW_DAMAGE = 120.0f;
-	auto enermyData = m_roomRef->GetEnermyData();
+
+	auto roomRef = m_roomWeakRef.lock();
+	if (nullptr == roomRef) return;
+
+	auto enermyData = roomRef->GetEnermyData();
 	for (auto& monster : enermyData) {
 		float monsterDistance = monster->GetDistance(m_attackRainArrowPosition);
 		if (RAIN_ARROW_RANGE > monsterDistance) {

@@ -72,7 +72,7 @@ private:
 	static constexpr float TRIPLE_ARROW_DAMAGE = 95.0f;//화살 하나당 데미지 -> 3개 다 맞으면 3 * 95데미지.
 	static constexpr SEC TRIPE_ARROW_LIFE_TIME = SEC(10);
 public:
-	TripleArrowObject(std::shared_ptr<Room>& roomRef, const XMFLOAT3& startPosition, const XMFLOAT3& directionVector);
+	TripleArrowObject(std::shared_ptr<Room> roomRef, const XMFLOAT3& startPosition, const XMFLOAT3& directionVector);
 };
 
 class IceLanceBall : public PlayerProjectileObject

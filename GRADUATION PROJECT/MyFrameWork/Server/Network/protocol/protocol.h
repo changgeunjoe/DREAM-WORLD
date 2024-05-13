@@ -26,6 +26,7 @@ namespace CLIENT_PACKET {
 #pragma region LOBBY
 		LOGIN,
 		MATCH,
+		RECONN,
 #pragma endregion
 
 #pragma region SKILL
@@ -58,17 +59,26 @@ namespace CLIENT_PACKET {
 		TEST_GAME_END, //임시로 클라에서 전송하여 게임 끝낼 수 있게
 #pragma endregion
 		TIME_SYNC_REQUEST,
+		STRESS_TEST_DELAY
 	};
 
 	//TYPE으로 유추되는 패킷
 	using NotifyPacket = PacketHeader;
 
+	struct ReConnectPacket : public PacketHeader
+	{
+		wchar_t nickName[NAME_SIZE];
+		ReConnectPacket(const std::wstring& name, const char& type = static_cast<char>(TYPE::RECONN)) : PacketHeader(type, sizeof(ReConnectPacket))
+		{
+			StringCchCopyW(nickName, NAME_SIZE, name.c_str());
+		}
+	};
+
 	struct MovePacket : public PacketHeader
 	{//시간과 진행 방향, 이동 입력
 		DIRECTION direction;
-		PacketTime time;
-		MovePacket(const DIRECTION& direction, const PacketTime& time, const char& type)
-			: PacketHeader(type, sizeof(MovePacket)), direction(direction), time(time)
+		MovePacket(const DIRECTION& direction, const char& type)
+			: PacketHeader(type, sizeof(MovePacket)), direction(direction)
 		{}
 	};
 
@@ -85,14 +95,7 @@ namespace CLIENT_PACKET {
 
 	struct StopPacket : public PacketHeader
 	{
-		DirectX::XMFLOAT3 position;
-		DirectX::XMFLOAT3 rotate;
-		PacketTime time;
-
 		StopPacket(const char& type = static_cast<char>(TYPE::STOP)) : PacketHeader(type, sizeof(StopPacket)) {}
-		StopPacket(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& rotate, const PacketTime& time, const char& type = static_cast<char>(TYPE::STOP))
-			: PacketHeader(type, sizeof(StopPacket)), position(position), rotate(rotate), time(time)
-		{}
 	};
 
 	struct LoginPacket : public PacketHeader
@@ -189,20 +192,14 @@ namespace CLIENT_PACKET {
 
 namespace SERVER_PACKET {
 	enum class TYPE : unsigned char {
-#pragma region MOVE
-		MOVE_KEY_DOWN = 0,
-		MOVE_KEY_UP,
-		STOP,
-		ROTATE,
-#pragma endregion
 
 #pragma region LOBBY
 		LOGIN_SUCCESS,
 		LOGIN_FAIL,
-		DUPLICATED_LOGIN,//중복된 로그인이 들어왔다
-		PRE_EXIST_LOGIN, //이미 로그인된 아이디다
+		RECONN_FAIL,
 #pragma endregion
 
+#pragma region IN_GAME
 #pragma region SMALL_MONSTER
 		//SMALL_MONSTER_MOVE_SET_LOOK,
 		//SMALL_MONSTER_STOP_SET_LOOK,
@@ -217,6 +214,14 @@ namespace SERVER_PACKET {
 #pragma endregion
 
 #pragma region PLAYER
+
+#pragma region MOVE
+		MOVE_KEY_DOWN,
+		MOVE_KEY_UP,
+		STOP,
+		ROTATE,
+#pragma endregion
+
 		MOUSE_INPUT,
 		PLAYER_DAMAGED,
 		PLAYER_DIE,
@@ -253,9 +258,14 @@ namespace SERVER_PACKET {
 		BOSS_ATTACK_METEOR,
 #pragma endregion
 
+#pragma endregion
+
 		TIME_SYNC_RESPONSE,
-		NAV_MESH_RENDER
+		NAV_MESH_RENDER,
+		STRESS_TEST_DELAY
 	};
+
+
 
 #pragma region DISCARD
 	//constexpr unsigned char CREATE_ROOM_SUCCESS = 71; // 룸 생성 시 성공 패킷
@@ -271,16 +281,20 @@ namespace SERVER_PACKET {
 	//constexpr unsigned char PLAYER_CANCEL_ROOM = 80; // 신청 취소 정보 방장(방)한테 전송
 #pragma endregion
 
+	enum class BOSS_ATTACK : char {
+		ATTACK_METEO,
+		ATTACK_SPIN,
+		ATTACK_FIRE,
+		ATTACK_KICK,
+		ATTACK_PUNCH
+	};
+
 	using NotifyPacket = PacketHeader;
 
 	struct LoginPacket : public PacketHeader
 	{
 		wchar_t nickName[NAME_SIZE];
 		LoginPacket(const char& type = static_cast<char>(TYPE::LOGIN_SUCCESS)) : PacketHeader(type, sizeof(LoginPacket)) {}
-		void SetData(const wchar_t* name)
-		{
-
-		}
 	};
 
 	struct InitMonsterData
@@ -539,5 +553,6 @@ namespace SERVER_PACKET {
 			}
 		}
 	};
+
 }
 #pragma pack (pop)

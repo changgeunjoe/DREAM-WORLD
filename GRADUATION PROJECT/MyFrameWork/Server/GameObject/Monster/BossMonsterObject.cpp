@@ -51,6 +51,10 @@ void BossMonsterObject::Initialize()
 void BossMonsterObject::CheckUpdateRoad()
 {
 	if (!m_isAbleRoadUpdate)return;
+
+	auto roomRef = m_roomWeakRef.lock();
+	if (nullptr == roomRef) return;
+
 	static constexpr float COMPETITION_DISTANCE = FLT_EPSILON;
 	auto findPlayerEvent = m_behaviorTimeEventCtrl->GetEventData(FIND_PLAYER);
 	const bool isAbleFindPlayer = findPlayerEvent->IsAbleExecute();
@@ -64,8 +68,8 @@ void BossMonsterObject::CheckUpdateRoad()
 		XMFLOAT3 startPosition = GetPosition();
 
 		//spdlog::info("Find Path Start Position - x: {}, y: {}, z: {}", startPosition.x, startPosition.y, startPosition.z);
-		auto aggroEvent = std::make_shared<TIMER::BossAggroEvent>(m_roomRef, characterRef->GetPosition(), startPosition, characterRef);
-		m_roomRef->InserTimerEvent(aggroEvent);
+		auto aggroEvent = std::make_shared<TIMER::BossAggroEvent>(roomRef, characterRef->GetPosition(), startPosition, characterRef);
+		roomRef->InserTimerEvent(aggroEvent);
 		return;
 	}
 	auto researchRoadEvent = m_behaviorTimeEventCtrl->GetEventData(RESEARCH_ROAD);
@@ -73,8 +77,8 @@ void BossMonsterObject::CheckUpdateRoad()
 	if (isAbleResearchRoad) {
 		XMFLOAT3 startPosition = GetPosition();
 		//spdlog::info("Find Path Start Position - x: {}, y: {}, z: {}", startPosition.x, startPosition.y, startPosition.z);
-		auto researchEvent = std::make_shared<TIMER::BossCalculateRoadEvent>(m_roomRef, m_aggroCharacter->GetPosition(), startPosition);
-		m_roomRef->InserTimerEvent(researchEvent);
+		auto researchEvent = std::make_shared<TIMER::BossCalculateRoadEvent>(roomRef, m_aggroCharacter->GetPosition(), startPosition);
+		roomRef->InserTimerEvent(researchEvent);
 	}
 
 }
@@ -101,6 +105,8 @@ void BossMonsterObject::UpdateRoad(std::shared_ptr<std::list<XMFLOAT3>> nodeList
 
 void BossMonsterObject::SendBossState(const BossState::STATE& state)
 {
+	auto roomRef = m_roomWeakRef.lock();
+	if (nullptr == roomRef) return;
 	switch (state)
 	{
 		/*case BossState::STATE::IDLE:
@@ -117,7 +123,7 @@ void BossMonsterObject::SendBossState(const BossState::STATE& state)
 		//어그로를 바로 따라가야 하기 때문에, 강제로
 		sendAggroPositionEvent->ForceExecute();
 		m_currentAggroPosition = m_aggroCharacter->GetPosition();
-		m_roomRef->InsertAftrerUpdateSendEvent(std::static_pointer_cast<RoomSendEvent>(std::make_shared<BossSameNodeEvent>(m_currentAggroPosition)));
+		roomRef->InsertAftrerUpdateSendEvent(std::static_pointer_cast<RoomSendEvent>(std::make_shared<BossSameNodeEvent>(m_currentAggroPosition)));
 	}
 	break;
 	case BossState::STATE::MOVE:
@@ -129,31 +135,31 @@ void BossMonsterObject::SendBossState(const BossState::STATE& state)
 	case BossState::STATE::METEOR:
 	{
 		spdlog::debug("changeBossState: METEOR");
-		m_roomRef->InsertAftrerUpdateSendEvent(std::static_pointer_cast<RoomSendEvent>(std::make_shared<BossMeteorEvent>()));
+		roomRef->InsertAftrerUpdateSendEvent(std::static_pointer_cast<RoomSendEvent>(std::make_shared<BossMeteorEvent>()));
 	}
 	break;
 	case BossState::STATE::FIRE:
 	{
 		spdlog::debug("changeBossState: FIRE");
-		m_roomRef->InsertAftrerUpdateSendEvent(std::static_pointer_cast<RoomSendEvent>(std::make_shared<BossFireEvent>()));
+		roomRef->InsertAftrerUpdateSendEvent(std::static_pointer_cast<RoomSendEvent>(std::make_shared<BossFireEvent>()));
 	}
 	break;
 	case BossState::STATE::SPIN:
 	{
 		spdlog::debug("changeBossState: SPIN");
-		m_roomRef->InsertAftrerUpdateSendEvent(std::static_pointer_cast<RoomSendEvent>(std::make_shared<BossSpinEvent>()));
+		roomRef->InsertAftrerUpdateSendEvent(std::static_pointer_cast<RoomSendEvent>(std::make_shared<BossSpinEvent>()));
 	}
 	break;
 	case BossState::STATE::KICK:
 	{
 		spdlog::debug("changeBossState: KICK");
-		m_roomRef->InsertAftrerUpdateSendEvent(std::static_pointer_cast<RoomSendEvent>(std::make_shared<BossKickEvent>(GetLookVector())));
+		roomRef->InsertAftrerUpdateSendEvent(std::static_pointer_cast<RoomSendEvent>(std::make_shared<BossKickEvent>(GetLookVector())));
 	}
 	break;
 	case BossState::STATE::PUNCH:
 	{
 		spdlog::debug("changeBossState: PUNCH");
-		m_roomRef->InsertAftrerUpdateSendEvent(std::static_pointer_cast<RoomSendEvent>(std::make_shared<BossPunchEvent>(GetLookVector())));
+		roomRef->InsertAftrerUpdateSendEvent(std::static_pointer_cast<RoomSendEvent>(std::make_shared<BossPunchEvent>(GetLookVector())));
 	}
 	break;
 	default:
@@ -163,7 +169,9 @@ void BossMonsterObject::SendBossState(const BossState::STATE& state)
 
 void BossMonsterObject::AttackSpin(const float& damage, const float& attackRange)
 {
-	auto characters = m_roomRef->GetCharacters();
+	auto roomRef = m_roomWeakRef.lock();
+	if (nullptr == roomRef) return;
+	auto characters = roomRef->GetCharacters();
 	for (auto& character : characters) {
 		float  distance = character->GetDistance(shared_from_this());
 		if (distance < attackRange) {
@@ -174,8 +182,10 @@ void BossMonsterObject::AttackSpin(const float& damage, const float& attackRange
 
 void BossMonsterObject::AttackFire(const float& damage, const float& inner, const float& outer, const int& mode)
 {
+	auto roomRef = m_roomWeakRef.lock();
+	if (nullptr == roomRef) return;
 	//외곽 - 안쪽 순으로 공격
-	auto characters = m_roomRef->GetCharacters();
+	auto characters = roomRef->GetCharacters();
 	if (mode == 0) {
 		for (auto& character : characters) {
 			float  distance = character->GetDistance(shared_from_this());
@@ -200,10 +210,12 @@ void BossMonsterObject::AttackKick(const float& damage, const float& attackRange
 	static constexpr float KICK_VALID_EULER = 26.0f;
 	//static constexpr float KICK_ATTACK_LENGTH = 50.0f;
 
+	auto roomRef = m_roomWeakRef.lock();
+	if (nullptr == roomRef) return;
 
 	auto attackBoudingBox = GetMeleeAttackJudgeBox(GetPosition(), GetLookVector(), attackRange / 2.0f, 18.0f, attackRange, m_collisionSphere.Radius * 2.0f);
 
-	auto characters = m_roomRef->GetCharacters();
+	auto characters = roomRef->GetCharacters();
 	for (auto& character : characters) {
 		if (attackBoudingBox.Intersects(character->GetCollision()))
 			character->Attacked(damage);
@@ -220,9 +232,13 @@ void BossMonsterObject::AttackPunch(const float& damage, const float& attackRang
 {
 	//static constexpr float PUNCH_VALID_EULER = 20.0f;
 	//static const float VALID_COS_VALUE = cos(XMConvertToRadians(PUNCH_VALID_EULER));
+
+	auto roomRef = m_roomWeakRef.lock();
+	if (nullptr == roomRef) return;
+
 	auto attackBoudingBox = GetMeleeAttackJudgeBox(GetPosition(), GetLookVector(), attackRange / 2.0f, 14.0f, attackRange, m_collisionSphere.Radius * 2.0f);
 
-	auto characters = m_roomRef->GetCharacters();
+	auto characters = roomRef->GetCharacters();
 	for (auto& character : characters) {
 		if (attackBoudingBox.Intersects(character->GetCollision()))
 			character->Attacked(damage);
@@ -254,6 +270,10 @@ void BossMonsterObject::Move()
 void BossMonsterObject::MoveAggro()
 {
 	static constexpr float STOP_DISTANCE = 40.0;
+
+	auto roomRef = m_roomWeakRef.lock();
+	if (nullptr == roomRef) return;
+
 	AttackCheck();
 	if (m_currentState != m_bossStates[BossState::STATE::MOVE_AGGRO]) return;//현재 상태가 MOVE가 아니라면, 다른 상태로 변경 됨.
 
@@ -271,7 +291,7 @@ void BossMonsterObject::MoveAggro()
 	const bool isAbleSendAggroPosition = aggroPositionSendCoolTimeData->IsAbleExecute();
 	if (isAbleSendAggroPosition) {
 		m_currentAggroPosition = m_aggroCharacter->GetPosition();
-		m_roomRef->InsertAftrerUpdateSendEvent(std::static_pointer_cast<RoomSendEvent>(std::make_shared<BossSameNodeEvent>(m_aggroCharacter->GetPosition())));
+		roomRef->InsertAftrerUpdateSendEvent(std::static_pointer_cast<RoomSendEvent>(std::make_shared<BossSameNodeEvent>(m_aggroCharacter->GetPosition())));
 	}
 	MoveAggroUpdate();
 }
@@ -294,12 +314,15 @@ const XMFLOAT3 BossMonsterObject::GetCommonNextPosition(const float& elapsedTime
 
 std::shared_ptr<CharacterObject> BossMonsterObject::FindAggroCharacter()
 {
-	auto characters = m_roomRef->GetCharacters();
-	auto ableRole = m_roomRef->GetLiveRoles();//커네팅 되어있고, 살아있는 캐릭터만
+	auto roomRef = m_roomWeakRef.lock();
+	if (nullptr == roomRef) return nullptr;
+
+	auto characters = roomRef->GetCharacters();
+	auto ableRole = roomRef->GetLiveRoles();//커네팅 되어있고, 살아있는 캐릭터만
 	std::shared_ptr<CharacterObject> minDistanceObject = nullptr;
 	float minDistance = 0.0f;
 	for (const auto& role : ableRole) {
-		auto character = m_roomRef->GetCharacterObject(role);
+		auto character = roomRef->GetCharacterObject(role);
 		float distance = character->GetDistance(shared_from_this());
 		if (nullptr == minDistanceObject || minDistance > distance) {//아직 정해진 최소 거리 객체가 없거나, 최소거리보다 더 짧은 거리일 때
 			minDistanceObject = character;
@@ -317,6 +340,9 @@ void BossMonsterObject::MoveUpdate()
 	float elapsedTime = GetElapsedLastUpdateTime();
 	const float CHANGE_NODE_DISTANCE = 60.0f * elapsedTime;
 	const float CHECK_ABLE_FIND_PATH_DISTANCE = 3.0f;
+
+	auto roomRef = m_roomWeakRef.lock();
+	if (nullptr == roomRef) return;
 
 	//더 이상 이동할 노드가 없음 => 같은 노드에 있음.
 	XMFLOAT3 currentPosition = GetPosition();
@@ -350,7 +376,7 @@ void BossMonsterObject::MoveUpdate()
 		spdlog::debug("ChangeLook newLook - x: {}, y: {}, z: {}", toDestinationVector.x, toDestinationVector.y, toDestinationVector.z);
 
 		auto changeDestinationEvent = std::make_shared<BossMoveDestinationEvent>(currentDestinationPosition);
-		m_roomRef->InsertAftrerUpdateSendEvent(std::static_pointer_cast<RoomSendEvent>(changeDestinationEvent));
+		roomRef->InsertAftrerUpdateSendEvent(std::static_pointer_cast<RoomSendEvent>(changeDestinationEvent));
 		m_roadUpdate = false;
 		return;
 	}
@@ -385,7 +411,7 @@ void BossMonsterObject::MoveUpdate()
 		m_currentDestinationPosition = currentDestinationPosition;
 		spdlog::debug("Change Boss DestinationPosition - x: {}, y: {}, z: {}", currentDestinationPosition.x, currentDestinationPosition.y, currentDestinationPosition.z);
 		auto changeDestinationEvent = std::make_shared<BossMoveDestinationEvent>(currentDestinationPosition);
-		m_roomRef->InsertAftrerUpdateSendEvent(std::static_pointer_cast<RoomSendEvent>(changeDestinationEvent));
+		roomRef->InsertAftrerUpdateSendEvent(std::static_pointer_cast<RoomSendEvent>(changeDestinationEvent));
 		toDestinationVector = Vector3::Subtract(currentDestinationPosition, currentPosition);
 		toDestinationVector = Vector3::Normalize(toDestinationVector);
 		XMFLOAT3 prevLook = GetLookVector();
@@ -431,7 +457,11 @@ void BossMonsterObject::MoveAggroUpdate()
 const bool BossMonsterObject::AbleSpinAttack()
 {
 	static constexpr float SPIN_ATTACK_RANGE = 45.0f;
-	auto characters = m_roomRef->GetCharacters();
+
+	auto roomRef = m_roomWeakRef.lock();
+	if (nullptr == roomRef) return false;
+
+	auto characters = roomRef->GetCharacters();
 
 	//범위 체크
 	int validCnt = 0;
@@ -453,7 +483,11 @@ const bool BossMonsterObject::AbleSpinAttack()
 const bool BossMonsterObject::AbleFireAttack()
 {
 	static constexpr float FIRE_ATTACK_RANGE = 69.0f;
-	auto characters = m_roomRef->GetCharacters();
+
+	auto roomRef = m_roomWeakRef.lock();
+	if (nullptr == roomRef) return false;
+
+	auto characters = roomRef->GetCharacters();
 
 	//범위 체크
 	int validCnt = 0;
@@ -485,7 +519,11 @@ const bool BossMonsterObject::AbleKickAttack()
 	static constexpr float KICK_RANGE = 60.0f;
 	static constexpr float KICK_VALID_EULER = 20.0f;
 	static const float VALID_COS_VALUE = cos(XMConvertToRadians(KICK_VALID_EULER));
-	auto characters = m_roomRef->GetCharacters();
+
+	auto roomRef = m_roomWeakRef.lock();
+	if (nullptr == roomRef) return false;
+
+	auto characters = roomRef->GetCharacters();
 	//범위 체크
 	int validCnt = 0;
 	for (auto& character : characters) {
@@ -507,7 +545,11 @@ const bool BossMonsterObject::AblePunchAttack()
 	static constexpr float PUNCH_RANGE = 50.0f;
 	static constexpr float KICK_VALID_EULER = 15.0f;
 	static const float VALID_COS_VALUE = cos(XMConvertToRadians(KICK_VALID_EULER));
-	auto characters = m_roomRef->GetCharacters();
+
+	auto roomRef = m_roomWeakRef.lock();
+	if (nullptr == roomRef) return false;
+
+	auto characters = roomRef->GetCharacters();
 	//범위 체크
 	int validCnt = 0;
 	for (auto& character : characters) {
@@ -559,23 +601,31 @@ void BossState::StateBase::Execute()
 
 void BossState::MoveState::EnterState()
 {
+	auto bossObject = m_bossWeakRef.lock();
+	if (nullptr == bossObject)return;
 	BossState::StateBase::EnterState();
 	bossObject->SendBossState(BossState::STATE::MOVE);
 }
 
 void BossState::MoveState::UpdateState()
 {
+	auto bossObject = m_bossWeakRef.lock();
+	if (nullptr == bossObject)return;
 	bossObject->Move();
 }
 
 void BossState::MoveAggroState::EnterState()
 {
+	auto bossObject = m_bossWeakRef.lock();
+	if (nullptr == bossObject)return;
 	BossState::StateBase::EnterState();
 	bossObject->SendBossState(BossState::STATE::MOVE_AGGRO);
 }
 
 void BossState::MoveAggroState::UpdateState()
 {
+	auto bossObject = m_bossWeakRef.lock();
+	if (nullptr == bossObject)return;
 	bossObject->MoveAggro();
 }
 
@@ -590,12 +640,16 @@ void BossState::AttackState::EnterState()
 
 void BossState::AttackState::ExitState()
 {
+	auto bossObject = m_bossWeakRef.lock();
+	if (nullptr == bossObject)return;
 	BossState::StateBase::ExitState();
 	bossObject->ChangeBossState(BossState::STATE::MOVE_AGGRO);
 }
 
 void BossState::AttackFire::EnterState()
 {
+	auto bossObject = m_bossWeakRef.lock();
+	if (nullptr == bossObject)return;
 	BossState::AttackState::EnterState();
 	m_firstAttackExecuteTime = std::chrono::high_resolution_clock::now() + FIRST_ATTACK_TIME;
 	m_secondAttackExecuteTime = std::chrono::high_resolution_clock::now() + SECOND_ATTACK_TIME;
@@ -606,6 +660,8 @@ void BossState::AttackFire::EnterState()
 void BossState::AttackFire::UpdateState()
 {
 	const auto nowTime = std::chrono::high_resolution_clock::now();
+	auto bossObject = m_bossWeakRef.lock();
+	if (nullptr == bossObject)return;
 	switch (m_attackCnt)
 	{
 	case 0:
@@ -633,6 +689,8 @@ void BossState::AttackFire::UpdateState()
 
 void BossState::AttackSpin::EnterState()
 {
+	auto bossObject = m_bossWeakRef.lock();
+	if (nullptr == bossObject)return;
 	BossState::AttackState::EnterState();
 	m_firstAttackExecuteTime = std::chrono::high_resolution_clock::now() + FIRST_ATTACK_TIME;
 	m_secondAttackExecuteTime = std::chrono::high_resolution_clock::now() + SECOND_ATTACK_TIME;
@@ -644,6 +702,8 @@ void BossState::AttackSpin::EnterState()
 void BossState::AttackSpin::UpdateState()
 {
 	const auto nowTime = std::chrono::high_resolution_clock::now();
+	auto bossObject = m_bossWeakRef.lock();
+	if (nullptr == bossObject)return;
 	switch (m_attackCnt)
 	{
 	case 0:
@@ -677,6 +737,8 @@ void BossState::AttackSpin::UpdateState()
 
 void BossState::AttackKick::EnterState()
 {
+	auto bossObject = m_bossWeakRef.lock();
+	if (nullptr == bossObject)return;
 	BossState::AttackState::EnterState();
 	m_attackExecuteTime = std::chrono::high_resolution_clock::now() + ATTACK_TIME;
 	m_isAttacked = false;
@@ -686,6 +748,8 @@ void BossState::AttackKick::EnterState()
 void BossState::AttackKick::UpdateState()
 {
 	const auto nowTime = std::chrono::high_resolution_clock::now();
+	auto bossObject = m_bossWeakRef.lock();
+	if (nullptr == bossObject)return;
 	if (m_isAttacked) {
 		if (m_endTimePoint < nowTime)
 			ExitState();
@@ -698,6 +762,8 @@ void BossState::AttackKick::UpdateState()
 
 void BossState::AttackPunch::EnterState()
 {
+	auto bossObject = m_bossWeakRef.lock();
+	if (nullptr == bossObject)return;
 	BossState::AttackState::EnterState();
 	m_attackExecuteTime = std::chrono::high_resolution_clock::now() + ATTACK_TIME;
 	m_isAttacked = false;
@@ -707,6 +773,8 @@ void BossState::AttackPunch::EnterState()
 void BossState::AttackPunch::UpdateState()
 {
 	const auto nowTime = std::chrono::high_resolution_clock::now();
+	auto bossObject = m_bossWeakRef.lock();
+	if (nullptr == bossObject)return;
 	if (m_isAttacked) {
 		if (m_endTimePoint < nowTime)
 			ExitState();
@@ -719,6 +787,8 @@ void BossState::AttackPunch::UpdateState()
 
 void BossState::AttackMeteor::EnterState()
 {
+	auto bossObject = m_bossWeakRef.lock();
+	if (nullptr == bossObject)return;
 	BossState::AttackState::EnterState();
 	bossObject->AttackMeteor();
 	bossObject->SendBossState(BossState::STATE::METEOR);

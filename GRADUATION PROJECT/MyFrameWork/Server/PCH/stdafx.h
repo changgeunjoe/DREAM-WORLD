@@ -67,16 +67,12 @@
 #include <DirectXMath.h>
 #include <DirectXCollision.h>
 
-
-const float MONSTER_ABLE_ATTACK_COS_VALUE = std::cos(25.0f * 3.14f / 180.0f);//30도 - 0.96정도
-const float PLAYER_ABLE_ATTACK_COS_VALUE = std::cos(25.0f * 3.14f / 180.0f);//30도 - 0.96정도
-const float BOSS_ABLE_ATTACK_COS_VALUE = std::cos(15.0f * 3.14f / 180.0f);//30도 - 0.96정도
-
 enum class PLAYER_STATE : char
 {
 	LOBBY,
 	MATCH,
-	IN_GAME
+	IN_GAME,
+	RECONN_FAIL
 };
 
 enum class IOCP_OP_CODE : char
@@ -135,14 +131,6 @@ enum class ROLE :char {
 	MAGE = 0x02,
 	TANKER = 0x04,
 	ARCHER = 0x08,
-};
-
-enum class BOSS_ATTACK : char {
-	ATTACK_METEO,
-	ATTACK_SPIN,
-	ATTACK_FIRE,
-	ATTACK_KICK,
-	ATTACK_PUNCH
 };
 
 enum class TIMER_EVENT_TYPE : char {

@@ -37,12 +37,13 @@ void StartLogger()
 	auto combined_logger = spdlog::logger("Server Log", { console_logger->sinks().front(), file_logger->sinks().front() });
 	combined_logger.info("Start Logger");
 	spdlog::set_default_logger(std::make_shared<spdlog::logger>(spdlog::logger("Server Log", { console_logger->sinks().front(), file_logger->sinks().front() })));
-	spdlog::set_level(spdlog::level::debug);
 #ifdef _DEBUG
+	spdlog::set_level(spdlog::level::info);
 	spdlog::flush_every(std::chrono::milliseconds(10));
 #else
-	spdlog::flush_on(spdlog::level::info);
+	spdlog::set_level(spdlog::level::info);
 #endif // _DEBUG
+	spdlog::flush_on(spdlog::level::info);
 
 }
 

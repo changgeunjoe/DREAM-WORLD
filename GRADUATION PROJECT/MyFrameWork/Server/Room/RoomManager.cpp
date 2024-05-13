@@ -9,10 +9,12 @@ void RoomManager::Initialize()
 	m_bossmap = std::make_shared<NavMapData>(std::filesystem::current_path().string().append("\\Data\\BossCollisionData.txt"), std::filesystem::current_path().string().append("\\Data\\BossNavData.txt"));
 }
 
-void RoomManager::EraseRoom(std::shared_ptr<Room>& roomRef)
+void RoomManager::EraseRoom(std::shared_ptr<Room> roomRef)
 {
+
 	std::lock_guard<std::mutex> runningLg(m_runningRoomLock);
 	m_runningRooms.erase(roomRef);
+	globalRoomCnt--;
 }
 
 std::shared_ptr<Room> RoomManager::MakeRunningRoom(std::vector<std::shared_ptr<UserSession>>& userRefVec)
@@ -20,6 +22,7 @@ std::shared_ptr<Room> RoomManager::MakeRunningRoom(std::vector<std::shared_ptr<U
 	auto roomRef = std::make_shared<Room>(userRefVec, m_stageMap, m_bossmap);
 	std::lock_guard<std::mutex> runningLg(m_runningRoomLock);
 	m_runningRooms.insert(roomRef);
+	globalRoomCnt++;
 	return roomRef;
 }
 
@@ -28,5 +31,6 @@ std::shared_ptr<Room> RoomManager::MakeRunningRoomAloneMode(std::shared_ptr<User
 	auto roomRef = std::make_shared<Room>(userRef, m_stageMap, m_bossmap);
 	std::lock_guard<std::mutex> runningLg(m_runningRoomLock);
 	m_runningRooms.insert(roomRef);
+	globalRoomCnt++;
 	return roomRef;
 }

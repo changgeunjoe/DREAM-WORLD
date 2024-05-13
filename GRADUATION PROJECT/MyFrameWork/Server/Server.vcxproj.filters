@@ -4,9 +4,6 @@
     <Filter Include="Network">
       <UniqueIdentifier>{7faae775-2eb3-47f7-9e88-cb4d49437994}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Network\protocol">
-      <UniqueIdentifier>{f5551efc-7820-4d42-9c7e-76d725544d9d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Network\IOCP">
       <UniqueIdentifier>{1232dcad-1fa0-4a25-89e8-231977930a1f}</UniqueIdentifier>
     </Filter>
@@ -21,9 +18,6 @@
     </Filter>
     <Filter Include="Timer">
       <UniqueIdentifier>{cf8ae021-9f8f-43cb-bc14-3e832e28ebfe}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Network\UserSession">
-      <UniqueIdentifier>{117bfb1d-30a0-44fb-9963-935ceae9c30f}</UniqueIdentifier>
     </Filter>
     <Filter Include="Network\ExpOver">
       <UniqueIdentifier>{2c8d6f2a-b71a-49f8-8fe0-190b0e8e90fb}</UniqueIdentifier>
@@ -91,6 +85,12 @@
     <Filter Include="InGame\GameObject\Monster\BossEvent">
       <UniqueIdentifier>{2efaaa55-3541-4fb9-b797-b201ab9964e1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Network\IocpEvent\protocol">
+      <UniqueIdentifier>{f5551efc-7820-4d42-9c7e-76d725544d9d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network\IocpEvent\UserSession">
+      <UniqueIdentifier>{117bfb1d-30a0-44fb-9963-935ceae9c30f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PCH\stdafx.cpp">
@@ -152,7 +152,7 @@
       <Filter>InGame\MapData\AstarNode</Filter>
     </ClCompile>
     <ClCompile Include="Network\UserSession\UserManager.cpp">
-      <Filter>Network\UserSession</Filter>
+      <Filter>Network\IocpEvent\UserSession</Filter>
     </ClCompile>
     <ClCompile Include="Network\ExpOver\ExpOver.cpp">
       <Filter>Network\ExpOver</Filter>
@@ -188,7 +188,7 @@
       <Filter>InGame\GameObject\Monster</Filter>
     </ClCompile>
     <ClCompile Include="Network\UserSession\UserSession.cpp">
-      <Filter>Network\UserSession</Filter>
+      <Filter>Network\IocpEvent\UserSession</Filter>
     </ClCompile>
     <ClCompile Include="Room\RoomEvent.cpp">
       <Filter>InGame\Room\RoomEvent</Filter>
@@ -247,7 +247,7 @@
       <Filter>Network\IOCP</Filter>
     </ClInclude>
     <ClInclude Include="Network\protocol\protocol.h">
-      <Filter>Network\protocol</Filter>
+      <Filter>Network\IocpEvent\protocol</Filter>
     </ClInclude>
     <ClInclude Include="GameObject\GameObject.h">
       <Filter>InGame\GameObject</Filter>
@@ -283,7 +283,7 @@
       <Filter>InGame\MapData\AstarNode</Filter>
     </ClInclude>
     <ClInclude Include="Network\UserSession\UserManager.h">
-      <Filter>Network\UserSession</Filter>
+      <Filter>Network\IocpEvent\UserSession</Filter>
     </ClInclude>
     <ClInclude Include="SingletonBase.h" />
     <ClInclude Include="Network\ExpOver\ExpOver.h">
@@ -323,7 +323,7 @@
       <Filter>InGame\GameObject\Monster</Filter>
     </ClInclude>
     <ClInclude Include="Network\UserSession\UserSession.h">
-      <Filter>Network\UserSession</Filter>
+      <Filter>Network\IocpEvent\UserSession</Filter>
     </ClInclude>
     <ClInclude Include="Room\RoomEvent.h">
       <Filter>InGame\Room\RoomEvent</Filter>

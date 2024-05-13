@@ -15,7 +15,6 @@ IOCP::Iocp::Iocp() : m_listener(nullptr)
 
 IOCP::Iocp::~Iocp()
 {
-
 }
 
 void IOCP::Iocp::Start()
