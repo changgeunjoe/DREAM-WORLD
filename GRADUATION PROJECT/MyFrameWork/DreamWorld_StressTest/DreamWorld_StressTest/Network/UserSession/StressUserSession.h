@@ -16,7 +16,7 @@ namespace DreamWorld
 		static constexpr std::string_view DELAY_CHECK = "DELAY_CHECK";
 
 		static constexpr MSEC MOVE_COOL_TIME = MSEC(5'000);
-		static constexpr MSEC DELAY_CHECK_COOL_TIME = MSEC(3'000);
+		static constexpr MSEC DELAY_CHECK_COOL_TIME = MSEC(100);
 
 
 	public:

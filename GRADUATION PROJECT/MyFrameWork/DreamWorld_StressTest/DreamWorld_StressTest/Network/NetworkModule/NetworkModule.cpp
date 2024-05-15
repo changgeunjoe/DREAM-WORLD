@@ -39,6 +39,12 @@ void DreamWorld::StressTestNetwork::InitializeNetwork()
 	m_lastConnectTime = Time::now();
 	m_connections = 0;
 	globalMaxDelay = 0;
+
+	//연결된 클라이언트의 딜레이 총합
+	globalDelay = 0;
+	dGlobalDelay = 0;
+	globalMaxDelay = 0;
+
 	m_connectThread = std::thread([this]() { ConnectThread(); });
 }
 
@@ -81,7 +87,7 @@ void DreamWorld::StressTestNetwork::AdjustClientNumber()
 	if (CONNECTION_DELAY * DELAY_MULTIPLIER > lastConnectDurationTime) return;
 
 	//연결된 클라이언트 평균 딜레이 시간
-	long long averageDelay = globalDelay;
+	unsigned long long averageDelay = globalDelay;
 	if (m_activeClientNum != 0)
 		averageDelay /= m_activeClientNum;
 

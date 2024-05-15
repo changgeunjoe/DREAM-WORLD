@@ -47,23 +47,29 @@ void DreamWorld::StressUserSession::ExecutePacket(const PacketHeader* executePac
 	{
 	case SERVER_PACKET::TYPE::LOGIN_SUCCESS:
 	{
-		auto durationTime = std::chrono::duration_cast<std::chrono::milliseconds>(TIME::now() - m_loginSendTime);
+		auto currentTIme = TIME::now();
+		auto durationTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTIme - m_loginSendTime);
 		long long currentDelayTime = durationTime.count();//currentDelay
 
 		long long diffPrevDelay = currentDelayTime - m_delayTime;//이전 딜레이와 현재 딜레이 차이
-		//빨라졌다면 globalDelay가 줄어들 것.
+
+		auto prevGlobalDelay = DreamWorld::StressTestNetwork::GetInstance().globalDelay.load();
+		/*if (prevGlobalDelay > 2021090) {
+			std::cout << "asf" << std::endl;
+		}*/
 		DreamWorld::StressTestNetwork::GetInstance().globalDelay += diffPrevDelay;
+		auto debugGlobalDelay = DreamWorld::StressTestNetwork::GetInstance().globalDelay.load();
+		/*if (debugGlobalDelay > 2021090) {
+			std::cout << "asf" << std::endl;
+		}*/
 		m_delayTime = currentDelayTime;
 
-
+		DreamWorld::StressTestNetwork::GetInstance().IncreaseActiveClient();
 		int activeNum = DreamWorld::StressTestNetwork::GetInstance().GetActiveNum();
 		double averValue = 0.0f;
-		if (0 != activeNum)
-			averValue = (double)currentDelayTime / (double)activeNum;
+		averValue = (double)currentDelayTime / (double)activeNum;
 		DreamWorld::StressTestNetwork::GetInstance().dGlobalDelay += (averValue - m_dDelayTime);
 		m_dDelayTime = averValue;
-
-		DreamWorld::StressTestNetwork::GetInstance().IncreaseActiveClient();
 		m_isActive = true;
 	}
 	break;
@@ -292,7 +298,15 @@ void DreamWorld::StressUserSession::ExecutePacket(const PacketHeader* executePac
 
 		long long diffPrevDelay = currentDelayTime - m_delayTime;//이전 딜레이와 현재 딜레이 차이
 		//빨라졌다면 globalDelay가 줄어들 것.
+		auto prevGlobalDelay = DreamWorld::StressTestNetwork::GetInstance().globalDelay.load();
+		/*if (prevGlobalDelay > 2021090) {
+			std::cout << "asf" << std::endl;
+		}*/
 		DreamWorld::StressTestNetwork::GetInstance().globalDelay += diffPrevDelay;
+		auto debugGlobalDelay = DreamWorld::StressTestNetwork::GetInstance().globalDelay.load();
+		/*if (debugGlobalDelay > 2021090) {
+			std::cout << "asf" << std::endl;
+		}*/
 		m_delayTime = currentDelayTime;
 
 
@@ -321,8 +335,8 @@ void DreamWorld::StressUserSession::ExecutePacket(const PacketHeader* executePac
 void DreamWorld::StressUserSession::Connect(SOCKET connectSocket)
 {
 	UserSession::Connect(connectSocket);
+	m_loginSendTime = TIME::now();//Login 패킷 이후에 했다가, 0으로 초기화된 값이어서 딜레이 엉망
 	SendLoginPacket();
-	m_loginSendTime = TIME::now();
 }
 
 void DreamWorld::StressUserSession::Disconnect()

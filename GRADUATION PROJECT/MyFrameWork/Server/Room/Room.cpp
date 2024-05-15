@@ -25,7 +25,7 @@
 #include "RoomEvent.h"
 
 Room::Room(std::vector<std::shared_ptr<UserSession>>& userRefVec, std::shared_ptr<MonsterMapData>& mapDataRef, std::shared_ptr<NavMapData>& navMapDataRef)
-	: m_updateCnt(0), m_roomState(ROOM_STATE::ROOM_COMMON), m_gameStateUpdateComplete(false), m_isContinueHeal(false)
+	: m_updateCnt(0), m_roomState(ROOM_STATE::ROOM_COMMON), m_isContinueHeal(false)
 	, m_stageMapData(mapDataRef), m_bossMapData(navMapDataRef), prevUpdateTime(std::chrono::high_resolution_clock::now())
 {
 	std::lock_guard<std::shared_mutex> userLockGuard(m_userSessionsLock);
@@ -34,7 +34,7 @@ Room::Room(std::vector<std::shared_ptr<UserSession>>& userRefVec, std::shared_pt
 }
 
 Room::Room(std::shared_ptr<UserSession>& userRef, std::shared_ptr<MonsterMapData>& mapDataRef, std::shared_ptr<NavMapData>& navMapDataRef)
-	: m_updateCnt(0), m_roomState(ROOM_STATE::ROOM_COMMON), m_gameStateUpdateComplete(false)
+	: m_updateCnt(0), m_roomState(ROOM_STATE::ROOM_COMMON)
 	, m_stageMapData(mapDataRef), m_bossMapData(navMapDataRef)
 {
 	spdlog::warn("Room::Room() - make Room for Alone Test");
@@ -68,6 +68,16 @@ void Room::Execute(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key)
 		auto currentTime = std::chrono::high_resolution_clock::now();
 		Update();
 
+		//InsertTimerEvent(TIMER_EVENT_TYPE::EV_SEND_NPC_MOVE, 1ms);
+		//타이머에 우선 넣고 이후 Update()에서 나온 Send이벤트 처리
+		InsertTimerEvent(TIMER_EVENT_TYPE::EV_ROOM_UPDATE, 30ms);
+		auto updateEndTime = std::chrono::high_resolution_clock::now();
+
+		auto UpdateTimeDuration = std::chrono::duration_cast<milliseconds>(updateEndTime - currentTime).count();
+		if (UpdateTimeDuration > 20) {
+			spdlog::warn("Room Update Time: {}ms", UpdateTimeDuration);
+		}
+
 		auto diffPrevUpdateTime = std::chrono::duration_cast<milliseconds>(currentTime - prevUpdateTime).count();
 		if (diffPrevUpdateTime > MAX_ROOM_TICK) {
 			if (!isPrint) {
@@ -77,13 +87,8 @@ void Room::Execute(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key)
 			}
 			//spdlog::warn("Room Update Tick: {}ms", diffPrevUpdateTime);
 		}
-		prevUpdateTime = currentTime;
-
-		//InsertTimerEvent(TIMER_EVENT_TYPE::EV_SEND_NPC_MOVE, 1ms);
-		//타이머에 우선 넣고 이후 Update()에서 나온 Send이벤트 처리
-		InsertTimerEvent(TIMER_EVENT_TYPE::EV_ROOM_UPDATE, 30ms);
+		prevUpdateTime = updateEndTime;
 		ProcessAfterUpdateSendEvent();
-		//GameStateSend를 UPdate 3번할 때 send하게 수정해야함.
 	}
 	break;
 	case IOCP_OP_CODE::OP_SEND_NPC_MOVE:
@@ -94,8 +99,8 @@ void Room::Execute(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key)
 	case IOCP_OP_CODE::OP_GAME_STATE_SEND:
 	{
 		GameStateSend();
-		//GameState전송을 성공했다면
-		m_gameStateUpdateComplete = true;
+		using namespace std::chrono;	
+		InsertTimerEvent(TIMER_EVENT_TYPE::EV_SEND_GAME_STATE, 50ms);
 	}
 	break;
 
@@ -167,9 +172,8 @@ void Room::Start()
 	}
 
 	using namespace std::chrono;
-	m_gameStateUpdateComplete = true;
 	InsertTimerEvent(TIMER_EVENT_TYPE::EV_ROOM_UPDATE, 20ms);
-	//InsertEvent(TIMER_EVENT_TYPE::EV_GAME_STATE_SEND, 50ms);
+	InsertTimerEvent(TIMER_EVENT_TYPE::EV_SEND_GAME_STATE, 50ms);
 }
 
 std::vector<std::shared_ptr<SmallMonsterObject>>& Room::GetSmallMonsters()
@@ -388,21 +392,6 @@ void Room::Update()
 		SetRoomEndState();
 		return;
 	}
-
-	++m_updateCnt;
-	if (!m_gameStateUpdateComplete) return;
-	if (GAME_STATE_SEND_CNT <= m_updateCnt) {
-		UpdateGameState();
-		m_updateCnt = 0;
-	}
-}
-
-void Room::UpdateGameState()
-{
-	m_gameStateUpdateComplete = false;
-	//패킷 데이터 저장
-	//PQGS로 send()
-	InsertTimerEvent(TIMER_EVENT_TYPE::EV_SEND_GAME_STATE, std::chrono::milliseconds(1));
 }
 
 void Room::GameStateSend()

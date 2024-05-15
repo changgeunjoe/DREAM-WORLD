@@ -123,7 +123,6 @@ private:
 	//투사체는 사라질 수 있으니 list로 처리
 	std::list<std::shared_ptr<ProjectileObject>> m_projectileObjects;
 
-	std::atomic_bool m_gameStateUpdateComplete;
 	//0 stage // 1 boss
 	//ROOM_STATE m_applyRoomStateForGameState;
 

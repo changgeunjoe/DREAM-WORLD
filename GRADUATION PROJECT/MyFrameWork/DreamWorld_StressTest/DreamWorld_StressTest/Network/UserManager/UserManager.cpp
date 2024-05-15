@@ -42,7 +42,7 @@ void Network::UserManager::GetPointCloud(int& stageSize, int& bossSize, float*& 
 	int bossCnt = 0;
 	for (auto& userSession : m_UserSessions) {
 		auto currentUserSession = std::static_pointer_cast<DreamWorld::StressUserSession>(userSession);
-		if (!currentUserSession->IsActive())continue;
+		if (!currentUserSession->IsActive())break;
 		if (ROLE::NONE_SELECT == currentUserSession->GetRole()) continue;
 		float  x = currentUserSession->GetX();
 		float z = currentUserSession->GetZ();

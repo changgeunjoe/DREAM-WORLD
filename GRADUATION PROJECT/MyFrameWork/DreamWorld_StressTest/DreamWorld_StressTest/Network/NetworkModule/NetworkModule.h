@@ -27,7 +27,7 @@ namespace DreamWorld
 	static const std::string_view SERVER_IP = "127.0.0.1";
 	static const short SERVER_PORT = 9000;
 
-	static constexpr int MAX_TEST = 2500;
+	static constexpr int MAX_TEST = 10000;
 	static constexpr int MAX_CLIENTS = MAX_TEST * 2;
 
 	using Time = std::chrono::high_resolution_clock;
@@ -66,7 +66,7 @@ namespace DreamWorld
 		std::atomic_int m_activeClientNum;
 	public:
 		//연결된 클라이언트의 딜레이 총합
-		std::atomic_ullong globalDelay;
+		std::atomic_llong globalDelay;
 		std::atomic<double> dGlobalDelay;
 		std::atomic_int globalMaxDelay;
 	};
