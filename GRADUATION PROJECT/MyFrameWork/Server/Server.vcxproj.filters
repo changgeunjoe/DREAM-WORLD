@@ -1,18 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="소스 파일">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
     <Filter Include="Network">
       <UniqueIdentifier>{7faae775-2eb3-47f7-9e88-cb4d49437994}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Session">
-      <UniqueIdentifier>{117bfb1d-30a0-44fb-9963-935ceae9c30f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Network\protocol">
-      <UniqueIdentifier>{f5551efc-7820-4d42-9c7e-76d725544d9d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Network\IOCP">
       <UniqueIdentifier>{1232dcad-1fa0-4a25-89e8-231977930a1f}</UniqueIdentifier>
@@ -23,135 +13,350 @@
     <Filter Include="Logic">
       <UniqueIdentifier>{2b2a4b60-1bff-40aa-b1cc-e8ae5b381fde}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Session\SessionObject">
-      <UniqueIdentifier>{c5b3fc48-5022-4bf5-a823-f44b14378253}</UniqueIdentifier>
-    </Filter>
     <Filter Include="DB">
       <UniqueIdentifier>{67488753-1084-4e91-a43b-a7d2dc66a6bf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Room">
-      <UniqueIdentifier>{a13be899-e830-47cb-8b85-8dfe2f61fd3b}</UniqueIdentifier>
     </Filter>
     <Filter Include="Timer">
       <UniqueIdentifier>{cf8ae021-9f8f-43cb-bc14-3e832e28ebfe}</UniqueIdentifier>
     </Filter>
-    <Filter Include="MapData">
+    <Filter Include="Network\ExpOver">
+      <UniqueIdentifier>{2c8d6f2a-b71a-49f8-8fe0-190b0e8e90fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network\IocpEvent">
+      <UniqueIdentifier>{616faf02-0af5-4bb0-8fd0-14d2210f909f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network\IocpEvent\SendEvent">
+      <UniqueIdentifier>{db41b7a6-3fc5-4a84-83e1-368d9c1d668a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network\IocpEvent\ListenEvent">
+      <UniqueIdentifier>{3a11b420-5649-47ed-835e-582868b460b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network\IocpEvent\DBEvent">
+      <UniqueIdentifier>{aad6529a-738a-43e1-b01c-78b28442001d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Timer\TimerEvent">
+      <UniqueIdentifier>{a3175507-e8a9-4aaa-bf71-7d52b3ad0ca3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame">
+      <UniqueIdentifier>{01b795a2-581c-4218-a79a-bc5b226f5d0b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\GameObject">
+      <UniqueIdentifier>{b68ea826-14ee-48e8-9784-1fefb05b8c18}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\GameObject\Character">
+      <UniqueIdentifier>{0c5bab66-5984-4d4f-882f-81cbbc34b946}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\GameObject\Projectile">
+      <UniqueIdentifier>{94516b9f-875b-4433-b645-45e961910c70}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\GameObject\Monster">
+      <UniqueIdentifier>{3ba49b98-7b73-4a76-80e7-ea99cc3d1eda}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\Room">
+      <UniqueIdentifier>{a13be899-e830-47cb-8b85-8dfe2f61fd3b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\Room\RoomEvent">
+      <UniqueIdentifier>{39839b50-7efa-4ad0-9005-dfb67976c7a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\Match">
+      <UniqueIdentifier>{6ed44798-c081-4f3b-ba5f-2ded23df14a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\MapData">
       <UniqueIdentifier>{cc4ba47b-4988-4ef1-8eb5-0fc85941872c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\MapData\MapCollision">
+      <UniqueIdentifier>{bee417fd-7ad1-4336-a81a-e4e9ab2b56d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\MapData\NavMesh">
+      <UniqueIdentifier>{89e3ff2e-7f9b-4e36-a113-f526addca1d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\MapData\NavMesh\QuadTree">
+      <UniqueIdentifier>{c9a2ce1f-f4c8-4e06-8c72-1bee0f76222c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\MapData\AstarNode">
+      <UniqueIdentifier>{50fb30c7-3a37-45cd-b451-ae31d6fd4160}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThreadManager">
+      <UniqueIdentifier>{6b7867fe-0028-450a-9f76-5ae24b5c710f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\EventController">
+      <UniqueIdentifier>{e628f111-77cb-42ba-ab33-4a374f5f9688}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\GameObject\Monster\BossEvent">
+      <UniqueIdentifier>{2efaaa55-3541-4fb9-b797-b201ab9964e1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network\IocpEvent\protocol">
+      <UniqueIdentifier>{f5551efc-7820-4d42-9c7e-76d725544d9d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network\IocpEvent\UserSession">
+      <UniqueIdentifier>{117bfb1d-30a0-44fb-9963-935ceae9c30f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="IOCPNetwork\IOCP\IOCPNetwork.cpp">
-      <Filter>Network\IOCP</Filter>
-    </ClCompile>
     <ClCompile Include="PCH\stdafx.cpp">
       <Filter>PCH</Filter>
     </ClCompile>
     <ClCompile Include="Logic\Logic.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="Session\UserSession.cpp">
-      <Filter>Session</Filter>
-    </ClCompile>
-    <ClCompile Include="Session\SessionObject\SessionObject.cpp">
-      <Filter>Session\SessionObject</Filter>
-    </ClCompile>
-    <ClCompile Include="Session\SessionObject\ChracterSessionObject.cpp">
-      <Filter>Session\SessionObject</Filter>
-    </ClCompile>
-    <ClCompile Include="DB\DBObject.cpp">
+    <ClCompile Include="DB\DB.cpp">
       <Filter>DB</Filter>
     </ClCompile>
     <ClCompile Include="Room\Room.cpp">
-      <Filter>Room</Filter>
+      <Filter>InGame\Room</Filter>
     </ClCompile>
     <ClCompile Include="Room\RoomManager.cpp">
-      <Filter>Room</Filter>
-    </ClCompile>
-    <ClCompile Include="Session\SessionObject\MonsterSessionObject.cpp">
-      <Filter>Session\SessionObject</Filter>
+      <Filter>InGame\Room</Filter>
     </ClCompile>
     <ClCompile Include="Timer\Timer.cpp">
       <Filter>Timer</Filter>
     </ClCompile>
-    <ClCompile Include="Session\SessionObject\ShootingSessionObject.cpp">
-      <Filter>Session\SessionObject</Filter>
+    <ClCompile Include="Network\PacketManager\PacketManager.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\IOCP\Iocp.cpp">
+      <Filter>Network\IOCP</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="GameObject\GameObject.cpp">
+      <Filter>InGame\GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject\Projectile\ProjectileObject.cpp">
+      <Filter>InGame\GameObject\Projectile</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject\Projectile\MeteoObject.cpp">
+      <Filter>InGame\GameObject\Projectile</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject\Character\ChracterObject.cpp">
+      <Filter>InGame\GameObject\Character</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject\Monster\MonsterObject.cpp">
+      <Filter>InGame\GameObject\Monster</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject\Monster\SmallMonsterObject.cpp">
+      <Filter>InGame\GameObject\Monster</Filter>
     </ClCompile>
     <ClCompile Include="MapData\MapData.cpp">
-      <Filter>MapData</Filter>
+      <Filter>InGame\MapData</Filter>
     </ClCompile>
-    <ClCompile Include="MapData\MapCollide.cpp">
-      <Filter>MapData</Filter>
+    <ClCompile Include="MapData\MapCollision\MapCollision.cpp">
+      <Filter>InGame\MapData\MapCollision</Filter>
     </ClCompile>
-    <ClCompile Include="Session\SessionObject\SmallMonsterSessionObject.cpp">
-      <Filter>Session\SessionObject</Filter>
+    <ClCompile Include="MapData\NavMeshQuadTree\NavMeshQuadTree.cpp">
+      <Filter>InGame\MapData\NavMesh\QuadTree</Filter>
     </ClCompile>
-    <ClCompile Include="MapData\NavMeshQuadTree.cpp">
-      <Filter>MapData</Filter>
+    <ClCompile Include="MapData\TriangleMesh\TriangleNavMesh.cpp">
+      <Filter>InGame\MapData\NavMesh</Filter>
     </ClCompile>
-    <ClCompile Include="Session\SessionObject\MeteoSessionObject.cpp">
-      <Filter>Session\SessionObject</Filter>
+    <ClCompile Include="MapData\AstarNode\AstarNode.cpp">
+      <Filter>InGame\MapData\AstarNode</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\UserSession\UserManager.cpp">
+      <Filter>Network\IocpEvent\UserSession</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\ExpOver\ExpOver.cpp">
+      <Filter>Network\ExpOver</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\IocpEvent\IocpEventManager.cpp">
+      <Filter>Network\IocpEvent</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\IocpEvent\SendEvent.cpp">
+      <Filter>Network\IocpEvent\SendEvent</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\IocpEvent\ListenEvent.cpp">
+      <Filter>Network\IocpEvent\ListenEvent</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\IocpEvent\IocpDBEvent.cpp">
+      <Filter>Network\IocpEvent\DBEvent</Filter>
+    </ClCompile>
+    <ClCompile Include="Timer\TimerEventBase.cpp">
+      <Filter>Timer\TimerEvent</Filter>
+    </ClCompile>
+    <ClCompile Include="Room\TimerRoomEvent.cpp">
+      <Filter>InGame\Room\RoomEvent</Filter>
+    </ClCompile>
+    <ClCompile Include="Match\MatchQueue.cpp">
+      <Filter>InGame\Match</Filter>
+    </ClCompile>
+    <ClCompile Include="Match\Matching.cpp">
+      <Filter>InGame\Match</Filter>
+    </ClCompile>
+    <ClCompile Include="ThreadManager\ThreadManager.cpp">
+      <Filter>ThreadManager</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject\Monster\BossMonsterObject.cpp">
+      <Filter>InGame\GameObject\Monster</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\UserSession\UserSession.cpp">
+      <Filter>Network\IocpEvent\UserSession</Filter>
+    </ClCompile>
+    <ClCompile Include="Room\RoomEvent.cpp">
+      <Filter>InGame\Room\RoomEvent</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject\EventController\CoolDownEventBase.cpp">
+      <Filter>InGame\EventController</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject\EventController\DurationEvent.cpp">
+      <Filter>InGame\EventController</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject\EventController\EventController.cpp">
+      <Filter>InGame\EventController</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject\Character\PlayerSkill.cpp">
+      <Filter>InGame\EventController</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject\Character\Archer\ArcherObject.cpp">
+      <Filter>InGame\GameObject\Character</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject\Character\Mage\MageObject.cpp">
+      <Filter>InGame\GameObject\Character</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject\Character\Tanker\TankerObject.cpp">
+      <Filter>InGame\GameObject\Character</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject\Character\Warrior\WarriorObject.cpp">
+      <Filter>InGame\GameObject\Character</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject\Monster\BossEvent.cpp">
+      <Filter>InGame\GameObject\Monster\BossEvent</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Session\ExpOver.h">
-      <Filter>Session</Filter>
-    </ClInclude>
-    <ClInclude Include="IOCPNetwork\protocol\protocol.h">
-      <Filter>Network\protocol</Filter>
-    </ClInclude>
-    <ClInclude Include="IOCPNetwork\IOCP\IOCPNetwork.h">
-      <Filter>Network\IOCP</Filter>
-    </ClInclude>
     <ClInclude Include="PCH\stdafx.h">
       <Filter>PCH</Filter>
     </ClInclude>
     <ClInclude Include="Logic\Logic.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="Session\UserSession.h">
-      <Filter>Session</Filter>
-    </ClInclude>
-    <ClInclude Include="Session\SessionObject\SessionObject.h">
-      <Filter>Session\SessionObject</Filter>
-    </ClInclude>
-    <ClInclude Include="Session\SessionObject\ChracterSessionObject.h">
-      <Filter>Session\SessionObject</Filter>
-    </ClInclude>
-    <ClInclude Include="DB\DBObject.h">
+    <ClInclude Include="DB\DB.h">
       <Filter>DB</Filter>
     </ClInclude>
     <ClInclude Include="Room\Room.h">
-      <Filter>Room</Filter>
+      <Filter>InGame\Room</Filter>
     </ClInclude>
     <ClInclude Include="Room\RoomManager.h">
-      <Filter>Room</Filter>
-    </ClInclude>
-    <ClInclude Include="Session\SessionObject\MonsterSessionObject.h">
-      <Filter>Session\SessionObject</Filter>
+      <Filter>InGame\Room</Filter>
     </ClInclude>
     <ClInclude Include="Timer\Timer.h">
       <Filter>Timer</Filter>
     </ClInclude>
-    <ClInclude Include="Session\SessionObject\ShootingSessionObject.h">
-      <Filter>Session\SessionObject</Filter>
+    <ClInclude Include="Network\PacketManager\PacketManager.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\IOCP\Iocp.h">
+      <Filter>Network\IOCP</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\protocol\protocol.h">
+      <Filter>Network\IocpEvent\protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject\GameObject.h">
+      <Filter>InGame\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject\Projectile\ProjectileObject.h">
+      <Filter>InGame\GameObject\Projectile</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject\Projectile\MeteoObject.h">
+      <Filter>InGame\GameObject\Projectile</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject\Character\ChracterObject.h">
+      <Filter>InGame\GameObject\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject\Monster\MonsterObject.h">
+      <Filter>InGame\GameObject\Monster</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject\Monster\SmallMonsterObject.h">
+      <Filter>InGame\GameObject\Monster</Filter>
     </ClInclude>
     <ClInclude Include="MapData\MapData.h">
-      <Filter>MapData</Filter>
+      <Filter>InGame\MapData</Filter>
     </ClInclude>
-    <ClInclude Include="MapData\MapCollide.h">
-      <Filter>MapData</Filter>
+    <ClInclude Include="MapData\MapCollision\MapCollision.h">
+      <Filter>InGame\MapData\MapCollision</Filter>
     </ClInclude>
-    <ClInclude Include="Session\SessionObject\SmallMonsterSessionObject.h">
-      <Filter>Session\SessionObject</Filter>
+    <ClInclude Include="MapData\NavMeshQuadTree\NavMeshQuadTree.h">
+      <Filter>InGame\MapData\NavMesh\QuadTree</Filter>
     </ClInclude>
-    <ClInclude Include="MapData\NavMeshQuadTree.h">
-      <Filter>MapData</Filter>
+    <ClInclude Include="MapData\TriangleMesh\TriangleNavMesh.h">
+      <Filter>InGame\MapData\NavMesh</Filter>
     </ClInclude>
-    <ClInclude Include="Session\SessionObject\MeteoSessionObject.h">
-      <Filter>Session\SessionObject</Filter>
+    <ClInclude Include="MapData\AstarNode\AstarNode.h">
+      <Filter>InGame\MapData\AstarNode</Filter>
     </ClInclude>
+    <ClInclude Include="Network\UserSession\UserManager.h">
+      <Filter>Network\IocpEvent\UserSession</Filter>
+    </ClInclude>
+    <ClInclude Include="SingletonBase.h" />
+    <ClInclude Include="Network\ExpOver\ExpOver.h">
+      <Filter>Network\ExpOver</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\IocpEvent\IocpEventBase.h">
+      <Filter>Network\IocpEvent</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\IocpEvent\IocpEventManager.h">
+      <Filter>Network\IocpEvent</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\IocpEvent\SendEvent.h">
+      <Filter>Network\IocpEvent\SendEvent</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\IocpEvent\ListenEvent.h">
+      <Filter>Network\IocpEvent\ListenEvent</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\IocpEvent\IocpDBEvent.h">
+      <Filter>Network\IocpEvent\DBEvent</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer\TimerEventBase.h">
+      <Filter>Timer\TimerEvent</Filter>
+    </ClInclude>
+    <ClInclude Include="Room\TimerRoomEvent.h">
+      <Filter>InGame\Room\RoomEvent</Filter>
+    </ClInclude>
+    <ClInclude Include="Match\MatchQueue.h">
+      <Filter>InGame\Match</Filter>
+    </ClInclude>
+    <ClInclude Include="Match\Matching.h">
+      <Filter>InGame\Match</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadManager\ThreadManager.h">
+      <Filter>ThreadManager</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject\Monster\BossMonsterObject.h">
+      <Filter>InGame\GameObject\Monster</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\UserSession\UserSession.h">
+      <Filter>Network\IocpEvent\UserSession</Filter>
+    </ClInclude>
+    <ClInclude Include="Room\RoomEvent.h">
+      <Filter>InGame\Room\RoomEvent</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject\EventController\CoolDownEventBase.h">
+      <Filter>InGame\EventController</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject\EventController\DurationEvent.h">
+      <Filter>InGame\EventController</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject\EventController\EventController.h">
+      <Filter>InGame\EventController</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject\Character\PlayerSkill.h">
+      <Filter>InGame\EventController</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject\Character\Archer\ArcherObject.h">
+      <Filter>InGame\GameObject\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject\Character\Mage\MageObject.h">
+      <Filter>InGame\GameObject\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject\Character\Tanker\TankerObject.h">
+      <Filter>InGame\GameObject\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject\Character\Warrior\WarriorObject.h">
+      <Filter>InGame\GameObject\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject\Monster\BossEvent.h">
+      <Filter>InGame\GameObject\Monster\BossEvent</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

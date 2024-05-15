@@ -331,9 +331,9 @@ protected:
 	atomic_bool                     m_bMoveState = false;
 
 protected:
-	float                           m_fHp{ 100 };//캐릭터 현재 체력
+	atomic<float>                   m_fHp{ 100 };//캐릭터 현재 체력
 	float                           m_fMaxHp{ 100 };//캐릭터 최대 체력
-	float                           m_fTempHp{ 100 };//캐릭터 최대 체력
+	float                           m_fTempHp{ 100 };//캐릭터 최대 체력 - recv는 fHp에서 하고, tempHp는 클라에 이펙트 적용할 때 쓰는듯
 	float							m_fShield{ 0};
 	float                           m_fSpeed{};
 	float                           m_fDamage{};
@@ -361,10 +361,6 @@ public:
 	bool                            m_bUIActive{ true };
 
 	int								m_iObjType = 0;
-protected:
-	float m_interpolationDistance = 0.0f;
-	XMFLOAT3 m_interpolationVector = XMFLOAT3{ 0,0,0 };
-	float m_interpolationRotateAngleY = 0.0f;
 public:
 	XMFLOAT3 m_xmf3RamdomDirection{};
 public:

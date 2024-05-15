@@ -38,25 +38,25 @@ public:
 		m_role = r;
 		switch (r)
 		{
-		case WARRIOR:
+		case ROLE::WARRIOR:
 		{			
 			m_maxHp = m_hp = 400;
 			m_attackDamage = 150;
 		}
 		break;
-		case PRIEST:
+		case ROLE::MAGE:
 		{		
 			m_maxHp = m_hp = 480;
 			m_attackDamage = 30;
 		}
 		break;
-		case TANKER:
+		case ROLE::TANKER:
 		{			
 			m_maxHp = m_hp = 600;
 			m_attackDamage = 60;
 		}
 		break;
-		case ARCHER:
+		case ROLE::ARCHER:
 		{		
 			m_maxHp = m_hp = 250;
 			m_attackDamage = 200;

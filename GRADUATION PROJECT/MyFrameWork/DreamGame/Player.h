@@ -7,12 +7,12 @@ public:
 	Player(ROLE r);
 	~Player();
 protected:
-	XMFLOAT3	m_xmf3RotateAxis;	// XMFLOAT3(0, 0, 1)로부터 회전한 각도	
-	bool		m_bQSkillClicked;
-	bool		m_bESkillClicked;
-	bool		m_bShieldActive = false;
-	float		m_fShield = false;
-	bool		m_bCanAttack = true;
+	XMFLOAT3		m_xmf3RotateAxis;	// XMFLOAT3(0, 0, 1)로부터 회전한 각도	
+	bool			m_bQSkillClicked = false;
+	bool			m_bESkillClicked = false;
+	bool			m_bShieldActive = false;
+	atomic<float>	m_fShield = false;
+	bool			m_bCanAttack = true;
 
 protected:
 	std::array<std::chrono::seconds, 2> m_skillDuration;
@@ -28,10 +28,15 @@ public:
 	virtual bool CanMove() { return true; }
 	void VisualizeSkillCoolTime();
 
+	virtual void InputFirstSkill();
+	virtual void InputSecondSkill();
+	virtual void RecvFirstSkill(const high_resolution_clock::time_point& serverTime) = 0;
+	virtual void RecvSecondSkill(const high_resolution_clock::time_point& serverTime) = 0;
+
 protected:
 	void ChangeAnimation(pair< CharacterAnimation, CharacterAnimation> nextAnimation);
 	float GetAnimationProgressRate(CharacterAnimation nAnimation);
-	virtual void SetLookDirection() {};
+	virtual void SetLookDirection() = 0;
 
 public:
 	bool GetQSkillState() { return m_bQSkillClicked; }
@@ -44,16 +49,22 @@ public:
 public:
 	void AddDirection(DIRECTION d) {
 		m_currentDirection = (DIRECTION)(m_currentDirection | d);
+		SetLookDirection();
 	}
 	void RemoveDIrection(DIRECTION d) {
 		m_currentDirection = (DIRECTION)(m_currentDirection ^ d);
+		SetLookDirection();
 	}
 	void SetStopDirection() {
 		m_currentDirection = DIRECTION::IDLE;
 	}
 
 public:
-	void SetRotateAxis(XMFLOAT3& xmf3RotateAxis) { m_xmf3RotateAxis = xmf3RotateAxis; }
+	void SetRotateAxis(XMFLOAT3& xmf3RotateAxis)
+	{
+		m_xmf3RotateAxis = xmf3RotateAxis;
+		SetLookDirection();
+	}
 	void SetShieldActive(bool bActive) { m_bShieldActive = bActive; }
 	void SetShield(float fShield) { m_fShield = fShield; }
 };

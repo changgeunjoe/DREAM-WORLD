@@ -1,11 +1,24 @@
 #pragma once
 
 #define _WINSOCK_DEPRECATED_NO_WARNINGS 1
-#define MAX_USER 40000
-//#define ALONE_TEST 1
+#define MAX_USER 4000
 #pragma comment(lib, "mswsock.lib")
 #pragma comment(lib, "WS2_32.lib")
-#pragma comment(lib, "lua54.lib")
+
+#ifdef _DEBUG
+#pragma comment(lib, "lib/x64/Debug/spdlogd.lib")
+#else  //Release
+#pragma comment(lib, "lib/x64/Release/spdlog.lib")
+#endif // _DEBUG
+
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/sink.h>
+#include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/rotating_file_sink.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
+#include <codecvt>
+#include <atlconv.h>
+#include <strsafe.h>
 
 #include <WS2tcpip.h>
 #include <MSWSock.h>
@@ -16,66 +29,89 @@
 #include <chrono>
 
 #include <mutex>
+#include <shared_mutex>
 
 #include <queue>
-#include <vector>
-#include <unordered_map>
-#include <array>
-#include <set>
-#include <map>
-#include <thread>
-#include <utility>
 #include <stack>
-#include <ranges>
+#include <vector>
+#include <array>
+#include <map>
+#include <unordered_map>
+#include <set>
+#include <unordered_set>
+#include <utility>
 
-#include <concurrent_queue.h>
-#include <concurrent_priority_queue.h>
-#include <concurrent_unordered_set.h>
+#include <span>
+#include <ranges>
+#include <functional>
+#include <optional>
+
+#include <thread>
 #include <atomic>
+#include <tbb/concurrent_hash_map.h>
+#include <tbb/concurrent_unordered_map.h>
+#include <tbb/concurrent_priority_queue.h>
+#include <tbb/concurrent_queue.h>
+#include <tbb/parallel_for.h>
+#include <tbb/parallel_for_each.h>
+
+#include<sqlext.h>
 
 #include<filesystem>
 #include <iostream>
+#include <sstream>
+#include <fstream>
+
 #include <math.h>
 #include <random>
 #include <DirectXMath.h>
 #include <DirectXCollision.h>
-const float MONSTER_ABLE_ATTACK_COS_VALUE = std::cos(25.0f * 3.14f / 180.0f);//30도 - 0.96정도
-const float PLAYER_ABLE_ATTACK_COS_VALUE = std::cos(25.0f * 3.14f / 180.0f);//30도 - 0.96정도
-const float BOSS_ABLE_ATTACK_COS_VALUE = std::cos(15.0f * 3.14f / 180.0f);//30도 - 0.96정도
 
-enum PLAYER_STATE : char
+enum class PLAYER_STATE : char
 {
-	FREE,
-	ALLOC,
+	LOBBY,
+	MATCH,
 	IN_GAME,
-	IN_GAME_ROOM
+	RECONN_FAIL
 };
 
-enum IOCP_OP_CODE : char
+enum class IOCP_OP_CODE : char
 {
 	OP_NONE,
+	//통신
 	OP_ACCEPT,
 	OP_RECV,
 	OP_SEND,
+
+	//DB
+	//로그인, 플레이어 로그인 성공
+	OP_SUCCESS_GET_PLAYER_INFO,
+	//로그인, 플레이어 로그인 실패
+	OP_FAIL_GET_PLAYER_INFO,
+	//클라이언트의 DB작업이 실패 했을 때
+	OP_DB_ERROR,
+
+	//Room - update, player pos send
+	OP_ROOM_UPDATE,
+	OP_GAME_STATE_SEND,
+	OP_SEND_NPC_MOVE,
+	// Boss
 	OP_FIND_PLAYER,
-	OP_BOSS_STATE,
-	//OP_MOVE_BOSS,
-	OP_GAME_STATE_B_SEND,
-	OP_GAME_STATE_S_SEND,
-	OP_BOSS_ATTACK_SELECT,
-	OP_BOSS_ATTACK_EXECUTE,
-	OP_UPDATE_SMALL_MONSTER,
-	OP_PLAYER_HEAL,
-	OP_SET_BARRIER,
-	OP_PROJECTILE_ATTACK,
-	OP_SKY_ARROW_ATTACK,
-	OP_BOSS_CHANGE_DIRECTION,
+	OP_RESEARCH_ROAD,
+
+	//Room - player skill
+	OP_PLAYER_APPLY_SIELD,
+	OP_PLAYER_REMOVE_SIELD,
+	OP_PLAYER_HEAL_START, // 지속 힐 - 틱마다
+	OP_PLAYER_HEAL, // 지속 힐 - 틱마다
+	OP_PLAYER_HEAL_END,
+	OP_RAIN_ARROW_ATTACK, //n초 이후 그 위치 공격
+
+	//전제 플레이어 RTT계산을 위한
 	OP_SYNC_TIME,
-	OP_METEO_ATTACK_PLAYER,
-	OP_DESTROY_METEO_DESTROY
 };
 
-enum DIRECTION : char
+enum class DIRECTION : char
 {
 	IDLE = 0x00,
 	FRONT = 0x01,
@@ -84,60 +120,48 @@ enum DIRECTION : char
 	BACK = 0x08
 };
 
-enum ROTATE_AXIS :char
+enum class ROTATE_AXIS :char
 {
 	X, Y, Z
 };
 
-enum ROLE :char {
+enum class ROLE :char {
 	NONE_SELECT = 0x00,
 	WARRIOR = 0x01,
-	PRIEST = 0x02,
+	MAGE = 0x02,
 	TANKER = 0x04,
 	ARCHER = 0x08,
-	RAND = 0x10
 };
 
-enum BOSS_ATTACK : char {
-	ATTACK_PUNCH,
-	ATTACK_SPIN,
-	ATTACK_KICK,
-	ATTACK_FLOOR_BOOM,
-	ATTACK_COUNT,//0~마지막 숫자 갯수
-	ATTACK_FLOOR_BOOM_SECOND,
-	ATTACK_METEO
-};
-
-enum EVENT_TYPE : char {
+enum class TIMER_EVENT_TYPE : char {
 	EV_NONE,
-	EV_FIND_PLAYER,
-	EV_BOSS_STATE,
-	EV_GAME_STATE_B_SEND,
-	EV_GAME_STATE_S_SEND,
-	EV_BOSS_ATTACK,	
-	EV_SM_UPDATE,
+	//게임 상태 관련
+	EV_ROOM_UPDATE,
+	EV_SEND_GAME_STATE,
+	EV_SEND_NPC_MOVE,
+	//보스 관련
+	EV_BOSS_FIND_PLAYER,
+	EV_BOSS_RESEARCH_ROAD,
+	//플레이어 관련
+	EV_HEAL_START,
 	EV_HEAL,
-	EV_TANKER_SHIELD_START,
-	EV_SKY_ARROW_ATTACK,
-	EV_SYNC_TIME
+	EV_HEAL_END,
+	EV_APPLY_SHIELD,
+	EV_REMOVE_SHIELD,
+	EV_RAIN_ARROW_ATTACK
 };
 
-enum ROOM_STATE : char {
-	ROOM_STAGE1,
-	ROOM_BOSS
+enum class ROOM_STATE : char {
+	ROOM_COMMON,
+	ROOM_BOSS,
+	ROOM_END
 };
 
-struct TIMER_EVENT
-{
-	std::chrono::system_clock::time_point wakeupTime;
-	int targetId;
-	EVENT_TYPE eventId = EV_NONE;
-	constexpr bool operator < (const TIMER_EVENT& L) const
-	{
-		return (wakeupTime > L.wakeupTime);
-	}
-};
-constexpr int MAX_BUF_SIZE = 1024;
+constexpr short PORT = 9000;
+
+constexpr int MAX_SEND_BUF_SIZE = 514;
+constexpr int MAX_RECV_BUF_SIZE = 1024;
+
 using namespace DirectX;
 
 namespace Vector3
@@ -329,183 +353,10 @@ namespace Matrix4x4
 	}
 }
 
-class TrinangleMesh
-{
-private:
-	int m_id = -1;
-private:
-	XMFLOAT3 m_vertex1;
-	XMFLOAT3 m_vertex2;
-	XMFLOAT3 m_vertex3;
-private:
-	XMFLOAT3 m_center;
-	float m_areaSize;
-private:
-	XMFLOAT3 vec12;
-	XMFLOAT3 vec13;
-	XMFLOAT3 vec23;
-private:
-	std::set<int> m_vertexIdxSet;
-public:
-	std::map<int, float> m_relationMesh;
-
-public:
-	TrinangleMesh(XMFLOAT3& v1, XMFLOAT3& v2, XMFLOAT3& v3, int idx1, int idx2, int idx3, int myIdx) :m_vertex1(v1), m_vertex2(v2), m_vertex3(v3)
-	{
-		m_id = myIdx;
-		m_vertexIdxSet.insert(idx1);
-		m_vertexIdxSet.insert(idx2);
-		m_vertexIdxSet.insert(idx3);
-		m_center = Vector3::ScalarProduct(Vector3::Add(m_vertex1, Vector3::Add(m_vertex2, m_vertex3)), 1.0f / 3.0f, false);
-		vec12 = Vector3::Subtract(m_vertex2, m_vertex1);
-		vec13 = Vector3::Subtract(m_vertex3, m_vertex1);
-		vec23 = Vector3::Subtract(m_vertex3, m_vertex2);
-		m_areaSize = Vector3::Length(Vector3::CrossProduct(vec12, vec13, false)) / 2.0f;
-	}
-	TrinangleMesh& operator=(const TrinangleMesh& other) {
-		m_vertex1 = other.m_vertex1;
-		m_vertex2 = other.m_vertex2;
-		m_vertex3 = other.m_vertex3;
-		m_center = other.m_center;
-		vec12 = other.vec12;
-		vec13 = other.vec13;
-		vec23 = other.vec23;
-		m_areaSize = other.m_areaSize;
-	}
-	float GetDistance(TrinangleMesh& other)
-	{
-		return Vector3::Length(Vector3::Subtract(m_center, other.m_center));
-	}
-	float GetDistance(float x, float y, float z)
-	{
-		return Vector3::Length(Vector3::Subtract(m_center, XMFLOAT3(x, y, z)));
-	}
-	bool IsOnTriangleMesh(DirectX::XMFLOAT3& pos) {
-		XMFLOAT3 triVec1 = Vector3::Subtract(XMFLOAT3(pos.x, 0, pos.z), m_vertex1);
-		XMFLOAT3 triVec2 = Vector3::Subtract(XMFLOAT3(pos.x, 0, pos.z), m_vertex2);
-		XMFLOAT3 triVec3 = Vector3::Subtract(XMFLOAT3(pos.x, 0, pos.z), m_vertex3);
-		float res = 0.0f;
-		//1 - 2
-		res = Vector3::Length(Vector3::CrossProduct(triVec1, triVec2, false));
-		//3 - 1
-		res += Vector3::Length(Vector3::CrossProduct(triVec3, triVec1, false));
-		//2 - 3
-		res += Vector3::Length(Vector3::CrossProduct(triVec2, triVec3, false));
-		res /= 2.0f;
-		float retVal = res - m_areaSize;
-		//#ifdef _DEBUG
-		//		std::cout << "TriangleMesh::retval: " << retVal << std::endl;
-		//#endif
-		return abs(m_areaSize - res) < 0.1f;
-	}
-	bool IsOnTriangleMesh(float x, float y, float z)
-	{
-		XMFLOAT3 triVec1 = Vector3::Subtract(XMFLOAT3(x, 0, z), m_vertex1);
-		XMFLOAT3 triVec2 = Vector3::Subtract(XMFLOAT3(x, 0, z), m_vertex2);
-		XMFLOAT3 triVec3 = Vector3::Subtract(XMFLOAT3(x, 0, z), m_vertex3);
-
-		float res = 0.0f;
-		//1 - 2
-		res = Vector3::Length(Vector3::CrossProduct(triVec1, triVec2, false));
-		//3 - 1
-		res += Vector3::Length(Vector3::CrossProduct(triVec3, triVec1, false));
-		//2 - 3
-		res += Vector3::Length(Vector3::CrossProduct(triVec2, triVec3, false));
-		res /= 2.0f;
-		float retVal = res - m_areaSize;
-		//#ifdef _DEBUG
-		//		std::cout << "TriangleMesh::retval: " << retVal << std::endl;
-		//#endif
-		return abs(m_areaSize - res) < 0.1f;
-	}
-	XMFLOAT3 GetCenter() { return m_center; }
-	float GetAreaSize() { return m_areaSize; }
-	std::set<int>& GetVertexIdxs() { return m_vertexIdxSet; };
-	const XMFLOAT3 GetVertex1() { return m_vertex1; }
-	const XMFLOAT3 GetVertex2() { return m_vertex2; }
-	const XMFLOAT3 GetVertex3() { return m_vertex3; }
-	std::vector<int> IsShareLine(std::set<int>& otherVertexIdxs)//다른 삼각형과의 공유점이 2개라면
-	{
-		std::vector<int> res;
-		std::ranges::set_intersection(m_vertexIdxSet, otherVertexIdxs, std::back_inserter(res));
-		return res;
-	}
-	int GetIdx() { return m_id; }
-	float GetDistanceByPoint(XMFLOAT3& point)
-	{
-		return Vector3::Length(Vector3::Subtract(m_center, point));
-	}
-	float GetCircumscribedLength()
-	{
-		return Vector3::Length(Vector3::Subtract(m_vertex1, m_center));
-	}	
-};
-
-class AstarNode {
-private:
-	int m_nodeIdx = -1;
-	float m_cost = 0.0f;
-	float m_dis = 0.0f;
-	float m_res = 0.0f;
-	int m_parentNodeIdx = -1;
-
-public:
-	AstarNode() {}
-	AstarNode(int nodeIdx, float cost, float dis, float res, int parentNodeIdx) : m_nodeIdx(nodeIdx), m_cost(cost), m_dis(dis), m_res(res), m_parentNodeIdx(parentNodeIdx) {}
-	AstarNode(AstarNode& other)
-	{
-		m_nodeIdx = other.m_nodeIdx;
-		m_cost = other.m_cost;
-		m_dis = other.m_dis;
-		m_res = other.m_res;
-		m_parentNodeIdx = other.m_parentNodeIdx;
-	}
-	AstarNode(AstarNode&& other)
-	{
-		m_nodeIdx = other.m_nodeIdx;
-		m_cost = other.m_cost;
-		m_dis = other.m_dis;
-		m_res = other.m_res;
-		m_parentNodeIdx = other.m_parentNodeIdx;
-	}
-	~AstarNode() {}
-public:
-	void RefreshNodeData(int nodeIdx, float cost, float dis, float res, int parentNodeIdx)
-	{
-		m_nodeIdx = nodeIdx;
-		m_cost = cost;
-		m_dis = dis;
-		m_res = res;
-		m_parentNodeIdx = parentNodeIdx;
-	}
-	float GetResValue() { return m_res; }
-	int GetIdx() { return m_nodeIdx; }
-	int GetParentIdx() { return m_parentNodeIdx; }
-	float GetDistance() { return m_dis; }
-
-public:
-	constexpr bool operator< (const AstarNode& other)const {
-		return m_dis < other.m_dis;
-	}
-	AstarNode& operator= (const AstarNode& other) {
-		m_nodeIdx = other.m_nodeIdx;
-		m_cost = other.m_cost;
-		m_dis = other.m_dis;
-		m_res = other.m_res;
-		m_parentNodeIdx = other.m_parentNodeIdx;
-		return *this;
-	}
-
-	AstarNode& operator= (const AstarNode&& other) noexcept {
-		m_nodeIdx = other.m_nodeIdx;
-		m_cost = other.m_cost;
-		m_dis = other.m_dis;
-		m_res = other.m_res;
-		m_parentNodeIdx = other.m_parentNodeIdx;
-		return *this;
-	}
-};
-
-
 void PrintCurrentTime();
-bool DisplayWsaGetLastError(int Errcode);
+void DisplayWsaGetLastError(const int& wsaErrcode);
+void StartLogger();
+//wchar->char
+std::string ConvertWideStringToString(const wchar_t* wstr);
+//char->wchar
+std::wstring ConvertStringToWideString(const char* str);

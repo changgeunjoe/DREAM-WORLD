@@ -9,6 +9,7 @@
 #include "GameobjectManager.h"
 #include "Network/Logic/Logic.h"
 #include "Network/NetworkHelper.h"
+#include "CharacterEvent.h"
 
 extern bool GameEnd;
 extern Logic g_Logic;
@@ -33,6 +34,13 @@ RangedCharacter::~RangedCharacter()
 
 void RangedCharacter::Move(float fTimeElapsed)
 {
+	UpdateInterpolateData();
+	if (m_interpolateData->GetInterpolateState() == CharacterEvent::INTERPOLATE_STATE::SET_POSITION) {
+		SetPosition(m_interpolateData->GetInterpolatePosition());
+		if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
+		g_sound.Play("WalkSound", CalculateDistanceSound());
+		return;
+	}
 	DIRECTION tempDir = m_currentDirection;
 	if (((tempDir & DIRECTION::LEFT) == DIRECTION::LEFT) &&
 		((tempDir & DIRECTION::RIGHT) == DIRECTION::RIGHT))
@@ -59,6 +67,8 @@ void RangedCharacter::Move(float fTimeElapsed)
 	case DIRECTION::FRONT | DIRECTION::LEFT: MoveDiagonal(1, -1, fTimeElapsed); break;
 	default: break;
 	}
+
+
 }
 
 void RangedCharacter::SetLookDirection()
@@ -73,7 +83,8 @@ void RangedCharacter::SetLookDirection()
 Archer::Archer() : RangedCharacter(ROLE::ARCHER)
 {
 	m_fMaxHp = 400.0f;
-	m_fTempHp = m_fMaxHp;
+	m_fTempHp = 100.0f;
+	m_fHp = 100.0f;
 	m_fSpeed = 50.0f;
 	m_fDamage = 80.0f;
 	m_CameraLook = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -106,7 +117,7 @@ void Archer::Attack()
 		//줌인에 대한 정보 필요할듯함
 
 		int power = 0;//줌인 정보
-		g_NetworkHelper.SendCommonAttackExecute(GetLook(), power);//두번째 인자 - 줌인 정도
+		//g_NetworkHelper.SendCommonAttackExecute(GetLook(), power);//두번째 인자 - 줌인 정도
 	}
 }
 
@@ -258,7 +269,7 @@ void Archer::Animate(float fTimeElapsed)
 
 	ResetArrow();
 	ChangeAnimation(AfterAnimation);
-	SetLookDirection();
+	//SetLookDirection();
 	Move(fTimeElapsed);
 	GameObject::Animate(fTimeElapsed);
 }
@@ -356,6 +367,32 @@ void Archer::SetLButtonClicked(bool bLButtonClicked)
 	}
 }
 
+void Archer::InputSecondSkill()
+{
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[1]);
+	if (m_skillCoolTime[1] > duration) {
+		gGameFramework.GetScene()->GetObjectManager()->m_bPickingenemy = false;
+		return;
+	}
+	g_NetworkHelper.Send_SkillInput_E();
+}
+
+void Archer::RecvFirstSkill(const high_resolution_clock::time_point& serverTime)
+{
+	if (g_Logic.GetMyRole() == ROLE::ARCHER)
+		m_skillInputTime[0] = serverTime - std::chrono::microseconds(g_Logic.GetDiffTime());
+	m_bQSkillClicked = true;
+}
+
+void Archer::RecvSecondSkill(const high_resolution_clock::time_point& serverTime)
+{
+	if (g_Logic.GetMyRole() == ROLE::ARCHER) {
+		m_skillInputTime[1] = serverTime - std::chrono::microseconds(g_Logic.GetDiffTime());
+	}
+	m_bESkillClicked = true;
+}
+
 void Archer::ShootArrow()//스킬
 {
 	m_nProjectiles = (m_nProjectiles < MAX_ARROW) ? m_nProjectiles : m_nProjectiles % MAX_ARROW;
@@ -366,12 +403,12 @@ void Archer::ShootArrow()//스킬
 	}
 	if (m_bQSkillClicked == true)
 	{
+		XMFLOAT3 objectLook = GetObjectLook();
 		if (g_Logic.GetMyRole() == ROLE::ARCHER)
-			g_NetworkHelper.Send_SkillExecute_Q(Vector3::Normalize(GetObjectLook()));
+			g_NetworkHelper.Send_SkillExecute_Q(Vector3::Normalize(objectLook));
 		g_sound.NoLoopPlay("ArcherQSkillSound", CalculateDistanceSound());
 		for (int i = 0; i < 3; ++i)//서버에 옮겨야됨
 		{
-			XMFLOAT3 objectLook = GetObjectLook();
 			XMFLOAT3 objectRight = GetRight();
 			XMFLOAT3 objPosition = GetPosition();
 			objPosition.y = 6.0f + (i % 2) * 4.0f;
@@ -451,7 +488,7 @@ void Archer::ShootArrow()//스킬
 				break;
 			}
 			if (g_Logic.GetMyRole() == ROLE::ARCHER)
-				g_NetworkHelper.SendCommonAttackExecute(m_ppProjectiles[m_nProjectiles]->m_xmf3direction, arrowPower);
+				g_NetworkHelper.SendPowerAttackExecute(m_ppProjectiles[m_nProjectiles]->m_xmf3direction, arrowPower);
 			m_nProjectiles++;
 		}
 		m_bZoomInState = false;
@@ -535,6 +572,7 @@ void Archer::ShootArrow(const XMFLOAT3& xmf3Direction)
 
 void Archer::SetStage1Position()
 {
+	SetLook(XMFLOAT3(0, 0, 1));
 	SetPosition(XMFLOAT3(-1340.84f, 0, -1520.93f));
 	m_xmf3RotateAxis = XMFLOAT3(0.0f, 0.0f, 0.0f);
 }
@@ -544,10 +582,11 @@ void Archer::SetBossStagePostion()
 	SetPosition(XMFLOAT3(123, 0, -293));
 }
 
-Priest::Priest() : RangedCharacter(ROLE::PRIEST)
+Mage::Mage() : RangedCharacter(ROLE::MAGE)
 {
 	m_fMaxHp = 500.0f;
-	m_fTempHp = m_fMaxHp;
+	m_fTempHp = 100.0f;
+	m_fHp = 100.0f;
 	m_fSpeed = 50.0f;
 	m_fDamage = 80.0f;
 
@@ -556,17 +595,17 @@ Priest::Priest() : RangedCharacter(ROLE::PRIEST)
 	m_skillInputTime = { std::chrono::high_resolution_clock::now() - m_skillCoolTime[0], std::chrono::high_resolution_clock::now() - m_skillCoolTime[1] };
 }
 
-Priest::~Priest()
+Mage::~Mage()
 {
 }
 
-void Priest::Reset()
+void Mage::Reset()
 {
 	m_fHealTime = 0.0f;
 	Player::Reset();
 }
 
-void Priest::Animate(float fTimeElapsed)
+void Mage::Animate(float fTimeElapsed)
 {
 	VisualizeSkillCoolTime();
 
@@ -670,14 +709,14 @@ void Priest::Animate(float fTimeElapsed)
 		UpdateEffect();
 	}
 
-	SetLookDirection();
+	//SetLookDirection();
 	Move(fTimeElapsed);
 	GameObject::Animate(fTimeElapsed);
 }
 
-void Priest::Attack()
+void Mage::Attack()
 {
-	g_sound.NoLoopPlay("PriestAttackSound", CalculateDistanceSound());
+	g_sound.NoLoopPlay("MageAttackSound", CalculateDistanceSound());
 	m_nProjectiles = (m_nProjectiles < 10) ? m_nProjectiles : m_nProjectiles % 10;
 	XMFLOAT3 ObjectLookVector = GetLook();
 	ObjectLookVector.y = -m_xmf3RotateAxis.x / 90.0f;
@@ -689,8 +728,8 @@ void Priest::Attack()
 	XMFLOAT3 xmf3LanceDirection = Vector3::Normalize(Vector3::Subtract(xmf3Destination, xmf3LanceStartPosition));
 	if (xmf3LanceDirection.y < 0.0f) xmf3LanceDirection.y = 0.0f;
 
-	if (g_Logic.GetMyRole() == ROLE::PRIEST)
-		g_NetworkHelper.SendCommonAttackExecute(xmf3LanceDirection, 0);
+	if (g_Logic.GetMyRole() == ROLE::MAGE)
+		g_NetworkHelper.SendCommonAttackExecute(xmf3LanceDirection);
 
 	m_ppProjectiles[m_nProjectiles]->m_xmf3direction = xmf3LanceDirection;
 	m_ppProjectiles[m_nProjectiles]->m_xmf3startPosition = xmf3LanceStartPosition;
@@ -700,9 +739,9 @@ void Priest::Attack()
 	m_nProjectiles++;
 }
 
-void Priest::Attack(const XMFLOAT3& xmf3Direction)
+void Mage::Attack(const XMFLOAT3& xmf3Direction)
 {
-	g_sound.NoLoopPlay("PriestAttackSound", CalculateDistanceSound());
+	g_sound.NoLoopPlay("MageAttackSound", CalculateDistanceSound());
 	m_nProjectiles = (m_nProjectiles < 10) ? m_nProjectiles : m_nProjectiles % 10;
 	XMFLOAT3 objectPosition = GetPosition();
 	objectPosition.y += 8.0f;
@@ -714,7 +753,7 @@ void Priest::Attack(const XMFLOAT3& xmf3Direction)
 	m_nProjectiles++;
 }
 
-void Priest::SetProjectile(Projectile** pEnergyBall)
+void Mage::SetProjectile(Projectile** pEnergyBall)
 {
 	for (int i = 0; i < 10; ++i)
 	{
@@ -723,7 +762,7 @@ void Priest::SetProjectile(Projectile** pEnergyBall)
 	}
 }
 
-void Priest::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender)
+void Mage::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, bool bPrerender)
 {
 	for (int i = 0; i < m_ppProjectiles.size(); ++i)
 		if (m_ppProjectiles[i])
@@ -732,15 +771,15 @@ void Priest::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCom
 	GameObject::Render(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, bPrerender);
 }
 
-void Priest::FirstSkillDown()
+void Mage::FirstSkillDown()
 {
-	if (g_Logic.GetMyRole() == ROLE::PRIEST)
+	if (g_Logic.GetMyRole() == ROLE::MAGE)
 	{
 		auto currentTime = std::chrono::high_resolution_clock::now();
 		auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[0]);
 		if (m_skillCoolTime[0] > duration) return;
 		g_NetworkHelper.Send_SkillInput_Q();
-		g_NetworkHelper.Send_SkillExecute_Q(XMFLOAT3(0.0, 0.0, 0.0));
+		g_NetworkHelper.Send_SkillExecute_Q();
 		m_skillInputTime[0] = std::chrono::high_resolution_clock::now();
 	}
 	m_bQSkillClicked = true;
@@ -750,9 +789,9 @@ void Priest::FirstSkillDown()
 #endif
 }
 
-void Priest::SecondSkillDown()
+void Mage::SecondSkillDown()
 {
-	if (g_Logic.GetMyRole() == ROLE::PRIEST)
+	if (g_Logic.GetMyRole() == ROLE::MAGE)
 	{
 		auto currentTime = std::chrono::high_resolution_clock::now();
 		auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[1]);
@@ -767,14 +806,14 @@ void Priest::SecondSkillDown()
 	m_bESkillClicked = true;
 }
 
-void Priest::StartEffect(int nSkillNum)
+void Mage::StartEffect(int nSkillNum)
 {
 	m_pHealRange->m_bActive = true;
 	g_sound.Play("HealSound", CalculateDistanceSound() - 0.2);
 	UpdateEffect();
 }
 
-void Priest::EndEffect(int nSkillNum)
+void Mage::EndEffect(int nSkillNum)
 {
 	g_sound.Pause("HealSound");
 	m_pHealRange->m_bActive = false;
@@ -786,11 +825,45 @@ void Priest::EndEffect(int nSkillNum)
 	m_bQSkillClicked = false;
 }
 
-void Priest::UpdateEffect()
+void Mage::InputSecondSkill()
+{
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[1]);
+	if (m_skillCoolTime[1] > duration) {
+		gGameFramework.GetScene()->GetObjectManager()->m_bPickingenemy = false;
+		return;
+	}
+	g_NetworkHelper.Send_SkillInput_E();
+}
+
+void Mage::RecvFirstSkill(const high_resolution_clock::time_point& serverTime)
+{
+	if (g_Logic.GetMyRole() == ROLE::MAGE)
+	{
+		m_skillInputTime[0] = serverTime - std::chrono::microseconds(g_Logic.GetDiffTime());
+		g_NetworkHelper.Send_SkillExecute_Q();
+	}
+	m_bQSkillClicked = true;
+#ifdef LOCAL_TASK
+	StartEffect(0);
+#endif
+
+}
+
+void Mage::RecvSecondSkill(const high_resolution_clock::time_point& serverTime)
+{
+	if (g_Logic.GetMyRole() == ROLE::MAGE)
+	{
+		m_skillInputTime[1] = serverTime - std::chrono::microseconds(g_Logic.GetDiffTime());
+	}
+	m_bESkillClicked = true;
+}
+
+void Mage::UpdateEffect()
 {
 	array<Character*, 4> pOtherCharacter;
 	pOtherCharacter[0] = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::WARRIOR);
-	pOtherCharacter[1] = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::PRIEST);
+	pOtherCharacter[1] = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::MAGE);
 	pOtherCharacter[2] = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::TANKER);
 	pOtherCharacter[3] = gGameFramework.GetScene()->GetObjectManager()->GetChracterInfo(ROLE::ARCHER);
 
@@ -806,13 +879,14 @@ void Priest::UpdateEffect()
 	}
 }
 
-void Priest::SetStage1Position()
+void Mage::SetStage1Position()
 {
+	SetLook(XMFLOAT3(0, 0, 1));
 	SetPosition(XMFLOAT3(-1370.45, 0, -1450.89f));
 	m_xmf3RotateAxis = XMFLOAT3(0.0f, 0.0f, 0.0f);
 }
 
-void Priest::SetBossStagePostion()
+void Mage::SetBossStagePostion()
 {
 	SetPosition(XMFLOAT3(20, 0, -285));
 }

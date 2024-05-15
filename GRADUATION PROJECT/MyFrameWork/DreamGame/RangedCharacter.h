@@ -40,6 +40,9 @@ public:
 	virtual void ShootArrow(const XMFLOAT3& xmf3Direction);
 	virtual void SetLButtonClicked(bool bLButtonClicked);
 
+	virtual void InputSecondSkill();
+	virtual void RecvFirstSkill(const high_resolution_clock::time_point& serverTime) override;
+	virtual void RecvSecondSkill(const high_resolution_clock::time_point& serverTime) override;
 public:
 	void SetAdditionArrowForQSkill(Arrow** ppArrow);
 	void SetAdditionArrowForESkill(Arrow** ppArrow);
@@ -50,15 +53,15 @@ public:
 	void SetBossStagePostion();
 };
 
-class Priest : public RangedCharacter
+class Mage : public RangedCharacter
 {
 private:
 	GameObject* m_pHealRange{ nullptr };
 	float		m_fHealTime{ 0.0f };
 
 public:
-	Priest();
-	virtual ~Priest();
+	Mage();
+	virtual ~Mage();
 	virtual void Reset();
 	virtual void Attack();
 	virtual void Attack(const XMFLOAT3& xmf3Direction);
@@ -71,6 +74,9 @@ public:
 	virtual void StartEffect(int nSkillNum);
 	virtual void EndEffect(int nSkillNum);
 
+	virtual void InputSecondSkill();
+	virtual void RecvFirstSkill(const high_resolution_clock::time_point& serverTime) override;
+	virtual void RecvSecondSkill(const high_resolution_clock::time_point& serverTime) override;
 public:
 	void UpdateEffect();
 	void SetStage1Position();

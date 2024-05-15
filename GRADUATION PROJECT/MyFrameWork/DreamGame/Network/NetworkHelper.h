@@ -2,32 +2,26 @@
 #include "../stdafx.h"
 #include <thread>
 #include <WS2tcpip.h>
-#include "../../Server/IOCPNetwork/protocol/protocol.h"
-
 
 #pragma comment(lib, "WS2_32.lib")
 
-#define SERVER_IP "183.101.110.217"
+//#define SERVER_IP "183.101.110.217"
+#define SERVER_IP "127.0.0.1"
 #define SERVER_PORT 9000
-#define MAX_BUF_SIZE 1024
+
 
 class NetworkHelper {
-private:
-	SOCKET m_clientSocket;
-private:
-	char m_buffer[MAX_BUF_SIZE];
-	int m_prevPacketSize = 0;
-private:
-	bool m_bIsRunnung = false;
-	std::thread m_runThread;
-private:
-	std::chrono::utc_clock::time_point m_positionSendTime = std::chrono::utc_clock::now();
+	enum class CONNECT_STATE : char
+	{
+		CONNECT,
+		DISCONNECT
+	};
 public:
 	NetworkHelper();
 	~NetworkHelper();
 
 public:
-	bool TryConnect();
+	void TryConnect();
 	void Start();
 	void RunThread();
 public:
@@ -40,13 +34,12 @@ public:
 
 	void Send_SkillInput_Q();
 	void Send_SkillInput_E();
-	void Send_SkillExecute_Q(XMFLOAT3& dirOrPosition);//스킬 공격 서버에 활성화
-	void Send_SkillExecute_E(const XMFLOAT3& dirOrPosition);//스킬 공격 서버에 활성화
+	void Send_SkillExecute_Q();//스킬 공격 서버에 활성화
+	void Send_SkillExecute_Q(XMFLOAT3& floatData);//스킬 공격 서버에 활성화
+	void Send_SkillExecute_E();//스킬 공격 서버에 활성화
+	void Send_SkillExecute_E(const XMFLOAT3& floatData);//스킬 공격 서버에 활성화
 
 	void SendMatchRequestPacket();
-	void SendArrowAttackPacket(const XMFLOAT3& pos, const XMFLOAT3& dir, float speed);//안씀
-	void SendBallAttackPacket(const XMFLOAT3& pos, const XMFLOAT3& dir, float speed);//안씀
-	void SendMeleeAttackPacket(const XMFLOAT3& dir);//안씀
 	void SendTestGameEndPacket();
 	void SendTestGameEndOKPacket();
 public:
@@ -54,14 +47,27 @@ public:
 	void SendOnPositionTriggerBox1();//트리거 박스 내부에 도착해서 상태 변화할때
 	void SendSkipNPCCommunicate();
 	void SendChangeStage_BOSS();
-	void SendCommonAttackExecute(const XMFLOAT3& attackDirection, int power);//기본 공격 실제 공격 시행
+	void SendCommonAttackExecute(const XMFLOAT3& attackDirection);//기본 공격 실제 공격 시행
+	void SendPowerAttackExecute(const XMFLOAT3& attackDirection, int power);//파워 공격 실제 공격 시행
 	void SendCommonAttackStart();//기본 공격 애니메이션
 	void SendPlayerPosition(XMFLOAT3& position);
+	void SendReconnctPacket();
+
 public:
 	void SendTimeSyncPacket();
 
 private:
-	void ConstructPacket(int ioByte);
+	void ConstructPacket(const int& ioByte);
 private:
 	void Destroy();
+
+private:
+	SOCKET m_clientSocket;
+	atomic<CONNECT_STATE> m_connectState;
+
+	char m_buffer[MAX_RECV_BUF_SIZE];
+	int m_prevPacketSize = 0;
+
+	bool m_isRunning;
+	std::thread m_runThread;
 };

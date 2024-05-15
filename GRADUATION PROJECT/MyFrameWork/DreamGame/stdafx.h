@@ -31,6 +31,11 @@
 #include<iostream>
 #include <chrono>
 #include <filesystem>
+#include <unordered_set>
+
+#include <codecvt>
+#include <atlconv.h>
+#include <strsafe.h>
 
 #include <d3d12.h>
 #include <dxgi1_4.h>
@@ -60,9 +65,9 @@ const float MONSTER_ABLE_ATTACK_COS_VALUE = std::cos(20.0f * 3.14f / 180.0f);
 
 using namespace std;
 using namespace chrono;
-//#ifndef LOCAL_TASK
-//#define LOCAL_TASK 1
-//#endif // !LOCAL_TASK
+
+///#define LOCAL_TASK 1
+
 
 ///////////////////////////////////////
 /*** 여기서부터 이 책의 모든 예제에서 공통으로 포함하여 사용하는 코드이다. ***/
@@ -91,6 +96,8 @@ using namespace chrono;
 
 #include <mutex>
 
+#include <concurrent_queue.h>
+
 #pragma comment(lib, "ws2_32") // ws2_32.lib 링크
 ///////////////////////////////////////////
 #pragma comment (lib, "fmod_vc.lib")
@@ -113,14 +120,16 @@ enum ROTATE_AXIS :char
 	X, Y, Z
 };
 
-enum ROLE :char {
+enum class ROLE :char {
 	NONE_SELECT = 0x00,
 	WARRIOR = 0x01,
-	PRIEST = 0x02,
+	MAGE = 0x02,
 	TANKER = 0x04,
 	ARCHER = 0x08,
 	RAND = 0x10
 };
+
+constexpr int MAX_RECV_BUF_SIZE = 1024;
 
 enum STAGE
 {
@@ -135,10 +144,10 @@ using Microsoft::WRL::ComPtr;
 
 //#define _WITH_SWAPCHAIN_FULLSCREEN_STATE
 #define PIXELCOUNT				257
-#define FRAME_BUFFER_WIDTH		GetSystemMetrics(SM_CXSCREEN)		///2.0f
-#define FRAME_BUFFER_HEIGHT		GetSystemMetrics(SM_CYSCREEN)  ///2.0f
-//#define FRAME_BUFFER_WIDTH		1280
-//#define FRAME_BUFFER_HEIGHT		720
+//#define FRAME_BUFFER_WIDTH		GetSystemMetrics(SM_CXSCREEN)		///2.0f
+//#define FRAME_BUFFER_HEIGHT		GetSystemMetrics(SM_CYSCREEN)  ///2.0f
+#define FRAME_BUFFER_WIDTH		1280
+#define FRAME_BUFFER_HEIGHT		720
 
 
 #define _PLANE_WIDTH			300
@@ -367,16 +376,6 @@ enum TEXT
 	PRIEST_TEXT = 6
 };
 
-
-enum BOSS_ATTACK : char {
-	ATTACK_PUNCH,
-	ATTACK_SPIN,
-	ATTACK_KICK,
-	ATTACK_FLOOR_BOOM,
-	ATTACK_COUNT,//0~마지막 숫자 갯수
-	ATTACK_FLOOR_BOOM_SECOND,
-	ATTACK_METEO
-};
 
 enum BOSS_ANIMATION : char {
 	BA_IDLE,
@@ -774,70 +773,70 @@ public:
 	XMFLOAT3 const GetVertex2() { return m_vertex2; }
 	XMFLOAT3 const GetVertex3() { return m_vertex3; }
 };
-class AstarNode {
-private:
-	int m_nodeIdx = -1;
-	float m_cost = 0.0f;
-	float m_dis = 0.0f;
-	float m_res = 0.0f;
-	int m_parentNodeIdx = -1;
-
-public:
-	AstarNode() {}
-	AstarNode(int nodeIdx, float cost, float dis, float res, int parentNodeIdx) : m_nodeIdx(nodeIdx), m_cost(cost), m_dis(dis), m_res(res), m_parentNodeIdx(parentNodeIdx) {}
-	AstarNode(AstarNode& other)
-	{
-		m_nodeIdx = other.m_nodeIdx;
-		m_cost = other.m_cost;
-		m_dis = other.m_dis;
-		m_res = other.m_res;
-		m_parentNodeIdx = other.m_parentNodeIdx;
-	}
-	AstarNode(AstarNode&& other)
-	{
-		m_nodeIdx = other.m_nodeIdx;
-		m_cost = other.m_cost;
-		m_dis = other.m_dis;
-		m_res = other.m_res;
-		m_parentNodeIdx = other.m_parentNodeIdx;
-	}
-	~AstarNode() {}
-public:
-	void RefreshNodeData(int nodeIdx, float cost, float dis, float res, int parentNodeIdx)
-	{
-		m_nodeIdx = nodeIdx;
-		m_cost = cost;
-		m_dis = dis;
-		m_res = res;
-		m_parentNodeIdx = parentNodeIdx;
-	}
-	float GetResValue() { return m_res; }
-	int GetIdx() { return m_nodeIdx; }
-	int GetParentIdx() { return m_parentNodeIdx; }
-	float GetDistance() { return m_dis; }
-
-public:
-	constexpr bool operator< (const AstarNode& other)const {
-		return m_dis < other.m_dis;
-	}
-	AstarNode& operator= (const AstarNode& other) {
-		m_nodeIdx = other.m_nodeIdx;
-		m_cost = other.m_cost;
-		m_dis = other.m_dis;
-		m_res = other.m_res;
-		m_parentNodeIdx = other.m_parentNodeIdx;
-		return *this;
-	}
-
-	AstarNode& operator= (const AstarNode&& other) noexcept {
-		m_nodeIdx = other.m_nodeIdx;
-		m_cost = other.m_cost;
-		m_dis = other.m_dis;
-		m_res = other.m_res;
-		m_parentNodeIdx = other.m_parentNodeIdx;
-		return *this;
-	}
-};
+//class AstarNode {
+//private:
+//	int m_nodeIdx = -1;
+//	float m_cost = 0.0f;
+//	float m_dis = 0.0f;
+//	float m_res = 0.0f;
+//	int m_parentNodeIdx = -1;
+//
+//public:
+//	AstarNode() {}
+//	AstarNode(int nodeIdx, float cost, float dis, float res, int parentNodeIdx) : m_nodeIdx(nodeIdx), m_cost(cost), m_dis(dis), m_res(res), m_parentNodeIdx(parentNodeIdx) {}
+//	AstarNode(AstarNode& other)
+//	{
+//		m_nodeIdx = other.m_nodeIdx;
+//		m_cost = other.m_cost;
+//		m_dis = other.m_dis;
+//		m_res = other.m_res;
+//		m_parentNodeIdx = other.m_parentNodeIdx;
+//	}
+//	AstarNode(AstarNode&& other)
+//	{
+//		m_nodeIdx = other.m_nodeIdx;
+//		m_cost = other.m_cost;
+//		m_dis = other.m_dis;
+//		m_res = other.m_res;
+//		m_parentNodeIdx = other.m_parentNodeIdx;
+//	}
+//	~AstarNode() {}
+//public:
+//	void RefreshNodeData(int nodeIdx, float cost, float dis, float res, int parentNodeIdx)
+//	{
+//		m_nodeIdx = nodeIdx;
+//		m_cost = cost;
+//		m_dis = dis;
+//		m_res = res;
+//		m_parentNodeIdx = parentNodeIdx;
+//	}
+//	float GetResValue() { return m_res; }
+//	int GetIdx() { return m_nodeIdx; }
+//	int GetParentIdx() { return m_parentNodeIdx; }
+//	float GetDistance() { return m_dis; }
+//
+//public:
+//	constexpr bool operator< (const AstarNode& other)const {
+//		return m_dis < other.m_dis;
+//	}
+//	AstarNode& operator= (const AstarNode& other) {
+//		m_nodeIdx = other.m_nodeIdx;
+//		m_cost = other.m_cost;
+//		m_dis = other.m_dis;
+//		m_res = other.m_res;
+//		m_parentNodeIdx = other.m_parentNodeIdx;
+//		return *this;
+//	}
+//
+//	AstarNode& operator= (const AstarNode&& other) noexcept {
+//		m_nodeIdx = other.m_nodeIdx;
+//		m_cost = other.m_cost;
+//		m_dis = other.m_dis;
+//		m_res = other.m_res;
+//		m_parentNodeIdx = other.m_parentNodeIdx;
+//		return *this;
+//	}
+//};
 
 
 class PlayerCharacterOperation

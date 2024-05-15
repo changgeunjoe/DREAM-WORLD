@@ -10,6 +10,7 @@
 #include "GameobjectManager.h"
 #include "Network/Logic/Logic.h"
 #include "Network/NetworkHelper.h"
+#include "CharacterEvent.h"
 
 extern bool GameEnd;
 extern Logic g_Logic;
@@ -34,6 +35,13 @@ MeleeCharacter::~MeleeCharacter()
 
 void MeleeCharacter::Move(float fTimeElapsed)
 {
+	UpdateInterpolateData();
+	if (m_interpolateData->GetInterpolateState() == CharacterEvent::INTERPOLATE_STATE::SET_POSITION) {
+		SetPosition(m_interpolateData->GetInterpolatePosition());
+		if (m_pCamera) m_pCamera->SetPosition(Vector3::Add(GetPosition(), m_pCamera->GetOffset()));
+		g_sound.Play("WalkSound", CalculateDistanceSound());
+		return;
+	}
 	DIRECTION tempDir = m_currentDirection;
 	if (((tempDir & DIRECTION::LEFT) == DIRECTION::LEFT) &&
 		((tempDir & DIRECTION::RIGHT) == DIRECTION::RIGHT))
@@ -120,7 +128,8 @@ void MeleeCharacter::SetLookDirection()
 Warrior::Warrior() : MeleeCharacter(ROLE::WARRIOR)
 {
 	m_fMaxHp = 600.0f;
-	m_fTempHp = m_fMaxHp;
+	m_fTempHp = 100.0f;
+	m_fHp = 100.0f;
 	m_fSpeed = 50.0f;
 	m_fDamage = 100.0f;
 
@@ -164,7 +173,7 @@ void Warrior::Attack()
 		case CA_ADDITIONALANIM: attackPower = 2; break;
 		}
 		if (m_pCamera) {
-			g_NetworkHelper.SendCommonAttackExecute(GetLook(), attackPower);//2번째 인자가 몇번째 타수 공격인지
+			g_NetworkHelper.SendPowerAttackExecute(GetLook(), attackPower);//2번째 인자가 몇번째 타수 공격인지
 		}
 	}
 }
@@ -306,7 +315,7 @@ void Warrior::Animate(float fTimeElapsed)
 	if (m_pTrailComponent)
 		m_pTrailComponent->SetRenderingTrail(m_bOnAttack || m_bComboAttack);
 
-	SetLookDirection();
+	//SetLookDirection();
 	if (m_bMoveState)
 	{
 		Move(fTimeElapsed);
@@ -373,8 +382,24 @@ void Warrior::FirstSkillDown()
 	m_bQSkillClicked = true;
 }
 
+void Warrior::RecvFirstSkill(const high_resolution_clock::time_point& serverTime)
+{
+	if (g_Logic.GetMyRole() == ROLE::WARRIOR)
+	{
+		m_skillInputTime[0] = serverTime - std::chrono::microseconds(g_Logic.GetDiffTime());
+	}
+	m_currentDirection = DIRECTION::IDLE;
+	m_bMoveState = false;
+	m_bQSkillClicked = true;
+}
+
+void Warrior::RecvSecondSkill(const high_resolution_clock::time_point& serverTime)
+{
+}
+
 void Warrior::SetStage1Position()
 {
+	SetLook(XMFLOAT3(0, 0, 1));
 	SetPosition(XMFLOAT3(-1290.0f, 0, -1470.0f));
 	m_xmf3RotateAxis = XMFLOAT3(0.0f, 0.0f, 0.0f);
 }
@@ -387,7 +412,8 @@ void Warrior::SetBossStagePostion()
 Tanker::Tanker() : MeleeCharacter(ROLE::TANKER)
 {
 	m_fMaxHp = 780.0f;
-	m_fTempHp = m_fMaxHp;
+	m_fTempHp = 100.0f;
+	m_fHp = 100.0f;
 	m_fSpeed = 50.0f;
 	m_fDamage = 50.0f;
 
@@ -411,7 +437,7 @@ void Tanker::Attack()
 {
 	if (m_pCamera) {
 		g_sound.NoLoopPlay("TankerAttackSound", CalculateDistanceSound() * 0.7);
-		g_NetworkHelper.SendCommonAttackExecute(GetLook(), 0);
+		g_NetworkHelper.SendCommonAttackExecute(GetLook());
 	}
 }
 
@@ -428,7 +454,7 @@ void Tanker::FirstSkillDown()
 		auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[0]);
 		if (m_skillCoolTime[0] > duration) return;
 		g_NetworkHelper.Send_SkillInput_Q();
-		g_NetworkHelper.Send_SkillExecute_Q(XMFLOAT3(0.0, 0.0, 0.0));
+		g_NetworkHelper.Send_SkillExecute_Q();
 		m_skillInputTime[0] = std::chrono::high_resolution_clock::now();
 	}
 	m_currentDirection = DIRECTION::IDLE;
@@ -598,7 +624,7 @@ void Tanker::Animate(float fTimeElapsed)
 		m_pTrailComponent->SetRenderingTrail(m_bOnAttack);
 	}
 
-	SetLookDirection();
+	//SetLookDirection();
 	Move(fTimeElapsed);
 	GameObject::Animate(fTimeElapsed);
 
@@ -625,7 +651,7 @@ void Tanker::SetSkillBall(Projectile* pBall)
 		{
 		case 0: static_cast<EnergyBall*>(m_ppProjectiles[0])->SetTarget(ROLE::WARRIOR); break;
 		case 1: static_cast<EnergyBall*>(m_ppProjectiles[1])->SetTarget(ROLE::ARCHER); break;
-		case 2: static_cast<EnergyBall*>(m_ppProjectiles[2])->SetTarget(ROLE::PRIEST); break;
+		case 2: static_cast<EnergyBall*>(m_ppProjectiles[2])->SetTarget(ROLE::MAGE); break;
 		case 3: static_cast<EnergyBall*>(m_ppProjectiles[3])->SetTarget(ROLE::TANKER); break;
 		default: break;
 		}
@@ -651,8 +677,36 @@ void Tanker::EndEffect(int nSkillNum)
 	}
 }
 
+void Tanker::RecvFirstSkill(const high_resolution_clock::time_point& serverTime)
+{
+	if (g_Logic.GetMyRole() == ROLE::TANKER)
+	{
+		m_skillInputTime[0] = serverTime - std::chrono::microseconds(g_Logic.GetDiffTime());
+		g_NetworkHelper.Send_SkillExecute_Q();
+	}
+	m_currentDirection = DIRECTION::IDLE;
+	m_bMoveState = false;
+	m_bQSkillClicked = true;
+#ifdef LOCAL_TASK
+	StartEffect(0);
+#endif
+}
+
+void Tanker::RecvSecondSkill(const high_resolution_clock::time_point& serverTime)
+{
+	if (g_Logic.GetMyRole() == ROLE::TANKER)
+	{
+		m_skillInputTime[1] = serverTime - std::chrono::microseconds(g_Logic.GetDiffTime());
+	}
+	g_sound.NoLoopPlay("TankerSwingSound", CalculateDistanceSound());
+	m_currentDirection = DIRECTION::IDLE;
+	m_bMoveState = false;
+	m_bESkillClicked = true;
+}
+
 void Tanker::SetStage1Position()
 {
+	SetLook(XMFLOAT3(0, 0, 1));
 	SetPosition(XMFLOAT3(-1260.3f, 0, -1510.7f));
 	m_xmf3RotateAxis = XMFLOAT3(0.0f, 0.0f, 0.0f);
 }

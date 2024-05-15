@@ -701,15 +701,15 @@ void TankerEffectObject::SetActive(bool bActive)
 	}
 }
 
-PriestEffectObject::PriestEffectObject()
+MageEffectObject::MageEffectObject()
 {
 }
 
-PriestEffectObject::~PriestEffectObject()
+MageEffectObject::~MageEffectObject()
 {
 }
 
-void PriestEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, vector<GameObject*>* mppEffectObject)
+void MageEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, vector<GameObject*>* mppEffectObject)
 {
 	for (int i = 0; i < m_ppParticleObjects.size(); i++) {
 		m_ppParticleObjects[i] = new GameObject(UNDEF_ENTITY);
@@ -729,12 +729,12 @@ void PriestEffectObject::BuildEffect(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 	}
 }
 
-void PriestEffectObject::AnimateEffect(CCamera* pCamera, XMFLOAT3 xm3position, float ftimeelapsed, float fTime)
+void MageEffectObject::AnimateEffect(CCamera* pCamera, XMFLOAT3 xm3position, float ftimeelapsed, float fTime)
 {
 	Particle(pCamera, ftimeelapsed, xm3position);
 }
 
-void PriestEffectObject::Particle(CCamera* pCamera, float fTimeElapsed, XMFLOAT3& xm3position)
+void MageEffectObject::Particle(CCamera* pCamera, float fTimeElapsed, XMFLOAT3& xm3position)
 {
 	//	if (gGameFramework.GetScene()->GetObjectManager()->m_bPickingenemy)
 	//	{

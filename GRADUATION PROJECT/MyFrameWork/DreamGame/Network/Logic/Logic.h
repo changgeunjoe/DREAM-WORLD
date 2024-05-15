@@ -26,9 +26,10 @@ public:
 	//Session m_SmallMonsterSession[15];
 private:
 	long long C2S_DiffTime = 0;//C2S_DiffTime -> micro second
-	double m_RTT = 0.0f;//milliseconds
+	float m_RTT = 0.0f;//milliseconds
 private:
 	int myId = -1;
+	std::wstring m_nickName;
 	ROLE myRole = ROLE::NONE_SELECT;
 public:
 	CKeyInput* m_KeyInput;
@@ -39,7 +40,7 @@ public:
 	Logic();
 	~Logic();
 public:
-	void ProcessPacket(char* p);
+	void ProcessPacket(const class PacketHeader* packetHeader);
 	XMFLOAT3 GetPostion(ROLE r);
 	friend class CGameFramework;
 private:
@@ -55,16 +56,34 @@ public:
 		return C2S_DiffTime
 			;
 	}
+
+	const std::wstring& GetNickName() const;
+
 	HWND loginWnd;
 private:
-	std::chrono::utc_clock::time_point m_requestTime;
-	std::chrono::utc_clock::time_point m_responseTime;
+	bool m_isReadySyncPacket = true;
+	std::chrono::high_resolution_clock::time_point m_requestTime;
+	std::chrono::high_resolution_clock::time_point m_responseTime;
 public:
+	const bool& IsReadySendSync() const
+	{
+		if (m_isReadySyncPacket == true) {
+
+			auto durationTime = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - m_responseTime).count();
+			if (durationTime < 1) return false;
+			return true;
+		}
+		return false;
+	}
+	void SetReadySync(const bool& isReady)
+	{
+		m_isReadySyncPacket = isReady;
+	}
 	void SetrequestTime();
-	std::chrono::utc_clock::time_point& GetResponseTime() {
+	std::chrono::high_resolution_clock::time_point& GetResponseTime() {
 		return m_responseTime;
 	}
-	std::chrono::utc_clock::time_point& GetReQuestTime() {
+	std::chrono::high_resolution_clock::time_point& GetReQuestTime() {
 		return m_requestTime;
 	}
 	double GetRTT() { return  m_RTT; }

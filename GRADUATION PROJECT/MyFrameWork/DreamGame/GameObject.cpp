@@ -6,14 +6,14 @@
 #include "InstanceRenderComponent.h"
 #include "TrailShaderComponent.h"
 #include "TerrainShaderComponent.h"
-#include "Network/MapData/MapData.h"
+#include "MapData/MapData.h"
 #include "GameFramework.h"
 #include "GameobjectManager.h"
 #include "Character.h"
 #include "Player.h"
 #include "Network/Logic/Logic.h"
 
-extern MapData g_bossMapData;
+extern NavMapData g_bossMapData;
 extern MapData g_stage1MapData;
 extern CGameFramework gGameFramework;
 extern Logic g_Logic;
@@ -135,13 +135,12 @@ void GameObject::SetLook(const XMFLOAT3& xmfLook)
 		std::cout << "문제 있음" << std::endl;
 	}
 	XMFLOAT3 xmftLook = Vector3::Normalize(xmfLook);
+	if (Vector3::Length(xmftLook) < FLT_MIN) return;
 	XMFLOAT3 xmftUp = GetUp();
 	XMFLOAT3 xmftRight = GetRight();
 
 	xmftRight = Vector3::CrossProduct(xmftUp, xmftLook, false);
 	xmftUp = Vector3::CrossProduct(xmftLook, xmftRight, false);
-
-	XMFLOAT4X4	copyXmf4x4ToParent = m_xmf4x4ToParent;
 
 	m_xmf4x4ToParent._11 = xmftRight.x;	m_xmf4x4ToParent._12 = xmftRight.y;	m_xmf4x4ToParent._13 = xmftRight.z;
 	m_xmf4x4ToParent._21 = xmftUp.x;	m_xmf4x4ToParent._22 = xmftUp.y;	m_xmf4x4ToParent._23 = xmftUp.z;

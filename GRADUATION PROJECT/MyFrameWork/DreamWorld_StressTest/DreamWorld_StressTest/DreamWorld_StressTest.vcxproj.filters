@@ -1,0 +1,142 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="PCH">
+      <UniqueIdentifier>{4309d8a9-5622-41a6-a234-bc281b72d193}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DrawModule">
+      <UniqueIdentifier>{397ef759-472c-4fa0-bdda-8a0df0e26aee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network">
+      <UniqueIdentifier>{19538830-dc90-40ab-8512-d52146be9627}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network\NetworkModule">
+      <UniqueIdentifier>{82eaf7d8-0f25-4948-a0c9-fda6c6f5176a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network\ExpOver">
+      <UniqueIdentifier>{24a5d9f5-61d8-4109-99bd-137377ec85e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network\IocpEvent">
+      <UniqueIdentifier>{189ea23c-b7ee-4967-8d0a-cd121cbd3744}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network\UserManager">
+      <UniqueIdentifier>{b5e13cf9-9fac-4f15-a5d7-bffcff3e4f46}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Ingame">
+      <UniqueIdentifier>{136c685c-e2ad-4005-8d48-d435b4637c1e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Ingame\State">
+      <UniqueIdentifier>{97fc7283-e729-4edd-83fe-72675da7f98c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network\UserSession">
+      <UniqueIdentifier>{76e259ec-adcd-4e79-9f4e-8badb186f3b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Ingame\EventCtrl">
+      <UniqueIdentifier>{a7c62222-0e06-4fad-b651-4661259c4c1d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Ingame\CharacterCtrl">
+      <UniqueIdentifier>{208d5316-f093-4022-acbe-b377a51d5c9c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="PCH\stdafx.cpp">
+      <Filter>PCH</Filter>
+    </ClCompile>
+    <ClCompile Include="DrawModule\DrawModule.cpp">
+      <Filter>DrawModule</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\NetworkModule\NetworkModule.cpp">
+      <Filter>Network\NetworkModule</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\ExpOver\ExpOver.cpp">
+      <Filter>Network\ExpOver</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\UserSession\UserSession.cpp">
+      <Filter>Network\UserSession</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\IocpEvent\IocpEventBase.cpp">
+      <Filter>Network\IocpEvent</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\IocpEvent\IocpEventManager.cpp">
+      <Filter>Network\IocpEvent</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\IocpEvent\SendEvent.cpp">
+      <Filter>Network\IocpEvent</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\UserSession\StressUserSession.cpp">
+      <Filter>Network\UserSession</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\UserManager\UserManager.cpp">
+      <Filter>Network\UserManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Ingame\StateBase\StateBase.cpp">
+      <Filter>Ingame\State</Filter>
+    </ClCompile>
+    <ClCompile Include="Ingame\UserState\UserState.cpp">
+      <Filter>Ingame\State</Filter>
+    </ClCompile>
+    <ClCompile Include="Ingame\CoolTimeEventCtrl\CoolDownEventBase.cpp">
+      <Filter>Ingame\EventCtrl</Filter>
+    </ClCompile>
+    <ClCompile Include="Ingame\CoolTimeEventCtrl\DurationEvent.cpp">
+      <Filter>Ingame\EventCtrl</Filter>
+    </ClCompile>
+    <ClCompile Include="Ingame\CoolTimeEventCtrl\EventController.cpp">
+      <Filter>Ingame\EventCtrl</Filter>
+    </ClCompile>
+    <ClCompile Include="Ingame\Character\CharacterObject.cpp">
+      <Filter>Ingame\CharacterCtrl</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="PCH\stdafx.h">
+      <Filter>PCH</Filter>
+    </ClInclude>
+    <ClInclude Include="SingletonBase.h" />
+    <ClInclude Include="Network\NetworkModule\NetworkModule.h">
+      <Filter>Network\NetworkModule</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\ExpOver\ExpOver.h">
+      <Filter>Network\ExpOver</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\UserSession\UserSession.h">
+      <Filter>Network\UserSession</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\IocpEvent\IocpEventBase.h">
+      <Filter>Network\IocpEvent</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\IocpEvent\IocpEventManager.h">
+      <Filter>Network\IocpEvent</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\IocpEvent\SendEvent.h">
+      <Filter>Network\IocpEvent</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\UserSession\StressUserSession.h">
+      <Filter>Network\UserSession</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\UserManager\UserManager.h">
+      <Filter>Network\UserManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Ingame\StateBase\StateBase.h">
+      <Filter>Ingame\State</Filter>
+    </ClInclude>
+    <ClInclude Include="Ingame\UserState\UserState.h">
+      <Filter>Ingame\State</Filter>
+    </ClInclude>
+    <ClInclude Include="Ingame\CoolTimeEventCtrl\CoolDownEventBase.h">
+      <Filter>Ingame\EventCtrl</Filter>
+    </ClInclude>
+    <ClInclude Include="Ingame\CoolTimeEventCtrl\DurationEvent.h">
+      <Filter>Ingame\EventCtrl</Filter>
+    </ClInclude>
+    <ClInclude Include="Ingame\CoolTimeEventCtrl\EventController.h">
+      <Filter>Ingame\EventCtrl</Filter>
+    </ClInclude>
+    <ClInclude Include="Ingame\Character\CharacterObject.h">
+      <Filter>Ingame\CharacterCtrl</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+</Project>

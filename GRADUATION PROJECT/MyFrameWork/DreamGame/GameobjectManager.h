@@ -24,7 +24,7 @@ class NormalMonster;
 class Warrior;
 class Archer;
 class Tanker;
-class Priest;
+class Mage;
 class Player;
 class TankerEffectObject;
 class BossEffectObject;
@@ -125,7 +125,7 @@ private: //active object
 	Warrior* m_pWarriorObject{ NULL };
 	Archer* m_pArcherObject{ NULL };
 	Tanker* m_pTankerObject{ NULL };
-	Priest* m_pPriestObject{ NULL };
+	Mage* m_pMageObject{ NULL };
 
 	GameObject* m_pPlaneObject{ NULL };
 	GameObject* m_pRockObject{ NULL };
@@ -172,7 +172,7 @@ private:
 	GameObject* m_pUIWarriorCharacterObject{ NULL };
 	GameObject* m_pUIArcherCharacterObject{ NULL };
 	GameObject* m_pUITankerCharacterObject{ NULL };
-	GameObject* m_pUIPriestCharacterObject{ NULL };
+	GameObject* m_pUIMageCharacterObject{ NULL };
 	GameObject* m_pTalkUIObject{ NULL };
 	GameObject* m_pPressGUIObject{ NULL };
 	GameObject* m_pAttackUIObject{ NULL };
@@ -300,9 +300,14 @@ public:
 	void CheckCollideNPCColorChange();
 	void CheckCollidePortal();
 	vector<GameObject*>& GetObstacle() { return m_ppObstacleObjects; }
+
 	Player* GetChracterInfo(ROLE r);
 	Monster* GetBossMonster() { return m_pMonsterObject; }
 	NormalMonster** GetNormalMonsterArr() { return m_ppNormalMonsterObject; };
+
+	std::vector<Character*> GetAllCharacterObject();
+	
+
 	EffectObject** GetShieldEffectArr() { return &m_ppShieldEffectObject[0]; }
 	EffectObject** GetHealingEffectArr() { return &m_ppHealingEffectObject[0]; }
 	TankerEffectObject* GetTankerAttackEffect() { return m_pTankerAttackEffectObject; }
@@ -313,7 +318,7 @@ public:
 	void SetCharactersLobbyPosition();
 	void SetPortalCheck(bool b) { m_bPortalCheck = b; }
 	void ResetLobbyUI();
-	void SetLightningEffect(XMFLOAT3& targetPos);
+	void SetLightningEffect(const XMFLOAT3& targetPos);
 	float GetTotalProgressTime() { return m_fTime; }
 	float GetTimeElapesed() { return m_fTimeElapsed; }
 	CCamera* GetCamera() { return m_pCamera; }

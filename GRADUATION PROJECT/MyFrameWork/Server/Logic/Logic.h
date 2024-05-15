@@ -1,67 +1,32 @@
 #pragma once
 #include "../PCH/stdafx.h"
 
-class UserSession;
-class ExpOver;
-class Logic
+using namespace std;
+using namespace chrono;
+
+
+namespace Logic
 {
-private:
+	//room	
+	void CharacterAddDirection(int userId, const DIRECTION& applyDirection);
+	void CharacterRemoveDirection(int userId, const DIRECTION& applyDirection);
+	void CharacterStop(int userId);
+	void CharacterRotate(int userId, const ROTATE_AXIS& axis, const float& angle);//degree
+	void CharacterInput(int userId, bool leftClick, bool rightClick);
+	void CharacterInputSkiil_Q(int userId, const XMFLOAT3& float3);
+	void CharacterInputSkiil_E(int userId, const XMFLOAT3& float3);
+	void CharacterSkillExecute_Q(int userId);
+	void CharacterSkillExecute_E(int userId);
+	void CharacterCommonAttack(int userId);
+	void CharacterCommonAttackExecute(int userId, const XMFLOAT3& direction, int power);
 
-public:
-	Logic();
-	~Logic();
-private:
-	volatile bool m_isRunningThread = false;
-	std::thread m_PlayerMoveThread;
-	std::thread m_MatchingThread;
-private:
-	Concurrency::concurrent_queue<int> warriorPlayerIdQueue;
-	Concurrency::concurrent_queue<int> archerPlayerIdQueue;
-	Concurrency::concurrent_queue<int> priestPlayerIdQueue;
-	Concurrency::concurrent_queue<int> tankerPlayerIdQueue;
+	void ExitPlayerInRoom(int userId);
+	void SkipNPC_Communication(int userId);
 
-	Concurrency::concurrent_queue<int> randPlayerIdQueue;
-private:
-	//Concurrency::concurrent_unordered_set<int> m_matchPlayerSet;
-	/*std::mutex m_matchPlayerLock;
-	std::map<ROLE, int> m_matchPlayer;
-	std::atomic_char m_MatchRole = 0x00;*/
-private:
-	std::mutex m_inGameUserLock;
-	std::set<std::wstring> m_inGameUser;//현재 게임에 접속한 유저에 대해서 key: id, value: server arr idx
-	std::mutex m_inGameUserIdLock;
-	std::set<int> m_inGameUserId;
-public:
-	void AcceptPlayer(UserSession* session, int userId, SOCKET& sock);
-	void ProcessPacket(int userId, char* p);
+	void ForceGameEnd(int userId);
+	void ForceChangeToBossState(int userId);
 
-	//send
-	void BroadCastPacket(void* p);
-	void MultiCastOtherPlayer(int userId, void* p);
-	void MultiCastOtherPlayerInRoom(int userId, void* p);
-	void MultiCastOtherPlayerInRoom_R(int roomId, ROLE role, void* p);
-	void OnlySendPlayerInRoom_R(int roomId, ROLE role, void* p);
-	void BroadCastInRoomByPlayer(int userId, void* p);
-	void BroadCastTimeSyncPacket();
-	//Boss Broad Cast
-	void BroadCastInRoom(int roomId, void* p);
-
-public:
-	void AutoMoveServer();
-
-	//matching
-private:
-	void MatchMaking();
-	void InsertMatchQueue(ROLE r, int userId);
-private:
-	std::string MakeRoomId();
-public://save InGamePlayerMap for db
-	void InsertInGameUserSet(std::wstring& id);
-	void DeleteInGameUserSet(std::wstring& id);
-public:
-	void InsertInGameUserIdSet(int id);
-	void DeleteInGameUserIdSet(int id);
-public:
-	void SendTimeSyncPacket(int id);
-	//void SendTimeLatencyPacket(SOCKET sock);
+	//Time sync
+	void TimeSyncRequest(int userId);
 };
+

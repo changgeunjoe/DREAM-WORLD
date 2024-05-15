@@ -85,20 +85,11 @@
     <Filter Include="05.Animation\LoadModel">
       <UniqueIdentifier>{de598ca9-74f8-4772-9efa-02702dbf6fa8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="10.NetworkHelper">
-      <UniqueIdentifier>{d4f2bb88-0e37-43b9-a303-1947c11eba8a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="10.NetworkHelper\Session">
-      <UniqueIdentifier>{1875fdf6-96de-453e-8b05-d67ec7cc4375}</UniqueIdentifier>
-    </Filter>
     <Filter Include="06.stdafx">
       <UniqueIdentifier>{4d824cef-315b-4e90-b27d-9fbe90a5abed}</UniqueIdentifier>
     </Filter>
     <Filter Include="07.Character">
       <UniqueIdentifier>{bc6d394e-adff-4b29-be46-842ac711a195}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="10.NetworkHelper\Room">
-      <UniqueIdentifier>{1d08716e-9694-4e88-b3d1-932e1b12d059}</UniqueIdentifier>
     </Filter>
     <Filter Include="04.Component\TextureComponent\Texturetoviewport">
       <UniqueIdentifier>{2a627ed8-98cb-4841-86b2-1893400e7e09}</UniqueIdentifier>
@@ -133,9 +124,6 @@
     <Filter Include="04.Component\ShaderComponent\EffectShaderComponent">
       <UniqueIdentifier>{cb153da1-0e0d-49f0-ab14-3f79dbe85602}</UniqueIdentifier>
     </Filter>
-    <Filter Include="10.NetworkHelper\MapData">
-      <UniqueIdentifier>{80961179-1fbb-4289-9c68-f88f90b588a7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="11.Sound">
       <UniqueIdentifier>{4101ddff-7b27-4299-9d53-3433a475e817}</UniqueIdentifier>
     </Filter>
@@ -147,6 +135,18 @@
     </Filter>
     <Filter Include="03.GameObject\Projectile">
       <UniqueIdentifier>{611ed8e4-9085-4cee-982f-ffa89b6c8a97}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="10.Network">
+      <UniqueIdentifier>{d4f2bb88-0e37-43b9-a303-1947c11eba8a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="10.Network\Session">
+      <UniqueIdentifier>{1875fdf6-96de-453e-8b05-d67ec7cc4375}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="10.Network\Room">
+      <UniqueIdentifier>{1d08716e-9694-4e88-b3d1-932e1b12d059}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="10.Network\MapData">
+      <UniqueIdentifier>{80961179-1fbb-4289-9c68-f88f90b588a7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -178,13 +178,13 @@
       <Filter>헤더 파일\Timer</Filter>
     </ClInclude>
     <ClInclude Include="Network\NetworkHelper.h">
-      <Filter>10.NetworkHelper</Filter>
+      <Filter>10.Network</Filter>
     </ClInclude>
     <ClInclude Include="Network\Logic\Logic.h">
-      <Filter>10.NetworkHelper</Filter>
+      <Filter>10.Network</Filter>
     </ClInclude>
     <ClInclude Include="Network\Session\Session.h">
-      <Filter>10.NetworkHelper\Session</Filter>
+      <Filter>10.Network\Session</Filter>
     </ClInclude>
     <ClInclude Include="ShaderComponent.h">
       <Filter>04.Component\ShaderComponent</Filter>
@@ -244,10 +244,10 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Network\Room\Room.h">
-      <Filter>10.NetworkHelper\Room</Filter>
+      <Filter>10.Network\Room</Filter>
     </ClInclude>
     <ClInclude Include="Network\Room\RoomManger.h">
-      <Filter>10.NetworkHelper\Room</Filter>
+      <Filter>10.Network\Room</Filter>
     </ClInclude>
     <ClInclude Include="LobbyScene.h">
       <Filter>01.Scene</Filter>
@@ -288,12 +288,6 @@
     <ClInclude Include="DebuffObject.h">
       <Filter>03.GameObject\Effect</Filter>
     </ClInclude>
-    <ClInclude Include="Network\MapData\MapCollide.h">
-      <Filter>10.NetworkHelper\MapData</Filter>
-    </ClInclude>
-    <ClInclude Include="Network\MapData\MapData.h">
-      <Filter>10.NetworkHelper\MapData</Filter>
-    </ClInclude>
     <ClInclude Include="EffectShaderComponent.h">
       <Filter>04.Component\ShaderComponent\EffectShaderComponent</Filter>
     </ClInclude>
@@ -314,6 +308,24 @@
     </ClInclude>
     <ClInclude Include="Projectile.h">
       <Filter>03.GameObject\Projectile</Filter>
+    </ClInclude>
+    <ClInclude Include="CharacterEvent.h">
+      <Filter>07.Character</Filter>
+    </ClInclude>
+    <ClInclude Include="MapData\MapData.h">
+      <Filter>10.Network\MapData</Filter>
+    </ClInclude>
+    <ClInclude Include="MapData\AstarNode\AstarNode.h">
+      <Filter>10.Network\MapData</Filter>
+    </ClInclude>
+    <ClInclude Include="MapData\MapCollision\MapCollision.h">
+      <Filter>10.Network\MapData</Filter>
+    </ClInclude>
+    <ClInclude Include="MapData\NavMeshQuadTree\NavMeshQuadTree.h">
+      <Filter>10.Network\MapData</Filter>
+    </ClInclude>
+    <ClInclude Include="MapData\TriangleMesh\TriangleNavMesh.h">
+      <Filter>10.Network\MapData</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -339,13 +351,13 @@
       <Filter>헤더 파일\Timer</Filter>
     </ClCompile>
     <ClCompile Include="Network\NetworkHelper.cpp">
-      <Filter>10.NetworkHelper</Filter>
+      <Filter>10.Network</Filter>
     </ClCompile>
     <ClCompile Include="Network\Logic\Logic.cpp">
-      <Filter>10.NetworkHelper</Filter>
+      <Filter>10.Network</Filter>
     </ClCompile>
     <ClCompile Include="Network\Session\Session.cpp">
-      <Filter>10.NetworkHelper\Session</Filter>
+      <Filter>10.Network\Session</Filter>
     </ClCompile>
     <ClCompile Include="ShaderComponent.cpp">
       <Filter>04.Component\ShaderComponent</Filter>
@@ -402,10 +414,10 @@
       <Filter>07.Character</Filter>
     </ClCompile>
     <ClCompile Include="Network\Room\Room.cpp">
-      <Filter>10.NetworkHelper\Room</Filter>
+      <Filter>10.Network\Room</Filter>
     </ClCompile>
     <ClCompile Include="Network\Room\RoomManger.cpp">
-      <Filter>10.NetworkHelper\Room</Filter>
+      <Filter>10.Network\Room</Filter>
     </ClCompile>
     <ClCompile Include="LobbyScene.cpp">
       <Filter>01.Scene</Filter>
@@ -446,12 +458,6 @@
     <ClCompile Include="DebuffObject.cpp">
       <Filter>03.GameObject\Effect</Filter>
     </ClCompile>
-    <ClCompile Include="Network\MapData\MapCollide.cpp">
-      <Filter>10.NetworkHelper\MapData</Filter>
-    </ClCompile>
-    <ClCompile Include="Network\MapData\MapData.cpp">
-      <Filter>10.NetworkHelper\MapData</Filter>
-    </ClCompile>
     <ClCompile Include="EffectShaderComponent.cpp">
       <Filter>04.Component\ShaderComponent\EffectShaderComponent</Filter>
     </ClCompile>
@@ -472,6 +478,24 @@
     </ClCompile>
     <ClCompile Include="Projectile.cpp">
       <Filter>03.GameObject\Projectile</Filter>
+    </ClCompile>
+    <ClCompile Include="CharacterEvent.cpp">
+      <Filter>07.Character</Filter>
+    </ClCompile>
+    <ClCompile Include="MapData\MapData.cpp">
+      <Filter>10.Network\MapData</Filter>
+    </ClCompile>
+    <ClCompile Include="MapData\AstarNode\AstarNode.cpp">
+      <Filter>10.Network\MapData</Filter>
+    </ClCompile>
+    <ClCompile Include="MapData\MapCollision\MapCollision.cpp">
+      <Filter>10.Network\MapData</Filter>
+    </ClCompile>
+    <ClCompile Include="MapData\NavMeshQuadTree\NavMeshQuadTree.cpp">
+      <Filter>10.Network\MapData</Filter>
+    </ClCompile>
+    <ClCompile Include="MapData\TriangleMesh\TriangleNavMesh.cpp">
+      <Filter>10.Network\MapData</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

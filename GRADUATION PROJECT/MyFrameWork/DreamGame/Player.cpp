@@ -1,7 +1,9 @@
 #include "stdafx.h"
 #include "Player.h"
 #include "Animation.h"
+#include "Network/NetworkHelper.h"
 
+extern NetworkHelper g_NetworkHelper;
 Player::Player() : Character()
 {
 	m_xmf3RotateAxis = XMFLOAT3(0.0f, -90.0f, 0.0f);
@@ -59,6 +61,22 @@ void Player::VisualizeSkillCoolTime()
 	double ESkillCoolTime = std::chrono::duration_cast<std::chrono::seconds>(m_skillCoolTime[1]).count();
 	if (ESkillCoolTime > DBL_EPSILON)
 		m_pSkillEUI->SetSkillTime(1 - (ESkillDuration / ESkillCoolTime));
+}
+
+void Player::InputFirstSkill()
+{
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[0]);
+	if (m_skillCoolTime[0] > duration) return;
+	g_NetworkHelper.Send_SkillInput_Q();
+}
+
+void Player::InputSecondSkill()
+{
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - m_skillInputTime[1]);
+	if (m_skillCoolTime[1] > duration) return;
+	g_NetworkHelper.Send_SkillInput_E();
 }
 
 void Player::ChangeAnimation(pair<CharacterAnimation, CharacterAnimation> nextAnimation)

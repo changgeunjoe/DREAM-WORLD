@@ -1,131 +1,158 @@
 #pragma once
-#ifdef _DEBUG
+#pragma once
 #include "../PCH/stdafx.h"
-#endif
-#include "../Session/SessionObject/ShootingSessionObject.h"
-#include "../Session/SessionObject/MonsterSessionObject.h"
-#include "../Session/SessionObject/SmallMonsterSessionObject.h"
-#include "../Session/SessionObject/MeteoSessionObject.h"
-#include "../Session/SessionObject/ChracterSessionObject.h"
+#include "../Network/IocpEvent/IocpEventBase.h"
 
-class Room
+struct PacketHeader;
+class UserSession;
+class GameObject;
+class LiveObject;
+class CharacterObject;
+class MonsterObject;
+class BossMonsterObject;
+class SmallMonsterObject;
+class RoomSendEvent;
+class PrevUpdateEvent;
+class ProjectileObject;
+namespace IOCP {
+	class Iocp;
+}
+
+namespace TIMER
+{
+	class EventBase;
+}
+
+class MapData;
+class MonsterMapData;
+class NavMapData;
+class Room : public IOCP::EventBase
 {
 public:
-	Room();
-	Room(const Room& rhs);
+	Room() = delete;
+	Room(std::vector<std::shared_ptr<UserSession>>& userRefVec, std::shared_ptr<MonsterMapData>& mapDataRef, std::shared_ptr<NavMapData>& navMapDataRef);
+	Room(std::shared_ptr<UserSession>& userRef, std::shared_ptr<MonsterMapData>& mapDataRef, std::shared_ptr<NavMapData>& navMapDataRef);
 	~Room();
-public:
-	Room& operator=(Room& rhs);
-private:
-	std::atomic_bool m_isAlive = false;
-	int m_roomId = -1;
-	std::wstring m_roomName;
-	int m_roomOwnerId = -1;// 룸 생성한 자의 ID
-	ROOM_STATE m_roomState = ROOM_STAGE1;
-private:
-	std::chrono::high_resolution_clock::time_point roomStartGameTime;
-	std::atomic_bool m_stageStart = false;
-private:
-	std::atomic_int m_skipNPC_COMMUNICATION = 0;
-	int m_aliveSmallMonster = 15;
-public:
-	void SetRoomId(int roomId);
-	bool IsArriveState() { return m_isAlive; }
-	//Player UserSession
-private:
-	//ingame Player
-	std::mutex m_lockInGamePlayers;
-	std::map<ROLE, int> m_inGamePlayers;
-private:
-	std::map<ROLE, ChracterSessionObject*> m_characterMap;
 
-public:
-	//ingame Player
-	void SendAllPlayerInfo();
-	void InsertInGamePlayer(std::map<ROLE, int>& matchPlayer);
-	void InsertInGamePlayer(ROLE r, int playerId);
-	bool DeleteInGamePlayer(int playerId);
-	std::map<ROLE, int> GetPlayerMap();
-	int GetPlayerNum() { return m_inGamePlayers.size(); }
-	int GetRoomId() { return m_roomId; }
-	//Monster UserSession
+	//IOCP에서 PQGS로 오는 경우 해결 - update, gamestate...(룸에 대한 이벤트)
+	virtual void Execute(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key) override;
+	virtual void Fail(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key) override;
+
+	void Start();
+
+	std::vector<std::shared_ptr<SmallMonsterObject>>& GetSmallMonsters();
+
+	std::vector<std::shared_ptr<CharacterObject>> GetCharacters() const;
+	std::vector<std::shared_ptr<LiveObject>> GetLiveObjects() const;
+
+	std::vector<ROLE> GetConnectedUserRoles();
+	std::vector<ROLE> GetLiveRoles();
+
+	void InsertProjectileObject(std::shared_ptr<ProjectileObject> projectileObject);
+	void UpdateProjectileObject();
+
+	std::shared_ptr<MapData> GetMapData() const;
+	std::shared_ptr<NavMapData> GetBossMapData() const;
+
+	void InsertAftrerUpdateSendEvent(std::shared_ptr<RoomSendEvent> roomEvent);
+	void InsertPrevUpdateEvent(std::shared_ptr<PrevUpdateEvent> prevUpdate);
+
+	void BroadCastPacket(std::shared_ptr<PacketHeader> packetData);
+
+	void MultiCastCastPacket(std::shared_ptr<PacketHeader> packetData, const ROLE& exclusiveRoles);
+	void MultiCastCastPacket(std::shared_ptr<PacketHeader> packetData, const std::vector<ROLE>& exclusiveRoles);
+
+	std::shared_ptr<CharacterObject> GetCharacterObject(const ROLE& role);
+	std::vector <std::shared_ptr<MonsterObject>> GetEnermyData();
+
+	void InitializeAllGameObject();
+
+	void SetBossStage();
+	void InserTimerEvent(std::shared_ptr<TIMER::EventBase> timerEvent);
+
+	void SetBossRoad(std::shared_ptr<std::list<XMFLOAT3>> road);
+	void SetBossAggro(std::shared_ptr<std::list<XMFLOAT3>> road, std::shared_ptr<CharacterObject> characteRef);
+
+	void ForceGameEnd();//이 방 게임 강제로 종료
+
+	void DisconnectUser(std::shared_ptr<UserSession> disconnectedUserRef);
+	bool ReconnectUser(std::shared_ptr<UserSession> reconnectUserRef);
 private:
-	MonsterSessionObject m_boss;
-	SmallMonsterSessionObject m_StageSmallMonster[15];
-	SmallMonsterSessionObject m_BossSmallMonster[15];
-public:
-	void CreateBossMonster();
-	MonsterSessionObject& GetBoss();
+
+	void ProcessAfterUpdateSendEvent();
+	void ProcessPrevUpdateEvent();
+	void InsertTimerEvent(const TIMER_EVENT_TYPE& eventType, const std::chrono::milliseconds& updateTick = std::chrono::milliseconds(50));
+	void Update();
+	void UpdateGameState();
+	void GameStateSend();
+
+	std::vector<std::shared_ptr<UserSession>> GetAllUserSessions();
+
+	void SendGameStateStage();
+	void SendGameStateBoss();
+
+	//PlayerSkill
+	void PlayerHeal();
+	void PlayerApplyShield();
+	void PlayerRemoveShield();
+	void RainArrowAttack();
+
+	void SetRoomEndState();
+
 private:
-	int m_arrowCount = 0;
-	int m_ballCount = 0;
-	std::array<ShootingSessionObject, 10> m_arrows;
-	std::array<ShootingSessionObject, 10> m_balls;
-	Concurrency::concurrent_queue<int> m_restArrow;
-	Concurrency::concurrent_queue<int> m_restBall;
-	std::array< ShootingSessionObject, 3> m_skillarrow;
-	std::array< MeteoSessionObject, 10> m_meteos;
-private:
-	XMFLOAT3 m_skyArrowAttack;
-private:
-	std::chrono::high_resolution_clock::time_point m_meteoTime = std::chrono::high_resolution_clock::now();
-public:
-	void PushRestArrow(int id);
-	void PushRestBall(int id);
-public:
-	void ShootArrow(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 srcPos, float speed, float damage);
-	void ShootBall(DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 srcPos);
-public:
-	void MeleeAttack(ROLE r, DirectX::XMFLOAT3 dir, DirectX::XMFLOAT3 pos, int power);
-public:
-	void ChangeDirectionPlayCharacter(ROLE r, DIRECTION d);
-	void StopMovePlayCharacter(ROLE r, XMFLOAT3& desPosition);
-	void StopMovePlayCharacter(ROLE r);
-	DirectX::XMFLOAT3 GetPositionPlayCharacter(ROLE r);
-	bool AdjustPlayCharacterInfo(ROLE r, DirectX::XMFLOAT3& postion);
-	void RotatePlayCharacter(ROLE r, ROTATE_AXIS axis, float& angle);
-	void StartMovePlayCharacter(ROLE r, DIRECTION d, std::chrono::utc_clock::time_point& recvTime);
-	void SetMouseInputPlayCharacter(ROLE r, bool left, bool right);
-	bool GetLeftAttackPlayCharacter(ROLE r);
-	short GetAttackDamagePlayCharacter(ROLE r);
-	void StartFirstSkillPlayCharacter(ROLE r, XMFLOAT3& dirOrPosition);
-	void StartSecondSkillPlayCharacter(ROLE r, XMFLOAT3& dirOrPosition);
-	void StartAttackPlayCharacter(ROLE r, XMFLOAT3& attackDir, int power);
-public:
-	void StartSkyArrow(XMFLOAT3& position);
-	void ExecuteMageThunder(XMFLOAT3& position);
-	void ExecuteLongSwordAttack(DirectX::XMFLOAT3& dir, DirectX::XMFLOAT3& pos);
-	void ExecuteThreeArrow(DirectX::XMFLOAT3& dir, DirectX::XMFLOAT3& position);
-	void ExecuteHammerAttack(DirectX::XMFLOAT3& dir, XMFLOAT3& pos);
-	void ExecuteSkyArrow();
-public:
-	void GameStart();
-	void BossStageStart();
-	void GameRunningLogic();
-	void GameEnd();
-	void BossFindPlayer();
-	void ChangeBossState();
-	void UpdateGameStateForPlayer_STAGE1();
-	void UpdateSmallMonster();
-	void UpdateGameStateForPlayer_BOSS();
-	void BossAttackExecute();
-	void HealPlayerCharacter();
-	void StartHealPlayerCharacter();
-	void UpdateShieldData();
-	void PutBarrierOnPlayer();
-	void RemoveBarrier();
-public:
-	void SetMeteo();
-	void StartMeteo();
-public:
-	//stage1
-	void Recv_SkipNPC_Communication();
-	void SkipNPC_Communication();
-	void ChangeStageBoss();
-public:
-	ROOM_STATE GetRoomState() { return m_roomState; }
-	SmallMonsterSessionObject* GetStageMonsterArr() { return m_StageSmallMonster; }
-	SmallMonsterSessionObject* GetBossMonsterArr() { return m_BossSmallMonster; }
-	std::map<ROLE, ChracterSessionObject*>& GetPlayCharacters();
-	void ResetRoom();
+	ROOM_STATE m_roomState = ROOM_STATE::ROOM_COMMON;
+	int m_updateCnt;
+
+	//플레이어 id-캐릭터
+	//concurrent_hash_map - insert/erase는 thread safe하지만
+	//순회는 안전하지 않음.
+	//std::unordered_map으로 변경
+	std::unordered_set<std::shared_ptr<UserSession>> m_userSessions;
+	//std::mutex m_userLock;
+	//패킷을 보내는건 2개 이상의 쓰레드에서 하는 경우가 많은데, read만 하는데도 mutex는 안좋은 방법이라고 판단-> read lock으로 변경, 유저가 들어올 때, 나갈때는 write-lock을 할 의도
+	std::shared_mutex m_userSessionsLock;
+	//역할-캐릭터-객체
+	std::unordered_map<ROLE, std::shared_ptr<CharacterObject>> m_characters;
+	//Update를 위한 모든 게임 오브젝트를 담는 vector
+
+	std::vector<std::shared_ptr<SmallMonsterObject>> m_smallMonsters;
+
+	std::shared_ptr<BossMonsterObject> m_bossMonster;
+	std::chrono::high_resolution_clock::time_point m_bossStartTime;
+
+	//투사체는 사라질 수 있으니 list로 처리
+	std::list<std::shared_ptr<ProjectileObject>> m_projectileObjects;
+
+	//0 stage // 1 boss
+	//ROOM_STATE m_applyRoomStateForGameState;
+
+	//MonsterObject m_boss;
+
+	//std::array<10, ShootingObject> m_arrow;
+	//std::array<10, ShootingObject> m_energyBall;
+	std::atomic_bool m_isContinueHeal;
+
+	std::shared_ptr<MonsterMapData> m_stageMapData;
+	std::shared_ptr<NavMapData> m_bossMapData;
+
+	tbb::concurrent_queue<std::shared_ptr<RoomSendEvent>> m_afterUpdateSendEvent;
+	std::atomic_int m_afterUpdateEventCnt = 0;
+	tbb::concurrent_queue<std::shared_ptr<PrevUpdateEvent>> m_prevUpdateEvent;
+	std::atomic_int m_prevUpdateEventCnt = 0;
+
+
+	std::chrono::high_resolution_clock::time_point prevUpdateTime;
 };
+
+
+//
+//void Room::ResetRoom()
+//{
+//	for (auto& character : m_characterMap) {
+//		character.second->SetStage_1Position();
+//	}
+//	m_boss.SetBossStagePosition();
+//	m_roomState = ROOM_STAGE1;
+//	m_isAlive = false;
+//	m_boss.isBossDie = false;
+//}

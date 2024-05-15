@@ -14,7 +14,7 @@ GameSound::GameSound()
 	MakeSound("UISound", "sound/sounds/Click.wav");
 	MakeSound("BossRespawnSound", "sound/sounds/BossRespawnSound.mp3");
 	MakeSound("LightningSound", "sound/sounds/LightningSound.wav");
-	MakeSound("PriestAttackSound", "sound/sounds/PriestAttackSound.wav");
+	MakeSound("MageAttackSound", "sound/sounds/MageAttackSound.wav");
 	MakeSound("AcherAttackSound", "sound/sounds/AcherAttackSound.wav");
 	MakeSound("ArcherESkillSound", "sound/sounds/ArcherEskill.wav");
 	MakeSound("ArcherQSkillSound", "sound/sounds/AcherQSkillSound.wav"); 
@@ -120,7 +120,7 @@ void GameSound::ALLPause()
 	Pause("UISound");
 	Pause("BossRespawnSound");
 	Pause("LightningSound");
-	Pause("PriestAttackSound");
+	Pause("MageAttackSound");
 	Pause("AcherAttackSound");
 	Pause("ArcherESkillSound");
 	Pause("ArcherQSkillSound");

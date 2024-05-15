@@ -224,7 +224,7 @@ void EnergyBall::Reset()
 
 IceLance::IceLance() : Projectile()
 {
-	m_HostRole = ROLE::PRIEST;
+	m_HostRole = ROLE::MAGE;
 	m_fSpeed = 100.0f;
 }
 

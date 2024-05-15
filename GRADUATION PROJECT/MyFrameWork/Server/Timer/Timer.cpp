@@ -1,146 +1,115 @@
 #include "stdafx.h"
 #include "Timer.h"
-#include "../IOCPNetwork/IOCP/IOCPNetwork.h"
-#include "../Logic/Logic.h"
-#include "../Room/RoomManager.h"
-#include "../Session/SessionObject/MonsterSessionObject.h"
+#include "../ThreadManager/ThreadManager.h"
+#include "TimerEventBase.h"
+#include "../Network/IOCP/IOCP.h"
 
-
-extern IOCPNetwork g_iocpNetwork;
-extern Logic g_logic;
-extern RoomManager g_RoomManager;
-
-Timer::Timer()
+bool TIMER::TimerQueueComp(const std::shared_ptr<TIMER::EventBase>& l, const std::shared_ptr<TIMER::EventBase>& r)
 {
-	isRunning = true;
-	m_TimerThread = std::thread{ [&]() {TimerThreadFunc(); } };
+	return *l < *r;
 }
 
-Timer::~Timer()
+TIMER::Timer::Timer() : iocpRef(nullptr),
+m_timerQueue(tbb::concurrent_priority_queue<std::shared_ptr<TIMER::EventBase>, decltype(&TIMER::TimerQueueComp)>(
+	[](const std::shared_ptr<TIMER::EventBase>& l, const std::shared_ptr<TIMER::EventBase>& r) {
+		return TIMER::TimerQueueComp(l, r);
+	}))
 {
-	isRunning = false;
-	if (m_TimerThread.joinable())
-		m_TimerThread.join();
+	spdlog::info("Timer::Timer() - Timer Constructor");
 }
 
-void Timer::TimerThreadFunc()
+TIMER::Timer::~Timer()
 {
-	while (isRunning)
-	{
-		m_TimerQueueLock.lock();
-		if (!m_TimerQueue.empty()) {
-			auto current_time = std::chrono::system_clock::now();
-			TIMER_EVENT ev = m_TimerQueue.top();
-			if (ev.wakeupTime > current_time) {
-				m_TimerQueueLock.unlock();
-				//std::this_thread::sleep_for(std::chrono::milliseconds(1));  // 실행시간이 아직 안되었으므로 잠시 대기
-				std::this_thread::yield();
-				continue;
-			}
-			m_TimerQueue.pop();
-			m_TimerQueueLock.unlock();
-			switch (ev.eventId) {
-			case EV_FIND_PLAYER:
-			{
+	spdlog::info("Timer::~Timer()");
+}
 
-				ExpOver* ov = new ExpOver();
-				ov->m_opCode = OP_FIND_PLAYER;
-				//memcpy(ov->m_buffer, ev.roomId.c_str(), ev.roomId.size());
-				//ov->m_buffer[ev.roomId.size()] = 0;
-				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, ev.targetId, &ov->m_overlap);
-				//if (g_RoomManager.IsExistRunningRoom(ev.roomId)) {
-				//	Room& room = g_RoomManager.GetRunningRoom(ev.roomId);
-				//	/*if (room.GetBoss().isMove) {
-				//		TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::milliseconds(1), ev.roomId, -1,EV_BOSS_MOVE_SEND };
-				//		{
-				//			std::lock_guard<std::mutex> timer_lg{ m_TimerQueueLock };
-				//			m_TimerQueue.push(new_ev);
-				//		}
-				//	}*/
-				//}
+//이전 타이머 코드
+void TIMER::Timer::TimerThreadFunc()
+{
+	while (true) {
+		if (m_timerQueue.empty()) {
+			std::this_thread::yield();
+		}
+		std::shared_ptr<TIMER::EventBase> currentEvent = nullptr;
+		bool isSuccess = m_timerQueue.try_pop(currentEvent);
+		if (!isSuccess) {
+			std::this_thread::yield();
+			continue;
+		}
 
-			}
-			break;
-			case EV_BOSS_STATE:
-			{
-				ExpOver* ov = new ExpOver();
-				ov->m_opCode = OP_BOSS_STATE;
-				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, ev.targetId, &ov->m_overlap);
-			}
-			break;
-			case EV_GAME_STATE_B_SEND:
-			{
-				ExpOver* ov = new ExpOver();
-				ov->m_opCode = OP_GAME_STATE_B_SEND;
-				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, ev.targetId, &ov->m_overlap);
-				//TIMER_EVENT new_ev{ std::chrono::system_clock::now() + std::chrono::milliseconds(500), ev.roomId, -1,EV_GAME_STATE_SEND };
-				//{
-				//	std::lock_guard<std::mutex> timer_lg{ m_TimerQueueLock };
-				//	m_TimerQueue.push(new_ev);
-				//}
-			}
-			break;
-			case EV_GAME_STATE_S_SEND:
-			{
-				ExpOver* ov = new ExpOver();
-				ov->m_opCode = OP_GAME_STATE_S_SEND;
-				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, ev.targetId, &ov->m_overlap);
-			}
-			break;
-			case EV_BOSS_ATTACK:
-			{
-				ExpOver* ov = new ExpOver();
-				ov->m_opCode = OP_BOSS_ATTACK_EXECUTE;
-				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, ev.targetId, &ov->m_overlap);
-			}
-			break;
-			case EV_SM_UPDATE:
-			{
-				ExpOver* ov = new ExpOver();
-				ov->m_opCode = OP_UPDATE_SMALL_MONSTER;
-				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, ev.targetId, &ov->m_overlap);
-			}
-			break;
-			case EV_HEAL:
-			{
-				ExpOver* ov = new ExpOver();
-				ov->m_opCode = OP_PLAYER_HEAL;
-				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, ev.targetId, &ov->m_overlap);
-			}
-			break;
-			case EV_TANKER_SHIELD_START:
-			{
-				ExpOver* ov = new ExpOver();
-				ov->m_opCode = OP_SET_BARRIER;
-				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, ev.targetId, &ov->m_overlap);
-			}
-			break;
-			case EV_SKY_ARROW_ATTACK:
-			{
-				ExpOver* ov = new ExpOver();
-				ov->m_opCode = OP_SKY_ARROW_ATTACK;
-				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, ev.targetId, &ov->m_overlap);
-			}
-			break;
-			case EV_SYNC_TIME:
-			{
-				ExpOver* ov = new ExpOver();
-				ov->m_opCode = OP_SYNC_TIME;
-				PostQueuedCompletionStatus(g_iocpNetwork.GetIocpHandle(), 1, 0, &ov->m_overlap);
-			}
-			break;
-			default: break;
-			}
-			continue;		// 즉시 다음 작업 꺼내기
+		if (currentEvent->IsReady()) {
+			currentEvent->Execute(iocpRef->GetIocpHandle());
 		}
 		else {
-			m_TimerQueueLock.unlock();
-			std::this_thread::yield();
+			m_timerQueue.push(currentEvent);
 		}
 	}
 }
-void Timer::InsertTimerQueue(TIMER_EVENT ev)
+
+//void TIMER::Timer::TimerThreadFunc()
+//{
+//	/*
+//		얼마 남지 않은 타이머 이벤트에 대해서 임시 타이머 큐에 저장
+//		concurrency_priority_queue에 다시 삽입하는거보다는 임시로 저장하고
+//		곧 수행되기 때문에, 다음 수행 때 바로 실행에 가까움
+//		top으로 우선순위 높은 객체 볼 수 있음.
+//	*/
+//	std::priority_queue<std::shared_ptr<TIMER::EventBase>> immediateTimer;
+//	constexpr TIMER::MS PUSH_IMMEDIATE_TIMER_QUEUE_TIME = TIMER::MS(4);//어느정도 시간이 적당할지는 생각해야할듯...
+//	while (true) {
+//		while (!immediateTimer.empty()) {
+//			//임시큐에서 빼지 않고 최우선 타이머 이벤트를 볼 수 있음
+//			auto& immediateTimerEvent = immediateTimer.top();
+//			if (!immediateTimerEvent->IsReady())//즉시 수행 불가능이라면 임시 타이머 큐 객체는 종료
+//				break;
+//			//임시 타이머 객체니 수행 가능
+//			immediateTimerEvent->Execute(iocpRef->GetIocpHandle());
+//			immediateTimer.pop();
+//		}
+//
+//		if (m_timerQueue.empty()) {
+//			//타이머 이벤트 수행할게 없어 다른 쓰레드에 양보
+//			Sleep(1);
+//			//std::this_thread::yield();
+//			continue;
+//		}
+//		while (true) {
+//			std::shared_ptr<TIMER::EventBase> currentEvent = nullptr;
+//			bool isSuccess = m_timerQueue.try_pop(currentEvent);
+//			if (!isSuccess) {//이벤트를 못 가져왔다면 다른 쓰레드에 양보
+//				Sleep(1);
+//				//std::this_thread::yield();
+//				break;
+//			}
+//
+//			if (currentEvent->IsReady()) {//수행할 시간이 됐다면 수행
+//				currentEvent->Execute(iocpRef->GetIocpHandle());
+//				continue;
+//			}
+//			//아니라면 다시 삽입
+//			TIMER::MS restTime = currentEvent->GetRestTimeForReady();
+//			if (restTime <= PUSH_IMMEDIATE_TIMER_QUEUE_TIME)//기준 시간보다 적은 시간이 남았다면, 임시 큐에 삽입
+//				immediateTimer.push(currentEvent);
+//			else m_timerQueue.push(currentEvent);//아니라면 concurrent에 삽입
+//			Sleep(1);
+//			break;
+//		}
+//	}
+//}
+
+void TIMER::Timer::StartTimer()
 {
-	std::lock_guard<std::mutex> timer_lg{ m_TimerQueueLock };
-	m_TimerQueue.push(ev);
+
+	spdlog::info("Timer::StartTimer() - Timer Start");
+	ThreadManager::GetInstance().CreateThread(std::thread([this]() {TimerThreadFunc(); }));
+}
+
+void TIMER::Timer::RegisterIocp(std::shared_ptr<IOCP::Iocp>& iocp)
+{
+	iocpRef = iocp;
+}
+
+void TIMER::Timer::InsertTimerEvent(std::shared_ptr<TIMER::EventBase>& timer)
+{
+	m_timerQueue.push(timer);
 }
