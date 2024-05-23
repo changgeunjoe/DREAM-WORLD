@@ -50,9 +50,6 @@ namespace NavMesh {
 		//넓이 -> 삼각형 위에 한 점이 있는지 판단하려면, 한 점으로 부터 각 삼각형 점까지의 벡터를 구하고, 그 벡터와 삼각형 정점이 갖는 벡터를 외적 / 2했을 때, 삼각형의 넓이와 같음.
 		float m_duobleAreaSize;//계산하기 편하게, 삼각형 널이의 2배를 저장
 
-		XMFLOAT3 m_vector01;//0->1 가는 정점간 벡터
-		XMFLOAT3 m_vector12;//...
-		XMFLOAT3 m_vector20;//...
 	public:
 		//ptr, distance
 		std::unordered_map<std::shared_ptr<TriangleNavMesh>, float> m_relationTriangleMesh;

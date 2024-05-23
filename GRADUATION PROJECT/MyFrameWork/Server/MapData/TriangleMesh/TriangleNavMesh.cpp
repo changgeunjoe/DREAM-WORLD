@@ -9,11 +9,12 @@ NavMesh::TriangleNavMesh::TriangleNavMesh(const int& triangleId, const XMFLOAT3&
 	m_vertexIdxSet.insert(idx3);
 	//무게 중심
 	m_center = Vector3::ScalarProduct(Vector3::Add(m_vertexs[0], Vector3::Add(m_vertexs[1], m_vertexs[2])), 1.0f / 3.0f, false);
-	m_vector01 = Vector3::Subtract(m_vertexs[1], m_vertexs[0]);
-	m_vector12 = Vector3::Subtract(m_vertexs[2], m_vertexs[1]);
-	m_vector20 = Vector3::Subtract(m_vertexs[0], m_vertexs[2]);
+
+	XMFLOAT3 vector01 = Vector3::Subtract(m_vertexs[0], m_vertexs[1]);//1->0 가는 정점간 벡터
+	XMFLOAT3 vector12 = Vector3::Subtract(m_vertexs[2], m_vertexs[1]);//1->2 가는 정점간 벡터
+
 	//넓이는 삼각형 변 두개의 벡터 외적 값 / 2
-	m_duobleAreaSize = Vector3::Length(Vector3::CrossProduct(m_vector01, m_vector12, false));
+	m_duobleAreaSize = Vector3::Length(Vector3::CrossProduct(vector01, vector12, false));
 }
 
 std::pair<bool, float> NavMesh::TriangleNavMesh::IsOnTriangleMesh(const DirectX::XMFLOAT3& position) const

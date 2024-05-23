@@ -534,7 +534,7 @@ void UserSession::SendExecte()
 			currentProcessSendCnt = i;
 			break;
 		}
-		m_sendPacketBuffer.push_back(std::move(currentPacket));
+		m_sendPacketBuffer.push_back(currentPacket);
 	}
 
 	if (0 == currentProcessSendCnt) {

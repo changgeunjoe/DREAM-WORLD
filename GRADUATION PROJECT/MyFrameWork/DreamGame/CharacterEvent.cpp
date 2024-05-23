@@ -29,7 +29,7 @@ bool CharacterEvent::InterpolateEvent::Execute(Character* character, shared_ptr<
 	//	std::cout << "Time Diff bing" << endl;
 	//}
 	float interpolateSize = distance - differentTime * 50.0f;//length - v*t
-
+	interpolateSize = abs(interpolateSize);
 	if (interpolateSize < 2.0f) {
 		interpolateData->SetData(INTERPOLATE_STATE::NON_APPLY);
 	}
@@ -71,12 +71,8 @@ void CharacterEvent::InterpolateData::ProcessEvents(Character* character)
 			currentEventCnt = processCnt;
 			break;
 		}
-		if (processCnt == currentEventCnt - 1) {
-			if (!currentEvent->Execute(character, shared_from_this(), currentTime)) {
-				currentEventCnt = processCnt;
-				DeleteEvent(currentEvent);
-				break;
-			}
+		if (!currentEvent->Execute(character, shared_from_this(), currentTime)) {
+			currentEventCnt = processCnt;
 		}
 		DeleteEvent(currentEvent);
 	}
@@ -116,4 +112,3 @@ std::shared_ptr<CharacterEvent::InterpolateEvent> CharacterEvent::InterpolateDat
 	}
 	return std::make_shared<CharacterEvent::InterpolateEvent>(position, serverTime);
 }
-
