@@ -163,7 +163,7 @@ void Monster::MoveForward(int forwardDirection, float ftimeElapsed)
 
 	if (m_interpolateData->GetInterpolateState() == CharacterEvent::INTERPOLATE_STATE::INTERPOALTE) {
 		auto interpolateData = m_interpolateData->GetInterpolateData();
-		xmf3Position = Vector3::Add(xmf3Position, interpolateData.second, 10.0f * interpolateData.first * ftimeElapsed);
+		xmf3Position = Vector3::Add(xmf3Position, interpolateData.second, 5.0f * ftimeElapsed);
 	}
 	//xmf3Position = Vector3::Add(xmf3Position, m_interpolationVector, 10.0f * m_interpolationDistance * ftimeElapsed);
 	SetPosition(xmf3Position);
@@ -363,7 +363,7 @@ void NormalMonster::Move(float fTimeElapsed)
 
 	if (m_interpolateData->GetInterpolateState() == CharacterEvent::INTERPOLATE_STATE::INTERPOALTE) {
 		auto interpolateData = m_interpolateData->GetInterpolateData();
-		nextPosition = Vector3::Add(nextPosition, interpolateData.second, 10.0f * interpolateData.first * fTimeElapsed);
+		nextPosition = Vector3::Add(nextPosition, interpolateData.second, 5.0f * fTimeElapsed);
 	}
 	GameObject::SetPosition(nextPosition);
 
@@ -441,14 +441,14 @@ void BossSetDestinationPositionEvent::Execute(Monster* monster)
 		monster->m_pSkinnedAnimationController->m_CurrentAnimation = BOSS_ANIMATION::BA_MOVE;
 		monster->m_pSkinnedAnimationController->SetTrackEnable(BOSS_ANIMATION::BA_MOVE, 2);
 	}
-	cout << "Change Boss State: Move" << endl;
+	//cout << "Change Boss State: Move" << endl;
 }
 
 void BossSetAggroPositionEvent::Execute(Monster* monster)
 {
 	monster->m_aggroPosition = aggroPosition;
 	monster->ChangeBossState(BOSS_STATE::MOVE_AGGRO);
-	cout << "Change Boss State: Move_Aggro" << endl;
+	//cout << "Change Boss State: Move_Aggro" << endl;
 }
 
 void BossFireAttackEvent::Execute(Monster* monster)
@@ -496,7 +496,7 @@ void BossPunchAttackEvent::Execute(Monster* monster)
 void BossAttackEventBase::Execute(Monster* monster)
 {
 	monster->ChangeBossState(BOSS_STATE::ATTACK);
-	cout << "Change Boss State: Attack" << endl;
+	//cout << "Change Boss State: Attack" << endl;
 }
 
 void BossDirectionAttackEvent::Execute(Monster* monster)

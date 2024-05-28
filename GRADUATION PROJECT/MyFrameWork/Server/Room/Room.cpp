@@ -29,8 +29,10 @@ Room::Room(std::vector<std::shared_ptr<UserSession>>& userRefVec, std::shared_pt
 	, m_stageMapData(mapDataRef), m_bossMapData(navMapDataRef), prevUpdateTime(std::chrono::high_resolution_clock::now())
 {
 	std::lock_guard<std::shared_mutex> userLockGuard(m_userSessionsLock);
-	for (auto& userRef : userRefVec)
-		m_userSessions.insert(userRef);
+	for (auto& userRef : userRefVec) {
+		if (nullptr != userRef)
+			m_userSessions.insert(userRef);
+	}
 }
 
 Room::Room(std::shared_ptr<UserSession>& userRef, std::shared_ptr<MonsterMapData>& mapDataRef, std::shared_ptr<NavMapData>& navMapDataRef)
@@ -65,29 +67,29 @@ void Room::Execute(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key)
 		if (ROOM_STATE::ROOM_END == m_roomState) return;
 
 		ProcessPrevUpdateEvent();
-		auto currentTime = std::chrono::high_resolution_clock::now();
+		//auto currentTime = std::chrono::high_resolution_clock::now();
 		Update();
 
 		//InsertTimerEvent(TIMER_EVENT_TYPE::EV_SEND_NPC_MOVE, 1ms);
 		//타이머에 우선 넣고 이후 Update()에서 나온 Send이벤트 처리
 		InsertTimerEvent(TIMER_EVENT_TYPE::EV_ROOM_UPDATE, 30ms);
-		auto updateEndTime = std::chrono::high_resolution_clock::now();
+		//auto updateEndTime = std::chrono::high_resolution_clock::now();
 
-		auto UpdateTimeDuration = std::chrono::duration_cast<milliseconds>(updateEndTime - currentTime).count();
-		if (UpdateTimeDuration > 20) {
-			spdlog::warn("Room Update Time: {}ms", UpdateTimeDuration);
-		}
+		//auto UpdateTimeDuration = std::chrono::duration_cast<milliseconds>(updateEndTime - currentTime).count();
+		//if (UpdateTimeDuration > 20) {
+		//	spdlog::warn("Room Update Time: {}ms", UpdateTimeDuration);
+		//}
 
-		auto diffPrevUpdateTime = std::chrono::duration_cast<milliseconds>(currentTime - prevUpdateTime).count();
-		if (diffPrevUpdateTime > MAX_ROOM_TICK) {
-			if (!isPrint) {
-				int roomCnt = RoomManager::GetInstance().globalRoomCnt;
-				spdlog::warn("Room Update Tick: {}ms, Room Cnt: {}", diffPrevUpdateTime, roomCnt);
-				isPrint = true;
-			}
-			//spdlog::warn("Room Update Tick: {}ms", diffPrevUpdateTime);
-		}
-		prevUpdateTime = updateEndTime;
+		//auto diffPrevUpdateTime = std::chrono::duration_cast<milliseconds>(currentTime - prevUpdateTime).count();
+		//if (diffPrevUpdateTime > MAX_ROOM_TICK) {
+		//	if (!isPrint) {
+		//		int roomCnt = RoomManager::GetInstance().globalRoomCnt;
+		//		spdlog::warn("Room Update Tick: {}ms, Room Cnt: {}", diffPrevUpdateTime, roomCnt);
+		//		isPrint = true;
+		//	}
+		//	//spdlog::warn("Room Update Tick: {}ms", diffPrevUpdateTime);
+		//}
+		//prevUpdateTime = updateEndTime;
 		ProcessAfterUpdateSendEvent();
 	}
 	break;
@@ -99,7 +101,7 @@ void Room::Execute(ExpOver* over, const DWORD& ioByte, const ULONG_PTR& key)
 	case IOCP_OP_CODE::OP_GAME_STATE_SEND:
 	{
 		GameStateSend();
-		using namespace std::chrono;	
+		using namespace std::chrono;
 		InsertTimerEvent(TIMER_EVENT_TYPE::EV_SEND_GAME_STATE, 50ms);
 	}
 	break;

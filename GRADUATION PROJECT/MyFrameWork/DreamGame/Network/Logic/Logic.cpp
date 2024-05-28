@@ -557,7 +557,7 @@ void Logic::ProcessPacket(const PacketHeader* packetHeader)
 
 	case SERVER_PACKET::TYPE::NAV_MESH_RENDER:
 	{
-		cout << "Recv Nav Mesh Render" << endl;
+		//cout << "Recv Nav Mesh Render" << endl;
 		const SERVER_PACKET::TestNavMeshRenderPacket* recvPacket = reinterpret_cast<const SERVER_PACKET::TestNavMeshRenderPacket*>(packetHeader);
 		std::vector<int> nodeIdx;
 		nodeIdx.reserve(recvPacket->nodeSize);

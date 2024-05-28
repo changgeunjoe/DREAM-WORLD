@@ -335,7 +335,7 @@ namespace SERVER_PACKET {
 		float angle;
 		RotatePacket(const char& type = static_cast<char>(TYPE::ROTATE)) : PacketHeader(type, sizeof(RotatePacket)) {}
 		RotatePacket(const ROLE& role, const ROTATE_AXIS& axis, const float& angle, const char& type = static_cast<char>(TYPE::ROTATE))
-			: PacketHeader(type, sizeof(RotatePacket)), role(role), angle(angle)
+			: PacketHeader(type, sizeof(RotatePacket)), role(role), angle(angle), axis(axis)
 		{}
 	};
 

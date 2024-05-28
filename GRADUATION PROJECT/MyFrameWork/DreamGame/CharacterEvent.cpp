@@ -35,9 +35,9 @@ bool CharacterEvent::InterpolateEvent::Execute(Character* character, shared_ptr<
 	}
 	else if (interpolateSize > 8.0f) {
 		interpolateData->SetData(INTERPOLATE_STATE::SET_POSITION, m_position);
-		std::cout << "Server PositionSetPosition, differentTime: " << endl;
-		std::cout << "client Position: " << characterPosition.x << ", " << characterPosition.y << ", " << characterPosition.z << endl;
-		std::cout << "server Position: " << m_position.x << ", " << m_position.y << ", " << m_position.z << endl;
+		//std::cout << "Server PositionSetPosition, differentTime: " << endl;
+		//std::cout << "client Position: " << characterPosition.x << ", " << characterPosition.y << ", " << characterPosition.z << endl;
+		//std::cout << "server Position: " << m_position.x << ", " << m_position.y << ", " << m_position.z << endl;
 
 	}
 	else {

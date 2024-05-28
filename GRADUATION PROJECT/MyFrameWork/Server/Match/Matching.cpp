@@ -5,9 +5,9 @@
 #include "../Room/RoomManager.h"
 #include "../Room/Room.h"
 
-//#define ALONE_TEST
+#define ALONE_TEST
 //테스트할 때, 한 게임당 들어올 인원 수
-//#define TEST_MODE_PEOPLE 3
+#define TEST_MODE_PEOPLE 2
 
 void Matching::InserMatch(std::shared_ptr<UserSession>& userRef, const ROLE& role)
 {
@@ -69,7 +69,8 @@ void Matching::MatchFunc()
 		static_cast<BYTE>(ROLE::TANKER) |
 		static_cast<BYTE>(ROLE::ARCHER);
 
-	std::vector<std::shared_ptr<UserSession>> userRefVec(4);
+	std::vector<std::shared_ptr<UserSession>> userRefVec;
+	userRefVec.reserve(4);
 	while (true) {
 		BYTE matchState = 0;
 		int currentMatchedUserCnt = 0;
@@ -109,34 +110,45 @@ void Matching::MatchFunc()
 #ifdef TEST_MODE_PEOPLE
 		if (TEST_MODE_PEOPLE == currentMatchedUserCnt) {
 			if (nullptr != warriorUserRef) {
-				warriorUserRef->SetRole(ROLE::WARRIOR);
+				warriorUserRef->SetIngameRole(ROLE::WARRIOR);
 				m_lastWarriorUser.reset();
 			}
 			if (nullptr != mageUserRef) {
-				mageUserRef->SetRole(ROLE::MAGE);
+				mageUserRef->SetIngameRole(ROLE::MAGE);
 				m_lastMageUser.reset();
 			}
 			if (nullptr != tankerUserRef) {
-				tankerUserRef->SetRole(ROLE::TANKER);
+				tankerUserRef->SetIngameRole(ROLE::TANKER);
 				m_lastTankerUser.reset();
 			}
 			if (nullptr != archerUserRef) {
-				archerUserRef->SetRole(ROLE::ARCHER);
+				archerUserRef->SetIngameRole(ROLE::ARCHER);
 				m_lastArcherUser.reset();
 			}
 
 			auto roomRef = RoomManager::GetInstance().MakeRunningRoom(userRefVec);
 			roomRef->InitializeAllGameObject();
 			for (auto& userRef : userRefVec) {
-				userRef->SetIngameRef(roomRef, roomRef->GetCharacterObject(userRef->GetRole()));
+				if (nullptr != userRef)
+					userRef->SetIngameRef(roomRef, roomRef->GetCharacterObject(userRef->GetIngameRole()));
 			}
 			roomRef->Start();
 
 			userRefVec.clear();
 		}
-		continue;
-#endif // TEST_MODE_PEOPLE
-
+		else {
+			if (nullptr != warriorUserRef)
+				m_lastWarriorUser = warriorUserRef;
+			if (nullptr != mageUserRef)
+				m_lastMageUser = mageUserRef;
+			if (nullptr != tankerUserRef)
+				m_lastTankerUser = tankerUserRef;
+			if (nullptr != archerUserRef)
+				m_lastArcherUser = archerUserRef;
+			userRefVec.clear();
+			std::this_thread::yield();
+		}
+#else
 		if ((matchSuccessCondition & matchState) == matchSuccessCondition) {
 			//match Success
 			warriorUserRef->SetIngameRole(ROLE::WARRIOR);
@@ -163,6 +175,7 @@ void Matching::MatchFunc()
 			userRefVec.clear();
 			std::this_thread::yield();
 		}
+#endif // TEST_MODE_PEOPLE
 	}
 }
 

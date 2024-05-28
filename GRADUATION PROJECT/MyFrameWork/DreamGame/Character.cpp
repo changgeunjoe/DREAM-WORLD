@@ -116,7 +116,7 @@ void Character::MoveForward(int forwardDirection, float ftimeElapsed)
 
 	if (m_interpolateData->GetInterpolateState() == CharacterEvent::INTERPOLATE_STATE::INTERPOALTE) {
 		auto interpolateData = m_interpolateData->GetInterpolateData();
-		nextPosition = Vector3::Add(nextPosition, interpolateData.second, 10.0f * interpolateData.first * ftimeElapsed);
+		nextPosition = Vector3::Add(nextPosition, interpolateData.second, 5.0f * ftimeElapsed);
 	}
 	/*cout << "currentPosition - x: " << nextPosition.x << ", y: " << nextPosition.y
 		<< ". z: " << nextPosition.z << endl;
@@ -161,7 +161,7 @@ void Character::MoveStrafe(int rightDirection, float ftimeElapsed)
 
 	if (m_interpolateData->GetInterpolateState() == CharacterEvent::INTERPOLATE_STATE::INTERPOALTE) {
 		auto interpolateData = m_interpolateData->GetInterpolateData();
-		nextPosition = Vector3::Add(nextPosition, interpolateData.second, 10.0f * interpolateData.first * ftimeElapsed);
+		nextPosition = Vector3::Add(nextPosition, interpolateData.second, 5.0f * ftimeElapsed);
 	}
 	/*cout << "currentPosition - x: " << nextPosition.x << ", y: " << nextPosition.y
 		<< ". z: " << nextPosition.z << endl;
@@ -210,7 +210,7 @@ void Character::MoveDiagonal(int fowardDirection, int rightDirection, float ftim
 
 	if (m_interpolateData->GetInterpolateState() == CharacterEvent::INTERPOLATE_STATE::INTERPOALTE) {
 		auto interpolateData = m_interpolateData->GetInterpolateData();
-		nextPosition = Vector3::Add(nextPosition, interpolateData.second, 10.0f * interpolateData.first * ftimeElapsed);
+		nextPosition = Vector3::Add(nextPosition, interpolateData.second, 5.0f * ftimeElapsed);
 	}
 	/*cout << "currentPosition - x: " << nextPosition.x << ", y: " << nextPosition.y
 		<< ". z: " << nextPosition.z << endl;
