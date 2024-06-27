@@ -4,16 +4,14 @@
 #include "TimerEventBase.h"
 #include "../Network/IOCP/IOCP.h"
 
-bool TIMER::TimerQueueComp(const std::shared_ptr<TIMER::EventBase>& l, const std::shared_ptr<TIMER::EventBase>& r)
+bool TIMER::TimerQueueComp::operator()(const std::shared_ptr<TIMER::EventBase>& l, const std::shared_ptr<TIMER::EventBase>& r)
 {
+	//어차피 타이머 이벤트 내부에서 오퍼레이팅했음
 	return *l < *r;
 }
 
-TIMER::Timer::Timer() : iocpRef(nullptr),
-m_timerQueue(tbb::concurrent_priority_queue<std::shared_ptr<TIMER::EventBase>, decltype(&TIMER::TimerQueueComp)>(
-	[](const std::shared_ptr<TIMER::EventBase>& l, const std::shared_ptr<TIMER::EventBase>& r) {
-		return TIMER::TimerQueueComp(l, r);
-	}))
+TIMER::Timer::Timer() : iocpRef(nullptr)
+//m_timerQueue(tbb::concurrent_priority_queue<std::shared_ptr<TIMER::EventBase>, decltype(&TIMER::TimerQueueComp)>(&TIMER::TimerQueueComp))
 {
 	spdlog::info("Timer::Timer() - Timer Constructor");
 }
@@ -23,25 +21,25 @@ TIMER::Timer::~Timer()
 	spdlog::info("Timer::~Timer()");
 }
 
-//이전 타이머 코드
-void TIMER::Timer::TimerThreadFunc()
+이전 타이머 코드
+void timer::timer::timerthreadfunc()
 {
 	while (true) {
-		if (m_timerQueue.empty()) {
+		if (m_timerqueue.empty()) {
 			std::this_thread::yield();
 		}
-		std::shared_ptr<TIMER::EventBase> currentEvent = nullptr;
-		bool isSuccess = m_timerQueue.try_pop(currentEvent);
-		if (!isSuccess) {
+		std::shared_ptr<timer::eventbase> currentevent = nullptr;
+		bool issuccess = m_timerqueue.try_pop(currentevent);
+		if (!issuccess) {
 			std::this_thread::yield();
 			continue;
 		}
 
-		if (currentEvent->IsReady()) {
-			currentEvent->Execute(iocpRef->GetIocpHandle());
+		if (currentevent->isready()) {
+			currentevent->execute(iocpref->getiocphandle());
 		}
 		else {
-			m_timerQueue.push(currentEvent);
+			m_timerqueue.push(currentevent);
 		}
 	}
 }
@@ -54,7 +52,7 @@ void TIMER::Timer::TimerThreadFunc()
 //		곧 수행되기 때문에, 다음 수행 때 바로 실행에 가까움
 //		top으로 우선순위 높은 객체 볼 수 있음.
 //	*/
-//	std::priority_queue<std::shared_ptr<TIMER::EventBase>> immediateTimer;
+//	std::priority_queue<std::shared_ptr<TIMER::EventBase>, std::vector<std::shared_ptr<TIMER::EventBase>>, TimerQueueComp> immediateTimer;
 //	constexpr TIMER::MS PUSH_IMMEDIATE_TIMER_QUEUE_TIME = TIMER::MS(4);//어느정도 시간이 적당할지는 생각해야할듯...
 //	while (true) {
 //		while (!immediateTimer.empty()) {
@@ -69,16 +67,15 @@ void TIMER::Timer::TimerThreadFunc()
 //
 //		if (m_timerQueue.empty()) {
 //			//타이머 이벤트 수행할게 없어 다른 쓰레드에 양보
-//			Sleep(1);
-//			//std::this_thread::yield();
+//			std::this_thread::yield();
 //			continue;
 //		}
 //		while (true) {
 //			std::shared_ptr<TIMER::EventBase> currentEvent = nullptr;
 //			bool isSuccess = m_timerQueue.try_pop(currentEvent);
 //			if (!isSuccess) {//이벤트를 못 가져왔다면 다른 쓰레드에 양보
-//				Sleep(1);
-//				//std::this_thread::yield();
+//				//Sleep(1);
+//				std::this_thread::yield();
 //				break;
 //			}
 //

@@ -20,6 +20,10 @@ void IOCP::ListenEvent::Execute(ExpOver* over, const DWORD& ioByte, const ULONG_
 		//m_connInfo로 remote 주소 정보 확인 가능
 
 		spdlog::debug("IOCP::ListenEvent::Execute() - OP_ACCEPT, key: {}", key);
+		SOCKADDR_IN remoteInfo;
+		memcpy(&remoteInfo, m_connInfo.remoteInfo, sizeof(SOCKADDR_IN));
+		unsigned short remotePort2 = ntohs(remoteInfo.sin_port);
+		spdlog::critical("port: {}", (unsigned short)remotePort2);
 		UserManager::GetInstance().RegistPlayer(m_clientSocket);
 		//새로운 클라이언트를 받기 위해 다시 Accept호출
 	}
