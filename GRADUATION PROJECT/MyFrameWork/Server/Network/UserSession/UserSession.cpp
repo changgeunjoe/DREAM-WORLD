@@ -219,6 +219,8 @@ void UserSession::ExecutePacket(const PacketHeader* packetHeader)
 	case CLIENT_PACKET::TYPE::LOGIN:
 	{
 		const CLIENT_PACKET::LoginPacket* recvPacket = reinterpret_cast<const CLIENT_PACKET::LoginPacket*>(packetHeader);
+		DoSend(std::make_shared<SERVER_PACKET::LoginPacket>());
+		return;
 		std::string id = recvPacket->id;
 		if (std::string::npos != id.find("module", 0)) {
 			DoSend(std::make_shared<SERVER_PACKET::LoginPacket>());

@@ -7,7 +7,7 @@
 
 #define ALONE_TEST
 //테스트할 때, 한 게임당 들어올 인원 수
-#define TEST_MODE_PEOPLE 2
+//#define TEST_MODE_PEOPLE 2
 
 void Matching::InserMatch(std::shared_ptr<UserSession>& userRef, const ROLE& role)
 {
