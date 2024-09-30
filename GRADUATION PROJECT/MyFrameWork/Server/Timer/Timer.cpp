@@ -21,25 +21,25 @@ TIMER::Timer::~Timer()
 	spdlog::info("Timer::~Timer()");
 }
 
-이전 타이머 코드
-void timer::timer::timerthreadfunc()
+//이전 타이머 코드
+void TIMER::Timer::TimerThreadFunc()
 {
 	while (true) {
-		if (m_timerqueue.empty()) {
+		if (m_timerQueue.empty()) {
 			std::this_thread::yield();
 		}
-		std::shared_ptr<timer::eventbase> currentevent = nullptr;
-		bool issuccess = m_timerqueue.try_pop(currentevent);
-		if (!issuccess) {
+		std::shared_ptr<TIMER::EventBase> currentEvent = nullptr;
+		bool isSuccess = m_timerQueue.try_pop(currentEvent);
+		if (!isSuccess) {
 			std::this_thread::yield();
 			continue;
 		}
 
-		if (currentevent->isready()) {
-			currentevent->execute(iocpref->getiocphandle());
+		if (currentEvent->IsReady()) {
+			currentEvent->Execute(iocpRef->GetIocpHandle());
 		}
 		else {
-			m_timerqueue.push(currentevent);
+			m_timerQueue.push(currentEvent);
 		}
 	}
 }
